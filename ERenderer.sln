@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "D3D11Basic", "D3D11Basic", "{CA6219F3-92E9-4844-B1A3-6F0D8A448533}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Renderer", "Renderer", "{759AE4D6-2F62-4D08-BB75-33F8BD164436}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Demo", "Demo", "{A3705B27-5ED8-43B8-9254-650842C1350C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Nvidia", "Nvidia", "{D7C0F47D-CFE5-4C42-B6D2-A53E5599AEE2}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "D3DUtil", "D3D11Basic\D3DUtil\D3DUtil.vcxproj", "{61DB1465-533C-45F5-9D1D-884C2A82E7E0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{61DB1465-533C-45F5-9D1D-884C2A82E7E0}.Debug|x64.ActiveCfg = Debug|x64
+		{61DB1465-533C-45F5-9D1D-884C2A82E7E0}.Debug|x64.Build.0 = Debug|x64
+		{61DB1465-533C-45F5-9D1D-884C2A82E7E0}.Debug|x86.ActiveCfg = Debug|Win32
+		{61DB1465-533C-45F5-9D1D-884C2A82E7E0}.Debug|x86.Build.0 = Debug|Win32
+		{61DB1465-533C-45F5-9D1D-884C2A82E7E0}.Release|x64.ActiveCfg = Release|x64
+		{61DB1465-533C-45F5-9D1D-884C2A82E7E0}.Release|x64.Build.0 = Release|x64
+		{61DB1465-533C-45F5-9D1D-884C2A82E7E0}.Release|x86.ActiveCfg = Release|Win32
+		{61DB1465-533C-45F5-9D1D-884C2A82E7E0}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D7C0F47D-CFE5-4C42-B6D2-A53E5599AEE2} = {A3705B27-5ED8-43B8-9254-650842C1350C}
+		{61DB1465-533C-45F5-9D1D-884C2A82E7E0} = {CA6219F3-92E9-4844-B1A3-6F0D8A448533}
+	EndGlobalSection
+EndGlobal
