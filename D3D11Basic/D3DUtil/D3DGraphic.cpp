@@ -182,7 +182,7 @@ void D3DGraphic::CompileShaderFile(ID3DBlob** ppRes, char* pFileName, char* pEnt
 	if (file.good())
 	{
 		file.seekg(std::ios::end);
-		size_t fileSize = file.tellg();
+		size_t fileSize = (size_t)file.tellg();
 
 		char* pData = new char[fileSize]();
 		file.seekg(std::ios::beg);
@@ -227,4 +227,131 @@ void D3DGraphic::CreatePixelShader(ID3D11PixelShader** ppPS, char* pFileName, ch
 	CompileShaderFile(&pRes, pFileName, pEntryPoint, "ps_5_0");
 	HRCheck(m_D3DDevice->CreatePixelShader(pRes->GetBufferPointer(), pRes->GetBufferSize(), nullptr, ppPS));
 	SafeRelease(pRes);
+}
+
+void D3DGraphic::CreateRasterizerState(ID3D11RasterizerState** ppRasterizerState, D3D11_FILL_MODE fillMode, D3D11_CULL_MODE cullMode, bool cw, bool depthClip)
+{
+	assert(ppRasterizerState);
+
+	D3D11_RASTERIZER_DESC rsDesc;
+	memset(&rsDesc, 0, sizeof(D3D11_RASTERIZER_DESC));
+	rsDesc.FillMode = fillMode;
+	rsDesc.CullMode = cullMode;
+	rsDesc.FrontCounterClockwise = cw;
+	rsDesc.DepthClipEnable = depthClip;
+
+	HRCheck(m_D3DDevice->CreateRasterizerState(&rsDesc, ppRasterizerState));
+}
+
+void D3DGraphic::CreateInputLayout(ID3D11InputLayout** ppInputLayout, D3D11_INPUT_ELEMENT_DESC* pInputElement, uint32_t size, ID3DBlob* pRes)
+{
+	assert(ppInputLayout && pInputElement && (size > 0U) && pRes);
+
+	HRCheck(m_D3DDevice->CreateInputLayout(pInputElement, size, pRes->GetBufferPointer(), pRes->GetBufferSize(), ppInputLayout));
+}
+
+void D3DGraphic::ClearRenderTargetView(ID3D11RenderTargetView* pRenderTarget, float* pClearColor)
+{
+	assert(pRenderTarget);
+
+	float darkBlue[] = { 0.0f, 0.125f, 0.3f, 1.0f };
+	pClearColor = (nullptr == pClearColor ? darkBlue : pClearColor);
+
+	m_D3DContext->ClearRenderTargetView(pRenderTarget, pClearColor);
+}
+
+void D3DGraphic::ClearDepthStencilView(ID3D11DepthStencilView* pDepthStencil, float depth, uint8_t stencil)
+{
+	assert(pDepthStencil);
+
+	m_D3DContext->ClearDepthStencilView(pDepthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depth, stencil);
+}
+
+void D3DGraphic::ResizeBackBuffer(uint32_t width, uint32_t height)
+{
+
+}
+
+inline void D3DGraphic::SetVertexBuffer(ID3D11Buffer* pBuffer, uint32_t stride, uint32_t offset, uint32_t index)
+{
+
+}
+
+inline void D3DGraphic::SetIndexBuffer(ID3D11Buffer* pBuffer, DXGI_FORMAT format, uint32_t offset)
+{
+
+}
+
+inline void D3DGraphic::SetInputLayout(ID3D11InputLayout* pInputLayout)
+{
+
+}
+
+inline void D3DGraphic::SetRenderTargetView(ID3D11RenderTargetView* pRenderTarget)
+{
+
+}
+
+inline void D3DGraphic::SetDepthStencilView(ID3D11DepthStencilView* pDepthStencil)
+{
+
+}
+
+inline void D3DGraphic::SetViewports(D3D11_VIEWPORT* pViewports)
+{
+
+}
+
+inline void D3DGraphic::SetRasterizerState(ID3D11RasterizerState* pRasterizerState)
+{
+
+}
+
+inline void D3DGraphic::SetDepthStencilState(ID3D11DepthStencilState* pDepthStencilState)
+{
+
+}
+
+inline void D3DGraphic::SetBlendState(ID3D11BlendState* pBlendState, float* pBlendFactor, uint32_t mask)
+{
+
+}
+
+inline void D3DGraphic::SetVertexShader(ID3D11VertexShader* pVertexShader)
+{
+
+}
+
+inline void D3DGraphic::SetPixelShader(ID3D11PixelShader* pPixelShader)
+{
+
+}
+
+inline void D3DGraphic::SetConstantBuffer(Ref<ID3D11Buffer>& pConstantBuf, uint32_t slot, eD3DShaderType shaderType)
+{
+
+}
+
+void D3DGraphic::UpdateConstantBuffer(ID3D11Resource* pTarget, const void* pSource, uint32_t size)
+{
+
+}
+
+void D3DGraphic::Draw(uint32_t vertexCount, uint32_t startIndex, D3D_PRIMITIVE_TOPOLOGY prim)
+{
+	FlushPipeLineState();
+
+	m_D3DContext->Draw(vertexCount, startIndex);
+}
+
+void D3DGraphic::DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, D3D_PRIMITIVE_TOPOLOGY prim)
+{
+	FlushPipeLineState();
+
+	m_D3DContext->DrawIndexed(indexCount, startIndex, offset);
+}
+
+void D3DGraphic::FlushPipeLineState()
+{
+
 }

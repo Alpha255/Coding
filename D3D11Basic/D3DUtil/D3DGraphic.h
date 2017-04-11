@@ -32,6 +32,12 @@ public:
 		eRTShader
 	};
 
+	enum eD3DShaderType
+	{
+		eSTVertexShader,
+		eSTPixelShader
+	};
+
 	static void CreateInstance(void) { if (nullptr == m_sInstance) { m_sInstance = new D3DGraphic(); assert(m_sInstance); } }
 	static D3DGraphic* GetInstance(void) { return m_sInstance; }
 	static void DestoryInstance(void) { SafeDelete(m_sInstance); }
@@ -53,6 +59,34 @@ public:
 	void CreateVertexShader(__out ID3D11VertexShader** ppVS, char* pFileName, char* pEntryPoint);
 	void CreatePixelShader(__out ID3D11PixelShader** ppPS, char* pFileName, char* pEntryPoint);
 
+	void CreateInputLayout(__out ID3D11InputLayout** ppInputLayout, D3D11_INPUT_ELEMENT_DESC* pInputElement, uint32_t size, ID3DBlob* pRes);
+
+	void CreateRasterizerState(__out ID3D11RasterizerState** ppRasterizerState, D3D11_FILL_MODE fillMode, D3D11_CULL_MODE cullMode = D3D11_CULL_BACK, bool cw = false, bool depthClip = true);
+
+	void ClearRenderTargetView(ID3D11RenderTargetView* pRenderTarget, float* pClearColor);
+	void ClearDepthStencilView(ID3D11DepthStencilView* pDepthStencil, float depth, uint8_t stencil);
+
+	void ResizeBackBuffer(uint32_t width, uint32_t height);
+
+	inline void SetVertexBuffer(ID3D11Buffer* pBuffer, uint32_t stride, uint32_t offset, uint32_t index = 0U);
+	inline void SetIndexBuffer(ID3D11Buffer* pBuffer, DXGI_FORMAT format, uint32_t offset = 0U);
+	inline void SetInputLayout(ID3D11InputLayout* pInputLayout);
+	inline void SetRenderTargetView(ID3D11RenderTargetView* pRenderTarget);
+	inline void SetDepthStencilView(ID3D11DepthStencilView* pDepthStencil);
+	inline void SetViewports(D3D11_VIEWPORT* pViewports);
+	inline void SetRasterizerState(ID3D11RasterizerState* pRasterizerState);
+	inline void SetDepthStencilState(ID3D11DepthStencilState* pDepthStencilState);
+	inline void SetBlendState(ID3D11BlendState* pBlendState, float* pBlendFactor, uint32_t mask);
+	inline void SetVertexShader(ID3D11VertexShader* pVertexShader);
+	inline void SetPixelShader(ID3D11PixelShader* pPixelShader);
+	inline void SetConstantBuffer(Ref<ID3D11Buffer>& pConstantBuf, uint32_t slot, eD3DShaderType shaderType);
+
+	void UpdateConstantBuffer(ID3D11Resource* pTarget, const void* pSource, uint32_t size);
+
+	void Draw(uint32_t vertexCount, uint32_t startIndex, D3D_PRIMITIVE_TOPOLOGY prim = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	void DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, D3D_PRIMITIVE_TOPOLOGY prim = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	void FlushPipeLineState();
 protected:
 	D3DGraphic();
 	D3DGraphic(const D3DGraphic&) {}
