@@ -297,6 +297,14 @@ void D3DGraphic::ResizeBackBuffer(uint32_t width, uint32_t height)
 		}
 		CreateDepthStencil(m_DefaultDepthStencil.GetReference(), DXGI_FORMAT_D24_UNORM_S8_UINT, width, height);
 		SetDepthStencil(m_DefaultDepthStencil.GetPtr());
+
+		/// Reset viewport
+		D3D11_VIEWPORT viewport;
+		viewport.Width = (float)width;
+		viewport.Height = (float)height;
+		viewport.TopLeftX = viewport.TopLeftY = 0.0f;
+		viewport.MinDepth = viewport.MaxDepth = 0.0f;
+		SetViewports(&viewport);
 	}
 }
 

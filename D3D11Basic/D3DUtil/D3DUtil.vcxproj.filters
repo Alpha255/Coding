@@ -6,10 +6,30 @@
     <ClInclude Include="D3DGraphic.h" />
     <ClInclude Include="IApplication.h" />
     <ClInclude Include="Math.h" />
+    <ClInclude Include="resource.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IApplication.cpp" />
     <ClCompile Include="D3DGraphic.cpp" />
     <ClCompile Include="Math.cpp" />
+    <ClCompile Include="Timer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Resource">
+      <UniqueIdentifier>{e02ebe4f-c838-4bc5-b4a5-7cfe7b973db3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="D3DUtil.rc">
+      <Filter>Resource</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Resource\directx.ico">
+      <Filter>Resource</Filter>
+    </Image>
   </ItemGroup>
 </Project>
