@@ -5,8 +5,8 @@ D3DGraphic* D3DGraphic::m_sInstance = nullptr;
 
 D3DGraphic::D3DGraphic()
 {
-	memset(&m_D3DPipeLineState, 0, sizeof(D3DPipelineState));
-	memset(&m_FlushState, 0, sizeof(bool) * eFSCount);
+	memset(&m_D3DPipelineState, 0, sizeof(D3DPipelineState));
+	memset(&m_FlushState, 1, sizeof(bool) * eFSCount);
 	memset(&m_SwapChainDesc, 0, sizeof(DXGI_SWAP_CHAIN_DESC));
 }
 
@@ -31,7 +31,7 @@ void D3DGraphic::CreateTexture2D(ID3D11Texture2D** ppTexture, DXGI_FORMAT fmt, u
 	HRCheck(m_D3DDevice->CreateTexture2D(&texDesc, nullptr, ppTexture));
 }
 
-void D3DGraphic::CreateDepthStencilView(ID3D11DepthStencilView** ppDSV, DXGI_FORMAT fmt, uint32_t width, uint32_t height)
+void D3DGraphic::CreateDepthStencil(ID3D11DepthStencilView** ppDSV, DXGI_FORMAT fmt, uint32_t width, uint32_t height)
 {
 	assert(ppDSV);
 	assert(width > 0U);
@@ -93,16 +93,16 @@ void D3DGraphic::InitD3DEnvironment(HWND hWnd, uint32_t width, uint32_t height, 
 			ARRAYSIZE(featureLevels), 
 			D3D11_SDK_VERSION,
 			&m_SwapChainDesc, 
-			m_SwapChain.GetResource(), 
-			m_D3DDevice.GetResource(),
+			m_SwapChain.GetReference(),
+			m_D3DDevice.GetReference(),
 			nullptr, 
-			m_D3DContext.GetResource())))
+			m_D3DContext.GetReference())))
 		{
 			/// Create Back Buffer 
 			RecreateBackBuffer();
 
 			/// Create Depth Stencil View
-			CreateDepthStencilView(m_DefaultDepthStencilView.GetResource(), DXGI_FORMAT_D24_UNORM_S8_UINT, width, height);
+			CreateDepthStencil(m_DefaultDepthStencil.GetReference(), DXGI_FORMAT_D24_UNORM_S8_UINT, width, height);
 
 			break;
 		}
@@ -115,6 +115,8 @@ void D3DGraphic::CreateShaderResourceView(ID3D11ShaderResourceView** ppSRV, char
 {
 	assert(ppSRV);
 	assert(pFileName);
+	
+	assert(!"Unsupport yet!!!");
 }
 
 void D3DGraphic::CreateStreamBuffer(ID3D11Buffer** ppBuffer, D3D11_BIND_FLAG bindFlag, uint32_t byteWidth, 
@@ -250,7 +252,7 @@ void D3DGraphic::CreateInputLayout(ID3D11InputLayout** ppInputLayout, D3D11_INPU
 	HRCheck(m_D3DDevice->CreateInputLayout(pInputElement, size, pRes->GetBufferPointer(), pRes->GetBufferSize(), ppInputLayout));
 }
 
-void D3DGraphic::ClearRenderTargetView(ID3D11RenderTargetView* pRenderTarget, float* pClearColor)
+void D3DGraphic::ClearRenderTarget(ID3D11RenderTargetView* pRenderTarget, float* pClearColor)
 {
 	assert(pRenderTarget);
 
@@ -260,7 +262,7 @@ void D3DGraphic::ClearRenderTargetView(ID3D11RenderTargetView* pRenderTarget, fl
 	m_D3DContext->ClearRenderTargetView(pRenderTarget, pClearColor);
 }
 
-void D3DGraphic::ClearDepthStencilView(ID3D11DepthStencilView* pDepthStencil, float depth, uint8_t stencil)
+void D3DGraphic::ClearDepthStencil(ID3D11DepthStencilView* pDepthStencil, float depth, uint8_t stencil)
 {
 	assert(pDepthStencil);
 
@@ -269,89 +271,297 @@ void D3DGraphic::ClearDepthStencilView(ID3D11DepthStencilView* pDepthStencil, fl
 
 void D3DGraphic::ResizeBackBuffer(uint32_t width, uint32_t height)
 {
+	if (!m_SwapChain.IsValid())
+	{
+		return;
+	}
 
+	assert((width > 0U) && (height > 0U));
+
+	if (width != m_SwapChainDesc.BufferDesc.Width || height != m_SwapChainDesc.BufferDesc.Height)
+	{
+		m_SwapChainDesc.BufferDesc.Width = width;
+		m_SwapChainDesc.BufferDesc.Height = height;
+
+		if (m_DefaultRenderTarget.IsValid())
+		{
+			m_DefaultRenderTarget->Release();
+		}
+		m_SwapChain->ResizeBuffers(m_SwapChainDesc.BufferCount, width, height, m_SwapChainDesc.BufferDesc.Format, m_SwapChainDesc.Flags);
+		RecreateBackBuffer();
+		SetRenderTarget(m_DefaultRenderTarget.GetPtr());
+
+		if (m_DefaultDepthStencil.IsValid())
+		{
+			m_DefaultDepthStencil->Release();
+		}
+		CreateDepthStencil(m_DefaultDepthStencil.GetReference(), DXGI_FORMAT_D24_UNORM_S8_UINT, width, height);
+		SetDepthStencil(m_DefaultDepthStencil.GetPtr());
+	}
 }
 
 inline void D3DGraphic::SetVertexBuffer(ID3D11Buffer* pBuffer, uint32_t stride, uint32_t offset, uint32_t index)
 {
+	assert(index <= eCTVertexStream);
 
+	if (m_D3DPipelineState.VertexBuffer.Buffers[index] != pBuffer ||
+		m_D3DPipelineState.VertexBuffer.Stride[index] != stride ||
+		m_D3DPipelineState.VertexBuffer.Offset[index] != offset)
+	{
+		m_D3DPipelineState.VertexBuffer.Buffers[index] = pBuffer;
+		m_D3DPipelineState.VertexBuffer.Stride[index] = stride;
+		m_D3DPipelineState.VertexBuffer.Offset[index] = offset;
+
+		m_FlushState[eFSVertexBuffer] = true;
+	}
 }
 
 inline void D3DGraphic::SetIndexBuffer(ID3D11Buffer* pBuffer, DXGI_FORMAT format, uint32_t offset)
 {
+	if (m_D3DPipelineState.IndexBuffer.Buffers != pBuffer ||
+		m_D3DPipelineState.IndexBuffer.Format != format ||
+		m_D3DPipelineState.IndexBuffer.Offset != offset)
+	{
+		m_D3DPipelineState.IndexBuffer.Buffers = pBuffer;
+		m_D3DPipelineState.IndexBuffer.Format = format;
+		m_D3DPipelineState.IndexBuffer.Offset = offset;
 
+		m_FlushState[eFSIndexBuffer] = true;
+	}
 }
 
 inline void D3DGraphic::SetInputLayout(ID3D11InputLayout* pInputLayout)
 {
+	if (m_D3DPipelineState.InputLayout != pInputLayout)
+	{
+		m_D3DPipelineState.InputLayout = pInputLayout;
 
+		m_FlushState[eFSInputLayout] = true;
+	}
 }
 
-inline void D3DGraphic::SetRenderTargetView(ID3D11RenderTargetView* pRenderTarget)
+inline void D3DGraphic::SetRenderTarget(ID3D11RenderTargetView* pRenderTarget, uint32_t index)
 {
+	assert(index <= eCTRenderTarget);
 
+	if (m_D3DPipelineState.RenderTarget != pRenderTarget)
+	{
+		m_D3DPipelineState.RenderTarget = pRenderTarget;
+
+		m_FlushState[eFSRenderTarget] = true;
+	}
 }
 
-inline void D3DGraphic::SetDepthStencilView(ID3D11DepthStencilView* pDepthStencil)
+inline void D3DGraphic::SetDepthStencil(ID3D11DepthStencilView* pDepthStencil)
 {
+	if (m_D3DPipelineState.DepthStencil != pDepthStencil)
+	{
+		m_D3DPipelineState.DepthStencil = pDepthStencil;
 
+		m_FlushState[eFSDepthStencil] = true;
+	}
 }
 
-inline void D3DGraphic::SetViewports(D3D11_VIEWPORT* pViewports)
+inline void D3DGraphic::SetViewports(D3D11_VIEWPORT* pViewports, uint32_t count)
 {
+	if (m_D3DPipelineState.ViewportCount != count ||
+		m_D3DPipelineState.Viewports != pViewports)
+	{
+		m_D3DPipelineState.ViewportCount = count;
+		m_D3DPipelineState.Viewports = pViewports;
 
+		m_FlushState[eFSViewports] = true;
+	}
 }
 
 inline void D3DGraphic::SetRasterizerState(ID3D11RasterizerState* pRasterizerState)
 {
+	if (m_D3DPipelineState.RasterizerState != pRasterizerState)
+	{
+		m_D3DPipelineState.RasterizerState = pRasterizerState;
 
+		m_FlushState[eFSRasterizerState] = true;
+	}
 }
 
 inline void D3DGraphic::SetDepthStencilState(ID3D11DepthStencilState* pDepthStencilState)
 {
+	if (m_D3DPipelineState.DepthStencilState != pDepthStencilState)
+	{
+		m_D3DPipelineState.DepthStencilState = pDepthStencilState;
 
+		m_FlushState[eFSDepthStencilState] = true;
+	}
 }
 
-inline void D3DGraphic::SetBlendState(ID3D11BlendState* pBlendState, float* pBlendFactor, uint32_t mask)
+inline void D3DGraphic::SetBlendState(ID3D11BlendState* pBlendState, DirectX::XMFLOAT4 blendFactor, uint32_t mask)
 {
+	if (m_D3DPipelineState.BlendState != pBlendState ||
+		m_D3DPipelineState.SampleMask != mask)
+	{
+		m_D3DPipelineState.BlendState = pBlendState;
+		memcpy(m_D3DPipelineState.BlendFactor, &blendFactor, sizeof(DirectX::XMFLOAT4));
+		m_D3DPipelineState.SampleMask = mask;
 
+		m_FlushState[eFSBlendState] = true;
+	}
 }
 
 inline void D3DGraphic::SetVertexShader(ID3D11VertexShader* pVertexShader)
 {
+	assert(pVertexShader);
 
+	if (m_D3DPipelineState.VertexShader != pVertexShader)
+	{
+		m_D3DPipelineState.VertexShader = pVertexShader;
+
+		m_FlushState[eFSVertexShader] = true;
+	}
 }
 
 inline void D3DGraphic::SetPixelShader(ID3D11PixelShader* pPixelShader)
 {
+	if (m_D3DPipelineState.PixelShader != pPixelShader)
+	{
+		m_D3DPipelineState.PixelShader = pPixelShader;
 
+		m_FlushState[eFSPixelShader] = true;
+	}
 }
 
 inline void D3DGraphic::SetConstantBuffer(Ref<ID3D11Buffer>& pConstantBuf, uint32_t slot, eD3DShaderType shaderType)
 {
+	assert(pConstantBuf.IsValid());
 
+	switch (shaderType)
+	{
+	case eSTVertexShader:
+		m_D3DContext->VSSetConstantBuffers(slot, 1U, pConstantBuf.GetReference());
+		break;
+	case eSTPixelShader:
+		m_D3DContext->PSSetConstantBuffers(slot, 1U, pConstantBuf.GetReference());
+		break;
+	default:
+		assert(!"Unsupport yet!!");
+		break;
+	}
 }
 
 void D3DGraphic::UpdateConstantBuffer(ID3D11Resource* pTarget, const void* pSource, uint32_t size)
 {
+	assert(pTarget && pSource && (size > 0U));
 
+	D3D11_MAPPED_SUBRESOURCE mapData;
+	memset(&mapData, 0, sizeof(D3D11_MAPPED_SUBRESOURCE));
+
+	HRCheck(m_D3DContext->Map(pTarget, 0U, D3D11_MAP_WRITE_DISCARD, 0U, &mapData));
+	memcpy(mapData.pData, pSource, size);
+	m_D3DContext->Unmap(pTarget, 0U);
 }
 
 void D3DGraphic::Draw(uint32_t vertexCount, uint32_t startIndex, D3D_PRIMITIVE_TOPOLOGY prim)
 {
-	FlushPipeLineState();
+	if (m_D3DPipelineState.PrimitiveTopology != prim)
+	{
+		m_D3DPipelineState.PrimitiveTopology = prim;
+		m_FlushState[eFSPrimitiveTopology] = true;
+	}
+
+	FlushPipelineState();
 
 	m_D3DContext->Draw(vertexCount, startIndex);
 }
 
 void D3DGraphic::DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, D3D_PRIMITIVE_TOPOLOGY prim)
 {
-	FlushPipeLineState();
+	if (m_D3DPipelineState.PrimitiveTopology != prim)
+	{
+		m_D3DPipelineState.PrimitiveTopology = prim;
+		m_FlushState[eFSPrimitiveTopology] = true;
+	}
+
+	FlushPipelineState();
 
 	m_D3DContext->DrawIndexed(indexCount, startIndex, offset);
 }
 
-void D3DGraphic::FlushPipeLineState()
+void D3DGraphic::FlushPipelineState()
 {
+	if (!m_D3DContext.IsValid())
+	{
+		return;
+	}
 
+	/// Input Assembler
+	if (m_FlushState[eFSInputLayout])
+	{
+		m_D3DContext->IASetInputLayout(m_D3DPipelineState.InputLayout);
+		m_FlushState[eFSInputLayout] = false;
+	}
+
+	if (m_FlushState[eFSVertexBuffer])
+	{
+		m_D3DContext->IASetVertexBuffers(0, eCTVertexStream, m_D3DPipelineState.VertexBuffer.Buffers,
+			m_D3DPipelineState.VertexBuffer.Stride, m_D3DPipelineState.VertexBuffer.Offset);
+		m_FlushState[eFSVertexBuffer] = false;
+	}
+
+	if (m_FlushState[eFSIndexBuffer])
+	{
+		m_D3DContext->IASetIndexBuffer(m_D3DPipelineState.IndexBuffer.Buffers, m_D3DPipelineState.IndexBuffer.Format,
+			m_D3DPipelineState.IndexBuffer.Offset);
+		m_FlushState[eFSIndexBuffer] = false;
+	}
+
+	if (m_FlushState[eFSPrimitiveTopology])
+	{
+		m_D3DContext->IASetPrimitiveTopology(m_D3DPipelineState.PrimitiveTopology);
+		m_FlushState[eFSPrimitiveTopology] = false;
+	}
+
+	/// VS->HS->DS->GS
+	if (m_FlushState[eFSVertexShader])
+	{
+		m_D3DContext->VSSetShader(m_D3DPipelineState.VertexShader, nullptr, 0U);
+		m_FlushState[eFSVertexShader] = false;
+	}
+
+	/// Rasterizer
+	if (m_FlushState[eFSRasterizerState])
+	{
+		m_D3DContext->RSSetState(m_D3DPipelineState.RasterizerState);
+		m_FlushState[eFSRasterizerState] = false;
+	}
+
+	if (m_FlushState[eFSViewports])
+	{
+		m_D3DContext->RSSetViewports(m_D3DPipelineState.ViewportCount, m_D3DPipelineState.Viewports);
+		m_FlushState[eFSViewports] = false;
+	}
+
+	/// Pixel Shader
+	if (m_FlushState[eFSPixelShader])
+	{
+		m_D3DContext->PSSetShader(m_D3DPipelineState.PixelShader, nullptr, 0U);
+		m_FlushState[eFSPixelShader] = false;
+	}
+
+	/// Output Merge
+	if (m_FlushState[eFSBlendState])
+	{
+		m_D3DContext->OMSetBlendState(m_D3DPipelineState.BlendState, m_D3DPipelineState.BlendFactor, m_D3DPipelineState.SampleMask);
+		m_FlushState[eFSBlendState] = false;
+	}
+
+	if (m_FlushState[eFSDepthStencilState])
+	{
+		m_D3DContext->OMSetDepthStencilState(m_D3DPipelineState.DepthStencilState, 0U);
+		m_FlushState[eFSDepthStencilState] = false;
+	}
+
+	if (m_FlushState[eFSRenderTarget] || m_FlushState[eFSDepthStencil])
+	{
+		m_D3DContext->OMSetRenderTargets(eCTRenderTarget, &m_D3DPipelineState.RenderTarget, m_D3DPipelineState.DepthStencil);
+		m_FlushState[eFSRenderTarget] = m_FlushState[eFSDepthStencil] = false;
+	}
 }

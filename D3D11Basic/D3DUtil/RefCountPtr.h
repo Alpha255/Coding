@@ -136,7 +136,7 @@ public:
 		return m_pPtr;
 	}
 
-	__forceinline Type** GetResource() 
+	__forceinline Type** GetReference() 
 	{
 		return &m_pPtr;
 	}

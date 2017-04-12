@@ -23,3 +23,6 @@
 #define SafeDeleteArray(ptr)  { if((ptr) != nullptr) delete[] (ptr); (ptr) = nullptr; }
 
 #define HRCheck(func)  if (FAILED(func)) { assert(0); }
+
+#define NamespaceBegin(name) namespace name {
+#define NamespaceEnd(name) }

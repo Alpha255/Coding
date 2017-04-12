@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Common.h"
+#include "Math.h"
 
 #include <d3d11.h>
 #include <d3dcompiler.h>
@@ -17,12 +17,18 @@ public:
 
 	enum eD3DFlushState
 	{
+		eFSIndexBuffer,
+		eFSVertexBuffer,
+		eFSVertexShader,
+		eFSPixelShader,
+		eFSInputLayout,
 		eFSRenderTarget,
 		eFSDepthStencil,
-		eFSViewport,
+		eFSViewports,
 		eFSRasterizerState,
 		eFSBlendState,
 		eFSDepthStencilState,
+		eFSPrimitiveTopology,
 		eFSCount
 	};
 
@@ -44,7 +50,7 @@ public:
 
 	void InitD3DEnvironment(HWND hWnd, uint32_t width, uint32_t height, bool bWindowed);
 
-	void CreateDepthStencilView(__out ID3D11DepthStencilView** ppDSV, DXGI_FORMAT fmt, uint32_t width, uint32_t height);
+	void CreateDepthStencil(__out ID3D11DepthStencilView** ppDSV, DXGI_FORMAT fmt, uint32_t width, uint32_t height);
 
 	void CreateTexture2D(__out ID3D11Texture2D** ppTexture, DXGI_FORMAT fmt, uint32_t width, uint32_t height,
 		uint32_t bindFlags, uint32_t mipLevels = 1U, uint32_t arraySize = 1U, uint32_t cpuFlags = 0U, uint32_t sampleCount = 0U, uint32_t sampleQuality = 0U,
@@ -63,20 +69,20 @@ public:
 
 	void CreateRasterizerState(__out ID3D11RasterizerState** ppRasterizerState, D3D11_FILL_MODE fillMode, D3D11_CULL_MODE cullMode = D3D11_CULL_BACK, bool cw = false, bool depthClip = true);
 
-	void ClearRenderTargetView(ID3D11RenderTargetView* pRenderTarget, float* pClearColor);
-	void ClearDepthStencilView(ID3D11DepthStencilView* pDepthStencil, float depth, uint8_t stencil);
+	void ClearRenderTarget(ID3D11RenderTargetView* pRenderTarget, float* pClearColor);
+	void ClearDepthStencil(ID3D11DepthStencilView* pDepthStencil, float depth, uint8_t stencil);
 
 	void ResizeBackBuffer(uint32_t width, uint32_t height);
 
 	inline void SetVertexBuffer(ID3D11Buffer* pBuffer, uint32_t stride, uint32_t offset, uint32_t index = 0U);
 	inline void SetIndexBuffer(ID3D11Buffer* pBuffer, DXGI_FORMAT format, uint32_t offset = 0U);
 	inline void SetInputLayout(ID3D11InputLayout* pInputLayout);
-	inline void SetRenderTargetView(ID3D11RenderTargetView* pRenderTarget);
-	inline void SetDepthStencilView(ID3D11DepthStencilView* pDepthStencil);
-	inline void SetViewports(D3D11_VIEWPORT* pViewports);
+	inline void SetRenderTarget(ID3D11RenderTargetView* pRenderTarget, uint32_t index = 0U);
+	inline void SetDepthStencil(ID3D11DepthStencilView* pDepthStencil);
+	inline void SetViewports(D3D11_VIEWPORT* pViewports, uint32_t count = 1U);
 	inline void SetRasterizerState(ID3D11RasterizerState* pRasterizerState);
 	inline void SetDepthStencilState(ID3D11DepthStencilState* pDepthStencilState);
-	inline void SetBlendState(ID3D11BlendState* pBlendState, float* pBlendFactor, uint32_t mask);
+	inline void SetBlendState(ID3D11BlendState* pBlendState, DirectX::XMFLOAT4, uint32_t mask);
 	inline void SetVertexShader(ID3D11VertexShader* pVertexShader);
 	inline void SetPixelShader(ID3D11PixelShader* pPixelShader);
 	inline void SetConstantBuffer(Ref<ID3D11Buffer>& pConstantBuf, uint32_t slot, eD3DShaderType shaderType);
@@ -85,8 +91,6 @@ public:
 
 	void Draw(uint32_t vertexCount, uint32_t startIndex, D3D_PRIMITIVE_TOPOLOGY prim = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	void DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, D3D_PRIMITIVE_TOPOLOGY prim = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	void FlushPipeLineState();
 protected:
 	D3DGraphic();
 	D3DGraphic(const D3DGraphic&) {}
@@ -96,24 +100,26 @@ protected:
 	{
 		ID3D11Texture2D* pBackBuffer = nullptr;
 		HRCheck(m_SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBuffer));
-		HRCheck(m_D3DDevice->CreateRenderTargetView(pBackBuffer, nullptr, m_DefaultRenderTarget.GetResource()));
+		HRCheck(m_D3DDevice->CreateRenderTargetView(pBackBuffer, nullptr, m_DefaultRenderTarget.GetReference()));
 		SafeRelease(pBackBuffer);
 	}
 
 	void CompileShaderFile(__out ID3DBlob** ppRes, char* pFileName, char* pEntryPoint, char* pTarget);
+
+	void FlushPipelineState();
 private:
 	static D3DGraphic* m_sInstance;
 
 	struct D3DIndexBuffer
 	{
-		ID3D11Buffer* IndexBuffers;
+		ID3D11Buffer* Buffers;
 		DXGI_FORMAT   Format;
 		uint32_t      Offset;
 	};
 
 	struct D3DVertexBuffer
 	{
-		ID3D11Buffer* VertexBuffers[eCTVertexStream];
+		ID3D11Buffer* Buffers[eCTVertexStream];
 		uint32_t      Stride[eCTVertexStream];
 		uint32_t      Offset[eCTVertexStream];
 	};
@@ -130,12 +136,13 @@ private:
 		ID3D11PixelShader*       PixelShader;
 		ID3D11BlendState*        BlendState;
 		ID3D11DepthStencilState* DepthStencilState;
-		ID3D11RenderTargetView*  RenderTargetView;
-		ID3D11DepthStencilView*  DepthStencilView;
+		ID3D11RenderTargetView*  RenderTarget;
+		ID3D11DepthStencilView*  DepthStencil;
 
 		float                    BlendFactor[4];
 		uint32_t                 SampleMask;
-	}m_D3DPipeLineState;
+		uint32_t                 ViewportCount;
+	}m_D3DPipelineState;
 
 	DXGI_SWAP_CHAIN_DESC m_SwapChainDesc;
 
@@ -143,7 +150,7 @@ private:
 	Ref<ID3D11Device> m_D3DDevice;
 	Ref<ID3D11DeviceContext> m_D3DContext;
 	Ref<ID3D11RenderTargetView> m_DefaultRenderTarget;
-	Ref<ID3D11DepthStencilView> m_DefaultDepthStencilView;
+	Ref<ID3D11DepthStencilView> m_DefaultDepthStencil;
 
 	bool m_FlushState[eFSCount];
 };

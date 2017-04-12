@@ -22,11 +22,13 @@
     <ClInclude Include="Common.h" />
     <ClInclude Include="D3DGraphic.h" />
     <ClInclude Include="IApplication.h" />
+    <ClInclude Include="Math.h" />
     <ClInclude Include="RefCountPtr.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="D3DGraphic.cpp" />
     <ClCompile Include="IApplication.cpp" />
+    <ClCompile Include="Math.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{61DB1465-533C-45F5-9D1D-884C2A82E7E0}</ProjectGuid>

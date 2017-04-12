@@ -5,9 +5,11 @@
     <ClInclude Include="RefCountPtr.h" />
     <ClInclude Include="D3DGraphic.h" />
     <ClInclude Include="IApplication.h" />
+    <ClInclude Include="Math.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IApplication.cpp" />
     <ClCompile Include="D3DGraphic.cpp" />
+    <ClCompile Include="Math.cpp" />
   </ItemGroup>
 </Project>
