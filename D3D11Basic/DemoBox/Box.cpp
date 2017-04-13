@@ -4,7 +4,6 @@
 
 extern D3DGraphic* g_Renderer;
 
-NamespaceBegin()
 struct MatrixSet
 {
 	DirectX::XMFLOAT4X4 World;
@@ -31,6 +30,8 @@ struct D3DResource
 	Ref<ID3D11Buffer> ConstantsBuffer;
 	Ref<ID3D11Buffer> VertexBuffer;
 	Ref<ID3D11Buffer> IndexBuffer;
+
+	D3D11_VIEWPORT Viewport;
 };
 
 static float s_Radius = 5.0f;
@@ -39,7 +40,6 @@ static float s_Theta = 1.5f * DirectX::XM_PI;
 static MatrixSet s_MatrixSet;
 static D3DResource s_D3DResource;
 static char* s_ShaderName = "Box.hlsl";
-NamespaceEnd()
 
 ApplicationBox::ApplicationBox(HINSTANCE hInstance, LPCWSTR lpTitle)
 	: Base(hInstance, lpTitle)
@@ -110,16 +110,37 @@ void ApplicationBox::Setup()
 	g_Renderer->SetIndexBuffer(s_D3DResource.IndexBuffer.GetPtr(), DXGI_FORMAT_R32_UINT);
 	g_Renderer->SetInputLayout(s_D3DResource.InputLayout.GetPtr());
 
-	//g_pGraphic->SetOutputRenderTarget();
-	//g_pGraphic->SetOutputDepthStencil();
-	//g_pGraphic->SetDefaultViewport();
+	g_Renderer->SetRenderTarget(g_Renderer->DefaultRenderTarget());
+	g_Renderer->SetDepthStencil(g_Renderer->DefaultDepthStencil());
+
+	s_D3DResource.Viewport.Width = (float)m_Size[0];
+	s_D3DResource.Viewport.Height = (float)m_Size[1];
+	s_D3DResource.Viewport.MinDepth = 0.0f;
+	s_D3DResource.Viewport.MaxDepth = 1.0f;
+	s_D3DResource.Viewport.TopLeftX = s_D3DResource.Viewport.TopLeftY = 0.0f;
+	g_Renderer->SetViewports(&s_D3DResource.Viewport);
 
 	m_bInited = true;
 }
 
 void ApplicationBox::RenderScene()
 {
+	float black[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	g_Renderer->ClearRenderTarget(g_Renderer->DefaultRenderTarget(), nullptr);
+	g_Renderer->ClearDepthStencil(g_Renderer->DefaultDepthStencil(), 1.0f, 0U);
 
+	DirectX::XMMATRIX world = DirectX::XMLoadFloat4x4(&s_MatrixSet.World);
+	DirectX::XMMATRIX view = DirectX::XMLoadFloat4x4(&s_MatrixSet.View);
+	DirectX::XMMATRIX projection = DirectX::XMLoadFloat4x4(&s_MatrixSet.Projection);
+	DirectX::XMMATRIX wvp = world * view * projection;
+
+	Constants cBuffer;
+	memset(&cBuffer, 0, sizeof(Constants));
+	cBuffer.WVP = DirectX::XMMatrixTranspose(wvp);
+	g_Renderer->UpdateConstantBuffer(s_D3DResource.ConstantsBuffer.GetPtr(), &cBuffer, sizeof(Constants));
+	g_Renderer->SetConstantBuffer(s_D3DResource.ConstantsBuffer, 0U, D3DGraphic::eSTVertexShader);
+
+	g_Renderer->DrawIndexed(36U, 0U, 0U);
 }
 
 void ApplicationBox::UpdateScene(float /*elapsedTime*/, float /*totalTime*/)
@@ -128,14 +149,60 @@ void ApplicationBox::UpdateScene(float /*elapsedTime*/, float /*totalTime*/)
 	{
 		Setup();
 	}
+
+	float x = s_Radius * sinf(s_Phi) * cosf(s_Theta);
+	float z = s_Radius * sinf(s_Phi) * sinf(s_Theta);
+	float y = s_Radius * cosf(s_Phi);
+
+	DirectX::XMVECTOR pos = DirectX::XMVectorSet(x, y, z, 1.0f);
+	DirectX::XMVECTOR target = DirectX::XMVectorZero();
+	DirectX::XMVECTOR up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+	DirectX::XMMATRIX lookAt = DirectX::XMMatrixLookAtLH(pos, target, up);
+
+	DirectX::XMStoreFloat4x4(&s_MatrixSet.View, lookAt);
 }
 
 void ApplicationBox::ResizeWindow(uint32_t width, uint32_t height)
 {
+	DirectX::XMMATRIX perspective = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV4, (float)width / height, 1.0f, 100.0f);
+	DirectX::XMStoreFloat4x4(&s_MatrixSet.Projection, perspective);
 
+	Base::ResizeWindow(width, height);
+
+	float x = s_Radius * sinf(s_Phi) * cosf(s_Theta);
+	float z = s_Radius * sinf(s_Phi) * sinf(s_Theta);
+	float y = s_Radius * cosf(s_Phi);
+
+	DirectX::XMVECTOR pos = DirectX::XMVectorSet(x, y, z, 1.0f);
+	DirectX::XMVECTOR target = DirectX::XMVectorZero();
+	DirectX::XMVECTOR up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+	DirectX::XMMATRIX lookAt = DirectX::XMMatrixLookAtLH(pos, target, up);
+
+	DirectX::XMStoreFloat4x4(&s_MatrixSet.View, lookAt);
 }
 
 void ApplicationBox::MouseMove(WPARAM wParam, int x, int y)
 {
+	if ((wParam & MK_LBUTTON) != 0)
+	{
+		float dx = DirectX::XMConvertToRadians(0.25f * static_cast<float>(x - m_LastMousePos[0]));
+		float dy = DirectX::XMConvertToRadians(0.25f * static_cast<float>(y - m_LastMousePos[1]));
 
+		s_Theta += dx;
+		s_Phi += dy;
+
+		s_Phi = Math::Clamp(s_Phi, 0.1f, DirectX::XM_PI - 0.1f);
+	}
+	else if ((wParam & MK_RBUTTON) != 0)
+	{
+		float dx = 0.005f * static_cast<float>(x - m_LastMousePos[0]);
+		float dy = 0.005f * static_cast<float>(y - m_LastMousePos[0]);
+
+		s_Radius += dx - dy;
+
+		s_Radius = Math::Clamp(s_Radius, 3.0f, 15.0f);
+	}
+
+	m_LastMousePos[0] = x;
+	m_LastMousePos[1] = y;
 }

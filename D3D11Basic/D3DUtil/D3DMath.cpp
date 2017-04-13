@@ -363,7 +363,7 @@ void MakeGeoSphere(float radius, uint32_t subDivisions, Mesh& mesh)
 	}
 }
 
-void MakeCylinder(float bottomRadius, float topRadius, float height, uint32_t slice, uint32_t stack, Mesh& mesh)
+void MakeCylinder(float /*bottomRadius*/, float /*topRadius*/, float /*height*/, uint32_t /*slice*/, uint32_t /*stack*/, Mesh& /*mesh*/)
 {
 	assert(!"Unsupport yet!!!");
 }

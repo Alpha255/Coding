@@ -18,6 +18,7 @@ IApplication::IApplication(HINSTANCE hInstance, LPCWSTR lpTitle, uint32_t width,
 {
 	s_Application = this;
 	memset(m_LastMousePos, 0, sizeof(int) * 2);
+	memset(m_Size, 0, sizeof(uint32_t) * 2);
 	MakeWindow(hInstance, lpTitle, width, height);
 
 	D3DGraphic::CreateInstance();
@@ -50,6 +51,9 @@ void IApplication::MakeWindow(HINSTANCE hInstance, LPCWSTR lpTitle, uint32_t wid
 		m_hWnd = CreateWindow(lpTitle, lpTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
 			rect.right - rect.left, rect.bottom - rect.top, 0, 0, hInstance, nullptr);
 		assert(m_hWnd);
+
+		m_Size[0] = width;
+		m_Size[1] = height;
 
 		ShowWindow(m_hWnd, SW_SHOWDEFAULT);
 		UpdateWindow(m_hWnd);
@@ -93,7 +97,7 @@ LRESULT IApplication::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		m_pTimer->Start();
 		RECT rect;
-		GetClientRect(m_hWnd, &rect);
+		::GetClientRect(m_hWnd, &rect);
 		ResizeWindow(rect.right - rect.left, rect.bottom - rect.top);
 	}
 	m_bActive = true;
@@ -131,6 +135,9 @@ void IApplication::ResizeWindow(uint32_t width, uint32_t height)
 	uint32_t dstHeight = max(height, 32U);
 	if (g_Renderer)
 	{
+		m_Size[0] = dstWidth;
+		m_Size[1] = dstHeight;
+
 		g_Renderer->ResizeBackBuffer(dstWidth, dstHeight);
 	}
 }

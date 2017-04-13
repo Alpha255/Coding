@@ -34,8 +34,9 @@ public:
 
 	enum eD3DResourceType
 	{
+		eRTShader,
 		eRTTexture,
-		eRTShader
+		eRTCount
 	};
 
 	enum eD3DShaderType
@@ -82,18 +83,21 @@ public:
 
 	void ResizeBackBuffer(uint32_t width, uint32_t height);
 
-	inline void SetVertexBuffer(ID3D11Buffer* pBuffer, uint32_t stride, uint32_t offset, uint32_t index = 0U);
-	inline void SetIndexBuffer(ID3D11Buffer* pBuffer, DXGI_FORMAT format, uint32_t offset = 0U);
-	inline void SetInputLayout(ID3D11InputLayout* pInputLayout);
-	inline void SetRenderTarget(ID3D11RenderTargetView* pRenderTarget, uint32_t index = 0U);
-	inline void SetDepthStencil(ID3D11DepthStencilView* pDepthStencil);
-	inline void SetViewports(D3D11_VIEWPORT* pViewports, uint32_t count = 1U);
-	inline void SetRasterizerState(ID3D11RasterizerState* pRasterizerState);
-	inline void SetDepthStencilState(ID3D11DepthStencilState* pDepthStencilState);
-	inline void SetBlendState(ID3D11BlendState* pBlendState, DirectX::XMFLOAT4, uint32_t mask);
-	inline void SetVertexShader(ID3D11VertexShader* pVertexShader);
-	inline void SetPixelShader(ID3D11PixelShader* pPixelShader);
-	inline void SetConstantBuffer(Ref<ID3D11Buffer>& pConstantBuf, uint32_t slot, eD3DShaderType shaderType);
+	inline ID3D11RenderTargetView* DefaultRenderTarget() const { assert(m_DefaultRenderTarget.IsValid()); return m_DefaultRenderTarget.GetPtr(); }
+	inline ID3D11DepthStencilView* DefaultDepthStencil() const { assert(m_DefaultDepthStencil.IsValid()); return m_DefaultDepthStencil.GetPtr(); }
+
+	void SetVertexBuffer(ID3D11Buffer* pBuffer, uint32_t stride, uint32_t offset, uint32_t index = 0U);
+	void SetIndexBuffer(ID3D11Buffer* pBuffer, DXGI_FORMAT format, uint32_t offset = 0U);
+	void SetInputLayout(ID3D11InputLayout* pInputLayout);
+	void SetRenderTarget(ID3D11RenderTargetView* pRenderTarget, uint32_t slot = 0U);
+	void SetDepthStencil(ID3D11DepthStencilView* pDepthStencil);
+	void SetViewports(D3D11_VIEWPORT* pViewports, uint32_t count = 1U);
+	void SetRasterizerState(ID3D11RasterizerState* pRasterizerState);
+	void SetDepthStencilState(ID3D11DepthStencilState* pDepthStencilState);
+	void SetBlendState(ID3D11BlendState* pBlendState, DirectX::XMFLOAT4, uint32_t mask);
+	void SetVertexShader(ID3D11VertexShader* pVertexShader);
+	void SetPixelShader(ID3D11PixelShader* pPixelShader);
+	void SetConstantBuffer(Ref<ID3D11Buffer>& pConstantBuf, uint32_t slot, eD3DShaderType shaderType);
 
 	void UpdateConstantBuffer(ID3D11Resource* pTarget, const void* pSource, uint32_t size);
 
@@ -144,7 +148,7 @@ private:
 		ID3D11PixelShader*       PixelShader;
 		ID3D11BlendState*        BlendState;
 		ID3D11DepthStencilState* DepthStencilState;
-		ID3D11RenderTargetView*  RenderTarget;
+		ID3D11RenderTargetView*  RenderTarget[eCTRenderTarget];
 		ID3D11DepthStencilView*  DepthStencil;
 
 		float                    BlendFactor[4];
@@ -159,6 +163,7 @@ private:
 	Ref<ID3D11DeviceContext> m_D3DContext;
 	Ref<ID3D11RenderTargetView> m_DefaultRenderTarget;
 	Ref<ID3D11DepthStencilView> m_DefaultDepthStencil;
+	D3D11_VIEWPORT m_Viewport;
 
 	bool m_FlushState[eFSCount];
 };

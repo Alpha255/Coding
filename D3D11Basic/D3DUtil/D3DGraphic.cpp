@@ -1,13 +1,30 @@
 #include "D3DGraphic.h"
 #include <fstream>
+#include <string>
 
 D3DGraphic* D3DGraphic::m_sInstance = nullptr;
+
+const char* ResourceFilePath(const char* pFileName, D3DGraphic::eD3DResourceType resType)
+{
+	static const char* s_ResourcePath[D3DGraphic::eRTCount] = { "\\Resource\\Shaders\\", "Resource\\Textures\\" };
+	static char filePath[MAX_PATH] = { 0 };
+	::GetModuleFileNameA(::GetModuleHandle(nullptr), filePath, MAX_PATH);
+	std::string strFileName(filePath);
+	std::string strFilePath = strFileName.substr(0, strFileName.rfind("\\"));
+	strFilePath += s_ResourcePath[resType];
+	strFilePath += pFileName;
+	memset(filePath, 0, MAX_PATH);
+	memcpy(filePath, strFilePath.c_str(), strFilePath.size());
+
+	return filePath;
+}
 
 D3DGraphic::D3DGraphic()
 {
 	memset(&m_D3DPipelineState, 0, sizeof(D3DPipelineState));
 	memset(&m_FlushState, 1, sizeof(bool) * eFSCount);
 	memset(&m_SwapChainDesc, 0, sizeof(DXGI_SWAP_CHAIN_DESC));
+	memset(&m_Viewport, 0, sizeof(D3D11_VIEWPORT));
 }
 
 void D3DGraphic::CreateTexture2D(ID3D11Texture2D** ppTexture, DXGI_FORMAT fmt, uint32_t width, uint32_t height,
@@ -180,14 +197,14 @@ void D3DGraphic::CompileShaderFile(ID3DBlob** ppRes, char* pFileName, char* pEnt
 {
 	assert(ppRes && pFileName && pEntryPoint && pTarget);
 
-	std::ifstream file(pFileName, std::ios::in);
+	std::ifstream file(ResourceFilePath(pFileName, eRTShader), std::ios::in);
 	if (file.good())
 	{
-		file.seekg(std::ios::end);
+		file.seekg(0U, std::ios::end);
 		size_t fileSize = (size_t)file.tellg();
 
 		char* pData = new char[fileSize]();
-		file.seekg(std::ios::beg);
+		file.seekg(0U, std::ios::beg);
 		file.read(pData, fileSize);
 
 #if defined(DEBUG) || defined(_DEBUG)
@@ -207,8 +224,10 @@ void D3DGraphic::CompileShaderFile(ID3DBlob** ppRes, char* pFileName, char* pEnt
 		SafeDeleteArray(pData);
 		file.close();
 	}
-
-	assert(!"Failed to open specified shader file!!!");
+	else
+	{
+		assert(!"Failed to open specified shader file!!!");
+	}
 }
 
 void D3DGraphic::CreateVertexShader(ID3D11VertexShader** ppVS, char* pFileName, char* pEntryPoint)
@@ -310,16 +329,16 @@ void D3DGraphic::ResizeBackBuffer(uint32_t width, uint32_t height)
 		SetDepthStencil(m_DefaultDepthStencil.GetPtr());
 
 		/// Reset viewport
-		D3D11_VIEWPORT viewport;
-		viewport.Width = (float)width;
-		viewport.Height = (float)height;
-		viewport.TopLeftX = viewport.TopLeftY = 0.0f;
-		viewport.MinDepth = viewport.MaxDepth = 0.0f;
-		SetViewports(&viewport);
+		m_Viewport.Width = (float)width;
+		m_Viewport.Height = (float)height;
+		m_Viewport.TopLeftX = m_Viewport.TopLeftY = 0.0f;
+		m_Viewport.MinDepth = 0.0f;
+		m_Viewport.MaxDepth = 1.0f;
+		SetViewports(&m_Viewport);
 	}
 }
 
-inline void D3DGraphic::SetVertexBuffer(ID3D11Buffer* pBuffer, uint32_t stride, uint32_t offset, uint32_t index)
+void D3DGraphic::SetVertexBuffer(ID3D11Buffer* pBuffer, uint32_t stride, uint32_t offset, uint32_t index)
 {
 	assert(index <= eCTVertexStream);
 
@@ -335,7 +354,7 @@ inline void D3DGraphic::SetVertexBuffer(ID3D11Buffer* pBuffer, uint32_t stride, 
 	}
 }
 
-inline void D3DGraphic::SetIndexBuffer(ID3D11Buffer* pBuffer, DXGI_FORMAT format, uint32_t offset)
+void D3DGraphic::SetIndexBuffer(ID3D11Buffer* pBuffer, DXGI_FORMAT format, uint32_t offset)
 {
 	if (m_D3DPipelineState.IndexBuffer.Buffers != pBuffer ||
 		m_D3DPipelineState.IndexBuffer.Format != format ||
@@ -349,7 +368,7 @@ inline void D3DGraphic::SetIndexBuffer(ID3D11Buffer* pBuffer, DXGI_FORMAT format
 	}
 }
 
-inline void D3DGraphic::SetInputLayout(ID3D11InputLayout* pInputLayout)
+void D3DGraphic::SetInputLayout(ID3D11InputLayout* pInputLayout)
 {
 	if (m_D3DPipelineState.InputLayout != pInputLayout)
 	{
@@ -359,19 +378,19 @@ inline void D3DGraphic::SetInputLayout(ID3D11InputLayout* pInputLayout)
 	}
 }
 
-inline void D3DGraphic::SetRenderTarget(ID3D11RenderTargetView* pRenderTarget, uint32_t index)
+void D3DGraphic::SetRenderTarget(ID3D11RenderTargetView* pRenderTarget, uint32_t slot)
 {
-	assert(index <= eCTRenderTarget);
+	assert(slot <= eCTRenderTarget);
 
-	if (m_D3DPipelineState.RenderTarget != pRenderTarget)
+	if (m_D3DPipelineState.RenderTarget[slot] != pRenderTarget)
 	{
-		m_D3DPipelineState.RenderTarget = pRenderTarget;
+		m_D3DPipelineState.RenderTarget[slot] = pRenderTarget;
 
 		m_FlushState[eFSRenderTarget] = true;
 	}
 }
 
-inline void D3DGraphic::SetDepthStencil(ID3D11DepthStencilView* pDepthStencil)
+void D3DGraphic::SetDepthStencil(ID3D11DepthStencilView* pDepthStencil)
 {
 	if (m_D3DPipelineState.DepthStencil != pDepthStencil)
 	{
@@ -381,7 +400,7 @@ inline void D3DGraphic::SetDepthStencil(ID3D11DepthStencilView* pDepthStencil)
 	}
 }
 
-inline void D3DGraphic::SetViewports(D3D11_VIEWPORT* pViewports, uint32_t count)
+void D3DGraphic::SetViewports(D3D11_VIEWPORT* pViewports, uint32_t count)
 {
 	if (m_D3DPipelineState.ViewportCount != count ||
 		m_D3DPipelineState.Viewports != pViewports)
@@ -393,7 +412,7 @@ inline void D3DGraphic::SetViewports(D3D11_VIEWPORT* pViewports, uint32_t count)
 	}
 }
 
-inline void D3DGraphic::SetRasterizerState(ID3D11RasterizerState* pRasterizerState)
+void D3DGraphic::SetRasterizerState(ID3D11RasterizerState* pRasterizerState)
 {
 	if (m_D3DPipelineState.RasterizerState != pRasterizerState)
 	{
@@ -403,7 +422,7 @@ inline void D3DGraphic::SetRasterizerState(ID3D11RasterizerState* pRasterizerSta
 	}
 }
 
-inline void D3DGraphic::SetDepthStencilState(ID3D11DepthStencilState* pDepthStencilState)
+void D3DGraphic::SetDepthStencilState(ID3D11DepthStencilState* pDepthStencilState)
 {
 	if (m_D3DPipelineState.DepthStencilState != pDepthStencilState)
 	{
@@ -413,7 +432,7 @@ inline void D3DGraphic::SetDepthStencilState(ID3D11DepthStencilState* pDepthSten
 	}
 }
 
-inline void D3DGraphic::SetBlendState(ID3D11BlendState* pBlendState, DirectX::XMFLOAT4 blendFactor, uint32_t mask)
+void D3DGraphic::SetBlendState(ID3D11BlendState* pBlendState, DirectX::XMFLOAT4 blendFactor, uint32_t mask)
 {
 	if (m_D3DPipelineState.BlendState != pBlendState ||
 		m_D3DPipelineState.SampleMask != mask)
@@ -426,7 +445,7 @@ inline void D3DGraphic::SetBlendState(ID3D11BlendState* pBlendState, DirectX::XM
 	}
 }
 
-inline void D3DGraphic::SetVertexShader(ID3D11VertexShader* pVertexShader)
+void D3DGraphic::SetVertexShader(ID3D11VertexShader* pVertexShader)
 {
 	assert(pVertexShader);
 
@@ -438,7 +457,7 @@ inline void D3DGraphic::SetVertexShader(ID3D11VertexShader* pVertexShader)
 	}
 }
 
-inline void D3DGraphic::SetPixelShader(ID3D11PixelShader* pPixelShader)
+void D3DGraphic::SetPixelShader(ID3D11PixelShader* pPixelShader)
 {
 	if (m_D3DPipelineState.PixelShader != pPixelShader)
 	{
@@ -448,7 +467,7 @@ inline void D3DGraphic::SetPixelShader(ID3D11PixelShader* pPixelShader)
 	}
 }
 
-inline void D3DGraphic::SetConstantBuffer(Ref<ID3D11Buffer>& pConstantBuf, uint32_t slot, eD3DShaderType shaderType)
+void D3DGraphic::SetConstantBuffer(Ref<ID3D11Buffer>& pConstantBuf, uint32_t slot, eD3DShaderType shaderType)
 {
 	assert(pConstantBuf.IsValid());
 
@@ -580,7 +599,7 @@ void D3DGraphic::FlushPipelineState()
 
 	if (m_FlushState[eFSRenderTarget] || m_FlushState[eFSDepthStencil])
 	{
-		m_D3DContext->OMSetRenderTargets(eCTRenderTarget, &m_D3DPipelineState.RenderTarget, m_D3DPipelineState.DepthStencil);
+		m_D3DContext->OMSetRenderTargets(eCTRenderTarget, m_D3DPipelineState.RenderTarget, m_D3DPipelineState.DepthStencil);
 		m_FlushState[eFSRenderTarget] = m_FlushState[eFSDepthStencil] = false;
 	}
 }

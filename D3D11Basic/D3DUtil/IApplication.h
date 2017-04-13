@@ -24,6 +24,7 @@ protected:
 
 	HWND m_hWnd;
 	int m_LastMousePos[2];
+	uint32_t m_Size[2];
 
 	typedef IApplication Base;
 private:

@@ -25,4 +25,7 @@
       <Filter>Resource</Filter>
     </Image>
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\..\Application\Resource\Shaders\Box.hlsl" />
+  </ItemGroup>
 </Project>
