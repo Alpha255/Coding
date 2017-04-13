@@ -4,28 +4,31 @@
 #include "Timer.h"
 
 static IApplication* s_Application = nullptr;
+D3DGraphic* g_Renderer = nullptr;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	return s_Application->MsgProc(hWnd, msg, wParam, lParam);
 }
 
-IApplication::IApplication(HINSTANCE hInstance, LPCWSTR lpTitle, uint32_t width, uint32_t height)
+IApplication::IApplication(HINSTANCE hInstance, LPCWSTR lpTitle, uint32_t width, uint32_t height, bool bWindowed)
 	: m_hWnd(nullptr)
 	, m_bActive(true)
 	, m_pTimer(new Timer())
 {
 	s_Application = this;
-
 	memset(m_LastMousePos, 0, sizeof(int) * 2);
-
 	MakeWindow(hInstance, lpTitle, width, height);
 
 	D3DGraphic::CreateInstance();
+	g_Renderer = D3DGraphic::GetInstance();
+	g_Renderer->InitD3DEnvironment(m_hWnd, width, height, bWindowed);
 }
 
 void IApplication::MakeWindow(HINSTANCE hInstance, LPCWSTR lpTitle, uint32_t width, uint32_t height)
 {
+	assert(hInstance && lpTitle);
+
 	WNDCLASSEX wndClassEx;
 	memset(&wndClassEx, 0, sizeof(WNDCLASSEX));
 	wndClassEx.cbClsExtra = 0;
@@ -57,7 +60,7 @@ void IApplication::MakeWindow(HINSTANCE hInstance, LPCWSTR lpTitle, uint32_t wid
 	}
 }
 
-void IApplication::MouseButtonDown(WPARAM wParam, int x, int y)
+void IApplication::MouseButtonDown(WPARAM /*wParam*/, int x, int y)
 {
 	m_LastMousePos[0] = x;
 	m_LastMousePos[1] = y;
@@ -126,11 +129,9 @@ void IApplication::ResizeWindow(uint32_t width, uint32_t height)
 {
 	uint32_t dstWidth = max(width, 32U);
 	uint32_t dstHeight = max(height, 32U);
-
-	static D3DGraphic* pRenderer = D3DGraphic::GetInstance();
-	if (pRenderer)
+	if (g_Renderer)
 	{
-		pRenderer->ResizeBackBuffer(width, height);
+		g_Renderer->ResizeBackBuffer(dstWidth, dstHeight);
 	}
 }
 

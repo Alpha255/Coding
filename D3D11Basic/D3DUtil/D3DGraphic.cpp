@@ -38,7 +38,7 @@ void D3DGraphic::CreateDepthStencil(ID3D11DepthStencilView** ppDSV, DXGI_FORMAT 
 	assert(height > 0U);
 
 	ID3D11Texture2D* pTexture = nullptr;
-	CreateTexture2D(&pTexture, fmt, width, height, D3D11_BIND_DEPTH_STENCIL, 1U, 1U, 0U, 0U, 0U, 0U, D3D11_USAGE_DEFAULT);
+	CreateTexture2D(&pTexture, fmt, width, height, D3D11_BIND_DEPTH_STENCIL, 1U, 1U, 0U, 1U, 0U, 0U, D3D11_USAGE_DEFAULT);
 	HRCheck(m_D3DDevice->CreateDepthStencilView(pTexture, nullptr, ppDSV));
 	SafeRelease(pTexture);
 }
@@ -104,7 +104,7 @@ void D3DGraphic::InitD3DEnvironment(HWND hWnd, uint32_t width, uint32_t height, 
 			/// Create Depth Stencil View
 			CreateDepthStencil(m_DefaultDepthStencil.GetReference(), DXGI_FORMAT_D24_UNORM_S8_UINT, width, height);
 
-			break;
+			return;
 		}
 	}
 
@@ -228,6 +228,17 @@ void D3DGraphic::CreatePixelShader(ID3D11PixelShader** ppPS, char* pFileName, ch
 	ID3DBlob* pRes = nullptr;
 	CompileShaderFile(&pRes, pFileName, pEntryPoint, "ps_5_0");
 	HRCheck(m_D3DDevice->CreatePixelShader(pRes->GetBufferPointer(), pRes->GetBufferSize(), nullptr, ppPS));
+	SafeRelease(pRes);
+}
+
+void D3DGraphic::CreateVertexShaderAndInputLayout(ID3D11VertexShader** ppVS, ID3D11InputLayout** ppLayout, D3D11_INPUT_ELEMENT_DESC* pInputElement, uint32_t size, char* pFileName, char* pEntryPoint)
+{
+	assert(ppVS);
+
+	ID3DBlob* pRes = nullptr;
+	CompileShaderFile(&pRes, pFileName, pEntryPoint, "vs_5_0");
+	HRCheck(m_D3DDevice->CreateVertexShader(pRes->GetBufferPointer(), pRes->GetBufferSize(), nullptr, ppVS));
+	CreateInputLayout(ppLayout, pInputElement, size, pRes);
 	SafeRelease(pRes);
 }
 

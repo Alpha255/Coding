@@ -1,4 +1,4 @@
-#include "Math.h"
+#include "D3DMath.h"
 
 NamespaceBegin(Math)
 NamespaceBegin(Geometry)
@@ -421,7 +421,7 @@ void MakeGrid(float width, float depth, uint32_t m, uint32_t n, Mesh& mesh)
 	}
 }
 
-void MakeQuad(Mesh& mesh)
+void MakeQuad(Mesh& /*mesh*/)
 {
 	assert(!"Unsupport yet!!!");
 }

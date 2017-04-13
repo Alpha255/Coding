@@ -5,17 +5,17 @@
     <ClInclude Include="RefCountPtr.h" />
     <ClInclude Include="D3DGraphic.h" />
     <ClInclude Include="IApplication.h" />
-    <ClInclude Include="Math.h" />
     <ClInclude Include="resource.h">
       <Filter>Resource</Filter>
     </ClInclude>
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="D3DMath.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IApplication.cpp" />
     <ClCompile Include="D3DGraphic.cpp" />
-    <ClCompile Include="Math.cpp" />
     <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="D3DMath.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resource">

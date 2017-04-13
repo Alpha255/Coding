@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Math.h"
+#include "D3DMath.h"
 
 #include <d3d11.h>
 #include <d3dcompiler.h>
@@ -44,6 +44,13 @@ public:
 		eSTPixelShader
 	};
 
+	enum eD3DBufferType
+	{
+		eBTVertexBuffer,
+		eBTIndexBuffer,
+		eBTConstantsBuffer
+	};
+
 	static void CreateInstance(void) { if (nullptr == m_sInstance) { m_sInstance = new D3DGraphic(); assert(m_sInstance); } }
 	static D3DGraphic* GetInstance(void) { return m_sInstance; }
 	static void DestoryInstance(void) { SafeDelete(m_sInstance); }
@@ -64,6 +71,7 @@ public:
 
 	void CreateVertexShader(__out ID3D11VertexShader** ppVS, char* pFileName, char* pEntryPoint);
 	void CreatePixelShader(__out ID3D11PixelShader** ppPS, char* pFileName, char* pEntryPoint);
+	void CreateVertexShaderAndInputLayout(__out ID3D11VertexShader** ppVS, __out ID3D11InputLayout** ppLayout, D3D11_INPUT_ELEMENT_DESC* pInputElement, uint32_t size, char* pFileName, char* pEntryPoint);
 
 	void CreateInputLayout(__out ID3D11InputLayout** ppInputLayout, D3D11_INPUT_ELEMENT_DESC* pInputElement, uint32_t size, ID3DBlob* pRes);
 
