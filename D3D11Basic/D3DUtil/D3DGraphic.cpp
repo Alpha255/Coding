@@ -282,21 +282,21 @@ void D3DGraphic::CreateInputLayout(ID3D11InputLayout** ppInputLayout, D3D11_INPU
 	HRCheck(m_D3DDevice->CreateInputLayout(pInputElement, size, pRes->GetBufferPointer(), pRes->GetBufferSize(), ppInputLayout));
 }
 
-void D3DGraphic::ClearRenderTarget(ID3D11RenderTargetView* pRenderTarget, float* pClearColor)
+void D3DGraphic::ClearRenderTarget(const Ref<ID3D11RenderTargetView>& refRenderTarget, float* pClearColor)
 {
-	assert(pRenderTarget);
+	assert(refRenderTarget.IsValid());
 
 	float darkBlue[] = { 0.0f, 0.125f, 0.3f, 1.0f };
 	pClearColor = (nullptr == pClearColor ? darkBlue : pClearColor);
 
-	m_D3DContext->ClearRenderTargetView(pRenderTarget, pClearColor);
+	m_D3DContext->ClearRenderTargetView(refRenderTarget.GetPtr(), pClearColor);
 }
 
-void D3DGraphic::ClearDepthStencil(ID3D11DepthStencilView* pDepthStencil, float depth, uint8_t stencil)
+void D3DGraphic::ClearDepthStencil(const Ref<ID3D11DepthStencilView>& refDepthStencil, float depth, uint8_t stencil)
 {
-	assert(pDepthStencil);
+	assert(refDepthStencil.IsValid());
 
-	m_D3DContext->ClearDepthStencilView(pDepthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depth, stencil);
+	m_D3DContext->ClearDepthStencilView(refDepthStencil.GetPtr(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depth, stencil);
 }
 
 void D3DGraphic::ResizeBackBuffer(uint32_t width, uint32_t height)
@@ -319,14 +319,14 @@ void D3DGraphic::ResizeBackBuffer(uint32_t width, uint32_t height)
 		}
 		m_SwapChain->ResizeBuffers(m_SwapChainDesc.BufferCount, width, height, m_SwapChainDesc.BufferDesc.Format, m_SwapChainDesc.Flags);
 		RecreateBackBuffer();
-		SetRenderTarget(m_DefaultRenderTarget.GetPtr());
+		SetRenderTarget(m_DefaultRenderTarget);
 
 		if (m_DefaultDepthStencil.IsValid())
 		{
 			m_DefaultDepthStencil->Release();
 		}
 		CreateDepthStencil(m_DefaultDepthStencil.GetReference(), DXGI_FORMAT_D24_UNORM_S8_UINT, width, height);
-		SetDepthStencil(m_DefaultDepthStencil.GetPtr());
+		SetDepthStencil(m_DefaultDepthStencil);
 
 		/// Reset viewport
 		m_Viewport.Width = (float)width;
@@ -338,10 +338,11 @@ void D3DGraphic::ResizeBackBuffer(uint32_t width, uint32_t height)
 	}
 }
 
-void D3DGraphic::SetVertexBuffer(ID3D11Buffer* pBuffer, uint32_t stride, uint32_t offset, uint32_t index)
+void D3DGraphic::SetVertexBuffer(const Ref<ID3D11Buffer>& refBuffer, uint32_t stride, uint32_t offset, uint32_t index)
 {
 	assert(index <= eCTVertexStream);
 
+	ID3D11Buffer* const pBuffer = refBuffer.GetPtr();
 	if (m_D3DPipelineState.VertexBuffer.Buffers[index] != pBuffer ||
 		m_D3DPipelineState.VertexBuffer.Stride[index] != stride ||
 		m_D3DPipelineState.VertexBuffer.Offset[index] != offset)
@@ -354,8 +355,9 @@ void D3DGraphic::SetVertexBuffer(ID3D11Buffer* pBuffer, uint32_t stride, uint32_
 	}
 }
 
-void D3DGraphic::SetIndexBuffer(ID3D11Buffer* pBuffer, DXGI_FORMAT format, uint32_t offset)
+void D3DGraphic::SetIndexBuffer(const Ref<ID3D11Buffer>& refBuffer, DXGI_FORMAT format, uint32_t offset)
 {
+	ID3D11Buffer* const pBuffer = refBuffer.GetPtr();
 	if (m_D3DPipelineState.IndexBuffer.Buffers != pBuffer ||
 		m_D3DPipelineState.IndexBuffer.Format != format ||
 		m_D3DPipelineState.IndexBuffer.Offset != offset)
@@ -368,8 +370,9 @@ void D3DGraphic::SetIndexBuffer(ID3D11Buffer* pBuffer, DXGI_FORMAT format, uint3
 	}
 }
 
-void D3DGraphic::SetInputLayout(ID3D11InputLayout* pInputLayout)
+void D3DGraphic::SetInputLayout(const Ref<ID3D11InputLayout>& refInputLayout)
 {
+	ID3D11InputLayout* const pInputLayout = refInputLayout.GetPtr();
 	if (m_D3DPipelineState.InputLayout != pInputLayout)
 	{
 		m_D3DPipelineState.InputLayout = pInputLayout;
@@ -378,10 +381,11 @@ void D3DGraphic::SetInputLayout(ID3D11InputLayout* pInputLayout)
 	}
 }
 
-void D3DGraphic::SetRenderTarget(ID3D11RenderTargetView* pRenderTarget, uint32_t slot)
+void D3DGraphic::SetRenderTarget(const Ref<ID3D11RenderTargetView>& refRenderTarget, uint32_t slot)
 {
 	assert(slot <= eCTRenderTarget);
 
+	ID3D11RenderTargetView* const pRenderTarget = refRenderTarget.GetPtr();
 	if (m_D3DPipelineState.RenderTarget[slot] != pRenderTarget)
 	{
 		m_D3DPipelineState.RenderTarget[slot] = pRenderTarget;
@@ -390,8 +394,9 @@ void D3DGraphic::SetRenderTarget(ID3D11RenderTargetView* pRenderTarget, uint32_t
 	}
 }
 
-void D3DGraphic::SetDepthStencil(ID3D11DepthStencilView* pDepthStencil)
+void D3DGraphic::SetDepthStencil(const Ref<ID3D11DepthStencilView>& refDepthStencil)
 {
+	ID3D11DepthStencilView* const pDepthStencil = refDepthStencil.GetPtr();
 	if (m_D3DPipelineState.DepthStencil != pDepthStencil)
 	{
 		m_D3DPipelineState.DepthStencil = pDepthStencil;
@@ -412,8 +417,9 @@ void D3DGraphic::SetViewports(D3D11_VIEWPORT* pViewports, uint32_t count)
 	}
 }
 
-void D3DGraphic::SetRasterizerState(ID3D11RasterizerState* pRasterizerState)
+void D3DGraphic::SetRasterizerState(const Ref<ID3D11RasterizerState>& refRasterizerState)
 {
+	ID3D11RasterizerState* const pRasterizerState = refRasterizerState.GetPtr();
 	if (m_D3DPipelineState.RasterizerState != pRasterizerState)
 	{
 		m_D3DPipelineState.RasterizerState = pRasterizerState;
@@ -422,8 +428,9 @@ void D3DGraphic::SetRasterizerState(ID3D11RasterizerState* pRasterizerState)
 	}
 }
 
-void D3DGraphic::SetDepthStencilState(ID3D11DepthStencilState* pDepthStencilState)
+void D3DGraphic::SetDepthStencilState(const Ref<ID3D11DepthStencilState>& refDepthStencilState)
 {
+	ID3D11DepthStencilState* const pDepthStencilState = refDepthStencilState.GetPtr();
 	if (m_D3DPipelineState.DepthStencilState != pDepthStencilState)
 	{
 		m_D3DPipelineState.DepthStencilState = pDepthStencilState;
@@ -432,8 +439,9 @@ void D3DGraphic::SetDepthStencilState(ID3D11DepthStencilState* pDepthStencilStat
 	}
 }
 
-void D3DGraphic::SetBlendState(ID3D11BlendState* pBlendState, DirectX::XMFLOAT4 blendFactor, uint32_t mask)
+void D3DGraphic::SetBlendState(const Ref<ID3D11BlendState>& refBlendState, DirectX::XMFLOAT4 blendFactor, uint32_t mask)
 {
+	ID3D11BlendState* const pBlendState = refBlendState.GetPtr();
 	if (m_D3DPipelineState.BlendState != pBlendState ||
 		m_D3DPipelineState.SampleMask != mask)
 	{
@@ -445,10 +453,11 @@ void D3DGraphic::SetBlendState(ID3D11BlendState* pBlendState, DirectX::XMFLOAT4 
 	}
 }
 
-void D3DGraphic::SetVertexShader(ID3D11VertexShader* pVertexShader)
+void D3DGraphic::SetVertexShader(const Ref<ID3D11VertexShader>& refVertexShader)
 {
-	assert(pVertexShader);
+	assert(refVertexShader.IsValid());
 
+	ID3D11VertexShader* const pVertexShader = refVertexShader.GetPtr();
 	if (m_D3DPipelineState.VertexShader != pVertexShader)
 	{
 		m_D3DPipelineState.VertexShader = pVertexShader;
@@ -457,8 +466,9 @@ void D3DGraphic::SetVertexShader(ID3D11VertexShader* pVertexShader)
 	}
 }
 
-void D3DGraphic::SetPixelShader(ID3D11PixelShader* pPixelShader)
+void D3DGraphic::SetPixelShader(const Ref<ID3D11PixelShader>& refPixelShader)
 {
+	ID3D11PixelShader* const pPixelShader = refPixelShader.GetPtr();
 	if (m_D3DPipelineState.PixelShader != pPixelShader)
 	{
 		m_D3DPipelineState.PixelShader = pPixelShader;
@@ -508,6 +518,8 @@ void D3DGraphic::Draw(uint32_t vertexCount, uint32_t startIndex, D3D_PRIMITIVE_T
 	FlushPipelineState();
 
 	m_D3DContext->Draw(vertexCount, startIndex);
+
+	m_SwapChain->Present(0U, 0U);
 }
 
 void D3DGraphic::DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, D3D_PRIMITIVE_TOPOLOGY prim)
@@ -521,6 +533,8 @@ void D3DGraphic::DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t o
 	FlushPipelineState();
 
 	m_D3DContext->DrawIndexed(indexCount, startIndex, offset);
+
+	m_SwapChain->Present(0U, 0U);
 }
 
 void D3DGraphic::FlushPipelineState()

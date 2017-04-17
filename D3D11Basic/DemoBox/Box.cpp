@@ -104,11 +104,11 @@ void ApplicationBox::Setup()
 	g_Renderer->CreateStreamBuffer(s_D3DResource.IndexBuffer.GetReference(), D3D11_BIND_INDEX_BUFFER, sizeof(uint32_t) * 36,
 		D3D11_USAGE_IMMUTABLE, indices);
 	
-	g_Renderer->SetVertexShader(s_D3DResource.VertexShader.GetPtr());
-	g_Renderer->SetPixelShader(s_D3DResource.PixelShader.GetPtr());
-	g_Renderer->SetVertexBuffer(s_D3DResource.VertexBuffer.GetPtr(), sizeof(Vertex), 0U);
-	g_Renderer->SetIndexBuffer(s_D3DResource.IndexBuffer.GetPtr(), DXGI_FORMAT_R32_UINT);
-	g_Renderer->SetInputLayout(s_D3DResource.InputLayout.GetPtr());
+	g_Renderer->SetVertexShader(s_D3DResource.VertexShader);
+	g_Renderer->SetPixelShader(s_D3DResource.PixelShader);
+	g_Renderer->SetVertexBuffer(s_D3DResource.VertexBuffer, sizeof(Vertex), 0U);
+	g_Renderer->SetIndexBuffer(s_D3DResource.IndexBuffer, DXGI_FORMAT_R32_UINT);
+	g_Renderer->SetInputLayout(s_D3DResource.InputLayout);
 
 	g_Renderer->SetRenderTarget(g_Renderer->DefaultRenderTarget());
 	g_Renderer->SetDepthStencil(g_Renderer->DefaultDepthStencil());

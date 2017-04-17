@@ -78,25 +78,25 @@ public:
 
 	void CreateRasterizerState(__out ID3D11RasterizerState** ppRasterizerState, D3D11_FILL_MODE fillMode, D3D11_CULL_MODE cullMode = D3D11_CULL_BACK, bool cw = false, bool depthClip = true);
 
-	void ClearRenderTarget(ID3D11RenderTargetView* pRenderTarget, float* pClearColor);
-	void ClearDepthStencil(ID3D11DepthStencilView* pDepthStencil, float depth, uint8_t stencil);
+	void ClearRenderTarget(const Ref<ID3D11RenderTargetView>& refRenderTarget, float* pClearColor);
+	void ClearDepthStencil(const Ref<ID3D11DepthStencilView>& refDepthStencil, float depth, uint8_t stencil);
 
 	void ResizeBackBuffer(uint32_t width, uint32_t height);
 
-	inline ID3D11RenderTargetView* DefaultRenderTarget() const { assert(m_DefaultRenderTarget.IsValid()); return m_DefaultRenderTarget.GetPtr(); }
-	inline ID3D11DepthStencilView* DefaultDepthStencil() const { assert(m_DefaultDepthStencil.IsValid()); return m_DefaultDepthStencil.GetPtr(); }
+	inline const Ref<ID3D11RenderTargetView>& DefaultRenderTarget() const { assert(m_DefaultRenderTarget.IsValid()); return m_DefaultRenderTarget; }
+	inline const Ref<ID3D11DepthStencilView>& DefaultDepthStencil() const { assert(m_DefaultDepthStencil.IsValid()); return m_DefaultDepthStencil; }
 
-	void SetVertexBuffer(ID3D11Buffer* pBuffer, uint32_t stride, uint32_t offset, uint32_t index = 0U);
-	void SetIndexBuffer(ID3D11Buffer* pBuffer, DXGI_FORMAT format, uint32_t offset = 0U);
-	void SetInputLayout(ID3D11InputLayout* pInputLayout);
-	void SetRenderTarget(ID3D11RenderTargetView* pRenderTarget, uint32_t slot = 0U);
-	void SetDepthStencil(ID3D11DepthStencilView* pDepthStencil);
+	void SetVertexBuffer(const Ref<ID3D11Buffer>& refBuffer, uint32_t stride, uint32_t offset, uint32_t index = 0U);
+	void SetIndexBuffer(const Ref<ID3D11Buffer>& refBuffer, DXGI_FORMAT format, uint32_t offset = 0U);
+	void SetInputLayout(const Ref<ID3D11InputLayout>& refInputLayout);
+	void SetRenderTarget(const Ref<ID3D11RenderTargetView>& refRenderTarget, uint32_t slot = 0U);
+	void SetDepthStencil(const Ref<ID3D11DepthStencilView>& refDepthStencil);
 	void SetViewports(D3D11_VIEWPORT* pViewports, uint32_t count = 1U);
-	void SetRasterizerState(ID3D11RasterizerState* pRasterizerState);
-	void SetDepthStencilState(ID3D11DepthStencilState* pDepthStencilState);
-	void SetBlendState(ID3D11BlendState* pBlendState, DirectX::XMFLOAT4, uint32_t mask);
-	void SetVertexShader(ID3D11VertexShader* pVertexShader);
-	void SetPixelShader(ID3D11PixelShader* pPixelShader);
+	void SetRasterizerState(const Ref<ID3D11RasterizerState>& refRasterizerState);
+	void SetDepthStencilState(const Ref<ID3D11DepthStencilState>& refDepthStencilState);
+	void SetBlendState(const Ref<ID3D11BlendState>& refBlendState, DirectX::XMFLOAT4, uint32_t mask);
+	void SetVertexShader(const Ref<ID3D11VertexShader>& refVertexShader);
+	void SetPixelShader(const Ref<ID3D11PixelShader>& refPixelShader);
 	void SetConstantBuffer(Ref<ID3D11Buffer>& pConstantBuf, uint32_t slot, eD3DShaderType shaderType);
 
 	void UpdateConstantBuffer(ID3D11Resource* pTarget, const void* pSource, uint32_t size);
