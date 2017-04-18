@@ -14,11 +14,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 IApplication::IApplication(HINSTANCE hInstance, LPCWSTR lpTitle, uint32_t width, uint32_t height, bool bWindowed)
 	: m_hWnd(nullptr)
 	, m_bActive(true)
+	, m_bInited(false)
 	, m_pTimer(new Timer())
 {
 	s_Application = this;
 	memset(m_LastMousePos, 0, sizeof(int) * 2);
 	memset(m_Size, 0, sizeof(uint32_t) * 2);
+
 	MakeWindow(hInstance, lpTitle, width, height);
 
 	D3DGraphic::CreateInstance();
@@ -99,9 +101,9 @@ LRESULT IApplication::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		RECT rect;
 		::GetClientRect(m_hWnd, &rect);
 		ResizeWindow(rect.right - rect.left, rect.bottom - rect.top);
+		m_bActive = true;
+		break;
 	}
-	m_bActive = true;
-	break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
@@ -139,6 +141,14 @@ void IApplication::ResizeWindow(uint32_t width, uint32_t height)
 		m_Size[1] = dstHeight;
 
 		g_Renderer->ResizeBackBuffer(dstWidth, dstHeight);
+
+		D3D11_VIEWPORT viewport;
+		viewport.TopLeftX = viewport.TopLeftY = 0.0f;
+		viewport.Width = (float)dstWidth;
+		viewport.Height = (float)dstHeight;
+		viewport.MinDepth = 0.0f;
+		viewport.MaxDepth = 1.0f;
+		g_Renderer->SetViewports(&viewport);
 	}
 }
 
@@ -158,6 +168,11 @@ int IApplication::MainLoop()
 		else
 		{
 			m_pTimer->Tick();
+
+			if (!m_bInited)
+			{
+				SetupScene();
+			}
 
 			if (m_bActive)
 			{

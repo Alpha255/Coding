@@ -61,7 +61,7 @@ public:
 	void CreateDepthStencil(__out ID3D11DepthStencilView** ppDSV, DXGI_FORMAT fmt, uint32_t width, uint32_t height);
 
 	void CreateTexture2D(__out ID3D11Texture2D** ppTexture, DXGI_FORMAT fmt, uint32_t width, uint32_t height,
-		uint32_t bindFlags, uint32_t mipLevels = 1U, uint32_t arraySize = 1U, uint32_t cpuFlags = 0U, uint32_t sampleCount = 0U, uint32_t sampleQuality = 0U,
+		uint32_t bindFlags, uint32_t mipLevels = 1U, uint32_t arraySize = 1U, uint32_t cpuFlags = 0U, uint32_t sampleCount = 1U, uint32_t sampleQuality = 0U,
 		uint32_t miscFlags = 0U, D3D11_USAGE usage = D3D11_USAGE_DEFAULT);
 
 	void CreateShaderResourceView(__out ID3D11ShaderResourceView** ppSRV, char* pFileName);
@@ -108,13 +108,7 @@ protected:
 	D3DGraphic(const D3DGraphic&) {}
 	~D3DGraphic() {}
 
-	inline void RecreateBackBuffer()
-	{
-		ID3D11Texture2D* pBackBuffer = nullptr;
-		HRCheck(m_SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBuffer));
-		HRCheck(m_D3DDevice->CreateRenderTargetView(pBackBuffer, nullptr, m_DefaultRenderTarget.GetReference()));
-		SafeRelease(pBackBuffer);
-	}
+	void RecreateBackBuffer();
 
 	void CompileShaderFile(__out ID3DBlob** ppRes, char* pFileName, char* pEntryPoint, char* pTarget);
 
@@ -163,7 +157,7 @@ private:
 	Ref<ID3D11DeviceContext> m_D3DContext;
 	Ref<ID3D11RenderTargetView> m_DefaultRenderTarget;
 	Ref<ID3D11DepthStencilView> m_DefaultDepthStencil;
-	D3D11_VIEWPORT m_Viewport;
+	D3D11_VIEWPORT m_DefaultViewport;
 
 	bool m_FlushState[eFSCount];
 };

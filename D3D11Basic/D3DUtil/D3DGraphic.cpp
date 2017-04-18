@@ -22,9 +22,9 @@ const char* ResourceFilePath(const char* pFileName, D3DGraphic::eD3DResourceType
 D3DGraphic::D3DGraphic()
 {
 	memset(&m_D3DPipelineState, 0, sizeof(D3DPipelineState));
-	memset(&m_FlushState, 1, sizeof(bool) * eFSCount);
+	memset(&m_FlushState, 0, sizeof(bool) * eFSCount);
 	memset(&m_SwapChainDesc, 0, sizeof(DXGI_SWAP_CHAIN_DESC));
-	memset(&m_Viewport, 0, sizeof(D3D11_VIEWPORT));
+	memset(&m_DefaultViewport, 0, sizeof(D3D11_VIEWPORT));
 }
 
 void D3DGraphic::CreateTexture2D(ID3D11Texture2D** ppTexture, DXGI_FORMAT fmt, uint32_t width, uint32_t height,
@@ -55,7 +55,7 @@ void D3DGraphic::CreateDepthStencil(ID3D11DepthStencilView** ppDSV, DXGI_FORMAT 
 	assert(height > 0U);
 
 	ID3D11Texture2D* pTexture = nullptr;
-	CreateTexture2D(&pTexture, fmt, width, height, D3D11_BIND_DEPTH_STENCIL, 1U, 1U, 0U, 1U, 0U, 0U, D3D11_USAGE_DEFAULT);
+	CreateTexture2D(&pTexture, fmt, width, height, D3D11_BIND_DEPTH_STENCIL);
 	HRCheck(m_D3DDevice->CreateDepthStencilView(pTexture, nullptr, ppDSV));
 	SafeRelease(pTexture);
 }
@@ -230,6 +230,14 @@ void D3DGraphic::CompileShaderFile(ID3DBlob** ppRes, char* pFileName, char* pEnt
 	}
 }
 
+void D3DGraphic::RecreateBackBuffer()
+{
+	ID3D11Texture2D* pBackBuffer = nullptr;
+	HRCheck(m_SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBuffer));
+	HRCheck(m_D3DDevice->CreateRenderTargetView(pBackBuffer, nullptr, m_DefaultRenderTarget.GetReference()));
+	SafeRelease(pBackBuffer);
+}
+
 void D3DGraphic::CreateVertexShader(ID3D11VertexShader** ppVS, char* pFileName, char* pEntryPoint)
 {
 	assert(ppVS);
@@ -327,14 +335,6 @@ void D3DGraphic::ResizeBackBuffer(uint32_t width, uint32_t height)
 		}
 		CreateDepthStencil(m_DefaultDepthStencil.GetReference(), DXGI_FORMAT_D24_UNORM_S8_UINT, width, height);
 		SetDepthStencil(m_DefaultDepthStencil);
-
-		/// Reset viewport
-		m_Viewport.Width = (float)width;
-		m_Viewport.Height = (float)height;
-		m_Viewport.TopLeftX = m_Viewport.TopLeftY = 0.0f;
-		m_Viewport.MinDepth = 0.0f;
-		m_Viewport.MaxDepth = 1.0f;
-		SetViewports(&m_Viewport);
 	}
 }
 
@@ -407,11 +407,15 @@ void D3DGraphic::SetDepthStencil(const Ref<ID3D11DepthStencilView>& refDepthSten
 
 void D3DGraphic::SetViewports(D3D11_VIEWPORT* pViewports, uint32_t count)
 {
+	assert(count <= 1U && "Unsupport yet!!!");
+
 	if (m_D3DPipelineState.ViewportCount != count ||
 		m_D3DPipelineState.Viewports != pViewports)
 	{
 		m_D3DPipelineState.ViewportCount = count;
 		m_D3DPipelineState.Viewports = pViewports;
+
+		memcpy(&m_DefaultViewport, pViewports, sizeof(D3D11_VIEWPORT));
 
 		m_FlushState[eFSViewports] = true;
 	}
@@ -587,7 +591,7 @@ void D3DGraphic::FlushPipelineState()
 
 	if (m_FlushState[eFSViewports])
 	{
-		m_D3DContext->RSSetViewports(m_D3DPipelineState.ViewportCount, m_D3DPipelineState.Viewports);
+		m_D3DContext->RSSetViewports(m_D3DPipelineState.ViewportCount, &m_DefaultViewport);
 		m_FlushState[eFSViewports] = false;
 	}
 
@@ -611,9 +615,9 @@ void D3DGraphic::FlushPipelineState()
 		m_FlushState[eFSDepthStencilState] = false;
 	}
 
-	if (m_FlushState[eFSRenderTarget] || m_FlushState[eFSDepthStencil])
-	{
+	//if (m_FlushState[eFSRenderTarget] || m_FlushState[eFSDepthStencil])
+	//{
 		m_D3DContext->OMSetRenderTargets(eCTRenderTarget, m_D3DPipelineState.RenderTarget, m_D3DPipelineState.DepthStencil);
 		m_FlushState[eFSRenderTarget] = m_FlushState[eFSDepthStencil] = false;
-	}
+	//}
 }

@@ -43,7 +43,6 @@ static char* s_ShaderName = "Box.hlsl";
 
 ApplicationBox::ApplicationBox(HINSTANCE hInstance, LPCWSTR lpTitle)
 	: Base(hInstance, lpTitle)
-	, m_bInited(false)
 {
 	DirectX::XMMATRIX I = DirectX::XMMatrixIdentity();
 	DirectX::XMStoreFloat4x4(&s_MatrixSet.World, I);
@@ -51,7 +50,7 @@ ApplicationBox::ApplicationBox(HINSTANCE hInstance, LPCWSTR lpTitle)
 	DirectX::XMStoreFloat4x4(&s_MatrixSet.Projection, I);
 }
 
-void ApplicationBox::Setup()
+void ApplicationBox::SetupScene()
 {
 	assert(g_Renderer && !m_bInited);
 
@@ -125,8 +124,8 @@ void ApplicationBox::Setup()
 
 void ApplicationBox::RenderScene()
 {
-	float black[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	g_Renderer->ClearRenderTarget(g_Renderer->DefaultRenderTarget(), nullptr);
+	float black[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	g_Renderer->ClearRenderTarget(g_Renderer->DefaultRenderTarget(), black);
 	g_Renderer->ClearDepthStencil(g_Renderer->DefaultDepthStencil(), 1.0f, 0U);
 
 	DirectX::XMMATRIX world = DirectX::XMLoadFloat4x4(&s_MatrixSet.World);
@@ -145,11 +144,6 @@ void ApplicationBox::RenderScene()
 
 void ApplicationBox::UpdateScene(float /*elapsedTime*/, float /*totalTime*/)
 {
-	if (!m_bInited)
-	{
-		Setup();
-	}
-
 	float x = s_Radius * sinf(s_Phi) * cosf(s_Theta);
 	float z = s_Radius * sinf(s_Phi) * sinf(s_Theta);
 	float y = s_Radius * cosf(s_Phi);
@@ -168,17 +162,6 @@ void ApplicationBox::ResizeWindow(uint32_t width, uint32_t height)
 	DirectX::XMStoreFloat4x4(&s_MatrixSet.Projection, perspective);
 
 	Base::ResizeWindow(width, height);
-
-	float x = s_Radius * sinf(s_Phi) * cosf(s_Theta);
-	float z = s_Radius * sinf(s_Phi) * sinf(s_Theta);
-	float y = s_Radius * cosf(s_Phi);
-
-	DirectX::XMVECTOR pos = DirectX::XMVectorSet(x, y, z, 1.0f);
-	DirectX::XMVECTOR target = DirectX::XMVectorZero();
-	DirectX::XMVECTOR up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-	DirectX::XMMATRIX lookAt = DirectX::XMMatrixLookAtLH(pos, target, up);
-
-	DirectX::XMStoreFloat4x4(&s_MatrixSet.View, lookAt);
 }
 
 void ApplicationBox::MouseMove(WPARAM wParam, int x, int y)
