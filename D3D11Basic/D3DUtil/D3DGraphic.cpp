@@ -29,7 +29,7 @@ D3DGraphic::D3DGraphic()
 
 void D3DGraphic::CreateTexture2D(ID3D11Texture2D** ppTexture, DXGI_FORMAT fmt, uint32_t width, uint32_t height,
 	uint32_t bindFlags, uint32_t mipLevels, uint32_t arraySize, uint32_t cpuFlags, uint32_t sampleCount, uint32_t sampleQuality,
-	uint32_t miscFlags, D3D11_USAGE usage)
+	uint32_t miscFlags, D3D11_USAGE usage, const void* pData, uint32_t pitch, uint32_t slice)
 {
 	D3D11_TEXTURE2D_DESC texDesc;
 	memset(&texDesc, 0, sizeof(D3D11_TEXTURE2D_DESC));
@@ -45,7 +45,13 @@ void D3DGraphic::CreateTexture2D(ID3D11Texture2D** ppTexture, DXGI_FORMAT fmt, u
 	texDesc.MiscFlags = miscFlags;
 	texDesc.Usage = usage;
 
-	HRCheck(m_D3DDevice->CreateTexture2D(&texDesc, nullptr, ppTexture));
+	D3D11_SUBRESOURCE_DATA subResData;
+	memset(&subResData, 0, sizeof(D3D11_SUBRESOURCE_DATA));
+	subResData.pSysMem = pData;
+	subResData.SysMemPitch = pitch;
+	subResData.SysMemSlicePitch = slice;
+
+	HRCheck(m_D3DDevice->CreateTexture2D(&texDesc, ((nullptr == pData) ?  nullptr : &subResData), ppTexture));
 }
 
 void D3DGraphic::CreateDepthStencil(ID3D11DepthStencilView** ppDSV, DXGI_FORMAT fmt, uint32_t width, uint32_t height)
@@ -136,6 +142,24 @@ void D3DGraphic::CreateShaderResourceView(ID3D11ShaderResourceView** ppSRV, char
 	assert(!"Unsupport yet!!!");
 }
 
+void D3DGraphic::CreateRenderTargetView(ID3D11RenderTargetView** ppRTV, ID3D11Resource* pResource)
+{
+	assert(ppRTV && pResource);
+	///D3D11_RENDER_TARGET_VIEW_DESC rtvDesc;
+	///memset(&rtvDesc, 0, sizeof(D3D11_RENDER_TARGET_VIEW_DESC)); 
+	
+	HRCheck(m_D3DDevice->CreateRenderTargetView(pResource, nullptr, ppRTV));
+}
+
+void D3DGraphic::CreateShaderResourceView(ID3D11ShaderResourceView** ppSRV, ID3D11Resource* pResource)
+{
+	assert(ppSRV && pResource);
+	///D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	///memset(&srvDesc, 0, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+
+	HRCheck(m_D3DDevice->CreateShaderResourceView(pResource, nullptr, ppSRV));
+}
+
 void D3DGraphic::CreateStreamBuffer(ID3D11Buffer** ppBuffer, D3D11_BIND_FLAG bindFlag, uint32_t byteWidth, 
 	D3D11_USAGE usage, const void* pBuf, uint32_t cpuAccessFlag)
 {
@@ -193,7 +217,7 @@ void D3DGraphic::CreateBlendState(ID3D11BlendState** ppBlendState, D3D11_BLEND_D
 	HRCheck(m_D3DDevice->CreateBlendState(pBlendDesc, ppBlendState));
 }
 
-void D3DGraphic::CompileShaderFile(ID3DBlob** ppRes, char* pFileName, char* pEntryPoint, char* pTarget)
+void D3DGraphic::CompileShaderFile(ID3DBlob** ppRes, char* pFileName, char* pEntryPoint, char* pTarget, const D3D_SHADER_MACRO* pDefines)
 {
 	assert(ppRes && pFileName && pEntryPoint && pTarget);
 
@@ -214,7 +238,7 @@ void D3DGraphic::CompileShaderFile(ID3DBlob** ppRes, char* pFileName, char* pEnt
 #endif
 
 		ID3DBlob* pErrMsg = nullptr;
-		if (FAILED(D3DCompile(pData, fileSize, pFileName, nullptr, nullptr, pEntryPoint, pTarget, flags, 0U, ppRes, &pErrMsg)))
+		if (FAILED(D3DCompile(pData, fileSize, pFileName, pDefines, nullptr, pEntryPoint, pTarget, flags, 0U, ppRes, &pErrMsg)))
 		{
 			OutputDebugStringA((char*)pErrMsg->GetBufferPointer());
 			assert(!"Shader compile failed!!!");

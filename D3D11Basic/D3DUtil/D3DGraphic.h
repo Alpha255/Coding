@@ -62,9 +62,11 @@ public:
 
 	void CreateTexture2D(__out ID3D11Texture2D** ppTexture, DXGI_FORMAT fmt, uint32_t width, uint32_t height,
 		uint32_t bindFlags, uint32_t mipLevels = 1U, uint32_t arraySize = 1U, uint32_t cpuFlags = 0U, uint32_t sampleCount = 1U, uint32_t sampleQuality = 0U,
-		uint32_t miscFlags = 0U, D3D11_USAGE usage = D3D11_USAGE_DEFAULT);
+		uint32_t miscFlags = 0U, D3D11_USAGE usage = D3D11_USAGE_DEFAULT, const void* pData = nullptr, uint32_t pitch = 0U, uint32_t slice = 0U);
 
 	void CreateShaderResourceView(__out ID3D11ShaderResourceView** ppSRV, char* pFileName);
+	void CreateRenderTargetView(__out ID3D11RenderTargetView** ppRTV, ID3D11Resource* pResource);
+	void CreateShaderResourceView(__out ID3D11ShaderResourceView** ppSRV, ID3D11Resource* pResource);
 
 	void CreateStreamBuffer(__out ID3D11Buffer** ppBuffer, D3D11_BIND_FLAG bindFlag, uint32_t byteWidth, D3D11_USAGE usage, const void* pBuf, uint32_t cpuAccessFlag = 0U);
 
@@ -110,7 +112,7 @@ protected:
 
 	void RecreateBackBuffer();
 
-	void CompileShaderFile(__out ID3DBlob** ppRes, char* pFileName, char* pEntryPoint, char* pTarget);
+	void CompileShaderFile(__out ID3DBlob** ppRes, char* pFileName, char* pEntryPoint, char* pTarget, const D3D_SHADER_MACRO* pDefines = nullptr);
 
 	void FlushPipelineState();
 private:

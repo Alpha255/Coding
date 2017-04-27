@@ -26,6 +26,6 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="..\..\Application\Resource\Shaders\Box.hlsl" />
+    <None Include="..\..\Application\Resource\Shaders\Box.hlsl" />
   </ItemGroup>
 </Project>
