@@ -1,14 +1,14 @@
-#include "FXAA.h"
+#include "Lighting.h"
 
 INT WINAPI wWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpCmdLine*/, int /*nShow*/)
 {
-	ApplicationFXAA FXAA;
+	ApplicationLighting Lighting;
 
-	FXAA.Startup(L"FXAA");
+	Lighting.Startup(L"Lighting");
 
-	FXAA.Running();
+	Lighting.Running();
 
-	FXAA.ShutDown();
+	Lighting.ShutDown();
 
 	return 0;
 }

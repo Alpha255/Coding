@@ -94,8 +94,7 @@ namespace FXAA
 	static D3DViews s_Views;
 }
 
-ApplicationFXAA::ApplicationFXAA(HINSTANCE hInstance, LPCWSTR lpTitle)
-	: Base(hInstance, lpTitle)
+ApplicationFXAA::ApplicationFXAA()
 {
 
 }
@@ -103,10 +102,10 @@ ApplicationFXAA::ApplicationFXAA(HINSTANCE hInstance, LPCWSTR lpTitle)
 void ApplicationFXAA::CreateTextures()
 {
 	g_Renderer->CreateTexture2D(FXAA::s_Textures.CopyResolveTex.GetReference(), DXGI_FORMAT_R8G8B8A8_UNORM, 
-		m_Size[0], m_Size[1], D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE);
+		m_Width, m_Height, D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE);
 
 	g_Renderer->CreateTexture2D(FXAA::s_Textures.ProxyTex.GetReference(), DXGI_FORMAT_R8G8B8A8_UNORM,
-		m_Size[0], m_Size[1], D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE);
+		m_Width, m_Height, D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE);
 
 	/// Shadow map surfaces
 	g_Renderer->CreateTexture2D(FXAA::s_Textures.DepthTex.GetReference(), DXGI_FORMAT_R24G8_TYPELESS,

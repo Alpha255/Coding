@@ -5,7 +5,7 @@
 class ApplicationFXAA : public IApplication
 {
 public:
-	ApplicationFXAA(HINSTANCE hInstance, LPCWSTR lpTitle);
+	ApplicationFXAA();
 	~ApplicationFXAA() {}
 
 	virtual void SetupScene();

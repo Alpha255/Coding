@@ -22,7 +22,7 @@ struct Constants
 	DirectX::XMMATRIX WVP;
 };
 
-struct D3DResource
+struct DemoBoxResource
 {
 	Ref<ID3D11VertexShader> VertexShader;
 	Ref<ID3D11InputLayout> InputLayout;
@@ -38,11 +38,10 @@ static float s_Radius = 5.0f;
 static float s_Phi = DirectX::XM_PIDIV4;
 static float s_Theta = 1.5f * DirectX::XM_PI;
 static MatrixSet s_MatrixSet;
-static D3DResource s_D3DResource;
-static char* s_ShaderName = "Box.hlsl";
+static DemoBoxResource s_D3DResource;
+static char* const s_ShaderName = "Box.hlsl";
 
-ApplicationBox::ApplicationBox(HINSTANCE hInstance, LPCWSTR lpTitle)
-	: Base(hInstance, lpTitle)
+ApplicationBox::ApplicationBox()
 {
 	DirectX::XMMATRIX I = DirectX::XMMatrixIdentity();
 	DirectX::XMStoreFloat4x4(&s_MatrixSet.World, I);
@@ -80,23 +79,24 @@ void ApplicationBox::SetupScene()
 	g_Renderer->CreateStreamBuffer(s_D3DResource.VertexBuffer.GetReference(), D3D11_BIND_VERTEX_BUFFER, sizeof(Vertex) * 8U,
 		D3D11_USAGE_IMMUTABLE, vertices);
 
-	uint32_t indices[] = {
-		/// front face
+	uint32_t indices[] = 
+	{
+		/// Front face
 		0, 1, 2,
 		0, 2, 3,
-		/// back face
+		/// Back face
 		4, 6, 5,
 		4, 7, 6,
-		/// left face
+		/// Left face
 		4, 5, 1,
 		4, 1, 0,
-		/// right face
+		/// Right face
 		3, 2, 6,
 		3, 6, 7,
-		/// top face
+		/// Top face
 		1, 5, 6,
 		1, 6, 2,
-		/// bottom face
+		/// Bottom face
 		4, 0, 3,
 		4, 3, 7
 	};
@@ -112,8 +112,8 @@ void ApplicationBox::SetupScene()
 	g_Renderer->SetRenderTarget(g_Renderer->DefaultRenderTarget());
 	g_Renderer->SetDepthStencil(g_Renderer->DefaultDepthStencil());
 
-	s_D3DResource.Viewport.Width = (float)m_Size[0];
-	s_D3DResource.Viewport.Height = (float)m_Size[1];
+	s_D3DResource.Viewport.Width = (float)m_Width;
+	s_D3DResource.Viewport.Height = (float)m_Height;
 	s_D3DResource.Viewport.MinDepth = 0.0f;
 	s_D3DResource.Viewport.MaxDepth = 1.0f;
 	s_D3DResource.Viewport.TopLeftX = s_D3DResource.Viewport.TopLeftY = 0.0f;
@@ -161,7 +161,7 @@ void ApplicationBox::ResizeWindow(uint32_t width, uint32_t height)
 	DirectX::XMMATRIX perspective = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV4, (float)width / height, 1.0f, 100.0f);
 	DirectX::XMStoreFloat4x4(&s_MatrixSet.Projection, perspective);
 
-	Base::ResizeWindow(width, height);
+	return Base::ResizeWindow(width, height);
 }
 
 void ApplicationBox::MouseMove(WPARAM wParam, int x, int y)
@@ -179,7 +179,7 @@ void ApplicationBox::MouseMove(WPARAM wParam, int x, int y)
 	else if ((wParam & MK_RBUTTON) != 0)
 	{
 		float dx = 0.005f * static_cast<float>(x - m_LastMousePos[0]);
-		float dy = 0.005f * static_cast<float>(y - m_LastMousePos[0]);
+		float dy = 0.005f * static_cast<float>(y - m_LastMousePos[1]);
 
 		s_Radius += dx - dy;
 

@@ -5,7 +5,7 @@
 class IApplication
 {
 public:
-	IApplication(HINSTANCE hInstance, LPCWSTR lpTitle, uint32_t width = 800U, uint32_t height = 600U, bool bWindowed = true);
+	IApplication();
 	virtual ~IApplication();
 
 	virtual void SetupScene() = 0;
@@ -19,13 +19,16 @@ public:
 	virtual void MouseMove(WPARAM /*wParam*/, int /*x*/, int /*y*/) {}
 	virtual void Keyboard(WPARAM /*wParam*/) {}
 
-	int MainLoop();
+	void Startup(LPCWSTR lpTitle, uint32_t width = 800U, uint32_t height = 600U, bool bWindowed = true);
+	void Running();
+	void ShutDown();
 protected:
-	void MakeWindow(HINSTANCE hInstance, LPCWSTR lpTitle, uint32_t width, uint32_t height);
+	void MakeWindow(LPCWSTR lpTitle, uint32_t width, uint32_t height);
 
 	HWND m_hWnd;
 	int m_LastMousePos[2];
-	uint32_t m_Size[2];
+	uint32_t m_Width;
+	uint32_t m_Height;
 	bool m_bInited;
 
 	typedef IApplication Base;

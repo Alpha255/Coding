@@ -1,8 +1,14 @@
 #include "Box.h"
 
-INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpCmdLine*/, int /*nShow*/)
+INT WINAPI wWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpCmdLine*/, int /*nShow*/)
 {
-	ApplicationBox Box(hInstance, L"Box");
+	ApplicationBox Box;
 
-	return Box.MainLoop();
+	Box.Startup(L"Box");
+
+	Box.Running();
+
+	Box.ShutDown();
+
+	return 0;
 }

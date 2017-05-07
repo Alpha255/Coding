@@ -639,9 +639,9 @@ void D3DGraphic::FlushPipelineState()
 		m_FlushState[eFSDepthStencilState] = false;
 	}
 
-	//if (m_FlushState[eFSRenderTarget] || m_FlushState[eFSDepthStencil])
-	//{
+	if (m_FlushState[eFSRenderTarget] || m_FlushState[eFSDepthStencil] || eCTBackBuffer > 1U)
+	{
 		m_D3DContext->OMSetRenderTargets(eCTRenderTarget, m_D3DPipelineState.RenderTarget, m_D3DPipelineState.DepthStencil);
 		m_FlushState[eFSRenderTarget] = m_FlushState[eFSDepthStencil] = false;
-	//}
+	}
 }

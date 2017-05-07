@@ -11,26 +11,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return s_Application->MsgProc(hWnd, msg, wParam, lParam);
 }
 
-IApplication::IApplication(HINSTANCE hInstance, LPCWSTR lpTitle, uint32_t width, uint32_t height, bool bWindowed)
+IApplication::IApplication()
 	: m_hWnd(nullptr)
 	, m_bActive(true)
 	, m_bInited(false)
+	, m_Width(0U)
+	, m_Height(0U)
 	, m_pTimer(new Timer())
 {
 	s_Application = this;
 	memset(m_LastMousePos, 0, sizeof(int) * 2);
-	memset(m_Size, 0, sizeof(uint32_t) * 2);
-
-	MakeWindow(hInstance, lpTitle, width, height);
-
-	D3DGraphic::CreateInstance();
-	g_Renderer = D3DGraphic::GetInstance();
-	g_Renderer->InitD3DEnvironment(m_hWnd, width, height, bWindowed);
 }
 
-void IApplication::MakeWindow(HINSTANCE hInstance, LPCWSTR lpTitle, uint32_t width, uint32_t height)
+void IApplication::MakeWindow(LPCWSTR lpTitle, uint32_t width, uint32_t height)
 {
-	assert(hInstance && lpTitle);
+	HINSTANCE hInst = ::GetModuleHandle(nullptr);
+	assert(hInst && lpTitle);
 
 	WNDCLASSEX wndClassEx;
 	memset(&wndClassEx, 0, sizeof(WNDCLASSEX));
@@ -38,9 +34,9 @@ void IApplication::MakeWindow(HINSTANCE hInstance, LPCWSTR lpTitle, uint32_t wid
 	wndClassEx.cbSize = sizeof(WNDCLASSEX);
 	wndClassEx.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
 	wndClassEx.hCursor = LoadCursor(0, IDC_ARROW);
-	wndClassEx.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON_APP));
+	wndClassEx.hIcon = LoadIcon(hInst, MAKEINTRESOURCE(IDI_ICON_APP));
 	wndClassEx.hIconSm = wndClassEx.hIcon;
-	wndClassEx.hInstance = hInstance;
+	wndClassEx.hInstance = hInst;
 	wndClassEx.lpfnWndProc = WndProc;
 	wndClassEx.lpszClassName = lpTitle;
 	wndClassEx.lpszMenuName = nullptr;
@@ -51,11 +47,11 @@ void IApplication::MakeWindow(HINSTANCE hInstance, LPCWSTR lpTitle, uint32_t wid
 		RECT rect{ 0, 0, (long)width, (long)height };
 		AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, false);
 		m_hWnd = CreateWindow(lpTitle, lpTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
-			rect.right - rect.left, rect.bottom - rect.top, 0, 0, hInstance, nullptr);
+			rect.right - rect.left, rect.bottom - rect.top, 0, 0, hInst, nullptr);
 		assert(m_hWnd);
 
-		m_Size[0] = width;
-		m_Size[1] = height;
+		m_Width = width;
+		m_Height = height;
 
 		ShowWindow(m_hWnd, SW_SHOWDEFAULT);
 		UpdateWindow(m_hWnd);
@@ -137,8 +133,8 @@ void IApplication::ResizeWindow(uint32_t width, uint32_t height)
 	uint32_t dstHeight = max(height, 32U);
 	if (g_Renderer)
 	{
-		m_Size[0] = dstWidth;
-		m_Size[1] = dstHeight;
+		m_Width = dstWidth;
+		m_Height = dstHeight;
 
 		g_Renderer->ResizeBackBuffer(dstWidth, dstHeight);
 
@@ -152,7 +148,19 @@ void IApplication::ResizeWindow(uint32_t width, uint32_t height)
 	}
 }
 
-int IApplication::MainLoop()
+void IApplication::Startup(LPCWSTR lpTitle, uint32_t width, uint32_t height, bool bWindowed)
+{
+	MakeWindow(lpTitle, width, height);
+
+	if (nullptr == g_Renderer)
+	{
+		D3DGraphic::CreateInstance();
+		g_Renderer = D3DGraphic::GetInstance();
+		g_Renderer->InitD3DEnvironment(m_hWnd, m_Width, m_Height, bWindowed);
+	}
+}
+
+void IApplication::Running()
 {
 	MSG msg = { 0 };
 
@@ -186,12 +194,14 @@ int IApplication::MainLoop()
 			}
 		}
 	}
+}
 
-	return (int)msg.wParam;
+void IApplication::ShutDown()
+{
+	D3DGraphic::DestoryInstance();
 }
 
 IApplication::~IApplication()
 {
-	D3DGraphic::DestoryInstance();
 	SafeDelete(m_pTimer);
 }

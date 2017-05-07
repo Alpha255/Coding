@@ -2,11 +2,11 @@
 
 #include <IApplication.h>
 
-class ApplicationBox : public IApplication
+class ApplicationLighting : public IApplication
 {
 public:
-	ApplicationBox();
-	~ApplicationBox() {}
+	ApplicationLighting();
+	~ApplicationLighting() {}
 
 	virtual void SetupScene();
 	virtual void RenderScene();
