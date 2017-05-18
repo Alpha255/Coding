@@ -8,6 +8,7 @@ namespace FXAA
 {
 	enum
 	{
+		eGatherCount = 2,
 		ePatternCount = 5,
 		eFxaaPatternCount = 6,
 		eShadowMapSize = 2048,
@@ -92,6 +93,10 @@ namespace FXAA
 
 	static D3DTextures s_Textures;
 	static D3DViews s_Views;
+	static D3DShaders s_Shaders;
+	static D3DStates s_States;
+	static D3DConstantsBuffers s_ConstantsBuffers;
+	static Ref<ID3D11InputLayout> s_InputLayout;
 }
 
 ApplicationFXAA::ApplicationFXAA()
@@ -141,32 +146,151 @@ void ApplicationFXAA::CreateViews()
 	assert(FXAA::s_Textures.CopyResolveTex.IsValid());
 	g_Renderer->CreateShaderResourceView(FXAA::s_Views.CopyResolveTexSRV.GetReference(), FXAA::s_Textures.CopyResolveTex.GetPtr());
 
-	/// Depth stencil view for shadowmap
+	/// Shader resource view for shadowmap
+	assert(FXAA::s_Textures.DepthTex.IsValid());
+	g_Renderer->CreateShaderResourceView(FXAA::s_Views.DepthTexSRV.GetReference(), FXAA::s_Textures.DepthTex.GetPtr(), 
+		DXGI_FORMAT_R24_UNORM_X8_TYPELESS, D3D11_SRV_DIMENSION_TEXTURE2D);
+	g_Renderer->CreateDepthStencilView(FXAA::s_Views.DepthTexDSV.GetReference(), FXAA::s_Textures.DepthTex.GetPtr(),
+		DXGI_FORMAT_D24_UNORM_S8_UINT, D3D11_DSV_DIMENSION_TEXTURE2D);
+
+	/// Shader resource view for random rotation texture
+	assert(FXAA::s_Textures.RandomRotTex.IsValid());
+	g_Renderer->CreateShaderResourceView(FXAA::s_Views.RandomRotTexSRV.GetReference(), FXAA::s_Textures.RandomRotTex.GetPtr(),
+		DXGI_FORMAT_R8G8B8A8_SNORM, D3D11_SRV_DIMENSION_TEXTURE2D);
 }
 
-void ApplicationFXAA::CreateShaders()
+void ApplicationFXAA::CreateInputLayoutAndShaders()
+{
+	D3D11_INPUT_ELEMENT_DESC layout[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,  0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+	g_Renderer->CreateVertexShaderAndInputLayout(FXAA::s_Shaders.ShadowMapVS.GetReference(), FXAA::s_InputLayout.GetReference(),
+		layout, ARRAYSIZE(layout), "Fxaa.hlsl", "ShadowMapVSMain");
+
+	g_Renderer->CreateVertexShader(FXAA::s_Shaders.MainVS.GetReference(), "Fxaa.hlsl", "VSMain");
+
+	g_Renderer->CreateVertexShader(FXAA::s_Shaders.FxaaVS.GetReference(), "Fxaa.hlsl", "FxaaVSMain");
+
+	/// Pixel shaders
+	static D3D_SHADER_MACRO PatternMacros[FXAA::ePatternCount] =
+	{
+		{ "PATTERN", "44" },
+		{ "PATTERN", "64" },
+		{ "PATTERN", "38" },
+		{ "PATTERN", "84" },
+		{ "PATTERN", "48" }
+	};
+	static D3D_SHADER_MACRO GatherMacros[FXAA::eGatherCount] =
+	{
+		{ "NOUSEGATHER4", "" },
+		{ "USEGATHER4", "" }
+	};
+	static D3D_SHADER_MACRO PresetMacros[FXAA::eFxaaPatternCount] =
+	{
+		{ "FXAA_PRESET", "0" },
+		{ "FXAA_PRESET", "1" },
+		{ "FXAA_PRESET", "2" },
+		{ "FXAA_PRESET", "3" },
+		{ "FXAA_PRESET", "4" },
+		{ "FXAA_PRESET", "5" }
+	};
+	static D3D_SHADER_MACRO NullMacro = { nullptr, nullptr };
+
+	std::vector<D3D_SHADER_MACRO> Macros;
+	for (uint32_t pat = 0U; pat < FXAA::ePatternCount; ++pat)
+	{
+		Macros.clear();
+		Macros.push_back(PatternMacros[pat]);
+		Macros.push_back(GatherMacros[0]);
+		Macros.push_back(NullMacro);
+		g_Renderer->CreatePixelShader(FXAA::s_Shaders.MainPS[pat].GetReference(), "Fxaa.hlsl", "MainPS", (const D3D_SHADER_MACRO*)&*Macros.begin());
+
+		Macros.clear();
+		Macros.push_back(PatternMacros[pat]);
+		Macros.push_back(GatherMacros[1]);
+		Macros.push_back(NullMacro);
+		g_Renderer->CreatePixelShader(FXAA::s_Shaders.MainGatherPS[pat].GetReference(), "Fxaa.hlsl", "MainPS", (const D3D_SHADER_MACRO*)&*Macros.begin());
+	}
+
+	for (uint32_t pat = 0U; pat < FXAA::eFxaaPatternCount; ++pat)
+	{
+		Macros.clear();
+		Macros.push_back(PresetMacros[pat]);
+		g_Renderer->CreatePixelShader(FXAA::s_Shaders.FxaaPS[pat].GetReference(), "Fxaa.hlsl", "FxaaMainPS", (const D3D_SHADER_MACRO*)&*Macros.begin());
+	}
+}
+
+void ApplicationFXAA::CreateMesh()
 {
 
 }
 
-void ApplicationFXAA::CreateSamplerStates()
+void ApplicationFXAA::CreateStates()
 {
+	/// Sampler state
+	D3D11_SAMPLER_DESC samDesc;
+	memset(&samDesc, 0, sizeof(D3D11_SAMPLER_DESC));
 
-}
+	samDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	samDesc.AddressU = D3D11_TEXTURE_ADDRESS_MIRROR;
+	samDesc.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR;
+	samDesc.AddressW = D3D11_TEXTURE_ADDRESS_MIRROR;
+	samDesc.MipLODBias = 0.0f;
+	samDesc.MaxAnisotropy = 1;
+	samDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	samDesc.BorderColor[0] = samDesc.BorderColor[1] = samDesc.BorderColor[2] = samDesc.BorderColor[3] = 0;
+	samDesc.MinLOD = 0;
+	samDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	g_Renderer->CreateSamplerState(FXAA::s_States.PointMirror.GetReference(), &samDesc);
 
-void ApplicationFXAA::CreateBlendStates()
-{
+	samDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	g_Renderer->CreateSamplerState(FXAA::s_States.LinearWrap.GetReference(), &samDesc);
 
-}
+	samDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
+	samDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samDesc.ComparisonFunc = D3D11_COMPARISON_LESS;
+	g_Renderer->CreateSamplerState(FXAA::s_States.PointCmpClamp.GetReference(), &samDesc);
 
-void ApplicationFXAA::CreateRasterizerStates()
-{
+	samDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+	samDesc.AddressU = samDesc.AddressV = samDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samDesc.MaxAnisotropy = 4;
+	samDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	samDesc.MaxLOD = 0.0f;
+	samDesc.MinLOD = 0.0f;
+	g_Renderer->CreateSamplerState(FXAA::s_States.Anisotropic.GetReference(), &samDesc);
 
+	/// Blend state
+	D3D11_BLEND_DESC blendDesc;
+	memset(&blendDesc, 0, sizeof(D3D11_BLEND_DESC));
+	blendDesc.IndependentBlendEnable = false;
+	blendDesc.RenderTarget[0].BlendEnable = false;
+	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	g_Renderer->CreateBlendState(FXAA::s_States.ColorWritesOn.GetReference(), &blendDesc);
+
+	blendDesc.RenderTarget[0].RenderTargetWriteMask = 0U;
+	g_Renderer->CreateBlendState(FXAA::s_States.ColorWritesOff.GetReference(), &blendDesc);
+
+	/// Rasterizer state
+	g_Renderer->CreateRasterizerState(FXAA::s_States.CullBack.GetReference(), D3D11_FILL_SOLID, D3D11_CULL_BACK);
+
+	g_Renderer->CreateRasterizerState(FXAA::s_States.CullFront.GetReference(), D3D11_FILL_SOLID, D3D11_CULL_FRONT);
 }
 
 void ApplicationFXAA::CreateConstantsBuffers()
 {
+	g_Renderer->CreateStreamBuffer(FXAA::s_ConstantsBuffers.Constants.GetReference(), D3D11_BIND_CONSTANT_BUFFER,
+		sizeof(FXAA::ConstantsBuf), D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
 
+	g_Renderer->CreateStreamBuffer(FXAA::s_ConstantsBuffers.Fxaa.GetReference(), D3D11_BIND_CONSTANT_BUFFER,
+		sizeof(FXAA::ConstantsFxaa), D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
 }
 
 void ApplicationFXAA::SetupScene()
@@ -178,10 +302,9 @@ void ApplicationFXAA::SetupScene()
 
 	CreateTextures();
 	CreateViews();
-	CreateShaders();
-	CreateSamplerStates();
-	CreateBlendStates();
-	CreateRasterizerStates();
+	CreateInputLayoutAndShaders();
+	CreateMesh();
+	CreateStates();
 	CreateConstantsBuffers();
 
 	m_bInited = true;

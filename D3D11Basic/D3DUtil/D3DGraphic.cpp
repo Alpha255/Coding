@@ -54,16 +54,38 @@ void D3DGraphic::CreateTexture2D(ID3D11Texture2D** ppTexture, DXGI_FORMAT fmt, u
 	HRCheck(m_D3DDevice->CreateTexture2D(&texDesc, ((nullptr == pData) ?  nullptr : &subResData), ppTexture));
 }
 
-void D3DGraphic::CreateDepthStencil(ID3D11DepthStencilView** ppDSV, DXGI_FORMAT fmt, uint32_t width, uint32_t height)
+void D3DGraphic::CreateDepthStencilView(ID3D11DepthStencilView** ppDSV, ID3D11Resource* pResource, DXGI_FORMAT format, uint32_t width, uint32_t height, D3D11_DSV_DIMENSION dimension)
 {
 	assert(ppDSV);
-	assert(width > 0U);
-	assert(height > 0U);
 
-	ID3D11Texture2D* pTexture = nullptr;
-	CreateTexture2D(&pTexture, fmt, width, height, D3D11_BIND_DEPTH_STENCIL);
-	HRCheck(m_D3DDevice->CreateDepthStencilView(pTexture, nullptr, ppDSV));
-	SafeRelease(pTexture);
+	if (pResource)
+	{
+		D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
+		memset(&dsvDesc, 0, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
+		dsvDesc.Format = format;
+		dsvDesc.ViewDimension = dimension;
+		dsvDesc.Flags = 0U;
+		switch (dimension)
+		{
+		case D3D11_DSV_DIMENSION_TEXTURE1D:
+			dsvDesc.Texture1D.MipSlice = 0U;
+			break;
+		case D3D11_DSV_DIMENSION_TEXTURE2D:
+			dsvDesc.Texture2D.MipSlice = 0U;
+			break;
+		default:
+			assert("Invalid type!!!");
+			break;
+		}
+		HRCheck(m_D3DDevice->CreateDepthStencilView(pResource, &dsvDesc, ppDSV));
+	}
+	else
+	{
+		ID3D11Texture2D* pTexture = nullptr;
+		CreateTexture2D(&pTexture, format, width, height, D3D11_BIND_DEPTH_STENCIL);
+		HRCheck(m_D3DDevice->CreateDepthStencilView(pTexture, nullptr, ppDSV));
+		SafeRelease(pTexture);
+	}
 }
 
 void D3DGraphic::InitD3DEnvironment(HWND hWnd, uint32_t width, uint32_t height, bool bWindowed)
@@ -125,7 +147,7 @@ void D3DGraphic::InitD3DEnvironment(HWND hWnd, uint32_t width, uint32_t height, 
 			RecreateBackBuffer();
 
 			/// Create Depth Stencil View
-			CreateDepthStencil(m_DefaultDepthStencil.GetReference(), DXGI_FORMAT_D24_UNORM_S8_UINT, width, height);
+			CreateDepthStencilView(m_DefaultDepthStencil.GetReference(), nullptr, DXGI_FORMAT_D24_UNORM_S8_UINT, width, height);
 
 			return;
 		}
@@ -151,13 +173,43 @@ void D3DGraphic::CreateRenderTargetView(ID3D11RenderTargetView** ppRTV, ID3D11Re
 	HRCheck(m_D3DDevice->CreateRenderTargetView(pResource, nullptr, ppRTV));
 }
 
-void D3DGraphic::CreateShaderResourceView(ID3D11ShaderResourceView** ppSRV, ID3D11Resource* pResource)
+void D3DGraphic::CreateShaderResourceView(ID3D11ShaderResourceView** ppSRV, ID3D11Resource* pResource, DXGI_FORMAT format, D3D11_SRV_DIMENSION dimension)
 {
 	assert(ppSRV && pResource);
-	///D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	///memset(&srvDesc, 0, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
-
-	HRCheck(m_D3DDevice->CreateShaderResourceView(pResource, nullptr, ppSRV));
+	if (DXGI_FORMAT_UNKNOWN == format)
+	{
+		HRCheck(m_D3DDevice->CreateShaderResourceView(pResource, nullptr, ppSRV));
+	}
+	else
+	{
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+		memset(&srvDesc, 0, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+		srvDesc.Format = format;
+		srvDesc.ViewDimension = dimension;
+		switch (dimension)
+		{
+		case D3D11_SRV_DIMENSION_TEXTURE1D:
+			srvDesc.Texture1D.MipLevels = 1U;
+			srvDesc.Texture1D.MostDetailedMip = 0U;
+			break;
+		case D3D11_SRV_DIMENSION_TEXTURE2D:
+			srvDesc.Texture2D.MipLevels = 1U;
+			srvDesc.Texture2D.MostDetailedMip = 0U;
+			break;
+		case D3D11_SRV_DIMENSION_TEXTURE3D:
+			srvDesc.Texture3D.MipLevels = 1U;
+			srvDesc.Texture3D.MostDetailedMip = 0U;
+			break;
+		case D3D11_SRV_DIMENSION_TEXTURECUBE:
+			srvDesc.TextureCube.MipLevels = 1U;
+			srvDesc.TextureCube.MostDetailedMip = 0U;
+			break;
+		default:
+			assert("Invalid type!!");
+			break;
+		}
+		HRCheck(m_D3DDevice->CreateShaderResourceView(pResource, &srvDesc, ppSRV));
+	}
 }
 
 void D3DGraphic::CreateStreamBuffer(ID3D11Buffer** ppBuffer, D3D11_BIND_FLAG bindFlag, uint32_t byteWidth, 
@@ -262,22 +314,22 @@ void D3DGraphic::RecreateBackBuffer()
 	SafeRelease(pBackBuffer);
 }
 
-void D3DGraphic::CreateVertexShader(ID3D11VertexShader** ppVS, char* pFileName, char* pEntryPoint)
+void D3DGraphic::CreateVertexShader(ID3D11VertexShader** ppVS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines)
 {
 	assert(ppVS);
 
 	ID3DBlob* pRes = nullptr;
-	CompileShaderFile(&pRes, pFileName, pEntryPoint, "vs_5_0");
+	CompileShaderFile(&pRes, pFileName, pEntryPoint, "vs_5_0", pDefines);
 	HRCheck(m_D3DDevice->CreateVertexShader(pRes->GetBufferPointer(), pRes->GetBufferSize(), nullptr, ppVS));
 	SafeRelease(pRes);
 }
 
-void D3DGraphic::CreatePixelShader(ID3D11PixelShader** ppPS, char* pFileName, char* pEntryPoint)
+void D3DGraphic::CreatePixelShader(ID3D11PixelShader** ppPS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines)
 {
 	assert(ppPS);
 
 	ID3DBlob* pRes = nullptr;
-	CompileShaderFile(&pRes, pFileName, pEntryPoint, "ps_5_0");
+	CompileShaderFile(&pRes, pFileName, pEntryPoint, "ps_5_0", pDefines);
 	HRCheck(m_D3DDevice->CreatePixelShader(pRes->GetBufferPointer(), pRes->GetBufferSize(), nullptr, ppPS));
 	SafeRelease(pRes);
 }
@@ -287,7 +339,7 @@ void D3DGraphic::CreateVertexShaderAndInputLayout(ID3D11VertexShader** ppVS, ID3
 	assert(ppVS);
 
 	ID3DBlob* pRes = nullptr;
-	CompileShaderFile(&pRes, pFileName, pEntryPoint, "vs_5_0");
+	CompileShaderFile(&pRes, pFileName, pEntryPoint, "vs_5_0", nullptr);
 	HRCheck(m_D3DDevice->CreateVertexShader(pRes->GetBufferPointer(), pRes->GetBufferSize(), nullptr, ppVS));
 	CreateInputLayout(ppLayout, pInputElement, size, pRes);
 	SafeRelease(pRes);
@@ -303,8 +355,21 @@ void D3DGraphic::CreateRasterizerState(ID3D11RasterizerState** ppRasterizerState
 	rsDesc.CullMode = cullMode;
 	rsDesc.FrontCounterClockwise = cw;
 	rsDesc.DepthClipEnable = depthClip;
+	rsDesc.MultisampleEnable = true;
+	rsDesc.ScissorEnable = false;
+	rsDesc.SlopeScaledDepthBias = 0.0f;
+	rsDesc.AntialiasedLineEnable = false;
+	rsDesc.DepthBias = 0;
+	rsDesc.DepthBiasClamp = 0.0f;
 
 	HRCheck(m_D3DDevice->CreateRasterizerState(&rsDesc, ppRasterizerState));
+}
+
+void D3DGraphic::CreateSamplerState(ID3D11SamplerState** ppSamplerState, const D3D11_SAMPLER_DESC* pSamplerDesc)
+{
+	assert(ppSamplerState && pSamplerDesc);
+
+	HRCheck(m_D3DDevice->CreateSamplerState(pSamplerDesc, ppSamplerState));
 }
 
 void D3DGraphic::CreateInputLayout(ID3D11InputLayout** ppInputLayout, D3D11_INPUT_ELEMENT_DESC* pInputElement, uint32_t size, ID3DBlob* pRes)
@@ -357,7 +422,7 @@ void D3DGraphic::ResizeBackBuffer(uint32_t width, uint32_t height)
 		{
 			m_DefaultDepthStencil->Release();
 		}
-		CreateDepthStencil(m_DefaultDepthStencil.GetReference(), DXGI_FORMAT_D24_UNORM_S8_UINT, width, height);
+		CreateDepthStencilView(m_DefaultDepthStencil.GetReference(), nullptr, DXGI_FORMAT_D24_UNORM_S8_UINT, width, height);
 		SetDepthStencil(m_DefaultDepthStencil);
 	}
 }

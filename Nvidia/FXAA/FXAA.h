@@ -17,10 +17,9 @@ public:
 protected:
 	void CreateTextures();
 	void CreateViews();
-	void CreateShaders();
-	void CreateSamplerStates();
-	void CreateBlendStates();
-	void CreateRasterizerStates();
+	void CreateInputLayoutAndShaders();
+	void CreateMesh();
+	void CreateStates();
 	void CreateConstantsBuffers();
 private:
 };
