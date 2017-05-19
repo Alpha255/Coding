@@ -2,6 +2,8 @@
 #include <RefCountPtr.h>
 #include <D3DGraphic.h>
 
+#define FakeShader
+
 extern D3DGraphic* g_Renderer;
 
 namespace FXAA
@@ -36,6 +38,7 @@ namespace FXAA
 
 	struct D3DShaders
 	{
+#ifndef FakeShader
 		Ref<ID3D11VertexShader> MainVS;
 		Ref<ID3D11VertexShader> ShadowMapVS;
 		Ref<ID3D11VertexShader> FxaaVS;
@@ -43,6 +46,10 @@ namespace FXAA
 		Ref<ID3D11PixelShader> MainPS[ePatternCount];
 		Ref<ID3D11PixelShader> MainGatherPS[ePatternCount];
 		Ref<ID3D11PixelShader> FxaaPS[eFxaaPatternCount];
+#else
+		Ref<ID3D11VertexShader> FakeMainVS;
+		Ref<ID3D11PixelShader> FakeMainPS;
+#endif
 	};
 
 	struct D3DStates
@@ -61,8 +68,18 @@ namespace FXAA
 
 	struct D3DConstantsBuffers
 	{
+#ifndef FakeShader
 		Ref<ID3D11Buffer> Constants;
 		Ref<ID3D11Buffer> Fxaa;
+#else
+		Ref<ID3D11Buffer> Fake;
+#endif
+	};
+
+	struct D3DStreamBuffer
+	{
+		Ref<ID3D11Buffer> SphereVB;
+		Ref<ID3D11Buffer> SphereIB;
 	};
 
 	struct ConstantsBuf
@@ -87,6 +104,11 @@ namespace FXAA
 		DirectX::XMFLOAT4 Fxaa;
 	};
 
+	struct ConstantsFake
+	{
+		DirectX::XMMATRIX MatrixWVP;
+	};
+
 	static bool s_UseGather = false;
 	static uint32_t s_CurPattern = 0U;
 	static uint32_t s_FxaaPreset = 4U;
@@ -96,6 +118,7 @@ namespace FXAA
 	static D3DShaders s_Shaders;
 	static D3DStates s_States;
 	static D3DConstantsBuffers s_ConstantsBuffers;
+	static D3DStreamBuffer s_StreamBuffer;
 	static Ref<ID3D11InputLayout> s_InputLayout;
 }
 
@@ -161,6 +184,7 @@ void ApplicationFXAA::CreateViews()
 
 void ApplicationFXAA::CreateInputLayoutAndShaders()
 {
+#ifndef FakeShader
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,  0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -221,11 +245,44 @@ void ApplicationFXAA::CreateInputLayoutAndShaders()
 		Macros.push_back(PresetMacros[pat]);
 		g_Renderer->CreatePixelShader(FXAA::s_Shaders.FxaaPS[pat].GetReference(), "Fxaa.hlsl", "FxaaMainPS", (const D3D_SHADER_MACRO*)&*Macros.begin());
 	}
+#else
+	D3D11_INPUT_ELEMENT_DESC layout[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0,  0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
+	g_Renderer->CreateVertexShaderAndInputLayout(FXAA::s_Shaders.FakeMainVS.GetReference(), FXAA::s_InputLayout.GetReference(),
+		layout, ARRAYSIZE(layout), "Fxaa.hlsl", "FakeMainVS");
+	g_Renderer->CreatePixelShader(FXAA::s_Shaders.FakeMainPS.GetReference(), "Fxaa.hlsl", "FakeMainPS");
+#endif
 }
 
 void ApplicationFXAA::CreateMesh()
 {
+	Math::Geometry::Mesh Sphere;
+	Math::Geometry::MakeGeoSphere(32.0f, 16, Sphere);
 
+	struct Vertex
+	{
+		DirectX::XMFLOAT3 Position;
+		DirectX::XMFLOAT4 Color;
+	};
+	std::vector<Vertex> Vertices(Sphere.Vertices.size());
+	for (size_t i = 0U; i < Sphere.Vertices.size(); ++i)
+	{
+		Vertices[i].Position = Sphere.Vertices[i].Position;
+		Vertices[i].Color = Color::LightSteelBlue;
+	}
+
+	std::vector<uint32_t> Indices;
+	Indices.insert(Indices.end(), Sphere.Indices.begin(), Sphere.Indices.end());
+
+	g_Renderer->CreateStreamBuffer(FXAA::s_StreamBuffer.SphereVB.GetReference(), D3D11_BIND_VERTEX_BUFFER,
+		sizeof(Vertex) * Sphere.Vertices.size(), D3D11_USAGE_IMMUTABLE, &Vertices[0]);
+
+	g_Renderer->CreateStreamBuffer(FXAA::s_StreamBuffer.SphereIB.GetReference(), D3D11_BIND_INDEX_BUFFER,
+		sizeof(uint32_t) * Sphere.Indices.size(), D3D11_USAGE_IMMUTABLE, &Indices[0]);
 }
 
 void ApplicationFXAA::CreateStates()
@@ -286,11 +343,16 @@ void ApplicationFXAA::CreateStates()
 
 void ApplicationFXAA::CreateConstantsBuffers()
 {
+#ifndef FakeShader
 	g_Renderer->CreateStreamBuffer(FXAA::s_ConstantsBuffers.Constants.GetReference(), D3D11_BIND_CONSTANT_BUFFER,
 		sizeof(FXAA::ConstantsBuf), D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
 
 	g_Renderer->CreateStreamBuffer(FXAA::s_ConstantsBuffers.Fxaa.GetReference(), D3D11_BIND_CONSTANT_BUFFER,
 		sizeof(FXAA::ConstantsFxaa), D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
+#else
+	g_Renderer->CreateStreamBuffer(FXAA::s_ConstantsBuffers.Fake.GetReference(), D3D11_BIND_CONSTANT_BUFFER,
+		sizeof(FXAA::ConstantsFxaa), D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
+#endif
 }
 
 void ApplicationFXAA::SetupScene()
@@ -312,7 +374,14 @@ void ApplicationFXAA::SetupScene()
 
 void ApplicationFXAA::RenderScene()
 {
+	float black[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	g_Renderer->ClearRenderTarget(g_Renderer->DefaultRenderTarget(), black);
+	g_Renderer->ClearDepthStencil(g_Renderer->DefaultDepthStencil(), 1.0f, 0U);
 
+#ifndef FakeShader
+#else
+
+#endif
 }
 
 void ApplicationFXAA::UpdateScene(float elapsedTime, float totalTime)

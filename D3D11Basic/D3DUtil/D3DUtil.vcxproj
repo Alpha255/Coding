@@ -39,6 +39,14 @@
   <ItemGroup>
     <Image Include="..\Resource\directx.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Application\Resource\Shaders\Box.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Application\Resource\Shaders\Fxaa.hlsl" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{61DB1465-533C-45F5-9D1D-884C2A82E7E0}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
