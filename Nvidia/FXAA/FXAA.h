@@ -21,5 +21,6 @@ protected:
 	void CreateMesh();
 	void CreateStates();
 	void CreateConstantsBuffers();
+	void SetupD3D();
 private:
 };

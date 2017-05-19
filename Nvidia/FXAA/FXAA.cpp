@@ -109,9 +109,16 @@ namespace FXAA
 		DirectX::XMMATRIX MatrixWVP;
 	};
 
+	struct Vertex
+	{
+		DirectX::XMFLOAT3 Position;
+		DirectX::XMFLOAT4 Color;
+	};
+
 	static bool s_UseGather = false;
 	static uint32_t s_CurPattern = 0U;
 	static uint32_t s_FxaaPreset = 4U;
+	static uint32_t s_SphereIndexCount = 0U;
 
 	static D3DTextures s_Textures;
 	static D3DViews s_Views;
@@ -120,6 +127,7 @@ namespace FXAA
 	static D3DConstantsBuffers s_ConstantsBuffers;
 	static D3DStreamBuffer s_StreamBuffer;
 	static Ref<ID3D11InputLayout> s_InputLayout;
+	static D3D11_VIEWPORT s_Viewport;
 }
 
 ApplicationFXAA::ApplicationFXAA()
@@ -261,14 +269,9 @@ void ApplicationFXAA::CreateInputLayoutAndShaders()
 void ApplicationFXAA::CreateMesh()
 {
 	Math::Geometry::Mesh Sphere;
-	Math::Geometry::MakeGeoSphere(32.0f, 16, Sphere);
+	Math::Geometry::MakeGeoSphere(0.5f, 2U, Sphere);
 
-	struct Vertex
-	{
-		DirectX::XMFLOAT3 Position;
-		DirectX::XMFLOAT4 Color;
-	};
-	std::vector<Vertex> Vertices(Sphere.Vertices.size());
+	std::vector<FXAA::Vertex> Vertices(Sphere.Vertices.size());
 	for (size_t i = 0U; i < Sphere.Vertices.size(); ++i)
 	{
 		Vertices[i].Position = Sphere.Vertices[i].Position;
@@ -279,10 +282,12 @@ void ApplicationFXAA::CreateMesh()
 	Indices.insert(Indices.end(), Sphere.Indices.begin(), Sphere.Indices.end());
 
 	g_Renderer->CreateStreamBuffer(FXAA::s_StreamBuffer.SphereVB.GetReference(), D3D11_BIND_VERTEX_BUFFER,
-		sizeof(Vertex) * Sphere.Vertices.size(), D3D11_USAGE_IMMUTABLE, &Vertices[0]);
+		sizeof(FXAA::Vertex) * Sphere.Vertices.size(), D3D11_USAGE_IMMUTABLE, &Vertices[0]);
 
 	g_Renderer->CreateStreamBuffer(FXAA::s_StreamBuffer.SphereIB.GetReference(), D3D11_BIND_INDEX_BUFFER,
 		sizeof(uint32_t) * Sphere.Indices.size(), D3D11_USAGE_IMMUTABLE, &Indices[0]);
+
+	FXAA::s_SphereIndexCount = (uint32_t)Indices.size();
 }
 
 void ApplicationFXAA::CreateStates()
@@ -368,20 +373,57 @@ void ApplicationFXAA::SetupScene()
 	CreateMesh();
 	CreateStates();
 	CreateConstantsBuffers();
+	SetupD3D();
 
 	m_bInited = true;
 }
 
 void ApplicationFXAA::RenderScene()
 {
-	float black[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	g_Renderer->ClearRenderTarget(g_Renderer->DefaultRenderTarget(), black);
+	g_Renderer->ClearRenderTarget(g_Renderer->DefaultRenderTarget(), nullptr);
 	g_Renderer->ClearDepthStencil(g_Renderer->DefaultDepthStencil(), 1.0f, 0U);
 
 #ifndef FakeShader
 #else
+	g_Renderer->SetVertexBuffer(FXAA::s_StreamBuffer.SphereVB, sizeof(FXAA::Vertex), 0U);
+	g_Renderer->SetIndexBuffer(FXAA::s_StreamBuffer.SphereIB, DXGI_FORMAT_R32_UINT);
 
+	DirectX::XMMATRIX World = DirectX::XMMatrixIdentity();
+
+	DirectX::XMVECTOR EyePos = DirectX::XMVectorSet(10.0f, 10.0f, -10.0f, 1.0f);
+	DirectX::XMVECTOR FocusPos = DirectX::XMVectorZero();
+	DirectX::XMVECTOR Up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+	DirectX::XMMATRIX View = DirectX::XMMatrixLookAtLH(EyePos, FocusPos, Up);
+
+	DirectX::XMMATRIX Proj = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, (FLOAT)m_Width / m_Height, 1.0f, 1000.0f);
+	
+	FXAA::ConstantsFake FakeConstants;
+	FakeConstants.MatrixWVP = World * View * Proj;
+
+	g_Renderer->UpdateConstantBuffer(FXAA::s_ConstantsBuffers.Fake.GetPtr(), &FakeConstants, sizeof(FXAA::ConstantsFake));
+	g_Renderer->DrawIndexed(FXAA::s_SphereIndexCount, 0U, 0);
 #endif
+}
+
+void ApplicationFXAA::SetupD3D()
+{
+	g_Renderer->SetInputLayout(FXAA::s_InputLayout);
+
+#ifndef FakeShader
+#else
+	g_Renderer->SetVertexShader(FXAA::s_Shaders.FakeMainVS);
+	g_Renderer->SetPixelShader(FXAA::s_Shaders.FakeMainPS);
+#endif
+
+	g_Renderer->SetRenderTarget(g_Renderer->DefaultRenderTarget());
+	g_Renderer->SetDepthStencil(g_Renderer->DefaultDepthStencil());
+
+	FXAA::s_Viewport.Width = (float)m_Width;
+	FXAA::s_Viewport.Height = (float)m_Height;
+	FXAA::s_Viewport.MinDepth = 0.0f;
+	FXAA::s_Viewport.MaxDepth = 1.0f;
+	FXAA::s_Viewport.TopLeftX = FXAA::s_Viewport.TopLeftY = 0.0f;
+	g_Renderer->SetViewports(&FXAA::s_Viewport);
 }
 
 void ApplicationFXAA::UpdateScene(float elapsedTime, float totalTime)

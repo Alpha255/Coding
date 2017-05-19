@@ -339,8 +339,7 @@ void MakeGeoSphere(float radius, uint32_t subDivisions, Mesh& mesh)
 		DirectX::XMVECTOR n = DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&mesh.Vertices[i].Position));
 
 		/// Project onto sphere.
-		assert(!"Unsupport yet!!!");
-		DirectX::XMVECTOR p = /*radius * */n;  /// !!!!!
+		DirectX::XMVECTOR p = DirectX::XMVectorScale(n, radius);  
 
 		DirectX::XMStoreFloat3(&mesh.Vertices[i].Position, p);
 		DirectX::XMStoreFloat3(&mesh.Vertices[i].Normal, n);
