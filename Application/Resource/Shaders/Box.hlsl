@@ -1,6 +1,6 @@
 cbuffer ConstantBuffer
 {
-	float4x4 g_MatrixWVP;
+	matrix g_MatrixWVP;
 };
 
 struct VSInput

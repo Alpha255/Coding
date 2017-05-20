@@ -36,12 +36,10 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="..\..\Application\Resource\Shaders\Box.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="..\..\Application\Resource\Shaders\Fxaa.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\Application\Resource\Shaders\Box.hlsl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

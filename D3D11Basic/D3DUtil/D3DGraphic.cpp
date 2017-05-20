@@ -212,7 +212,7 @@ void D3DGraphic::CreateShaderResourceView(ID3D11ShaderResourceView** ppSRV, ID3D
 	}
 }
 
-void D3DGraphic::CreateStreamBuffer(ID3D11Buffer** ppBuffer, D3D11_BIND_FLAG bindFlag, uint32_t byteWidth, 
+void D3DGraphic::CreateBuffer(ID3D11Buffer** ppBuffer, D3D11_BIND_FLAG bindFlag, uint32_t byteWidth,
 	D3D11_USAGE usage, const void* pBuf, uint32_t cpuAccessFlag)
 {
 	assert(ppBuffer);

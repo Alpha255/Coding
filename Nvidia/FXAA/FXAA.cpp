@@ -60,6 +60,8 @@ namespace FXAA
 		Ref<ID3D11RasterizerState> CullBack;
 		Ref<ID3D11RasterizerState> CullFront;
 
+		Ref<ID3D11RasterizerState> WireFrame;
+
 		Ref<ID3D11SamplerState> PointMirror;    /// For rotation texture
 		Ref<ID3D11SamplerState> LinearWrap;     /// For diffuse texture
 		Ref<ID3D11SamplerState> PointCmpClamp;  /// Comparison sampler for shadowmap
@@ -115,10 +117,20 @@ namespace FXAA
 		DirectX::XMFLOAT4 Color;
 	};
 
+	struct MatrixSet
+	{
+		DirectX::XMMATRIX World;
+		DirectX::XMMATRIX View;
+		DirectX::XMMATRIX Proj;
+	};
+
 	static bool s_UseGather = false;
 	static uint32_t s_CurPattern = 0U;
 	static uint32_t s_FxaaPreset = 4U;
 	static uint32_t s_SphereIndexCount = 0U;
+	static float s_Radius = 5.0f;
+	static float s_Theta = 1.5f * DirectX::XM_PI;
+	static float s_Phi = DirectX::XM_PIDIV4;
 
 	static D3DTextures s_Textures;
 	static D3DViews s_Views;
@@ -128,11 +140,15 @@ namespace FXAA
 	static D3DStreamBuffer s_StreamBuffer;
 	static Ref<ID3D11InputLayout> s_InputLayout;
 	static D3D11_VIEWPORT s_Viewport;
+	static MatrixSet s_MatrixSet;
 }
 
 ApplicationFXAA::ApplicationFXAA()
 {
-
+	DirectX::XMMATRIX I = DirectX::XMMatrixIdentity();
+	FXAA::s_MatrixSet.World = I;
+	FXAA::s_MatrixSet.View = I;
+	FXAA::s_MatrixSet.Proj = I;
 }
 
 void ApplicationFXAA::CreateTextures()
@@ -261,17 +277,20 @@ void ApplicationFXAA::CreateInputLayoutAndShaders()
 	};
 
 	g_Renderer->CreateVertexShaderAndInputLayout(FXAA::s_Shaders.FakeMainVS.GetReference(), FXAA::s_InputLayout.GetReference(),
-		layout, ARRAYSIZE(layout), "Fxaa.hlsl", "FakeMainVS");
-	g_Renderer->CreatePixelShader(FXAA::s_Shaders.FakeMainPS.GetReference(), "Fxaa.hlsl", "FakeMainPS");
+		layout, ARRAYSIZE(layout), "Box.hlsl", "VSMain");
+	g_Renderer->CreatePixelShader(FXAA::s_Shaders.FakeMainPS.GetReference(), "Box.hlsl", "PSMain");
 #endif
 }
 
 void ApplicationFXAA::CreateMesh()
 {
 	Math::Geometry::Mesh Sphere;
-	Math::Geometry::MakeGeoSphere(0.5f, 2U, Sphere);
+	Math::Geometry::MakeGeoSphere(0.8f, 2U, Sphere);
 
-	std::vector<FXAA::Vertex> Vertices(Sphere.Vertices.size());
+	///Math::Geometry::Mesh Floor;
+	///Math::Geometry::MakeBox(1.6f, 1.0f, 0.2f, Floor);
+
+	std::vector<FXAA::Vertex> Vertices(Sphere.Vertices.size()/* + Floor.Vertices.size()*/);
 	for (size_t i = 0U; i < Sphere.Vertices.size(); ++i)
 	{
 		Vertices[i].Position = Sphere.Vertices[i].Position;
@@ -281,11 +300,11 @@ void ApplicationFXAA::CreateMesh()
 	std::vector<uint32_t> Indices;
 	Indices.insert(Indices.end(), Sphere.Indices.begin(), Sphere.Indices.end());
 
-	g_Renderer->CreateStreamBuffer(FXAA::s_StreamBuffer.SphereVB.GetReference(), D3D11_BIND_VERTEX_BUFFER,
-		sizeof(FXAA::Vertex) * Sphere.Vertices.size(), D3D11_USAGE_IMMUTABLE, &Vertices[0]);
+	g_Renderer->CreateVertexBuffer(FXAA::s_StreamBuffer.SphereVB.GetReference(),
+		(uint32_t)(sizeof(FXAA::Vertex) * Sphere.Vertices.size()), D3D11_USAGE_IMMUTABLE, &Vertices[0]);
 
-	g_Renderer->CreateStreamBuffer(FXAA::s_StreamBuffer.SphereIB.GetReference(), D3D11_BIND_INDEX_BUFFER,
-		sizeof(uint32_t) * Sphere.Indices.size(), D3D11_USAGE_IMMUTABLE, &Indices[0]);
+	g_Renderer->CreateIndexBuffer(FXAA::s_StreamBuffer.SphereIB.GetReference(),
+		(uint32_t)(sizeof(uint32_t) * Sphere.Indices.size()), D3D11_USAGE_IMMUTABLE, &Indices[0]);
 
 	FXAA::s_SphereIndexCount = (uint32_t)Indices.size();
 }
@@ -344,19 +363,21 @@ void ApplicationFXAA::CreateStates()
 	g_Renderer->CreateRasterizerState(FXAA::s_States.CullBack.GetReference(), D3D11_FILL_SOLID, D3D11_CULL_BACK);
 
 	g_Renderer->CreateRasterizerState(FXAA::s_States.CullFront.GetReference(), D3D11_FILL_SOLID, D3D11_CULL_FRONT);
+
+	g_Renderer->CreateRasterizerState(FXAA::s_States.WireFrame.GetReference(), D3D11_FILL_WIREFRAME);
 }
 
 void ApplicationFXAA::CreateConstantsBuffers()
 {
 #ifndef FakeShader
-	g_Renderer->CreateStreamBuffer(FXAA::s_ConstantsBuffers.Constants.GetReference(), D3D11_BIND_CONSTANT_BUFFER,
+	g_Renderer->CreateConstantBuffer(FXAA::s_ConstantsBuffers.Constants.GetReference(), D3D11_BIND_CONSTANT_BUFFER,
 		sizeof(FXAA::ConstantsBuf), D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
 
-	g_Renderer->CreateStreamBuffer(FXAA::s_ConstantsBuffers.Fxaa.GetReference(), D3D11_BIND_CONSTANT_BUFFER,
+	g_Renderer->CreateConstantBuffer(FXAA::s_ConstantsBuffers.Fxaa.GetReference(), D3D11_BIND_CONSTANT_BUFFER,
 		sizeof(FXAA::ConstantsFxaa), D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
 #else
-	g_Renderer->CreateStreamBuffer(FXAA::s_ConstantsBuffers.Fake.GetReference(), D3D11_BIND_CONSTANT_BUFFER,
-		sizeof(FXAA::ConstantsFxaa), D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
+	g_Renderer->CreateConstantBuffer(FXAA::s_ConstantsBuffers.Fake.GetReference(),
+		sizeof(FXAA::ConstantsFake), D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
 #endif
 }
 
@@ -387,20 +408,14 @@ void ApplicationFXAA::RenderScene()
 #else
 	g_Renderer->SetVertexBuffer(FXAA::s_StreamBuffer.SphereVB, sizeof(FXAA::Vertex), 0U);
 	g_Renderer->SetIndexBuffer(FXAA::s_StreamBuffer.SphereIB, DXGI_FORMAT_R32_UINT);
-
-	DirectX::XMMATRIX World = DirectX::XMMatrixIdentity();
-
-	DirectX::XMVECTOR EyePos = DirectX::XMVectorSet(10.0f, 10.0f, -10.0f, 1.0f);
-	DirectX::XMVECTOR FocusPos = DirectX::XMVectorZero();
-	DirectX::XMVECTOR Up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-	DirectX::XMMATRIX View = DirectX::XMMatrixLookAtLH(EyePos, FocusPos, Up);
-
-	DirectX::XMMATRIX Proj = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, (FLOAT)m_Width / m_Height, 1.0f, 1000.0f);
 	
 	FXAA::ConstantsFake FakeConstants;
-	FakeConstants.MatrixWVP = World * View * Proj;
+	FakeConstants.MatrixWVP = DirectX::XMMatrixTranspose(FXAA::s_MatrixSet.World * FXAA::s_MatrixSet.View * FXAA::s_MatrixSet.Proj);
 
+	g_Renderer->SetConstantBuffer(FXAA::s_ConstantsBuffers.Fake, 0U, D3DGraphic::eSTVertexShader);
 	g_Renderer->UpdateConstantBuffer(FXAA::s_ConstantsBuffers.Fake.GetPtr(), &FakeConstants, sizeof(FXAA::ConstantsFake));
+
+	g_Renderer->SetRasterizerState(FXAA::s_States.WireFrame);
 	g_Renderer->DrawIndexed(FXAA::s_SphereIndexCount, 0U, 0);
 #endif
 }
@@ -426,17 +441,47 @@ void ApplicationFXAA::SetupD3D()
 	g_Renderer->SetViewports(&FXAA::s_Viewport);
 }
 
-void ApplicationFXAA::UpdateScene(float elapsedTime, float totalTime)
+void ApplicationFXAA::UpdateScene(float /*elapsedTime*/, float /*totalTime*/)
 {
+	float x = FXAA::s_Radius * sinf(FXAA::s_Phi) * cosf(FXAA::s_Theta);
+	float z = FXAA::s_Radius * sinf(FXAA::s_Phi) * sinf(FXAA::s_Theta);
+	float y = FXAA::s_Radius * cosf(FXAA::s_Phi);
 
+	DirectX::XMVECTOR pos = DirectX::XMVectorSet(x, y, z, 1.0f);
+	DirectX::XMVECTOR target = DirectX::XMVectorZero();
+	DirectX::XMVECTOR up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+	FXAA::s_MatrixSet.View = DirectX::XMMatrixLookAtLH(pos, target, up);
 }
 
 void ApplicationFXAA::ResizeWindow(uint32_t width, uint32_t height)
 {
+	FXAA::s_MatrixSet.Proj = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV4, (FLOAT)width / height, 1.0f, 100.0f);
+
 	Base::ResizeWindow(width, height);
 }
 
 void ApplicationFXAA::MouseMove(WPARAM wParam, int x, int y)
 {
+	if ((wParam & MK_LBUTTON) != 0)
+	{
+		float dx = DirectX::XMConvertToRadians(0.25f * static_cast<float>(x - m_LastMousePos[0]));
+		float dy = DirectX::XMConvertToRadians(0.25f * static_cast<float>(y - m_LastMousePos[1]));
 
+		FXAA::s_Theta += dx;
+		FXAA::s_Phi += dy;
+
+		FXAA::s_Phi = Math::Clamp(FXAA::s_Phi, 0.1f, DirectX::XM_PI - 0.1f);
+	}
+	else if ((wParam & MK_RBUTTON) != 0)
+	{
+		float dx = 0.0051f * static_cast<float>(x - m_LastMousePos[0]);
+		float dy = 0.0051f * static_cast<float>(y - m_LastMousePos[1]);
+
+		FXAA::s_Radius += dx - dy;
+
+		FXAA::s_Radius = Math::Clamp(FXAA::s_Radius, 3.0f, 15.0f);
+	}
+
+	m_LastMousePos[0] = x;
+	m_LastMousePos[1] = y;
 }

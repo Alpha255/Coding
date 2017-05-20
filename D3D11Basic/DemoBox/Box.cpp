@@ -62,7 +62,7 @@ void ApplicationBox::SetupScene()
 	g_Renderer->CreateVertexShaderAndInputLayout(s_D3DResource.VertexShader.GetReference(), s_D3DResource.InputLayout.GetReference(), 
 		layout, ARRAYSIZE(layout), s_ShaderName, "VSMain");
 	g_Renderer->CreatePixelShader(s_D3DResource.PixelShader.GetReference(), s_ShaderName, "PSMain");
-	g_Renderer->CreateStreamBuffer(s_D3DResource.ConstantsBuffer.GetReference(), D3D11_BIND_CONSTANT_BUFFER, sizeof(Constants),
+	g_Renderer->CreateConstantBuffer(s_D3DResource.ConstantsBuffer.GetReference(), sizeof(Constants),
 		D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
 
 	Vertex vertices[] =
@@ -76,7 +76,7 @@ void ApplicationBox::SetupScene()
 		{ DirectX::XMFLOAT3(1.0f,  1.0f,  1.0f), Color::Cyan },
 		{ DirectX::XMFLOAT3(1.0f, -1.0f,  1.0f), Color::Magenta }
 	};
-	g_Renderer->CreateStreamBuffer(s_D3DResource.VertexBuffer.GetReference(), D3D11_BIND_VERTEX_BUFFER, sizeof(Vertex) * 8U,
+	g_Renderer->CreateVertexBuffer(s_D3DResource.VertexBuffer.GetReference(), sizeof(Vertex) * 8U,
 		D3D11_USAGE_IMMUTABLE, vertices);
 
 	uint32_t indices[] = 
@@ -100,7 +100,7 @@ void ApplicationBox::SetupScene()
 		4, 0, 3,
 		4, 3, 7
 	};
-	g_Renderer->CreateStreamBuffer(s_D3DResource.IndexBuffer.GetReference(), D3D11_BIND_INDEX_BUFFER, sizeof(uint32_t) * 36,
+	g_Renderer->CreateIndexBuffer(s_D3DResource.IndexBuffer.GetReference(), sizeof(uint32_t) * 36,
 		D3D11_USAGE_IMMUTABLE, indices);
 	
 	g_Renderer->SetVertexShader(s_D3DResource.VertexShader);

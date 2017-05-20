@@ -67,7 +67,21 @@ public:
 	void CreateRenderTargetView(__out ID3D11RenderTargetView** ppRTV, ID3D11Resource* pResource);
 	void CreateDepthStencilView(__out ID3D11DepthStencilView** ppDSV, ID3D11Resource* pResource, DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN, uint32_t width = 0U, uint32_t height = 0U, D3D11_DSV_DIMENSION dimension = D3D11_DSV_DIMENSION_TEXTURE2D);
 
-	void CreateStreamBuffer(__out ID3D11Buffer** ppBuffer, D3D11_BIND_FLAG bindFlag, uint32_t byteWidth, D3D11_USAGE usage, const void* pBuf, uint32_t cpuAccessFlag = 0U);
+	void CreateBuffer(__out ID3D11Buffer** ppBuffer, D3D11_BIND_FLAG bindFlag, uint32_t byteWidth, D3D11_USAGE usage, const void* pBuf, uint32_t cpuAccessFlag);
+	inline void CreateVertexBuffer(__out ID3D11Buffer** ppBuffer, uint32_t byteWidth, D3D11_USAGE usage, const void* pBuf, uint32_t cpuAccessFlag = 0U)
+	{
+		CreateBuffer(ppBuffer, D3D11_BIND_VERTEX_BUFFER, byteWidth, usage, pBuf, cpuAccessFlag);
+	}
+
+	inline void CreateIndexBuffer(__out ID3D11Buffer** ppBuffer, uint32_t byteWidth, D3D11_USAGE usage, const void* pBuf, uint32_t cpuAccessFlag = 0U)
+	{
+		CreateBuffer(ppBuffer, D3D11_BIND_INDEX_BUFFER, byteWidth, usage, pBuf, cpuAccessFlag);
+	}
+
+	inline void CreateConstantBuffer(__out ID3D11Buffer** ppBuffer, uint32_t byteWidth, D3D11_USAGE usage, const void* pBuf, uint32_t cpuAccessFlag = 0U)
+	{
+		CreateBuffer(ppBuffer, D3D11_BIND_CONSTANT_BUFFER, byteWidth, usage, pBuf, cpuAccessFlag);
+	}
 
 	void CreateVertexShader(__out ID3D11VertexShader** ppVS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines = nullptr);
 	void CreatePixelShader(__out ID3D11PixelShader** ppPS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines = nullptr);
