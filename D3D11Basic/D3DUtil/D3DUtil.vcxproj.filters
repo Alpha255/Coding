@@ -10,6 +10,7 @@
     </ClInclude>
     <ClInclude Include="Timer.h" />
     <ClInclude Include="D3DMath.h" />
+    <ClInclude Include="Camera.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IApplication.cpp" />

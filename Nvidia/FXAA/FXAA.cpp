@@ -1,6 +1,7 @@
 #include "FXAA.h"
 #include <RefCountPtr.h>
 #include <D3DGraphic.h>
+#include <Camera.h>
 
 #define FakeShader
 
@@ -117,13 +118,6 @@ namespace FXAA
 		DirectX::XMFLOAT4 Color;
 	};
 
-	struct MatrixSet
-	{
-		DirectX::XMMATRIX World;
-		DirectX::XMMATRIX View;
-		DirectX::XMMATRIX Proj;
-	};
-
 	static bool s_UseGather = false;
 	static uint32_t s_CurPattern = 0U;
 	static uint32_t s_FxaaPreset = 4U;
@@ -131,6 +125,8 @@ namespace FXAA
 	static float s_Radius = 5.0f;
 	static float s_Theta = 1.5f * DirectX::XM_PI;
 	static float s_Phi = DirectX::XM_PIDIV4;
+
+	static Camera s_DefaultCamera;
 
 	static D3DTextures s_Textures;
 	static D3DViews s_Views;
@@ -140,15 +136,10 @@ namespace FXAA
 	static D3DStreamBuffer s_StreamBuffer;
 	static Ref<ID3D11InputLayout> s_InputLayout;
 	static D3D11_VIEWPORT s_Viewport;
-	static MatrixSet s_MatrixSet;
 }
 
 ApplicationFXAA::ApplicationFXAA()
 {
-	DirectX::XMMATRIX I = DirectX::XMMatrixIdentity();
-	FXAA::s_MatrixSet.World = I;
-	FXAA::s_MatrixSet.View = I;
-	FXAA::s_MatrixSet.Proj = I;
 }
 
 void ApplicationFXAA::CreateTextures()
@@ -408,9 +399,11 @@ void ApplicationFXAA::RenderScene()
 #else
 	g_Renderer->SetVertexBuffer(FXAA::s_StreamBuffer.SphereVB, sizeof(FXAA::Vertex), 0U);
 	g_Renderer->SetIndexBuffer(FXAA::s_StreamBuffer.SphereIB, DXGI_FORMAT_R32_UINT);
-	
+
+	DirectX::XMMATRIX matrixWVP = FXAA::s_DefaultCamera.GetWorldMatrix() * FXAA::s_DefaultCamera.GetViewMatrix() * FXAA::s_DefaultCamera.GetProjMatrix();
+
 	FXAA::ConstantsFake FakeConstants;
-	FakeConstants.MatrixWVP = DirectX::XMMatrixTranspose(FXAA::s_MatrixSet.World * FXAA::s_MatrixSet.View * FXAA::s_MatrixSet.Proj);
+	FakeConstants.MatrixWVP = DirectX::XMMatrixTranspose(matrixWVP);
 
 	g_Renderer->SetConstantBuffer(FXAA::s_ConstantsBuffers.Fake, 0U, D3DGraphic::eSTVertexShader);
 	g_Renderer->UpdateConstantBuffer(FXAA::s_ConstantsBuffers.Fake.GetPtr(), &FakeConstants, sizeof(FXAA::ConstantsFake));
@@ -447,15 +440,12 @@ void ApplicationFXAA::UpdateScene(float /*elapsedTime*/, float /*totalTime*/)
 	float z = FXAA::s_Radius * sinf(FXAA::s_Phi) * sinf(FXAA::s_Theta);
 	float y = FXAA::s_Radius * cosf(FXAA::s_Phi);
 
-	DirectX::XMVECTOR pos = DirectX::XMVectorSet(x, y, z, 1.0f);
-	DirectX::XMVECTOR target = DirectX::XMVectorZero();
-	DirectX::XMVECTOR up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-	FXAA::s_MatrixSet.View = DirectX::XMMatrixLookAtLH(pos, target, up);
+	FXAA::s_DefaultCamera.SetViewParams(DirectX::XMFLOAT3(x, y, z), DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
 }
 
 void ApplicationFXAA::ResizeWindow(uint32_t width, uint32_t height)
 {
-	FXAA::s_MatrixSet.Proj = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV4, (FLOAT)width / height, 1.0f, 100.0f);
+	FXAA::s_DefaultCamera.SetProjParams(DirectX::XM_PIDIV4, (float)width / height, 1.0f, 1000.0f);
 
 	Base::ResizeWindow(width, height);
 }
