@@ -26,12 +26,14 @@
     <ClInclude Include="D3DMath.h" />
     <ClInclude Include="RefCountPtr.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="SDKMesh.h" />
     <ClInclude Include="Timer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="D3DGraphic.cpp" />
     <ClCompile Include="IApplication.cpp" />
     <ClCompile Include="D3DMath.cpp" />
+    <ClCompile Include="SDKMesh.cpp" />
     <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -11,12 +11,14 @@
     <ClInclude Include="Timer.h" />
     <ClInclude Include="D3DMath.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="SDKMesh.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IApplication.cpp" />
     <ClCompile Include="D3DGraphic.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="D3DMath.cpp" />
+    <ClCompile Include="SDKMesh.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resource">
