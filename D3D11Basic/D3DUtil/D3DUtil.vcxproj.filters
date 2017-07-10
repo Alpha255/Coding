@@ -12,6 +12,7 @@
     <ClInclude Include="D3DMath.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="SDKMesh.h" />
+    <ClInclude Include="SDKModel.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IApplication.cpp" />
@@ -19,6 +20,7 @@
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="D3DMath.cpp" />
     <ClCompile Include="SDKMesh.cpp" />
+    <ClCompile Include="SDKModel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resource">

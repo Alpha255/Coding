@@ -6,7 +6,12 @@ D3DGraphic* D3DGraphic::m_sInstance = nullptr;
 
 const char* ResourceFilePath(const char* pFileName, D3DGraphic::eD3DResourceType resType)
 {
-	static const char* s_ResourcePath[D3DGraphic::eRTCount] = { "\\Resource\\Shaders\\", "Resource\\Textures\\" };
+	static const char* s_ResourcePath[D3DGraphic::eRTCount] = 
+	{ 
+		"\\Resource\\Shaders\\", 
+		"\\Resource\\Textures\\",
+		"\\Resource\\SDKMeshs\\",
+	};
 	static char filePath[MAX_PATH] = { 0 };
 	::GetModuleFileNameA(::GetModuleHandle(nullptr), filePath, MAX_PATH);
 	std::string strFileName(filePath);

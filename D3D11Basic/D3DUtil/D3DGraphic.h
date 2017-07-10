@@ -36,6 +36,7 @@ public:
 	{
 		eRTShader,
 		eRTTexture,
+		eRTSDKMesh,
 		eRTCount
 	};
 
@@ -176,3 +177,5 @@ private:
 
 	bool m_FlushState[eFSCount];
 };
+
+const char* ResourceFilePath(const char* pFileName, D3DGraphic::eD3DResourceType resType);

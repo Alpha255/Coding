@@ -2,6 +2,7 @@
 #include <RefCountPtr.h>
 #include <D3DGraphic.h>
 #include <Camera.h>
+#include <SDKMesh.h>
 
 #define FakeShader
 
@@ -136,6 +137,8 @@ namespace FXAA
 	static D3DStreamBuffer s_StreamBuffer;
 	static Ref<ID3D11InputLayout> s_InputLayout;
 	static D3D11_VIEWPORT s_Viewport;
+
+	static SDKMesh s_CryptMesh;
 }
 
 ApplicationFXAA::ApplicationFXAA()
@@ -298,6 +301,8 @@ void ApplicationFXAA::CreateMesh()
 		(uint32_t)(sizeof(uint32_t) * Sphere.Indices.size()), D3D11_USAGE_IMMUTABLE, &Indices[0]);
 
 	FXAA::s_SphereIndexCount = (uint32_t)Indices.size();
+
+	FXAA::s_CryptMesh.LoadFromFile("crypt.sdkmesh");
 }
 
 void ApplicationFXAA::CreateStates()
