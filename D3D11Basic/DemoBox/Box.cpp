@@ -6,20 +6,20 @@ extern D3DGraphic* g_Renderer;
 
 struct MatrixSet
 {
-	DirectX::XMFLOAT4X4 World;
-	DirectX::XMFLOAT4X4 View;
-	DirectX::XMFLOAT4X4 Projection;
+	Matrix World;
+	Matrix View;
+	Matrix Projection;
 };
 
 struct Vertex
 {
-	DirectX::XMFLOAT3 Position;
-	DirectX::XMFLOAT4 Color;
+	Vec3 Position;
+	Vec4 Color;
 };
 
 struct Constants
 {
-	DirectX::XMMATRIX WVP;
+	Matrix WVP;
 };
 
 struct DemoBoxResource
@@ -43,10 +43,9 @@ static char* const s_ShaderName = "Box.hlsl";
 
 ApplicationBox::ApplicationBox()
 {
-	DirectX::XMMATRIX I = DirectX::XMMatrixIdentity();
-	DirectX::XMStoreFloat4x4(&s_MatrixSet.World, I);
-	DirectX::XMStoreFloat4x4(&s_MatrixSet.View, I);
-	DirectX::XMStoreFloat4x4(&s_MatrixSet.Projection, I);
+	s_MatrixSet.World.Identity();
+	s_MatrixSet.View.Identity();
+	s_MatrixSet.Projection.Identity();
 }
 
 void ApplicationBox::SetupScene()
@@ -67,14 +66,14 @@ void ApplicationBox::SetupScene()
 
 	Vertex vertices[] =
 	{
-		{ DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f), Color::White },
-		{ DirectX::XMFLOAT3(-1.0f,  1.0f, -1.0f), Color::Black },
-		{ DirectX::XMFLOAT3(1.0f,  1.0f, -1.0f), Color::Red },
-		{ DirectX::XMFLOAT3(1.0f, -1.0f, -1.0f), Color::Green },
-		{ DirectX::XMFLOAT3(-1.0f, -1.0f,  1.0f), Color::Blue },
-		{ DirectX::XMFLOAT3(-1.0f,  1.0f,  1.0f), Color::Yellow },
-		{ DirectX::XMFLOAT3(1.0f,  1.0f,  1.0f), Color::Cyan },
-		{ DirectX::XMFLOAT3(1.0f, -1.0f,  1.0f), Color::Magenta }
+		{ Vec3(-1.0f, -1.0f, -1.0f), Color::White },
+		{ Vec3(-1.0f,  1.0f, -1.0f), Color::Black },
+		{ Vec3(1.0f,  1.0f, -1.0f), Color::Red },
+		{ Vec3(1.0f, -1.0f, -1.0f), Color::Green },
+		{ Vec3(-1.0f, -1.0f,  1.0f), Color::Blue },
+		{ Vec3(-1.0f,  1.0f,  1.0f), Color::Yellow },
+		{ Vec3(1.0f,  1.0f,  1.0f), Color::Cyan },
+		{ Vec3(1.0f, -1.0f,  1.0f), Color::Magenta }
 	};
 	g_Renderer->CreateVertexBuffer(s_D3DResource.VertexBuffer.GetReference(), sizeof(Vertex) * 8U,
 		D3D11_USAGE_IMMUTABLE, vertices);
@@ -128,16 +127,13 @@ void ApplicationBox::RenderScene()
 	g_Renderer->ClearRenderTarget(g_Renderer->DefaultRenderTarget(), black);
 	g_Renderer->ClearDepthStencil(g_Renderer->DefaultDepthStencil(), 1.0f, 0U);
 
-	DirectX::XMMATRIX world = DirectX::XMLoadFloat4x4(&s_MatrixSet.World);
-	DirectX::XMMATRIX view = DirectX::XMLoadFloat4x4(&s_MatrixSet.View);
-	DirectX::XMMATRIX projection = DirectX::XMLoadFloat4x4(&s_MatrixSet.Projection);
-	DirectX::XMMATRIX wvp = world * view * projection;
+	Matrix wvp = s_MatrixSet.World * s_MatrixSet.View * s_MatrixSet.Projection;
 
 	Constants cBuffer;
 	memset(&cBuffer, 0, sizeof(Constants));
-	cBuffer.WVP = DirectX::XMMatrixTranspose(wvp);
+	cBuffer.WVP = wvp.Transpose();
 	g_Renderer->UpdateConstantBuffer(s_D3DResource.ConstantsBuffer.GetPtr(), &cBuffer, sizeof(Constants));
-	g_Renderer->SetConstantBuffer(s_D3DResource.ConstantsBuffer, 0U, D3DGraphic::eSTVertexShader);
+	g_Renderer->SetConstantBuffer(s_D3DResource.ConstantsBuffer, 0U, D3DGraphic::eVertexShader);
 
 	g_Renderer->DrawIndexed(36U, 0U, 0U);
 }
@@ -148,18 +144,12 @@ void ApplicationBox::UpdateScene(float /*elapsedTime*/, float /*totalTime*/)
 	float z = s_Radius * sinf(s_Phi) * sinf(s_Theta);
 	float y = s_Radius * cosf(s_Phi);
 
-	DirectX::XMVECTOR pos = DirectX::XMVectorSet(x, y, z, 1.0f);
-	DirectX::XMVECTOR target = DirectX::XMVectorZero();
-	DirectX::XMVECTOR up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-	DirectX::XMMATRIX lookAt = DirectX::XMMatrixLookAtLH(pos, target, up);
-
-	DirectX::XMStoreFloat4x4(&s_MatrixSet.View, lookAt);
+	s_MatrixSet.View = Matrix::LookAtLH(Vec3(x, y, z), Vec3(0.0f, 0.0f, 0.0f), Vec3(0.0f, 1.0f, 0.0f));
 }
 
 void ApplicationBox::ResizeWindow(uint32_t width, uint32_t height)
 {
-	DirectX::XMMATRIX perspective = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV4, (float)width / height, 1.0f, 100.0f);
-	DirectX::XMStoreFloat4x4(&s_MatrixSet.Projection, perspective);
+	s_MatrixSet.Projection = Matrix::PerspectiveFovLH(DirectX::XM_PIDIV4, (float)width / height, 1.0f, 100.0f);
 
 	return Base::ResizeWindow(width, height);
 }

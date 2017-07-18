@@ -8,14 +8,14 @@
 class D3DGraphic
 {
 public:
-	enum eD3DCounter
+	enum eCounter
 	{
-		eCTVertexStream = 1,
-		eCTRenderTarget = 1,
-		eCTBackBuffer = 2,
+		eVertexStreamCount = 1,
+		eRenderTargetCount = 1,
+		eBackBufferCount = 2,
 	};
 
-	enum eD3DFlushState
+	enum eFlushState
 	{
 		eFSIndexBuffer,
 		eFSVertexBuffer,
@@ -32,25 +32,25 @@ public:
 		eFSCount
 	};
 
-	enum eD3DResourceType
+	enum eResourceType
 	{
-		eRTShader,
-		eRTTexture,
-		eRTSDKMesh,
-		eRTCount
+		eShader,
+		eTexture,
+		eSDKMesh,
+		eCount
 	};
 
-	enum eD3DShaderType
+	enum eShaderType
 	{
-		eSTVertexShader,
-		eSTPixelShader
+		eVertexShader,
+		ePixelShader
 	};
 
-	enum eD3DBufferType
+	enum eBufferType
 	{
-		eBTVertexBuffer,
-		eBTIndexBuffer,
-		eBTConstantsBuffer
+		eVertexBuffer,
+		eIndexBuffer,
+		eConstantsBuffer
 	};
 
 	static void CreateInstance(void) { if (nullptr == m_sInstance) { m_sInstance = new D3DGraphic(); assert(m_sInstance); } }
@@ -113,12 +113,15 @@ public:
 	void SetBlendState(const Ref<ID3D11BlendState>& refBlendState, DirectX::XMFLOAT4, uint32_t mask);
 	void SetVertexShader(const Ref<ID3D11VertexShader>& refVertexShader);
 	void SetPixelShader(const Ref<ID3D11PixelShader>& refPixelShader);
-	void SetConstantBuffer(Ref<ID3D11Buffer>& pConstantBuf, uint32_t slot, eD3DShaderType shaderType);
+	void SetConstantBuffer(Ref<ID3D11Buffer>& pConstantBuf, uint32_t slot, eShaderType shaderType);
 
 	void UpdateConstantBuffer(ID3D11Resource* pTarget, const void* pSource, uint32_t size);
 
 	void Draw(uint32_t vertexCount, uint32_t startIndex, D3D_PRIMITIVE_TOPOLOGY prim = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	void DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, D3D_PRIMITIVE_TOPOLOGY prim = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	static std::string ResourceFilePath(const char* pFileName, D3DGraphic::eResourceType resType);
+	static const char* ResourceFileDirectory(D3DGraphic::eResourceType resType);
 protected:
 	D3DGraphic();
 	D3DGraphic(const D3DGraphic&) {}
@@ -126,9 +129,11 @@ protected:
 
 	void RecreateBackBuffer();
 
+	void FlushPipelineState();
+
 	void CompileShaderFile(__out ID3DBlob** ppRes, char* pFileName, char* pEntryPoint, char* pTarget, const D3D_SHADER_MACRO* pDefines);
 
-	void FlushPipelineState();
+	friend class D3DModel;
 private:
 	static D3DGraphic* m_sInstance;
 
@@ -141,9 +146,9 @@ private:
 
 	struct D3DVertexBuffer
 	{
-		ID3D11Buffer* Buffers[eCTVertexStream];
-		uint32_t      Stride[eCTVertexStream];
-		uint32_t      Offset[eCTVertexStream];
+		ID3D11Buffer* Buffers[eVertexStreamCount];
+		uint32_t      Stride[eVertexStreamCount];
+		uint32_t      Offset[eVertexStreamCount];
 	};
 
 	struct D3DPipelineState
@@ -158,7 +163,7 @@ private:
 		ID3D11PixelShader*       PixelShader;
 		ID3D11BlendState*        BlendState;
 		ID3D11DepthStencilState* DepthStencilState;
-		ID3D11RenderTargetView*  RenderTarget[eCTRenderTarget];
+		ID3D11RenderTargetView*  RenderTarget[eRenderTargetCount];
 		ID3D11DepthStencilView*  DepthStencil;
 
 		float                    BlendFactor[4];
@@ -177,5 +182,3 @@ private:
 
 	bool m_FlushState[eFSCount];
 };
-
-const char* ResourceFilePath(const char* pFileName, D3DGraphic::eD3DResourceType resType);

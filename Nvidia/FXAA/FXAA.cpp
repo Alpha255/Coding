@@ -2,9 +2,7 @@
 #include <RefCountPtr.h>
 #include <D3DGraphic.h>
 #include <Camera.h>
-#include <SDKMesh.h>
-
-#define FakeShader
+#include <D3DModel.h>
 
 extern D3DGraphic* g_Renderer;
 
@@ -40,7 +38,6 @@ namespace FXAA
 
 	struct D3DShaders
 	{
-#ifndef FakeShader
 		Ref<ID3D11VertexShader> MainVS;
 		Ref<ID3D11VertexShader> ShadowMapVS;
 		Ref<ID3D11VertexShader> FxaaVS;
@@ -48,10 +45,6 @@ namespace FXAA
 		Ref<ID3D11PixelShader> MainPS[ePatternCount];
 		Ref<ID3D11PixelShader> MainGatherPS[ePatternCount];
 		Ref<ID3D11PixelShader> FxaaPS[eFxaaPatternCount];
-#else
-		Ref<ID3D11VertexShader> FakeMainVS;
-		Ref<ID3D11PixelShader> FakeMainPS;
-#endif
 	};
 
 	struct D3DStates
@@ -72,12 +65,8 @@ namespace FXAA
 
 	struct D3DConstantsBuffers
 	{
-#ifndef FakeShader
 		Ref<ID3D11Buffer> Constants;
 		Ref<ID3D11Buffer> Fxaa;
-#else
-		Ref<ID3D11Buffer> Fake;
-#endif
 	};
 
 	struct D3DStreamBuffer
@@ -88,14 +77,14 @@ namespace FXAA
 
 	struct ConstantsBuf
 	{
-		DirectX::XMMATRIX WVP;
-		DirectX::XMMATRIX WVPLight;
+		Matrix WVP;
+		Matrix WVPLight;
 
-		DirectX::XMFLOAT4 AmbientColor;
-		DirectX::XMFLOAT4 DiffuseColor;
+		Vec4 AmbientColor;
+		Vec4 DiffuseColor;
 
-		DirectX::XMFLOAT4 LightPos;
-		DirectX::XMFLOAT4 LightDiffuseClr;
+		Vec4 LightPos;
+		Vec4 LightDiffuseClr;
 
 		float InvRandomRotSize;
 		float InvShadowMapSize;
@@ -105,29 +94,29 @@ namespace FXAA
 
 	struct ConstantsFxaa
 	{
-		DirectX::XMFLOAT4 Fxaa;
+		Vec4 Fxaa;
 	};
 
 	struct ConstantsFake
 	{
-		DirectX::XMMATRIX MatrixWVP;
+		Matrix MatrixWVP;
 	};
 
 	struct Vertex
 	{
-		DirectX::XMFLOAT3 Position;
-		DirectX::XMFLOAT4 Color;
+		Vec3 Position;
+		Vec4 Color;
 	};
 
 	static bool s_UseGather = false;
 	static uint32_t s_CurPattern = 0U;
 	static uint32_t s_FxaaPreset = 4U;
-	static uint32_t s_SphereIndexCount = 0U;
-	static float s_Radius = 5.0f;
+	static float s_Radius = 15.0f;
 	static float s_Theta = 1.5f * DirectX::XM_PI;
 	static float s_Phi = DirectX::XM_PIDIV4;
 
 	static Camera s_DefaultCamera;
+	static Camera s_LightCamera;
 
 	static D3DTextures s_Textures;
 	static D3DViews s_Views;
@@ -138,11 +127,12 @@ namespace FXAA
 	static Ref<ID3D11InputLayout> s_InputLayout;
 	static D3D11_VIEWPORT s_Viewport;
 
-	static SDKMesh s_CryptMesh;
+	static D3DModel s_CryptModel;
 }
 
 ApplicationFXAA::ApplicationFXAA()
 {
+	FXAA::s_LightCamera.SetViewParams(Vec3(9.0f, 15.0f, 9.0f), Vec3(0.0f, 0.0f, 0.0f));
 }
 
 void ApplicationFXAA::CreateTextures()
@@ -202,7 +192,7 @@ void ApplicationFXAA::CreateViews()
 
 void ApplicationFXAA::CreateInputLayoutAndShaders()
 {
-#ifndef FakeShader
+#if 0
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,  0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -263,46 +253,12 @@ void ApplicationFXAA::CreateInputLayoutAndShaders()
 		Macros.push_back(PresetMacros[pat]);
 		g_Renderer->CreatePixelShader(FXAA::s_Shaders.FxaaPS[pat].GetReference(), "Fxaa.hlsl", "FxaaMainPS", (const D3D_SHADER_MACRO*)&*Macros.begin());
 	}
-#else
-	D3D11_INPUT_ELEMENT_DESC layout[] =
-	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0,  0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-	};
-
-	g_Renderer->CreateVertexShaderAndInputLayout(FXAA::s_Shaders.FakeMainVS.GetReference(), FXAA::s_InputLayout.GetReference(),
-		layout, ARRAYSIZE(layout), "Box.hlsl", "VSMain");
-	g_Renderer->CreatePixelShader(FXAA::s_Shaders.FakeMainPS.GetReference(), "Box.hlsl", "PSMain");
 #endif
 }
 
 void ApplicationFXAA::CreateMesh()
 {
-	Math::Geometry::Mesh Sphere;
-	Math::Geometry::MakeGeoSphere(0.8f, 2U, Sphere);
-
-	///Math::Geometry::Mesh Floor;
-	///Math::Geometry::MakeBox(1.6f, 1.0f, 0.2f, Floor);
-
-	std::vector<FXAA::Vertex> Vertices(Sphere.Vertices.size()/* + Floor.Vertices.size()*/);
-	for (size_t i = 0U; i < Sphere.Vertices.size(); ++i)
-	{
-		Vertices[i].Position = Sphere.Vertices[i].Position;
-		Vertices[i].Color = Color::LightSteelBlue;
-	}
-
-	std::vector<uint32_t> Indices;
-	Indices.insert(Indices.end(), Sphere.Indices.begin(), Sphere.Indices.end());
-
-	g_Renderer->CreateVertexBuffer(FXAA::s_StreamBuffer.SphereVB.GetReference(),
-		(uint32_t)(sizeof(FXAA::Vertex) * Sphere.Vertices.size()), D3D11_USAGE_IMMUTABLE, &Vertices[0]);
-
-	g_Renderer->CreateIndexBuffer(FXAA::s_StreamBuffer.SphereIB.GetReference(),
-		(uint32_t)(sizeof(uint32_t) * Sphere.Indices.size()), D3D11_USAGE_IMMUTABLE, &Indices[0]);
-
-	FXAA::s_SphereIndexCount = (uint32_t)Indices.size();
-
-	FXAA::s_CryptMesh.LoadFromFile("crypt.sdkmesh");
+	FXAA::s_CryptModel.CreateFromSDKMesh("crypt.sdkmesh");
 }
 
 void ApplicationFXAA::CreateStates()
@@ -365,16 +321,7 @@ void ApplicationFXAA::CreateStates()
 
 void ApplicationFXAA::CreateConstantsBuffers()
 {
-#ifndef FakeShader
-	g_Renderer->CreateConstantBuffer(FXAA::s_ConstantsBuffers.Constants.GetReference(), D3D11_BIND_CONSTANT_BUFFER,
-		sizeof(FXAA::ConstantsBuf), D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
 
-	g_Renderer->CreateConstantBuffer(FXAA::s_ConstantsBuffers.Fxaa.GetReference(), D3D11_BIND_CONSTANT_BUFFER,
-		sizeof(FXAA::ConstantsFxaa), D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
-#else
-	g_Renderer->CreateConstantBuffer(FXAA::s_ConstantsBuffers.Fake.GetReference(),
-		sizeof(FXAA::ConstantsFake), D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
-#endif
 }
 
 void ApplicationFXAA::SetupScene()
@@ -400,33 +347,12 @@ void ApplicationFXAA::RenderScene()
 	g_Renderer->ClearRenderTarget(g_Renderer->DefaultRenderTarget(), nullptr);
 	g_Renderer->ClearDepthStencil(g_Renderer->DefaultDepthStencil(), 1.0f, 0U);
 
-#ifndef FakeShader
-#else
-	g_Renderer->SetVertexBuffer(FXAA::s_StreamBuffer.SphereVB, sizeof(FXAA::Vertex), 0U);
-	g_Renderer->SetIndexBuffer(FXAA::s_StreamBuffer.SphereIB, DXGI_FORMAT_R32_UINT);
-
-	DirectX::XMMATRIX matrixWVP = FXAA::s_DefaultCamera.GetWorldMatrix() * FXAA::s_DefaultCamera.GetViewMatrix() * FXAA::s_DefaultCamera.GetProjMatrix();
-
-	FXAA::ConstantsFake FakeConstants;
-	FakeConstants.MatrixWVP = DirectX::XMMatrixTranspose(matrixWVP);
-
-	g_Renderer->SetConstantBuffer(FXAA::s_ConstantsBuffers.Fake, 0U, D3DGraphic::eSTVertexShader);
-	g_Renderer->UpdateConstantBuffer(FXAA::s_ConstantsBuffers.Fake.GetPtr(), &FakeConstants, sizeof(FXAA::ConstantsFake));
-
-	g_Renderer->SetRasterizerState(FXAA::s_States.WireFrame);
-	g_Renderer->DrawIndexed(FXAA::s_SphereIndexCount, 0U, 0);
-#endif
+	FXAA::s_CryptModel.Draw(FXAA::s_DefaultCamera);
 }
 
 void ApplicationFXAA::SetupD3D()
 {
 	g_Renderer->SetInputLayout(FXAA::s_InputLayout);
-
-#ifndef FakeShader
-#else
-	g_Renderer->SetVertexShader(FXAA::s_Shaders.FakeMainVS);
-	g_Renderer->SetPixelShader(FXAA::s_Shaders.FakeMainPS);
-#endif
 
 	g_Renderer->SetRenderTarget(g_Renderer->DefaultRenderTarget());
 	g_Renderer->SetDepthStencil(g_Renderer->DefaultDepthStencil());
@@ -445,7 +371,7 @@ void ApplicationFXAA::UpdateScene(float /*elapsedTime*/, float /*totalTime*/)
 	float z = FXAA::s_Radius * sinf(FXAA::s_Phi) * sinf(FXAA::s_Theta);
 	float y = FXAA::s_Radius * cosf(FXAA::s_Phi);
 
-	FXAA::s_DefaultCamera.SetViewParams(DirectX::XMFLOAT3(x, y, z), DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
+	FXAA::s_DefaultCamera.SetViewParams(Vec3(x, y, z), Vec3(0.0f, 0.0f, 0.0f));
 }
 
 void ApplicationFXAA::ResizeWindow(uint32_t width, uint32_t height)

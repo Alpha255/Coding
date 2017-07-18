@@ -24,9 +24,9 @@ void Waves::Create(uint32_t row, uint32_t col, float spatialStep, float timeStep
 	SafeDeleteArray(m_pPrevSolution);
 	SafeDeleteArray(m_pNormals);
 
-	m_pCurSolution = new DirectX::XMFLOAT3[row * col];
-	m_pPrevSolution = new DirectX::XMFLOAT3[row * col];
-	m_pNormals = new DirectX::XMFLOAT3[row * col];
+	m_pCurSolution = new Vec3[row * col];
+	m_pPrevSolution = new Vec3[row * col];
+	m_pNormals = new Vec3[row * col];
 
 	// Generate grid vertices in system memory.
 	float halfWidth = (col - 1) * spatialStep * 0.5f;
@@ -38,9 +38,9 @@ void Waves::Create(uint32_t row, uint32_t col, float spatialStep, float timeStep
 		{
 			float x = -halfWidth + j * spatialStep;
 
-			m_pPrevSolution[i * col + j] = DirectX::XMFLOAT3(x, 0.0f, z);
-			m_pCurSolution[i * col + j] = DirectX::XMFLOAT3(x, 0.0f, z);
-			m_pNormals[i * col + j] = DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f);
+			m_pPrevSolution[i * col + j] = Vec3(x, 0.0f, z);
+			m_pCurSolution[i * col + j] = Vec3(x, 0.0f, z);
+			m_pNormals[i * col + j] = Vec3(0.0f, 1.0f, 0.0f);
 		}
 	}
 }
@@ -56,9 +56,9 @@ void Waves::Update(float fElapsed)
 	if (time >= m_TimeStep)
 	{
 		/// Only update interior points; we use zero boundary conditions.
-		for (DWORD i = 1; i < m_Row - 1; ++i)
+		for (uint32_t i = 1; i < m_Row - 1; ++i)
 		{
-			for (DWORD j = 1; j < m_Column - 1; ++j)
+			for (uint32_t j = 1; j < m_Column - 1; ++j)
 			{
 				/// After this update we will be discarding the old previous
 				/// buffer, so overwrite that buffer with the new update.
@@ -296,14 +296,14 @@ void MakeGeoSphere(float radius, uint32_t subDivisions, Mesh& mesh)
 	const float X = 0.525731f;
 	const float Z = 0.850651f;
 
-	DirectX::XMFLOAT3 pos[12] =
+	Vec3 pos[12] =
 	{
-		DirectX::XMFLOAT3(-X, 0.0f, Z),  DirectX::XMFLOAT3(X, 0.0f, Z),
-		DirectX::XMFLOAT3(-X, 0.0f, -Z), DirectX::XMFLOAT3(X, 0.0f, -Z),
-		DirectX::XMFLOAT3(0.0f, Z, X),   DirectX::XMFLOAT3(0.0f, Z, -X),
-		DirectX::XMFLOAT3(0.0f, -Z, X),  DirectX::XMFLOAT3(0.0f, -Z, -X),
-		DirectX::XMFLOAT3(Z, X, 0.0f),   DirectX::XMFLOAT3(-Z, X, 0.0f),
-		DirectX::XMFLOAT3(Z, -X, 0.0f),  DirectX::XMFLOAT3(-Z, -X, 0.0f)
+		Vec3(-X, 0.0f, Z),  Vec3(X, 0.0f, Z),
+		Vec3(-X, 0.0f, -Z), Vec3(X, 0.0f, -Z),
+		Vec3(0.0f, Z, X),   Vec3(0.0f, Z, -X),
+		Vec3(0.0f, -Z, X),  Vec3(0.0f, -Z, -X),
+		Vec3(Z, X, 0.0f),   Vec3(-Z, X, 0.0f),
+		Vec3(Z, -X, 0.0f),  Vec3(-Z, -X, 0.0f)
 	};
 
 	uint32_t k[60] =
@@ -390,9 +390,9 @@ void MakeGrid(float width, float depth, uint32_t m, uint32_t n, Mesh& mesh)
 		{
 			float x = -halfWidth + j * dx;
 
-			mesh.Vertices[i * n + j].Position = DirectX::XMFLOAT3(x, 0.0f, z);
-			mesh.Vertices[i * n + j].Normal = DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f);
-			mesh.Vertices[i * n + j].Tangent = DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f);
+			mesh.Vertices[i * n + j].Position = Vec3(x, 0.0f, z);
+			mesh.Vertices[i * n + j].Normal = Vec3(0.0f, 1.0f, 0.0f);
+			mesh.Vertices[i * n + j].Tangent = Vec3(1.0f, 0.0f, 0.0f);
 
 			mesh.Vertices[i * n + j].UV.x = j * du;
 			mesh.Vertices[i * n + j].UV.y = i * dv;
@@ -459,9 +459,9 @@ void SubDivide(Mesh& mesh)
 		/// For subdivision, we just care about the position component.  We derive the other
 		/// vertex components in CreateGeosphere.
 
-		m0.Position = DirectX::XMFLOAT3(0.5f * (v0.Position.x + v1.Position.x), 0.5f * (v0.Position.y + v1.Position.y), 0.5f * (v0.Position.z + v1.Position.z));
-		m1.Position = DirectX::XMFLOAT3(0.5f * (v1.Position.x + v2.Position.x), 0.5f * (v1.Position.y + v2.Position.y), 0.5f * (v1.Position.z + v2.Position.z));
-		m2.Position = DirectX::XMFLOAT3(0.5f * (v0.Position.x + v2.Position.x), 0.5f * (v0.Position.y + v2.Position.y), 0.5f * (v0.Position.z + v2.Position.z));
+		m0.Position = Vec3(0.5f * (v0.Position.x + v1.Position.x), 0.5f * (v0.Position.y + v1.Position.y), 0.5f * (v0.Position.z + v1.Position.z));
+		m1.Position = Vec3(0.5f * (v1.Position.x + v2.Position.x), 0.5f * (v1.Position.y + v2.Position.y), 0.5f * (v1.Position.z + v2.Position.z));
+		m2.Position = Vec3(0.5f * (v0.Position.x + v2.Position.x), 0.5f * (v0.Position.y + v2.Position.y), 0.5f * (v0.Position.z + v2.Position.z));
 
 		///
 		/// Add new geometry.

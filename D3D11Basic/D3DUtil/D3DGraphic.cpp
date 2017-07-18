@@ -4,22 +4,29 @@
 
 D3DGraphic* D3DGraphic::m_sInstance = nullptr;
 
-const char* ResourceFilePath(const char* pFileName, D3DGraphic::eD3DResourceType resType)
+const char* D3DGraphic::ResourceFileDirectory(D3DGraphic::eResourceType resType)
 {
-	static const char* s_ResourcePath[D3DGraphic::eRTCount] = 
-	{ 
-		"\\Resource\\Shaders\\", 
+	static const char* s_ResourcePath[D3DGraphic::eResourceType::eCount] =
+	{
+		"\\Resource\\Shaders\\",
 		"\\Resource\\Textures\\",
 		"\\Resource\\SDKMeshs\\",
 	};
-	static char filePath[MAX_PATH] = { 0 };
-	::GetModuleFileNameA(::GetModuleHandle(nullptr), filePath, MAX_PATH);
-	std::string strFileName(filePath);
+	static char directory[MAX_PATH] = { 0 };
+	::GetModuleFileNameA(::GetModuleHandle(nullptr), directory, MAX_PATH);
+	std::string strFileName(directory);
 	std::string strFilePath = strFileName.substr(0, strFileName.rfind("\\"));
 	strFilePath += s_ResourcePath[resType];
-	strFilePath += pFileName;
-	memset(filePath, 0, MAX_PATH);
-	memcpy(filePath, strFilePath.c_str(), strFilePath.size());
+	memset(directory, 0, MAX_PATH);
+	strcpy_s(directory, strFilePath.c_str());
+
+	return directory;
+}
+
+std::string D3DGraphic::ResourceFilePath(const char* pFileName, D3DGraphic::eResourceType resType)
+{
+	std::string filePath = ResourceFileDirectory(resType);
+	filePath += pFileName;
 
 	return filePath;
 }
@@ -117,7 +124,7 @@ void D3DGraphic::InitD3DEnvironment(HWND hWnd, uint32_t width, uint32_t height, 
 		D3D_FEATURE_LEVEL_10_0
 	};
 
-	m_SwapChainDesc.BufferCount = eCTBackBuffer;
+	m_SwapChainDesc.BufferCount = eBackBufferCount;
 	m_SwapChainDesc.BufferDesc.Width = width;
 	m_SwapChainDesc.BufferDesc.Height = height;
 	m_SwapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -130,7 +137,7 @@ void D3DGraphic::InitD3DEnvironment(HWND hWnd, uint32_t width, uint32_t height, 
 	m_SwapChainDesc.Windowed = bWindowed;
 	m_SwapChainDesc.SampleDesc.Count = 1;
 	m_SwapChainDesc.SampleDesc.Quality = 0;
-	m_SwapChainDesc.SwapEffect = ((eCTBackBuffer > 1) ? DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL : DXGI_SWAP_EFFECT_DISCARD);
+	m_SwapChainDesc.SwapEffect = ((eBackBufferCount > 1) ? DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL : DXGI_SWAP_EFFECT_DISCARD);
 	m_SwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 	for (UINT index = 0; index < ARRAYSIZE(driverTypes); ++index)
@@ -278,7 +285,7 @@ void D3DGraphic::CompileShaderFile(ID3DBlob** ppRes, char* pFileName, char* pEnt
 {
 	assert(ppRes && pFileName && pEntryPoint && pTarget);
 
-	std::ifstream file(ResourceFilePath(pFileName, eRTShader), std::ios::in);
+	std::ifstream file(ResourceFilePath(pFileName, eShader), std::ios::in);
 	if (file.good())
 	{
 		file.seekg(0U, std::ios::end);
@@ -434,7 +441,7 @@ void D3DGraphic::ResizeBackBuffer(uint32_t width, uint32_t height)
 
 void D3DGraphic::SetVertexBuffer(const Ref<ID3D11Buffer>& refBuffer, uint32_t stride, uint32_t offset, uint32_t index)
 {
-	assert(index <= eCTVertexStream);
+	assert(index <= eVertexStreamCount);
 
 	ID3D11Buffer* const pBuffer = refBuffer.GetPtr();
 	if (m_D3DPipelineState.VertexBuffer.Buffers[index] != pBuffer ||
@@ -477,7 +484,7 @@ void D3DGraphic::SetInputLayout(const Ref<ID3D11InputLayout>& refInputLayout)
 
 void D3DGraphic::SetRenderTarget(const Ref<ID3D11RenderTargetView>& refRenderTarget, uint32_t slot)
 {
-	assert(slot <= eCTRenderTarget);
+	assert(slot <= eRenderTargetCount);
 
 	ID3D11RenderTargetView* const pRenderTarget = refRenderTarget.GetPtr();
 	if (m_D3DPipelineState.RenderTarget[slot] != pRenderTarget)
@@ -575,16 +582,16 @@ void D3DGraphic::SetPixelShader(const Ref<ID3D11PixelShader>& refPixelShader)
 	}
 }
 
-void D3DGraphic::SetConstantBuffer(Ref<ID3D11Buffer>& pConstantBuf, uint32_t slot, eD3DShaderType shaderType)
+void D3DGraphic::SetConstantBuffer(Ref<ID3D11Buffer>& pConstantBuf, uint32_t slot, eShaderType shaderType)
 {
 	assert(pConstantBuf.IsValid());
 
 	switch (shaderType)
 	{
-	case eSTVertexShader:
+	case eVertexShader:
 		m_D3DContext->VSSetConstantBuffers(slot, 1U, pConstantBuf.GetReference());
 		break;
-	case eSTPixelShader:
+	case ePixelShader:
 		m_D3DContext->PSSetConstantBuffers(slot, 1U, pConstantBuf.GetReference());
 		break;
 	default:
@@ -651,7 +658,7 @@ void D3DGraphic::FlushPipelineState()
 
 	if (m_FlushState[eFSVertexBuffer])
 	{
-		m_D3DContext->IASetVertexBuffers(0, eCTVertexStream, m_D3DPipelineState.VertexBuffer.Buffers,
+		m_D3DContext->IASetVertexBuffers(0, eVertexStreamCount, m_D3DPipelineState.VertexBuffer.Buffers,
 			m_D3DPipelineState.VertexBuffer.Stride, m_D3DPipelineState.VertexBuffer.Offset);
 		m_FlushState[eFSVertexBuffer] = false;
 	}
@@ -709,9 +716,9 @@ void D3DGraphic::FlushPipelineState()
 		m_FlushState[eFSDepthStencilState] = false;
 	}
 
-	if (m_FlushState[eFSRenderTarget] || m_FlushState[eFSDepthStencil] || eCTBackBuffer > 1U)
+	if (m_FlushState[eFSRenderTarget] || m_FlushState[eFSDepthStencil] || eBackBufferCount > 1U)
 	{
-		m_D3DContext->OMSetRenderTargets(eCTRenderTarget, m_D3DPipelineState.RenderTarget, m_D3DPipelineState.DepthStencil);
+		m_D3DContext->OMSetRenderTargets(eRenderTargetCount, m_D3DPipelineState.RenderTarget, m_D3DPipelineState.DepthStencil);
 		m_FlushState[eFSRenderTarget] = m_FlushState[eFSDepthStencil] = false;
 	}
 }
