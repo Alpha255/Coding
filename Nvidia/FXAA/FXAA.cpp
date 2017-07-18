@@ -258,7 +258,7 @@ void ApplicationFXAA::CreateInputLayoutAndShaders()
 
 void ApplicationFXAA::CreateMesh()
 {
-	FXAA::s_CryptModel.CreateFromSDKMesh("crypt.sdkmesh");
+	FXAA::s_CryptModel.CreateFromSDKMesh(L"crypt.sdkmesh");
 }
 
 void ApplicationFXAA::CreateStates()

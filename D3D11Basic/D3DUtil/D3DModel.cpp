@@ -10,7 +10,7 @@ D3DModel::D3DModel()
 {
 }
 
-void D3DModel::CreateFromSDKMesh(const char* pName)
+void D3DModel::CreateFromSDKMesh(const wchar_t* pName)
 {
 	assert(pName);
 
@@ -26,19 +26,16 @@ void D3DModel::CreateFromSDKMesh(const char* pName)
 
 	std::string meshFileDir = D3DGraphic::ResourceFileDirectory(D3DGraphic::eSDKMesh);
 
-	std::string meshFilePath = meshFileDir + pName;
-	size_t size = meshFilePath.size() + 1U;
-	wchar_t* pMeshFilePath = new wchar_t[size]();
-	mbstowcs_s(nullptr, pMeshFilePath, size, meshFilePath.c_str(), size);
+	///size_t size = meshFilePath.size() + 1U;
+	///wchar_t* pMeshFilePath = new wchar_t[size]();
+	///mbstowcs_s(nullptr, pMeshFilePath, size, meshFilePath.c_str(), size);
 
 	char workingDir[MAX_PATH] = { 0 };
 	::GetCurrentDirectoryA(MAX_PATH, workingDir);
 
 	::SetCurrentDirectoryA(meshFileDir.c_str());
-	m_Model = DirectX::Model::CreateFromSDKMESH(g_Renderer->m_D3DDevice.GetPtr(), pMeshFilePath, *m_EffectFactory, true, true);
+	m_Model = DirectX::Model::CreateFromSDKMESH(g_Renderer->m_D3DDevice.GetPtr(), pName, *m_EffectFactory, true, true);
 	::SetCurrentDirectoryA(workingDir);
-
-	delete[] pMeshFilePath;
 }
 
 void D3DModel::Draw(const Camera& camera, bool bWireframe)

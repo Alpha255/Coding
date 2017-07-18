@@ -10,7 +10,7 @@ public:
 	D3DModel();
 	~D3DModel();
 
-	void CreateFromSDKMesh(const char* pName);
+	void CreateFromSDKMesh(const wchar_t* pName);
 
 	void Draw(const class Camera& camera, bool bWireframe = false);
 protected:
