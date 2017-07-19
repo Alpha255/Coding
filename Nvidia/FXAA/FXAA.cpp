@@ -192,7 +192,6 @@ void ApplicationFXAA::CreateViews()
 
 void ApplicationFXAA::CreateInputLayoutAndShaders()
 {
-#if 0
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,  0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -253,7 +252,6 @@ void ApplicationFXAA::CreateInputLayoutAndShaders()
 		Macros.push_back(PresetMacros[pat]);
 		g_Renderer->CreatePixelShader(FXAA::s_Shaders.FxaaPS[pat].GetReference(), "Fxaa.hlsl", "FxaaMainPS", (const D3D_SHADER_MACRO*)&*Macros.begin());
 	}
-#endif
 }
 
 void ApplicationFXAA::CreateMesh()
@@ -372,11 +370,15 @@ void ApplicationFXAA::UpdateScene(float /*elapsedTime*/, float /*totalTime*/)
 	float y = FXAA::s_Radius * cosf(FXAA::s_Phi);
 
 	FXAA::s_DefaultCamera.SetViewParams(Vec3(x, y, z), Vec3(0.0f, 0.0f, 0.0f));
+
+	FXAA::s_LightCamera.SetViewParams(Vec3(x, y, z), Vec3(0.0f, 0.0f, 0.0f));
 }
 
 void ApplicationFXAA::ResizeWindow(uint32_t width, uint32_t height)
 {
 	FXAA::s_DefaultCamera.SetProjParams(DirectX::XM_PIDIV4, (float)width / height, 1.0f, 1000.0f);
+
+	FXAA::s_LightCamera.SetProjParams(DirectX::XM_PIDIV4, 1.0f, 0.1f, 1000.0f);
 
 	Base::ResizeWindow(width, height);
 }

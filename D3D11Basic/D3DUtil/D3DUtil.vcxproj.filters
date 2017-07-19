@@ -24,9 +24,6 @@
     <Filter Include="Resource">
       <UniqueIdentifier>{e02ebe4f-c838-4bc5-b4a5-7cfe7b973db3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Shaders">
-      <UniqueIdentifier>{46d2026e-26a0-42ba-b100-ee5413e4a337}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="D3DUtil.rc">
@@ -37,13 +34,5 @@
     <Image Include="..\Resource\directx.ico">
       <Filter>Resource</Filter>
     </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\Application\Resource\Shaders\Fxaa.hlsl">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="..\..\Application\Resource\Shaders\Box.hlsl">
-      <Filter>Shaders</Filter>
-    </None>
   </ItemGroup>
 </Project>

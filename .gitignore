@@ -19,6 +19,7 @@
 *.manifest
 *.opensdf
 *.db
+*.pch
 
 Debug/
 Release/
