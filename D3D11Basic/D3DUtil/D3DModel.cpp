@@ -47,6 +47,38 @@ void D3DModel::Draw(const Camera& camera, bool bWireframe)
 	g_Renderer->m_SwapChain->Present(0U, 0U);
 }
 
+const ID3D11Buffer* const D3DModel::GetVertexBuffer(uint32_t index) const
+{
+	assert(index >= 0 && index < m_Model->meshes.size());
+
+	const ID3D11Buffer* const pVB = m_Model->meshes.at(index)->meshParts.at(index)->vertexBuffer.Get();
+
+	return pVB;
+}
+
+const ID3D11Buffer* const D3DModel::GetIndexBuffer(uint32_t index) const
+{
+	assert(index >= 0 && index < m_Model->meshes.size());
+
+	const ID3D11Buffer* const pIB = m_Model->meshes.at(index)->meshParts.at(index)->indexBuffer.Get();
+
+	return pIB;
+}
+
+uint32_t D3DModel::GetVertexStride(uint32_t index) const
+{
+	assert(index >= 0 && index < m_Model->meshes.size());
+
+	return m_Model->meshes.at(index)->meshParts.at(index)->vertexStride;
+}
+
+DXGI_FORMAT D3DModel::GetIndexFormat(uint32_t index) const
+{
+	assert(index >= 0 && index < m_Model->meshes.size());
+
+	return m_Model->meshes.at(index)->meshParts.at(index)->indexFormat;
+}
+
 D3DModel::~D3DModel()
 {
 	if (m_EffectFactory)

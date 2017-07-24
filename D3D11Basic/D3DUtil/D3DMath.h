@@ -36,22 +36,6 @@ public:
 	}
 };
 
-class Vec4 : public DirectX::XMFLOAT4
-{
-public:
-	inline Vec4() {}
-
-	inline Vec4(float x, float y, float z, float w)
-		: DirectX::XMFLOAT4(x, y, z, w)
-	{
-	}
-
-	inline Vec4(const float* pArray)
-		: DirectX::XMFLOAT4(pArray)
-	{
-	}
-};
-
 class Matrix : public DirectX::XMMATRIX
 {
 public:
@@ -79,6 +63,13 @@ public:
 	inline Matrix Transpose()
 	{
 		DirectX::XMMATRIX result = DirectX::XMMatrixTranspose(*this);
+
+		return *(static_cast<Matrix*>(&result));
+	}
+
+	inline Matrix Inverse()
+	{
+		DirectX::XMMATRIX result = DirectX::XMMatrixInverse(nullptr, *this);
 
 		return *(static_cast<Matrix*>(&result));
 	}
@@ -137,7 +128,7 @@ public:
 		return *(static_cast<Matrix*>(&result));
 	}
 
-	inline Matrix operator*(Matrix& matrix) const
+	inline Matrix operator*(const Matrix& matrix) const
 	{
 		DirectX::XMMATRIX lMatrix, rMatrix;
 		memcpy(&lMatrix, this, sizeof(Matrix));
@@ -146,6 +137,31 @@ public:
 		DirectX::XMMATRIX result = lMatrix * rMatrix;
 
 		return *(static_cast<Matrix*>(&result));
+	}
+};
+
+class Vec4 : public DirectX::XMFLOAT4
+{
+public:
+	inline Vec4() {}
+
+	inline Vec4(float x, float y, float z, float w)
+		: DirectX::XMFLOAT4(x, y, z, w)
+	{
+	}
+
+	inline Vec4(const float* pArray)
+		: DirectX::XMFLOAT4(pArray)
+	{
+	}
+
+	inline void Transform(const class Matrix& matrix)
+	{
+		DirectX::XMVECTOR srcVec = DirectX::XMVectorSet(x, y, z, w);
+
+		DirectX::XMVECTOR result = DirectX::XMVector3Transform(srcVec, matrix);
+
+		memcpy(this, &result, sizeof(DirectX::XMVECTOR));
 	}
 };
 

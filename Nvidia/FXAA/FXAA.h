@@ -22,5 +22,6 @@ protected:
 	void CreateStates();
 	void CreateConstantsBuffers();
 	void SetupD3D();
+	void DrawShadowMap();
 private:
 };
