@@ -25,9 +25,11 @@ public:
 		eFSRenderTarget,
 		eFSDepthStencil,
 		eFSViewports,
+		eFSScissorRect,
 		eFSRasterizerState,
 		eFSBlendState,
 		eFSDepthStencilState,
+		eFSSamplerState,
 		eFSPrimitiveTopology,
 		eFSCount
 	};
@@ -117,17 +119,46 @@ public:
 	void SetRenderTarget(const Ref<ID3D11RenderTargetView>& renderTarget, uint32_t slot = 0U);
 	void SetDepthStencil(const Ref<ID3D11DepthStencilView>& depthStencil);
 	void SetViewports(D3D11_VIEWPORT* pViewports, uint32_t count = 1U);
+	void SetScissorRects(D3D11_RECT* pRects, uint32_t count = 1U);
+	void SetSamplerStates(ID3D11SamplerState* const* ppStates, uint32_t startSlot = 0U, uint32_t count = 1U);
+	void SetShaderResource(ID3D11ShaderResourceView* const* ppSRV, uint32_t startSlot = 0U, uint32_t count = 1U);
 	void SetRasterizerState(const Ref<ID3D11RasterizerState>& rasterizerState);
 	void SetDepthStencilState(const Ref<ID3D11DepthStencilState>& depthStencilState);
-	void SetBlendState(const Ref<ID3D11BlendState>& blendState, DirectX::XMFLOAT4, uint32_t mask);
+	void SetBlendState(const Ref<ID3D11BlendState>& blendState, Vec4 blendFactor, uint32_t mask);
 	void SetVertexShader(const Ref<ID3D11VertexShader>& vertexShader);
 	void SetPixelShader(const Ref<ID3D11PixelShader>& pixelShader);
 	void SetConstantBuffer(Ref<ID3D11Buffer>& constantBuf, uint32_t slot, eShaderType shaderType);
+
+	void GetBackBufferDesc(D3D11_TEXTURE2D_DESC& tex2DDesc);
+
+	void ResolveSubResource(const Ref<ID3D11Texture2D>& dstResource, const Ref<ID3D11Texture2D>& srcResource, uint32_t dstCount, uint32_t srcCount, DXGI_FORMAT fmt);
 
 	void UpdateConstantBuffer(Ref<ID3D11Buffer>& constantBuf, const void* pSource, uint32_t size);
 
 	void Draw(uint32_t vertexCount, uint32_t startIndex, D3D_PRIMITIVE_TOPOLOGY prim = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	void DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, D3D_PRIMITIVE_TOPOLOGY prim = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	inline D3D11_RECT GetScissorRect()
+	{
+		assert(m_D3DContext.IsValid());
+
+		uint32_t count = 1U;
+		D3D11_RECT rects[1] = { 0 };
+		m_D3DContext->RSGetScissorRects(&count, rects);
+
+		return rects[0];
+	}
+
+	inline D3D11_VIEWPORT GetViewport()
+	{
+		assert(m_D3DContext.IsValid());
+
+		uint32_t count = 1U;
+		D3D11_VIEWPORT viewports[1] = { 0 };
+		m_D3DContext->RSGetViewports(&count, viewports);
+
+		return viewports[0];
+	}
 
 	static std::string ResourceFilePath(const char* pFileName, eResourceType resType);
 	static const char* ResourceFileDirectory(eResourceType resType);
@@ -170,6 +201,7 @@ private:
 		ID3D11VertexShader*      VertexShader;
 		ID3D11RasterizerState*   RasterizerState;
 		D3D11_VIEWPORT*          Viewports;
+		D3D11_RECT*              ScissorRects;
 		ID3D11PixelShader*       PixelShader;
 		ID3D11BlendState*        BlendState;
 		ID3D11DepthStencilState* DepthStencilState;
@@ -179,6 +211,7 @@ private:
 		float                    BlendFactor[4];
 		uint32_t                 SampleMask;
 		uint32_t                 ViewportCount;
+		uint32_t                 ScissorRectCount;
 	}m_D3DPipelineState;
 
 	DXGI_SWAP_CHAIN_DESC m_SwapChainDesc;
@@ -189,6 +222,7 @@ private:
 	Ref<ID3D11RenderTargetView> m_DefaultRenderTarget;
 	Ref<ID3D11DepthStencilView> m_DefaultDepthStencil;
 	D3D11_VIEWPORT m_DefaultViewport;
+	D3D11_RECT m_DefaultScissorRect;
 
 	bool m_FlushState[eFSCount];
 };

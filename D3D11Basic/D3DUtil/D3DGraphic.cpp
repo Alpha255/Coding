@@ -37,6 +37,7 @@ D3DGraphic::D3DGraphic()
 	memset(&m_FlushState, 0, sizeof(bool) * eFSCount);
 	memset(&m_SwapChainDesc, 0, sizeof(DXGI_SWAP_CHAIN_DESC));
 	memset(&m_DefaultViewport, 0, sizeof(D3D11_VIEWPORT));
+	memset(&m_DefaultScissorRect, 0, sizeof(D3D11_RECT));
 }
 
 void D3DGraphic::CreateTexture2D(Ref<ID3D11Texture2D>& resource, DXGI_FORMAT fmt, uint32_t width, uint32_t height,
@@ -510,6 +511,34 @@ void D3DGraphic::SetViewports(D3D11_VIEWPORT* pViewports, uint32_t count)
 	}
 }
 
+void D3DGraphic::SetScissorRects(D3D11_RECT* pRects, uint32_t count)
+{
+	assert(count <= 1U && "Unsupport yet!!!");
+
+	if (m_D3DPipelineState.ScissorRectCount != count ||
+		m_D3DPipelineState.ScissorRects != pRects)
+	{
+		m_D3DPipelineState.ScissorRectCount = count;
+		m_D3DPipelineState.ScissorRects = pRects;
+
+		memcpy(&m_DefaultScissorRect, pRects, sizeof(D3D11_RECT));
+
+		m_FlushState[eFSScissorRect] = true;
+	}
+}
+
+void D3DGraphic::SetSamplerStates(ID3D11SamplerState* const * ppStates, uint32_t startSlot, uint32_t count)
+{
+	assert(ppStates);
+	m_D3DContext->PSSetSamplers(startSlot, count, ppStates);
+}
+
+void D3DGraphic::SetShaderResource(ID3D11ShaderResourceView* const* ppSRV, uint32_t startSlot, uint32_t count)
+{
+	assert(ppSRV);
+	m_D3DContext->PSSetShaderResources(startSlot, count, ppSRV);
+}
+
 void D3DGraphic::SetRasterizerState(const Ref<ID3D11RasterizerState>& rasterizerState)
 {
 	ID3D11RasterizerState* const pRasterizerState = rasterizerState.GetPtr();
@@ -532,14 +561,14 @@ void D3DGraphic::SetDepthStencilState(const Ref<ID3D11DepthStencilState>& depthS
 	}
 }
 
-void D3DGraphic::SetBlendState(const Ref<ID3D11BlendState>& blendState, DirectX::XMFLOAT4 blendFactor, uint32_t mask)
+void D3DGraphic::SetBlendState(const Ref<ID3D11BlendState>& blendState, Vec4 blendFactor, uint32_t mask)
 {
 	ID3D11BlendState* const pBlendState = blendState.GetPtr();
 	if (m_D3DPipelineState.BlendState != pBlendState ||
 		m_D3DPipelineState.SampleMask != mask)
 	{
 		m_D3DPipelineState.BlendState = pBlendState;
-		memcpy(m_D3DPipelineState.BlendFactor, &blendFactor, sizeof(DirectX::XMFLOAT4));
+		memcpy(m_D3DPipelineState.BlendFactor, &blendFactor, sizeof(Vec4));
 		m_D3DPipelineState.SampleMask = mask;
 
 		m_FlushState[eFSBlendState] = true;
@@ -598,6 +627,23 @@ void D3DGraphic::UpdateConstantBuffer(Ref<ID3D11Buffer>& constantBuf, const void
 	HRCheck(m_D3DContext->Map(constantBuf.GetPtr(), 0U, D3D11_MAP_WRITE_DISCARD, 0U, &mapData));
 	memcpy(mapData.pData, pSource, size);
 	m_D3DContext->Unmap(constantBuf.GetPtr(), 0U);
+}
+
+void D3DGraphic::GetBackBufferDesc(D3D11_TEXTURE2D_DESC& tex2DDesc)
+{
+	assert(m_SwapChain.IsValid());
+
+	Ref<ID3D11Texture2D> backBuffer;
+	HRCheck(m_SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)backBuffer.GetReference()));
+
+	backBuffer->GetDesc(&tex2DDesc);
+}
+
+void D3DGraphic::ResolveSubResource(const Ref<ID3D11Texture2D>& dstResource, const Ref<ID3D11Texture2D>& srcResource, uint32_t dstCount, uint32_t srcCount, DXGI_FORMAT fmt)
+{
+	assert(dstResource.IsValid() && srcResource.IsValid());
+
+	m_D3DContext->ResolveSubresource(dstResource.GetPtr(), dstCount, srcResource.GetPtr(), srcCount, fmt);
 }
 
 void D3DGraphic::Draw(uint32_t vertexCount, uint32_t startIndex, D3D_PRIMITIVE_TOPOLOGY prim)
@@ -682,6 +728,12 @@ void D3DGraphic::FlushPipelineState()
 	{
 		m_D3DContext->RSSetViewports(m_D3DPipelineState.ViewportCount, &m_DefaultViewport);
 		m_FlushState[eFSViewports] = false;
+	}
+
+	if (m_FlushState[eFSScissorRect])
+	{
+		m_D3DContext->RSSetScissorRects(m_D3DPipelineState.ScissorRectCount, m_D3DPipelineState.ScissorRects);
+		m_FlushState[eFSScissorRect] = false;
 	}
 
 	/// Pixel Shader

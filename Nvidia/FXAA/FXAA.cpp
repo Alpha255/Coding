@@ -8,7 +8,7 @@ extern D3DGraphic* g_Renderer;
 
 namespace FXAA
 {
-	enum
+	enum eConstants
 	{
 		eGatherCount = 2,
 		ePatternCount = 5,
@@ -45,6 +45,7 @@ namespace FXAA
 		Ref<ID3D11PixelShader> MainPS[ePatternCount];
 		Ref<ID3D11PixelShader> MainGatherPS[ePatternCount];
 		Ref<ID3D11PixelShader> FxaaPS[eFxaaPatternCount];
+		Ref<ID3D11PixelShader> EmptyPS;
 	};
 
 	struct D3DStates
@@ -331,6 +332,32 @@ void ApplicationFXAA::DrawShadowMap()
 	g_Renderer->SetVertexBuffer(FXAA::s_CryptModel.GetVertexBuffer(0U), FXAA::s_CryptModel.GetVertexStride(0U), 0U);
 	g_Renderer->SetIndexBuffer(FXAA::s_CryptModel.GetIndexBuffer(0U), FXAA::s_CryptModel.GetIndexFormat(0U));
 
+	D3D11_RECT oldRect = g_Renderer->GetScissorRect();
+	D3D11_VIEWPORT oldViewport = g_Renderer->GetViewport();
+
+	D3D11_RECT shadowMapRect = { 0, FXAA::eShadowMapSize, 0, FXAA::eShadowMapSize };
+	D3D11_VIEWPORT shadowMapViewport = { 0.0f, 0.0f, (float)FXAA::eShadowMapSize, (float)FXAA::eShadowMapSize, 0.0f, 1.0f };
+	
+	g_Renderer->SetScissorRects(&shadowMapRect);
+	g_Renderer->SetViewports(&shadowMapViewport);
+
+	g_Renderer->SetDepthStencil(FXAA::s_Views.DepthTexDSV);
+	g_Renderer->ClearDepthStencil(FXAA::s_Views.DepthTexDSV, 1.0f, 0U);
+
+	g_Renderer->SetVertexShader(FXAA::s_Shaders.ShadowMapVS);
+	g_Renderer->SetPixelShader(FXAA::s_Shaders.EmptyPS);
+
+	g_Renderer->SetBlendState(FXAA::s_States.ColorWritesOff, Vec4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
+	g_Renderer->SetRasterizerState(FXAA::s_States.CullFront);
+
+	FXAA::s_CryptModel.Draw(FXAA::s_DefaultCamera);
+
+	g_Renderer->SetBlendState(FXAA::s_States.ColorWritesOn, Vec4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
+	g_Renderer->SetRasterizerState(FXAA::s_States.CullBack);
+
+	g_Renderer->SetScissorRects(&oldRect);
+	g_Renderer->SetViewports(&oldViewport);
+
 #ifdef _DEBUG
 
 #endif
@@ -338,11 +365,11 @@ void ApplicationFXAA::DrawShadowMap()
 
 void ApplicationFXAA::RenderScene()
 {
-	//if (FXAA::s_FxaaPreset)
-	//{
-	//	g_Renderer->ClearRenderTarget(FXAA::s_Views.ProxyTexRTV, nullptr);
-	//}
-	//else
+	if (FXAA::s_FxaaPreset)
+	{
+		g_Renderer->ClearRenderTarget(FXAA::s_Views.ProxyTexRTV, nullptr);
+	}
+	else
 	{
 		g_Renderer->ClearRenderTarget(g_Renderer->DefaultRenderTarget(), nullptr);
 	}
@@ -378,7 +405,64 @@ void ApplicationFXAA::RenderScene()
 	/// Draw Shadowmap
 	DrawShadowMap();
 
+	if (FXAA::s_FxaaPreset)
+	{
+		g_Renderer->SetRenderTarget(FXAA::s_Views.ProxyTexRTV);
+	}
+	else
+	{
+		g_Renderer->SetRenderTarget(g_Renderer->DefaultRenderTarget());
+	}
+
+	g_Renderer->SetVertexShader(FXAA::s_Shaders.MainVS);
+	if (FXAA::s_UseGather)
+	{
+		g_Renderer->SetPixelShader(FXAA::s_Shaders.MainGatherPS[FXAA::s_CurPattern]);
+	}
+	else
+	{
+		g_Renderer->SetPixelShader(FXAA::s_Shaders.MainPS[FXAA::s_CurPattern]);
+	}
+
+	ID3D11SamplerState* ppSamplerStates[4] = {
+		FXAA::s_States.PointMirror.GetPtr(),
+		FXAA::s_States.LinearWrap.GetPtr(),
+		FXAA::s_States.PointCmpClamp.GetPtr(),
+		FXAA::s_States.Anisotropic.GetPtr()
+	};
+	g_Renderer->SetSamplerStates(ppSamplerStates, 0U, 4U);
+
+	ID3D11ShaderResourceView* ppShaderResourceViews[2] = {
+		FXAA::s_Views.DepthTexSRV.GetPtr(),
+		FXAA::s_Views.RandomRotTexSRV.GetPtr()
+	};
+	g_Renderer->SetShaderResource(ppShaderResourceViews, 1U, 2U);
+
 	FXAA::s_CryptModel.Draw(FXAA::s_DefaultCamera);
+
+	ID3D11ShaderResourceView* pEmptySRV = nullptr;
+	g_Renderer->SetShaderResource(&pEmptySRV, 1U, 1U);
+
+	if (FXAA::s_FxaaPreset)
+	{
+		g_Renderer->SetRenderTarget(g_Renderer->DefaultRenderTarget());
+		g_Renderer->SetVertexShader(FXAA::s_Shaders.FxaaVS);
+		g_Renderer->SetPixelShader(FXAA::s_Shaders.FxaaPS[FXAA::s_FxaaPreset - 1]);
+
+		D3D11_TEXTURE2D_DESC backBufferDesc;
+		g_Renderer->GetBackBufferDesc(backBufferDesc);
+		if (backBufferDesc.SampleDesc.Count > 1U)
+		{
+			g_Renderer->ResolveSubResource(FXAA::s_Textures.CopyResolveTex, FXAA::s_Textures.ProxyTex, 0U, 0U, DXGI_FORMAT_R8G8B8A8_UNORM);
+			g_Renderer->SetShaderResource(FXAA::s_Views.CopyResolveTexSRV.GetReference());
+			g_Renderer->Draw(4U, 0U, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+		}
+		else
+		{
+			g_Renderer->SetShaderResource(FXAA::s_Views.ProxyTexSRV.GetReference());
+			g_Renderer->Draw(4U, 0U);
+		}
+	}
 }
 
 void ApplicationFXAA::SetupD3D()
