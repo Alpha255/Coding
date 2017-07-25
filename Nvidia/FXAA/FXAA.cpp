@@ -328,12 +328,12 @@ void ApplicationFXAA::SetupScene()
 
 void ApplicationFXAA::DrawShadowMap()
 {
-	g_Renderer->SetInputLayout(FXAA::s_InputLayout);
-	g_Renderer->SetVertexBuffer(FXAA::s_CryptModel.GetVertexBuffer(0U), FXAA::s_CryptModel.GetVertexStride(0U), 0U);
-	g_Renderer->SetIndexBuffer(FXAA::s_CryptModel.GetIndexBuffer(0U), FXAA::s_CryptModel.GetIndexFormat(0U));
+	//g_Renderer->SetInputLayout(FXAA::s_InputLayout);
+	//g_Renderer->SetVertexBuffer(FXAA::s_CryptModel.GetVertexBuffer(0U), FXAA::s_CryptModel.GetVertexStride(0U), 0U);
+	//g_Renderer->SetIndexBuffer(FXAA::s_CryptModel.GetIndexBuffer(0U), FXAA::s_CryptModel.GetIndexFormat(0U));
 
-	D3D11_RECT oldRect = g_Renderer->GetScissorRect();
-	D3D11_VIEWPORT oldViewport = g_Renderer->GetViewport();
+	//D3D11_RECT oldRect = g_Renderer->GetScissorRect();
+	//D3D11_VIEWPORT oldViewport = g_Renderer->GetViewport();
 
 	D3D11_RECT shadowMapRect = { 0, FXAA::eShadowMapSize, 0, FXAA::eShadowMapSize };
 	D3D11_VIEWPORT shadowMapViewport = { 0.0f, 0.0f, (float)FXAA::eShadowMapSize, (float)FXAA::eShadowMapSize, 0.0f, 1.0f };
@@ -341,8 +341,10 @@ void ApplicationFXAA::DrawShadowMap()
 	g_Renderer->SetScissorRects(&shadowMapRect);
 	g_Renderer->SetViewports(&shadowMapViewport);
 
+	Ref<ID3D11RenderTargetView> emptyRTV;
+	g_Renderer->SetRenderTarget(emptyRTV);
 	g_Renderer->SetDepthStencil(FXAA::s_Views.DepthTexDSV);
-	g_Renderer->ClearDepthStencil(FXAA::s_Views.DepthTexDSV, 1.0f, 0U);
+	g_Renderer->ClearDepthStencil(FXAA::s_Views.DepthTexDSV, D3D11_CLEAR_DEPTH, 1.0f, 0U);
 
 	g_Renderer->SetVertexShader(FXAA::s_Shaders.ShadowMapVS);
 	g_Renderer->SetPixelShader(FXAA::s_Shaders.EmptyPS);
@@ -355,8 +357,8 @@ void ApplicationFXAA::DrawShadowMap()
 	g_Renderer->SetBlendState(FXAA::s_States.ColorWritesOn, Vec4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
 	g_Renderer->SetRasterizerState(FXAA::s_States.CullBack);
 
-	g_Renderer->SetScissorRects(&oldRect);
-	g_Renderer->SetViewports(&oldViewport);
+	//g_Renderer->SetScissorRects(&oldRect);
+	g_Renderer->SetViewports(&FXAA::s_Viewport);
 
 #ifdef _DEBUG
 
@@ -373,7 +375,7 @@ void ApplicationFXAA::RenderScene()
 	{
 		g_Renderer->ClearRenderTarget(g_Renderer->DefaultRenderTarget(), nullptr);
 	}
-	g_Renderer->ClearDepthStencil(g_Renderer->DefaultDepthStencil(), 1.0f, 0U);
+	g_Renderer->ClearDepthStencil(g_Renderer->DefaultDepthStencil(), D3D11_CLEAR_DEPTH, 1.0f, 0U);
 
 	Matrix mLightWorldViewInv = (FXAA::s_LightCamera.GetWorldMatrix() * FXAA::s_LightCamera.GetViewMatrix()).Inverse();
 
@@ -525,3 +527,17 @@ void ApplicationFXAA::MouseMove(WPARAM wParam, int x, int y)
 	m_LastMousePos[0] = x;
 	m_LastMousePos[1] = y;
 }
+
+/*
+extern "C"
+{
+FILE _iob[3] = { *stdin, *stdout, *stderr };
+int(*__vsnwprintf)(wchar_t *, size_t, const wchar_t*, va_list) = _vsnwprintf;
+int(*__vswprintf)(wchar_t*, wchar_t const* const, va_list) = vswprintf;
+
+int(*__swprintf_s)(wchar_t* const, size_t const, wchar_t const* const, ...) = swprintf_s;
+int(*__vswprintf_s)(wchar_t* const, size_t const, wchar_t const* const, va_list) = vswprintf_s;
+
+int(*__sprintf_s)(char* const, size_t const, char const* const, ...) = sprintf_s;
+}
+*/

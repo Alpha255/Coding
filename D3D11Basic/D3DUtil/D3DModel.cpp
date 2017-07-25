@@ -44,7 +44,7 @@ void D3DModel::Draw(const Camera& camera, bool bWireframe)
 
 	m_Model->Draw(g_Renderer->m_D3DContext.GetPtr(), *m_States, camera.GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjMatrix(), bWireframe);
 
-	g_Renderer->m_SwapChain->Present(0U, 0U);
+	///g_Renderer->m_SwapChain->Present(0U, 0U);
 }
 
 const ID3D11Buffer* const D3DModel::GetVertexBuffer(uint32_t index) const

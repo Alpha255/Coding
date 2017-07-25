@@ -390,11 +390,11 @@ void D3DGraphic::ClearRenderTarget(const Ref<ID3D11RenderTargetView>& renderTarg
 	m_D3DContext->ClearRenderTargetView(renderTarget.GetPtr(), pClearColor);
 }
 
-void D3DGraphic::ClearDepthStencil(const Ref<ID3D11DepthStencilView>& depthStencil, float depth, uint8_t stencil)
+void D3DGraphic::ClearDepthStencil(const Ref<ID3D11DepthStencilView>& depthStencil, uint32_t clearFlags, float depth, uint8_t stencil)
 {
 	assert(depthStencil.IsValid());
 
-	m_D3DContext->ClearDepthStencilView(depthStencil.GetPtr(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depth, stencil);
+	m_D3DContext->ClearDepthStencilView(depthStencil.GetPtr(), clearFlags, depth, stencil);
 }
 
 void D3DGraphic::ResizeBackBuffer(uint32_t width, uint32_t height)

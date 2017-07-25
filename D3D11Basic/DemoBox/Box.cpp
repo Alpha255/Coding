@@ -125,7 +125,7 @@ void ApplicationBox::RenderScene()
 {
 	float black[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	g_Renderer->ClearRenderTarget(g_Renderer->DefaultRenderTarget(), black);
-	g_Renderer->ClearDepthStencil(g_Renderer->DefaultDepthStencil(), 1.0f, 0U);
+	g_Renderer->ClearDepthStencil(g_Renderer->DefaultDepthStencil(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0U);
 
 	Matrix wvp = s_MatrixSet.World * s_MatrixSet.View * s_MatrixSet.Projection;
 

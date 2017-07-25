@@ -96,7 +96,7 @@ public:
 	void CreateRasterizerState(__out Ref<ID3D11RasterizerState>& rasterizerState, D3D11_FILL_MODE fillMode, D3D11_CULL_MODE cullMode = D3D11_CULL_BACK, bool cw = false, bool depthClip = true);
 
 	void ClearRenderTarget(const Ref<ID3D11RenderTargetView>& renderTarget, float* pClearColor);
-	void ClearDepthStencil(const Ref<ID3D11DepthStencilView>& depthStencil, float depth, uint8_t stencil);
+	void ClearDepthStencil(const Ref<ID3D11DepthStencilView>& depthStencil, uint32_t clearFlags, float depth, uint8_t stencil);
 
 	void ResizeBackBuffer(uint32_t width, uint32_t height);
 
