@@ -160,6 +160,11 @@ public:
 		return viewports[0];
 	}
 
+	inline void ForceFlush()
+	{
+		FlushPipelineState();
+	}
+
 	static std::string ResourceFilePath(const char* pFileName, eResourceType resType);
 	static const char* ResourceFileDirectory(eResourceType resType);
 protected:

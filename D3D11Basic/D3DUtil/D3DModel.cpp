@@ -44,7 +44,48 @@ void D3DModel::Draw(const Camera& camera, bool bWireframe)
 
 	m_Model->Draw(g_Renderer->m_D3DContext.GetPtr(), *m_States, camera.GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjMatrix(), bWireframe);
 
-	///g_Renderer->m_SwapChain->Present(0U, 0U);
+	g_Renderer->m_SwapChain->Present(0U, 0U);
+}
+
+void D3DModel::DrawCustom()
+{
+	g_Renderer->FlushPipelineState();
+
+	for (auto it_m = m_Model->meshes.cbegin(); it_m != m_Model->meshes.cend(); ++it_m)
+	{
+		for (auto it_mp = (*it_m)->meshParts.cbegin(); it_mp != (*it_m)->meshParts.cend(); ++it_mp)
+		{
+			auto part = (*it_mp).get();
+			assert(part);
+
+			ID3D11Buffer* pVertexBuffer = part->vertexBuffer.Get();
+			uint32_t vertexStride = part->vertexStride;
+			uint32_t vertexOffset = part->vertexOffset;
+			if (g_Renderer->m_D3DPipelineState.VertexBuffer.Stride[0] != vertexStride ||
+				g_Renderer->m_D3DPipelineState.VertexBuffer.Offset[0] != vertexOffset ||
+				g_Renderer->m_D3DPipelineState.VertexBuffer.Buffers[0] != pVertexBuffer)
+			{
+				g_Renderer->m_D3DContext->IASetVertexBuffers(0U, 1U, &pVertexBuffer, &vertexStride, &vertexOffset);
+			}
+
+			ID3D11Buffer* pIndexBuffer = part->indexBuffer.Get();
+			DXGI_FORMAT indexFormat = part->indexFormat;
+			if (g_Renderer->m_D3DPipelineState.IndexBuffer.Format != indexFormat ||
+				g_Renderer->m_D3DPipelineState.IndexBuffer.Buffers != pIndexBuffer)
+			{
+				g_Renderer->m_D3DContext->IASetIndexBuffer(pIndexBuffer, indexFormat, 0U);
+			}
+
+			if (g_Renderer->m_D3DPipelineState.PrimitiveTopology != part->primitiveType)
+			{
+				g_Renderer->m_D3DContext->IASetPrimitiveTopology(part->primitiveType);
+			}
+
+			g_Renderer->m_D3DContext->DrawIndexed(part->indexCount, part->startIndex, part->vertexOffset);
+		}
+	}
+
+	g_Renderer->m_SwapChain->Present(0U, 0U);
 }
 
 const ID3D11Buffer* const D3DModel::GetVertexBuffer(uint32_t index) const
