@@ -335,6 +335,26 @@ void ApplicationFXAA::SetupScene()
 
 void ApplicationFXAA::DrawShadowMap()
 {
+	g_Renderer->ClearDepthStencil(g_Renderer->DefaultDepthStencil(), D3D11_CLEAR_DEPTH, 1.0f, 0U);
+
+	g_Renderer->SetConstantBuffer(s_ConstantsBuffers.ShadowMap, 0U, D3DGraphic::eVertexShader);
+	g_Renderer->SetConstantBuffer(s_ConstantsBuffers.ShadowMap, 0U, D3DGraphic::ePixelShader);
+
+	Matrix mLightWorldViewInv = (s_LightCamera.GetWorldMatrix() * s_LightCamera.GetViewMatrix()).Inverse();
+	ConstantsShadowMap cbShadowMap;
+	memset(&cbShadowMap, 0, sizeof(ConstantsShadowMap));
+	cbShadowMap.LightDiffuseClr = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	cbShadowMap.WVP = s_DefaultCamera.GetWorldMatrix() * s_DefaultCamera.GetViewMatrix() * s_DefaultCamera.GetProjMatrix();
+	cbShadowMap.WVPLight = s_LightCamera.GetWorldMatrix() * s_LightCamera.GetViewMatrix() * s_LightCamera.GetProjMatrix();
+	cbShadowMap.LightPos = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	cbShadowMap.LightPos.Transform(mLightWorldViewInv);
+	cbShadowMap.AmbientColor = Vec4(0.2f, 0.2f, 0.2f, 1.0f);
+	cbShadowMap.DiffuseColor = Vec4(0.8f, 0.8f, 0.8f, 1.0f);
+	cbShadowMap.FilterWidth = 10.0f;
+	cbShadowMap.InvRandomRotSize = 1.0f / eRandomRotSize;
+	cbShadowMap.InvShadowMapSize = 1.0f / eShadowMapSize;
+	g_Renderer->UpdateConstantBuffer(s_ConstantsBuffers.ShadowMap, &cbShadowMap, sizeof(ConstantsShadowMap));
+
 	D3D11_RECT shadowMapRect = { 0, eShadowMapSize, 0, eShadowMapSize };
 	D3D11_VIEWPORT shadowMapViewport = { 0.0f, 0.0f, (float)eShadowMapSize, (float)eShadowMapSize, 0.0f, 1.0f };	
 	g_Renderer->SetScissorRects(&shadowMapRect);
@@ -372,26 +392,6 @@ void ApplicationFXAA::RenderScene()
 	{
 		g_Renderer->ClearRenderTarget(g_Renderer->DefaultRenderTarget(), nullptr);
 	}
-	g_Renderer->ClearDepthStencil(g_Renderer->DefaultDepthStencil(), D3D11_CLEAR_DEPTH, 1.0f, 0U);
-
-	Matrix mLightWorldViewInv = (s_LightCamera.GetWorldMatrix() * s_LightCamera.GetViewMatrix()).Inverse();
-
-	ConstantsShadowMap cbShadowMap;
-	memset(&cbShadowMap, 0, sizeof(ConstantsShadowMap));
-	cbShadowMap.LightDiffuseClr = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	cbShadowMap.WVP = s_DefaultCamera.GetWorldMatrix() * s_DefaultCamera.GetViewMatrix() * s_DefaultCamera.GetProjMatrix();
-	cbShadowMap.WVPLight = s_LightCamera.GetWorldMatrix() * s_LightCamera.GetViewMatrix() * s_LightCamera.GetProjMatrix();
-	cbShadowMap.LightPos = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	cbShadowMap.LightPos.Transform(mLightWorldViewInv);
-	cbShadowMap.AmbientColor = Vec4(0.2f, 0.2f, 0.2f, 1.0f);
-	cbShadowMap.DiffuseColor = Vec4(0.8f, 0.8f, 0.8f, 1.0f);
-	cbShadowMap.FilterWidth = 10.0f;
-	cbShadowMap.InvRandomRotSize = 1.0f / eRandomRotSize;
-	cbShadowMap.InvShadowMapSize = 1.0f / eShadowMapSize;
-	g_Renderer->UpdateConstantBuffer(s_ConstantsBuffers.ShadowMap, &cbShadowMap, sizeof(ConstantsShadowMap));
-
-	g_Renderer->SetConstantBuffer(s_ConstantsBuffers.ShadowMap, 0U, D3DGraphic::eVertexShader);
-	g_Renderer->SetConstantBuffer(s_ConstantsBuffers.ShadowMap, 0U, D3DGraphic::ePixelShader);
 
 	ConstantsFxaa cbFxaa;
 	memset(&cbFxaa, 0, sizeof(ConstantsFxaa));

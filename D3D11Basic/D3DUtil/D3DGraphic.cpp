@@ -676,6 +676,11 @@ void D3DGraphic::DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t o
 	m_SwapChain->Present(0U, 0U);
 }
 
+void D3DGraphic::DrawQuad(D3D11_RECT rect)
+{
+
+}
+
 void D3DGraphic::FlushPipelineState()
 {
 	if (!m_D3DContext.IsValid())
