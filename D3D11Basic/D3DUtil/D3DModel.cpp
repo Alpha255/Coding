@@ -40,7 +40,7 @@ void D3DModel::CreateFromSDKMesh(const wchar_t* pName)
 
 void D3DModel::Draw(const Camera& camera, bool bWireframe)
 {
-	g_Renderer->FlushPipelineState();
+	g_Renderer->FlushState();
 
 	m_Model->Draw(g_Renderer->m_D3DContext.GetPtr(), *m_States, camera.GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjMatrix(), bWireframe);
 
@@ -49,7 +49,7 @@ void D3DModel::Draw(const Camera& camera, bool bWireframe)
 
 void D3DModel::DrawCustom()
 {
-	g_Renderer->FlushPipelineState();
+	g_Renderer->FlushState();
 
 	for (auto it_m = m_Model->meshes.cbegin(); it_m != m_Model->meshes.cend(); ++it_m)
 	{

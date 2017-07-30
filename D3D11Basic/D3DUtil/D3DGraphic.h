@@ -8,32 +8,6 @@
 class D3DGraphic
 {
 public:
-	enum eCounter
-	{
-		eVertexStreamCount = 1,
-		eRenderTargetCount = 1,
-		eBackBufferCount = 2,
-	};
-
-	enum eFlushState
-	{
-		eFSIndexBuffer,
-		eFSVertexBuffer,
-		eFSVertexShader,
-		eFSPixelShader,
-		eFSInputLayout,
-		eFSRenderTarget,
-		eFSDepthStencil,
-		eFSViewports,
-		eFSScissorRect,
-		eFSRasterizerState,
-		eFSBlendState,
-		eFSDepthStencilState,
-		eFSSamplerState,
-		eFSPrimitiveTopology,
-		eFSCount
-	};
-
 	enum eResourceType
 	{
 		eShader,
@@ -137,7 +111,7 @@ public:
 
 	void Draw(uint32_t vertexCount, uint32_t startIndex, D3D_PRIMITIVE_TOPOLOGY prim = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	void DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, D3D_PRIMITIVE_TOPOLOGY prim = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	void DrawQuad(D3D11_RECT rect);
+	void DrawQuad(float top, float left, float width, float height);
 
 	inline D3D11_RECT GetScissorRect()
 	{
@@ -161,21 +135,42 @@ public:
 		return viewports[0];
 	}
 
-	inline void ForceFlush()
-	{
-		FlushPipelineState();
-	}
+	void FlushState();
 
 	static std::string ResourceFilePath(const char* pFileName, eResourceType resType);
 	static const char* ResourceFileDirectory(eResourceType resType);
 protected:
+	enum eCounter
+	{
+		eVertexStreamCount = 1,
+		eRenderTargetCount = 1,
+		eBackBufferCount = 2,
+	};
+
+	enum eFlushState
+	{
+		eFSIndexBuffer,
+		eFSVertexBuffer,
+		eFSVertexShader,
+		eFSPixelShader,
+		eFSInputLayout,
+		eFSRenderTarget,
+		eFSDepthStencil,
+		eFSViewports,
+		eFSScissorRect,
+		eFSRasterizerState,
+		eFSBlendState,
+		eFSDepthStencilState,
+		eFSSamplerState,
+		eFSPrimitiveTopology,
+		eFSCount
+	};
+
 	D3DGraphic();
 	D3DGraphic(const D3DGraphic&) {}
 	~D3DGraphic() {}
 
 	void RecreateBackBuffer();
-
-	void FlushPipelineState();
 
 	void CreateBuffer(__out ID3D11Buffer** ppBuffer, D3D11_BIND_FLAG bindFlag, uint32_t byteWidth, D3D11_USAGE usage, const void* pBuf, uint32_t cpuAccessFlag);
 	void CompileShaderFile(__out ID3DBlob** ppRes, char* pFileName, char* pEntryPoint, char* pTarget, const D3D_SHADER_MACRO* pDefines);

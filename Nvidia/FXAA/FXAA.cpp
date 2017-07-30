@@ -378,8 +378,6 @@ void ApplicationFXAA::DrawShadowMap()
 
 	g_Renderer->SetScissorRects(&s_ScissorRect);
 	g_Renderer->SetViewports(&s_Viewport);
-
-	g_Renderer->ForceFlush();
 }
 
 void ApplicationFXAA::RenderScene()
@@ -393,6 +391,9 @@ void ApplicationFXAA::RenderScene()
 		g_Renderer->ClearRenderTarget(g_Renderer->DefaultRenderTarget(), nullptr);
 	}
 
+	/// Draw Shadowmap
+	DrawShadowMap();
+
 	ConstantsFxaa cbFxaa;
 	memset(&cbFxaa, 0, sizeof(ConstantsFxaa));
 	cbFxaa.Fxaa = Vec4(1.0f / m_Width, 1.0f / m_Height, 0.0f, 0.0f);
@@ -400,9 +401,6 @@ void ApplicationFXAA::RenderScene()
 
 	g_Renderer->SetConstantBuffer(s_ConstantsBuffers.Fxaa, 1U, D3DGraphic::eVertexShader);
 	g_Renderer->SetConstantBuffer(s_ConstantsBuffers.Fxaa, 1U, D3DGraphic::ePixelShader);
-
-	/// Draw Shadowmap
-	DrawShadowMap();
 
 	//if (s_FxaaPreset)
 	//{

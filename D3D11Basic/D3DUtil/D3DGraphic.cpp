@@ -654,7 +654,7 @@ void D3DGraphic::Draw(uint32_t vertexCount, uint32_t startIndex, D3D_PRIMITIVE_T
 		m_FlushState[eFSPrimitiveTopology] = true;
 	}
 
-	FlushPipelineState();
+	FlushState();
 
 	m_D3DContext->Draw(vertexCount, startIndex);
 
@@ -669,19 +669,54 @@ void D3DGraphic::DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t o
 		m_FlushState[eFSPrimitiveTopology] = true;
 	}
 
-	FlushPipelineState();
+	FlushState();
 
 	m_D3DContext->DrawIndexed(indexCount, startIndex, offset);
 
 	m_SwapChain->Present(0U, 0U);
 }
 
-void D3DGraphic::DrawQuad(D3D11_RECT rect)
+void D3DGraphic::DrawQuad(float top, float left, float width, float height)
 {
+	static uint32_t indices[6] = { 0U, 1U, 2U, 0U, 2U, 3U };
+	static Ref<ID3D11Buffer> ib;
+	if (!ib.IsValid())
+	{
+		CreateIndexBuffer(ib, sizeof(uint32_t) * 6U, D3D11_USAGE_IMMUTABLE, indices);
+	}
 
+	struct Vertex
+	{
+		Vec3 Pos;
+		Vec2 UV;
+
+		Vertex() {}
+		Vertex(float x, float y, float z, float u, float v)
+			: Pos(x, y, z)
+			, UV(u, v)
+		{
+		}
+	};
+
+	static Vertex vertices[4];
+	vertices[0] = Vertex(top, left, 1.0f, 0.0f, 0.0f);
+	vertices[1] = Vertex(top + width, left, 1.0f, 1.0f, 0.0f);
+	vertices[2] = Vertex(top + width, left + height, 1.0f, 1.0f, 1.0f);
+	vertices[3] = Vertex(top, left + height, 1.0f, 0.0f, 1.0f);
+	static Ref<ID3D11Buffer> vb;
+	if (!vb.IsValid())
+	{
+		CreateVertexBuffer(vb, sizeof(Vertex) * 4, D3D11_USAGE_DYNAMIC, vertices);
+	}
+
+	SetVertexBuffer(vb, sizeof(Vertex), 0U);
+
+	SetIndexBuffer(ib, DXGI_FORMAT_R32_UINT);
+
+	DrawIndexed(6U, 0U, 0U);
 }
 
-void D3DGraphic::FlushPipelineState()
+void D3DGraphic::FlushState()
 {
 	if (!m_D3DContext.IsValid())
 	{
