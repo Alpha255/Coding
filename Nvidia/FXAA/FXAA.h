@@ -21,7 +21,7 @@ protected:
 	void CreateMesh();
 	void CreateStates();
 	void CreateConstantsBuffers();
-	void SetupD3D();
 	void DrawShadowMap();
+	void DrawDebugShadowMap();
 private:
 };

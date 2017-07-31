@@ -708,7 +708,7 @@ void D3DGraphic::DrawQuad(float top, float left, float width, float height)
 	static Ref<ID3D11Buffer> vb;
 	if (!vb.Valid())
 	{
-		CreateVertexBuffer(vb.Reference(), sizeof(Vertex) * 4, D3D11_USAGE_DYNAMIC, vertices);
+		CreateVertexBuffer(vb.Reference(), sizeof(Vertex) * 4, D3D11_USAGE_DYNAMIC, vertices, D3D11_CPU_ACCESS_WRITE);
 	}
 
 	SetVertexBuffer(vb.Ptr(), sizeof(Vertex), 0U);

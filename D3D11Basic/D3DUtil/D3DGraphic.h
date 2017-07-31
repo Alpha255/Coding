@@ -101,7 +101,7 @@ public:
 
 	void Draw(uint32_t vertexCount, uint32_t startIndex, D3D_PRIMITIVE_TOPOLOGY prim = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	void DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, D3D_PRIMITIVE_TOPOLOGY prim = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	void DrawQuad(float top, float left, float width, float height);
+	void DrawQuad(float x, float y, float width, float height);
 
 	inline D3D11_RECT GetScissorRect()
 	{

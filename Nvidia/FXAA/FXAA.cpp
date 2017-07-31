@@ -43,11 +43,13 @@ namespace FXAA
 		Ref<ID3D11VertexShader> MainVS;
 		Ref<ID3D11VertexShader> ShadowMapVS;
 		Ref<ID3D11VertexShader> FxaaVS;
+		Ref<ID3D11VertexShader> QuadVS;
 
 		Ref<ID3D11PixelShader> MainPS[ePatternCount];
 		Ref<ID3D11PixelShader> MainGatherPS[ePatternCount];
 		Ref<ID3D11PixelShader> FxaaPS[eFxaaPatternCount];
 		Ref<ID3D11PixelShader> EmptyPS;
+		Ref<ID3D11PixelShader> QuadPS;
 	};
 
 	struct D3DStates
@@ -110,6 +112,7 @@ namespace FXAA
 	static D3DStates s_States;
 	static D3DConstantsBuffers s_ConstantsBuffers;
 	static Ref<ID3D11InputLayout> s_InputLayout;
+	static Ref<ID3D11InputLayout> s_LayoutShadowMap;
 	static D3D11_VIEWPORT s_Viewport;
 	static D3D11_RECT s_ScissorRect;
 
@@ -333,6 +336,33 @@ void ApplicationFXAA::SetupScene()
 	m_bInited = true;
 }
 
+void ApplicationFXAA::DrawDebugShadowMap()
+{
+	if (!s_LayoutShadowMap.Valid() && !s_Shaders.QuadVS.Valid())
+	{
+		D3D11_INPUT_ELEMENT_DESC layout[] =
+		{
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,  0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		};
+		g_Renderer->CreateVertexShaderAndInputLayout(s_Shaders.QuadVS.Reference(), s_LayoutShadowMap.Reference(),
+			layout, ARRAYSIZE(layout), "Quad.hlsl", "VSMain");
+	}
+
+	if (!s_Shaders.QuadPS.Valid())
+	{
+		g_Renderer->CreatePixelShader(s_Shaders.QuadPS.Reference(), "Quad.hlsl", "PSMain");
+	}
+
+	g_Renderer->SetRenderTarget(g_Renderer->DefaultRenderTarget());
+	g_Renderer->SetInputLayout(s_LayoutShadowMap.Ptr());
+	g_Renderer->SetVertexShader(s_Shaders.QuadVS.Ptr());
+	g_Renderer->SetPixelShader(s_Shaders.QuadPS.Ptr());
+	g_Renderer->SetShaderResource(s_Views.DepthTexSRV.Reference(), 1U);
+
+	g_Renderer->DrawQuad(0.5f, 0.0f, m_Width / 8.0f, m_Height / 8.0f);
+}
+
 void ApplicationFXAA::DrawShadowMap()
 {
 	g_Renderer->ClearDepthStencil(g_Renderer->DefaultDepthStencil(), D3D11_CLEAR_DEPTH, 1.0f, 0U);
@@ -378,6 +408,8 @@ void ApplicationFXAA::DrawShadowMap()
 
 	g_Renderer->SetScissorRects(&s_ScissorRect);
 	g_Renderer->SetViewports(&s_Viewport);
+
+	DrawDebugShadowMap();
 }
 
 void ApplicationFXAA::RenderScene()
