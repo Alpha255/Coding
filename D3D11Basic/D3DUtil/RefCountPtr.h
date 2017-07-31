@@ -34,7 +34,7 @@ public:
 		}
 	}
 
-	__forceinline Ref& operator =  (const Ref& refSrc) 
+	__forceinline Ref& operator= (const Ref& refSrc) 
 	{
 		if (refSrc.m_pPtr == m_pPtr)
 		{
@@ -56,42 +56,42 @@ public:
 		return *this;
 	}
 
-	__forceinline bool operator == (const Ref& refSrc) const 
+	__forceinline bool operator== (const Ref& refSrc) const 
 	{
 		return (m_pPtr == refSrc.m_pPtr);
 	}
 
-	__forceinline bool operator == (const Type* pSrc) const 
+	__forceinline bool operator== (const Type* pSrc) const 
 	{
 		return (m_pPtr == pSrc);
 	}
 
-	__forceinline bool operator != (const Ref& refSrc) const 
+	__forceinline bool operator!= (const Ref& refSrc) const 
 	{
 		return (m_pPtr != refSrc.m_pPtr);
 	}
 
-	__forceinline bool operator != (const Type* pSrc) const 
+	__forceinline bool operator!= (const Type* pSrc) const 
 	{
 		return (m_pPtr != pSrc);
 	}
 
-	__forceinline bool operator < (const Ref& refSrc) const 
+	__forceinline bool operator< (const Ref& refSrc) const 
 	{
 		return (m_pPtr < refSrc.m_pPtr);
 	}
 
-	__forceinline bool	operator < (const Type* pSrc) const 
+	__forceinline bool operator< (const Type* pSrc) const 
 	{
 		return (m_pPtr < pSrc);
 	}
 
-	__forceinline bool operator > (const Ref& refSrc) const 
+	__forceinline bool operator> (const Ref& refSrc) const 
 	{
 		return (m_pPtr > refSrc.m_pPtr);
 	}
 
-	__forceinline bool operator > (const Type* pSrc) const 
+	__forceinline bool operator> (const Type* pSrc) const 
 	{
 		return (m_pPtr > pSrc);
 	}
@@ -116,27 +116,27 @@ public:
 		return m_pPtr;
 	}
 
-	__forceinline bool operator! (void) const 
+	__forceinline bool operator!(void) const 
 	{
 		return (nullptr == m_pPtr);
 	}
 
-	__forceinline bool IsValid(void) const 
+	__forceinline bool Valid(void) const 
 	{
 		return (m_pPtr != nullptr);
 	}
 
-	__forceinline bool IsValidRef(const Ref& refSrc) 
+	__forceinline bool ValidRef(const Ref& refSrc) 
 	{
 		return (refSrc.m_pPtr != nullptr);
 	}
 
-	__forceinline Type* GetPtr(void) const 
+	__forceinline Type* Ptr(void) const 
 	{
 		return m_pPtr;
 	}
 
-	__forceinline Type** GetReference() 
+	__forceinline Type** Reference() 
 	{
 		return &m_pPtr;
 	}

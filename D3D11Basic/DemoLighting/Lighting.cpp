@@ -58,9 +58,9 @@ void ApplicationLighting::SetupScene()
 		{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
-	g_Renderer->CreateVertexShaderAndInputLayout(s_D3DResource.VertexShader.GetReference(), s_D3DResource.InputLayout.GetReference(),
+	g_Renderer->CreateVertexShaderAndInputLayout(s_D3DResource.VertexShader.Reference(), s_D3DResource.InputLayout.Reference(),
 		layout, ARRAYSIZE(layout), s_ShaderName, "VSMain");
-	g_Renderer->CreatePixelShader(s_D3DResource.PixelShader.GetReference(), s_ShaderName, "PSMain");	
+	g_Renderer->CreatePixelShader(s_D3DResource.PixelShader.Reference(), s_ShaderName, "PSMain");	
 }
 
 void ApplicationLighting::RenderScene()

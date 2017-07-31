@@ -16,12 +16,12 @@ void D3DModel::CreateFromSDKMesh(const wchar_t* pName)
 
 	if (!m_EffectFactory)
 	{
-		m_EffectFactory = new DirectX::EffectFactory(g_Renderer->m_D3DDevice.GetPtr());
+		m_EffectFactory = new DirectX::EffectFactory(g_Renderer->m_D3DDevice.Ptr());
 	}
 
 	if (!m_States)
 	{
-		m_States = new DirectX::CommonStates(g_Renderer->m_D3DDevice.GetPtr());
+		m_States = new DirectX::CommonStates(g_Renderer->m_D3DDevice.Ptr());
 	}
 
 	std::string meshFileDir = D3DGraphic::ResourceFileDirectory(D3DGraphic::eSDKMesh);
@@ -34,7 +34,7 @@ void D3DModel::CreateFromSDKMesh(const wchar_t* pName)
 	::GetCurrentDirectoryA(MAX_PATH, workingDir);
 
 	::SetCurrentDirectoryA(meshFileDir.c_str());
-	m_Model = DirectX::Model::CreateFromSDKMESH(g_Renderer->m_D3DDevice.GetPtr(), pName, *m_EffectFactory, true, true);
+	m_Model = DirectX::Model::CreateFromSDKMESH(g_Renderer->m_D3DDevice.Ptr(), pName, *m_EffectFactory, true, true);
 	::SetCurrentDirectoryA(workingDir);
 }
 
@@ -42,7 +42,7 @@ void D3DModel::Draw(const Camera& camera, bool bWireframe)
 {
 	g_Renderer->FlushState();
 
-	m_Model->Draw(g_Renderer->m_D3DContext.GetPtr(), *m_States, camera.GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjMatrix(), bWireframe);
+	m_Model->Draw(g_Renderer->m_D3DContext.Ptr(), *m_States, camera.GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjMatrix(), bWireframe);
 
 	g_Renderer->m_SwapChain->Present(0U, 0U);
 }

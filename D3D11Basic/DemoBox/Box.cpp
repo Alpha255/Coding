@@ -58,10 +58,10 @@ void ApplicationBox::SetupScene()
 		{ "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
-	g_Renderer->CreateVertexShaderAndInputLayout(s_D3DResource.VertexShader, s_D3DResource.InputLayout, 
+	g_Renderer->CreateVertexShaderAndInputLayout(s_D3DResource.VertexShader.Reference(), s_D3DResource.InputLayout.Reference(), 
 		layout, ARRAYSIZE(layout), s_ShaderName, "VSMain");
-	g_Renderer->CreatePixelShader(s_D3DResource.PixelShader, s_ShaderName, "PSMain");
-	g_Renderer->CreateConstantBuffer(s_D3DResource.ConstantsBuffer, sizeof(Constants),
+	g_Renderer->CreatePixelShader(s_D3DResource.PixelShader.Reference(), s_ShaderName, "PSMain");
+	g_Renderer->CreateConstantBuffer(s_D3DResource.ConstantsBuffer.Reference(), sizeof(Constants),
 		D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
 
 	Vertex vertices[] =
@@ -75,7 +75,7 @@ void ApplicationBox::SetupScene()
 		{ Vec3(1.0f,  1.0f,  1.0f), Color::Cyan },
 		{ Vec3(1.0f, -1.0f,  1.0f), Color::Magenta }
 	};
-	g_Renderer->CreateVertexBuffer(s_D3DResource.VertexBuffer, sizeof(Vertex) * 8U,
+	g_Renderer->CreateVertexBuffer(s_D3DResource.VertexBuffer.Reference(), sizeof(Vertex) * 8U,
 		D3D11_USAGE_IMMUTABLE, vertices);
 
 	uint32_t indices[] = 
@@ -99,14 +99,14 @@ void ApplicationBox::SetupScene()
 		4, 0, 3,
 		4, 3, 7
 	};
-	g_Renderer->CreateIndexBuffer(s_D3DResource.IndexBuffer, sizeof(uint32_t) * 36,
+	g_Renderer->CreateIndexBuffer(s_D3DResource.IndexBuffer.Reference(), sizeof(uint32_t) * 36,
 		D3D11_USAGE_IMMUTABLE, indices);
 	
-	g_Renderer->SetVertexShader(s_D3DResource.VertexShader);
-	g_Renderer->SetPixelShader(s_D3DResource.PixelShader);
-	g_Renderer->SetVertexBuffer(s_D3DResource.VertexBuffer, sizeof(Vertex), 0U);
-	g_Renderer->SetIndexBuffer(s_D3DResource.IndexBuffer, DXGI_FORMAT_R32_UINT);
-	g_Renderer->SetInputLayout(s_D3DResource.InputLayout);
+	g_Renderer->SetVertexShader(s_D3DResource.VertexShader.Ptr());
+	g_Renderer->SetPixelShader(s_D3DResource.PixelShader.Ptr());
+	g_Renderer->SetVertexBuffer(s_D3DResource.VertexBuffer.Ptr(), sizeof(Vertex), 0U);
+	g_Renderer->SetIndexBuffer(s_D3DResource.IndexBuffer.Ptr(), DXGI_FORMAT_R32_UINT);
+	g_Renderer->SetInputLayout(s_D3DResource.InputLayout.Ptr());
 
 	g_Renderer->SetRenderTarget(g_Renderer->DefaultRenderTarget());
 	g_Renderer->SetDepthStencil(g_Renderer->DefaultDepthStencil());
@@ -132,8 +132,8 @@ void ApplicationBox::RenderScene()
 	Constants cBuffer;
 	memset(&cBuffer, 0, sizeof(Constants));
 	cBuffer.WVP = wvp.Transpose();
-	g_Renderer->UpdateConstantBuffer(s_D3DResource.ConstantsBuffer, &cBuffer, sizeof(Constants));
-	g_Renderer->SetConstantBuffer(s_D3DResource.ConstantsBuffer, 0U, D3DGraphic::eVertexShader);
+	g_Renderer->UpdateConstantBuffer(s_D3DResource.ConstantsBuffer.Ptr(), &cBuffer, sizeof(Constants));
+	g_Renderer->SetConstantBuffer(s_D3DResource.ConstantsBuffer.Ptr(), 0U, D3DGraphic::eVertexShader);
 
 	g_Renderer->DrawIndexed(36U, 0U, 0U);
 }
