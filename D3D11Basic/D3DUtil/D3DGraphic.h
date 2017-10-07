@@ -39,7 +39,7 @@ public:
 		uint32_t bindFlags, uint32_t mipLevels = 1U, uint32_t arraySize = 1U, uint32_t cpuFlags = 0U, uint32_t sampleCount = 1U, uint32_t sampleQuality = 0U,
 		uint32_t miscFlags = 0U, D3D11_USAGE usage = D3D11_USAGE_DEFAULT, const void* pData = nullptr, uint32_t pitch = 0U, uint32_t slice = 0U);
 
-	void CreateShaderResourceView(__out ID3D11ShaderResourceView** ppSRV, char* pFileName);
+	void CreateShaderResourceView(__out ID3D11ShaderResourceView** ppSRV, const char* pFileName);
 	void CreateShaderResourceView(__out ID3D11ShaderResourceView** ppSRV, ID3D11Texture2D* pTex, DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN, D3D11_SRV_DIMENSION dimension = D3D11_SRV_DIMENSION_TEXTURE2D);
 	void CreateRenderTargetView(__out ID3D11RenderTargetView** ppRTV, ID3D11Texture2D* pTex);
 	void CreateDepthStencilView(__out ID3D11DepthStencilView** ppDSV, ID3D11Texture2D* pTex, DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN, uint32_t width = 0U, uint32_t height = 0U, D3D11_DSV_DIMENSION dimension = D3D11_DSV_DIMENSION_TEXTURE2D);

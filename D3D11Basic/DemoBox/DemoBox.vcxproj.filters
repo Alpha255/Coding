@@ -25,7 +25,4 @@
       <Filter>Resource</Filter>
     </Image>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\Application\Resource\Shaders\Box.hlsl" />
-  </ItemGroup>
 </Project>

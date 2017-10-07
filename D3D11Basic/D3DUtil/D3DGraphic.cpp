@@ -1,6 +1,7 @@
 #include "D3DGraphic.h"
 #include <fstream>
 #include <string>
+#include <DirectXTK/Inc/DDSTextureLoader.h>
 
 D3DGraphic* D3DGraphic::m_sInstance = nullptr;
 
@@ -168,11 +169,14 @@ void D3DGraphic::InitD3DEnvironment(HWND hWnd, uint32_t width, uint32_t height, 
 	assert(!"Failed to create D3D environment!!!");
 }
 
-void D3DGraphic::CreateShaderResourceView(ID3D11ShaderResourceView** ppSRV, char* pFileName)
+void D3DGraphic::CreateShaderResourceView(ID3D11ShaderResourceView** ppSRV, const char* pFileName)
 {
-	assert(pFileName && ppSRV);  /// Warnings...
-	
-	assert(!"Unsupport yet!!!");
+	assert(pFileName && ppSRV); 
+
+	std::string texFilePath = ResourceFilePath(pFileName, eTexture);
+	std::wstring wtexFilePath(texFilePath.begin(), texFilePath.end());
+
+	HRCheck(DirectX::CreateDDSTextureFromFile(m_D3DDevice.Ptr(), wtexFilePath.c_str(), nullptr, ppSRV));
 }
 
 void D3DGraphic::CreateRenderTargetView(ID3D11RenderTargetView** ppRTV, ID3D11Texture2D* pTex)
