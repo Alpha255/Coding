@@ -12,6 +12,7 @@ const char* D3DGraphic::ResourceFileDirectory(eResourceType resType)
 		"\\Resource\\Shaders\\",
 		"\\Resource\\Textures\\",
 		"\\Resource\\SDKMeshs\\",
+		"\\Resource\\TxtMeshs\\",
 	};
 	static char directory[MAX_PATH] = { 0 };
 	::GetModuleFileNameA(::GetModuleHandle(nullptr), directory, MAX_PATH);
@@ -329,6 +330,16 @@ void D3DGraphic::RecreateBackBuffer()
 	HRCheck(m_D3DDevice->CreateRenderTargetView(backBuffer.Ptr(), nullptr, m_DefaultRenderTarget.Reference()));
 }
 
+void D3DGraphic::CreateVertexShader(ID3D11VertexShader** ppVS, ID3DBlob **ppBlob, char *pFileName, char *pEntryPoint, const D3D_SHADER_MACRO *pDefines)
+{
+	assert(ppVS);
+
+	CompileShaderFile(ppBlob, pFileName, pEntryPoint, "vs_5_0", pDefines);
+	assert(ppBlob);
+
+	HRCheck(m_D3DDevice->CreateVertexShader((*ppBlob)->GetBufferPointer(), (*ppBlob)->GetBufferSize(), nullptr, ppVS));
+}
+
 void D3DGraphic::CreateVertexShader(ID3D11VertexShader** ppVS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines)
 {
 	assert(ppVS);
@@ -387,7 +398,7 @@ void D3DGraphic::CreateInputLayout(ID3D11InputLayout** ppInputLayout, D3D11_INPU
 	HRCheck(m_D3DDevice->CreateInputLayout(pInputElement, size, pRes->GetBufferPointer(), pRes->GetBufferSize(), ppInputLayout));
 }
 
-void D3DGraphic::ClearRenderTarget(ID3D11RenderTargetView* pRenderTarget, float* pClearColor)
+void D3DGraphic::ClearRenderTarget(ID3D11RenderTargetView* pRenderTarget, const float* pClearColor)
 {
 	assert(pRenderTarget);
 

@@ -3,6 +3,7 @@
 #include <DirectXTK/Inc/Effects.h>
 #include <DirectXTK/Inc/Model.h>
 #include <DirectXTK/Inc/CommonStates.h>
+#include "D3DMath.h"
 
 class D3DModel
 {
@@ -25,4 +26,31 @@ private:
 	DirectX::CommonStates* m_States;
 
 	std::unique_ptr<DirectX::Model> m_Model;
+};
+
+class SimpleMesh
+{
+public:
+	struct Vertex
+	{
+		Vec3 Position;
+		Vec3 Normal;
+	};
+
+	SimpleMesh() = default;
+	~SimpleMesh() = default;
+
+	void CreateFromTxt(const char *pName, ID3DBlob *pBlob);
+
+	void Draw(bool bWireframe = false);
+protected:
+private:
+	uint32_t m_VertexCount = 0U;
+	uint32_t m_IndexCount = 0U;
+
+	Ref<ID3D11InputLayout> m_InputLayout;
+	Ref<ID3D11Buffer> m_IndexBuffer;
+	Ref<ID3D11Buffer> m_VertexBuffer;
+
+	bool m_Created = false;
 };

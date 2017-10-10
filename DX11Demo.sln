@@ -11,7 +11,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DemoBox", "D3D11Basic\DemoB
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FXAA", "Nvidia\FXAA\FXAA.vcxproj", "{047D3BC1-C462-4097-A682-3CDD3D739EDC}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DemoLighting_WIP", "D3D11Basic\DemoLighting\DemoLighting.vcxproj", "{55F8C74A-7E13-4378-97B8-8E1559999170}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DemoLighting", "D3D11Basic\DemoLighting\DemoLighting.vcxproj", "{55F8C74A-7E13-4378-97B8-8E1559999170}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ThirdParty", "ThirdParty", "{FFB1CED9-3BC1-4745-B7F3-D7E2D402C9CD}"
 EndProject
@@ -22,6 +22,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{E9CA
 		Application\Resource\Shaders\Box.hlsl = Application\Resource\Shaders\Box.hlsl
 		Application\Resource\Shaders\BoxTexture.hlsl = Application\Resource\Shaders\BoxTexture.hlsl
 		Application\Resource\Shaders\Fxaa.hlsl = Application\Resource\Shaders\Fxaa.hlsl
+		Application\Resource\Shaders\Lighting.hlsl = Application\Resource\Shaders\Lighting.hlsl
 		Application\Resource\Shaders\Quad.hlsl = Application\Resource\Shaders\Quad.hlsl
 		Application\Resource\Shaders\ShadowMap.hlsl = Application\Resource\Shaders\ShadowMap.hlsl
 	EndProjectSection

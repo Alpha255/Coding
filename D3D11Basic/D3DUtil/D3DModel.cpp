@@ -2,6 +2,8 @@
 #include "D3DGraphic.h"
 #include "Camera.h"
 
+#include <fstream>
+
 extern D3DGraphic* g_Renderer;
 
 D3DModel::D3DModel()
@@ -131,4 +133,73 @@ D3DModel::~D3DModel()
 	{
 		SafeDelete(m_States);
 	}
+}
+
+void SimpleMesh::CreateFromTxt(const char *pName, ID3DBlob *pBlob)
+{
+	assert(pName && pBlob && g_Renderer);
+
+	std::string meshFileDir = D3DGraphic::ResourceFileDirectory(D3DGraphic::eTxtMesh);
+	meshFileDir += pName;
+
+	std::ifstream meshFile(meshFileDir.c_str(), std::ios::in);
+	if (meshFile.good())
+	{
+		uint32_t triangleCount = 0U;
+		std::string ignore;
+
+		meshFile >> ignore >> m_VertexCount;
+		meshFile >> ignore >> triangleCount;
+		meshFile >> ignore >> ignore >> ignore >> ignore;
+
+		std::vector<Vertex> vertices(m_VertexCount);
+		for (uint32_t i = 0U; i < m_VertexCount; ++i)
+		{
+			meshFile >> vertices[i].Position.x >> vertices[i].Position.y >> vertices[i].Position.z;
+			meshFile >> vertices[i].Normal.x >> vertices[i].Normal.y >> vertices[i].Normal.z;
+		}
+
+		meshFile >> ignore;
+		meshFile >> ignore;
+		meshFile >> ignore;
+
+		m_IndexCount = 3 * triangleCount;
+		std::vector<uint32_t> indices(m_IndexCount);
+		for (uint32_t i = 0U; i < triangleCount; ++i)
+		{
+			meshFile >> indices[i * 3 + 0] >> indices[i * 3 + 1] >> indices[i * 3 + 2];
+		}
+
+		meshFile.close();
+
+		g_Renderer->CreateVertexBuffer(m_VertexBuffer.Reference(), sizeof(Vertex) * m_VertexCount, D3D11_USAGE_IMMUTABLE, &vertices[0]);
+		g_Renderer->CreateIndexBuffer(m_IndexBuffer.Reference(), sizeof(uint32_t) * m_IndexCount, D3D11_USAGE_IMMUTABLE, &indices[0]);
+
+		D3D11_INPUT_ELEMENT_DESC layout[] =
+		{
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		};
+		g_Renderer->CreateInputLayout(m_InputLayout.Reference(), layout, ARRAYSIZE(layout), pBlob);
+
+		m_Created = true;
+	}
+	else
+	{
+		assert(0);
+	}
+}
+
+void SimpleMesh::Draw(bool bWireframe)
+{
+	if (!m_Created || !g_Renderer)
+	{
+		return;
+	}
+
+	g_Renderer->SetInputLayout(m_InputLayout.Ptr());
+	g_Renderer->SetVertexBuffer(m_VertexBuffer.Ptr(), sizeof(Vertex), 0U);
+	g_Renderer->SetIndexBuffer(m_IndexBuffer.Ptr(), DXGI_FORMAT_R32_UINT);
+
+	g_Renderer->DrawIndexed(m_IndexCount, 0U, 0);
 }

@@ -13,6 +13,7 @@ public:
 		eShader,
 		eTexture,
 		eSDKMesh,
+		eTxtMesh,
 		eCount
 	};
 
@@ -59,6 +60,7 @@ public:
 		CreateBuffer(ppBuf, D3D11_BIND_CONSTANT_BUFFER, byteWidth, usage, pBuf, cpuAccessFlag);
 	}
 
+	void CreateVertexShader(__out ID3D11VertexShader** ppVS, __out ID3DBlob **ppBlob, char *pFileName, char *pEntryPoint, const D3D_SHADER_MACRO *pDefines = nullptr);
 	void CreateVertexShader(__out ID3D11VertexShader** ppVS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines = nullptr);
 	void CreatePixelShader(__out ID3D11PixelShader** ppPS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines = nullptr);
 	void CreateVertexShaderAndInputLayout(__out ID3D11VertexShader** ppVS, __out ID3D11InputLayout** ppLayout, D3D11_INPUT_ELEMENT_DESC* pInputElement, uint32_t size, char* pFileName, char* pEntryPoint);
@@ -69,7 +71,7 @@ public:
 	void CreateSamplerState(__out ID3D11SamplerState** ppSamplerState, const D3D11_SAMPLER_DESC* pSamplerDesc);
 	void CreateRasterizerState(__out ID3D11RasterizerState** ppRasterizerState, D3D11_FILL_MODE fillMode, D3D11_CULL_MODE cullMode = D3D11_CULL_BACK, bool cw = false, bool depthClip = true);
 
-	void ClearRenderTarget(ID3D11RenderTargetView* pRenderTarget, float* pClearColor);
+	void ClearRenderTarget(ID3D11RenderTargetView* pRenderTarget, const float* pClearColor = nullptr);
 	void ClearDepthStencil(ID3D11DepthStencilView* pDepthStencil, uint32_t clearFlags, float depth, uint8_t stencil);
 
 	void ResizeBackBuffer(uint32_t width, uint32_t height);

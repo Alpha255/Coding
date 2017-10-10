@@ -83,7 +83,7 @@ public:
 		temp.r[3] = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 
 		DirectX::XMVECTOR det = DirectX::XMMatrixDeterminant(temp);
-		DirectX::XMMATRIX result = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(&det, result));
+		DirectX::XMMATRIX result = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(&det, *this));
 
 		return *(static_cast<Matrix*>(&result));
 	}
@@ -115,6 +115,13 @@ public:
 	inline static Matrix Translation(float x, float y, float z)
 	{
 		DirectX::XMMATRIX result = DirectX::XMMatrixTranslation(x, y, z);
+
+		return *(static_cast<Matrix*>(&result));
+	}
+
+	inline static Matrix Scaling(float x, float y, float z)
+	{
+		DirectX::XMMATRIX result = DirectX::XMMatrixScaling(x, y, z);
 
 		return *(static_cast<Matrix*>(&result));
 	}
@@ -330,7 +337,7 @@ XMGLOBALCONST Vec4 LightSteelBlue = { 0.69f, 0.77f, 0.87f, 1.0f };
 XMGLOBALCONST Vec4 DarkBlue = { 0.0f, 0.125f, 0.3f, 1.0f };
 NamespaceEnd(Color)
 
-NamespaceBegin(Light)
+NamespaceBegin(Lighting)
 struct DirectionalLight
 {
 	Vec4 Ambient;
@@ -373,4 +380,4 @@ struct Material
 	Vec4 Specular;
 	Vec4 Reflect;
 };
-NamespaceEnd(Light)
+NamespaceEnd(Lighting)
