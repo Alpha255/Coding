@@ -51,6 +51,7 @@ private:
 	Ref<ID3D11InputLayout> m_InputLayout;
 	Ref<ID3D11Buffer> m_IndexBuffer;
 	Ref<ID3D11Buffer> m_VertexBuffer;
+	Ref<ID3D11RasterizerState> m_WireframeMode;
 
 	bool m_Created = false;
 };

@@ -51,7 +51,7 @@ static char* const s_ShaderName = "Lighting.hlsl";
 
 ApplicationLighting::ApplicationLighting()
 {
-	s_CBufVS.World = Matrix::Scaling(0.5f, 0.5f, 0.5f) * Matrix::Translation(0.0f, 1.0f, 0.0f);
+	s_CBufVS.World = Matrix::Scaling(0.5f, 0.5f, 0.5f) * Matrix::Translation(0.0f, -1.0f, 0.0f);
 	s_CBufVS.WorldInverseTrans = s_CBufVS.World.InverseTranspose();
 
 	s_CBufPS.DirLight[0].Ambient = Vec4(0.2f, 0.2f, 0.2f, 1.0f);
@@ -112,7 +112,8 @@ void ApplicationLighting::RenderScene()
 	g_Renderer->ClearRenderTarget(g_Renderer->DefaultRenderTarget());
 	g_Renderer->ClearDepthStencil(g_Renderer->DefaultDepthStencil(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0U);
 
-	s_CBufVS.WVP = s_CBufVS.World * s_Camera.GetViewMatrix() * s_Camera.GetProjMatrix();
+	Matrix wvp = s_CBufVS.World * s_Camera.GetViewMatrix() * s_Camera.GetProjMatrix();
+	s_CBufVS.WVP = wvp.Transpose();
 
 	g_Renderer->UpdateConstantBuffer(s_Resource.CBufferVS.Ptr(), &s_CBufVS, sizeof(ConstantsBufferVS));
 	g_Renderer->UpdateConstantBuffer(s_Resource.CBufferPS.Ptr(), &s_CBufPS, sizeof(ConstantsBufferPS));
@@ -120,7 +121,7 @@ void ApplicationLighting::RenderScene()
 	g_Renderer->SetConstantBuffer(s_Resource.CBufferVS.Ptr(), 0U, D3DGraphic::eVertexShader);
 	g_Renderer->SetConstantBuffer(s_Resource.CBufferPS.Ptr(), 0U, D3DGraphic::ePixelShader);
 
-	s_Resource.Model.Draw();
+	s_Resource.Model.Draw(true);
 }
 
 void ApplicationLighting::UpdateScene(float /*elapsedTime*/, float /*totalTime*/)

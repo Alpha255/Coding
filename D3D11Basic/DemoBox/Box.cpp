@@ -1,17 +1,11 @@
 #include "Box.h"
 #include <RefCountPtr.h>
 #include <D3DGraphic.h>
+#include <Camera.h>
 
 #define UsingTexture
 
 extern D3DGraphic* g_Renderer;
-
-struct MatrixSet
-{
-	Matrix World;
-	Matrix View;
-	Matrix Projection;
-};
 
 #ifdef UsingTexture
 struct Vertex
@@ -52,8 +46,8 @@ struct DemoBoxResource
 static float s_Radius = 5.0f;
 static float s_Phi = DirectX::XM_PIDIV4;
 static float s_Theta = 1.5f * DirectX::XM_PI;
-static MatrixSet s_MatrixSet;
 static DemoBoxResource s_D3DResource;
+static Camera s_Camera;
 
 static uint32_t s_IndexCount = 36U;
 static uint32_t s_IndexOffset = 0U;
@@ -67,9 +61,6 @@ static uint32_t s_VertexOffset = 0U;
 
 ApplicationBox::ApplicationBox()
 {
-	s_MatrixSet.World.Identity();
-	s_MatrixSet.View.Identity();
-	s_MatrixSet.Projection.Identity();
 }
 
 void ApplicationBox::SetupScene()
@@ -193,7 +184,7 @@ void ApplicationBox::RenderScene()
 	g_Renderer->ClearRenderTarget(g_Renderer->DefaultRenderTarget(), reinterpret_cast<const float*>(&Color::Black));
 	g_Renderer->ClearDepthStencil(g_Renderer->DefaultDepthStencil(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0U);
 
-	Matrix wvp = s_MatrixSet.World * s_MatrixSet.View * s_MatrixSet.Projection;
+	Matrix wvp = s_Camera.GetWorldMatrix() * s_Camera.GetViewMatrix() * s_Camera.GetProjMatrix();
 
 	Constants cBuffer;
 	memset(&cBuffer, 0, sizeof(Constants));
@@ -215,12 +206,15 @@ void ApplicationBox::UpdateScene(float /*elapsedTime*/, float /*totalTime*/)
 	float z = s_Radius * sinf(s_Phi) * sinf(s_Theta);
 	float y = s_Radius * cosf(s_Phi);
 
-	s_MatrixSet.View = Matrix::LookAtLH(Vec3(x, y, z), Vec3(0.0f, 0.0f, 0.0f), Vec3(0.0f, 1.0f, 0.0f));
+	Vec3 eyePos(x, y, z);
+	Vec3 lookAt(0.0f, 0.0f, 0.0f);
+
+	s_Camera.SetViewParams(eyePos, lookAt);
 }
 
 void ApplicationBox::ResizeWindow(uint32_t width, uint32_t height)
 {
-	s_MatrixSet.Projection = Matrix::PerspectiveFovLH(DirectX::XM_PIDIV4, (float)width / height, 1.0f, 100.0f);
+	s_Camera.SetProjParams(DirectX::XM_PIDIV4, (float)width / height, 1.0f, 100.0f);
 
 	return Base::ResizeWindow(width, height);
 }

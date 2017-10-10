@@ -182,6 +182,8 @@ void SimpleMesh::CreateFromTxt(const char *pName, ID3DBlob *pBlob)
 		};
 		g_Renderer->CreateInputLayout(m_InputLayout.Reference(), layout, ARRAYSIZE(layout), pBlob);
 
+		g_Renderer->CreateRasterizerState(m_WireframeMode.Reference(), D3D11_FILL_WIREFRAME);
+
 		m_Created = true;
 	}
 	else
@@ -200,6 +202,11 @@ void SimpleMesh::Draw(bool bWireframe)
 	g_Renderer->SetInputLayout(m_InputLayout.Ptr());
 	g_Renderer->SetVertexBuffer(m_VertexBuffer.Ptr(), sizeof(Vertex), 0U);
 	g_Renderer->SetIndexBuffer(m_IndexBuffer.Ptr(), DXGI_FORMAT_R32_UINT);
+
+	if (bWireframe)
+	{
+		g_Renderer->SetRasterizerState(m_WireframeMode.Ptr());
+	}
 
 	g_Renderer->DrawIndexed(m_IndexCount, 0U, 0);
 }

@@ -41,7 +41,8 @@ public:
 		memcpy(&m_EyePos, &eyePos, sizeof(Vec3));
 		memcpy(&m_LookAt, &lookAt, sizeof(Vec3));
 
-		m_View = Matrix::LookAtLH(eyePos, lookAt, Vec3(0.0f, 1.0f, 0.0f));
+		Vec3 upDir(0.0f, 1.0f, 0.0f);
+		m_View = Matrix::LookAtLH(eyePos, lookAt, upDir);
 	}
 
 	virtual void SetProjParams(float fov, float aspect, float nearZ, float farZ)
