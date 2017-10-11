@@ -30,7 +30,8 @@ struct ConstantsBufferVS
 
 struct ConstantsBufferPS
 {
-	Vec4 ViewPoint;
+	Vec3 ViewPoint;
+	uint32_t LightCount;
 
 	Lighting::DirectionalLight DirLight[3];
 #if 1
@@ -72,6 +73,8 @@ ApplicationLighting::ApplicationLighting()
 	s_CBufPS.MaterialSkull.Ambient = Vec4(0.8f, 0.8f, 0.8f, 1.0f);
 	s_CBufPS.MaterialSkull.Diffuse = Vec4(0.8f, 0.8f, 0.8f, 1.0f);
 	s_CBufPS.MaterialSkull.Specular = Vec4(0.8f, 0.8f, 0.8f, 16.0f);
+
+	s_CBufPS.LightCount = m_LightCount;
 }
 
 void ApplicationLighting::SetupScene()
@@ -114,6 +117,16 @@ void ApplicationLighting::RenderScene()
 
 	Matrix wvp = s_CBufVS.World * s_Camera.GetViewMatrix() * s_Camera.GetProjMatrix();
 	s_CBufVS.WVP = wvp.Transpose();
+	
+	if (s_CBufPS.LightCount != m_LightCount)
+	{
+#ifdef _DEBUG
+		char debugOutput[MAX_PATH] = { 0 };
+		sprintf_s(debugOutput, MAX_PATH, "\nLight count change to %d\n", m_LightCount);
+		OutputDebugStringA(debugOutput);
+#endif
+		s_CBufPS.LightCount = m_LightCount;
+	}
 
 	g_Renderer->UpdateConstantBuffer(s_Resource.CBufferVS.Ptr(), &s_CBufVS, sizeof(ConstantsBufferVS));
 	g_Renderer->UpdateConstantBuffer(s_Resource.CBufferPS.Ptr(), &s_CBufPS, sizeof(ConstantsBufferPS));
@@ -121,7 +134,7 @@ void ApplicationLighting::RenderScene()
 	g_Renderer->SetConstantBuffer(s_Resource.CBufferVS.Ptr(), 0U, D3DGraphic::eVertexShader);
 	g_Renderer->SetConstantBuffer(s_Resource.CBufferPS.Ptr(), 0U, D3DGraphic::ePixelShader);
 
-	s_Resource.Model.Draw(true);
+	s_Resource.Model.Draw(/*true*/);
 }
 
 void ApplicationLighting::UpdateScene(float /*elapsedTime*/, float /*totalTime*/)
@@ -130,11 +143,28 @@ void ApplicationLighting::UpdateScene(float /*elapsedTime*/, float /*totalTime*/
 	float z = s_Radius * sinf(s_Phi) * sinf(s_Theta);
 	float y = s_Radius * cosf(s_Phi);
 
-	s_CBufPS.ViewPoint = Vec4(x, y, z, 0.0f);
+	s_CBufPS.ViewPoint = Vec3(x, y, z);
 
 	Vec3 eyePos(x, y, z);
 	Vec3 lookAt(0.0f, 0.0f, 0.0f);
 	s_Camera.SetViewParams(eyePos, lookAt);
+
+	if (::GetAsyncKeyState(VK_NUMPAD0) & 0x8000)
+	{
+		m_LightCount = 0;
+	}
+	if (::GetAsyncKeyState(VK_NUMPAD1) & 0x8000)
+	{
+		m_LightCount = 1;
+	}
+	if (::GetAsyncKeyState(VK_NUMPAD2) & 0x8000)
+	{
+		m_LightCount = 2;
+	}
+	if (::GetAsyncKeyState(VK_NUMPAD3) & 0x8000)
+	{
+		m_LightCount = 3;
+	}
 }
 
 void ApplicationLighting::ResizeWindow(uint32_t width, uint32_t height)

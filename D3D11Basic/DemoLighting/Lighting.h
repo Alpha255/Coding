@@ -16,5 +16,5 @@ public:
 	virtual void MouseMove(WPARAM wParam, int x, int y);
 protected:
 private:
-	uint32_t m_LightCount;
+	uint32_t m_LightCount = 1U;
 };
