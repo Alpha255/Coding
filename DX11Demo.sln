@@ -25,7 +25,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{E9CA
 		Application\Resource\Shaders\Lighting.hlsl = Application\Resource\Shaders\Lighting.hlsl
 		Application\Resource\Shaders\Quad.hlsl = Application\Resource\Shaders\Quad.hlsl
 		Application\Resource\Shaders\ShadowMap.hlsl = Application\Resource\Shaders\ShadowMap.hlsl
+		Application\Resource\Shaders\Stenciling.hlsl = Application\Resource\Shaders\Stenciling.hlsl
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DemoStenciling", "D3D11Basic\DemoStenciling\DemoStenciling.vcxproj", "{CCEF649D-0663-4907-B0C8-C2A5DDE0BDA9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,6 +78,14 @@ Global
 		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.Release|x64.Build.0 = Release|x64
 		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.Release|x86.ActiveCfg = Release|Win32
 		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.Release|x86.Build.0 = Release|Win32
+		{CCEF649D-0663-4907-B0C8-C2A5DDE0BDA9}.Debug|x64.ActiveCfg = Debug|x64
+		{CCEF649D-0663-4907-B0C8-C2A5DDE0BDA9}.Debug|x64.Build.0 = Debug|x64
+		{CCEF649D-0663-4907-B0C8-C2A5DDE0BDA9}.Debug|x86.ActiveCfg = Debug|Win32
+		{CCEF649D-0663-4907-B0C8-C2A5DDE0BDA9}.Debug|x86.Build.0 = Debug|Win32
+		{CCEF649D-0663-4907-B0C8-C2A5DDE0BDA9}.Release|x64.ActiveCfg = Release|x64
+		{CCEF649D-0663-4907-B0C8-C2A5DDE0BDA9}.Release|x64.Build.0 = Release|x64
+		{CCEF649D-0663-4907-B0C8-C2A5DDE0BDA9}.Release|x86.ActiveCfg = Release|Win32
+		{CCEF649D-0663-4907-B0C8-C2A5DDE0BDA9}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -85,5 +96,6 @@ Global
 		{047D3BC1-C462-4097-A682-3CDD3D739EDC} = {CA6219F3-92E9-4844-B1A3-6F0D8A448533}
 		{55F8C74A-7E13-4378-97B8-8E1559999170} = {CA6219F3-92E9-4844-B1A3-6F0D8A448533}
 		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E} = {FFB1CED9-3BC1-4745-B7F3-D7E2D402C9CD}
+		{CCEF649D-0663-4907-B0C8-C2A5DDE0BDA9} = {CA6219F3-92E9-4844-B1A3-6F0D8A448533}
 	EndGlobalSection
 EndGlobal
