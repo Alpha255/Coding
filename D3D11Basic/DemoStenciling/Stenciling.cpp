@@ -45,7 +45,6 @@ struct DemoStencilingResource
 	Ref<ID3D11ShaderResourceView> MirrorDiffuseTex;
 
 	Ref<ID3D11VertexShader> VS;
-	Ref<ID3DBlob> VSBlob;
 	Ref<ID3D11PixelShader> PS;
 
 	Ref<ID3D11RasterizerState> NoBackFaceCulling;
@@ -101,7 +100,13 @@ void ApplicationStenciling::SetupScene()
 	g_Renderer->CreateShaderResourceView(s_Resource.WallDiffuseTex.Reference(), "brick01.dds");
 	g_Renderer->CreateShaderResourceView(s_Resource.MirrorDiffuseTex.Reference(), "ice.dds");
 
-	g_Renderer->CreateVertexShader(s_Resource.VS.Reference(), s_Resource.VSBlob.Reference(), s_ShaderName, "VS_Main");
+	D3D11_INPUT_ELEMENT_DESC layout[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,  0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+	g_Renderer->CreateVertexShaderAndInputLayout(s_Resource.VS.Reference(), s_Resource.RoomMesh.Layout.Reference(), layout, ARRAYSIZE(layout), s_ShaderName, "VS_Main");
 	g_Renderer->CreatePixelShader(s_Resource.PS.Reference(), s_ShaderName, "PS_Main");
 
 	s_Resource.RoomMesh.Floor[0] = { -3.5f, 0.0f, -10.0f, 0.0f, 1.0f, 0.0f, 0.0f, 4.0f };
@@ -137,14 +142,6 @@ void ApplicationStenciling::SetupScene()
 	s_Resource.RoomMesh.Mirror[4] = {  2.5f, 4.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f };
 	s_Resource.RoomMesh.Mirror[5] = {  2.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f };
 
-	D3D11_INPUT_ELEMENT_DESC layout[] =
-	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,  0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-	};
-	g_Renderer->CreateInputLayout(s_Resource.RoomMesh.Layout.Reference(), layout, ARRAYSIZE(layout), s_Resource.VSBlob.Ptr());
-
 	g_Renderer->CreateVertexBuffer(s_Resource.RoomMesh.VBFloor.Reference(), sizeof(BasicVertex) * 6U, 
 		D3D11_USAGE_IMMUTABLE, s_Resource.RoomMesh.Floor);
 	g_Renderer->CreateVertexBuffer(s_Resource.RoomMesh.VBWall.Reference(), sizeof(BasicVertex) * 18U, 
@@ -170,10 +167,37 @@ void ApplicationStenciling::SetupScene()
 
 	g_Renderer->CreateRasterizerState(s_Resource.NoBackFaceCulling.Reference(), D3D11_FILL_SOLID, D3D11_CULL_NONE);
 
-	///s_Resource.SkullMesh.CreateFromTxt("skull.txt", s_Resource.VSBlob.Ptr());
+	s_Resource.SkullMesh.CreateFromTxt("skull.txt");
+	Lighting::Material skullMat;
+	skullMat.Ambient = Vec4(0.5f, 0.5f, 0.5f, 1.0f);
+	skullMat.Diffuse = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	skullMat.Specular = Vec4(0.4f, 0.4f, 0.4f, 16.0f);
+	s_Resource.SkullMesh.SetMaterial(skullMat);
+	s_Resource.SkullMesh.SetLightCount(3U);
+	s_Resource.SkullMesh.RotationAxis(0.0f, 1.0f, 0.0f, DirectX::XM_PIDIV2);
+	s_Resource.SkullMesh.SetScaling(0.45f, 0.45f, 0.45f);
+	s_Resource.SkullMesh.SetTranslation(0.0f, 1.0f, -5.0f);
+	
+	///Lighting::DirectionalLight dirLights[3];
+	///dirLights[0].Ambient = Vec4(0.2f, 0.2f, 0.2f, 1.0f);
+	///dirLights[0].Diffuse = Vec4(0.5f, 0.5f, 0.5f, 1.0f);
+	///dirLights[0].Specular = Vec4(0.5f, 0.5f, 0.5f, 1.0f);
+	///dirLights[0].Direction = Vec4(0.57735f, -0.57735f, 0.57735f, 0.0f);
 
-	g_Renderer->SetVertexShader(s_Resource.VS.Ptr());
-	g_Renderer->SetPixelShader(s_Resource.PS.Ptr());
+	///dirLights[1].Ambient = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	///dirLights[1].Diffuse = Vec4(0.20f, 0.20f, 0.20f, 1.0f);
+	///dirLights[1].Specular = Vec4(0.25f, 0.25f, 0.25f, 1.0f);
+	///dirLights[1].Direction = Vec4(-0.57735f, -0.57735f, 0.57735f, 0.0f);
+
+	///dirLights[2].Ambient = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	///dirLights[2].Diffuse = Vec4(0.2f, 0.2f, 0.2f, 1.0f);
+	///dirLights[2].Specular = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	///dirLights[2].Direction = Vec4(0.0f, -0.707f, -0.707f, 0.0f);
+	///
+	///for (uint32_t i = 0U; i < 3U; ++i)
+	///{
+	///	s_Resource.SkullMesh.SetLight(i, dirLights[i]);
+	///}
 
 	g_Renderer->SetRenderTarget(g_Renderer->DefaultRenderTarget());
 	g_Renderer->SetDepthStencil(g_Renderer->DefaultDepthStencil());
@@ -194,14 +218,17 @@ void ApplicationStenciling::RenderScene()
 	g_Renderer->ClearRenderTarget(g_Renderer->DefaultRenderTarget());
 	g_Renderer->ClearDepthStencil(g_Renderer->DefaultDepthStencil(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0U);
 
-	/// Draw floor and walls
 	Matrix wvp = s_Camera.GetWorldMatrix() * s_Camera.GetViewMatrix() * s_Camera.GetProjMatrix();
 	s_CBVS.World = s_Camera.GetWorldMatrix();
 	s_CBVS.WVP = wvp.Transpose();
 
 	g_Renderer->SetRasterizerState(s_Resource.NoBackFaceCulling.Ptr());
 
+	/// Draw floor and walls
+
 	/// Floor
+	g_Renderer->SetVertexShader(s_Resource.VS.Ptr());
+	g_Renderer->SetPixelShader(s_Resource.PS.Ptr());
 	g_Renderer->SetInputLayout(s_Resource.RoomMesh.Layout.Ptr());
 	g_Renderer->SetVertexBuffer(s_Resource.RoomMesh.VBFloor.Ptr(), sizeof(BasicVertex), 0U);
 	g_Renderer->SetConstantBuffer(s_Resource.RoomMesh.CBVS.Ptr(), 0U, D3DGraphic::eVertexShader);
@@ -213,6 +240,8 @@ void ApplicationStenciling::RenderScene()
 	g_Renderer->Draw(6U, 0U, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, false);
 
 	/// Wall
+	g_Renderer->SetVertexShader(s_Resource.VS.Ptr());
+	g_Renderer->SetPixelShader(s_Resource.PS.Ptr());
 	g_Renderer->SetInputLayout(s_Resource.RoomMesh.Layout.Ptr());
 	g_Renderer->SetVertexBuffer(s_Resource.RoomMesh.VBWall.Ptr(), sizeof(BasicVertex), 0U);
 	g_Renderer->SetConstantBuffer(s_Resource.RoomMesh.CBVS.Ptr(), 0U, D3DGraphic::eVertexShader);
@@ -221,7 +250,10 @@ void ApplicationStenciling::RenderScene()
 	////g_Renderer->UpdateConstantBuffer(s_Resource.RoomMesh.CBPS.Ptr(), &s_CBPS, sizeof(ConstantsBufferPS));
 	g_Renderer->SetShaderResource(s_Resource.WallDiffuseTex.Reference(), 0U);
 	g_Renderer->SetSamplerStates(s_Resource.Sampler.Reference());
-	g_Renderer->Draw(18U, 0U);
+	g_Renderer->Draw(18U, 0U, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, false);
+
+	/// Draw Skull
+	s_Resource.SkullMesh.Draw(s_Camera);
 }
 
 void ApplicationStenciling::UpdateScene(float /*elapsedTime*/, float /*totalTime*/)

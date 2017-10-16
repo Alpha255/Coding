@@ -9,93 +9,27 @@ extern D3DGraphic* g_Renderer;
 
 struct DemoLightingResource
 {
-	Ref<ID3D11VertexShader> VertexShader;
-	Ref<ID3D11PixelShader> PixelShader;
-	Ref<ID3DBlob> VSBlob;
-
-	Ref<ID3D11Buffer> CBufferVS;
-	Ref<ID3D11Buffer> CBufferPS;
-
 	D3D11_VIEWPORT Viewport;
 
 	SimpleMesh Model;
 };
 
-struct ConstantsBufferVS
-{
-	Matrix World;
-	Matrix WorldInverseTrans;
-	Matrix WVP;
-};
-
-struct ConstantsBufferPS
-{
-	Vec3 ViewPoint;
-	uint32_t LightCount;
-
-	Lighting::DirectionalLight DirLight[3];
-#if 1
-	Lighting::Material MaterialSkull;
-#else
-	Lighting::Material MaterialCar;
-#endif
-};
-
 static DemoLightingResource s_Resource;
-static ConstantsBufferVS s_CBufVS;
-static ConstantsBufferPS s_CBufPS;
 static float s_Radius = 15.0f;
 static float s_Phi = DirectX::XM_PI * 0.1f;
 static float s_Theta = DirectX::XM_PI * 1.5f;
 static Camera s_Camera;
-static char* const s_ShaderName = "Lighting.hlsl";
-
-ApplicationLighting::ApplicationLighting()
-{
-	//s_CBufVS.World = Matrix::Scaling(0.5f, 0.5f, 0.5f) * Matrix::Translation(0.0f, -1.0f, 0.0f);
-	//s_CBufVS.WorldInverseTrans = s_CBufVS.World.InverseTranspose();
-
-	s_CBufPS.DirLight[0].Ambient = Vec4(0.2f, 0.2f, 0.2f, 1.0f);
-	s_CBufPS.DirLight[0].Diffuse = Vec4(0.5f, 0.5f, 0.5f, 1.0f);
-	s_CBufPS.DirLight[0].Specular = Vec4(0.5f, 0.5f, 0.5f, 1.0f);
-	s_CBufPS.DirLight[0].Direction = Vec4(0.57735f, -0.57735f, 0.57735f, 0.0f);
-
-	s_CBufPS.DirLight[1].Ambient = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	s_CBufPS.DirLight[1].Diffuse = Vec4(0.20f, 0.20f, 0.20f, 1.0f);
-	s_CBufPS.DirLight[1].Specular = Vec4(0.25f, 0.25f, 0.25f, 1.0f);
-	s_CBufPS.DirLight[1].Direction = Vec4(-0.57735f, -0.57735f, 0.57735f, 0.0f);
-
-	s_CBufPS.DirLight[2].Ambient = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	s_CBufPS.DirLight[2].Diffuse = Vec4(0.2f, 0.2f, 0.2f, 1.0f);
-	s_CBufPS.DirLight[2].Specular = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	s_CBufPS.DirLight[2].Direction = Vec4(0.0f, -0.707f, -0.707f, 0.0f);
-
-	s_CBufPS.MaterialSkull.Ambient = Vec4(0.8f, 0.8f, 0.8f, 1.0f);
-	s_CBufPS.MaterialSkull.Diffuse = Vec4(0.8f, 0.8f, 0.8f, 1.0f);
-	s_CBufPS.MaterialSkull.Specular = Vec4(0.8f, 0.8f, 0.8f, 16.0f);
-
-	s_CBufPS.LightCount = m_LightCount;
-}
 
 void ApplicationLighting::SetupScene()
 {
-	g_Renderer->CreateVertexShader(s_Resource.VertexShader.Reference(), s_Resource.VSBlob.Reference(), s_ShaderName, "VSMain");
-	g_Renderer->CreatePixelShader(s_Resource.PixelShader.Reference(), s_ShaderName, "PSMain");
-
 #if 1 
-	const char *pMesh = "skull.txt";
+	const char *pMeshName = "skull.txt";
 #else
-	const char *pMesh = "car.txt";
+	const char *pMeshName = "car.txt";
 #endif
-	s_Resource.Model.CreateFromTxt(pMesh, s_Resource.VSBlob.Ptr());
-
-	g_Renderer->CreateConstantBuffer(s_Resource.CBufferVS.Reference(), sizeof(ConstantsBufferVS),
-		D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
-	g_Renderer->CreateConstantBuffer(s_Resource.CBufferPS.Reference(), sizeof(ConstantsBufferPS),
-		D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
-
-	g_Renderer->SetVertexShader(s_Resource.VertexShader.Ptr());
-	g_Renderer->SetPixelShader(s_Resource.PixelShader.Ptr());
+	s_Resource.Model.CreateFromTxt(pMeshName);
+	s_Resource.Model.SetScaling(0.8f, 0.8f, 0.8f);
+	s_Resource.Model.SetTranslation(0.0f, -1.0f, 0.0f);
 
 	g_Renderer->SetRenderTarget(g_Renderer->DefaultRenderTarget());
 	g_Renderer->SetDepthStencil(g_Renderer->DefaultDepthStencil());
@@ -114,31 +48,20 @@ void ApplicationLighting::RenderScene()
 {
 	g_Renderer->ClearRenderTarget(g_Renderer->DefaultRenderTarget());
 	g_Renderer->ClearDepthStencil(g_Renderer->DefaultDepthStencil(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0U);
-
-	Matrix world = Matrix::Scaling(0.5f, 0.5f, 0.5f) * Matrix::Translation(0.0f, -1.0f, 0.0f);
-	s_CBufVS.World = world.Transpose();
-	s_CBufVS.WorldInverseTrans = s_CBufVS.World.Inverse();
-
-	Matrix wvp = world * s_Camera.GetViewMatrix() * s_Camera.GetProjMatrix();
-	s_CBufVS.WVP = wvp.Transpose();
 	
-	if (s_CBufPS.LightCount != m_LightCount)
+	if (m_CurLightCount != m_PreLightCount)
 	{
 #ifdef _DEBUG
 		char debugOutput[MAX_PATH] = { 0 };
-		sprintf_s(debugOutput, MAX_PATH, "\nLight count change to %d\n", m_LightCount);
+		sprintf_s(debugOutput, MAX_PATH, "\nLight count change to %d\n", m_CurLightCount);
 		OutputDebugStringA(debugOutput);
 #endif
-		s_CBufPS.LightCount = m_LightCount;
+		m_PreLightCount = m_CurLightCount;
 	}
 
-	g_Renderer->UpdateConstantBuffer(s_Resource.CBufferVS.Ptr(), &s_CBufVS, sizeof(ConstantsBufferVS));
-	g_Renderer->UpdateConstantBuffer(s_Resource.CBufferPS.Ptr(), &s_CBufPS, sizeof(ConstantsBufferPS));
+	s_Resource.Model.SetLightCount(m_CurLightCount);
 
-	g_Renderer->SetConstantBuffer(s_Resource.CBufferVS.Ptr(), 0U, D3DGraphic::eVertexShader);
-	g_Renderer->SetConstantBuffer(s_Resource.CBufferPS.Ptr(), 0U, D3DGraphic::ePixelShader);
-
-	s_Resource.Model.Draw(/*true*/);
+	s_Resource.Model.Draw(s_Camera);
 }
 
 void ApplicationLighting::UpdateScene(float /*elapsedTime*/, float /*totalTime*/)
@@ -147,27 +70,25 @@ void ApplicationLighting::UpdateScene(float /*elapsedTime*/, float /*totalTime*/
 	float z = s_Radius * sinf(s_Phi) * sinf(s_Theta);
 	float y = s_Radius * cosf(s_Phi);
 
-	s_CBufPS.ViewPoint = Vec3(x, y, z);
-
 	Vec3 eyePos(x, y, z);
 	Vec3 lookAt(0.0f, 0.0f, 0.0f);
 	s_Camera.SetViewParams(eyePos, lookAt);
 
 	if (::GetAsyncKeyState(VK_NUMPAD0) & 0x8000)
 	{
-		m_LightCount = 0;
+		m_CurLightCount = 0;
 	}
 	if (::GetAsyncKeyState(VK_NUMPAD1) & 0x8000)
 	{
-		m_LightCount = 1;
+		m_CurLightCount = 1;
 	}
 	if (::GetAsyncKeyState(VK_NUMPAD2) & 0x8000)
 	{
-		m_LightCount = 2;
+		m_CurLightCount = 2;
 	}
 	if (::GetAsyncKeyState(VK_NUMPAD3) & 0x8000)
 	{
-		m_LightCount = 3;
+		m_CurLightCount = 3;
 	}
 }
 

@@ -5,8 +5,8 @@
 class ApplicationLighting : public IApplication
 {
 public:
-	ApplicationLighting();
-	~ApplicationLighting() {}
+	ApplicationLighting() = default;
+	~ApplicationLighting() = default;
 
 	virtual void SetupScene();
 	virtual void RenderScene();
@@ -16,5 +16,6 @@ public:
 	virtual void MouseMove(WPARAM wParam, int x, int y);
 protected:
 private:
-	uint32_t m_LightCount = 1U;
+	uint32_t m_PreLightCount = 1U;
+	uint32_t m_CurLightCount = 1U;
 };

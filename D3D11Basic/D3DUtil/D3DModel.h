@@ -37,21 +37,117 @@ public:
 		Vec3 Normal;
 	};
 
-	SimpleMesh() = default;
+	SimpleMesh()
+	{
+		m_World.Identity();
+	}
 	~SimpleMesh() = default;
 
-	void CreateFromTxt(const char *pName, ID3DBlob *pBlob);
+	void CreateFromTxt(const char *pName);
 
-	void Draw(bool bWireframe = false);
+	inline void SetMaterial(const Lighting::Material &mat)
+	{
+		memcpy(&m_CBufferPS.Mat, &mat, sizeof(Lighting::Material));
+	}
+
+	inline void SetLightCount(uint32_t litCount)
+	{
+		m_CBufferPS.LightCount = litCount;
+	}
+
+	inline void SetLight(uint32_t index, const Lighting::DirectionalLight &lit)
+	{
+		memcpy(&m_CBufferPS.DirLight[index], &lit, sizeof(Lighting::DirectionalLight));
+	}
+
+	inline void SetScaling(float x, float y, float z)
+	{
+		m_World *= Matrix::Scaling(x, y, z);
+	}
+
+	inline void SetTranslation(float x, float y, float z)
+	{
+		m_World *= Matrix::Translation(x, y, z);
+	}
+
+	inline void RotationAxis(float x, float y, float z, float angle)
+	{
+		m_World *= Matrix::RotationAxis(x, y, z, angle);
+	}
+
+	void Draw(const class Camera &cam, bool bWireframe = false, bool bNeedFlush = true);
 protected:
+	struct ConstantsBufferVS
+	{
+		Matrix World;
+		Matrix WorldInverseTrans;
+		Matrix WVP;
+
+		ConstantsBufferVS()
+		{
+			World.Identity();
+			WorldInverseTrans.Identity();
+			WVP.Identity();
+		}
+	};
+
+	struct ConstantsBufferPS
+	{
+		Vec3 ViewPoint;
+		uint32_t LightCount = 0U;
+
+		Lighting::DirectionalLight DirLight[3];
+
+		Lighting::Material Mat;
+
+		ConstantsBufferPS()
+		{
+			ViewPoint = Vec3(0.0f, 0.0f, 0.0f);
+			
+			DirLight[0].Ambient = Vec4(0.2f, 0.2f, 0.2f, 1.0f);
+			DirLight[0].Diffuse = Vec4(0.5f, 0.5f, 0.5f, 1.0f);
+			DirLight[0].Specular = Vec4(0.5f, 0.5f, 0.5f, 1.0f);
+			DirLight[0].Direction = Vec4(0.57735f, -0.57735f, 0.57735f, 0.0f);
+
+			DirLight[1].Ambient = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
+			DirLight[1].Diffuse = Vec4(0.20f, 0.20f, 0.20f, 1.0f);
+			DirLight[1].Specular = Vec4(0.25f, 0.25f, 0.25f, 1.0f);
+			DirLight[1].Direction = Vec4(-0.57735f, -0.57735f, 0.57735f, 0.0f);
+
+			DirLight[2].Ambient = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
+			DirLight[2].Diffuse = Vec4(0.2f, 0.2f, 0.2f, 1.0f);
+			DirLight[2].Specular = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
+			DirLight[2].Direction = Vec4(0.0f, -0.707f, -0.707f, 0.0f);
+
+			Mat.Ambient = Vec4(0.8f, 0.8f, 0.8f, 1.0f);
+			Mat.Diffuse = Vec4(0.8f, 0.8f, 0.8f, 1.0f);
+			Mat.Specular = Vec4(0.8f, 0.8f, 0.8f, 16.0f);
+		}
+	};
+
+	struct D3DResource
+	{
+		Ref<ID3D11VertexShader> VertexShader;
+		Ref<ID3D11PixelShader> PixelShader;
+
+		Ref<ID3D11InputLayout> InputLayout;
+		Ref<ID3D11Buffer> IndexBuffer;
+		Ref<ID3D11Buffer> VertexBuffer;
+		Ref<ID3D11RasterizerState> WireframeMode;
+
+		Ref<ID3D11Buffer> CBufferVS;
+		Ref<ID3D11Buffer> CBufferPS;
+	};
 private:
+	ConstantsBufferVS m_CBufferVS;
+	ConstantsBufferPS m_CBufferPS;
+
+	D3DResource m_D3DRes;
+
+	Matrix m_World;
+
 	uint32_t m_VertexCount = 0U;
 	uint32_t m_IndexCount = 0U;
-
-	Ref<ID3D11InputLayout> m_InputLayout;
-	Ref<ID3D11Buffer> m_IndexBuffer;
-	Ref<ID3D11Buffer> m_VertexBuffer;
-	Ref<ID3D11RasterizerState> m_WireframeMode;
 
 	bool m_Created = false;
 };

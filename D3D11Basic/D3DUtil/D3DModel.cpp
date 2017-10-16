@@ -135,9 +135,9 @@ D3DModel::~D3DModel()
 	}
 }
 
-void SimpleMesh::CreateFromTxt(const char *pName, ID3DBlob *pBlob)
+void SimpleMesh::CreateFromTxt(const char *pName)
 {
-	assert(pName && pBlob && g_Renderer);
+	assert(pName && g_Renderer);
 
 	std::string meshFileDir = D3DGraphic::ResourceFileDirectory(D3DGraphic::eTxtMesh);
 	meshFileDir += pName;
@@ -172,17 +172,26 @@ void SimpleMesh::CreateFromTxt(const char *pName, ID3DBlob *pBlob)
 
 		meshFile.close();
 
-		g_Renderer->CreateVertexBuffer(m_VertexBuffer.Reference(), sizeof(Vertex) * m_VertexCount, D3D11_USAGE_IMMUTABLE, &vertices[0]);
-		g_Renderer->CreateIndexBuffer(m_IndexBuffer.Reference(), sizeof(uint32_t) * m_IndexCount, D3D11_USAGE_IMMUTABLE, &indices[0]);
-
+		static char* const s_ShaderName = "Lighting.hlsl";
+		
 		D3D11_INPUT_ELEMENT_DESC layout[] =
 		{
 			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 		};
-		g_Renderer->CreateInputLayout(m_InputLayout.Reference(), layout, ARRAYSIZE(layout), pBlob);
+		g_Renderer->CreateVertexShaderAndInputLayout(m_D3DRes.VertexShader.Reference(), m_D3DRes.InputLayout.Reference(), layout, ARRAYSIZE(layout), 
+			s_ShaderName, "VSMain");
+		g_Renderer->CreatePixelShader(m_D3DRes.PixelShader.Reference(), s_ShaderName, "PSMain");
 
-		g_Renderer->CreateRasterizerState(m_WireframeMode.Reference(), D3D11_FILL_WIREFRAME);
+		g_Renderer->CreateVertexBuffer(m_D3DRes.VertexBuffer.Reference(), sizeof(Vertex) * m_VertexCount, D3D11_USAGE_IMMUTABLE, &vertices[0]);
+		g_Renderer->CreateIndexBuffer(m_D3DRes.IndexBuffer.Reference(), sizeof(uint32_t) * m_IndexCount, D3D11_USAGE_IMMUTABLE, &indices[0]);
+
+		g_Renderer->CreateConstantBuffer(m_D3DRes.CBufferVS.Reference(), sizeof(ConstantsBufferVS),
+			D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
+		g_Renderer->CreateConstantBuffer(m_D3DRes.CBufferPS.Reference(), sizeof(ConstantsBufferPS),
+			D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
+
+		g_Renderer->CreateRasterizerState(m_D3DRes.WireframeMode.Reference(), D3D11_FILL_WIREFRAME);
 
 		m_Created = true;
 	}
@@ -192,21 +201,40 @@ void SimpleMesh::CreateFromTxt(const char *pName, ID3DBlob *pBlob)
 	}
 }
 
-void SimpleMesh::Draw(bool bWireframe)
+void SimpleMesh::Draw(const Camera &cam, bool bWireframe, bool bNeedFlush)
 {
 	if (!m_Created || !g_Renderer)
 	{
 		return;
 	}
 
-	g_Renderer->SetInputLayout(m_InputLayout.Ptr());
-	g_Renderer->SetVertexBuffer(m_VertexBuffer.Ptr(), sizeof(Vertex), 0U);
-	g_Renderer->SetIndexBuffer(m_IndexBuffer.Ptr(), DXGI_FORMAT_R32_UINT);
+	g_Renderer->SetVertexShader(m_D3DRes.VertexShader.Ptr());
+	g_Renderer->SetPixelShader(m_D3DRes.PixelShader.Ptr());
+
+	g_Renderer->SetInputLayout(m_D3DRes.InputLayout.Ptr());
+	g_Renderer->SetVertexBuffer(m_D3DRes.VertexBuffer.Ptr(), sizeof(Vertex), 0U);
+	g_Renderer->SetIndexBuffer(m_D3DRes.IndexBuffer.Ptr(), DXGI_FORMAT_R32_UINT);
+
+	m_CBufferVS.World = m_World.Transpose();
+	m_CBufferVS.WorldInverseTrans = m_CBufferVS.World.Inverse();
+	Matrix wvp = m_World * cam.GetViewMatrix() * cam.GetProjMatrix();
+	m_CBufferVS.WVP = wvp.Transpose();
+
+	Vec4 eyePos = cam.GetEyePos();
+	m_CBufferPS.ViewPoint = Vec3(eyePos.x, eyePos.y, eyePos.z);
+
+	g_Renderer->UpdateConstantBuffer(m_D3DRes.CBufferVS.Ptr(), &m_CBufferVS, sizeof(ConstantsBufferVS));
+	g_Renderer->UpdateConstantBuffer(m_D3DRes.CBufferPS.Ptr(), &m_CBufferPS, sizeof(ConstantsBufferPS));
+
+	g_Renderer->SetConstantBuffer(m_D3DRes.CBufferVS.Ptr(), 0U, D3DGraphic::eVertexShader);
+	g_Renderer->SetConstantBuffer(m_D3DRes.CBufferPS.Ptr(), 0U, D3DGraphic::ePixelShader);
 
 	if (bWireframe)
 	{
-		g_Renderer->SetRasterizerState(m_WireframeMode.Ptr());
+		g_Renderer->SetRasterizerState(m_D3DRes.WireframeMode.Ptr());
 	}
 
-	g_Renderer->DrawIndexed(m_IndexCount, 0U, 0);
+	g_Renderer->DrawIndexed(m_IndexCount, 0U, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, bNeedFlush);
+
+	m_CBufferVS.World.Identity();
 }

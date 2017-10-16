@@ -69,6 +69,11 @@ public:
 	{
 		return m_Proj;
 	}
+
+	inline const Vec4& GetEyePos() const
+	{
+		return m_EyePos;
+	}
 protected:
 private:
 	float m_Fov;
