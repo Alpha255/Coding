@@ -60,10 +60,10 @@ public:
 		CreateBuffer(ppBuf, D3D11_BIND_CONSTANT_BUFFER, byteWidth, usage, pBuf, cpuAccessFlag);
 	}
 
-	void CreateVertexShader(__out ID3D11VertexShader** ppVS, __out ID3DBlob **ppBlob, char *pFileName, char *pEntryPoint, const D3D_SHADER_MACRO *pDefines = nullptr);
-	void CreateVertexShader(__out ID3D11VertexShader** ppVS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines = nullptr);
-	void CreatePixelShader(__out ID3D11PixelShader** ppPS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines = nullptr);
-	void CreateVertexShaderAndInputLayout(__out ID3D11VertexShader** ppVS, __out ID3D11InputLayout** ppLayout, D3D11_INPUT_ELEMENT_DESC* pInputElement, uint32_t size, char* pFileName, char* pEntryPoint);
+	void CreateVertexShader(__out ID3D11VertexShader** ppVS, __out ID3DBlob **ppBlob, char *pFileName, char *pEntryPoint, const D3D_SHADER_MACRO *pDefines = nullptr, ID3DInclude* pInclude = nullptr);
+	void CreateVertexShader(__out ID3D11VertexShader** ppVS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines = nullptr, ID3DInclude* pInclude = nullptr);
+	void CreatePixelShader(__out ID3D11PixelShader** ppPS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines = nullptr, ID3DInclude* pInclude = nullptr);
+	void CreateVertexShaderAndInputLayout(__out ID3D11VertexShader** ppVS, __out ID3D11InputLayout** ppLayout, D3D11_INPUT_ELEMENT_DESC* pInputElement, uint32_t size, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO *pDefines = nullptr, ID3DInclude* pInclude = nullptr);
 
 	void CreateInputLayout(__out ID3D11InputLayout** ppLayout, D3D11_INPUT_ELEMENT_DESC* pInputElement, uint32_t size, ID3DBlob* pRes);
 
@@ -101,7 +101,7 @@ public:
 
 	void UpdateConstantBuffer(ID3D11Buffer* pConstantBuf, const void* pSource, uint32_t size);
 
-	void Draw(uint32_t vertexCount, uint32_t startIndex, D3D_PRIMITIVE_TOPOLOGY prim = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	void Draw(uint32_t vertexCount, uint32_t startIndex, D3D_PRIMITIVE_TOPOLOGY prim = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, bool bNeedFlush = true);
 	void DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, D3D_PRIMITIVE_TOPOLOGY prim = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	void DrawQuad(float x, float y, float width, float height);
 
@@ -165,7 +165,7 @@ protected:
 	void RecreateBackBuffer();
 
 	void CreateBuffer(__out ID3D11Buffer** ppBuffer, D3D11_BIND_FLAG bindFlag, uint32_t byteWidth, D3D11_USAGE usage, const void* pBuf, uint32_t cpuAccessFlag);
-	void CompileShaderFile(__out ID3DBlob** ppRes, char* pFileName, char* pEntryPoint, char* pTarget, const D3D_SHADER_MACRO* pDefines);
+	void CompileShaderFile(__out ID3DBlob** ppRes, char* pFileName, char* pEntryPoint, char* pTarget, const D3D_SHADER_MACRO* pDefines, ID3DInclude* pInclude);
 
 	friend class D3DModel;
 private:

@@ -286,11 +286,14 @@ void D3DGraphic::CreateBlendState(ID3D11BlendState** ppBlendState, D3D11_BLEND_D
 	HRCheck(m_D3DDevice->CreateBlendState(pBlendDesc, ppBlendState));
 }
 
-void D3DGraphic::CompileShaderFile(ID3DBlob** ppRes, char* pFileName, char* pEntryPoint, char* pTarget, const D3D_SHADER_MACRO* pDefines)
+void D3DGraphic::CompileShaderFile(ID3DBlob** ppRes, char* pFileName, char* pEntryPoint, char* pTarget, const D3D_SHADER_MACRO* pDefines, ID3DInclude* pInclude)
 {
 	assert(ppRes && pFileName && pEntryPoint && pTarget);
 
-	std::ifstream file(ResourceFilePath(pFileName, eShader), std::ios::in);
+	std::string shaderResPath = ResourceFileDirectory(eShader);
+	std::string shaderFilePath = shaderResPath + pFileName;
+
+	std::ifstream file(shaderFilePath, std::ios::in);
 	if (file.good())
 	{
 		file.seekg(0U, std::ios::end);
@@ -305,13 +308,17 @@ void D3DGraphic::CompileShaderFile(ID3DBlob** ppRes, char* pFileName, char* pEnt
 #else
 		uint32_t flags = D3DCOMPILE_ENABLE_STRICTNESS;
 #endif
+		char workingDir[MAX_PATH] = { 0 };
+		::GetCurrentDirectoryA(MAX_PATH, workingDir);
 
+		::SetCurrentDirectoryA(shaderResPath.c_str());
 		ID3DBlob* pErrMsg = nullptr;
-		if (FAILED(D3DCompile(pData, fileSize, pFileName, pDefines, nullptr, pEntryPoint, pTarget, flags, 0U, ppRes, &pErrMsg)))
+		if (FAILED(D3DCompile(pData, fileSize, pFileName, pDefines, pInclude, pEntryPoint, pTarget, flags, 0U, ppRes, &pErrMsg)))
 		{
 			OutputDebugStringA((char*)pErrMsg->GetBufferPointer());
 			assert(!"Shader compile failed!!!");
 		}
+		::SetCurrentDirectoryA(workingDir);
 
 		SafeRelease(pErrMsg);
 		SafeDeleteArray(pData);
@@ -330,36 +337,45 @@ void D3DGraphic::RecreateBackBuffer()
 	HRCheck(m_D3DDevice->CreateRenderTargetView(backBuffer.Ptr(), nullptr, m_DefaultRenderTarget.Reference()));
 }
 
-void D3DGraphic::CreateVertexShader(ID3D11VertexShader** ppVS, ID3DBlob **ppBlob, char *pFileName, char *pEntryPoint, const D3D_SHADER_MACRO *pDefines)
+void D3DGraphic::CreateVertexShader(ID3D11VertexShader** ppVS, ID3DBlob **ppBlob, char *pFileName, char *pEntryPoint, const D3D_SHADER_MACRO *pDefines, ID3DInclude* pInclude)
 {
 	assert(ppVS);
 
-	CompileShaderFile(ppBlob, pFileName, pEntryPoint, "vs_5_0", pDefines);
+	ID3DInclude* pIncludeInfo = (nullptr == pInclude ? D3D_COMPILE_STANDARD_FILE_INCLUDE : pInclude);
+
+	CompileShaderFile(ppBlob, pFileName, pEntryPoint, "vs_5_0", pDefines, pIncludeInfo);
 	assert(ppBlob);
 
 	HRCheck(m_D3DDevice->CreateVertexShader((*ppBlob)->GetBufferPointer(), (*ppBlob)->GetBufferSize(), nullptr, ppVS));
 }
 
-void D3DGraphic::CreateVertexShader(ID3D11VertexShader** ppVS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines)
+void D3DGraphic::CreateVertexShader(ID3D11VertexShader** ppVS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines, ID3DInclude* pInclude)
 {
 	assert(ppVS);
 
+	ID3DInclude* pIncludeInfo = (nullptr == pInclude ? D3D_COMPILE_STANDARD_FILE_INCLUDE : pInclude);
+
 	Ref<ID3DBlob> blob;
-	CompileShaderFile(blob.Reference(), pFileName, pEntryPoint, "vs_5_0", pDefines);
+	CompileShaderFile(blob.Reference(), pFileName, pEntryPoint, "vs_5_0", pDefines, pIncludeInfo);
 	HRCheck(m_D3DDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, ppVS));
 }
 
-void D3DGraphic::CreatePixelShader(ID3D11PixelShader** ppPS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines)
+void D3DGraphic::CreatePixelShader(ID3D11PixelShader** ppPS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines, ID3DInclude* pInclude)
 {
+	ID3DInclude* pIncludeInfo = (nullptr == pInclude ? D3D_COMPILE_STANDARD_FILE_INCLUDE : pInclude);
+
 	Ref<ID3DBlob> blob;
-	CompileShaderFile(blob.Reference(), pFileName, pEntryPoint, "ps_5_0", pDefines);
+	CompileShaderFile(blob.Reference(), pFileName, pEntryPoint, "ps_5_0", pDefines, pIncludeInfo);
 	HRCheck(m_D3DDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, ppPS));
 }
 
-void D3DGraphic::CreateVertexShaderAndInputLayout(ID3D11VertexShader** ppVS, ID3D11InputLayout** ppLayout, D3D11_INPUT_ELEMENT_DESC* pInputElement, uint32_t size, char* pFileName, char* pEntryPoint)
+void D3DGraphic::CreateVertexShaderAndInputLayout(ID3D11VertexShader** ppVS, ID3D11InputLayout** ppLayout, 
+	D3D11_INPUT_ELEMENT_DESC* pInputElement, uint32_t size, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO *pDefines, ID3DInclude* pInclude)
 {
+	ID3DInclude* pIncludeInfo = (nullptr == pInclude ? D3D_COMPILE_STANDARD_FILE_INCLUDE : pInclude);
+
 	Ref<ID3DBlob> blob;
-	CompileShaderFile(blob.Reference(), pFileName, pEntryPoint, "vs_5_0", nullptr);
+	CompileShaderFile(blob.Reference(), pFileName, pEntryPoint, "vs_5_0", pDefines, pIncludeInfo);
 	HRCheck(m_D3DDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, ppVS));
 	CreateInputLayout(ppLayout, pInputElement, size, blob.Ptr());
 }
@@ -663,7 +679,7 @@ void D3DGraphic::ResolveSubResource(ID3D11Texture2D* pDstResource, ID3D11Texture
 	m_D3DContext->ResolveSubresource(pDstResource, dstCount, pSrcResource, srcCount, fmt);
 }
 
-void D3DGraphic::Draw(uint32_t vertexCount, uint32_t startIndex, D3D_PRIMITIVE_TOPOLOGY prim)
+void D3DGraphic::Draw(uint32_t vertexCount, uint32_t startIndex, D3D_PRIMITIVE_TOPOLOGY prim, bool bNeedFlush)
 {
 	if (m_D3DPipelineState.PrimitiveTopology != prim)
 	{
@@ -675,7 +691,10 @@ void D3DGraphic::Draw(uint32_t vertexCount, uint32_t startIndex, D3D_PRIMITIVE_T
 
 	m_D3DContext->Draw(vertexCount, startIndex);
 
-	m_SwapChain->Present(0U, 0U);
+	if (bNeedFlush)
+	{
+		m_SwapChain->Present(0U, 0U);
+	}
 }
 
 void D3DGraphic::DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, D3D_PRIMITIVE_TOPOLOGY prim)

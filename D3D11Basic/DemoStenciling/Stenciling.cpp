@@ -48,6 +48,9 @@ struct DemoStencilingResource
 	Ref<ID3DBlob> VSBlob;
 	Ref<ID3D11PixelShader> PS;
 
+	Ref<ID3D11RasterizerState> NoBackFaceCulling;
+	Ref<ID3D11SamplerState> Sampler;
+
 	SimpleMesh SkullMesh;
 	SceneRoomVertices RoomMesh;
 };
@@ -154,7 +157,20 @@ void ApplicationStenciling::SetupScene()
 	g_Renderer->CreateConstantBuffer(s_Resource.RoomMesh.CBPS.Reference(), sizeof(ConstantsBufferPS),
 		D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
 
-	s_Resource.SkullMesh.CreateFromTxt("skull.txt", nullptr);
+	D3D11_SAMPLER_DESC sampDesc;
+	memset(&sampDesc, 0, sizeof(D3D11_SAMPLER_DESC));
+	sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	sampDesc.MinLOD = 0.0f;
+	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	g_Renderer->CreateSamplerState(s_Resource.Sampler.Reference(), &sampDesc);
+
+	g_Renderer->CreateRasterizerState(s_Resource.NoBackFaceCulling.Reference(), D3D11_FILL_SOLID, D3D11_CULL_NONE);
+
+	///s_Resource.SkullMesh.CreateFromTxt("skull.txt", s_Resource.VSBlob.Ptr());
 
 	g_Renderer->SetVertexShader(s_Resource.VS.Ptr());
 	g_Renderer->SetPixelShader(s_Resource.PS.Ptr());
@@ -183,18 +199,28 @@ void ApplicationStenciling::RenderScene()
 	s_CBVS.World = s_Camera.GetWorldMatrix();
 	s_CBVS.WVP = wvp.Transpose();
 
+	g_Renderer->SetRasterizerState(s_Resource.NoBackFaceCulling.Ptr());
+
+	/// Floor
+	g_Renderer->SetInputLayout(s_Resource.RoomMesh.Layout.Ptr());
 	g_Renderer->SetVertexBuffer(s_Resource.RoomMesh.VBFloor.Ptr(), sizeof(BasicVertex), 0U);
 	g_Renderer->SetConstantBuffer(s_Resource.RoomMesh.CBVS.Ptr(), 0U, D3DGraphic::eVertexShader);
 	g_Renderer->UpdateConstantBuffer(s_Resource.RoomMesh.CBVS.Ptr(), &s_CBVS, sizeof(ConstantsBufferVS));
-	g_Renderer->SetConstantBuffer(s_Resource.RoomMesh.CBPS.Ptr(), 0U, D3DGraphic::ePixelShader);
-	g_Renderer->UpdateConstantBuffer(s_Resource.RoomMesh.CBPS.Ptr(), &s_CBPS, sizeof(ConstantsBufferPS));
-
-	/// Floor
+	//g_Renderer->SetConstantBuffer(s_Resource.RoomMesh.CBPS.Ptr(), 0U, D3DGraphic::ePixelShader);
+	//g_Renderer->UpdateConstantBuffer(s_Resource.RoomMesh.CBPS.Ptr(), &s_CBPS, sizeof(ConstantsBufferPS));
 	g_Renderer->SetShaderResource(s_Resource.FloorDiffuseTex.Reference(), 0U);
-	g_Renderer->Draw(6U, 0U);
+	g_Renderer->SetSamplerStates(s_Resource.Sampler.Reference());
+	g_Renderer->Draw(6U, 0U, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, false);
 
 	/// Wall
-	g_Renderer->SetShaderResource(s_Resource.WallDiffuseTex.Reference(), 1U);
+	g_Renderer->SetInputLayout(s_Resource.RoomMesh.Layout.Ptr());
+	g_Renderer->SetVertexBuffer(s_Resource.RoomMesh.VBWall.Ptr(), sizeof(BasicVertex), 0U);
+	g_Renderer->SetConstantBuffer(s_Resource.RoomMesh.CBVS.Ptr(), 0U, D3DGraphic::eVertexShader);
+	g_Renderer->UpdateConstantBuffer(s_Resource.RoomMesh.CBVS.Ptr(), &s_CBVS, sizeof(ConstantsBufferVS));
+	////g_Renderer->SetConstantBuffer(s_Resource.RoomMesh.CBPS.Ptr(), 0U, D3DGraphic::ePixelShader);
+	////g_Renderer->UpdateConstantBuffer(s_Resource.RoomMesh.CBPS.Ptr(), &s_CBPS, sizeof(ConstantsBufferPS));
+	g_Renderer->SetShaderResource(s_Resource.WallDiffuseTex.Reference(), 0U);
+	g_Renderer->SetSamplerStates(s_Resource.Sampler.Reference());
 	g_Renderer->Draw(18U, 0U);
 }
 
