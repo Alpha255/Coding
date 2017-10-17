@@ -52,27 +52,19 @@ public:
 
 	inline void SetLightCount(uint32_t litCount)
 	{
+		assert(litCount <= 3U);  /// Not safety
 		m_CBufferPS.LightCount = litCount;
 	}
 
 	inline void SetLight(uint32_t index, const Lighting::DirectionalLight &lit)
 	{
+		assert(index < 3U);  /// Not safety
 		memcpy(&m_CBufferPS.DirLight[index], &lit, sizeof(Lighting::DirectionalLight));
 	}
 
-	inline void SetScaling(float x, float y, float z)
+	inline void SetWorldMatrix(const Matrix& world)
 	{
-		m_World *= Matrix::Scaling(x, y, z);
-	}
-
-	inline void SetTranslation(float x, float y, float z)
-	{
-		m_World *= Matrix::Translation(x, y, z);
-	}
-
-	inline void RotationAxis(float x, float y, float z, float angle)
-	{
-		m_World *= Matrix::RotationAxis(x, y, z, angle);
+		m_World = world;
 	}
 
 	void Draw(const class Camera &cam, bool bWireframe = false, bool bNeedFlush = true);

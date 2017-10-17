@@ -400,6 +400,13 @@ void D3DGraphic::CreateRasterizerState(ID3D11RasterizerState** ppRasterizerState
 	HRCheck(m_D3DDevice->CreateRasterizerState(&rsDesc, ppRasterizerState));
 }
 
+void D3DGraphic::CreateDepthStencilState(ID3D11DepthStencilState** ppDepthStencilState, const D3D11_DEPTH_STENCIL_DESC* pDepthStencilStateDesc)
+{
+	assert(ppDepthStencilState && pDepthStencilStateDesc);
+
+	HRCheck(m_D3DDevice->CreateDepthStencilState(pDepthStencilStateDesc, ppDepthStencilState));
+}
+
 void D3DGraphic::CreateSamplerState(ID3D11SamplerState** ppSamplerState, const D3D11_SAMPLER_DESC* pSamplerDesc)
 {
 	assert(ppSamplerState && pSamplerDesc);
@@ -583,12 +590,13 @@ void D3DGraphic::SetRasterizerState(ID3D11RasterizerState* pRS)
 	}
 }
 
-void D3DGraphic::SetDepthStencilState(ID3D11DepthStencilState* pDS)
+void D3DGraphic::SetDepthStencilState(ID3D11DepthStencilState* pDS, uint32_t stencilRef)
 {
 	ID3D11DepthStencilState* const pDepthStencilState = pDS;
-	if (m_D3DPipelineState.DepthStencilState != pDepthStencilState)
+	if (m_D3DPipelineState.DepthStencilState != pDepthStencilState || m_D3DPipelineState.StencilRef != stencilRef)
 	{
 		m_D3DPipelineState.DepthStencilState = pDepthStencilState;
+		m_D3DPipelineState.StencilRef = stencilRef;
 
 		m_FlushState[eFSDepthStencilState] = true;
 	}
@@ -831,7 +839,7 @@ void D3DGraphic::FlushState()
 
 	if (m_FlushState[eFSDepthStencilState])
 	{
-		m_D3DContext->OMSetDepthStencilState(m_D3DPipelineState.DepthStencilState, 0U);
+		m_D3DContext->OMSetDepthStencilState(m_D3DPipelineState.DepthStencilState, m_D3DPipelineState.StencilRef);
 		m_FlushState[eFSDepthStencilState] = false;
 	}
 

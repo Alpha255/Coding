@@ -135,6 +135,15 @@ public:
 		return *(static_cast<Matrix*>(&result));
 	}
 
+	inline static Matrix Reflect(float x, float y, float z)
+	{
+		DirectX::XMVECTOR plane = DirectX::XMVectorSet(x, y, z, 0.0f);
+
+		DirectX::XMMATRIX result = DirectX::XMMatrixReflect(plane);
+
+		return *(static_cast<Matrix*>(&result));
+	}
+
 	inline Matrix operator*(const Matrix& matrix) const
 	{
 		DirectX::XMMATRIX lMatrix, rMatrix;
@@ -167,6 +176,15 @@ public:
 		DirectX::XMVECTOR srcVec = DirectX::XMVectorSet(x, y, z, w);
 
 		DirectX::XMVECTOR result = DirectX::XMVector3Transform(srcVec, matrix);
+
+		memcpy(this, &result, sizeof(DirectX::XMVECTOR));
+	}
+
+	inline void TransformNormal(const class Matrix& matrix)
+	{
+		DirectX::XMVECTOR srcVec = DirectX::XMVectorSet(x, y, z, w);
+
+		DirectX::XMVECTOR result = DirectX::XMVector3TransformNormal(srcVec, matrix);
 
 		memcpy(this, &result, sizeof(DirectX::XMVECTOR));
 	}

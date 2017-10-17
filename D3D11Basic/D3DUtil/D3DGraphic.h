@@ -70,6 +70,7 @@ public:
 	void CreateBlendState(__out ID3D11BlendState** ppBlendState, D3D11_BLEND_DESC* pBlendDesc);
 	void CreateSamplerState(__out ID3D11SamplerState** ppSamplerState, const D3D11_SAMPLER_DESC* pSamplerDesc);
 	void CreateRasterizerState(__out ID3D11RasterizerState** ppRasterizerState, D3D11_FILL_MODE fillMode, D3D11_CULL_MODE cullMode = D3D11_CULL_BACK, bool cw = false, bool depthClip = true);
+	void CreateDepthStencilState(__out ID3D11DepthStencilState** ppDepthStencilState, const D3D11_DEPTH_STENCIL_DESC* pDepthStencilStateDesc);
 
 	void ClearRenderTarget(ID3D11RenderTargetView* pRenderTarget, const float* pClearColor = nullptr);
 	void ClearDepthStencil(ID3D11DepthStencilView* pDepthStencil, uint32_t clearFlags, float depth, uint8_t stencil);
@@ -89,7 +90,7 @@ public:
 	void SetSamplerStates(ID3D11SamplerState* const* ppStates, uint32_t startSlot = 0U, uint32_t count = 1U);
 	void SetShaderResource(ID3D11ShaderResourceView* const* ppSRV, uint32_t startSlot = 0U, uint32_t count = 1U);
 	void SetRasterizerState(ID3D11RasterizerState* pRasterizerState);
-	void SetDepthStencilState(ID3D11DepthStencilState* pDepthStencilState);
+	void SetDepthStencilState(ID3D11DepthStencilState* pDepthStencilState, uint32_t stencilRef);
 	void SetBlendState(ID3D11BlendState* pBlendState, Vec4 blendFactor, uint32_t mask);
 	void SetVertexShader(ID3D11VertexShader* pVertexShader);
 	void SetPixelShader(ID3D11PixelShader* pPixelShader);
@@ -205,6 +206,7 @@ private:
 		uint32_t                 SampleMask;
 		uint32_t                 ViewportCount;
 		uint32_t                 ScissorRectCount;
+		uint32_t                 StencilRef;
 	}m_D3DPipelineState;
 
 	DXGI_SWAP_CHAIN_DESC m_SwapChainDesc;

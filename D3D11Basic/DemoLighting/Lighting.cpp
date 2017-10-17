@@ -28,8 +28,8 @@ void ApplicationLighting::SetupScene()
 	const char *pMeshName = "car.txt";
 #endif
 	s_Resource.Model.CreateFromTxt(pMeshName);
-	s_Resource.Model.SetScaling(0.8f, 0.8f, 0.8f);
-	s_Resource.Model.SetTranslation(0.0f, -1.0f, 0.0f);
+	Matrix modelWorld = Matrix::Scaling(0.8f, 0.8f, 0.8f) * Matrix::Translation(0.0f, -1.0f, 0.0f);
+	s_Resource.Model.SetWorldMatrix(modelWorld);
 
 	g_Renderer->SetRenderTarget(g_Renderer->DefaultRenderTarget());
 	g_Renderer->SetDepthStencil(g_Renderer->DefaultDepthStencil());

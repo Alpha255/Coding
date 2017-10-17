@@ -3,7 +3,7 @@
 cbuffer cbVS
 {
     matrix World;
-    matrix WorldInverseTranspose;
+    matrix WorldInverse;
     matrix WVP;
 };
 
@@ -34,7 +34,7 @@ VSOutput VSMain(VSInput input)
 {
     VSOutput output;
     output.PosW = mul(float4(input.Pos, 1.0f), World).xyz;
-    output.NormalW = mul(input.Normal, (float3x3)WorldInverseTranspose);
+    output.NormalW = mul(input.Normal, (float3x3)WorldInverse);
 
     output.PosH = mul(float4(input.Pos, 1.0f), WVP);
 
