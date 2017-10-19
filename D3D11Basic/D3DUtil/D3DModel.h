@@ -67,7 +67,7 @@ public:
 		m_World = world;
 	}
 
-	void Draw(const class Camera &cam, bool bWireframe = false, bool bNeedFlush = true);
+	void Draw(const class Camera &cam, bool bWireframe = false);
 protected:
 	struct ConstantsBufferVS
 	{

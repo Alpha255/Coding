@@ -687,7 +687,7 @@ void D3DGraphic::ResolveSubResource(ID3D11Texture2D* pDstResource, ID3D11Texture
 	m_D3DContext->ResolveSubresource(pDstResource, dstCount, pSrcResource, srcCount, fmt);
 }
 
-void D3DGraphic::Draw(uint32_t vertexCount, uint32_t startIndex, D3D_PRIMITIVE_TOPOLOGY prim, bool bNeedFlush)
+void D3DGraphic::Draw(uint32_t vertexCount, uint32_t startIndex, D3D_PRIMITIVE_TOPOLOGY prim)
 {
 	if (m_D3DPipelineState.PrimitiveTopology != prim)
 	{
@@ -698,14 +698,9 @@ void D3DGraphic::Draw(uint32_t vertexCount, uint32_t startIndex, D3D_PRIMITIVE_T
 	FlushState();
 
 	m_D3DContext->Draw(vertexCount, startIndex);
-
-	if (bNeedFlush)
-	{
-		m_SwapChain->Present(0U, 0U);
-	}
 }
 
-void D3DGraphic::DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, D3D_PRIMITIVE_TOPOLOGY prim, bool bNeedFlush)
+void D3DGraphic::DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, D3D_PRIMITIVE_TOPOLOGY prim)
 {
 	if (m_D3DPipelineState.PrimitiveTopology != prim)
 	{
@@ -716,11 +711,6 @@ void D3DGraphic::DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t o
 	FlushState();
 
 	m_D3DContext->DrawIndexed(indexCount, startIndex, offset);
-
-	if (bNeedFlush)
-	{
-		m_SwapChain->Present(0U, 0U);
-	}
 }
 
 void D3DGraphic::DrawQuad(float top, float left, float width, float height)

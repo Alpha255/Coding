@@ -187,6 +187,8 @@ void IApplication::Running()
 				UpdateScene(m_pTimer->DeltaTime(), m_pTimer->TotalTime());  
 
 				RenderScene();
+
+				g_Renderer->Flip();
 			}
 			else
 			{

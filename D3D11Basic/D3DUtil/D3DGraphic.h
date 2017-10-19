@@ -102,9 +102,14 @@ public:
 
 	void UpdateConstantBuffer(ID3D11Buffer* pConstantBuf, const void* pSource, uint32_t size);
 
-	void Draw(uint32_t vertexCount, uint32_t startIndex, D3D_PRIMITIVE_TOPOLOGY prim = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, bool bNeedFlush = true);
-	void DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, D3D_PRIMITIVE_TOPOLOGY prim = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, bool bNeedFlush = true);
+	void Draw(uint32_t vertexCount, uint32_t startIndex, D3D_PRIMITIVE_TOPOLOGY prim = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	void DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, D3D_PRIMITIVE_TOPOLOGY prim = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	void DrawQuad(float x, float y, float width, float height);
+
+	inline void Flip()
+	{
+		m_SwapChain->Present(0U, 0U);
+	}
 
 	inline D3D11_RECT GetScissorRect()
 	{

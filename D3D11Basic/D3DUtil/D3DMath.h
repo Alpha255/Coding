@@ -144,6 +144,18 @@ public:
 		return *(static_cast<Matrix*>(&result));
 	}
 
+	inline static Matrix Shadow(float px, float py, float pz, float lx, float ly, float lz)
+	{
+		DirectX::XMVECTOR p = DirectX::XMVectorSet(px, py, pz, 0.0f);
+		DirectX::XMVECTOR lit = DirectX::XMVectorSet(lx, ly, lz, 0.0f);
+
+		DirectX::XMMATRIX result = DirectX::XMMatrixShadow(p, lit);
+
+		return *(static_cast<Matrix*>(&result));
+	}
+
+	inline static Matrix Shadow(const class Vec4 &plane, const class Vec4 &litDir);
+
 	inline Matrix operator*(const Matrix& matrix) const
 	{
 		DirectX::XMMATRIX lMatrix, rMatrix;
@@ -188,7 +200,28 @@ public:
 
 		memcpy(this, &result, sizeof(DirectX::XMVECTOR));
 	}
+
+	friend inline Vec4 operator* (const Vec4 &left, float factor)
+	{
+		Vec4 result = left;
+		result.x *= factor;
+		result.y *= factor;
+		result.z *= factor;
+		result.w *= factor;
+
+		return result;
+	}
 };
+
+inline Matrix Matrix::Shadow(const Vec4 &plane, const Vec4 &litDir)
+{
+	DirectX::XMVECTOR p = DirectX::XMVectorSet(plane.x, plane.y, plane.z, plane.w);
+	DirectX::XMVECTOR lit = DirectX::XMVectorSet(litDir.x, litDir.y, litDir.z, 0.0f);
+
+	DirectX::XMMATRIX result = DirectX::XMMatrixShadow(p, lit);
+
+	return *(static_cast<Matrix*>(&result));
+}
 
 NamespaceBegin(Math)
 template<typename T> inline T Clamp(const T& x, const T& low, const T& high) 

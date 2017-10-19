@@ -201,7 +201,7 @@ void SimpleMesh::CreateFromTxt(const char *pName)
 	}
 }
 
-void SimpleMesh::Draw(const Camera &cam, bool bWireframe, bool bNeedFlush)
+void SimpleMesh::Draw(const Camera &cam, bool bWireframe)
 {
 	if (!m_Created || !g_Renderer)
 	{
@@ -234,7 +234,7 @@ void SimpleMesh::Draw(const Camera &cam, bool bWireframe, bool bNeedFlush)
 		g_Renderer->SetRasterizerState(m_D3DRes.WireframeMode.Ptr());
 	}
 
-	g_Renderer->DrawIndexed(m_IndexCount, 0U, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, bNeedFlush);
+	g_Renderer->DrawIndexed(m_IndexCount, 0U, 0);
 
 	m_CBufferVS.World.Identity();
 }
