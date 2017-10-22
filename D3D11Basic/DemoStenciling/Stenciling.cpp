@@ -101,6 +101,7 @@ static Lighting::DirectionalLight s_DirLights[3];
 static Lighting::DirectionalLight s_DirLightsReflect[3];
 static Lighting::Material s_MatRoom;
 static Lighting::Material s_MatMirror;
+static Vec2 s_SkullTranslation = Vec2(0.0f, 0.0f);
 static char* const s_ShaderName = "Stenciling.hlsl";
 
 ApplicationStenciling::ApplicationStenciling()
@@ -266,8 +267,6 @@ void ApplicationStenciling::SetupScene()
 	skullMat.Specular = Vec4(0.4f, 0.4f, 0.4f, 16.0f);
 	s_Resource.SkullMesh.SetMaterial(skullMat);
 	s_Resource.SkullMesh.SetLightCount(3U);
-	s_SkullWorld = Matrix::RotationAxis(0.0f, 1.0f, 0.0f, DirectX::XM_PIDIV2) * Matrix::Scaling(0.45f, 0.45f, 0.45f) * Matrix::Translation(0.0f, 1.0f, -5.0f);
-	s_SkullWorldReflect = s_SkullWorld * Matrix::Reflect(0.0f, 0.0f, 1.0f);
 
 	g_Renderer->CreateRasterizerState(s_Resource.CloclwiseCulling.Reference(), D3D11_FILL_SOLID, D3D11_CULL_BACK, true);
 
@@ -346,6 +345,9 @@ void ApplicationStenciling::RenderScene()
 	s_CBVS.WVP = wvp.Transpose();
 
 	s_CBPS.EyePos = s_Camera.GetEyePos();
+
+	s_SkullWorld = Matrix::RotationAxis(0.0f, 1.0f, 0.0f, DirectX::XM_PIDIV2) * Matrix::Scaling(0.45f, 0.45f, 0.45f) * Matrix::Translation(s_SkullTranslation.x, 1.0f + s_SkullTranslation.y, -5.0f);
+	s_SkullWorldReflect = s_SkullWorld * Matrix::Reflect(0.0f, 0.0f, 1.0f);
 
 	///g_Renderer->SetRasterizerState(s_Resource.NoBackFaceCulling.Ptr());
 
@@ -461,7 +463,7 @@ void ApplicationStenciling::RenderScene()
 	}
 }
 
-void ApplicationStenciling::UpdateScene(float /*elapsedTime*/, float /*totalTime*/)
+void ApplicationStenciling::UpdateScene(float elapsedTime, float /*totalTime*/)
 {
 	float x = s_Radius * sinf(s_Phi) * cosf(s_Theta);
 	float z = s_Radius * sinf(s_Phi) * sinf(s_Theta);
@@ -470,6 +472,40 @@ void ApplicationStenciling::UpdateScene(float /*elapsedTime*/, float /*totalTime
 	Vec3 eyePos(x, y, z);
 	Vec3 lookAt(0.0f, 0.0f, 0.0f);
 	s_Camera.SetViewParams(eyePos, lookAt);
+
+	if (::GetAsyncKeyState(VK_NUMPAD0) & 0x8000)
+	{
+		s_CBPS.UseFog = 0U;
+	}
+	if (::GetAsyncKeyState(VK_NUMPAD1) & 0x8000)
+	{
+		s_CBPS.UseFog = 1U;
+	}
+	if (::GetAsyncKeyState(VK_NUMPAD2) & 0x8000)
+	{
+		s_CBPS.UseAlphaClip = 0U;  /// ???
+	}
+	if (::GetAsyncKeyState(VK_NUMPAD3) & 0x8000)
+	{
+		s_CBPS.UseAlphaClip = 1U;  /// ???
+	}
+
+	if (GetAsyncKeyState('A') & 0x8000)
+	{
+		s_SkullTranslation.x -= 1.0f * elapsedTime;
+	}
+	if (GetAsyncKeyState('D') & 0x8000)
+	{
+		s_SkullTranslation.x += 1.0f * elapsedTime;
+	}
+	if (GetAsyncKeyState('W') & 0x8000)
+	{
+		s_SkullTranslation.y += 1.0f * elapsedTime;
+	}
+	if (GetAsyncKeyState('S') & 0x8000)
+	{
+		s_SkullTranslation.y -= 1.0f * elapsedTime;
+	}
 }
 
 void ApplicationStenciling::ResizeWindow(uint32_t width, uint32_t height)
