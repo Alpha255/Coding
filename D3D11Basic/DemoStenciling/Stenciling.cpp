@@ -110,7 +110,7 @@ ApplicationStenciling::ApplicationStenciling()
 	s_MatRoom.Specular = Vec4(0.4f, 0.4f, 0.4f, 16.0f);
 
 	s_MatMirror.Ambient = Vec4(0.5f, 0.5f, 0.5f, 1.0f);
-	s_MatMirror.Diffuse = Vec4(1.0f, 1.0f, 1.0f, 0.5);
+	s_MatMirror.Diffuse = Vec4(1.0f, 1.0f, 1.0f, 0.5f);
 	s_MatMirror.Specular = Vec4(0.4f, 0.4f, 0.4f, 16.0f);
 
 	s_DirLights[0].Ambient = Vec4(0.2f, 0.2f, 0.2f, 1.0f);
@@ -224,6 +224,10 @@ void ApplicationStenciling::SetupScene()
 
 	g_Renderer->CreateRasterizerState(s_Resource.NoBackFaceCulling.Reference(), D3D11_FILL_SOLID, D3D11_CULL_NONE);
 
+	/// http://blog.csdn.net/qq_29523119/article/details/52824991
+	/// src(sr, sg, sb, sa)  dst(dr, dg, db, da)
+	/// output(r, g, b) = 1 * (sr, sg, sb) + 0 * (dr, dg, db)
+	/// outout(a) = 1 * sa + 0 * da
 	D3D11_BLEND_DESC noRTWrite = { 0 };
 	noRTWrite.AlphaToCoverageEnable = false;
 	noRTWrite.IndependentBlendEnable = false;
@@ -237,6 +241,7 @@ void ApplicationStenciling::SetupScene()
 	noRTWrite.RenderTarget[0].RenderTargetWriteMask = 0U;
 	g_Renderer->CreateBlendState(s_Resource.NoRTWrite.Reference(), &noRTWrite);
 
+	/// http://blog.csdn.net/bonchoix/article/details/8499179
 	D3D11_DEPTH_STENCIL_DESC markMirror = { 0 };
 	markMirror.DepthEnable = true;
 	markMirror.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
@@ -283,6 +288,9 @@ void ApplicationStenciling::SetupScene()
 	reflection.BackFace.StencilFunc = D3D11_COMPARISON_EQUAL;
 	g_Renderer->CreateDepthStencilState(s_Resource.Reflection.Reference(), &reflection);
 
+	/// src(sr, sg, sb, sa)  dst(dr, dg, db, da)
+	/// output(r, g, b) = sa * (sr, sg, sb) + (1 - sa) * (dr, dg, db)
+	/// output(a) = 1 * sa + 0 * da
 	D3D11_BLEND_DESC transparent = { 0 };
 	transparent.AlphaToCoverageEnable = false;
 	transparent.IndependentBlendEnable = false;
@@ -386,6 +394,7 @@ void ApplicationStenciling::RenderScene()
 	}
 
 	{
+		/// dst = MaterialSkull, src = MaterialMirror
 		/// Draw mirror to stencil buffer
 		g_Renderer->SetVertexShader(s_Resource.VS.Ptr());
 		g_Renderer->SetPixelShader(nullptr);
@@ -424,6 +433,7 @@ void ApplicationStenciling::RenderScene()
 
 	/// Draw the mirror to the back buffer as usual but with transparency blending so the reflection shows through.
 	{
+		/// dst = MaterialSkull, src = MaterialMirror
 		g_Renderer->SetVertexShader(s_Resource.VS.Ptr());
 		g_Renderer->SetPixelShader(s_Resource.PS.Ptr());
 		g_Renderer->SetInputLayout(s_Resource.RoomMesh.Layout.Ptr());
@@ -440,14 +450,14 @@ void ApplicationStenciling::RenderScene()
 
 	/// Draw the skull shadow.
 	{
-		Vec4 shadowPlane = Vec4(0.0f, 1.0f, 0.0f, 0.0f);
-		Vec4 toLight = s_DirLights[0].Direction * -1.0f;
-		Matrix skullShadowWorld = Matrix::Shadow(shadowPlane, toLight) * Matrix::Translation(0.0f, 0.001f, 0.0f);
-		s_Resource.SkullMesh.SetWorldMatrix(skullShadowWorld);
-		g_Renderer->SetDepthStencilState(s_Resource.NoDoubleBlend.Ptr(), 0U);
-		s_Resource.SkullMesh.Draw(s_Camera);
-		g_Renderer->SetBlendState(nullptr, Vec4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
-		g_Renderer->SetDepthStencilState(nullptr, 0U);
+		//Vec4 shadowPlane = Vec4(0.0f, 1.0f, 0.0f, 0.0f);
+		//Vec4 toLight = s_DirLights[0].Direction * -1.0f;
+		//Matrix skullShadowWorld = Matrix::Shadow(shadowPlane, toLight) * Matrix::Translation(0.0f, 0.001f, 0.0f);
+		//s_Resource.SkullMesh.SetWorldMatrix(skullShadowWorld);
+		//g_Renderer->SetDepthStencilState(s_Resource.NoDoubleBlend.Ptr(), 0U);
+		//s_Resource.SkullMesh.Draw(s_Camera);
+		//g_Renderer->SetBlendState(nullptr, Vec4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
+		//g_Renderer->SetDepthStencilState(nullptr, 0U);
 	}
 }
 
