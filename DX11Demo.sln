@@ -26,12 +26,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{E9CA
 		Application\Resource\Shaders\Lighting.hlsl = Application\Resource\Shaders\Lighting.hlsl
 		Application\Resource\Shaders\Quad.hlsl = Application\Resource\Shaders\Quad.hlsl
 		Application\Resource\Shaders\ShadowMap.hlsl = Application\Resource\Shaders\ShadowMap.hlsl
+		Application\Resource\Shaders\SkyBox.hlsl = Application\Resource\Shaders\SkyBox.hlsl
 		Application\Resource\Shaders\Stenciling.hlsl = Application\Resource\Shaders\Stenciling.hlsl
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DemoStenciling", "D3D11Basic\DemoStenciling\DemoStenciling.vcxproj", "{CCEF649D-0663-4907-B0C8-C2A5DDE0BDA9}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DemoDynamicCubemap", "D3D11Basic\DemoDynamicCubemap\DemoDynamicCubemap.vcxproj", "{049657F8-89F4-46CE-BD73-CEF7D9C9C98F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DemoCubemap", "D3D11Basic\DemoDynamicCubemap\DemoDynamicCubemap.vcxproj", "{049657F8-89F4-46CE-BD73-CEF7D9C9C98F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

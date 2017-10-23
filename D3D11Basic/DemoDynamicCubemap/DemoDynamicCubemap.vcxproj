@@ -161,6 +161,7 @@
   <ItemGroup>
     <ClInclude Include="..\D3DUtil\resource.h" />
     <ClInclude Include="Cubemap.h" />
+    <ClInclude Include="SkyBox.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\D3DUtil\D3DUtil.rc" />
@@ -179,6 +180,7 @@
   <ItemGroup>
     <ClCompile Include="Cubemap.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="SkyBox.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
