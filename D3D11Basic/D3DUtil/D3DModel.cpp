@@ -193,6 +193,8 @@ void SimpleMesh::CreateFromTxt(const char *pName)
 
 		g_Renderer->CreateRasterizerState(m_D3DRes.WireframeMode.Reference(), D3D11_FILL_WIREFRAME);
 
+		g_Renderer->CreateRasterizerState(m_D3DRes.BackFaceCulling.Reference(), D3D11_FILL_SOLID, D3D11_CULL_BACK);
+
 		m_Created = true;
 	}
 	else
@@ -207,6 +209,8 @@ void SimpleMesh::Draw(const Camera &cam, bool bWireframe)
 	{
 		return;
 	}
+
+	g_Renderer->SetRasterizerState(m_D3DRes.BackFaceCulling.Ptr());
 
 	g_Renderer->SetVertexShader(m_D3DRes.VertexShader.Ptr());
 	g_Renderer->SetPixelShader(m_D3DRes.PixelShader.Ptr());

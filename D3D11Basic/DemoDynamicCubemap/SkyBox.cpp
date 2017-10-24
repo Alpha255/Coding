@@ -42,10 +42,38 @@ void SkyBox::Create(const char *pCubemapName, float skySphereRadius)
 	sampDesc.MinLOD = 0.0f;
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	g_Renderer->CreateSamplerState(m_Sampler.Reference(), &sampDesc);
+
+	g_Renderer->CreateRasterizerState(m_NoBackFaceCulling.Reference(), D3D11_FILL_SOLID, D3D11_CULL_NONE);
+
+	/// Make sure the depth function is LESS_EQUAL and not just LESS.  
+	/// Otherwise, the normalized depth values at z = 1 (NDC) will 
+	/// fail the depth test if the depth buffer was cleared to 1.
+	D3D11_DEPTH_STENCIL_DESC depthDesc = { 0 };
+	depthDesc.DepthEnable = true;
+	depthDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+	g_Renderer->CreateDepthStencilState(m_DepthLess_Equal.Reference(), &depthDesc);
+}
+
+void SkyBox::RestorState()
+{
+	g_Renderer->SetRasterizerState(nullptr);
+	///g_Renderer->SetSamplerStates(nullptr);
+	g_Renderer->SetDepthStencilState(nullptr, 0U);
 }
 
 void SkyBox::Draw(const Camera &cam)
 {
+	ConstantsBufferVS cb;
+	Vec4 eyePos = cam.GetEyePos();
+	Matrix trans = Matrix::Translation(eyePos.x, eyePos.y, eyePos.z);
+	Matrix world = cam.GetWorldMatrix();
+	world *= trans;
+	Matrix wvp = world * cam.GetViewMatrix() * cam.GetProjMatrix();
+	cb.WVP = wvp.Transpose();
+
+	g_Renderer->SetRasterizerState(m_NoBackFaceCulling.Ptr());
+	g_Renderer->SetDepthStencilState(m_DepthLess_Equal.Ptr(), 1U);
+
 	g_Renderer->SetInputLayout(m_Layout.Ptr());
 
 	g_Renderer->SetVertexShader(m_VertexShader.Ptr());
@@ -53,13 +81,6 @@ void SkyBox::Draw(const Camera &cam)
 
 	g_Renderer->SetVertexBuffer(m_VertexBuffer.Ptr(), sizeof(Math::Geometry::Vertex), 0U);
 	g_Renderer->SetIndexBuffer(m_IndexBuffer.Ptr(), DXGI_FORMAT_R32_UINT);
-
-	ConstantsBufferVS cb;
-	cb.WVP = cam.GetWorldMatrix() * cam.GetViewMatrix() * cam.GetProjMatrix();
-	Vec4 eyePos = cam.GetEyePos();
-	Matrix trans = Matrix::Translation(eyePos.x, eyePos.y, eyePos.z);
-	///cb.WVP *= trans;
-	cb.WVP = cb.WVP.Transpose();
 
 	g_Renderer->SetConstantBuffer(m_ConstansBuffer.Ptr(), 0U, D3DGraphic::eVertexShader);
 	g_Renderer->UpdateConstantBuffer(m_ConstansBuffer.Ptr(), &cb, sizeof(ConstantsBufferVS));
@@ -69,4 +90,6 @@ void SkyBox::Draw(const Camera &cam)
 	g_Renderer->SetShaderResource(m_Cubemap.Reference());
 
 	g_Renderer->DrawIndexed(m_IndexCount, 0U, 0);
+
+	RestorState();
 }

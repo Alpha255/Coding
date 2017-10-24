@@ -15,5 +15,7 @@ public:
 
 	virtual void MouseMove(WPARAM wParam, int x, int y);
 protected:
+	void MakeGeometriesResource();
+	void DrawGeometries();
 private:
 };

@@ -126,6 +126,7 @@ protected:
 		Ref<ID3D11Buffer> IndexBuffer;
 		Ref<ID3D11Buffer> VertexBuffer;
 		Ref<ID3D11RasterizerState> WireframeMode;
+		Ref<ID3D11RasterizerState> BackFaceCulling;
 
 		Ref<ID3D11Buffer> CBufferVS;
 		Ref<ID3D11Buffer> CBufferPS;

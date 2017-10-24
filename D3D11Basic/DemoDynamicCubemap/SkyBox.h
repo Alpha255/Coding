@@ -15,6 +15,8 @@ protected:
 	SkyBox(const SkyBox &) = default;
 	SkyBox & operator=(const SkyBox &) = default;
 
+	void RestorState();
+
 	struct ConstantsBufferVS
 	{
 		Matrix WVP;
@@ -33,6 +35,10 @@ private:
 	Ref<ID3D11Buffer> m_ConstansBuffer;
 
 	Ref<ID3D11SamplerState> m_Sampler;
+
+	Ref<ID3D11RasterizerState> m_NoBackFaceCulling;
+
+	Ref<ID3D11DepthStencilState> m_DepthLess_Equal;
 
 	Ref<ID3D11ShaderResourceView> m_Cubemap;
 };
