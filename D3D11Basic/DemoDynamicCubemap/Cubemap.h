@@ -15,7 +15,11 @@ public:
 
 	virtual void MouseMove(WPARAM wParam, int x, int y);
 protected:
-	void MakeGeometriesResource();
-	void DrawGeometries();
+	void InitGeometriesResource();
+	void InitCubemapCameras(float cx, float cy, float cz);
+	void InitCubemapResource();
+
+	void DrawScene(const class Camera &cam, bool bDrawCenterSphere = false);
+	void DrawDynamicCubemap();
 private:
 };

@@ -8,6 +8,7 @@ public:
 	Camera()
 		: m_EyePos(0.0f, 0.0f, 0.0f, 1.0f)
 		, m_LookAt(0.0f, 0.0f, 0.0f, 1.0f)
+		, m_UpDir(0.0f, 1.0f, 0.0f, 1.0f)
 	{
 		m_World.Identity();
 
@@ -36,12 +37,12 @@ public:
 		m_World *= rotateMatrix;
 	}
 
-	virtual void SetViewParams(const Vec3& eyePos, const Vec3& lookAt)
+	virtual void SetViewParams(const Vec3& eyePos, const Vec3& lookAt, const Vec3& upDir = Vec3(0.0f, 1.0f, 0.0f))
 	{
 		memcpy(&m_EyePos, &eyePos, sizeof(Vec3));
 		memcpy(&m_LookAt, &lookAt, sizeof(Vec3));
+		memcpy(&m_UpDir, &upDir, sizeof(Vec3));
 
-		Vec3 upDir(0.0f, 1.0f, 0.0f);
 		m_View = Matrix::LookAtLH(eyePos, lookAt, upDir);
 	}
 
@@ -83,6 +84,7 @@ private:
 
 	Vec4 m_EyePos;
 	Vec4 m_LookAt;
+	Vec4 m_UpDir;
 
 	Matrix m_World;
 	Matrix m_View;

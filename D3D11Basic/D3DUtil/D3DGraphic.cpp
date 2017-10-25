@@ -180,13 +180,11 @@ void D3DGraphic::CreateShaderResourceView(ID3D11ShaderResourceView** ppSRV, cons
 	HRCheck(DirectX::CreateDDSTextureFromFile(m_D3DDevice.Ptr(), wtexFilePath.c_str(), nullptr, ppSRV));
 }
 
-void D3DGraphic::CreateRenderTargetView(ID3D11RenderTargetView** ppRTV, ID3D11Texture2D* pTex)
+void D3DGraphic::CreateRenderTargetView(ID3D11RenderTargetView** ppRTV, ID3D11Texture2D* pTex, const D3D11_RENDER_TARGET_VIEW_DESC *pRTVDesc)
 {
-	assert(ppRTV && pTex);
-	///D3D11_RENDER_TARGET_VIEW_DESC rtvDesc;
-	///memset(&rtvDesc, 0, sizeof(D3D11_RENDER_TARGET_VIEW_DESC)); 
+	assert(ppRTV && pTex); 
 	
-	HRCheck(m_D3DDevice->CreateRenderTargetView(pTex, nullptr, ppRTV));
+	HRCheck(m_D3DDevice->CreateRenderTargetView(pTex, pRTVDesc, ppRTV));
 }
 
 void D3DGraphic::CreateShaderResourceView(ID3D11ShaderResourceView** ppSRV, ID3D11Texture2D* pTex, DXGI_FORMAT format, D3D11_SRV_DIMENSION dimension)
