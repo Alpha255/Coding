@@ -30,10 +30,6 @@ struct GeometriesInfo
 	uint32_t SphereIndexOffset;
 	int32_t SphereVertexOffset;
 
-	uint32_t CylinderIndexCount;
-	uint32_t CylinderIndexOffset;
-	int32_t CylinderVertexOffset;
-
 	Matrix WorldGrid;
 	Matrix WorldBox;
 	Matrix WorldCenterSphere;
@@ -112,9 +108,6 @@ void ApplicationCubemap::InitGeometriesResource()
 	Math::Geometry::Mesh sphere;
 	Math::Geometry::MakeSphere(0.5f, 20U, 20U, sphere);
 
-	//Math::Geometry::Mesh cylinder;
-	//Math::Geometry::MakeCylinder(0.5f, 0.3f, 3.0f, 20U, 20U, cylinder);
-
 	uint32_t totalVertexCount = (uint32_t)(box.Vertices.size() + grid.Vertices.size() + sphere.Vertices.size());
 	uint32_t totalIndexCount = (uint32_t)(box.Indices.size() + grid.Indices.size() + sphere.Indices.size());
 	std::vector<Vertex> vertices(totalVertexCount);
@@ -137,18 +130,11 @@ void ApplicationCubemap::InitGeometriesResource()
 		vertices[k].Normal = sphere.Vertices[i].Normal;
 		vertices[k].UV = sphere.Vertices[i].UV;
 	}
-	//for (size_t i = 0; i < cylinder.Vertices.size(); ++i, ++k)
-	//{
-	//	vertices[k].Pos = cylinder.Vertices[i].Position;
-	//	vertices[k].Normal = cylinder.Vertices[i].Normal;
-	//	vertices[k].UV = cylinder.Vertices[i].UV;
-	//}
 
 	std::vector<uint32_t> indices;
 	indices.insert(indices.end(), box.Indices.begin(), box.Indices.end());
 	indices.insert(indices.end(), grid.Indices.begin(), grid.Indices.end());
 	indices.insert(indices.end(), sphere.Indices.begin(), sphere.Indices.end());
-	///indices.insert(indices.end(), cylinder.Indices.begin(), cylinder.Indices.end());
 
 	s_Geometries.BoxIndexCount = (uint32_t)box.Indices.size();
 	s_Geometries.BoxIndexOffset = 0U;
@@ -338,9 +324,6 @@ void ApplicationCubemap::SetupScene()
 
 	s_Camera.Translation(0.0f, 2.0f, -15.0f);
 
-	g_Renderer->SetRenderTarget(g_Renderer->DefaultRenderTarget());
-	g_Renderer->SetDepthStencil(g_Renderer->DefaultDepthStencil());
-
 	m_bInited = true;
 }
 
@@ -367,7 +350,7 @@ void ApplicationCubemap::DrawScene(const Camera &cam, bool bDrawCenterSphere)
 	g_Renderer->SetConstantBuffer(s_Resource.ConstantsBufPS.Ptr(), 0U, D3DGraphic::ePixelShader);
 
 	g_Renderer->SetVertexBuffer(s_Resource.GeometriesVBuf.Ptr(), sizeof(Vertex), 0U);
-	g_Renderer->SetIndexBuffer(s_Resource.GeometriesIBuf.Ptr(), DXGI_FORMAT_R32_UINT, sizeof(uint32_t));
+	g_Renderer->SetIndexBuffer(s_Resource.GeometriesIBuf.Ptr(), DXGI_FORMAT_R32_UINT, 0U);  
 
 	g_Renderer->SetSamplerStates(s_Resource.Sampler.Reference());
 	
@@ -390,56 +373,58 @@ void ApplicationCubemap::DrawScene(const Camera &cam, bool bDrawCenterSphere)
 
 	{
 		/// Draw Box
-		//world = s_Geometries.WorldBox;
-		//wvp = world * view * proj;
-		//cbVS.World = world.Transpose();
-		//cbVS.WorldInverse = cbVS.World.Inverse();
-		//cbVS.WVP = wvp.Transpose();
-		//g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
+		world = s_Geometries.WorldBox;
+		wvp = world * view * proj;
+		cbVS.World = world.Transpose();
+		cbVS.WorldInverse = cbVS.World.Inverse();
+		cbVS.WVP = wvp.Transpose();
+		g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
 
-		//memcpy(&s_CBPS.Mat, &s_Geometries.MatBox, sizeof(Lighting::Material));
-		//g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBPS, sizeof(ConstantsBufPS));
+		memcpy(&s_CBPS.Mat, &s_Geometries.MatBox, sizeof(Lighting::Material));
+		g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBPS, sizeof(ConstantsBufPS));
 
-		//g_Renderer->SetShaderResource(s_Resource.StoneTex.Reference());
+		g_Renderer->SetShaderResource(s_Resource.StoneTex.Reference());
 
-		//g_Renderer->DrawIndexed(s_Geometries.BoxIndexCount, s_Geometries.BoxIndexOffset, s_Geometries.BoxVertexOffset);
+		g_Renderer->DrawIndexed(s_Geometries.BoxIndexCount, s_Geometries.BoxIndexOffset, s_Geometries.BoxVertexOffset);
 	}
 
 	{
 		/// Draw Spheres
-		//for (uint32_t i = 0U; i < 10U; ++i)
-		//{
-		//	world = s_Geometries.WorldSphere[i];
-		//	wvp = world * view * proj;
-		//	cbVS.World = world.Transpose();
-		//	cbVS.WorldInverse = cbVS.World.Inverse();
-		//	cbVS.WVP = wvp.Transpose();
-		//	g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
+		for (uint32_t i = 0U; i < 10U; ++i)
+		{
+			world = s_Geometries.WorldSphere[i];
+			wvp = world * view * proj;
+			cbVS.World = world.Transpose();
+			cbVS.WorldInverse = cbVS.World.Inverse();
+			cbVS.WVP = wvp.Transpose();
+			g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
 
-		//	memcpy(&s_CBPS.Mat, &s_Geometries.MatSphere, sizeof(Lighting::Material));
-		//	g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBPS, sizeof(ConstantsBufPS));
+			memcpy(&s_CBPS.Mat, &s_Geometries.MatSphere, sizeof(Lighting::Material));
+			g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBPS, sizeof(ConstantsBufPS));
 
-		//	g_Renderer->SetShaderResource(s_Resource.StoneTex.Reference());
+			g_Renderer->SetShaderResource(s_Resource.StoneTex.Reference());
 
-		//	g_Renderer->DrawIndexed(s_Geometries.SphereIndexCount, s_Geometries.SphereIndexOffset, s_Geometries.SphereVertexOffset);
-		//}
+			g_Renderer->DrawIndexed(s_Geometries.SphereIndexCount, s_Geometries.SphereIndexOffset, s_Geometries.SphereVertexOffset);
+		}
 	}
 
 	if (bDrawCenterSphere)
 	{
-		//world = s_Geometries.WorldCenterSphere;
-		//wvp = world * view * proj;
-		//cbVS.World = world.Transpose();
-		//cbVS.WorldInverse = cbVS.World.Inverse();
-		//cbVS.WVP = wvp.Transpose();
-		//g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
+		world = s_Geometries.WorldCenterSphere;
+		wvp = world * view * proj;
+		cbVS.World = world.Transpose();
+		cbVS.WorldInverse = cbVS.World.Inverse();
+		cbVS.WVP = wvp.Transpose();
+		g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
 
-		//memcpy(&s_CBPS.Mat, &s_Geometries.MatCenterSphere, sizeof(Lighting::Material));
-		//g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBPS, sizeof(ConstantsBufPS));
+		memcpy(&s_CBPS.Mat, &s_Geometries.MatCenterSphere, sizeof(Lighting::Material));
+		g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBPS, sizeof(ConstantsBufPS));
 
-		//g_Renderer->SetShaderResource(s_Resource.StoneTex.Reference());
+		g_Renderer->SetShaderResource(s_Resource.StoneTex.Reference());
 
-		//g_Renderer->DrawIndexed(s_Geometries.SphereIndexCount, s_Geometries.SphereIndexOffset, s_Geometries.SphereVertexOffset);
+		g_Renderer->SetShaderResource(s_Resource.DynamicCubeMap.Reference(), 1U);
+
+		g_Renderer->DrawIndexed(s_Geometries.SphereIndexCount, s_Geometries.SphereIndexOffset, s_Geometries.SphereVertexOffset);
 	}
 
 	s_Resource.Sky.Draw(cam);
@@ -463,7 +448,7 @@ void ApplicationCubemap::DrawDynamicCubemap()
 
 void ApplicationCubemap::RenderScene()
 {
-	///DrawDynamicCubemap();
+	DrawDynamicCubemap();
 
 	g_Renderer->ClearRenderTarget(g_Renderer->DefaultRenderTarget());
 	g_Renderer->ClearDepthStencil(g_Renderer->DefaultDepthStencil(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0U);
@@ -515,6 +500,15 @@ void ApplicationCubemap::MouseMove(WPARAM wParam, int x, int y)
 		s_Phi += dy;
 
 		s_Phi = Math::Clamp(s_Phi, 0.1f, DirectX::XM_PI - 0.1f);
+	}
+	else if ((wParam & MK_RBUTTON) != 0)
+	{
+		float dx = 0.01f * static_cast<float>(x - m_LastMousePos[0]);
+		float dy = 0.01f * static_cast<float>(y - m_LastMousePos[1]);
+
+		s_Radius += dx - dy;
+
+		s_Radius = Math::Clamp(s_Radius, 3.0f, 50.0f);
 	}
 
 	m_LastMousePos[0] = x;

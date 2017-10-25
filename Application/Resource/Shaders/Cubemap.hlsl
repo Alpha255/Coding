@@ -17,7 +17,7 @@ cbuffer cbPS
 };
 
 Texture2D DiffuseTex;
-///TextureCube CubemapTex;
+TextureCube CubemapTex;
 
 SamplerState SamplerAnisotropic
 {
@@ -92,10 +92,10 @@ float4 PS_Main(VSOutput input) : SV_Target
 
     if (EnableReflection == 1)
     {
-        //float3 reflectionVector = reflect(-toEye, input.NormalW);
-        //float4 reflectionColor = CubemapTex.Sample(SamplerAnisotropic, reflectionVector);
+        float3 reflectionVector = reflect(-toEye, input.NormalW);
+        float4 reflectionColor = CubemapTex.Sample(SamplerAnisotropic, reflectionVector);
 
-        //litClr += Mat.Reflect * reflectionColor;
+        litClr += Mat.Reflect * reflectionColor;
     }
 
     litClr.a = Mat.Diffuse.a * texClr.a;
