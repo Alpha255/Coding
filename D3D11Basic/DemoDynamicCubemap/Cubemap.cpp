@@ -46,6 +46,7 @@ struct ConstantsBufVS
 	Matrix World;
 	Matrix WorldInverse;
 	Matrix WVP;
+	Matrix TexTransform;
 };
 
 struct ConstantsBufPS
@@ -361,6 +362,7 @@ void ApplicationCubemap::DrawScene(const Camera &cam, bool bDrawCenterSphere)
 		cbVS.World = world.Transpose();
 		cbVS.WorldInverse = cbVS.World.Inverse();
 		cbVS.WVP = wvp.Transpose();
+		cbVS.TexTransform = Matrix::Scaling(6.0f, 8.0f, 1.0f);
 		g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
 
 		memcpy(&s_CBPS.Mat, &s_Geometries.MatGrid, sizeof(Lighting::Material));
@@ -378,6 +380,7 @@ void ApplicationCubemap::DrawScene(const Camera &cam, bool bDrawCenterSphere)
 		cbVS.World = world.Transpose();
 		cbVS.WorldInverse = cbVS.World.Inverse();
 		cbVS.WVP = wvp.Transpose();
+		cbVS.TexTransform.Identity();
 		g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
 
 		memcpy(&s_CBPS.Mat, &s_Geometries.MatBox, sizeof(Lighting::Material));
@@ -397,6 +400,7 @@ void ApplicationCubemap::DrawScene(const Camera &cam, bool bDrawCenterSphere)
 			cbVS.World = world.Transpose();
 			cbVS.WorldInverse = cbVS.World.Inverse();
 			cbVS.WVP = wvp.Transpose();
+			cbVS.TexTransform.Identity();
 			g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
 
 			memcpy(&s_CBPS.Mat, &s_Geometries.MatSphere, sizeof(Lighting::Material));
@@ -415,6 +419,7 @@ void ApplicationCubemap::DrawScene(const Camera &cam, bool bDrawCenterSphere)
 		cbVS.World = world.Transpose();
 		cbVS.WorldInverse = cbVS.World.Inverse();
 		cbVS.WVP = wvp.Transpose();
+		cbVS.TexTransform.Identity();
 		g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
 
 		memcpy(&s_CBPS.Mat, &s_Geometries.MatCenterSphere, sizeof(Lighting::Material));
@@ -480,6 +485,15 @@ void ApplicationCubemap::UpdateScene(float /*elapsedTime*/, float totalTime)
 	Matrix skullRotateGlobal = Matrix::RotationAxis(0.0f, 1.0f, 0.0f, 0.5f * totalTime);
 	Matrix skullWorld = skullScale * skullRotateLocal * skullOffset * skullRotateGlobal;  /// ??? 
 	s_Resource.Skull.SetWorldMatrix(skullWorld);
+
+	if (::GetAsyncKeyState(VK_NUMPAD0) & 0x8000)
+	{
+		s_CBPS.EnableReflection = 0U;
+	}
+	if (::GetAsyncKeyState(VK_NUMPAD1) & 0x8000)
+	{
+		s_CBPS.EnableReflection = 1U;
+	}
 }
 
 void ApplicationCubemap::ResizeWindow(uint32_t width, uint32_t height)

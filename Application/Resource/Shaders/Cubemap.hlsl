@@ -5,6 +5,7 @@ cbuffer cbVS
     matrix World;
     matrix WorldInverse;
     matrix WVP;
+    matrix TexTransform;
 };
 
 cbuffer cbPS
@@ -51,7 +52,8 @@ VSOutput VS_Main(VSInput input)
 
     output.PosH = mul(float4(input.Pos, 1.0f), WVP);
 
-    output.UV = input.UV;
+    ///output.UV = input.UV;
+    output.UV = mul(float4(input.UV, 0.0f, 1.0f), TexTransform).xy;
 
     return output;
 }
