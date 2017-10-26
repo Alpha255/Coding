@@ -25,6 +25,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{E9CA
 		Application\Resource\Shaders\Cubemap.hlsl = Application\Resource\Shaders\Cubemap.hlsl
 		Application\Resource\Shaders\Fxaa.hlsl = Application\Resource\Shaders\Fxaa.hlsl
 		Application\Resource\Shaders\Lighting.hlsl = Application\Resource\Shaders\Lighting.hlsl
+		Application\Resource\Shaders\Mapping.hlsl = Application\Resource\Shaders\Mapping.hlsl
 		Application\Resource\Shaders\Quad.hlsl = Application\Resource\Shaders\Quad.hlsl
 		Application\Resource\Shaders\ShadowMap.hlsl = Application\Resource\Shaders\ShadowMap.hlsl
 		Application\Resource\Shaders\SkyBox.hlsl = Application\Resource\Shaders\SkyBox.hlsl
@@ -34,6 +35,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DemoStenciling", "D3D11Basic\DemoStenciling\DemoStenciling.vcxproj", "{CCEF649D-0663-4907-B0C8-C2A5DDE0BDA9}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DemoCubemap", "D3D11Basic\DemoDynamicCubemap\DemoDynamicCubemap.vcxproj", "{049657F8-89F4-46CE-BD73-CEF7D9C9C98F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DemoMapping", "DemoMapping\DemoMapping.vcxproj", "{DADBC7B4-91BA-45AD-9C16-39883EFB2B75}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -99,6 +102,14 @@ Global
 		{049657F8-89F4-46CE-BD73-CEF7D9C9C98F}.Release|x64.Build.0 = Release|x64
 		{049657F8-89F4-46CE-BD73-CEF7D9C9C98F}.Release|x86.ActiveCfg = Release|Win32
 		{049657F8-89F4-46CE-BD73-CEF7D9C9C98F}.Release|x86.Build.0 = Release|Win32
+		{DADBC7B4-91BA-45AD-9C16-39883EFB2B75}.Debug|x64.ActiveCfg = Debug|x64
+		{DADBC7B4-91BA-45AD-9C16-39883EFB2B75}.Debug|x64.Build.0 = Debug|x64
+		{DADBC7B4-91BA-45AD-9C16-39883EFB2B75}.Debug|x86.ActiveCfg = Debug|Win32
+		{DADBC7B4-91BA-45AD-9C16-39883EFB2B75}.Debug|x86.Build.0 = Debug|Win32
+		{DADBC7B4-91BA-45AD-9C16-39883EFB2B75}.Release|x64.ActiveCfg = Release|x64
+		{DADBC7B4-91BA-45AD-9C16-39883EFB2B75}.Release|x64.Build.0 = Release|x64
+		{DADBC7B4-91BA-45AD-9C16-39883EFB2B75}.Release|x86.ActiveCfg = Release|Win32
+		{DADBC7B4-91BA-45AD-9C16-39883EFB2B75}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -111,5 +122,6 @@ Global
 		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E} = {FFB1CED9-3BC1-4745-B7F3-D7E2D402C9CD}
 		{CCEF649D-0663-4907-B0C8-C2A5DDE0BDA9} = {CA6219F3-92E9-4844-B1A3-6F0D8A448533}
 		{049657F8-89F4-46CE-BD73-CEF7D9C9C98F} = {CA6219F3-92E9-4844-B1A3-6F0D8A448533}
+		{DADBC7B4-91BA-45AD-9C16-39883EFB2B75} = {CA6219F3-92E9-4844-B1A3-6F0D8A448533}
 	EndGlobalSection
 EndGlobal

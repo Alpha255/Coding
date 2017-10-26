@@ -27,6 +27,7 @@
     <ClInclude Include="RefCountPtr.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="D3DModel.h" />
+    <ClInclude Include="SkyBox.h" />
     <ClInclude Include="Timer.h" />
   </ItemGroup>
   <ItemGroup>
@@ -34,6 +35,7 @@
     <ClCompile Include="IApplication.cpp" />
     <ClCompile Include="D3DMath.cpp" />
     <ClCompile Include="D3DModel.cpp" />
+    <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <ItemGroup>

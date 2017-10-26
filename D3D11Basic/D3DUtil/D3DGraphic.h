@@ -63,6 +63,8 @@ public:
 	void CreateVertexShader(__out ID3D11VertexShader** ppVS, __out ID3DBlob **ppBlob, char *pFileName, char *pEntryPoint, const D3D_SHADER_MACRO *pDefines = nullptr, ID3DInclude* pInclude = nullptr);
 	void CreateVertexShader(__out ID3D11VertexShader** ppVS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines = nullptr, ID3DInclude* pInclude = nullptr);
 	void CreatePixelShader(__out ID3D11PixelShader** ppPS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines = nullptr, ID3DInclude* pInclude = nullptr);
+	void CreateHullShader(__out ID3D11HullShader **ppHS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines = nullptr, ID3DInclude* pInclude = nullptr);
+	void CreateDomainShader(__out ID3D11DomainShader **ppDS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines = nullptr, ID3DInclude* pInclude = nullptr);
 	void CreateVertexShaderAndInputLayout(__out ID3D11VertexShader** ppVS, __out ID3D11InputLayout** ppLayout, D3D11_INPUT_ELEMENT_DESC* pInputElement, uint32_t size, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO *pDefines = nullptr, ID3DInclude* pInclude = nullptr);
 
 	void CreateInputLayout(__out ID3D11InputLayout** ppLayout, D3D11_INPUT_ELEMENT_DESC* pInputElement, uint32_t size, ID3DBlob* pRes);

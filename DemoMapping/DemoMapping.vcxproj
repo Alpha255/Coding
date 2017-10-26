@@ -19,11 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{049657F8-89F4-46CE-BD73-CEF7D9C9C98F}</ProjectGuid>
+    <ProjectGuid>{DADBC7B4-91BA-45AD-9C16-39883EFB2B75}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>DemoDynamicCubemap</RootNamespace>
+    <RootNamespace>DemoMapping</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
-    <ProjectName>DemoCubemap</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -159,26 +158,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\D3DUtil\resource.h" />
-    <ClInclude Include="Cubemap.h" />
+    <ClInclude Include="..\D3D11Basic\D3DUtil\resource.h" />
+    <ClInclude Include="NormalDisplacementMapping.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\D3DUtil\D3DUtil.rc" />
+    <ResourceCompile Include="..\D3D11Basic\D3DUtil\D3DUtil.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\Resource\directx.ico" />
+    <Image Include="..\D3D11Basic\Resource\directx.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\ThirdParty\DirectXTK\DirectXTK_Desktop_2015.vcxproj">
-      <Project>{e0b52ae7-e160-4d32-bf3f-910b785e5a8e}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\D3DUtil\D3DUtil.vcxproj">
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="NormalDisplacementMapping.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\D3D11Basic\D3DUtil\D3DUtil.vcxproj">
       <Project>{61db1465-533c-45f5-9d1d-884c2a82e7e0}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Cubemap.cpp" />
-    <ClCompile Include="Main.cpp" />
+    <ProjectReference Include="..\ThirdParty\DirectXTK\DirectXTK_Desktop_2015.vcxproj">
+      <Project>{e0b52ae7-e160-4d32-bf3f-910b785e5a8e}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

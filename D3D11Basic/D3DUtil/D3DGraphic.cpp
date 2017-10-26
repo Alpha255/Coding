@@ -360,6 +360,8 @@ void D3DGraphic::CreateVertexShader(ID3D11VertexShader** ppVS, char* pFileName, 
 
 void D3DGraphic::CreatePixelShader(ID3D11PixelShader** ppPS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines, ID3DInclude* pInclude)
 {
+	assert(ppPS);
+
 	ID3DInclude* pIncludeInfo = (nullptr == pInclude ? D3D_COMPILE_STANDARD_FILE_INCLUDE : pInclude);
 
 	Ref<ID3DBlob> blob;
@@ -367,9 +369,33 @@ void D3DGraphic::CreatePixelShader(ID3D11PixelShader** ppPS, char* pFileName, ch
 	HRCheck(m_D3DDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, ppPS));
 }
 
+void D3DGraphic::CreateHullShader(__out ID3D11HullShader **ppHS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines, ID3DInclude* pInclude)
+{
+	assert(ppHS);
+
+	ID3DInclude* pIncludeInfo = (nullptr == pInclude ? D3D_COMPILE_STANDARD_FILE_INCLUDE : pInclude);
+
+	Ref<ID3DBlob> blob;
+	CompileShaderFile(blob.Reference(), pFileName, pEntryPoint, "hs_5_0", pDefines, pIncludeInfo);
+	HRCheck(m_D3DDevice->CreateHullShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, ppHS));
+}
+
+void D3DGraphic::CreateDomainShader(__out ID3D11DomainShader **ppDS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines, ID3DInclude* pInclude)
+{
+	assert(ppDS);
+
+	ID3DInclude* pIncludeInfo = (nullptr == pInclude ? D3D_COMPILE_STANDARD_FILE_INCLUDE : pInclude);
+
+	Ref<ID3DBlob> blob;
+	CompileShaderFile(blob.Reference(), pFileName, pEntryPoint, "ds_5_0", pDefines, pIncludeInfo);
+	HRCheck(m_D3DDevice->CreateDomainShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, ppDS));
+}
+
 void D3DGraphic::CreateVertexShaderAndInputLayout(ID3D11VertexShader** ppVS, ID3D11InputLayout** ppLayout, 
 	D3D11_INPUT_ELEMENT_DESC* pInputElement, uint32_t size, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO *pDefines, ID3DInclude* pInclude)
 {
+	assert(ppVS);
+
 	ID3DInclude* pIncludeInfo = (nullptr == pInclude ? D3D_COMPILE_STANDARD_FILE_INCLUDE : pInclude);
 
 	Ref<ID3DBlob> blob;
