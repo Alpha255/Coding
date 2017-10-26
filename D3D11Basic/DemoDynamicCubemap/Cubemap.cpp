@@ -425,6 +425,9 @@ void ApplicationCubemap::DrawScene(const Camera &cam, bool bDrawCenterSphere)
 		g_Renderer->SetShaderResource(s_Resource.DynamicCubeMap.Reference(), 1U);
 
 		g_Renderer->DrawIndexed(s_Geometries.SphereIndexCount, s_Geometries.SphereIndexOffset, s_Geometries.SphereVertexOffset);
+
+		Ref<ID3D11ShaderResourceView> nullCubemap;
+		g_Renderer->SetShaderResource(nullCubemap.Reference(), 1U);
 	}
 
 	s_Resource.Sky.Draw(cam);
