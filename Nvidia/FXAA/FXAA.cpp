@@ -358,7 +358,7 @@ void ApplicationFXAA::DrawDebugShadowMap()
 	g_Renderer->SetInputLayout(s_LayoutShadowMap.Ptr());
 	g_Renderer->SetVertexShader(s_Shaders.QuadVS.Ptr());
 	g_Renderer->SetPixelShader(s_Shaders.QuadPS.Ptr());
-	g_Renderer->SetShaderResource(s_Views.DepthTexSRV.Reference(), 1U);
+	g_Renderer->SetShaderResource(s_Views.DepthTexSRV.Ptr(), 1U);
 
 	g_Renderer->DrawQuad(0.5f, 0.0f, m_Width / 8.0f, m_Height / 8.0f);
 }

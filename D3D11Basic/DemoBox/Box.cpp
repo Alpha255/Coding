@@ -193,8 +193,8 @@ void ApplicationBox::RenderScene()
 	g_Renderer->SetConstantBuffer(s_D3DResource.ConstantsBuffer.Ptr(), 0U, D3DGraphic::eVertexShader);
 
 #ifdef UsingTexture
-	g_Renderer->SetShaderResource(s_D3DResource.Texture.Reference(), 0U, 1U);
-	g_Renderer->SetSamplerStates(s_D3DResource.Sampler.Reference(), 0U, 1U);
+	g_Renderer->SetShaderResource(s_D3DResource.Texture.Ptr(), 0U, 1U);
+	g_Renderer->SetSamplerStates(s_D3DResource.Sampler.Ptr(), 0U, 1U);
 #endif
 
 	g_Renderer->DrawIndexed(s_IndexCount, s_IndexOffset, s_VertexOffset);

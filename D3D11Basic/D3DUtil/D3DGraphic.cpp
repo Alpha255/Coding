@@ -591,16 +591,30 @@ void D3DGraphic::SetScissorRects(D3D11_RECT* pRects, uint32_t count)
 	}
 }
 
-void D3DGraphic::SetSamplerStates(ID3D11SamplerState* const * ppStates, uint32_t startSlot, uint32_t count)
+void D3DGraphic::SetSamplerStates(ID3D11SamplerState *pStates, eShaderType type, uint32_t startSlot, uint32_t count)
 {
-	assert(ppStates);
-	m_D3DContext->PSSetSamplers(startSlot, count, ppStates);
+	assert(pStates);
+
+	ID3D11SamplerState *samplers[1]{ pStates };
+	switch (type)
+	{
+	case ePixelShader:
+		m_D3DContext->PSSetSamplers(startSlot, count, samplers);
+		break;
+	case eDomainShader:
+		m_D3DContext->DSSetSamplers(startSlot, count, samplers);
+		break;
+	default:
+		assert(0);
+	}
 }
 
-void D3DGraphic::SetShaderResource(ID3D11ShaderResourceView* const* ppSRV, uint32_t startSlot, uint32_t count)
+void D3DGraphic::SetShaderResource(ID3D11ShaderResourceView *pSRV, uint32_t startSlot, uint32_t count)
 {
-	assert(ppSRV);
-	m_D3DContext->PSSetShaderResources(startSlot, count, ppSRV);
+	///assert(pSRV);
+
+	ID3D11ShaderResourceView *srvs[1]{ pSRV };
+	m_D3DContext->PSSetShaderResources(startSlot, count, srvs);
 }
 
 void D3DGraphic::SetRasterizerState(ID3D11RasterizerState* pRS)
@@ -650,6 +664,28 @@ void D3DGraphic::SetVertexShader(ID3D11VertexShader* pVS)
 		m_D3DPipelineState.VertexShader = pVertexShader;
 
 		m_FlushState[eFSVertexShader] = true;
+	}
+}
+
+void D3DGraphic::SetHullShader(ID3D11HullShader *pHS)
+{
+	ID3D11HullShader *const pHullShader = pHS;
+	if (m_D3DPipelineState.HullShader != pHullShader)
+	{
+		m_D3DPipelineState.HullShader = pHullShader;
+
+		m_FlushState[eFSHullShader] = true;
+	}
+}
+
+void D3DGraphic::SetDomainShader(ID3D11DomainShader *pDS)
+{
+	ID3D11DomainShader *const pDomainShader = pDS;
+	if (m_D3DPipelineState.DomainShader != pDomainShader)
+	{
+		m_D3DPipelineState.DomainShader = pDomainShader;
+
+		m_FlushState[eFSDomainShader] = true;
 	}
 }
 
@@ -816,6 +852,18 @@ void D3DGraphic::FlushState()
 	{
 		m_D3DContext->VSSetShader(m_D3DPipelineState.VertexShader, nullptr, 0U);
 		m_FlushState[eFSVertexShader] = false;
+	}
+
+	if (m_FlushState[eFSHullShader])
+	{
+		m_D3DContext->HSSetShader(m_D3DPipelineState.HullShader, nullptr, 0U);
+		m_FlushState[eFSHullShader] = false;
+	}
+
+	if (m_FlushState[eFSDomainShader])
+	{
+		m_D3DContext->DSSetShader(m_D3DPipelineState.DomainShader, nullptr, 0U);
+		m_FlushState[eFSDomainShader] = false;
 	}
 
 	/// Rasterizer

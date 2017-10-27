@@ -364,8 +364,8 @@ void ApplicationStenciling::RenderScene()
 		memcpy(&s_CBPS.Mat, &s_MatRoom, sizeof(Lighting::Material));
 		g_Renderer->SetConstantBuffer(s_Resource.RoomMesh.CBPS.Ptr(), 0U, D3DGraphic::ePixelShader);
 		g_Renderer->UpdateConstantBuffer(s_Resource.RoomMesh.CBPS.Ptr(), &s_CBPS, sizeof(ConstantsBufferPS));
-		g_Renderer->SetShaderResource(s_Resource.FloorDiffuseTex.Reference(), 0U);
-		g_Renderer->SetSamplerStates(s_Resource.Sampler.Reference());
+		g_Renderer->SetShaderResource(s_Resource.FloorDiffuseTex.Ptr(), 0U);
+		g_Renderer->SetSamplerStates(s_Resource.Sampler.Ptr());
 		g_Renderer->Draw(6U, 0U);
 	}
 
@@ -380,8 +380,8 @@ void ApplicationStenciling::RenderScene()
 		memcpy(&s_CBPS.Mat, &s_MatRoom, sizeof(Lighting::Material));
 		g_Renderer->SetConstantBuffer(s_Resource.RoomMesh.CBPS.Ptr(), 0U, D3DGraphic::ePixelShader);
 		g_Renderer->UpdateConstantBuffer(s_Resource.RoomMesh.CBPS.Ptr(), &s_CBPS, sizeof(ConstantsBufferPS));
-		g_Renderer->SetShaderResource(s_Resource.WallDiffuseTex.Reference(), 0U);
-		g_Renderer->SetSamplerStates(s_Resource.Sampler.Reference());
+		g_Renderer->SetShaderResource(s_Resource.WallDiffuseTex.Ptr(), 0U);
+		g_Renderer->SetSamplerStates(s_Resource.Sampler.Ptr());
 		g_Renderer->Draw(18U, 0U);
 	}
 
@@ -445,7 +445,7 @@ void ApplicationStenciling::RenderScene()
 		memcpy(&s_CBPS.Mat, &s_MatMirror, sizeof(Lighting::Material));
 		g_Renderer->SetConstantBuffer(s_Resource.RoomMesh.CBPS.Ptr(), 0U, D3DGraphic::ePixelShader);
 		g_Renderer->UpdateConstantBuffer(s_Resource.RoomMesh.CBPS.Ptr(), &s_CBPS, sizeof(ConstantsBufferPS));
-		g_Renderer->SetShaderResource(s_Resource.MirrorDiffuseTex.Reference());
+		g_Renderer->SetShaderResource(s_Resource.MirrorDiffuseTex.Ptr());
 		g_Renderer->SetBlendState(s_Resource.Transparent.Ptr(), Vec4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
 		g_Renderer->Draw(6U, 0U);
 	}

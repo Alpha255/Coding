@@ -20,6 +20,7 @@ public:
 	enum eShaderType
 	{
 		eVertexShader,
+		eDomainShader,
 		ePixelShader
 	};
 
@@ -89,12 +90,14 @@ public:
 	void SetDepthStencil(ID3D11DepthStencilView* pDepthStencil);
 	void SetViewports(D3D11_VIEWPORT* pViewports, uint32_t count = 1U);
 	void SetScissorRects(D3D11_RECT* pRects, uint32_t count = 1U);
-	void SetSamplerStates(ID3D11SamplerState* const* ppStates, uint32_t startSlot = 0U, uint32_t count = 1U);
-	void SetShaderResource(ID3D11ShaderResourceView* const* ppSRV, uint32_t startSlot = 0U, uint32_t count = 1U);
+	void SetSamplerStates(ID3D11SamplerState * pStates, eShaderType type = ePixelShader, uint32_t startSlot = 0U, uint32_t count = 1U);
+	void SetShaderResource(ID3D11ShaderResourceView *pSRV, uint32_t startSlot = 0U, uint32_t count = 1U);
 	void SetRasterizerState(ID3D11RasterizerState* pRasterizerState);
 	void SetDepthStencilState(ID3D11DepthStencilState* pDepthStencilState, uint32_t stencilRef);
 	void SetBlendState(ID3D11BlendState* pBlendState, Vec4 blendFactor, uint32_t mask);
 	void SetVertexShader(ID3D11VertexShader* pVertexShader);
+	void SetHullShader(ID3D11HullShader *pHS);
+	void SetDomainShader(ID3D11DomainShader *pDS);
 	void SetPixelShader(ID3D11PixelShader* pPixelShader);
 	void SetConstantBuffer(ID3D11Buffer* pConstantBuf, uint32_t slot, eShaderType shaderType);
 
@@ -153,6 +156,8 @@ protected:
 		eFSVertexBuffer,
 		eFSVertexShader,
 		eFSPixelShader,
+		eFSHullShader,
+		eFSDomainShader,
 		eFSInputLayout,
 		eFSRenderTarget,
 		eFSDepthStencil,
@@ -200,6 +205,8 @@ private:
 		D3DIndexBuffer           IndexBuffer;
 		D3D_PRIMITIVE_TOPOLOGY   PrimitiveTopology;
 		ID3D11VertexShader*      VertexShader;
+		ID3D11HullShader*        HullShader;
+		ID3D11DomainShader*      DomainShader;
 		ID3D11RasterizerState*   RasterizerState;
 		D3D11_VIEWPORT*          Viewports;
 		D3D11_RECT*              ScissorRects;

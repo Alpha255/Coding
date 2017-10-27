@@ -15,6 +15,13 @@ public:
 
 	virtual void MouseMove(WPARAM wParam, int x, int y);
 protected:
+	enum eMappingType
+	{
+		eNormalMap,
+		eDisplacementMap
+	};
+
 	void InitGeometriesResource();
 private:
+	eMappingType m_MappingType = eNormalMap;
 };

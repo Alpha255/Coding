@@ -353,7 +353,7 @@ void ApplicationCubemap::DrawScene(const Camera &cam, bool bDrawCenterSphere)
 	g_Renderer->SetVertexBuffer(s_Resource.GeometriesVBuf.Ptr(), sizeof(Vertex), 0U);
 	g_Renderer->SetIndexBuffer(s_Resource.GeometriesIBuf.Ptr(), DXGI_FORMAT_R32_UINT, 0U);  
 
-	g_Renderer->SetSamplerStates(s_Resource.Sampler.Reference());
+	g_Renderer->SetSamplerStates(s_Resource.Sampler.Ptr());
 	
 	{
 		/// Draw Grid
@@ -362,13 +362,13 @@ void ApplicationCubemap::DrawScene(const Camera &cam, bool bDrawCenterSphere)
 		cbVS.World = world.Transpose();
 		cbVS.WorldInverse = cbVS.World.Inverse();
 		cbVS.WVP = wvp.Transpose();
-		cbVS.TexTransform = Matrix::Scaling(6.0f, 8.0f, 1.0f);
+		cbVS.TexTransform = Matrix::Scaling(6.0f, 8.0f, 1.0f)/*.Transpose()*/;
 		g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
 
 		memcpy(&s_CBPS.Mat, &s_Geometries.MatGrid, sizeof(Lighting::Material));
 		g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBPS, sizeof(ConstantsBufPS));
 
-		g_Renderer->SetShaderResource(s_Resource.FloorTex.Reference());
+		g_Renderer->SetShaderResource(s_Resource.FloorTex.Ptr());
 
 		g_Renderer->DrawIndexed(s_Geometries.GridIndexCount, s_Geometries.GridIndexOffset, s_Geometries.GridVertexOffset);
 	}
@@ -386,7 +386,7 @@ void ApplicationCubemap::DrawScene(const Camera &cam, bool bDrawCenterSphere)
 		memcpy(&s_CBPS.Mat, &s_Geometries.MatBox, sizeof(Lighting::Material));
 		g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBPS, sizeof(ConstantsBufPS));
 
-		g_Renderer->SetShaderResource(s_Resource.StoneTex.Reference());
+		g_Renderer->SetShaderResource(s_Resource.StoneTex.Ptr());
 
 		g_Renderer->DrawIndexed(s_Geometries.BoxIndexCount, s_Geometries.BoxIndexOffset, s_Geometries.BoxVertexOffset);
 	}
@@ -406,7 +406,7 @@ void ApplicationCubemap::DrawScene(const Camera &cam, bool bDrawCenterSphere)
 			memcpy(&s_CBPS.Mat, &s_Geometries.MatSphere, sizeof(Lighting::Material));
 			g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBPS, sizeof(ConstantsBufPS));
 
-			g_Renderer->SetShaderResource(s_Resource.StoneTex.Reference());
+			g_Renderer->SetShaderResource(s_Resource.StoneTex.Ptr());
 
 			g_Renderer->DrawIndexed(s_Geometries.SphereIndexCount, s_Geometries.SphereIndexOffset, s_Geometries.SphereVertexOffset);
 		}
@@ -425,14 +425,14 @@ void ApplicationCubemap::DrawScene(const Camera &cam, bool bDrawCenterSphere)
 		memcpy(&s_CBPS.Mat, &s_Geometries.MatCenterSphere, sizeof(Lighting::Material));
 		g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBPS, sizeof(ConstantsBufPS));
 
-		g_Renderer->SetShaderResource(s_Resource.StoneTex.Reference());
+		g_Renderer->SetShaderResource(s_Resource.StoneTex.Ptr());
 
-		g_Renderer->SetShaderResource(s_Resource.DynamicCubeMap.Reference(), 1U);
+		g_Renderer->SetShaderResource(s_Resource.DynamicCubeMap.Ptr(), 1U);
 
 		g_Renderer->DrawIndexed(s_Geometries.SphereIndexCount, s_Geometries.SphereIndexOffset, s_Geometries.SphereVertexOffset);
 
 		Ref<ID3D11ShaderResourceView> nullCubemap;
-		g_Renderer->SetShaderResource(nullCubemap.Reference(), 1U);
+		g_Renderer->SetShaderResource(nullCubemap.Ptr(), 1U);
 	}
 
 	s_Resource.Sky.Draw(cam);

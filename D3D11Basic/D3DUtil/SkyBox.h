@@ -11,6 +11,12 @@ public:
 	void Create(const char *pCubemapName, float skySphereRadius);
 
 	void Draw(const class Camera &cam);
+
+	inline ID3D11ShaderResourceView *GetCubemap() const
+	{
+		assert(m_Cubemap.Valid());
+		return m_Cubemap.Ptr();
+	}
 protected:
 	SkyBox(const SkyBox &) = default;
 	SkyBox & operator=(const SkyBox &) = default;
