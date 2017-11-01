@@ -194,7 +194,7 @@ void ApplicationBox::RenderScene()
 
 #ifdef UsingTexture
 	g_Renderer->SetShaderResource(s_D3DResource.Texture.Ptr(), 0U, 1U);
-	g_Renderer->SetSamplerStates(s_D3DResource.Sampler.Ptr(), 0U, 1U);
+	g_Renderer->SetSamplerStates(s_D3DResource.Sampler.Ptr());
 #endif
 
 	g_Renderer->DrawIndexed(s_IndexCount, s_IndexOffset, s_VertexOffset);

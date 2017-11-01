@@ -36,7 +36,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DemoStenciling", "D3D11Basi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DemoCubemap", "D3D11Basic\DemoDynamicCubemap\DemoDynamicCubemap.vcxproj", "{049657F8-89F4-46CE-BD73-CEF7D9C9C98F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DemoMapping", "DemoMapping\DemoMapping.vcxproj", "{DADBC7B4-91BA-45AD-9C16-39883EFB2B75}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DemoMapping", "D3D11Basic\DemoMapping\DemoMapping.vcxproj", "{DADBC7B4-91BA-45AD-9C16-39883EFB2B75}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
