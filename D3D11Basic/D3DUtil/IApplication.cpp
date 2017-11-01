@@ -3,6 +3,8 @@
 #include "D3DGraphic.h"
 #include "Timer.h"
 
+#include <GUI/ocornut/imgui.h>
+
 static IApplication* s_Application = nullptr;
 D3DGraphic* g_Renderer = nullptr;
 
