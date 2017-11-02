@@ -14,7 +14,7 @@ cbuffer cbPS
     DirectionalLight DirLights[3];
     Material Mat;
 
-    float EyePos;
+    float3 EyePos;
     float HeightScale;
 
     float MinTessDistance;

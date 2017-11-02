@@ -174,7 +174,7 @@ void ApplicationMapping::InitGeometriesResource()
 	s_Geometries.MatSphere.Ambient = Vec4(0.6f, 0.8f, 1.0f, 1.0f);
 	s_Geometries.MatSphere.Diffuse = Vec4(0.6f, 0.8f, 1.0f, 1.0f);
 	s_Geometries.MatSphere.Specular = Vec4(0.9f, 0.9f, 0.9f, 16.0f);
-	s_Geometries.MatSphere.Reflect = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	s_Geometries.MatSphere.Reflect = Vec4(0.4f, 0.4f, 0.4f, 1.0f);
 
 	s_Geometries.MatBox.Ambient = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	s_Geometries.MatBox.Diffuse = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -249,8 +249,6 @@ void ApplicationMapping::RenderScene()
 	g_Renderer->SetInputLayout(s_Resource.Layout.Ptr());
 	g_Renderer->SetVertexBuffer(s_Resource.GeometriesVBuf.Ptr(), sizeof(Math::Geometry::Vertex), 0U);
 	g_Renderer->SetIndexBuffer(s_Resource.GeometriesIBuf.Ptr(), DXGI_FORMAT_R32_UINT);
-
-	g_Renderer->SetShaderResource(s_Resource.Sky.GetCubemap(), 2U);
 
 	g_Renderer->SetConstantBuffer(s_Resource.ConstantsBufVS.Ptr(), 0U, D3DGraphic::eVertexShader);
 	g_Renderer->SetConstantBuffer(s_Resource.ConstantsBufPS.Ptr(), 0U, D3DGraphic::ePixelShader);
@@ -349,8 +347,7 @@ void ApplicationMapping::RenderScene()
 			memcpy(&s_CBufPS.Mat, &s_Geometries.MatSphere, sizeof(Lighting::Material));
 			g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBufPS, sizeof(ConstantsBufPS));
 
-			//g_Renderer->SetShaderResource(s_Resource.BrickTex.Ptr(), 0U);
-			//g_Renderer->SetShaderResource(s_Resource.BrickNormalTex.Ptr(), 1U);
+			g_Renderer->SetShaderResource(s_Resource.Sky.GetCubemap(), 2U);
 
 			g_Renderer->DrawIndexed(s_Geometries.SphereIndexCount, s_Geometries.SphereIndexOffset, s_Geometries.SphereVertexOffset);
 		}
