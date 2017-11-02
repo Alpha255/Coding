@@ -24,6 +24,7 @@
     <ClInclude Include="D3DGraphic.h" />
     <ClInclude Include="IApplication.h" />
     <ClInclude Include="D3DMath.h" />
+    <ClInclude Include="imGui_D3D11.h" />
     <ClInclude Include="RefCountPtr.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="D3DModel.h" />
@@ -35,6 +36,7 @@
     <ClCompile Include="IApplication.cpp" />
     <ClCompile Include="D3DMath.cpp" />
     <ClCompile Include="D3DModel.cpp" />
+    <ClCompile Include="imGUI_D3D11.cpp" />
     <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="Timer.cpp" />
   </ItemGroup>
