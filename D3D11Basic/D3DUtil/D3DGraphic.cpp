@@ -404,7 +404,7 @@ void D3DGraphic::CreateVertexShaderAndInputLayout(ID3D11VertexShader** ppVS, ID3
 	CreateInputLayout(ppLayout, pInputElement, size, blob.Ptr());
 }
 
-void D3DGraphic::CreateRasterizerState(ID3D11RasterizerState** ppRasterizerState, D3D11_FILL_MODE fillMode, D3D11_CULL_MODE cullMode, bool cw, bool depthClip)
+void D3DGraphic::CreateRasterizerState(ID3D11RasterizerState** ppRasterizerState, D3D11_FILL_MODE fillMode, D3D11_CULL_MODE cullMode, bool cw, bool depthClip, bool bScissor)
 {
 	assert(ppRasterizerState);
 
@@ -414,8 +414,8 @@ void D3DGraphic::CreateRasterizerState(ID3D11RasterizerState** ppRasterizerState
 	rsDesc.CullMode = cullMode;
 	rsDesc.FrontCounterClockwise = cw;
 	rsDesc.DepthClipEnable = depthClip;
-	rsDesc.MultisampleEnable = true;
-	rsDesc.ScissorEnable = false;
+	rsDesc.MultisampleEnable = false;
+	rsDesc.ScissorEnable = bScissor;
 	rsDesc.SlopeScaledDepthBias = 0.0f;
 	rsDesc.AntialiasedLineEnable = false;
 	rsDesc.DepthBias = 0;

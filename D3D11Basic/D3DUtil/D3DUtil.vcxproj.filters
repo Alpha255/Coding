@@ -13,7 +13,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="D3DModel.h" />
     <ClInclude Include="SkyBox.h" />
-    <ClInclude Include="imGui_D3D11.h" />
+    <ClInclude Include="imGUI_D3D11.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IApplication.cpp" />

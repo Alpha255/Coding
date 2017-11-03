@@ -1,7 +1,9 @@
 #pragma once
 
-void imGUI_D3D_Init(void *pHwnd, struct ID3D11Device *pD3DDevice, struct ID3D11Context *pD3DContext);
+void imGUI_D3D_Init(void *pHwnd);
 
-void imGUI_D3D_Draw();
+void imGUI_D3D_ResizeVertexIndexBuffer(bool bRecreateVB = false, bool bRecreateIB = false, struct ImDrawData *pDrawData = nullptr);
+
+void imGUI_D3D_Draw(float elapsedTime, float totalTime);
 
 void imGUI_D3D_Shutdown();

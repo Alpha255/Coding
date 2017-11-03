@@ -156,6 +156,9 @@
     <ProjectReference Include="..\..\ThirdParty\DirectXTK\DirectXTK_Desktop_2015.vcxproj">
       <Project>{e0b52ae7-e160-4d32-bf3f-910b785e5a8e}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\ThirdParty\GUI\imGUI.vcxproj">
+      <Project>{dc209b60-de63-473c-b591-509783cf2fd6}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\D3DUtil\D3DUtil.vcxproj">
       <Project>{61db1465-533c-45f5-9d1d-884c2a82e7e0}</Project>
     </ProjectReference>

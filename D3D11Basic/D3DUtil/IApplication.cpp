@@ -8,8 +8,15 @@
 static IApplication* s_Application = nullptr;
 D3DGraphic* g_Renderer = nullptr;
 
+extern LRESULT imGUI_WinProc(HWND hWnd, uint32_t uMsg, WPARAM wParam, LPARAM lParam);
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	if (imGUI_WinProc(hWnd, msg, wParam, lParam))
+	{
+		return 1LL;
+	}
+
 	return s_Application->MsgProc(hWnd, msg, wParam, lParam);
 }
 
@@ -160,6 +167,8 @@ void IApplication::Startup(LPCWSTR lpTitle, uint32_t width, uint32_t height, boo
 		g_Renderer = D3DGraphic::GetInstance();
 		g_Renderer->InitD3DEnvironment(m_hWnd, m_Width, m_Height, bWindowed);
 	}
+
+	imGUI_D3D_Init(&m_hWnd);
 }
 
 void IApplication::Running()
@@ -190,6 +199,8 @@ void IApplication::Running()
 
 				RenderScene();
 
+				imGUI_D3D_Draw(m_pTimer->DeltaTime(), m_pTimer->TotalTime());
+
 				g_Renderer->Flip();
 			}
 			else
@@ -202,6 +213,8 @@ void IApplication::Running()
 
 void IApplication::ShutDown()
 {
+	imGUI_D3D_Shutdown();
+
 	D3DGraphic::DestoryInstance();
 }
 
