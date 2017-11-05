@@ -30,6 +30,7 @@ protected:
 	uint32_t m_Width;
 	uint32_t m_Height;
 	bool m_bInited;
+	bool m_bDrawGUI = false;
 
 #ifdef UsingAntTweakBar
 	GUIAntTweakBar m_GUI;

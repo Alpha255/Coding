@@ -224,7 +224,10 @@ void IApplication::Running()
 #ifdef UsingimGUI
 				imGUI_D3D_RenderEnd();
 #elif defined(UsingAntTweakBar)
-				m_GUI.Draw();
+				if (m_bDrawGUI)
+				{
+					m_GUI.Draw();
+				}
 #endif
 
 				g_Renderer->Flip();

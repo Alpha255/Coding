@@ -148,6 +148,9 @@
     <ProjectReference Include="..\..\ThirdParty\DirectXTK\DirectXTK_Desktop_2015.vcxproj">
       <Project>{e0b52ae7-e160-4d32-bf3f-910b785e5a8e}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\ThirdParty\GUI\AntTweakBar.vcxproj">
+      <Project>{f976d24a-4eba-42dc-b804-87ae6a09e0ee}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\D3D11Basic\D3DUtil\resource.h" />
