@@ -18,4 +18,5 @@ protected:
 private:
 	uint32_t m_PreLightCount = 1U;
 	uint32_t m_CurLightCount = 1U;
+	bool m_Wireframe = false;
 };

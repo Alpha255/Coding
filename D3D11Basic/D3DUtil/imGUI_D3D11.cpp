@@ -7,11 +7,11 @@ extern D3DGraphic *g_Renderer;
 
 LRESULT imGUI_WinProc(HWND hWnd, uint32_t uMsg, WPARAM wParam, LPARAM lParam);
 
-void imGUI_InitKeymap(void *pHwnd);
-void imGUI_InitD3DResource();
-void imGUI_InitFontTextures();
-
-void imGUI_D3DRenderDrawLists(ImDrawData *pDrawData);
+void imGUI_Init_Keymap(void *pHwnd);
+void imGUI_Init_D3DResource();
+void imGUI_Init_FontTextures();
+void imGUI_D3D_RenderDrawLists(ImDrawData *pDrawData);
+void imGUI_D3D_RestoreState();
 
 struct imGUID3DResource
 {
@@ -29,6 +29,8 @@ struct imGUID3DResource
 
 	Ref<ID3D11RasterizerState> NoneCulling;
 
+	Ref<ID3D11RasterizerState> BackFaceCulling;
+
 	Ref<ID3D11DepthStencilState> DepthStencilOp;
 
 	Ref<ID3D11ShaderResourceView> FontTexture;
@@ -42,7 +44,7 @@ struct ConstantsBufferVS
 
 static imGUID3DResource s_imResource{ 0 };
 
-bool IsAnyMouseButtonDown()
+bool imGUI_IsMouseBtnDown()
 {
 	ImGuiIO &io = ImGui::GetIO();
 	for (uint32_t i = 0U; i < ARRAYSIZE(io.MouseDown); ++i)
@@ -79,7 +81,7 @@ LRESULT imGUI_WinProc(HWND hWnd, uint32_t uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
 	case WM_MBUTTONDOWN:
-		if (!IsAnyMouseButtonDown() && ::GetCapture() == nullptr)
+		if (!imGUI_IsMouseBtnDown() && ::GetCapture() == nullptr)
 		{
 			::SetCapture(hWnd);
 		}
@@ -89,7 +91,7 @@ LRESULT imGUI_WinProc(HWND hWnd, uint32_t uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_RBUTTONUP:
 	case WM_MBUTTONUP:
 		io.MouseDown[mouseBtn] = false;
-		if (!IsAnyMouseButtonDown() && ::GetCapture() == hWnd)
+		if (!imGUI_IsMouseBtnDown() && ::GetCapture() == hWnd)
 		{
 			::ReleaseCapture();
 		}
@@ -127,7 +129,7 @@ LRESULT imGUI_WinProc(HWND hWnd, uint32_t uMsg, WPARAM wParam, LPARAM lParam)
 	return 0LL;
 }
 
-void imGUI_InitKeymap(void *pHwnd)
+void imGUI_Init_Keymap(void *pHwnd)
 {
 	ImGuiIO &io = ImGui::GetIO();
 
@@ -152,11 +154,11 @@ void imGUI_InitKeymap(void *pHwnd)
 	io.KeyMap[ImGuiKey_Z] = 'Z';
 
 	/// Alternatively you can set this to NULL and call ImGui::GetDrawData() after ImGui::Render() to get the same ImDrawData pointer.
-	io.RenderDrawListsFn = imGUI_D3DRenderDrawLists;  
+	io.RenderDrawListsFn = imGUI_D3D_RenderDrawLists;
 	io.ImeWindowHandle = (HWND)pHwnd;
 }
 
-void imGUI_InitD3DResource()
+void imGUI_Init_D3DResource()
 {
 	static char *const s_ShaderName = "imGUI.hlsl";
 
@@ -175,6 +177,7 @@ void imGUI_InitD3DResource()
 		D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
 
 	g_Renderer->CreateRasterizerState(s_imResource.NoneCulling.Reference(), D3D11_FILL_SOLID, D3D11_CULL_NONE, false, true, true);
+	g_Renderer->CreateRasterizerState(s_imResource.BackFaceCulling.Reference(), D3D11_FILL_SOLID, D3D11_CULL_BACK);
 
 	D3D11_BLEND_DESC blendDesc{ 0 };
 	blendDesc.AlphaToCoverageEnable = false;
@@ -199,7 +202,7 @@ void imGUI_InitD3DResource()
 	g_Renderer->CreateDepthStencilState(s_imResource.DepthStencilOp.Reference(), &depthstencilDesc);
 }
 
-void imGUI_InitFontTextures()
+void imGUI_Init_FontTextures()
 {
 	ImGuiIO &io = ImGui::GetIO();
 
@@ -233,12 +236,12 @@ void imGUI_D3D_Init(void *pHwnd)
 {
 	assert(pHwnd && g_Renderer);
 
-	imGUI_InitKeymap(pHwnd);
-	imGUI_InitD3DResource();
-	imGUI_InitFontTextures();
+	imGUI_Init_Keymap(pHwnd);
+	imGUI_Init_D3DResource();
+	imGUI_Init_FontTextures();
 }
 
-void imGUI_D3D_ResizeVertexIndexBuffer(bool bRecreateVB, bool bRecreateIB, ImDrawData *pDrawData)
+void imGUI_D3D_Resize(bool bRecreateVB, bool bRecreateIB, ImDrawData *pDrawData)
 {
 	static Ref<ID3D11Buffer> nullBuffer;
 
@@ -279,11 +282,39 @@ void imGUI_D3D_ResizeVertexIndexBuffer(bool bRecreateVB, bool bRecreateIB, ImDra
 
 			g_Renderer->CreateIndexBuffer(s_imResource.IndexBuffer.Reference(), totalIndexCount * sizeof(ImDrawIdx),
 				D3D11_USAGE_IMMUTABLE, pIndices);
+
+			SafeDeleteArray(pIndices);
 		}
 	}
 }
 
-void imGUI_D3DRenderDrawLists(ImDrawData *pDrawData)
+void imGUI_D3D_RestoreState()
+{
+	ImGuiIO &io = ImGui::GetIO();
+	HWND hWnd = *(HWND*)io.ImeWindowHandle;
+	assert(hWnd);
+
+	::RECT rect;
+	::GetClientRect(hWnd, &rect);
+
+	D3D11_VIEWPORT vp{ 0 };
+	vp.Width = (float)(rect.right - rect.left);
+	vp.Height = (float)(rect.bottom - rect.top);
+	vp.MinDepth = 0.0f;
+	vp.MaxDepth = 1.0f;
+	vp.TopLeftX = vp.TopLeftY = 0.0f;
+	g_Renderer->SetViewports(&vp);
+
+	g_Renderer->SetScissorRects(&rect);
+
+	g_Renderer->SetRasterizerState(s_imResource.BackFaceCulling.Ptr());
+
+	///g_Renderer->SetInputLayout(nullptr);
+	///g_Renderer->SetBlendState(nullptr, Vec4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
+	g_Renderer->SetDepthStencilState(nullptr, 0U);
+}
+
+void imGUI_D3D_RenderDrawLists(ImDrawData *pDrawData)
 {
 	if (!pDrawData)
 	{
@@ -293,7 +324,7 @@ void imGUI_D3DRenderDrawLists(ImDrawData *pDrawData)
 	static int32_t s_TotalVertex = 0;
 	static int32_t s_TotalIndex = 0;
 
-	imGUI_D3D_ResizeVertexIndexBuffer(
+	imGUI_D3D_Resize(
 		(!s_imResource.VertexBuffer.Valid() || s_TotalIndex < pDrawData->TotalVtxCount),
 		(!s_imResource.IndexBuffer.Valid() || s_TotalIndex < pDrawData->TotalIdxCount),
 		pDrawData);
@@ -305,7 +336,7 @@ void imGUI_D3DRenderDrawLists(ImDrawData *pDrawData)
 	float R = ImGui::GetIO().DisplaySize.x;
 	float B = ImGui::GetIO().DisplaySize.y;
 	float T = 0.0f;
-	ConstantsBufferVS cbVS{ 0 };
+	ConstantsBufferVS cbVS;
 	cbVS.WVP = Matrix(
 		2.0f / (R - L),    0.0f,              0.0f, 0.0f,
 		0.0f,              2.0f / (T - B),    0.0f, 0.0f,
@@ -313,9 +344,54 @@ void imGUI_D3DRenderDrawLists(ImDrawData *pDrawData)
 		(R + L) / (L - R), (T + B) / (B - T), 0.5f, 1.0f
 	);
 	g_Renderer->UpdateConstantBuffer(s_imResource.CBufVS.Ptr(), &cbVS, sizeof(ConstantsBufferVS));
+
+	D3D11_VIEWPORT vp{ 0 };
+	vp.Width = ImGui::GetIO().DisplaySize.x;
+	vp.Height = ImGui::GetIO().DisplaySize.y;
+	vp.MinDepth = 0.0f;
+	vp.MaxDepth = 1.0f;
+	vp.TopLeftX = vp.TopLeftY = 0.0f;
+	g_Renderer->SetViewports(&vp);
+
+	g_Renderer->SetVertexShader(s_imResource.VertexShader.Ptr());
+	g_Renderer->SetPixelShader(s_imResource.PixelShader.Ptr());
+	g_Renderer->SetInputLayout(s_imResource.VertexLayout.Ptr());
+	g_Renderer->SetVertexBuffer(s_imResource.VertexBuffer.Ptr(), sizeof(ImDrawVert), 0U);
+	g_Renderer->SetIndexBuffer(s_imResource.IndexBuffer.Ptr(), sizeof(ImDrawIdx) == 2 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT, 0U);
+	g_Renderer->SetConstantBuffer(s_imResource.CBufVS.Ptr(), 0U, D3DGraphic::eVertexShader);
+	g_Renderer->SetSamplerStates(s_imResource.SamplerLinear.Ptr());
+	g_Renderer->SetBlendState(s_imResource.ClrWriteBlend.Ptr(), Vec4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
+	g_Renderer->SetDepthStencilState(s_imResource.DepthStencilOp.Ptr(), 0U);
+	g_Renderer->SetRasterizerState(s_imResource.NoneCulling.Ptr());
+
+	for (int i = 0, vOffset = 0, iOffset = 0; i < pDrawData->CmdListsCount; ++i)
+	{
+		const ImDrawList *pDrawList = pDrawData->CmdLists[i];
+		for (int j = 0; j < pDrawList->CmdBuffer.Size; ++j)
+		{
+			const ImDrawCmd *pDrawCmd = &pDrawList->CmdBuffer[j];
+			if (pDrawCmd->UserCallback)
+			{
+				pDrawCmd->UserCallback(pDrawList, pDrawCmd);
+			}
+			else
+			{
+				D3D11_RECT rect = { (LONG)pDrawCmd->ClipRect.x, (LONG)pDrawCmd->ClipRect.y, (LONG)pDrawCmd->ClipRect.z, (LONG)pDrawCmd->ClipRect.w };
+				g_Renderer->SetShaderResource(s_imResource.FontTexture.Ptr());
+				g_Renderer->SetScissorRects(&rect);
+				g_Renderer->DrawIndexed(pDrawCmd->ElemCount, iOffset, vOffset);
+			}
+
+			iOffset += pDrawCmd->ElemCount;
+		}
+
+		vOffset += pDrawList->VtxBuffer.Size;
+	}
+
+	imGUI_D3D_RestoreState();
 }
 
-void imGUI_D3D_Draw(float /*elapsedTime*/, float /*totalTime*/)
+void imGUI_D3D_RenderBegin()
 {
 	ImGuiIO &io = ImGui::GetIO();
 	HWND hWnd = *(HWND*)io.ImeWindowHandle;
@@ -348,6 +424,18 @@ void imGUI_D3D_Draw(float /*elapsedTime*/, float /*totalTime*/)
 	/// Start the frame. This call will update the io.WantCaptureMouse, 
 	/// io.WantCaptureKeyboard flag that you can use to dispatch inputs (or not) to your application.
 	ImGui::NewFrame();
+
+	ImGui::Begin("imGUI");
+
+	//ImVec2 pos(10.0f, 10.0f);
+	//ImGui::SetNextWindowPos(pos);
+}
+
+void imGUI_D3D_RenderEnd()
+{
+	ImGui::End();
+
+	ImGui::Render();
 }
 
 void imGUI_D3D_Shutdown()

@@ -26,3 +26,5 @@
 
 #define NamespaceBegin(name) namespace name {
 #define NamespaceEnd(name) }
+
+///#define UsingimGUI

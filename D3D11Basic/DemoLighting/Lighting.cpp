@@ -5,6 +5,8 @@
 #include "D3DMath.h"
 #include "Camera.h"
 
+#include <GUI/ocornut/imgui.h>
+
 extern D3DGraphic* g_Renderer;
 
 struct DemoLightingResource
@@ -61,7 +63,9 @@ void ApplicationLighting::RenderScene()
 
 	s_Resource.Model.SetLightCount(m_CurLightCount);
 
-	s_Resource.Model.Draw(s_Camera);
+	s_Resource.Model.Draw(s_Camera, m_Wireframe);
+
+	///ImGui::Checkbox("Wireframe", &m_Wireframe);
 }
 
 void ApplicationLighting::UpdateScene(float /*elapsedTime*/, float /*totalTime*/)

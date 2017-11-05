@@ -12,10 +12,12 @@ extern LRESULT imGUI_WinProc(HWND hWnd, uint32_t uMsg, WPARAM wParam, LPARAM lPa
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+#ifdef UsingimGUI
 	if (imGUI_WinProc(hWnd, msg, wParam, lParam))
 	{
 		return 1LL;
 	}
+#endif
 
 	return s_Application->MsgProc(hWnd, msg, wParam, lParam);
 }
@@ -105,6 +107,11 @@ LRESULT IApplication::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		m_pTimer->Start();
 		RECT rect;
 		::GetClientRect(m_hWnd, &rect);
+
+#ifdef UsingimGUI
+		imGUI_D3D_Resize(true, true);
+#endif
+		
 		ResizeWindow(rect.right - rect.left, rect.bottom - rect.top);
 		m_bActive = true;
 		break;
@@ -168,7 +175,9 @@ void IApplication::Startup(LPCWSTR lpTitle, uint32_t width, uint32_t height, boo
 		g_Renderer->InitD3DEnvironment(m_hWnd, m_Width, m_Height, bWindowed);
 	}
 
+#ifdef UsingimGUI
 	imGUI_D3D_Init(&m_hWnd);
+#endif
 }
 
 void IApplication::Running()
@@ -197,9 +206,15 @@ void IApplication::Running()
 			{
 				UpdateScene(m_pTimer->DeltaTime(), m_pTimer->TotalTime());  
 
+#ifdef UsingimGUI
+				imGUI_D3D_RenderBegin();
+#endif
+
 				RenderScene();
 
-				imGUI_D3D_Draw(m_pTimer->DeltaTime(), m_pTimer->TotalTime());
+#ifdef UsingimGUI
+				imGUI_D3D_RenderEnd();
+#endif
 
 				g_Renderer->Flip();
 			}
@@ -213,7 +228,9 @@ void IApplication::Running()
 
 void IApplication::ShutDown()
 {
+#ifdef UsingimGUI
 	imGUI_D3D_Shutdown();
+#endif
 
 	D3DGraphic::DestoryInstance();
 }
