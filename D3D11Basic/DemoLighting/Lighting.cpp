@@ -6,6 +6,7 @@
 #include "Camera.h"
 
 #include <GUI/ocornut/imgui.h>
+#include "GUI_AntTweakBar.h"
 
 extern D3DGraphic* g_Renderer;
 
@@ -21,6 +22,8 @@ static float s_Radius = 15.0f;
 static float s_Phi = DirectX::XM_PI * 0.1f;
 static float s_Theta = DirectX::XM_PI * 1.5f;
 static Camera s_Camera;
+
+bool ApplicationLighting::m_Wireframe = false;
 
 void ApplicationLighting::SetupScene()
 {
@@ -42,6 +45,13 @@ void ApplicationLighting::SetupScene()
 	s_Resource.Viewport.MaxDepth = 1.0f;
 	s_Resource.Viewport.TopLeftX = s_Resource.Viewport.TopLeftY = 0.0f;
 	g_Renderer->SetViewports(&s_Resource.Viewport);
+
+	GUIAntTweakBar::WidgeDesc EnableWireframe;
+	EnableWireframe.Type = GUIAntTweakBar::eCheckBox;
+	EnableWireframe.Title = "Wireframe";
+	EnableWireframe.GetVarFunc = GetWireframe;
+	EnableWireframe.SetVarFunc = SetWireframe;
+	m_GUI.AddWidget(EnableWireframe);
 
 	m_bInited = true;
 }

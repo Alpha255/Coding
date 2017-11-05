@@ -1,0 +1,306 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{bb80568e-54ad-4c79-9d6c-0c7f06ad9c4c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="res">
+      <UniqueIdentifier>{72ebf598-6cef-4d9d-9907-f58b6f6bbc97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{1814ae9d-25eb-43ee-b323-ac12a75eb93f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AntTweakBar\include\AntTweakBar.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="AntTweakBar\src\res\TwXCursors.h">
+      <Filter>res</Filter>
+    </ClInclude>
+    <ClInclude Include="AntTweakBar\src\AntPerfTimer.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="AntTweakBar\src\d3d10vs2003.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="AntTweakBar\src\LoadOGL.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="AntTweakBar\src\LoadOGLCore.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="AntTweakBar\src\MiniGLFW.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="AntTweakBar\src\MiniGLUT.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="AntTweakBar\src\MiniSDL12.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="AntTweakBar\src\MiniSDL13.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="AntTweakBar\src\MiniSFML16.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="AntTweakBar\src\resource.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="AntTweakBar\src\TwBar.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="AntTweakBar\src\TwColors.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="AntTweakBar\src\TwDirect3D9.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="AntTweakBar\src\TwDirect3D10.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="AntTweakBar\src\TwDirect3D11.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="AntTweakBar\src\TwFonts.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="AntTweakBar\src\TwGraph.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="AntTweakBar\src\TwMgr.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="AntTweakBar\src\TwPrecomp.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="AntTweakBar\src\TwOpenGL.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="AntTweakBar\src\TwOpenGLCore.h">
+      <Filter>src</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="AntTweakBar\src\res\cur00000.cur">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\cur00001.cur">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\cur00002.cur">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\cur00003.cur">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\cur00004.cur">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\cur00005.cur">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\cur00006.cur">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\cur00007.cur">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\cur00008.cur">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\cur00009.cur">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\cur00010.cur">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\cur00011.cur">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\cur00012.cur">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\cur00013.cur">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\curs00.pbm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\curs01.pbm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\curs02.pbm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\curs03.pbm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\curs04.pbm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\curs05.pbm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\curs06.pbm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\curs07.pbm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\curs08.pbm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\curs09.pbm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\curs10.pbm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\curs11.pbm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\curs12.pbm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\curs13.pbm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\FontFixed1.pgm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\FontLargeAA.pgm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\FontNormal.pgm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\FontNormalAA.pgm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\FontSmall.pgm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\mask00.pbm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\mask01.pbm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\mask02.pbm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\mask03.pbm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\mask04.pbm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\mask05.pbm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\mask06.pbm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\mask07.pbm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\mask08.pbm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\mask09.pbm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\mask10.pbm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\mask11.pbm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\mask12.pbm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\res\mask13.pbm">
+      <Filter>res</Filter>
+    </None>
+    <None Include="AntTweakBar\src\TwDirect3D11.hlsl">
+      <Filter>src</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="AntTweakBar\src\res\FontChars.txt">
+      <Filter>res</Filter>
+    </Text>
+    <Text Include="AntTweakBar\src\License.txt">
+      <Filter>src</Filter>
+    </Text>
+    <Text Include="AntTweakBar\src\Readme.txt">
+      <Filter>src</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AntTweakBar\src\LoadOGL.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="AntTweakBar\src\LoadOGLCore.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="AntTweakBar\src\TwBar.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="AntTweakBar\src\TwColors.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="AntTweakBar\src\TwDirect3D9.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="AntTweakBar\src\TwDirect3D10.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="AntTweakBar\src\TwDirect3D11.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="AntTweakBar\src\TwEventSDL.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="AntTweakBar\src\TwEventSDL12.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="AntTweakBar\src\TwEventSDL13.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="AntTweakBar\src\TwEventSFML.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="AntTweakBar\src\TwEventWin.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="AntTweakBar\src\TwFonts.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="AntTweakBar\src\TwMgr.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="AntTweakBar\src\TwPrecomp.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="AntTweakBar\src\TwEventGLFW.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="AntTweakBar\src\TwEventGLUT.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="AntTweakBar\src\TwOpenGL.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="AntTweakBar\src\TwOpenGLCore.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="AntTweakBar\src\AntTweakBar.rc">
+      <Filter>res</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

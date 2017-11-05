@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Common.h"
+#include "GUI_AntTweakBar.h"
 
 class IApplication
 {
@@ -30,6 +30,10 @@ protected:
 	uint32_t m_Width;
 	uint32_t m_Height;
 	bool m_bInited;
+
+#ifdef UsingAntTweakBar
+	GUIAntTweakBar m_GUI;
+#endif
 
 	typedef IApplication Base;
 private:

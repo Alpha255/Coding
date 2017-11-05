@@ -28,3 +28,4 @@
 #define NamespaceEnd(name) }
 
 ///#define UsingimGUI
+#define UsingAntTweakBar

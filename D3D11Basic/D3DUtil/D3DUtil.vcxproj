@@ -22,6 +22,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="D3DGraphic.h" />
+    <ClInclude Include="GUI_AntTweakBar.h" />
     <ClInclude Include="IApplication.h" />
     <ClInclude Include="D3DMath.h" />
     <ClInclude Include="imGUI_D3D11.h" />
@@ -33,6 +34,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="D3DGraphic.cpp" />
+    <ClCompile Include="GUI_AntTweakBar.cpp" />
     <ClCompile Include="IApplication.cpp" />
     <ClCompile Include="D3DMath.cpp" />
     <ClCompile Include="D3DModel.cpp" />

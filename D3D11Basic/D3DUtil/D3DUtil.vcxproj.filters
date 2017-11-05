@@ -14,6 +14,7 @@
     <ClInclude Include="D3DModel.h" />
     <ClInclude Include="SkyBox.h" />
     <ClInclude Include="imGUI_D3D11.h" />
+    <ClInclude Include="GUI_AntTweakBar.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IApplication.cpp" />
@@ -23,6 +24,7 @@
     <ClCompile Include="D3DModel.cpp" />
     <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="imGUI_D3D11.cpp" />
+    <ClCompile Include="GUI_AntTweakBar.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resource">

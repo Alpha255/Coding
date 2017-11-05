@@ -83,6 +83,13 @@ LRESULT IApplication::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	assert(m_pTimer);
 
+#ifdef UsingAntTweakBar
+	if (m_GUI.WinProc(hWnd, msg, wParam, lParam))
+	{
+		return 0LL;
+	}
+#endif
+
 	switch (msg)
 	{
 	case WM_ACTIVATE:
@@ -177,6 +184,8 @@ void IApplication::Startup(LPCWSTR lpTitle, uint32_t width, uint32_t height, boo
 
 #ifdef UsingimGUI
 	imGUI_D3D_Init(&m_hWnd);
+#elif defined(UsingAntTweakBar)
+	m_GUI.Init(g_Renderer->GetDevice(), m_Width, m_Height);
 #endif
 }
 
@@ -214,6 +223,8 @@ void IApplication::Running()
 
 #ifdef UsingimGUI
 				imGUI_D3D_RenderEnd();
+#elif defined(UsingAntTweakBar)
+				m_GUI.Draw();
 #endif
 
 				g_Renderer->Flip();

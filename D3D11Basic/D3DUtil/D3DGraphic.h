@@ -111,6 +111,12 @@ public:
 	void DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, D3D_PRIMITIVE_TOPOLOGY prim = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	void DrawQuad(float x, float y, float width, float height);
 
+	inline ID3D11Device *GetDevice() const
+	{
+		assert(m_D3DDevice.Valid());
+		return m_D3DDevice.Ptr();
+	}
+
 	inline void Flip()
 	{
 		m_SwapChain->Present(0U, 0U);

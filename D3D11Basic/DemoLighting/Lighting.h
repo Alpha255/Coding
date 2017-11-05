@@ -15,8 +15,17 @@ public:
 
 	virtual void MouseMove(WPARAM wParam, int x, int y);
 protected:
+	static void SetWireframe(const void *pData, void*)
+	{
+		m_Wireframe = *static_cast<const bool*>(pData);
+	}
+
+	static void GetWireframe(void* data, void*)
+	{
+		*static_cast<bool*>(data) = m_Wireframe;
+	}
 private:
 	uint32_t m_PreLightCount = 1U;
 	uint32_t m_CurLightCount = 1U;
-	bool m_Wireframe = false;
+	static bool m_Wireframe;
 };
