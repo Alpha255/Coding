@@ -24,6 +24,12 @@ struct DemoDisplacementResource
 	Ref<ID3D11Buffer> IndexBuffer;
 
 	Ref<ID3D11RasterizerState> NullCulling;
+
+	Ref<ID3D11ShaderResourceView> DiffuseTex;
+	Ref<ID3D11ShaderResourceView> NormalTex;
+	Ref<ID3D11ShaderResourceView> DispTex;
+
+	Ref<ID3D11SamplerState> SamplerLinear;
 };
 
 static float s_Radius = 5.0f;
@@ -67,6 +73,21 @@ void AppDisplacement::SetupScene()
 
 	g_Renderer->CreateRasterizerState(s_Resource.NullCulling.Reference(), D3D11_FILL_SOLID, D3D11_CULL_NONE);
 
+	g_Renderer->CreateShaderResourceView(s_Resource.DiffuseTex.Reference(), "wall_diffuse.dds");
+	g_Renderer->CreateShaderResourceView(s_Resource.NormalTex.Reference(), "wall_normal.dds");
+	g_Renderer->CreateShaderResourceView(s_Resource.DispTex.Reference(), "wall_disp.dds");
+
+	D3D11_SAMPLER_DESC sampDesc;
+	memset(&sampDesc, 0, sizeof(D3D11_SAMPLER_DESC));
+	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	sampDesc.MinLOD = 0.0f;
+	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	g_Renderer->CreateSamplerState(s_Resource.SamplerLinear.Reference(), &sampDesc);
+
 	g_Renderer->SetRenderTarget(g_Renderer->DefaultRenderTarget());
 	g_Renderer->SetDepthStencil(g_Renderer->DefaultDepthStencil());
 
@@ -100,6 +121,8 @@ void AppDisplacement::RenderScene()
 	g_Renderer->SetVertexBuffer(s_Resource.VertexBuffer.Ptr(), sizeof(Math::Geometry::BasicVertex), 0U);
 	g_Renderer->SetIndexBuffer(s_Resource.IndexBuffer.Ptr(), DXGI_FORMAT_R32_UINT);
 	g_Renderer->SetRasterizerState(s_Resource.NullCulling.Ptr());
+	g_Renderer->SetSamplerStates(s_Resource.SamplerLinear.Ptr());
+	g_Renderer->SetShaderResource(s_Resource.DiffuseTex.Ptr());
 
 	g_Renderer->DrawIndexed(6U, 0U, 0);
 }

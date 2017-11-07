@@ -20,6 +20,7 @@ struct VSOutput
 
 Texture2D DiffuseMap;
 Texture2D NormalMap;
+SamplerState samplerLinear;
 
 VSOutput VS_Main(VSInput input)
 {
@@ -34,7 +35,7 @@ VSOutput VS_Main(VSInput input)
 
 float4 PS_Main(VSOutput input) : SV_Target
 {
-    float4 clr = float4(1.0f, 1.0f, 1.0f, 1.0f);
+    float4 clr = DiffuseMap.Sample(samplerLinear, input.UV);
 
     return clr;
 }
