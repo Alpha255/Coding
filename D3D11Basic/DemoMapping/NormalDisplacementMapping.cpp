@@ -181,7 +181,6 @@ void ApplicationMapping::InitGeometriesResource()
 	s_Geometries.MatBox.Specular = Vec4(0.8f, 0.8f, 0.8f, 16.0f);
 	s_Geometries.MatBox.Reflect = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
-	memset(&s_CBufPS, 0, sizeof(ConstantsBufPS));
 	s_CBufPS.DirLights[0].Ambient = Vec4(0.2f, 0.2f, 0.2f, 1.0f);
 	s_CBufPS.DirLights[0].Diffuse = Vec4(0.7f, 0.7f, 0.6f, 1.0f);
 	s_CBufPS.DirLights[0].Specular = Vec4(0.8f, 0.8f, 0.7f, 1.0f);
@@ -285,7 +284,13 @@ void ApplicationMapping::RenderScene()
 		g_Renderer->SetHullShader(s_Resource.DisplacementMapHS.Ptr());
 		g_Renderer->SetDomainShader(s_Resource.DisplacementMapDS.Ptr());
 		g_Renderer->SetPixelShader(s_Resource.DisplacementMapPS.Ptr());
-		g_Renderer->SetSamplerStates(s_Resource.Sampler.Ptr(), D3DGraphic::eDomainShader);
+
+		g_Renderer->SetSamplerStates(s_Resource.Sampler.Ptr(), 0U, 1U, D3DGraphic::eDomainShader);
+
+		g_Renderer->SetConstantBuffer(s_Resource.ConstantsBufVS.Ptr(), 0U, D3DGraphic::eDomainShader);
+		g_Renderer->SetConstantBuffer(s_Resource.ConstantsBufPS.Ptr(), 1U, D3DGraphic::eDomainShader);
+
+		g_Renderer->SetShaderResource(s_Resource.BrickNormalTex.Ptr(), 0U, 1U, D3DGraphic::eDomainShader);
 	}
 
 	{
@@ -307,55 +312,55 @@ void ApplicationMapping::RenderScene()
 		g_Renderer->DrawIndexed(s_Geometries.GridIndexCount, s_Geometries.GridIndexOffset, s_Geometries.GridVertexOffset, primitive);
 	}
 
-	{
-		/// Draw Box
-		world = s_Geometries.WorldBox;
-		wvp = world * view * proj;
-		cbVS.World = world.Transpose();
-		cbVS.WorldInverse = cbVS.World.Inverse();
-		cbVS.WVP = wvp.Transpose();
-		cbVS.TexTransform = Matrix::Scaling(2.0f, 1.0f, 1.0f).Transpose();
-		g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
+	//{
+	//	/// Draw Box
+	//	world = s_Geometries.WorldBox;
+	//	wvp = world * view * proj;
+	//	cbVS.World = world.Transpose();
+	//	cbVS.WorldInverse = cbVS.World.Inverse();
+	//	cbVS.WVP = wvp.Transpose();
+	//	cbVS.TexTransform = Matrix::Scaling(2.0f, 1.0f, 1.0f).Transpose();
+	//	g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
 
-		memcpy(&s_CBufPS.Mat, &s_Geometries.MatBox, sizeof(Lighting::Material));
-		g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBufPS, sizeof(ConstantsBufPS));
+	//	memcpy(&s_CBufPS.Mat, &s_Geometries.MatBox, sizeof(Lighting::Material));
+	//	g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBufPS, sizeof(ConstantsBufPS));
 
-		g_Renderer->SetShaderResource(s_Resource.BrickTex.Ptr(), 0U);
-		g_Renderer->SetShaderResource(s_Resource.BrickNormalTex.Ptr(), 1U);
+	//	g_Renderer->SetShaderResource(s_Resource.BrickTex.Ptr(), 0U);
+	//	g_Renderer->SetShaderResource(s_Resource.BrickNormalTex.Ptr(), 1U);
 
-		g_Renderer->DrawIndexed(s_Geometries.BoxIndexCount, s_Geometries.BoxIndexOffset, s_Geometries.BoxVertexOffset, primitive);
-	}
+	//	g_Renderer->DrawIndexed(s_Geometries.BoxIndexCount, s_Geometries.BoxIndexOffset, s_Geometries.BoxVertexOffset, primitive);
+	//}
 
-	if (eDisplacementMap == m_MappingType)
-	{
-		g_Renderer->SetHullShader(nullptr);
-		g_Renderer->SetDomainShader(nullptr);
-	}
+	//if (eDisplacementMap == m_MappingType)
+	//{
+	//	g_Renderer->SetHullShader(nullptr);
+	//	g_Renderer->SetDomainShader(nullptr);
+	//}
 
-	{
-		/// Draw Spheres
-		for (uint32_t i = 0U; i < 10U; ++i)
-		{
-			world = s_Geometries.WorldSphere[i];
-			wvp = world * view * proj;
-			cbVS.World = world.Transpose();
-			cbVS.WorldInverse = cbVS.World.Inverse();
-			cbVS.WVP = wvp.Transpose();
-			cbVS.TexTransform.Identity();
-			g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
+	//{
+	//	/// Draw Spheres
+	//	for (uint32_t i = 0U; i < 10U; ++i)
+	//	{
+	//		world = s_Geometries.WorldSphere[i];
+	//		wvp = world * view * proj;
+	//		cbVS.World = world.Transpose();
+	//		cbVS.WorldInverse = cbVS.World.Inverse();
+	//		cbVS.WVP = wvp.Transpose();
+	//		cbVS.TexTransform.Identity();
+	//		g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
 
-			memcpy(&s_CBufPS.Mat, &s_Geometries.MatSphere, sizeof(Lighting::Material));
-			g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBufPS, sizeof(ConstantsBufPS));
+	//		memcpy(&s_CBufPS.Mat, &s_Geometries.MatSphere, sizeof(Lighting::Material));
+	//		g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBufPS, sizeof(ConstantsBufPS));
 
-			g_Renderer->SetShaderResource(s_Resource.Sky.GetCubemap(), 2U);
+	//		g_Renderer->SetShaderResource(s_Resource.Sky.GetCubemap(), 2U);
 
-			g_Renderer->DrawIndexed(s_Geometries.SphereIndexCount, s_Geometries.SphereIndexOffset, s_Geometries.SphereVertexOffset);
-		}
-	}
+	//		g_Renderer->DrawIndexed(s_Geometries.SphereIndexCount, s_Geometries.SphereIndexOffset, s_Geometries.SphereVertexOffset);
+	//	}
+	//}
 
-	s_Resource.Skull.Draw(s_Camera);
+	//s_Resource.Skull.Draw(s_Camera);
 
-	s_Resource.Sky.Draw(s_Camera);
+	//s_Resource.Sky.Draw(s_Camera);
 }
 
 void ApplicationMapping::UpdateScene(float /*elapsedTime*/, float /*totalTime*/)

@@ -228,7 +228,7 @@ DSOutput DS_Main_DisplacementMap(PatchTess patchTess, float3 bary : SV_DomainLoc
 	/// Displacement mapping
 	/// Choose the mipmap level based on distance to the eye; specifically, choose
 	/// the next miplevel every MipInterval units, and clamp the miplevel in [0,6].
-    float mipInterval = 20.0f;
+    const float mipInterval = 20.0f;
     float mipLevel = clamp((distance(output.PosW, EyePos) - mipInterval) / mipInterval, 0.0f, 6.0f);
 
 	/// Sampler height map (stored in alpha channel)

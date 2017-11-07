@@ -591,30 +591,51 @@ void D3DGraphic::SetScissorRects(D3D11_RECT* pRects, uint32_t count)
 	}
 }
 
-void D3DGraphic::SetSamplerStates(ID3D11SamplerState *pStates, eShaderType type, uint32_t startSlot, uint32_t count)
+void D3DGraphic::SetSamplerStates(ID3D11SamplerState *pStates, uint32_t startSlot, uint32_t count, eShaderType type)
 {
 	assert(pStates);
 
 	ID3D11SamplerState *samplers[1]{ pStates };
 	switch (type)
 	{
-	case ePixelShader:
-		m_D3DContext->PSSetSamplers(startSlot, count, samplers);
+	case eVertexShader:
+		m_D3DContext->VSSetSamplers(startSlot, count, samplers);
+		break;
+	case eHullShader:
+		m_D3DContext->HSSetSamplers(startSlot, count, samplers);
 		break;
 	case eDomainShader:
 		m_D3DContext->DSSetSamplers(startSlot, count, samplers);
 		break;
-	default:
-		assert(0);
+	case ePixelShader:
+		m_D3DContext->PSSetSamplers(startSlot, count, samplers);
+		break;
 	}
 }
 
-void D3DGraphic::SetShaderResource(ID3D11ShaderResourceView *pSRV, uint32_t startSlot, uint32_t count)
+void D3DGraphic::SetShaderResource(ID3D11ShaderResourceView *pSRV, uint32_t startSlot, uint32_t count, eShaderType type)
 {
 	///assert(pSRV);
 
 	ID3D11ShaderResourceView *srvs[1]{ pSRV };
-	m_D3DContext->PSSetShaderResources(startSlot, count, srvs);
+	switch (type)
+	{
+	case eVertexShader:
+		m_D3DContext->VSSetShaderResources(startSlot, count, srvs);
+		break;
+	case eHullShader:
+		m_D3DContext->HSSetShaderResources(startSlot, count, srvs);
+		break;
+	case eDomainShader:
+		m_D3DContext->DSSetShaderResources(startSlot, count, srvs);
+		break;
+	case eGeometryShader:
+		m_D3DContext->GSSetShaderResources(startSlot, count, srvs);
+		break;
+	case ePixelShader:
+		m_D3DContext->PSSetShaderResources(startSlot, count, srvs);
+		break;
+	}
 }
 
 void D3DGraphic::SetRasterizerState(ID3D11RasterizerState* pRS)
@@ -709,11 +730,17 @@ void D3DGraphic::SetConstantBuffer(ID3D11Buffer* pConstantBuf, uint32_t slot, eS
 	case eVertexShader:
 		m_D3DContext->VSSetConstantBuffers(slot, 1U, &pConstantBuf);
 		break;
+	case eHullShader:
+		m_D3DContext->HSSetConstantBuffers(slot, 1U, &pConstantBuf);
+		break;
+	case eDomainShader:
+		m_D3DContext->DSSetConstantBuffers(slot, 1U, &pConstantBuf);
+		break;
+	case eGeometryShader:
+		m_D3DContext->GSSetConstantBuffers(slot, 1U, &pConstantBuf);
+		break;
 	case ePixelShader:
 		m_D3DContext->PSSetConstantBuffers(slot, 1U, &pConstantBuf);
-		break;
-	default:
-		assert(!"Unsupport yet!!");
 		break;
 	}
 }

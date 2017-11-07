@@ -23,5 +23,5 @@ protected:
 
 	void InitGeometriesResource();
 private:
-	eMappingType m_MappingType = eNormalMap;
+	eMappingType m_MappingType = eDisplacementMap;
 };
