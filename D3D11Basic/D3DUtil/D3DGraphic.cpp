@@ -406,6 +406,11 @@ void D3DGraphic::CreateVertexShaderAndInputLayout(ID3D11VertexShader** ppVS, ID3
 
 void D3DGraphic::CreateRasterizerState(ID3D11RasterizerState** ppRasterizerState, D3D11_FILL_MODE fillMode, D3D11_CULL_MODE cullMode, bool cw, bool depthClip, bool bScissor)
 {
+	/// FrontCounterClockwise
+	/// Determines if a triangle is front- or back-facing. If this parameter is true, 
+	/// then a triangle will be considered front-facing if its vertices are counter-clockwise on the render target 
+	/// and considered back-facing if they are clockwise. If this parameter is false then the opposite is true.
+
 	assert(ppRasterizerState);
 
 	D3D11_RASTERIZER_DESC rsDesc;

@@ -53,10 +53,10 @@ void AppDisplacement::SetupScene()
 	g_Renderer->CreatePixelShader(s_Resource.PixelShader.Reference(), s_ShaderName, "PS_Main");
 
 	Math::Geometry::BasicVertex quad[4];
-	quad[0] = Math::Geometry::BasicVertex{ { -1.0f,  1.0f, 0.0f }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 1.0f } };
-	quad[1] = Math::Geometry::BasicVertex{ { -1.0f, -1.0f, 0.0f }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 0.0f } };
-	quad[2] = Math::Geometry::BasicVertex{ {  1.0f, -1.0f, 0.0f }, { 0.0f, 0.0f, -1.0f }, { 1.0f, 1.0f } };
-	quad[3] = Math::Geometry::BasicVertex{ {  1.0f,  1.0f, 0.0f }, { 0.0f, 0.0f, -1.0f }, { 1.0f, 0.0f } };
+	quad[0] = Math::Geometry::BasicVertex{ { -1.0f,  1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f } };
+	quad[1] = Math::Geometry::BasicVertex{ { -1.0f, -1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f } };
+	quad[2] = Math::Geometry::BasicVertex{ {  1.0f, -1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 1.0f, 0.0f } };
+	quad[3] = Math::Geometry::BasicVertex{ {  1.0f,  1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f } };
 	g_Renderer->CreateVertexBuffer(s_Resource.VertexBuffer.Reference(), sizeof(Math::Geometry::BasicVertex) * 4,
 		D3D11_USAGE_IMMUTABLE, quad);
 
@@ -71,7 +71,7 @@ void AppDisplacement::SetupScene()
 	g_Renderer->CreateConstantBuffer(s_Resource.ConstantsBuf.Reference(), sizeof(ConstantsBufVS), 
 		D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
 
-	g_Renderer->CreateRasterizerState(s_Resource.NullCulling.Reference(), D3D11_FILL_SOLID, D3D11_CULL_NONE);
+	///g_Renderer->CreateRasterizerState(s_Resource.NullCulling.Reference(), D3D11_FILL_SOLID, D3D11_CULL_NONE);
 
 	g_Renderer->CreateShaderResourceView(s_Resource.DiffuseTex.Reference(), "wall_diffuse.dds");
 	g_Renderer->CreateShaderResourceView(s_Resource.NormalTex.Reference(), "wall_normal.dds");
@@ -120,7 +120,7 @@ void AppDisplacement::RenderScene()
 	g_Renderer->SetConstantBuffer(s_Resource.ConstantsBuf.Ptr(), 0U, D3DGraphic::eVertexShader);
 	g_Renderer->SetVertexBuffer(s_Resource.VertexBuffer.Ptr(), sizeof(Math::Geometry::BasicVertex), 0U);
 	g_Renderer->SetIndexBuffer(s_Resource.IndexBuffer.Ptr(), DXGI_FORMAT_R32_UINT);
-	g_Renderer->SetRasterizerState(s_Resource.NullCulling.Ptr());
+	///g_Renderer->SetRasterizerState(s_Resource.NullCulling.Ptr());
 	g_Renderer->SetSamplerStates(s_Resource.SamplerLinear.Ptr());
 	g_Renderer->SetShaderResource(s_Resource.DiffuseTex.Ptr());
 
