@@ -18,12 +18,12 @@ public:
 
 	virtual void MouseMove(WPARAM wParam, int x, int y);
 protected:
-	static void SetWireframe(const void *pData, void*)
+	static void __stdcall SetWireframe(const void *pData, void*)
 	{
 		m_Wireframe = *static_cast<const bool*>(pData);
 	}
 
-	static void GetWireframe(void* data, void*)
+	static void __stdcall GetWireframe(void* data, void*)
 	{
 		*static_cast<bool*>(data) = m_Wireframe;
 	}
