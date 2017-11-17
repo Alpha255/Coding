@@ -146,14 +146,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\D3DUtil\resource.h" />
+    <ClInclude Include="..\D3DCommon\resource.h" />
     <ClInclude Include="DisplacementMap.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="..\D3DUtil\D3DUtil.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="..\Resource\directx.ico" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DisplacementMap.cpp" />
@@ -169,9 +163,15 @@
     <ProjectReference Include="..\..\ThirdParty\GUI\imGUI.vcxproj">
       <Project>{dc209b60-de63-473c-b591-509783cf2fd6}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\D3DUtil\D3DUtil.vcxproj">
-      <Project>{61db1465-533c-45f5-9d1d-884c2a82e7e0}</Project>
+    <ProjectReference Include="..\D3DCommon\D3DCommon.vcxproj">
+      <Project>{6ac5e4d4-a7ce-4a12-ad70-c3591652de8e}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\D3DCommon\D3DCommon.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\Application\Resource\directx.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -6,22 +6,22 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FXAA.h" />
-    <ClInclude Include="..\..\D3D11Basic\D3DUtil\resource.h">
+    <ClInclude Include="..\..\D3D11Basic\D3DCommon\resource.h">
       <Filter>Resource</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resource">
-      <UniqueIdentifier>{7f641a45-5692-4804-a781-c5c3267226ed}</UniqueIdentifier>
+      <UniqueIdentifier>{0483d159-899c-4430-b1cd-21bd7b797dbe}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\..\D3D11Basic\D3DUtil\D3DUtil.rc">
+    <ResourceCompile Include="..\..\D3D11Basic\D3DCommon\D3DCommon.rc">
       <Filter>Resource</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\D3D11Basic\Resource\directx.ico">
+    <Image Include="..\..\Application\Resource\directx.ico">
       <Filter>Resource</Filter>
     </Image>
   </ItemGroup>

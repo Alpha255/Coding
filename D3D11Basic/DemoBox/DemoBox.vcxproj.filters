@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClInclude Include="Box.h" />
-    <ClInclude Include="..\D3DUtil\resource.h">
+    <ClInclude Include="..\D3DCommon\resource.h">
       <Filter>Resource</Filter>
     </ClInclude>
   </ItemGroup>
@@ -12,16 +12,16 @@
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resource">
-      <UniqueIdentifier>{3e5256bb-9b28-4129-8d03-3b5640cc2380}</UniqueIdentifier>
+      <UniqueIdentifier>{e6d39112-bfeb-46e5-bc5e-3e774f9cb034}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\D3DUtil\D3DUtil.rc">
+    <ResourceCompile Include="..\D3DCommon\D3DCommon.rc">
       <Filter>Resource</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\Resource\directx.ico">
+    <Image Include="..\..\Application\Resource\directx.ico">
       <Filter>Resource</Filter>
     </Image>
   </ItemGroup>

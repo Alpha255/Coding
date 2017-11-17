@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="Common.h" />
+    <ClInclude Include="D3DGraphic.h" />
+    <ClInclude Include="D3DMath.h" />
+    <ClInclude Include="D3DModel.h" />
+    <ClInclude Include="GUI_AntTweakBar.h" />
+    <ClInclude Include="IApplication.h" />
+    <ClInclude Include="imGui_D3D11.h" />
+    <ClInclude Include="RefCountPtr.h" />
+    <ClInclude Include="SkyBox.h" />
+    <ClInclude Include="Timer.h" />
+    <ClInclude Include="resource.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D3DGraphic.cpp" />
+    <ClCompile Include="D3DMath.cpp" />
+    <ClCompile Include="D3DModel.cpp" />
+    <ClCompile Include="GUI_AntTweakBar.cpp" />
+    <ClCompile Include="IApplication.cpp" />
+    <ClCompile Include="imGUI_D3D11.cpp" />
+    <ClCompile Include="SkyBox.cpp" />
+    <ClCompile Include="Timer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Resource">
+      <UniqueIdentifier>{e361ede3-69ec-48a1-8b9a-8e76aa3eaabc}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\Application\Resource\directx.ico">
+      <Filter>Resource</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="D3DCommon.rc">
+      <Filter>Resource</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
