@@ -5,7 +5,10 @@
 class ApplicationMapping : public IApplication
 {
 public:
-	ApplicationMapping() = default;
+	ApplicationMapping()
+	{
+		m_bDrawGUI = true;
+	}
 	~ApplicationMapping() = default;
 
 	virtual void SetupScene();
@@ -22,6 +25,16 @@ protected:
 	};
 
 	void InitGeometriesResource();
+
+	static void __stdcall SetEnableDisplacementMap(const void *pData, void*)
+	{
+		m_bDisplacementMap = *static_cast<const bool*>(pData);
+	}
+
+	static void __stdcall GetEnableDisplacementMap(void *pData, void*)
+	{
+		*static_cast<bool*>(pData) = m_bDisplacementMap;
+	}
 private:
-	eMappingType m_MappingType = eDisplacementMap;
+	static bool m_bDisplacementMap;
 };

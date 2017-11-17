@@ -584,11 +584,15 @@ void D3DGraphic::SetScissorRects(D3D11_RECT* pRects, uint32_t count)
 {
 	assert(count <= 1U && "Unsupport yet!!!");
 
+	if (nullptr == m_D3DPipelineState.ScissorRects)
+	{
+		///m_D3DPipelineState.ScissorRects = new D3D11_RECT();
+	}
+
 	if (m_D3DPipelineState.ScissorRectCount != count ||
 		m_D3DPipelineState.ScissorRects != pRects)
 	{
 		m_D3DPipelineState.ScissorRectCount = count;
-		m_D3DPipelineState.ScissorRects = pRects;
 
 		memcpy(&m_DefaultScissorRect, pRects, sizeof(D3D11_RECT));
 
@@ -913,7 +917,7 @@ void D3DGraphic::FlushState()
 
 	if (m_FlushState[eFSScissorRect])
 	{
-		m_D3DContext->RSSetScissorRects(m_D3DPipelineState.ScissorRectCount, m_D3DPipelineState.ScissorRects);
+		m_D3DContext->RSSetScissorRects(m_D3DPipelineState.ScissorRectCount, /*m_D3DPipelineState.ScissorRects*/&m_DefaultScissorRect);
 		m_FlushState[eFSScissorRect] = false;
 	}
 

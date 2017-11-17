@@ -93,6 +93,8 @@ static GeometriesInfo s_Geometries = { 0 };
 static DemoMappingResource s_Resource;
 static ConstantsBufPS s_CBufPS;
 
+bool ApplicationMapping::m_bDisplacementMap = false;
+
 void ApplicationMapping::InitGeometriesResource()
 {
 	Math::Geometry::Mesh box;
@@ -237,11 +239,20 @@ void ApplicationMapping::SetupScene()
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	g_Renderer->CreateSamplerState(s_Resource.Sampler.Reference(), &sampDesc);
 
+	GUIAntTweakBar::WidgeDesc enableDisplacementMap;
+	enableDisplacementMap.Type = GUIAntTweakBar::eCheckBox;
+	enableDisplacementMap.Title = "DisplacementMapping";
+	enableDisplacementMap.GetVarFunc = GetEnableDisplacementMap;
+	enableDisplacementMap.SetVarFunc = SetEnableDisplacementMap;
+	m_GUI.AddWidget(enableDisplacementMap);
+
 	m_bInited = true;
 }
 
 void ApplicationMapping::RenderScene()
 {
+	eMappingType mappingType = m_bDisplacementMap ? eDisplacementMap : eNormalMap;
+
 	g_Renderer->ClearRenderTarget(g_Renderer->DefaultRenderTarget());
 	g_Renderer->ClearDepthStencil(g_Renderer->DefaultDepthStencil(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0U);
 
@@ -269,7 +280,7 @@ void ApplicationMapping::RenderScene()
 
 	D3D11_PRIMITIVE_TOPOLOGY primitive = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
-	if (eNormalMap == m_MappingType)
+	if (eNormalMap == mappingType)
 	{
 		primitive = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		g_Renderer->SetVertexShader(s_Resource.NormalMapVS.Ptr());
@@ -277,7 +288,7 @@ void ApplicationMapping::RenderScene()
 		g_Renderer->SetDomainShader(nullptr);
 		g_Renderer->SetPixelShader(s_Resource.NormalMapPS.Ptr());
 	}
-	else if (eDisplacementMap == m_MappingType)
+	else if (eDisplacementMap == mappingType)
 	{
 		primitive = D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST;
 		g_Renderer->SetVertexShader(s_Resource.DisplacementMapVS.Ptr());
@@ -331,7 +342,7 @@ void ApplicationMapping::RenderScene()
 	//	g_Renderer->DrawIndexed(s_Geometries.BoxIndexCount, s_Geometries.BoxIndexOffset, s_Geometries.BoxVertexOffset, primitive);
 	//}
 
-	//if (eDisplacementMap == m_MappingType)
+	//if (eDisplacementMap == mappingType)
 	//{
 	//	g_Renderer->SetHullShader(nullptr);
 	//	g_Renderer->SetDomainShader(nullptr);

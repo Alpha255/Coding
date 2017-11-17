@@ -124,17 +124,6 @@ public:
 		m_SwapChain->Present(0U, 0U);
 	}
 
-	inline D3D11_RECT GetScissorRect()
-	{
-		assert(m_D3DContext.Valid());
-
-		uint32_t count = 1U;
-		D3D11_RECT rects[1] = { 0 };
-		m_D3DContext->RSGetScissorRects(&count, rects);
-
-		return rects[0];
-	}
-
 	inline D3D11_VIEWPORT GetViewport()
 	{
 		assert(m_D3DContext.Valid());

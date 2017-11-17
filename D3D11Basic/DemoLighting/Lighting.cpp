@@ -46,12 +46,14 @@ void ApplicationLighting::SetupScene()
 	s_Resource.Viewport.TopLeftX = s_Resource.Viewport.TopLeftY = 0.0f;
 	g_Renderer->SetViewports(&s_Resource.Viewport);
 
+#ifdef UsingAntTweakBar
 	GUIAntTweakBar::WidgeDesc EnableWireframe;
 	EnableWireframe.Type = GUIAntTweakBar::eCheckBox;
 	EnableWireframe.Title = "Wireframe";
 	EnableWireframe.GetVarFunc = GetWireframe;
 	EnableWireframe.SetVarFunc = SetWireframe;
 	m_GUI.AddWidget(EnableWireframe);
+#endif
 
 	m_bInited = true;
 }
@@ -73,9 +75,12 @@ void ApplicationLighting::RenderScene()
 
 	s_Resource.Model.SetLightCount(m_CurLightCount);
 
-	s_Resource.Model.Draw(s_Camera, m_Wireframe);
+	//s_Resource.Model.Draw(s_Camera, m_Wireframe);
 
-	///ImGui::Checkbox("Wireframe", &m_Wireframe);
+#ifdef UsingimGUI
+	//ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+	ImGui::Checkbox("Wireframe", &m_Wireframe);
+#endif
 }
 
 void ApplicationLighting::UpdateScene(float /*elapsedTime*/, float /*totalTime*/)

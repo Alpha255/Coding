@@ -23,9 +23,9 @@ protected:
 		m_Wireframe = *static_cast<const bool*>(pData);
 	}
 
-	static void __stdcall GetWireframe(void* data, void*)
+	static void __stdcall GetWireframe(void* pData, void*)
 	{
-		*static_cast<bool*>(data) = m_Wireframe;
+		*static_cast<bool*>(pData) = m_Wireframe;
 	}
 private:
 	uint32_t m_PreLightCount = 1U;
