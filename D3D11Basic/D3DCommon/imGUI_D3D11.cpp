@@ -58,7 +58,7 @@ bool imGUI_IsMouseBtnDown()
 	return false;
 }
 
-LRESULT imGUI_WinProc(HWND hWnd, uint32_t uMsg, WPARAM wParam, LPARAM lParam)
+IMGUI_API LRESULT imGUI_WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	ImGuiIO &io = ImGui::GetIO();
 
@@ -66,12 +66,15 @@ LRESULT imGUI_WinProc(HWND hWnd, uint32_t uMsg, WPARAM wParam, LPARAM lParam)
 	switch (uMsg)
 	{
 	case WM_LBUTTONDOWN:
+	case WM_LBUTTONUP:
 		mouseBtn = 0;
 		break;
 	case WM_RBUTTONDOWN:
+	case WM_RBUTTONUP:
 		mouseBtn = 1;
 		break;
 	case WM_MBUTTONDOWN:
+	case WM_MBUTTONUP:
 		mouseBtn = 2;
 		break;
 	}
@@ -155,7 +158,7 @@ void imGUI_Init_Keymap(void *pHwnd)
 
 	/// Alternatively you can set this to NULL and call ImGui::GetDrawData() after ImGui::Render() to get the same ImDrawData pointer.
 	io.RenderDrawListsFn = imGUI_D3D_RenderDrawLists;
-	io.ImeWindowHandle = (HWND)pHwnd;
+	io.ImeWindowHandle = pHwnd;
 }
 
 void imGUI_Init_D3DResource()
@@ -309,8 +312,8 @@ void imGUI_D3D_RestoreState()
 
 	g_Renderer->SetRasterizerState(s_imResource.BackFaceCulling.Ptr());
 
-	///g_Renderer->SetInputLayout(nullptr);
-	///g_Renderer->SetBlendState(nullptr, Vec4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
+	//g_Renderer->SetInputLayout(nullptr);
+	//g_Renderer->SetBlendState(nullptr, Vec4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
 	g_Renderer->SetDepthStencilState(nullptr, 0U);
 }
 
