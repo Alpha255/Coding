@@ -28,13 +28,19 @@ public:
 	GUIAntTweakBar() = default;
 	~GUIAntTweakBar();
 
-	void Init(struct ID3D11Device *pDevice, uint32_t width, uint32_t height, const char *pTitle = "AntTweakBar");
+	void Init(HWND hWnd);
 
-	int WinProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+	void RenderBegin(const char * = "AntTweakBar"){}
+	void RenderEnd();
 
-	void AddWidget(const WidgeDesc &);
+	int WinProc(HWND hWnd, uint32_t msg, WPARAM wParam, LPARAM lParam);
 
-	void Draw();
+	void AddWidget(const WidgeDesc &desc);
+
+	inline bool IsFocus()
+	{
+		return false;
+	}
 
 protected:
 private:

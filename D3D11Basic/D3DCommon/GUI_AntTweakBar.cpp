@@ -1,26 +1,31 @@
 #include "GUI_AntTweakBar.h"
 
 #include "GUI/AntTweakBar/include/AntTweakBar.h"
+#include "D3DGraphic.h"
+
+extern D3DGraphic *g_Renderer;
 
 GUIAntTweakBar::~GUIAntTweakBar()
 {
 	TwTerminate();
 }
 
-void GUIAntTweakBar::Init(ID3D11Device *pDevice, uint32_t width, uint32_t height, const char *pTitle)
+void GUIAntTweakBar::Init(HWND hWnd)
 {
-	assert(pDevice);
+	assert(hWnd && g_Renderer);
 
-	int res = TwInit(TW_DIRECT3D11, pDevice);
+	int res = TwInit(TW_DIRECT3D11, g_Renderer->GetDevice());
 	assert(res);
 
-	TwWindowSize(width, height);
+	::RECT rect;
+	::GetClientRect(hWnd, &rect);
 
-	m_Bar = TwNewBar(pTitle);
-	assert(m_Bar);
+	TwWindowSize((int)(rect.right - rect.left), (int)(rect.bottom - rect.top));
+
+	m_Bar = TwNewBar("AntTweakBar");
 }
 
-int GUIAntTweakBar::WinProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+int GUIAntTweakBar::WinProc(HWND hWnd, uint32_t msg, WPARAM wParam, LPARAM lParam)
 {
 	return TwEventWin(hWnd, msg, wParam, lParam);
 }
@@ -35,7 +40,9 @@ void GUIAntTweakBar::AddWidget(const WidgeDesc &desc)
 	}
 }
 
-void GUIAntTweakBar::Draw()
+void GUIAntTweakBar::RenderEnd()
 {
+	assert(m_Bar);
+
 	TwDraw();
 }

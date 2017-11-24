@@ -239,12 +239,14 @@ void ApplicationMapping::SetupScene()
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	g_Renderer->CreateSamplerState(s_Resource.Sampler.Reference(), &sampDesc);
 
+#ifdef UsingAntTweakBar
 	GUIAntTweakBar::WidgeDesc enableDisplacementMap;
 	enableDisplacementMap.Type = GUIAntTweakBar::eCheckBox;
 	enableDisplacementMap.Title = "DisplacementMapping";
 	enableDisplacementMap.GetVarFunc = GetEnableDisplacementMap;
 	enableDisplacementMap.SetVarFunc = SetEnableDisplacementMap;
 	m_GUI.AddWidget(enableDisplacementMap);
+#endif
 
 	m_bInited = true;
 }

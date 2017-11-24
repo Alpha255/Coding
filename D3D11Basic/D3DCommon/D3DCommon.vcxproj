@@ -25,8 +25,8 @@
     <ClInclude Include="D3DMath.h" />
     <ClInclude Include="D3DModel.h" />
     <ClInclude Include="GUI_AntTweakBar.h" />
+    <ClInclude Include="GUI_imGUI.h" />
     <ClInclude Include="IApplication.h" />
-    <ClInclude Include="imGui_D3D11.h" />
     <ClInclude Include="RefCountPtr.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SkyBox.h" />
@@ -40,8 +40,8 @@
     <ClCompile Include="D3DMath.cpp" />
     <ClCompile Include="D3DModel.cpp" />
     <ClCompile Include="GUI_AntTweakBar.cpp" />
+    <ClCompile Include="GUI_imGUI.cpp" />
     <ClCompile Include="IApplication.cpp" />
-    <ClCompile Include="imGUI_D3D11.cpp" />
     <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="Timer.cpp" />
   </ItemGroup>

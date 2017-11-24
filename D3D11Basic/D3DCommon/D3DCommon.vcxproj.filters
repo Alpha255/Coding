@@ -8,13 +8,13 @@
     <ClInclude Include="D3DModel.h" />
     <ClInclude Include="GUI_AntTweakBar.h" />
     <ClInclude Include="IApplication.h" />
-    <ClInclude Include="imGui_D3D11.h" />
     <ClInclude Include="RefCountPtr.h" />
     <ClInclude Include="SkyBox.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="resource.h">
       <Filter>Resource</Filter>
     </ClInclude>
+    <ClInclude Include="GUI_imGUI.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="D3DGraphic.cpp" />
@@ -22,9 +22,9 @@
     <ClCompile Include="D3DModel.cpp" />
     <ClCompile Include="GUI_AntTweakBar.cpp" />
     <ClCompile Include="IApplication.cpp" />
-    <ClCompile Include="imGUI_D3D11.cpp" />
     <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="GUI_imGUI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resource">

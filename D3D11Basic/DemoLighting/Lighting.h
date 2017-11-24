@@ -5,10 +5,7 @@
 class ApplicationLighting : public IApplication
 {
 public:
-	ApplicationLighting()
-	{
-		m_bDrawGUI = true;
-	}
+	ApplicationLighting() = default;
 	~ApplicationLighting() = default;
 
 	virtual void SetupScene();

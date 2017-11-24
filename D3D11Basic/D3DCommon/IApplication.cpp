@@ -3,22 +3,11 @@
 #include "D3DGraphic.h"
 #include "Timer.h"
 
-#include "imGui_D3D11.h"
-
 static IApplication* s_Application = nullptr;
 D3DGraphic* g_Renderer = nullptr;
 
-extern LRESULT imGUI_WinProc(HWND hWnd, uint32_t uMsg, WPARAM wParam, LPARAM lParam);
-
-LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-#ifdef UsingimGUI
-	if (imGUI_WinProc(hWnd, msg, wParam, lParam))
-	{
-		return 1LL;
-	}
-#endif
-
 	return s_Application->MsgProc(hWnd, msg, wParam, lParam);
 }
 
@@ -83,12 +72,10 @@ LRESULT IApplication::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	assert(m_pTimer);
 
-#ifdef UsingAntTweakBar
 	if (m_GUI.WinProc(hWnd, msg, wParam, lParam))
 	{
-		return 0LL;
+		return 1LL;
 	}
-#endif
 
 	switch (msg)
 	{
@@ -114,10 +101,6 @@ LRESULT IApplication::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		m_pTimer->Start();
 		RECT rect;
 		::GetClientRect(m_hWnd, &rect);
-
-#ifdef UsingimGUI
-		imGUI_D3D_Resize(true, true);
-#endif
 		
 		ResizeWindow(rect.right - rect.left, rect.bottom - rect.top);
 		m_bActive = true;
@@ -182,11 +165,7 @@ void IApplication::Startup(LPCWSTR lpTitle, uint32_t width, uint32_t height, boo
 		g_Renderer->InitD3DEnvironment(m_hWnd, m_Width, m_Height, bWindowed);
 	}
 
-#ifdef UsingimGUI
-	imGUI_D3D_Init(&m_hWnd);
-#elif defined(UsingAntTweakBar)
-	m_GUI.Init(g_Renderer->GetDevice(), m_Width, m_Height);
-#endif
+	m_GUI.Init(m_hWnd);
 }
 
 void IApplication::Running()
@@ -215,20 +194,11 @@ void IApplication::Running()
 			{
 				UpdateScene(m_pTimer->DeltaTime(), m_pTimer->TotalTime());  
 
-#ifdef UsingimGUI
-				imGUI_D3D_RenderBegin();
-#endif
+				m_GUI.RenderBegin();
 
 				RenderScene();
 
-#ifdef UsingimGUI
-				imGUI_D3D_RenderEnd();
-#elif defined(UsingAntTweakBar)
-				if (m_bDrawGUI)
-				{
-					m_GUI.Draw();
-				}
-#endif
+				m_GUI.RenderEnd();
 
 				g_Renderer->Flip();
 			}
@@ -242,10 +212,6 @@ void IApplication::Running()
 
 void IApplication::ShutDown()
 {
-#ifdef UsingimGUI
-	imGUI_D3D_Shutdown();
-#endif
-
 	D3DGraphic::DestoryInstance();
 }
 

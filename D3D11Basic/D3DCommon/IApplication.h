@@ -1,6 +1,12 @@
 #pragma once
 
+#include "Common.h"
+
+#if defined UsingimGUI
+#include "GUI_imGUI.h"
+#elif defined UsingAntTweakBar
 #include "GUI_AntTweakBar.h"
+#endif
 
 class IApplication
 {
@@ -30,9 +36,10 @@ protected:
 	uint32_t m_Width;
 	uint32_t m_Height;
 	bool m_bInited;
-	bool m_bDrawGUI = false;
 
-#ifdef UsingAntTweakBar
+#if defined UsingimGUI
+	imGUI_D3D11 m_GUI;
+#elif defined UsingAntTweakBar
 	GUIAntTweakBar m_GUI;
 #endif
 

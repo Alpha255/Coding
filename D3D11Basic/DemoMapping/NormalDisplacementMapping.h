@@ -5,10 +5,7 @@
 class ApplicationMapping : public IApplication
 {
 public:
-	ApplicationMapping()
-	{
-		m_bDrawGUI = true;
-	}
+	ApplicationMapping() = default;
 	~ApplicationMapping() = default;
 
 	virtual void SetupScene();

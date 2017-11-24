@@ -75,10 +75,9 @@ void ApplicationLighting::RenderScene()
 
 	s_Resource.Model.SetLightCount(m_CurLightCount);
 
-	//s_Resource.Model.Draw(s_Camera, m_Wireframe);
+	s_Resource.Model.Draw(s_Camera, m_Wireframe);
 
 #ifdef UsingimGUI
-	//ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	ImGui::Checkbox("Wireframe", &m_Wireframe);
 #endif
 }
