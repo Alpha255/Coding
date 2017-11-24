@@ -156,6 +156,9 @@
     <ProjectReference Include="..\..\ThirdParty\GUI\AntTweakBar.vcxproj">
       <Project>{f976d24a-4eba-42dc-b804-87ae6a09e0ee}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\ThirdParty\GUI\imGUI.vcxproj">
+      <Project>{dc209b60-de63-473c-b591-509783cf2fd6}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\D3DCommon\D3DCommon.vcxproj">
       <Project>{6ac5e4d4-a7ce-4a12-ad70-c3591652de8e}</Project>
     </ProjectReference>

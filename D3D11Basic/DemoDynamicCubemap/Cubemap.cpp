@@ -363,10 +363,10 @@ void ApplicationCubemap::DrawScene(const Camera &cam, bool bDrawCenterSphere)
 		cbVS.WorldInverse = cbVS.World.Inverse();
 		cbVS.WVP = wvp.Transpose();
 		cbVS.TexTransform = Matrix::Scaling(6.0f, 8.0f, 1.0f)/*.Transpose()*/;
-		g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
+		g_Renderer->UpdateBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
 
 		memcpy(&s_CBPS.Mat, &s_Geometries.MatGrid, sizeof(Lighting::Material));
-		g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBPS, sizeof(ConstantsBufPS));
+		g_Renderer->UpdateBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBPS, sizeof(ConstantsBufPS));
 
 		g_Renderer->SetShaderResource(s_Resource.FloorTex.Ptr());
 
@@ -381,10 +381,10 @@ void ApplicationCubemap::DrawScene(const Camera &cam, bool bDrawCenterSphere)
 		cbVS.WorldInverse = cbVS.World.Inverse();
 		cbVS.WVP = wvp.Transpose();
 		cbVS.TexTransform.Identity();
-		g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
+		g_Renderer->UpdateBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
 
 		memcpy(&s_CBPS.Mat, &s_Geometries.MatBox, sizeof(Lighting::Material));
-		g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBPS, sizeof(ConstantsBufPS));
+		g_Renderer->UpdateBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBPS, sizeof(ConstantsBufPS));
 
 		g_Renderer->SetShaderResource(s_Resource.StoneTex.Ptr());
 
@@ -401,10 +401,10 @@ void ApplicationCubemap::DrawScene(const Camera &cam, bool bDrawCenterSphere)
 			cbVS.WorldInverse = cbVS.World.Inverse();
 			cbVS.WVP = wvp.Transpose();
 			cbVS.TexTransform.Identity();
-			g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
+			g_Renderer->UpdateBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
 
 			memcpy(&s_CBPS.Mat, &s_Geometries.MatSphere, sizeof(Lighting::Material));
-			g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBPS, sizeof(ConstantsBufPS));
+			g_Renderer->UpdateBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBPS, sizeof(ConstantsBufPS));
 
 			g_Renderer->SetShaderResource(s_Resource.StoneTex.Ptr());
 
@@ -420,10 +420,10 @@ void ApplicationCubemap::DrawScene(const Camera &cam, bool bDrawCenterSphere)
 		cbVS.WorldInverse = cbVS.World.Inverse();
 		cbVS.WVP = wvp.Transpose();
 		cbVS.TexTransform.Identity();
-		g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
+		g_Renderer->UpdateBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
 
 		memcpy(&s_CBPS.Mat, &s_Geometries.MatCenterSphere, sizeof(Lighting::Material));
-		g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBPS, sizeof(ConstantsBufPS));
+		g_Renderer->UpdateBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBPS, sizeof(ConstantsBufPS));
 
 		g_Renderer->SetShaderResource(s_Resource.StoneTex.Ptr());
 

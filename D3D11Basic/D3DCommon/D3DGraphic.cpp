@@ -754,16 +754,16 @@ void D3DGraphic::SetConstantBuffer(ID3D11Buffer* pConstantBuf, uint32_t slot, eS
 	}
 }
 
-void D3DGraphic::UpdateConstantBuffer(ID3D11Buffer* pConstantBuf, const void* pSource, uint32_t size)
+void D3DGraphic::UpdateBuffer(ID3D11Buffer* pBuffer, const void* pSource, size_t size)
 {
 	assert(pSource && (size > 0U));
 
 	D3D11_MAPPED_SUBRESOURCE mapData;
 	memset(&mapData, 0, sizeof(D3D11_MAPPED_SUBRESOURCE));
 
-	HRCheck(m_D3DContext->Map(pConstantBuf, 0U, D3D11_MAP_WRITE_DISCARD, 0U, &mapData));
+	HRCheck(m_D3DContext->Map(pBuffer, 0U, D3D11_MAP_WRITE_DISCARD, 0U, &mapData));
 	memcpy(mapData.pData, pSource, size);
-	m_D3DContext->Unmap(pConstantBuf, 0U);
+	m_D3DContext->Unmap(pBuffer, 0U);
 }
 
 void D3DGraphic::GetBackBufferDesc(D3D11_TEXTURE2D_DESC& tex2DDesc)

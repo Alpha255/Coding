@@ -83,7 +83,7 @@ void SkyBox::Draw(const Camera &cam)
 	g_Renderer->SetIndexBuffer(m_IndexBuffer.Ptr(), DXGI_FORMAT_R32_UINT);
 
 	g_Renderer->SetConstantBuffer(m_ConstansBuffer.Ptr(), 0U, D3DGraphic::eVertexShader);
-	g_Renderer->UpdateConstantBuffer(m_ConstansBuffer.Ptr(), &cb, sizeof(ConstantsBufferVS));
+	g_Renderer->UpdateBuffer(m_ConstansBuffer.Ptr(), &cb, sizeof(ConstantsBufferVS));
 
 	g_Renderer->SetSamplerStates(m_Sampler.Ptr());
 

@@ -383,7 +383,7 @@ void ApplicationFXAA::DrawShadowMap()
 	cbShadowMap.FilterWidth = 10.0f;
 	cbShadowMap.InvRandomRotSize = 1.0f / eRandomRotSize;
 	cbShadowMap.InvShadowMapSize = 1.0f / eShadowMapSize;
-	g_Renderer->UpdateConstantBuffer(s_ConstantsBuffers.ShadowMap.Ptr(), &cbShadowMap, sizeof(ConstantsShadowMap));
+	g_Renderer->UpdateBuffer(s_ConstantsBuffers.ShadowMap.Ptr(), &cbShadowMap, sizeof(ConstantsShadowMap));
 
 	D3D11_RECT shadowMapRect = { 0, eShadowMapSize, 0, eShadowMapSize };
 	D3D11_VIEWPORT shadowMapViewport = { 0.0f, 0.0f, (float)eShadowMapSize, (float)eShadowMapSize, 0.0f, 1.0f };	
@@ -428,7 +428,7 @@ void ApplicationFXAA::RenderScene()
 	//ConstantsFxaa cbFxaa;
 	//memset(&cbFxaa, 0, sizeof(ConstantsFxaa));
 	//cbFxaa.Fxaa = Vec4(1.0f / m_Width, 1.0f / m_Height, 0.0f, 0.0f);
-	//g_Renderer->UpdateConstantBuffer(s_ConstantsBuffers.Fxaa.Ptr(), &cbFxaa, sizeof(ConstantsFxaa));
+	//g_Renderer->UpdateBuffer(s_ConstantsBuffers.Fxaa.Ptr(), &cbFxaa, sizeof(ConstantsFxaa));
 
 	//g_Renderer->SetConstantBuffer(s_ConstantsBuffers.Fxaa.Ptr(), 1U, D3DGraphic::eVertexShader);
 	//g_Renderer->SetConstantBuffer(s_ConstantsBuffers.Fxaa.Ptr(), 1U, D3DGraphic::ePixelShader);

@@ -314,10 +314,10 @@ void ApplicationMapping::RenderScene()
 		cbVS.WorldInverse = cbVS.World.Inverse();
 		cbVS.WVP = wvp.Transpose();
 		cbVS.TexTransform = Matrix::Scaling(8.0f, 10.0f, 1.0f).Transpose();
-		g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
+		g_Renderer->UpdateBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
 
 		memcpy(&s_CBufPS.Mat, &s_Geometries.MatGrid, sizeof(Lighting::Material));
-		g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBufPS, sizeof(ConstantsBufPS));
+		g_Renderer->UpdateBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBufPS, sizeof(ConstantsBufPS));
 
 		g_Renderer->SetShaderResource(s_Resource.FloorTex.Ptr(), 0U);
 		g_Renderer->SetShaderResource(s_Resource.FloorNormalTex.Ptr(), 1U);
@@ -333,10 +333,10 @@ void ApplicationMapping::RenderScene()
 	//	cbVS.WorldInverse = cbVS.World.Inverse();
 	//	cbVS.WVP = wvp.Transpose();
 	//	cbVS.TexTransform = Matrix::Scaling(2.0f, 1.0f, 1.0f).Transpose();
-	//	g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
+	//	g_Renderer->UpdateBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
 
 	//	memcpy(&s_CBufPS.Mat, &s_Geometries.MatBox, sizeof(Lighting::Material));
-	//	g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBufPS, sizeof(ConstantsBufPS));
+	//	g_Renderer->UpdateBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBufPS, sizeof(ConstantsBufPS));
 
 	//	g_Renderer->SetShaderResource(s_Resource.BrickTex.Ptr(), 0U);
 	//	g_Renderer->SetShaderResource(s_Resource.BrickNormalTex.Ptr(), 1U);
@@ -360,10 +360,10 @@ void ApplicationMapping::RenderScene()
 	//		cbVS.WorldInverse = cbVS.World.Inverse();
 	//		cbVS.WVP = wvp.Transpose();
 	//		cbVS.TexTransform.Identity();
-	//		g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
+	//		g_Renderer->UpdateBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
 
 	//		memcpy(&s_CBufPS.Mat, &s_Geometries.MatSphere, sizeof(Lighting::Material));
-	//		g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBufPS, sizeof(ConstantsBufPS));
+	//		g_Renderer->UpdateBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBufPS, sizeof(ConstantsBufPS));
 
 	//		g_Renderer->SetShaderResource(s_Resource.Sky.GetCubemap(), 2U);
 

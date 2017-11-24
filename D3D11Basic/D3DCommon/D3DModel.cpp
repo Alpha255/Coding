@@ -227,8 +227,8 @@ void SimpleMesh::Draw(const Camera &cam, bool bWireframe)
 	Vec4 eyePos = cam.GetEyePos();
 	m_CBufferPS.ViewPoint = Vec3(eyePos.x, eyePos.y, eyePos.z);
 
-	g_Renderer->UpdateConstantBuffer(m_D3DRes.CBufferVS.Ptr(), &m_CBufferVS, sizeof(ConstantsBufferVS));
-	g_Renderer->UpdateConstantBuffer(m_D3DRes.CBufferPS.Ptr(), &m_CBufferPS, sizeof(ConstantsBufferPS));
+	g_Renderer->UpdateBuffer(m_D3DRes.CBufferVS.Ptr(), &m_CBufferVS, sizeof(ConstantsBufferVS));
+	g_Renderer->UpdateBuffer(m_D3DRes.CBufferPS.Ptr(), &m_CBufferPS, sizeof(ConstantsBufferPS));
 
 	g_Renderer->SetConstantBuffer(m_D3DRes.CBufferVS.Ptr(), 0U, D3DGraphic::eVertexShader);
 	g_Renderer->SetConstantBuffer(m_D3DRes.CBufferPS.Ptr(), 0U, D3DGraphic::ePixelShader);

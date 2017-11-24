@@ -111,23 +111,32 @@ LRESULT IApplication::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_GETMINMAXINFO:
 		break;
-	case WM_LBUTTONDOWN:
-	case WM_RBUTTONDOWN:
-	case WM_MBUTTONDOWN:
-		MouseButtonDown(wParam, (int)LOWORD(lParam), (int)HIWORD(lParam));
-		break;
-	case WM_LBUTTONUP:
-	case WM_RBUTTONUP:
-	case WM_MBUTTONUP:
-		MouseButtonUp(wParam, (int)LOWORD(lParam), (int)HIWORD(lParam));
-		break;
-	case WM_MOUSEMOVE:
-		MouseMove(wParam, (int)LOWORD(lParam), (int)HIWORD(lParam));
-		break;
-	case WM_MOUSEHWHEEL:
-	case WM_KEYDOWN:
-		Keyboard(wParam);
-		break;
+	}
+
+	/// Handle user input
+	if (!m_GUI.IsFocus())
+	{
+		switch (msg)
+		{
+		case WM_LBUTTONDOWN:
+		case WM_RBUTTONDOWN:
+		case WM_MBUTTONDOWN:
+			MouseButtonDown(wParam, (int)LOWORD(lParam), (int)HIWORD(lParam));
+			break;
+		case WM_LBUTTONUP:
+		case WM_RBUTTONUP:
+		case WM_MBUTTONUP:
+			MouseButtonUp(wParam, (int)LOWORD(lParam), (int)HIWORD(lParam));
+			break;
+		case WM_MOUSEMOVE:
+			MouseMove(wParam, (int)LOWORD(lParam), (int)HIWORD(lParam));
+			break;
+		case WM_MOUSEHWHEEL:
+			break;
+		case WM_KEYDOWN:
+			Keyboard(wParam);
+			break;
+		}
 	}
 
 	return DefWindowProc(hWnd, msg, wParam, lParam);

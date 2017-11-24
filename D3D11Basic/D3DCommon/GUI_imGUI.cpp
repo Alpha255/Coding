@@ -35,6 +35,9 @@ struct ConstantsBufferVS
 
 static imGUIResource s_imResource;
 
+static ImDrawVert *s_pVertices = nullptr;
+static ImDrawIdx *s_pIndices = nullptr;
+
 int32_t imGUI_D3D11::m_VertexCount = 0U;
 int32_t imGUI_D3D11::m_IndexCount = 0U;
 
@@ -147,6 +150,9 @@ void imGUI_D3D11::RenderBegin(const char *pPanelName)
 	{
 		::SetCursor(nullptr);
 	}
+
+	ImVec2 pos(10.0f, 10.0f);
+	ImGui::SetNextWindowPos(pos, ImGuiCond_FirstUseEver);
 
 	/// Start the frame. This call will update the io.WantCaptureMouse, 
 	/// io.WantCaptureKeyboard flag that you can use to dispatch inputs (or not) to your application.
@@ -274,7 +280,7 @@ void imGUI_D3D11::RenderListCallback(ImDrawData * pDrawData)
 		return;
 	}
 
-	RecreateVIBuffers(
+	UpdateVIBuffers(
 		(!s_imResource.VertexBuffer.Valid() || m_VertexCount < pDrawData->TotalVtxCount),
 		(!s_imResource.IndexBuffer.Valid() || m_IndexCount < pDrawData->TotalIdxCount),
 		pDrawData);
@@ -290,7 +296,7 @@ void imGUI_D3D11::RenderListCallback(ImDrawData * pDrawData)
 		0.0f, 0.0f, 0.5f, 0.0f,
 		(R + L) / (L - R), (T + B) / (B - T), 0.5f, 1.0f
 	);
-	g_Renderer->UpdateConstantBuffer(s_imResource.CBufVS.Ptr(), &cbVS, sizeof(ConstantsBufferVS));
+	g_Renderer->UpdateBuffer(s_imResource.CBufVS.Ptr(), &cbVS, sizeof(ConstantsBufferVS));
 
 	D3D11_VIEWPORT vp{ 0 };
 	vp.Width = ImGui::GetIO().DisplaySize.x;
@@ -338,73 +344,72 @@ void imGUI_D3D11::RenderListCallback(ImDrawData * pDrawData)
 	RestoreD3DState();
 }
 
-void imGUI_D3D11::RecreateVIBuffers(bool bCreateVB, bool bCreateIB, const ImDrawData *pDrawData)
+void imGUI_D3D11::UpdateVIBuffers(bool bRecreateVB, bool bRecreateIB, const ImDrawData *pDrawData)
 {
 	static Ref<ID3D11Buffer> nullBuffer;
 
-	if (bCreateVB)
+	if (bRecreateVB)
 	{
-		m_VertexCount = pDrawData->TotalVtxCount;
-
+		m_VertexCount = pDrawData->TotalVtxCount + 5000;
+		
 		s_imResource.VertexBuffer = nullBuffer;
 
-		uint32_t totalVertexCount = (uint32_t)(pDrawData->TotalVtxCount + 5000);
-		ImDrawVert *pVertices = new ImDrawVert[totalVertexCount]();
-		for (int i = 0, totalVertices = 0; i < pDrawData->CmdListsCount; ++i)
-		{
-			const ImDrawList *pDrawList = pDrawData->CmdLists[i];
-			memcpy(pVertices + totalVertices, pDrawList->VtxBuffer.Data, pDrawList->VtxBuffer.Size * sizeof(ImDrawVert));
-			totalVertices += pDrawList->VtxBuffer.Size;
-		}
+		SafeDeleteArray(s_pVertices);
+		s_pVertices = new ImDrawVert[m_VertexCount]();
 
-		g_Renderer->CreateVertexBuffer(s_imResource.VertexBuffer.Reference(), totalVertexCount * sizeof(ImDrawVert),
-			D3D11_USAGE_IMMUTABLE, (const void*)pVertices);
-
-		SafeDeleteArray(pVertices);
+		g_Renderer->CreateVertexBuffer(s_imResource.VertexBuffer.Reference(), m_VertexCount * sizeof(ImDrawVert),
+			D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
 	}
 
-	if (bCreateIB)
+	if (bRecreateIB)
 	{
-		m_IndexCount = pDrawData->TotalIdxCount;
+		m_IndexCount = pDrawData->TotalIdxCount + 10000;
 
 		s_imResource.IndexBuffer = nullBuffer;
 
-		uint32_t totalIndexCount = (uint32_t)(pDrawData->TotalIdxCount + 10000);
-		ImDrawIdx *pIndices = new ImDrawIdx[totalIndexCount]();
-		for (int i = 0, totalIndices = 0; i < pDrawData->CmdListsCount; ++i)
-		{
-			const ImDrawList *pDrawList = pDrawData->CmdLists[i];
-			memcpy(pIndices + totalIndices, pDrawList->IdxBuffer.Data, pDrawList->IdxBuffer.Size * sizeof(ImDrawIdx));
-			totalIndices += pDrawList->IdxBuffer.Size;
-		}
+		SafeDeleteArray(s_pIndices);
+		s_pIndices = new ImDrawIdx[m_IndexCount]();
 
-		g_Renderer->CreateIndexBuffer(s_imResource.IndexBuffer.Reference(), totalIndexCount * sizeof(ImDrawIdx),
-			D3D11_USAGE_IMMUTABLE, pIndices);
-
-		SafeDeleteArray(pIndices);
+		g_Renderer->CreateIndexBuffer(s_imResource.IndexBuffer.Reference(), m_IndexCount * sizeof(ImDrawIdx),
+			D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
 	}
+
+	/// Update vertices and indices
+	for (int i = 0, totalVertices = 0, totalIndices = 0; i < pDrawData->CmdListsCount; ++i)
+	{
+		const ImDrawList *pDrawList = pDrawData->CmdLists[i];
+
+		memcpy(s_pVertices + totalVertices, pDrawList->VtxBuffer.Data, pDrawList->VtxBuffer.Size * sizeof(ImDrawVert));
+		totalVertices += pDrawList->VtxBuffer.Size;
+
+		memcpy(s_pIndices + totalIndices, pDrawList->IdxBuffer.Data, pDrawList->IdxBuffer.Size * sizeof(ImDrawIdx));
+		totalIndices += pDrawList->IdxBuffer.Size;
+	}
+
+	g_Renderer->UpdateBuffer(s_imResource.VertexBuffer.Ptr(), s_pVertices, sizeof(ImDrawVert) * m_VertexCount);
+	g_Renderer->UpdateBuffer(s_imResource.IndexBuffer.Ptr(), s_pIndices, sizeof(ImDrawIdx) * m_IndexCount);
 }
 
 void imGUI_D3D11::RestoreD3DState()
 {
-	ImGuiIO &io = ImGui::GetIO();
-	HWND hWnd = (HWND)io.ImeWindowHandle;
-	assert(hWnd);
+	///ImGuiIO &io = ImGui::GetIO();
+	///HWND hWnd = (HWND)io.ImeWindowHandle;
+	///assert(hWnd);
 
-	::RECT rect;
-	::GetClientRect(hWnd, &rect);
+	///::RECT rect;
+	///::GetClientRect(hWnd, &rect);
 
-	D3D11_VIEWPORT vp{ 0 };
-	vp.Width = (float)(rect.right - rect.left);
-	vp.Height = (float)(rect.bottom - rect.top);
-	vp.MinDepth = 0.0f;
-	vp.MaxDepth = 1.0f;
-	vp.TopLeftX = vp.TopLeftY = 0.0f;
-	g_Renderer->SetViewports(&vp);
+	///D3D11_VIEWPORT vp{ 0 };
+	///vp.Width = (float)(rect.right - rect.left);
+	///vp.Height = (float)(rect.bottom - rect.top);
+	///vp.MinDepth = 0.0f;
+	///vp.MaxDepth = 1.0f;
+	///vp.TopLeftX = vp.TopLeftY = 0.0f;
+	///g_Renderer->SetViewports(&vp);
 
-	g_Renderer->SetScissorRects(&rect);
+	///g_Renderer->SetScissorRects(&rect);
 
-	g_Renderer->SetRasterizerState(s_imResource.BackFaceCulling.Ptr());
+	///g_Renderer->SetRasterizerState(s_imResource.BackFaceCulling.Ptr());
 
 	///g_Renderer->SetInputLayout(nullptr);
 	///g_Renderer->SetBlendState(nullptr, Vec4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
@@ -413,5 +418,7 @@ void imGUI_D3D11::RestoreD3DState()
 
 imGUI_D3D11::~imGUI_D3D11()
 {
+	SafeDeleteArray(s_pVertices);
+	SafeDeleteArray(s_pIndices);
 	ImGui::Shutdown();
 }

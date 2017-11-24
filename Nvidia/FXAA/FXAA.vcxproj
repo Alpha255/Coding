@@ -151,6 +151,9 @@
     <ProjectReference Include="..\..\ThirdParty\GUI\AntTweakBar.vcxproj">
       <Project>{f976d24a-4eba-42dc-b804-87ae6a09e0ee}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\ThirdParty\GUI\imGUI.vcxproj">
+      <Project>{dc209b60-de63-473c-b591-509783cf2fd6}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\D3D11Basic\D3DCommon\resource.h" />

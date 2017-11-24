@@ -28,7 +28,7 @@ protected:
 	void InitFontTextures();
 	static void RenderListCallback(ImDrawData *pDrawData);
 	static void RestoreD3DState();
-	static void RecreateVIBuffers(bool bCreateVB, bool bCreateIB, const ImDrawData *pDrawData);
+	static void UpdateVIBuffers(bool bRecreateVB, bool bRecreateIB, const ImDrawData *pDrawData);
 
 	bool IsMouseBtnDown()
 	{

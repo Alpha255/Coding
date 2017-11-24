@@ -189,7 +189,7 @@ void ApplicationBox::RenderScene()
 	Constants cBuffer;
 	memset(&cBuffer, 0, sizeof(Constants));
 	cBuffer.WVP = wvp.Transpose();
-	g_Renderer->UpdateConstantBuffer(s_D3DResource.ConstantsBuffer.Ptr(), &cBuffer, sizeof(Constants));
+	g_Renderer->UpdateBuffer(s_D3DResource.ConstantsBuffer.Ptr(), &cBuffer, sizeof(Constants));
 	g_Renderer->SetConstantBuffer(s_D3DResource.ConstantsBuffer.Ptr(), 0U, D3DGraphic::eVertexShader);
 
 #ifdef UsingTexture

@@ -112,7 +112,7 @@ void AppDisplacement::RenderScene()
 	ConstantsBufVS cbVS;
 	cbVS.WorldInverse = world.InverseTranspose();
 	cbVS.WVP = wvp.Transpose();
-	g_Renderer->UpdateConstantBuffer(s_Resource.ConstantsBuf.Ptr(), &cbVS, sizeof(ConstantsBufVS));
+	g_Renderer->UpdateBuffer(s_Resource.ConstantsBuf.Ptr(), &cbVS, sizeof(ConstantsBufVS));
 
 	g_Renderer->SetVertexShader(s_Resource.VertexShader.Ptr());
 	g_Renderer->SetPixelShader(s_Resource.PixelShader.Ptr());

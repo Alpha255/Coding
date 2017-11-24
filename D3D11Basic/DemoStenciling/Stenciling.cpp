@@ -360,10 +360,10 @@ void ApplicationStenciling::RenderScene()
 		g_Renderer->SetInputLayout(s_Resource.RoomMesh.Layout.Ptr());
 		g_Renderer->SetVertexBuffer(s_Resource.RoomMesh.VBFloor.Ptr(), sizeof(BasicVertex), 0U);
 		g_Renderer->SetConstantBuffer(s_Resource.RoomMesh.CBVS.Ptr(), 0U, D3DGraphic::eVertexShader);
-		g_Renderer->UpdateConstantBuffer(s_Resource.RoomMesh.CBVS.Ptr(), &s_CBVS, sizeof(ConstantsBufferVS));
+		g_Renderer->UpdateBuffer(s_Resource.RoomMesh.CBVS.Ptr(), &s_CBVS, sizeof(ConstantsBufferVS));
 		memcpy(&s_CBPS.Mat, &s_MatRoom, sizeof(Lighting::Material));
 		g_Renderer->SetConstantBuffer(s_Resource.RoomMesh.CBPS.Ptr(), 0U, D3DGraphic::ePixelShader);
-		g_Renderer->UpdateConstantBuffer(s_Resource.RoomMesh.CBPS.Ptr(), &s_CBPS, sizeof(ConstantsBufferPS));
+		g_Renderer->UpdateBuffer(s_Resource.RoomMesh.CBPS.Ptr(), &s_CBPS, sizeof(ConstantsBufferPS));
 		g_Renderer->SetShaderResource(s_Resource.FloorDiffuseTex.Ptr(), 0U);
 		g_Renderer->SetSamplerStates(s_Resource.Sampler.Ptr());
 		g_Renderer->Draw(6U, 0U);
@@ -376,10 +376,10 @@ void ApplicationStenciling::RenderScene()
 		g_Renderer->SetInputLayout(s_Resource.RoomMesh.Layout.Ptr());
 		g_Renderer->SetVertexBuffer(s_Resource.RoomMesh.VBWall.Ptr(), sizeof(BasicVertex), 0U);
 		g_Renderer->SetConstantBuffer(s_Resource.RoomMesh.CBVS.Ptr(), 0U, D3DGraphic::eVertexShader);
-		g_Renderer->UpdateConstantBuffer(s_Resource.RoomMesh.CBVS.Ptr(), &s_CBVS, sizeof(ConstantsBufferVS));
+		g_Renderer->UpdateBuffer(s_Resource.RoomMesh.CBVS.Ptr(), &s_CBVS, sizeof(ConstantsBufferVS));
 		memcpy(&s_CBPS.Mat, &s_MatRoom, sizeof(Lighting::Material));
 		g_Renderer->SetConstantBuffer(s_Resource.RoomMesh.CBPS.Ptr(), 0U, D3DGraphic::ePixelShader);
-		g_Renderer->UpdateConstantBuffer(s_Resource.RoomMesh.CBPS.Ptr(), &s_CBPS, sizeof(ConstantsBufferPS));
+		g_Renderer->UpdateBuffer(s_Resource.RoomMesh.CBPS.Ptr(), &s_CBPS, sizeof(ConstantsBufferPS));
 		g_Renderer->SetShaderResource(s_Resource.WallDiffuseTex.Ptr(), 0U);
 		g_Renderer->SetSamplerStates(s_Resource.Sampler.Ptr());
 		g_Renderer->Draw(18U, 0U);
@@ -403,7 +403,7 @@ void ApplicationStenciling::RenderScene()
 		g_Renderer->SetInputLayout(s_Resource.RoomMesh.Layout.Ptr());
 		g_Renderer->SetVertexBuffer(s_Resource.RoomMesh.VBMirror.Ptr(), sizeof(BasicVertex), 0U);
 		g_Renderer->SetConstantBuffer(s_Resource.RoomMesh.CBVS.Ptr(), 0U, D3DGraphic::eVertexShader);
-		g_Renderer->UpdateConstantBuffer(s_Resource.RoomMesh.CBVS.Ptr(), &s_CBVS, sizeof(ConstantsBufferVS));
+		g_Renderer->UpdateBuffer(s_Resource.RoomMesh.CBVS.Ptr(), &s_CBVS, sizeof(ConstantsBufferVS));
 
 		/// Do not write to render target.
 		g_Renderer->SetBlendState(s_Resource.NoRTWrite.Ptr(), Vec4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
@@ -441,10 +441,10 @@ void ApplicationStenciling::RenderScene()
 		g_Renderer->SetInputLayout(s_Resource.RoomMesh.Layout.Ptr());
 		g_Renderer->SetVertexBuffer(s_Resource.RoomMesh.VBMirror.Ptr(), sizeof(BasicVertex), 0U);
 		g_Renderer->SetConstantBuffer(s_Resource.RoomMesh.CBVS.Ptr(), 0U, D3DGraphic::eVertexShader);
-		g_Renderer->UpdateConstantBuffer(s_Resource.RoomMesh.CBVS.Ptr(), &s_CBVS, sizeof(ConstantsBufferVS));
+		g_Renderer->UpdateBuffer(s_Resource.RoomMesh.CBVS.Ptr(), &s_CBVS, sizeof(ConstantsBufferVS));
 		memcpy(&s_CBPS.Mat, &s_MatMirror, sizeof(Lighting::Material));
 		g_Renderer->SetConstantBuffer(s_Resource.RoomMesh.CBPS.Ptr(), 0U, D3DGraphic::ePixelShader);
-		g_Renderer->UpdateConstantBuffer(s_Resource.RoomMesh.CBPS.Ptr(), &s_CBPS, sizeof(ConstantsBufferPS));
+		g_Renderer->UpdateBuffer(s_Resource.RoomMesh.CBPS.Ptr(), &s_CBPS, sizeof(ConstantsBufferPS));
 		g_Renderer->SetShaderResource(s_Resource.MirrorDiffuseTex.Ptr());
 		g_Renderer->SetBlendState(s_Resource.Transparent.Ptr(), Vec4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
 		g_Renderer->Draw(6U, 0U);
