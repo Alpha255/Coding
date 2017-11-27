@@ -20,9 +20,18 @@
 *.opensdf
 *.db
 *.pch
+*.ipch
+*.ini
 
 Debug/
 Release/
 obj/
 Temp/
 .hg/
+Intermediate/
+ThirdParty/GUI/AntTweakBar/src/TwDirect3D11_LineRectCstColorVS.h
+ThirdParty/GUI/AntTweakBar/src/TwDirect3D11_LineRectPS.h
+ThirdParty/GUI/AntTweakBar/src/TwDirect3D11_LineRectVS.h
+ThirdParty/GUI/AntTweakBar/src/TwDirect3D11_TextCstColorVS.h
+ThirdParty/GUI/AntTweakBar/src/TwDirect3D11_TextPS.h
+ThirdParty/GUI/AntTweakBar/src/TwDirect3D11_TextVS.h
