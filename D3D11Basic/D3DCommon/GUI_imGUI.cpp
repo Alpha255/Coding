@@ -392,27 +392,27 @@ void imGUI_D3D11::UpdateVIBuffers(bool bRecreateVB, bool bRecreateIB, const ImDr
 
 void imGUI_D3D11::RestoreD3DState()
 {
-	///ImGuiIO &io = ImGui::GetIO();
-	///HWND hWnd = (HWND)io.ImeWindowHandle;
-	///assert(hWnd);
+	ImGuiIO &io = ImGui::GetIO();
+	HWND hWnd = (HWND)io.ImeWindowHandle;
+	assert(hWnd);
 
-	///::RECT rect;
-	///::GetClientRect(hWnd, &rect);
+	::RECT rect;
+	::GetClientRect(hWnd, &rect);
 
-	///D3D11_VIEWPORT vp{ 0 };
-	///vp.Width = (float)(rect.right - rect.left);
-	///vp.Height = (float)(rect.bottom - rect.top);
-	///vp.MinDepth = 0.0f;
-	///vp.MaxDepth = 1.0f;
-	///vp.TopLeftX = vp.TopLeftY = 0.0f;
-	///g_Renderer->SetViewports(&vp);
+	D3D11_VIEWPORT vp{ 0 };
+	vp.Width = (float)(rect.right - rect.left);
+	vp.Height = (float)(rect.bottom - rect.top);
+	vp.MinDepth = 0.0f;
+	vp.MaxDepth = 1.0f;
+	vp.TopLeftX = vp.TopLeftY = 0.0f;
+	g_Renderer->SetViewports(&vp);
 
-	///g_Renderer->SetScissorRects(&rect);
+	g_Renderer->SetScissorRects(&rect);
 
-	///g_Renderer->SetRasterizerState(s_imResource.BackFaceCulling.Ptr());
+	g_Renderer->SetRasterizerState(s_imResource.BackFaceCulling.Ptr());
 
-	///g_Renderer->SetInputLayout(nullptr);
-	///g_Renderer->SetBlendState(nullptr, Vec4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
+	g_Renderer->SetInputLayout(nullptr);
+	g_Renderer->SetBlendState(nullptr, Vec4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
 	g_Renderer->SetDepthStencilState(nullptr, 0U);
 }
 

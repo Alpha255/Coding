@@ -160,12 +160,6 @@ void ApplicationBox::SetupScene()
 	g_Renderer->CreateConstantBuffer(s_D3DResource.ConstantsBuffer.Reference(), sizeof(Constants),
 		D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
 
-	g_Renderer->SetVertexShader(s_D3DResource.VertexShader.Ptr());
-	g_Renderer->SetPixelShader(s_D3DResource.PixelShader.Ptr());
-	g_Renderer->SetVertexBuffer(s_D3DResource.VertexBuffer.Ptr(), sizeof(Vertex), 0U);
-	g_Renderer->SetIndexBuffer(s_D3DResource.IndexBuffer.Ptr(), DXGI_FORMAT_R32_UINT);
-	g_Renderer->SetInputLayout(s_D3DResource.InputLayout.Ptr());
-
 	g_Renderer->SetRenderTarget(g_Renderer->DefaultRenderTarget());
 	g_Renderer->SetDepthStencil(g_Renderer->DefaultDepthStencil());
 
@@ -181,10 +175,16 @@ void ApplicationBox::SetupScene()
 
 void ApplicationBox::RenderScene()
 {
-	g_Renderer->ClearRenderTarget(g_Renderer->DefaultRenderTarget(), reinterpret_cast<const float*>(&Color::Black));
+	g_Renderer->ClearRenderTarget(g_Renderer->DefaultRenderTarget(), reinterpret_cast<const float*>(&Color::DarkBlue));
 	g_Renderer->ClearDepthStencil(g_Renderer->DefaultDepthStencil(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0U);
 
 	Matrix wvp = s_Camera.GetWorldMatrix() * s_Camera.GetViewMatrix() * s_Camera.GetProjMatrix();
+
+	g_Renderer->SetVertexShader(s_D3DResource.VertexShader.Ptr());
+	g_Renderer->SetPixelShader(s_D3DResource.PixelShader.Ptr());
+	g_Renderer->SetVertexBuffer(s_D3DResource.VertexBuffer.Ptr(), sizeof(Vertex), 0U);
+	g_Renderer->SetIndexBuffer(s_D3DResource.IndexBuffer.Ptr(), DXGI_FORMAT_R32_UINT);
+	g_Renderer->SetInputLayout(s_D3DResource.InputLayout.Ptr());
 
 	Constants cBuffer;
 	memset(&cBuffer, 0, sizeof(Constants));

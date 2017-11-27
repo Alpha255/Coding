@@ -22,16 +22,6 @@ protected:
 	};
 
 	void InitGeometriesResource();
-
-	static void __stdcall SetEnableDisplacementMap(const void *pData, void*)
-	{
-		m_bDisplacementMap = *static_cast<const bool*>(pData);
-	}
-
-	static void __stdcall GetEnableDisplacementMap(void *pData, void*)
-	{
-		*static_cast<bool*>(pData) = m_bDisplacementMap;
-	}
 private:
-	static bool m_bDisplacementMap;
+	int m_MappingType = eNormalMap;
 };
