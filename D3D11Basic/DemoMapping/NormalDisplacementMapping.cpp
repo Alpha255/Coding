@@ -340,11 +340,11 @@ void ApplicationMapping::RenderScene()
 	//	g_Renderer->DrawIndexed(s_Geometries.BoxIndexCount, s_Geometries.BoxIndexOffset, s_Geometries.BoxVertexOffset, primitive);
 	//}
 
-	//if (eDisplacementMap == mappingType)
-	//{
-	//	g_Renderer->SetHullShader(nullptr);
-	//	g_Renderer->SetDomainShader(nullptr);
-	//}
+	if (eDisplacementMap == m_MappingType)
+	{
+		g_Renderer->SetHullShader(nullptr);
+		g_Renderer->SetDomainShader(nullptr);
+	}
 
 	//{
 	//	/// Draw Spheres
