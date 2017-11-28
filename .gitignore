@@ -22,6 +22,7 @@
 *.pch
 *.ipch
 *.ini
+*.opendb
 
 Debug/
 Release/
