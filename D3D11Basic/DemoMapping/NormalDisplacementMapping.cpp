@@ -56,6 +56,8 @@ struct DemoMappingResource
 
 	Ref<ID3D11SamplerState> Sampler;
 
+	Ref<ID3D11RasterizerState> Wireframe;
+
 	Ref<ID3D11ShaderResourceView> FloorTex;
 	Ref<ID3D11ShaderResourceView> FloorNormalTex;
 	Ref<ID3D11ShaderResourceView> BrickTex;
@@ -79,8 +81,8 @@ struct ConstantsBufPS
 	Vec3 EyePos;
 	float HeightScale = 0.07f;
 
-	float MinTessDistance = 1.0f;
-	float MaxTessDistance = 25.0f;
+	float MinTessDistance = 25.0f;
+	float MaxTessDistance = 1.0f;
 	float MinTessFactor = 1.0f;
 	float MaxTessFactor = 5.0f;
 };
@@ -152,6 +154,8 @@ void ApplicationMapping::InitGeometriesResource()
 	g_Renderer->CreatePixelShader(s_Resource.DisplacementMapPS.Reference(), pShaderName, "PS_Main_DisplacementMap");
 	g_Renderer->CreateHullShader(s_Resource.DisplacementMapHS.Reference(), pShaderName, "HS_Main_DisplacementMap");
 	g_Renderer->CreateDomainShader(s_Resource.DisplacementMapDS.Reference(), pShaderName, "DS_Main_DisplacementMap");
+
+	g_Renderer->CreateRasterizerState(s_Resource.Wireframe.Reference(), D3D11_FILL_WIREFRAME);
 
 	g_Renderer->CreateConstantBuffer(s_Resource.ConstantsBufVS.Reference(), sizeof(ConstantsBufVS), 
 		D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
@@ -294,12 +298,19 @@ void ApplicationMapping::RenderScene()
 		g_Renderer->SetDomainShader(s_Resource.DisplacementMapDS.Ptr());
 		g_Renderer->SetPixelShader(s_Resource.DisplacementMapPS.Ptr());
 
+		g_Renderer->SetConstantBuffer(s_Resource.ConstantsBufPS.Ptr(), 1U, D3DGraphic::eVertexShader);
+
 		g_Renderer->SetSamplerStates(s_Resource.Sampler.Ptr(), 0U, 1U, D3DGraphic::eDomainShader);
 
 		g_Renderer->SetConstantBuffer(s_Resource.ConstantsBufVS.Ptr(), 0U, D3DGraphic::eDomainShader);
 		g_Renderer->SetConstantBuffer(s_Resource.ConstantsBufPS.Ptr(), 1U, D3DGraphic::eDomainShader);
 
 		g_Renderer->SetShaderResource(s_Resource.BrickNormalTex.Ptr(), 0U, 1U, D3DGraphic::eDomainShader);
+	}
+
+	if (m_bWireframe)
+	{
+		g_Renderer->SetRasterizerState(s_Resource.Wireframe.Ptr());
 	}
 
 	{
@@ -321,24 +332,24 @@ void ApplicationMapping::RenderScene()
 		g_Renderer->DrawIndexed(s_Geometries.GridIndexCount, s_Geometries.GridIndexOffset, s_Geometries.GridVertexOffset, primitive);
 	}
 
-	//{
-	//	/// Draw Box
-	//	world = s_Geometries.WorldBox;
-	//	wvp = world * view * proj;
-	//	cbVS.World = world.Transpose();
-	//	cbVS.WorldInverse = cbVS.World.Inverse();
-	//	cbVS.WVP = wvp.Transpose();
-	//	cbVS.TexTransform = Matrix::Scaling(2.0f, 1.0f, 1.0f).Transpose();
-	//	g_Renderer->UpdateBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
+	{
+		/// Draw Box
+		world = s_Geometries.WorldBox;
+		wvp = world * view * proj;
+		cbVS.World = world.Transpose();
+		cbVS.WorldInverse = cbVS.World.Inverse();
+		cbVS.WVP = wvp.Transpose();
+		cbVS.TexTransform = Matrix::Scaling(2.0f, 1.0f, 1.0f).Transpose();
+		g_Renderer->UpdateBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
 
-	//	memcpy(&s_CBufPS.Mat, &s_Geometries.MatBox, sizeof(Lighting::Material));
-	//	g_Renderer->UpdateBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBufPS, sizeof(ConstantsBufPS));
+		memcpy(&s_CBufPS.Mat, &s_Geometries.MatBox, sizeof(Lighting::Material));
+		g_Renderer->UpdateBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBufPS, sizeof(ConstantsBufPS));
 
-	//	g_Renderer->SetShaderResource(s_Resource.BrickTex.Ptr(), 0U);
-	//	g_Renderer->SetShaderResource(s_Resource.BrickNormalTex.Ptr(), 1U);
+		g_Renderer->SetShaderResource(s_Resource.BrickTex.Ptr(), 0U);
+		g_Renderer->SetShaderResource(s_Resource.BrickNormalTex.Ptr(), 1U);
 
-	//	g_Renderer->DrawIndexed(s_Geometries.BoxIndexCount, s_Geometries.BoxIndexOffset, s_Geometries.BoxVertexOffset, primitive);
-	//}
+		g_Renderer->DrawIndexed(s_Geometries.BoxIndexCount, s_Geometries.BoxIndexOffset, s_Geometries.BoxVertexOffset, primitive);
+	}
 
 	if (eDisplacementMap == m_MappingType)
 	{
@@ -367,11 +378,12 @@ void ApplicationMapping::RenderScene()
 	//	}
 	//}
 
-	//s_Resource.Skull.Draw(s_Camera);
+	s_Resource.Skull.Draw(s_Camera, m_bWireframe);
 
-	//s_Resource.Sky.Draw(s_Camera);
+	s_Resource.Sky.Draw(s_Camera);
 
 	ImGui::Combo("MappingType", &m_MappingType, "NormalMapping\0DisplacementMapping");
+	ImGui::Checkbox("Wireframe", &m_bWireframe);
 }
 
 void ApplicationMapping::UpdateScene(float /*elapsedTime*/, float /*totalTime*/)

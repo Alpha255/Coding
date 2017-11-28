@@ -24,4 +24,5 @@ protected:
 	void InitGeometriesResource();
 private:
 	int m_MappingType = eNormalMap;
+	bool m_bWireframe = false;
 };
