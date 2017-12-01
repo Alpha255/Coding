@@ -81,8 +81,8 @@ struct ConstantsBufPS
 	Vec3 EyePos;
 	float HeightScale = 0.07f;
 
-	float MinTessDistance = 25.0f;
-	float MaxTessDistance = 1.0f;
+	float MinTessDistance = 1.0f;
+	float MaxTessDistance = 25.0f;
 	float MinTessFactor = 1.0f;
 	float MaxTessFactor = 5.0f;
 };
@@ -387,6 +387,15 @@ void ApplicationMapping::RenderScene()
 
 	ImGui::Combo("MappingType", &m_MappingType, "NormalMapping\0DisplacementMapping");
 	ImGui::Checkbox("Wireframe", &m_bWireframe);
+
+	if (eDisplacementMap == m_MappingType)
+	{
+		ImGui::SliderFloat("HeightScale", &s_CBufPS.HeightScale, 0.01f, 0.2f);
+		ImGui::SliderFloat("MinTessDistance", &s_CBufPS.MinTessDistance, 1.0f, 25.0f);
+		ImGui::SliderFloat("MaxTessDistance", &s_CBufPS.MaxTessDistance, 1.0f, 25.0f);
+		ImGui::SliderFloat("MinTessFactor", &s_CBufPS.MinTessFactor, 1.0f, 5.0f);
+		ImGui::SliderFloat("MaxTessFactor", &s_CBufPS.MaxTessFactor, 1.0f, 5.0f);
+	}
 }
 
 void ApplicationMapping::UpdateScene(float /*elapsedTime*/, float /*totalTime*/)
