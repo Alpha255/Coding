@@ -105,6 +105,7 @@ void ApplicationMapping::InitGeometriesResource()
 
 	Math::Geometry::Mesh sphere;
 	Math::Geometry::MakeSphere(0.5f, 20U, 20U, sphere);
+	///Math::Geometry::MakeGeoSphere(0.5f, 3U, sphere);
 
 	s_Geometries.BoxIndexCount = (uint32_t)box.Indices.size();
 	s_Geometries.BoxIndexOffset = 0U;
@@ -353,30 +354,32 @@ void ApplicationMapping::RenderScene()
 
 	if (eDisplacementMap == m_MappingType)
 	{
+		g_Renderer->SetVertexShader(s_Resource.NormalMapVS.Ptr());
 		g_Renderer->SetHullShader(nullptr);
 		g_Renderer->SetDomainShader(nullptr);
+		g_Renderer->SetPixelShader(s_Resource.NormalMapPS.Ptr());
 	}
 
-	//{
-	//	/// Draw Spheres
-	//	for (uint32_t i = 0U; i < 10U; ++i)
-	//	{
-	//		world = s_Geometries.WorldSphere[i];
-	//		wvp = world * view * proj;
-	//		cbVS.World = world.Transpose();
-	//		cbVS.WorldInverse = cbVS.World.Inverse();
-	//		cbVS.WVP = wvp.Transpose();
-	//		cbVS.TexTransform.Identity();
-	//		g_Renderer->UpdateBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
+	{
+		/// Draw Spheres
+		for (uint32_t i = 0U; i < 10U; ++i)
+		{
+			world = s_Geometries.WorldSphere[i];
+			wvp = world * view * proj;
+			cbVS.World = world.Transpose();
+			cbVS.WorldInverse = cbVS.World.Inverse();
+			cbVS.WVP = wvp.Transpose();
+			cbVS.TexTransform.Identity();
+			g_Renderer->UpdateBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
 
-	//		memcpy(&s_CBufPS.Mat, &s_Geometries.MatSphere, sizeof(Lighting::Material));
-	//		g_Renderer->UpdateBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBufPS, sizeof(ConstantsBufPS));
+			memcpy(&s_CBufPS.Mat, &s_Geometries.MatSphere, sizeof(Lighting::Material));
+			g_Renderer->UpdateBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBufPS, sizeof(ConstantsBufPS));
 
-	//		g_Renderer->SetShaderResource(s_Resource.Sky.GetCubemap(), 2U);
+			g_Renderer->SetShaderResource(s_Resource.Sky.GetCubemap(), 2U);
 
-	//		g_Renderer->DrawIndexed(s_Geometries.SphereIndexCount, s_Geometries.SphereIndexOffset, s_Geometries.SphereVertexOffset);
-	//	}
-	//}
+			g_Renderer->DrawIndexed(s_Geometries.SphereIndexCount, s_Geometries.SphereIndexOffset, s_Geometries.SphereVertexOffset);
+		}
+	}
 
 	s_Resource.Skull.Draw(s_Camera, m_bWireframe);
 

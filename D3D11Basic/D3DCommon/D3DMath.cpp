@@ -204,7 +204,7 @@ void MakeSphere(float radius, uint32_t slice, uint32_t stack, Mesh& mesh)
 
 	/// Compute vertices for each stack ring (do not count the poles as rings).
 	mesh.Vertices.push_back(tVertex);
-	for (uint32_t i = 1; i < stack - 1; ++i)
+	for (uint32_t i = 1; i < stack; ++i)
 	{
 		float phi = i * phiStep;
 
