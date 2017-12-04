@@ -16,4 +16,5 @@ public:
 	virtual void MouseMove(WPARAM wParam, int x, int y);
 protected:
 private:
+	bool m_bWireframe = false;
 };
