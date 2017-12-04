@@ -191,8 +191,6 @@ void MakeCube(float width, Mesh& mesh)
 
 void MakeSphere(float radius, uint32_t slice, uint32_t stack, Mesh& mesh)
 {
-	/// Bugs....
-	/// https://www.web-tinker.com/article/20167.html
 	mesh.Vertices.clear();
 	mesh.Indices.clear();
 
@@ -362,9 +360,134 @@ void MakeGeoSphere(float radius, uint32_t subDivisions, Mesh& mesh)
 	}
 }
 
-void MakeCylinder(float /*bottomRadius*/, float /*topRadius*/, float /*height*/, uint32_t /*slice*/, uint32_t /*stack*/, Mesh& /*mesh*/)
+void MakeCylinderTopBottomCap(bool bTop, float bottomRadius, float topRadius, float height, uint32_t slice, uint32_t stack, Mesh &mesh)
 {
-	assert(!"Unsupport yet!!!");
+	float y = bTop ? (0.5f * height) : (-0.5f * height);
+	float r = bTop ? topRadius : bottomRadius;
+	float cy = bTop ? 1.0f : -1.0f;
+	float theta = DirectX::XM_2PI / slice;
+	uint32_t baseIndex = (uint32_t)mesh.Vertices.size();
+
+	/// Duplicate cap ring vertices because the texture coordinates and normals differ.
+	for (uint32_t i = 0U; i <= slice; ++i)
+	{
+		float x = r * cosf(i * theta);
+		float z = r * sinf(i * theta);
+
+	/// Scale down by the height to try and make top cap texture coord area proportional to base.
+		Vertex v(
+			x, y, z,
+			0.0f, cy, 0.0f,
+			1.0f, 0.0f, 0.0f,
+			x / height + 0.5f, z / height + 0.5f);
+		mesh.Vertices.push_back(v);
+	}
+
+	/// Cap center vertex.
+	Vertex center(0.0f, y, 0.0f, 0.0f, cy, 0.0f, 1.0f, 0.0f, 0.0f, 0.5f, 0.5f);
+	mesh.Vertices.push_back(center);
+
+	/// Cache the index of center vertex.
+	uint32_t centerIndex = (uint32_t)(mesh.Vertices.size() - 1U);
+
+	for (uint32_t i = 0U; i < slice; ++i)
+	{
+		mesh.Indices.push_back(centerIndex);
+
+		uint32_t i1 = bTop ? (baseIndex + i + 1) : (baseIndex + i);
+		uint32_t i2 = bTop ? (baseIndex + i) : (baseIndex + i + 1);
+
+		mesh.Indices.push_back(i1);
+		mesh.Indices.push_back(i2);
+	}
+}
+
+void MakeCylinder(float bottomRadius, float topRadius, float height, uint32_t slice, uint32_t stack, Mesh &mesh)
+{
+	mesh.Vertices.clear();
+	mesh.Indices.clear();
+
+	float stackHeight = height / stack;
+
+	/// Amount to increment radius as we move up each stack level from bottom to top.
+	float radiusStep = (topRadius - bottomRadius) / stack;
+
+	uint32_t ring = stack + 1;
+
+	/// Compute vertices for each stack ring starting at the bottom and moving up.
+	for (uint32_t i = 0U; i < ring; ++i)
+	{
+		float y = -0.5f * height + i * stackHeight;
+		float r = bottomRadius + i * radiusStep;
+
+		/// Vertices of ring
+		float theta = 2.0f * DirectX::XM_PI / slice;
+		for (uint32_t j = 0U; j <= slice; ++j)
+		{
+			float c = cosf(j * theta);
+			float s = sinf(j * theta);
+
+			Vertex v;
+			v.Position = Vec3(r * c, y, r * s);
+			
+			v.UV.x = (float)j / slice;
+			v.UV.y = 1.0f - (float)i / stack;
+
+			/// Cylinder can be parameterized as follows, where we introduce v
+			/// parameter that goes in the same direction as the v tex-coord
+			/// so that the bitangent goes in the same direction as the v tex-coord.
+			/// Let r0 be the bottom radius and let r1 be the top radius.
+			/// y(v) = h - hv for v in [0,1].
+			/// r(v) = r1 + (r0-r1)v
+			/// 
+			/// x(t, v) = r(v)*cos(t)
+			/// y(t, v) = h - hv
+			/// z(t, v) = r(v)*sin(t)
+			/// 
+			/// dx/dt = -r(v)*sin(t)
+			/// dy/dt = 0
+			/// dz/dt = +r(v)*cos(t)
+			/// 
+			/// dx/dv = (r0-r1)*cos(t)
+			/// dy/dv = -h
+			/// dz/dv = (r0-r1)*sin(t)
+
+			/// Unit length
+			v.Tangent = Vec3(-s, 0.0f, c);
+
+			float dR = bottomRadius - topRadius;
+			Vec3 binNormal(dR * c, -height, dR * s);
+
+			DirectX::XMVECTOR T = DirectX::XMLoadFloat3(&v.Tangent);
+			DirectX::XMVECTOR B = DirectX::XMLoadFloat3(&binNormal);
+			DirectX::XMVECTOR N = DirectX::XMVector3Cross(T, B);
+			DirectX::XMStoreFloat3(&v.Normal, N);
+
+			mesh.Vertices.push_back(v);
+		}
+	}
+
+	/// Add one because we duplicate the first and last vertex per ring
+	/// since the texture coordinates are different.
+	uint32_t ringVertexCount = slice + 1;
+
+	/// Compute indices for each stack.
+	for (uint32_t i = 0U; i < stack; ++i)
+	{
+		for (uint32_t j = 0U; j < slice; ++j)
+		{
+			mesh.Indices.push_back(i * ringVertexCount + j);
+			mesh.Indices.push_back((i + 1) * ringVertexCount + j);
+			mesh.Indices.push_back((i + 1) * ringVertexCount + j + 1);
+
+			mesh.Indices.push_back(i * ringVertexCount + j);
+			mesh.Indices.push_back((i + 1) * ringVertexCount + j + 1);
+			mesh.Indices.push_back(i * ringVertexCount + j + 1);
+		}
+	}
+
+	MakeCylinderTopBottomCap(true, bottomRadius, topRadius, height, slice, stack, mesh);
+	MakeCylinderTopBottomCap(false, bottomRadius, topRadius, height, slice, stack, mesh);
 }
 
 void MakeGrid(float width, float depth, uint32_t m, uint32_t n, Mesh& mesh)
@@ -420,9 +543,43 @@ void MakeGrid(float width, float depth, uint32_t m, uint32_t n, Mesh& mesh)
 	}
 }
 
-void MakeQuad(Mesh& /*mesh*/)
+void MakeQuad(Mesh& mesh)
 {
-	assert(!"Unsupport yet!!!");
+	mesh.Vertices.resize(4U);
+	mesh.Indices.resize(6U);
+
+	/// Position coordinates specified in NDC space.
+	mesh.Vertices[0] = Vertex(
+		-1.0f, -1.0f, 0.0f,
+		0.0f, 0.0f, -1.0f,
+		1.0f, 0.0f, 0.0f,
+		0.0f, 1.0f);
+
+	mesh.Vertices[1] = Vertex(
+		-1.0f, +1.0f, 0.0f,
+		0.0f, 0.0f, -1.0f,
+		1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f);
+
+	mesh.Vertices[2] = Vertex(
+		+1.0f, +1.0f, 0.0f,
+		0.0f, 0.0f, -1.0f,
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f);
+
+	mesh.Vertices[3] = Vertex(
+		+1.0f, -1.0f, 0.0f,
+		0.0f, 0.0f, -1.0f,
+		1.0f, 0.0f, 0.0f,
+		1.0f, 1.0f);
+
+	mesh.Indices[0] = 0;
+	mesh.Indices[1] = 1;
+	mesh.Indices[2] = 2;
+
+	mesh.Indices[3] = 0;
+	mesh.Indices[4] = 2;
+	mesh.Indices[5] = 3;
 }
 
 void SubDivide(Mesh& mesh)

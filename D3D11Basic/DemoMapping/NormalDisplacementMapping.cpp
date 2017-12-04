@@ -24,13 +24,19 @@ struct GeometriesInfo
 	uint32_t SphereIndexOffset;
 	int32_t SphereVertexOffset;
 
+	uint32_t CylinderIndexCount;
+	uint32_t CylinderIndexOffset;
+	int32_t CylinderVertexOffset;
+
 	Matrix WorldGrid;
 	Matrix WorldBox;
 	Matrix WorldSphere[10];
+	Matrix WorldCylinder[10];
 
 	Lighting::Material MatGrid;
 	Lighting::Material MatBox;
 	Lighting::Material MatSphere;
+	Lighting::Material MatCylinder;
 };
 
 struct DemoMappingResource
@@ -107,6 +113,9 @@ void ApplicationMapping::InitGeometriesResource()
 	Math::Geometry::MakeSphere(0.5f, 20U, 20U, sphere);
 	///Math::Geometry::MakeGeoSphere(0.5f, 3U, sphere);
 
+	Math::Geometry::Mesh cylinder;
+	Math::Geometry::MakeCylinder(0.5f, 0.5f, 3.0f, 15U, 15U, cylinder);
+
 	s_Geometries.BoxIndexCount = (uint32_t)box.Indices.size();
 	s_Geometries.BoxIndexOffset = 0U;
 	s_Geometries.BoxVertexOffset = 0;
@@ -119,18 +128,24 @@ void ApplicationMapping::InitGeometriesResource()
 	s_Geometries.SphereIndexOffset = s_Geometries.GridIndexOffset + s_Geometries.GridIndexCount;
 	s_Geometries.SphereVertexOffset = s_Geometries.GridVertexOffset + (int32_t)grid.Vertices.size();
 
-	uint32_t totalVertexCount = (uint32_t)(box.Vertices.size() + grid.Vertices.size() + sphere.Vertices.size());
-	uint32_t totalIndexCount = (uint32_t)(box.Indices.size() + grid.Indices.size() + sphere.Indices.size());
+	s_Geometries.CylinderIndexCount = (uint32_t)cylinder.Indices.size();
+	s_Geometries.CylinderIndexOffset = s_Geometries.SphereIndexOffset + s_Geometries.SphereIndexCount;
+	s_Geometries.CylinderVertexOffset = s_Geometries.SphereVertexOffset + (int32_t)sphere.Vertices.size();
+
+	uint32_t totalVertexCount = (uint32_t)(box.Vertices.size() + grid.Vertices.size() + sphere.Vertices.size() + cylinder.Vertices.size());
+	uint32_t totalIndexCount = (uint32_t)(box.Indices.size() + grid.Indices.size() + sphere.Indices.size() + cylinder.Indices.size());
 
 	std::vector<Math::Geometry::Vertex> vertices;
 	vertices.insert(vertices.end(), box.Vertices.begin(), box.Vertices.end());
 	vertices.insert(vertices.end(), grid.Vertices.begin(), grid.Vertices.end());
 	vertices.insert(vertices.end(), sphere.Vertices.begin(), sphere.Vertices.end());
+	vertices.insert(vertices.end(), cylinder.Vertices.begin(), cylinder.Vertices.end());
 
 	std::vector<uint32_t> indices;
 	indices.insert(indices.end(), box.Indices.begin(), box.Indices.end());
 	indices.insert(indices.end(), grid.Indices.begin(), grid.Indices.end());
 	indices.insert(indices.end(), sphere.Indices.begin(), sphere.Indices.end());
+	indices.insert(indices.end(), cylinder.Indices.begin(), cylinder.Indices.end());
 
 	g_Renderer->CreateVertexBuffer(s_Resource.GeometriesVBuf.Reference(), sizeof(Math::Geometry::Vertex) * totalVertexCount,
 		D3D11_USAGE_IMMUTABLE, &vertices[0]);
@@ -169,6 +184,9 @@ void ApplicationMapping::InitGeometriesResource()
 	{
 		s_Geometries.WorldSphere[i * 2 + 0] = Matrix::Translation(-5.0f, 3.5f, -10.0f + i * 5.0f);
 		s_Geometries.WorldSphere[i * 2 + 1] = Matrix::Translation(+5.0f, 3.5f, -10.0f + i * 5.0f);
+
+		s_Geometries.WorldCylinder[i * 2 + 0] = Matrix::Translation(-5.0f, 1.5f, -10.0f + i * 5.0f);
+		s_Geometries.WorldCylinder[i * 2 + 1] = Matrix::Translation(+5.0f, 1.5f, -10.0f + i * 5.0f);
 	}
 
 	s_Geometries.MatGrid.Ambient = Vec4(0.8f, 0.8f, 0.8f, 1.0f);
@@ -185,6 +203,11 @@ void ApplicationMapping::InitGeometriesResource()
 	s_Geometries.MatBox.Diffuse = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	s_Geometries.MatBox.Specular = Vec4(0.8f, 0.8f, 0.8f, 16.0f);
 	s_Geometries.MatBox.Reflect = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
+
+	s_Geometries.MatCylinder.Ambient = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	s_Geometries.MatCylinder.Diffuse = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	s_Geometries.MatCylinder.Specular = Vec4(1.0f, 1.0f, 1.0f, 32.0f);
+	s_Geometries.MatCylinder.Reflect = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
 	s_CBufPS.DirLights[0].Ambient = Vec4(0.2f, 0.2f, 0.2f, 1.0f);
 	s_CBufPS.DirLights[0].Diffuse = Vec4(0.7f, 0.7f, 0.6f, 1.0f);
@@ -350,6 +373,28 @@ void ApplicationMapping::RenderScene()
 		g_Renderer->SetShaderResource(s_Resource.BrickNormalTex.Ptr(), 1U);
 
 		g_Renderer->DrawIndexed(s_Geometries.BoxIndexCount, s_Geometries.BoxIndexOffset, s_Geometries.BoxVertexOffset, primitive);
+	}
+
+	{
+		/// Draw Cylinders
+		for (uint32_t i = 0U; i < 10U; ++i)
+		{
+			world = s_Geometries.WorldCylinder[i];
+			wvp = world * view * proj;
+			cbVS.World = world.Transpose();
+			cbVS.WorldInverse = cbVS.World.Inverse();
+			cbVS.WVP = wvp.Transpose();
+			cbVS.TexTransform = Matrix::Scaling(1.0f, 2.0f, 1.0f).Transpose();
+			g_Renderer->UpdateBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
+
+			memcpy(&s_CBufPS.Mat, &s_Geometries.MatCylinder, sizeof(Lighting::Material));
+			g_Renderer->UpdateBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBufPS, sizeof(ConstantsBufPS));
+
+			g_Renderer->SetShaderResource(s_Resource.BrickTex.Ptr(), 0U);
+			g_Renderer->SetShaderResource(s_Resource.BrickNormalTex.Ptr(), 1U);
+
+			g_Renderer->DrawIndexed(s_Geometries.CylinderIndexCount, s_Geometries.CylinderIndexOffset, s_Geometries.CylinderVertexOffset, primitive);
+		}
 	}
 
 	if (eDisplacementMap == m_MappingType)
