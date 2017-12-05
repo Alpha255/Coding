@@ -10,10 +10,6 @@ public:
 
 	virtual void SetupScene();
 	virtual void RenderScene();
-	virtual void UpdateScene(float elapsedTime, float totalTime);
-	virtual void ResizeWindow(uint32_t width, uint32_t height);
-
-	virtual void MouseMove(WPARAM wParam, int x, int y);
 protected:
 	static void __stdcall SetWireframe(const void *pData, void*)
 	{
@@ -25,7 +21,7 @@ protected:
 		*static_cast<bool*>(pData) = m_Wireframe;
 	}
 private:
-	uint32_t m_PreLightCount = 1U;
-	uint32_t m_CurLightCount = 1U;
+	int32_t m_PreLightCount = 1;
+	int32_t m_CurLightCount = 1;
 	static bool m_Wireframe;
 };

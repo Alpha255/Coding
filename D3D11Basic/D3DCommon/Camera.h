@@ -11,9 +11,6 @@ public:
 		, m_UpDir(0.0f, 1.0f, 0.0f, 1.0f)
 	{
 		m_World.Identity();
-
-		SetViewParams(Vec3(0.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f));
-		SetProjParams(DirectX::XM_PIDIV4, 1.0f, 1.0f, 1000.0f);
 	}
 
 	virtual ~Camera() {}
@@ -79,8 +76,8 @@ public:
 	void Move(int32_t x, int32_t y)
 	{
 		/// Spherical coordinate system
-		float dx = DirectX::XMConvertToRadians(0.25f * (float)x);
-		float dy = DirectX::XMConvertToRadians(0.25f * (float)y);
+		float dx = DirectX::XMConvertToRadians(0.25f * x);
+		float dy = DirectX::XMConvertToRadians(0.25f * y);
 
 		m_Theta += dx;
 		m_Phi += dy;
@@ -91,11 +88,20 @@ public:
 	void Update()
 	{
 		float sx = m_Radius * sinf(m_Phi) * cosf(m_Theta);
-		float sy = m_Radius * sinf(m_Phi) * sinf(m_Theta);
-		float sz = m_Radius * cosf(m_Phi);
+		float sz = m_Radius * sinf(m_Phi) * sinf(m_Theta);
+		float sy = m_Radius * cosf(m_Phi);
 
 		Vec3 eyePos(sx, sy, sz);
 		SetViewParams(eyePos);
+	}
+
+	inline void SetViewRadius(float radius)
+	{
+		m_Radius = radius;
+	}
+	inline float GetViewRadius() const
+	{
+		return m_Radius;
 	}
 protected:
 private:
@@ -104,8 +110,8 @@ private:
 	float m_NearZ;
 	float m_FarZ;
 
-	float m_Radius = 5.0f;
-	float m_Phi = DirectX::XM_PIDIV4;
+	float m_Radius = 15.0f;
+	float m_Phi = DirectX::XM_PIDIV2;
 	float m_Theta = DirectX::XM_PI * 1.5f;
 
 	Vec4 m_EyePos;

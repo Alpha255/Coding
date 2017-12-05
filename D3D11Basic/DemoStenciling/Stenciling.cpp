@@ -91,10 +91,6 @@ struct ConstantsBufferPS
 static DemoStencilingResource s_Resource;
 static ConstantsBufferVS s_CBVS;
 static ConstantsBufferPS s_CBPS;
-static float s_Radius = 12.0f;
-static float s_Phi = DirectX::XM_PI * 0.42f;
-static float s_Theta = DirectX::XM_PI * 1.24f;
-static Camera s_Camera;
 static Matrix s_SkullWorld;
 static Matrix s_SkullWorldReflect;
 static Lighting::DirectionalLight s_DirLights[3];
@@ -338,13 +334,13 @@ void ApplicationStenciling::RenderScene()
 	g_Renderer->ClearRenderTarget(g_Renderer->DefaultRenderTarget());
 	g_Renderer->ClearDepthStencil(g_Renderer->DefaultDepthStencil(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0U);
 
-	Matrix wvp = s_Camera.GetWorldMatrix() * s_Camera.GetViewMatrix() * s_Camera.GetProjMatrix();
-	s_CBVS.World = s_Camera.GetWorldMatrix();
+	Matrix wvp = m_Camera->GetWorldMatrix() * m_Camera->GetViewMatrix() * m_Camera->GetProjMatrix();
+	s_CBVS.World = m_Camera->GetWorldMatrix();
 	s_CBVS.World = s_CBVS.World.Transpose();
 	s_CBVS.WorldInverse = s_CBVS.World.Inverse();
 	s_CBVS.WVP = wvp.Transpose();
 
-	s_CBPS.EyePos = s_Camera.GetEyePos();
+	s_CBPS.EyePos = m_Camera->GetEyePos();
 
 	s_SkullWorld = Matrix::RotationAxis(0.0f, 1.0f, 0.0f, DirectX::XM_PIDIV2) * Matrix::Scaling(0.45f, 0.45f, 0.45f) * Matrix::Translation(s_SkullTranslation.x, 1.0f + s_SkullTranslation.y, -5.0f);
 	s_SkullWorldReflect = s_SkullWorld * Matrix::Reflect(0.0f, 0.0f, 1.0f);
@@ -392,7 +388,7 @@ void ApplicationStenciling::RenderScene()
 			s_Resource.SkullMesh.SetLight(i, s_DirLights[i]);
 		}
 		s_Resource.SkullMesh.SetWorldMatrix(s_SkullWorld);
-		s_Resource.SkullMesh.Draw(s_Camera);
+		s_Resource.SkullMesh.Draw(*m_Camera);
 	}
 
 	{
@@ -427,7 +423,7 @@ void ApplicationStenciling::RenderScene()
 		s_Resource.SkullMesh.SetWorldMatrix(s_SkullWorldReflect);
 		g_Renderer->SetRasterizerState(s_Resource.CloclwiseCulling.Ptr());
 		g_Renderer->SetDepthStencilState(s_Resource.Reflection.Ptr(), 1U);
-		s_Resource.SkullMesh.Draw(s_Camera);
+		s_Resource.SkullMesh.Draw(*m_Camera);
 
 		g_Renderer->SetRasterizerState(nullptr);
 		g_Renderer->SetDepthStencilState(nullptr, 0U);
@@ -461,34 +457,17 @@ void ApplicationStenciling::RenderScene()
 		//g_Renderer->SetBlendState(nullptr, Vec4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
 		//g_Renderer->SetDepthStencilState(nullptr, 0U);
 	}
+
+	ImGui::Checkbox("Fog", &m_bEnableFog);
+	ImGui::Checkbox("AlphaClip", &m_bEnableClip);
+
+	s_CBPS.UseFog = m_bEnableFog ? 1U : 0U;
+	s_CBPS.UseAlphaClip = m_bEnableClip ? 1U : 0U;
 }
 
-void ApplicationStenciling::UpdateScene(float elapsedTime, float /*totalTime*/)
+void ApplicationStenciling::UpdateScene(float elapsedTime, float totalTime)
 {
-	float x = s_Radius * sinf(s_Phi) * cosf(s_Theta);
-	float z = s_Radius * sinf(s_Phi) * sinf(s_Theta);
-	float y = s_Radius * cosf(s_Phi);
-
-	Vec3 eyePos(x, y, z);
-	Vec3 lookAt(0.0f, 0.0f, 0.0f);
-	s_Camera.SetViewParams(eyePos, lookAt);
-
-	if (::GetAsyncKeyState(VK_NUMPAD0) & 0x8000)
-	{
-		s_CBPS.UseFog = 0U;
-	}
-	if (::GetAsyncKeyState(VK_NUMPAD1) & 0x8000)
-	{
-		s_CBPS.UseFog = 1U;
-	}
-	if (::GetAsyncKeyState(VK_NUMPAD2) & 0x8000)
-	{
-		s_CBPS.UseAlphaClip = 0U;  /// ???
-	}
-	if (::GetAsyncKeyState(VK_NUMPAD3) & 0x8000)
-	{
-		s_CBPS.UseAlphaClip = 1U;  /// ???
-	}
+	Base::UpdateScene(elapsedTime, totalTime);
 
 	if (GetAsyncKeyState('A') & 0x8000)
 	{
@@ -506,37 +485,4 @@ void ApplicationStenciling::UpdateScene(float elapsedTime, float /*totalTime*/)
 	{
 		s_SkullTranslation.y -= 1.0f * elapsedTime;
 	}
-}
-
-void ApplicationStenciling::ResizeWindow(uint32_t width, uint32_t height)
-{
-	s_Camera.SetProjParams(DirectX::XM_PIDIV4, (float)width / height, 1.0f, 1000.0f);
-
-	Base::ResizeWindow(width, height);
-}
-
-void ApplicationStenciling::MouseMove(WPARAM wParam, int x, int y)
-{
-	if ((wParam & MK_LBUTTON) != 0)
-	{
-		float dx = DirectX::XMConvertToRadians(0.25f * static_cast<float>(x - m_LastMousePos[0]));
-		float dy = DirectX::XMConvertToRadians(0.25f * static_cast<float>(y - m_LastMousePos[1]));
-
-		s_Theta += dx;
-		s_Phi += dy;
-
-		s_Phi = Math::Clamp(s_Phi, 0.1f, DirectX::XM_PI - 0.1f);
-	}
-	else if ((wParam & MK_RBUTTON) != 0)
-	{
-		float dx = 0.01f * static_cast<float>(x - m_LastMousePos[0]);
-		float dy = 0.01f * static_cast<float>(y - m_LastMousePos[1]);
-
-		s_Radius += dx - dy;
-
-		s_Radius = Math::Clamp(s_Radius, 3.0f, 50.0f);
-	}
-
-	m_LastMousePos[0] = x;
-	m_LastMousePos[1] = y;
 }

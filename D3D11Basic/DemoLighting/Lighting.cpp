@@ -18,10 +18,6 @@ struct DemoLightingResource
 };
 
 static DemoLightingResource s_Resource;
-static float s_Radius = 15.0f;
-static float s_Phi = DirectX::XM_PI * 0.1f;
-static float s_Theta = DirectX::XM_PI * 1.5f;
-static Camera s_Camera;
 
 bool ApplicationLighting::m_Wireframe = false;
 
@@ -75,70 +71,10 @@ void ApplicationLighting::RenderScene()
 
 	s_Resource.Model.SetLightCount(m_CurLightCount);
 
-	s_Resource.Model.Draw(s_Camera, m_Wireframe);
+	s_Resource.Model.Draw(*m_Camera, m_Wireframe);
 
 #ifdef UsingimGUI
 	ImGui::Checkbox("Wireframe", &m_Wireframe);
+	ImGui::SliderInt("Light Count", &m_CurLightCount, 0, 3);
 #endif
-}
-
-void ApplicationLighting::UpdateScene(float /*elapsedTime*/, float /*totalTime*/)
-{
-	float x = s_Radius * sinf(s_Phi) * cosf(s_Theta);
-	float z = s_Radius * sinf(s_Phi) * sinf(s_Theta);
-	float y = s_Radius * cosf(s_Phi);
-
-	Vec3 eyePos(x, y, z);
-	Vec3 lookAt(0.0f, 0.0f, 0.0f);
-	s_Camera.SetViewParams(eyePos, lookAt);
-
-	if (::GetAsyncKeyState(VK_NUMPAD0) & 0x8000)
-	{
-		m_CurLightCount = 0;
-	}
-	if (::GetAsyncKeyState(VK_NUMPAD1) & 0x8000)
-	{
-		m_CurLightCount = 1;
-	}
-	if (::GetAsyncKeyState(VK_NUMPAD2) & 0x8000)
-	{
-		m_CurLightCount = 2;
-	}
-	if (::GetAsyncKeyState(VK_NUMPAD3) & 0x8000)
-	{
-		m_CurLightCount = 3;
-	}
-}
-
-void ApplicationLighting::ResizeWindow(uint32_t width, uint32_t height)
-{
-	s_Camera.SetProjParams(DirectX::XM_PIDIV4, (float)width / height, 1.0f, 1000.0f);
-
-	Base::ResizeWindow(width, height);
-}
-
-void ApplicationLighting::MouseMove(WPARAM wParam, int x, int y)
-{
-	if ((wParam & MK_LBUTTON) != 0)
-	{
-		float dx = DirectX::XMConvertToRadians(0.25f * static_cast<float>(x - m_LastMousePos[0]));
-		float dy = DirectX::XMConvertToRadians(0.25f * static_cast<float>(y - m_LastMousePos[1]));
-
-		s_Theta += dx;
-		s_Phi += dy;
-
-		s_Phi = Math::Clamp(s_Phi, 0.1f, DirectX::XM_PI - 0.1f);
-	}
-	else if ((wParam & MK_RBUTTON) != 0)
-	{
-		float dx = 0.01f * static_cast<float>(x - m_LastMousePos[0]);
-		float dy = 0.01f * static_cast<float>(y - m_LastMousePos[1]);
-
-		s_Radius += dx - dy;
-
-		s_Radius = Math::Clamp(s_Radius, 3.0f, 200.0f);
-	}
-
-	m_LastMousePos[0] = x;
-	m_LastMousePos[1] = y;
 }

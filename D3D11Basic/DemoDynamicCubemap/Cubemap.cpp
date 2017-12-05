@@ -92,11 +92,7 @@ struct DemoCubeResource
 static DemoCubeResource s_Resource;
 static GeometriesInfo s_Geometries = { 0 };
 static Camera s_CubemapCamera[6];
-static Camera s_Camera;
 static ConstantsBufPS s_CBPS;
-static float s_Radius = 12.0f;
-static float s_Phi = DirectX::XM_PI * 0.42f;
-static float s_Theta = DirectX::XM_PI * 1.24f;
 
 void ApplicationCubemap::InitGeometriesResource()
 {
@@ -323,7 +319,7 @@ void ApplicationCubemap::SetupScene()
 	s_Resource.Skull.CreateFromTxt("skull.txt");
 	s_Resource.Skull.SetLightCount(3U);
 
-	s_Camera.Translation(0.0f, 2.0f, -15.0f);
+	m_Camera->Translation(0.0f, 2.0f, -15.0f);
 
 	m_bInited = true;
 }
@@ -466,18 +462,15 @@ void ApplicationCubemap::RenderScene()
 
 	g_Renderer->SetViewports(&s_Resource.VP);
 
-	DrawScene(s_Camera, true);
+	DrawScene(*m_Camera, true);
+
+	ImGui::Checkbox("Reflection", &m_bEnableReflection);
+	s_CBPS.EnableReflection = m_bEnableReflection ? 1U : 0U;
 }
 
-void ApplicationCubemap::UpdateScene(float /*elapsedTime*/, float totalTime)
+void ApplicationCubemap::UpdateScene(float elapsedTime, float totalTime)
 {
-	float x = s_Radius * sinf(s_Phi) * cosf(s_Theta);
-	float z = s_Radius * sinf(s_Phi) * sinf(s_Theta);
-	float y = s_Radius * cosf(s_Phi);
-
-	Vec3 eyePos(x, y, z);
-	Vec3 lookAt(0.0f, 0.0f, 0.0f);
-	s_Camera.SetViewParams(eyePos, lookAt);
+	Base::UpdateScene(elapsedTime, totalTime);
 
 	Matrix skullScale = Matrix::Scaling(0.3f, 0.3f, 0.3f);
 	Matrix skullOffset = Matrix::Translation(3.0f, 2.0f, 0.0f);
@@ -485,49 +478,12 @@ void ApplicationCubemap::UpdateScene(float /*elapsedTime*/, float totalTime)
 	Matrix skullRotateGlobal = Matrix::RotationAxis(0.0f, 1.0f, 0.0f, 0.5f * totalTime);
 	Matrix skullWorld = skullScale * skullRotateLocal * skullOffset * skullRotateGlobal;  /// ??? 
 	s_Resource.Skull.SetWorldMatrix(skullWorld);
-
-	if (::GetAsyncKeyState(VK_NUMPAD0) & 0x8000)
-	{
-		s_CBPS.EnableReflection = 0U;
-	}
-	if (::GetAsyncKeyState(VK_NUMPAD1) & 0x8000)
-	{
-		s_CBPS.EnableReflection = 1U;
-	}
 }
 
 void ApplicationCubemap::ResizeWindow(uint32_t width, uint32_t height)
 {
-	s_Camera.SetProjParams(DirectX::XM_PIDIV4, (float)width / height, 1.0f, 1000.0f);
+	Base::ResizeWindow(width, height);
 
 	s_Resource.VP.Width = (float)width;
 	s_Resource.VP.Height = (float)height;
-
-	Base::ResizeWindow(width, height);
-}
-
-void ApplicationCubemap::MouseMove(WPARAM wParam, int x, int y)
-{
-	if ((wParam & MK_LBUTTON) != 0)
-	{
-		float dx = DirectX::XMConvertToRadians(0.25f * static_cast<float>(x - m_LastMousePos[0]));
-		float dy = DirectX::XMConvertToRadians(0.25f * static_cast<float>(y - m_LastMousePos[1]));
-
-		s_Theta += dx;
-		s_Phi += dy;
-
-		s_Phi = Math::Clamp(s_Phi, 0.1f, DirectX::XM_PI - 0.1f);
-	}
-	else if ((wParam & MK_RBUTTON) != 0)
-	{
-		float dx = 0.01f * static_cast<float>(x - m_LastMousePos[0]);
-		float dy = 0.01f * static_cast<float>(y - m_LastMousePos[1]);
-
-		s_Radius += dx - dy;
-
-		s_Radius = Math::Clamp(s_Radius, 3.0f, 50.0f);
-	}
-
-	m_LastMousePos[0] = x;
-	m_LastMousePos[1] = y;
 }

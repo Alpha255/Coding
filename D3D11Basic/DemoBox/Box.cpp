@@ -165,6 +165,8 @@ void ApplicationBox::SetupScene()
 	vp.TopLeftX = vp.TopLeftY = 0.0f;
 	g_Renderer->SetViewports(&vp);
 
+	m_Camera->SetViewRadius(5.0f);
+
 	m_bInited = true;
 }
 

@@ -44,11 +44,7 @@ struct DemoDisplacementResource
 	Ref<ID3D11SamplerState> SamplerLinear;
 };
 
-static float s_Radius = 5.0f;
-static float s_Phi = DirectX::XM_PIDIV4;
-static float s_Theta = 1.5f * DirectX::XM_PI;
 static DemoDisplacementResource s_Resource;
-static Camera s_Camera;
 static ConstantsBuffer s_CB;
 
 void AppDisplacement::SetupScene()
@@ -107,6 +103,8 @@ void AppDisplacement::SetupScene()
 	vp.TopLeftX = vp.TopLeftY = 0.0f;
 	g_Renderer->SetViewports(&vp);
 
+	m_Camera->SetViewRadius(5.0f);
+
 	m_bInited = true;
 }
 
@@ -115,10 +113,10 @@ void AppDisplacement::RenderScene()
 	g_Renderer->ClearRenderTarget(g_Renderer->DefaultRenderTarget());
 	g_Renderer->ClearDepthStencil(g_Renderer->DefaultDepthStencil(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0U);
 
-	Matrix world = s_Camera.GetWorldMatrix();
-	Matrix view = s_Camera.GetViewMatrix();
-    Matrix proj = s_Camera.GetProjMatrix();
-	Vec4 eyePos = s_Camera.GetEyePos();
+	Matrix world = m_Camera->GetWorldMatrix();
+	Matrix view = m_Camera->GetViewMatrix();
+    Matrix proj = m_Camera->GetProjMatrix();
+	Vec4 eyePos = m_Camera->GetEyePos();
 
 	s_CB.WVP = (world * view * proj).Transpose();
 	s_CB.VP = (view * proj).Transpose();
@@ -160,49 +158,4 @@ void AppDisplacement::RenderScene()
 	ImGui::SliderFloat("HeightScale", &s_CB.HeightScale, 0.1f, 1.0f);
 	ImGui::SliderFloat("MinTessFactor", &s_CB.MinTessFactor, 1.0f, 10.0f);
 	ImGui::SliderFloat("MaxTessFactor", &s_CB.MaxTessFactor, 1.0f, 10.0f);
-}
-
-void AppDisplacement::UpdateScene(float /*elapsedTime*/, float /*totalTime*/)
-{
-	float x = s_Radius * sinf(s_Phi) * cosf(s_Theta);
-	float z = s_Radius * sinf(s_Phi) * sinf(s_Theta);
-	float y = s_Radius * cosf(s_Phi);
-
-	Vec3 eyePos(x, y, z);
-	Vec3 lookAt(0.0f, 0.0f, 0.0f);
-
-	s_Camera.SetViewParams(eyePos, lookAt);
-}
-
-void AppDisplacement::ResizeWindow(uint32_t width, uint32_t height)
-{
-	s_Camera.SetProjParams(DirectX::XM_PIDIV4, (float)width / height, 1.0f, 100.0f);
-
-	return Base::ResizeWindow(width, height);
-}
-
-void AppDisplacement::MouseMove(WPARAM wParam, int x, int y)
-{
-	if ((wParam & MK_LBUTTON) != 0)
-	{
-		float dx = DirectX::XMConvertToRadians(0.25f * static_cast<float>(x - m_LastMousePos[0]));
-		float dy = DirectX::XMConvertToRadians(0.25f * static_cast<float>(y - m_LastMousePos[1]));
-
-		s_Theta += dx;
-		s_Phi += dy;
-
-		s_Phi = Math::Clamp(s_Phi, 0.1f, DirectX::XM_PI - 0.1f);
-	}
-	else if ((wParam & MK_RBUTTON) != 0)
-	{
-		float dx = 0.005f * static_cast<float>(x - m_LastMousePos[0]);
-		float dy = 0.005f * static_cast<float>(y - m_LastMousePos[1]);
-
-		s_Radius += dx - dy;
-
-		s_Radius = Math::Clamp(s_Radius, 3.0f, 15.0f);
-	}
-
-	m_LastMousePos[0] = x;
-	m_LastMousePos[1] = y;
 }

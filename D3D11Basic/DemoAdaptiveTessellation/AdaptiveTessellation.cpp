@@ -21,11 +21,7 @@ struct ConstantsBufferVS
 	Matrix WVP;
 };
 
-static float s_Radius = 25.0f;
-static float s_Phi = DirectX::XM_PI * 2.0f;
-static float s_Theta = DirectX::XM_PI * 3.0f;
 static ObjMesh s_Mesh;
-static Camera s_Camera;
 static D3DResource s_Resource;
 static ConstantsBufferVS s_CBVS;
 
@@ -57,6 +53,8 @@ void AppAdaptiveTessellation::SetupScene()
 	vp.TopLeftX = vp.TopLeftY = 0.0f;
 	g_Renderer->SetViewports(&vp);
 
+	m_Camera->SetViewRadius(350.0f);
+
 	m_bInited = true;
 }
 
@@ -65,7 +63,7 @@ void AppAdaptiveTessellation::RenderScene()
 	g_Renderer->ClearRenderTarget(g_Renderer->DefaultRenderTarget(), reinterpret_cast<const float*>(&Color::DarkBlue));
 	g_Renderer->ClearDepthStencil(g_Renderer->DefaultDepthStencil(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0U);
 
-	Matrix wvp = s_Camera.GetWorldMatrix() * s_Camera.GetViewMatrix() * s_Camera.GetProjMatrix();
+	Matrix wvp = m_Camera->GetWorldMatrix() * m_Camera->GetViewMatrix() * m_Camera->GetProjMatrix();
 	s_CBVS.WVP = wvp.Transpose();
 	g_Renderer->UpdateBuffer(s_Resource.CBVS.Ptr(), &s_CBVS, sizeof(ConstantsBufferVS));
 
@@ -78,49 +76,4 @@ void AppAdaptiveTessellation::RenderScene()
 	g_Renderer->SetRasterizerState(s_Resource.WireframeNullCulling.Ptr());
 
 	g_Renderer->DrawIndexed(s_Mesh.GetIndexCount(), 0U, 0);
-}
-
-void AppAdaptiveTessellation::UpdateScene(float elapsedTime, float totalTime)
-{
-	float x = s_Radius * sinf(s_Phi) * cosf(s_Theta);
-	float z = s_Radius * sinf(s_Phi) * sinf(s_Theta);
-	float y = s_Radius * cosf(s_Phi);
-
-	Vec3 eyePos(x, y, z);
-	Vec3 lookAt(0.0f, 0.0f, 0.0f);
-
-	s_Camera.SetViewParams(eyePos, lookAt);
-}
-
-void AppAdaptiveTessellation::ResizeWindow(uint32_t width, uint32_t height)
-{
-	s_Camera.SetProjParams(DirectX::XM_PIDIV4, (float)width / height, 1.0f, 100.0f);
-
-	return Base::ResizeWindow(width, height);
-}
-
-void AppAdaptiveTessellation::MouseMove(WPARAM wParam, int x, int y)
-{
-	if ((wParam & MK_LBUTTON) != 0)
-	{
-		float dx = DirectX::XMConvertToRadians(0.25f * static_cast<float>(x - m_LastMousePos[0]));
-		float dy = DirectX::XMConvertToRadians(0.25f * static_cast<float>(y - m_LastMousePos[1]));
-
-		s_Theta += dx;
-		s_Phi += dy;
-
-		s_Phi = Math::Clamp(s_Phi, 0.1f, DirectX::XM_PI - 0.1f);
-	}
-	else if ((wParam & MK_RBUTTON) != 0)
-	{
-		float dx = 0.01f * static_cast<float>(x - m_LastMousePos[0]);
-		float dy = 0.01f * static_cast<float>(y - m_LastMousePos[1]);
-
-		s_Radius += dx - dy;
-
-		s_Radius = Math::Clamp(s_Radius, 3.0f, 15.0f);
-	}
-
-	m_LastMousePos[0] = x;
-	m_LastMousePos[1] = y;
 }

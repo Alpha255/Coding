@@ -93,10 +93,6 @@ struct ConstantsBufPS
 	float MaxTessFactor = 5.0f;
 };
 
-static float s_Radius = 12.0f;
-static float s_Phi = DirectX::XM_PI * 0.42f;
-static float s_Theta = DirectX::XM_PI * 1.24f;
-static Camera s_Camera;
 static GeometriesInfo s_Geometries = { 0 };
 static DemoMappingResource s_Resource;
 static ConstantsBufPS s_CBufPS;
@@ -244,7 +240,7 @@ void ApplicationMapping::SetupScene()
 	g_Renderer->SetRenderTarget(g_Renderer->DefaultRenderTarget());
 	g_Renderer->SetDepthStencil(g_Renderer->DefaultDepthStencil());
 
-	s_Camera.Translation(0.0f, 2.0f, -15.0f);
+	m_Camera->Translation(0.0f, 2.0f, -15.0f);
 
 	D3D11_VIEWPORT viewport;
 	viewport.Width = (float)m_Width;
@@ -292,8 +288,8 @@ void ApplicationMapping::RenderScene()
 	g_Renderer->SetSamplerStates(s_Resource.Sampler.Ptr());
 
 	Matrix world;
-	Matrix view = s_Camera.GetViewMatrix();
-	Matrix proj = s_Camera.GetProjMatrix();
+	Matrix view = m_Camera->GetViewMatrix();
+	Matrix proj = m_Camera->GetProjMatrix();
 	Matrix vp = view * proj;
 	Matrix wvp;
 
@@ -301,7 +297,7 @@ void ApplicationMapping::RenderScene()
 	memset(&cbVS, 0, sizeof(ConstantsBufVS));
 	cbVS.VP = vp.Transpose();
 
-	Vec4 eyePos = s_Camera.GetEyePos();
+	Vec4 eyePos = m_Camera->GetEyePos();
 	s_CBufPS.EyePos = Vec3(eyePos.x, eyePos.y, eyePos.z);
 
 	D3D11_PRIMITIVE_TOPOLOGY primitive = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
@@ -426,9 +422,9 @@ void ApplicationMapping::RenderScene()
 		}
 	}
 
-	s_Resource.Skull.Draw(s_Camera, m_bWireframe);
+	s_Resource.Skull.Draw(*m_Camera, m_bWireframe);
 
-	s_Resource.Sky.Draw(s_Camera);
+	s_Resource.Sky.Draw(*m_Camera);
 
 	ImGui::Combo("MappingType", &m_MappingType, "NormalMapping\0DisplacementMapping");
 	ImGui::Checkbox("Wireframe", &m_bWireframe);
@@ -441,48 +437,4 @@ void ApplicationMapping::RenderScene()
 		ImGui::SliderFloat("MinTessFactor", &s_CBufPS.MinTessFactor, 1.0f, 5.0f);
 		ImGui::SliderFloat("MaxTessFactor", &s_CBufPS.MaxTessFactor, 1.0f, 5.0f);
 	}
-}
-
-void ApplicationMapping::UpdateScene(float /*elapsedTime*/, float /*totalTime*/)
-{
-	float x = s_Radius * sinf(s_Phi) * cosf(s_Theta);
-	float z = s_Radius * sinf(s_Phi) * sinf(s_Theta);
-	float y = s_Radius * cosf(s_Phi);
-
-	Vec3 eyePos(x, y, z);
-	Vec3 lookAt(0.0f, 0.0f, 0.0f);
-	s_Camera.SetViewParams(eyePos, lookAt);
-}
-
-void ApplicationMapping::ResizeWindow(uint32_t width, uint32_t height)
-{
-	s_Camera.SetProjParams(DirectX::XM_PIDIV4, (float)width / height, 1.0f, 1000.0f);
-
-	Base::ResizeWindow(width, height);
-}
-
-void ApplicationMapping::MouseMove(WPARAM wParam, int x, int y)
-{
-	if ((wParam & MK_LBUTTON) != 0)
-	{
-		float dx = DirectX::XMConvertToRadians(0.25f * static_cast<float>(x - m_LastMousePos[0]));
-		float dy = DirectX::XMConvertToRadians(0.25f * static_cast<float>(y - m_LastMousePos[1]));
-
-		s_Theta += dx;
-		s_Phi += dy;
-
-		s_Phi = Math::Clamp(s_Phi, 0.1f, DirectX::XM_PI - 0.1f);
-	}
-	else if ((wParam & MK_RBUTTON) != 0)
-	{
-		float dx = 0.01f * static_cast<float>(x - m_LastMousePos[0]);
-		float dy = 0.01f * static_cast<float>(y - m_LastMousePos[1]);
-
-		s_Radius += dx - dy;
-
-		s_Radius = Math::Clamp(s_Radius, 3.0f, 50.0f);
-	}
-
-	m_LastMousePos[0] = x;
-	m_LastMousePos[1] = y;
 }

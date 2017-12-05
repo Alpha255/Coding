@@ -75,6 +75,20 @@ void IApplication::MouseMove(WPARAM wParam, int32_t x, int32_t y)
 	m_LastMousePos[1] = y;
 }
 
+void IApplication::MouseWheel(WPARAM wParam)
+{
+	m_MouseWheelDelta = (short)HIWORD(wParam);
+
+	/// Not perfect 
+	float radius = m_Camera->GetViewRadius();
+	float radiusCopy = radius;
+
+	radius -= m_MouseWheelDelta * radius * 0.1f / 120.0f;
+	radius = Math::Clamp(radius, radiusCopy / 2.0f, radiusCopy * 2.0f);
+
+	m_Camera->SetViewRadius(radius);
+}
+
 void IApplication::UpdateScene(float, float)
 {
 	m_Camera->Update();
@@ -143,7 +157,8 @@ LRESULT IApplication::MsgProc(HWND hWnd, uint32_t msg, WPARAM wParam, LPARAM lPa
 		case WM_MOUSEMOVE:
 			MouseMove(wParam, (int)LOWORD(lParam), (int)HIWORD(lParam));
 			break;
-		case WM_MOUSEHWHEEL:
+		case WM_MOUSEWHEEL:
+			MouseWheel(wParam);
 			break;
 		case WM_KEYDOWN:
 			///Keyboard(wParam);

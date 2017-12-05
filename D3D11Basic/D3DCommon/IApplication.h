@@ -23,6 +23,7 @@ public:
 
 	virtual	void MouseButtonDown(WPARAM wParam, int32_t x, int32_t y);
 	virtual void MouseMove(WPARAM wParam, int32_t x, int32_t y);
+	virtual void MouseWheel(WPARAM wParam);
 
 	void Startup(LPCWSTR lpTitle, uint32_t width = 800U, uint32_t height = 600U, bool bWindowed = true);
 	void Running();
@@ -32,6 +33,7 @@ protected:
 
 	HWND m_hWnd = nullptr;
 	int32_t m_LastMousePos[2] = { 0, 0 };
+	int32_t m_MouseWheelDelta = 0;
 	uint32_t m_Width = 0U;
 	uint32_t m_Height = 0U;
 	bool m_bInited = false;

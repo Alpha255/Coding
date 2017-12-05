@@ -12,8 +12,6 @@ public:
 	virtual void RenderScene();
 	virtual void UpdateScene(float elapsedTime, float totalTime);
 	virtual void ResizeWindow(uint32_t width, uint32_t height);
-
-	virtual void MouseMove(WPARAM wParam, int x, int y);
 protected:
 	void InitGeometriesResource();
 	void InitCubemapCameras(float cx, float cy, float cz);
@@ -22,4 +20,5 @@ protected:
 	void DrawScene(const class Camera &cam, bool bDrawCenterSphere = false);
 	void DrawDynamicCubemap();
 private:
+	bool m_bEnableReflection = true;
 };
