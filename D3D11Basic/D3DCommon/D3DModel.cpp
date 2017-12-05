@@ -135,7 +135,7 @@ D3DModel::~D3DModel()
 	}
 }
 
-void SimpleMesh::CreateFromTxt(const char *pName)
+void SDKMesh::CreateFromTxt(const char *pName)
 {
 	assert(pName && g_Renderer);
 
@@ -203,7 +203,7 @@ void SimpleMesh::CreateFromTxt(const char *pName)
 	}
 }
 
-void SimpleMesh::Draw(const Camera &cam, bool bWireframe)
+void SDKMesh::Draw(const Camera &cam, bool bWireframe)
 {
 	if (!m_Created || !g_Renderer)
 	{

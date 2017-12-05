@@ -28,7 +28,7 @@ private:
 	std::unique_ptr<DirectX::Model> m_Model;
 };
 
-class SimpleMesh
+class SDKMesh
 {
 public:
 	struct Vertex
@@ -37,11 +37,11 @@ public:
 		Vec3 Normal;
 	};
 
-	SimpleMesh()
+	SDKMesh()
 	{
 		m_World.Identity();
 	}
-	~SimpleMesh() = default;
+	~SDKMesh() = default;
 
 	void CreateFromTxt(const char *pName);
 

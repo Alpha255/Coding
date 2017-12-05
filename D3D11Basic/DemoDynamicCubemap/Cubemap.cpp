@@ -61,7 +61,7 @@ struct ConstantsBufPS
 struct DemoCubeResource
 {
 	SkyBox Sky;
-	SimpleMesh Skull;
+	SDKMesh Skull;
 
 	Ref<ID3D11Buffer> ConstantsBufVS;
 	Ref<ID3D11Buffer> ConstantsBufPS;

@@ -59,7 +59,7 @@ struct DemoStencilingResource
 	Ref<ID3D11BlendState> Transparent;
 	Ref<ID3D11DepthStencilState> NoDoubleBlend;
 
-	SimpleMesh SkullMesh;
+	SDKMesh SkullMesh;
 	SceneRoomVertices RoomMesh;
 };
 

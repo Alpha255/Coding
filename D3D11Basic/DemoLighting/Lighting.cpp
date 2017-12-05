@@ -14,7 +14,7 @@ struct DemoLightingResource
 {
 	D3D11_VIEWPORT Viewport;
 
-	SimpleMesh Model;
+	SDKMesh Model;
 };
 
 static DemoLightingResource s_Resource;

@@ -41,7 +41,7 @@ struct GeometriesInfo
 
 struct DemoMappingResource
 {
-	SimpleMesh Skull;
+	SDKMesh Skull;
 	SkyBox Sky;
 
 	Ref<ID3D11InputLayout> Layout;
