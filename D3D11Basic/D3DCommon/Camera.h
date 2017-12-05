@@ -37,7 +37,7 @@ public:
 		m_World *= rotateMatrix;
 	}
 
-	virtual void SetViewParams(const Vec3& eyePos, const Vec3& lookAt, const Vec3& upDir = Vec3(0.0f, 1.0f, 0.0f))
+	virtual void SetViewParams(const Vec3& eyePos, const Vec3& lookAt = Vec3(0.0f, 0.0f, 0.0f), const Vec3& upDir = Vec3(0.0f, 1.0f, 0.0f))
 	{
 		memcpy(&m_EyePos, &eyePos, sizeof(Vec3));
 		memcpy(&m_LookAt, &lookAt, sizeof(Vec3));
@@ -75,12 +75,38 @@ public:
 	{
 		return m_EyePos;
 	}
+
+	void Move(int32_t x, int32_t y)
+	{
+		/// Spherical coordinate system
+		float dx = DirectX::XMConvertToRadians(0.25f * (float)x);
+		float dy = DirectX::XMConvertToRadians(0.25f * (float)y);
+
+		m_Theta += dx;
+		m_Phi += dy;
+
+		m_Phi = Math::Clamp(m_Phi, 0.1f, DirectX::XM_PI - 0.1f);
+	}
+
+	void Update()
+	{
+		float sx = m_Radius * sinf(m_Phi) * cosf(m_Theta);
+		float sy = m_Radius * sinf(m_Phi) * sinf(m_Theta);
+		float sz = m_Radius * cosf(m_Phi);
+
+		Vec3 eyePos(sx, sy, sz);
+		SetViewParams(eyePos);
+	}
 protected:
 private:
 	float m_Fov;
 	float m_Aspect;
 	float m_NearZ;
 	float m_FarZ;
+
+	float m_Radius = 5.0f;
+	float m_Phi = DirectX::XM_PIDIV4;
+	float m_Theta = DirectX::XM_PI * 1.5f;
 
 	Vec4 m_EyePos;
 	Vec4 m_LookAt;

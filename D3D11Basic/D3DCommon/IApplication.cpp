@@ -1,6 +1,7 @@
 #include "IApplication.h"
 #include "resource.h"
 #include "D3DGraphic.h"
+#include "Camera.h"
 #include "Timer.h"
 
 static IApplication* s_Application = nullptr;
@@ -12,15 +13,10 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 }
 
 IApplication::IApplication()
-	: m_hWnd(nullptr)
-	, m_bActive(true)
-	, m_bInited(false)
-	, m_Width(0U)
-	, m_Height(0U)
-	, m_pTimer(new Timer())
+	: m_pTimer(new Timer())
+	, m_Camera(new Camera())
 {
 	s_Application = this;
-	memset(m_LastMousePos, 0, sizeof(int) * 2);
 }
 
 void IApplication::MakeWindow(LPCWSTR lpTitle, uint32_t width, uint32_t height)
@@ -62,13 +58,29 @@ void IApplication::MakeWindow(LPCWSTR lpTitle, uint32_t width, uint32_t height)
 	}
 }
 
-void IApplication::MouseButtonDown(WPARAM /*wParam*/, int x, int y)
+void IApplication::MouseButtonDown(WPARAM, int32_t x, int32_t y)
 {
 	m_LastMousePos[0] = x;
 	m_LastMousePos[1] = y;
 }
 
-LRESULT IApplication::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+void IApplication::MouseMove(WPARAM wParam, int32_t x, int32_t y)
+{
+	if ((wParam & MK_LBUTTON) != 0)
+	{
+		m_Camera->Move(x - m_LastMousePos[0], y - m_LastMousePos[1]);
+	}
+
+	m_LastMousePos[0] = x;
+	m_LastMousePos[1] = y;
+}
+
+void IApplication::UpdateScene(float, float)
+{
+	m_Camera->Update();
+}
+
+LRESULT IApplication::MsgProc(HWND hWnd, uint32_t msg, WPARAM wParam, LPARAM lParam)
 {
 	assert(m_pTimer);
 
@@ -126,7 +138,7 @@ LRESULT IApplication::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		case WM_LBUTTONUP:
 		case WM_RBUTTONUP:
 		case WM_MBUTTONUP:
-			MouseButtonUp(wParam, (int)LOWORD(lParam), (int)HIWORD(lParam));
+			///MouseButtonUp(wParam, (int)LOWORD(lParam), (int)HIWORD(lParam));
 			break;
 		case WM_MOUSEMOVE:
 			MouseMove(wParam, (int)LOWORD(lParam), (int)HIWORD(lParam));
@@ -134,7 +146,7 @@ LRESULT IApplication::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		case WM_MOUSEHWHEEL:
 			break;
 		case WM_KEYDOWN:
-			Keyboard(wParam);
+			///Keyboard(wParam);
 			break;
 		}
 	}
@@ -161,6 +173,8 @@ void IApplication::ResizeWindow(uint32_t width, uint32_t height)
 		viewport.MaxDepth = 1.0f;
 		g_Renderer->SetViewports(&viewport);
 	}
+
+	m_Camera->SetProjParams(DirectX::XM_PIDIV4, (float)width / height, 1.0f, 1000.0f);
 }
 
 void IApplication::Startup(LPCWSTR lpTitle, uint32_t width, uint32_t height, bool bWindowed)
@@ -227,4 +241,5 @@ void IApplication::ShutDown()
 IApplication::~IApplication()
 {
 	SafeDelete(m_pTimer);
+	SafeDelete(m_Camera);
 }

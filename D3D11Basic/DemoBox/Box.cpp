@@ -39,15 +39,9 @@ struct DemoBoxResource
 	Ref<ID3D11ShaderResourceView> Texture;
 	Ref<ID3D11SamplerState> Sampler;
 #endif
-
-	D3D11_VIEWPORT Viewport;
 };
 
-static float s_Radius = 5.0f;
-static float s_Phi = DirectX::XM_PIDIV4;
-static float s_Theta = 1.5f * DirectX::XM_PI;
 static DemoBoxResource s_D3DResource;
-static Camera s_Camera;
 
 static uint32_t s_IndexCount = 36U;
 static uint32_t s_IndexOffset = 0U;
@@ -163,12 +157,13 @@ void ApplicationBox::SetupScene()
 	g_Renderer->SetRenderTarget(g_Renderer->DefaultRenderTarget());
 	g_Renderer->SetDepthStencil(g_Renderer->DefaultDepthStencil());
 
-	s_D3DResource.Viewport.Width = (float)m_Width;
-	s_D3DResource.Viewport.Height = (float)m_Height;
-	s_D3DResource.Viewport.MinDepth = 0.0f;
-	s_D3DResource.Viewport.MaxDepth = 1.0f;
-	s_D3DResource.Viewport.TopLeftX = s_D3DResource.Viewport.TopLeftY = 0.0f;
-	g_Renderer->SetViewports(&s_D3DResource.Viewport);
+	D3D11_VIEWPORT vp{ 0 };
+	vp.Width = (float)m_Width;
+	vp.Height = (float)m_Height;
+	vp.MinDepth = 0.0f;
+	vp.MaxDepth = 1.0f;
+	vp.TopLeftX = vp.TopLeftY = 0.0f;
+	g_Renderer->SetViewports(&vp);
 
 	m_bInited = true;
 }
@@ -178,7 +173,7 @@ void ApplicationBox::RenderScene()
 	g_Renderer->ClearRenderTarget(g_Renderer->DefaultRenderTarget(), reinterpret_cast<const float*>(&Color::DarkBlue));
 	g_Renderer->ClearDepthStencil(g_Renderer->DefaultDepthStencil(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0U);
 
-	Matrix wvp = s_Camera.GetWorldMatrix() * s_Camera.GetViewMatrix() * s_Camera.GetProjMatrix();
+	Matrix wvp = m_Camera->GetWorldMatrix() * m_Camera->GetViewMatrix() * m_Camera->GetProjMatrix();
 
 	g_Renderer->SetVertexShader(s_D3DResource.VertexShader.Ptr());
 	g_Renderer->SetPixelShader(s_D3DResource.PixelShader.Ptr());
@@ -198,49 +193,4 @@ void ApplicationBox::RenderScene()
 #endif
 
 	g_Renderer->DrawIndexed(s_IndexCount, s_IndexOffset, s_VertexOffset);
-}
-
-void ApplicationBox::UpdateScene(float /*elapsedTime*/, float /*totalTime*/)
-{
-	float x = s_Radius * sinf(s_Phi) * cosf(s_Theta);
-	float z = s_Radius * sinf(s_Phi) * sinf(s_Theta);
-	float y = s_Radius * cosf(s_Phi);
-
-	Vec3 eyePos(x, y, z);
-	Vec3 lookAt(0.0f, 0.0f, 0.0f);
-
-	s_Camera.SetViewParams(eyePos, lookAt);
-}
-
-void ApplicationBox::ResizeWindow(uint32_t width, uint32_t height)
-{
-	s_Camera.SetProjParams(DirectX::XM_PIDIV4, (float)width / height, 1.0f, 100.0f);
-
-	return Base::ResizeWindow(width, height);
-}
-
-void ApplicationBox::MouseMove(WPARAM wParam, int x, int y)
-{
-	if ((wParam & MK_LBUTTON) != 0)
-	{
-		float dx = DirectX::XMConvertToRadians(0.25f * static_cast<float>(x - m_LastMousePos[0]));
-		float dy = DirectX::XMConvertToRadians(0.25f * static_cast<float>(y - m_LastMousePos[1]));
-
-		s_Theta += dx;
-		s_Phi += dy;
-
-		s_Phi = Math::Clamp(s_Phi, 0.1f, DirectX::XM_PI - 0.1f);
-	}
-	else if ((wParam & MK_RBUTTON) != 0)
-	{
-		float dx = 0.005f * static_cast<float>(x - m_LastMousePos[0]);
-		float dy = 0.005f * static_cast<float>(y - m_LastMousePos[1]);
-
-		s_Radius += dx - dy;
-
-		s_Radius = Math::Clamp(s_Radius, 3.0f, 15.0f);
-	}
-
-	m_LastMousePos[0] = x;
-	m_LastMousePos[1] = y;
 }
