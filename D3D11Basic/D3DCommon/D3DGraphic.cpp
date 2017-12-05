@@ -13,6 +13,7 @@ const char* D3DGraphic::ResourceFileDirectory(eResourceType resType)
 		"\\Resource\\Textures\\",
 		"\\Resource\\SDKMeshs\\",
 		"\\Resource\\TxtMeshs\\",
+		"\\Resource\\ObjMeshs\\",
 	};
 	static char directory[MAX_PATH] = { 0 };
 	::GetModuleFileNameA(::GetModuleHandle(nullptr), directory, MAX_PATH);

@@ -144,3 +144,53 @@ private:
 
 	bool m_Created = false;
 };
+
+class ObjMesh
+{
+public:
+	ObjMesh() = default;
+	~ObjMesh() = default;
+
+	void Create(const char *pFileName);
+
+	inline ID3D11InputLayout *GetInputLayout() const 
+	{
+		assert(m_InputLayout.Valid());
+		return m_InputLayout.Ptr();
+	}
+
+	inline ID3D11Buffer *GetIndexBuffer() const 
+	{
+		assert(m_IndexBuffer.Valid());
+		return m_IndexBuffer.Ptr();
+	}
+
+	inline ID3D11Buffer *GetVertexBuffer() const
+	{
+		assert(m_VertexBuffer.Valid());
+		return m_VertexBuffer.Ptr();
+	}
+
+	inline uint32_t GetVertexCount() const
+	{
+		assert(m_VertexCount);
+		return m_VertexCount;
+	}
+
+	inline uint32_t GetIndexCount() const
+	{
+		assert(m_IndexCount);
+		return m_IndexCount;
+	}
+
+	typedef Vec3 Vertex;
+protected:
+	void CreateVIBuffer(const std::vector<Vec3> &vertices, const std::vector<uint32_t> &indices);
+private:
+	Ref<ID3D11InputLayout> m_InputLayout;
+	Ref<ID3D11Buffer> m_IndexBuffer;
+	Ref<ID3D11Buffer> m_VertexBuffer;
+
+	uint32_t m_VertexCount = 0U;
+	uint32_t m_IndexCount = 0U;
+};

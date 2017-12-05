@@ -14,6 +14,7 @@ public:
 		eTexture,
 		eSDKMesh,
 		eTxtMesh,
+		eObjMesh,
 		eCount
 	};
 

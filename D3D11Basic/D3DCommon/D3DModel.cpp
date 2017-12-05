@@ -3,6 +3,7 @@
 #include "Camera.h"
 
 #include <fstream>
+#include <sstream>
 
 extern D3DGraphic* g_Renderer;
 
@@ -241,4 +242,91 @@ void SDKMesh::Draw(const Camera &cam, bool bWireframe)
 	g_Renderer->DrawIndexed(m_IndexCount, 0U, 0);
 
 	m_CBufferVS.World.Identity();
+}
+
+void ObjMesh::Create(const char *pFileName)
+{
+	assert(pFileName && g_Renderer);
+
+	std::string meshFileDir = D3DGraphic::ResourceFileDirectory(D3DGraphic::eObjMesh);
+	meshFileDir += pFileName;
+
+	std::ifstream meshFile(meshFileDir.c_str(), std::ios::in);
+	if (meshFile.good())
+	{
+		char line[MAX_PATH] = { 0 };
+		std::vector<Vec3> vertices;
+		std::vector<uint32_t> indices;
+
+		while (meshFile >> line)
+		{
+			if (0 == strcmp(line, "#"))
+			{
+				meshFile.getline(line, MAX_PATH);
+			}
+			else if (0 == strcmp(line, "v"))   		/// Read vertices
+			{
+				Vec3 v;
+				meshFile >> v.x >> v.y >> v.z;
+				vertices.push_back(v);
+			}
+			else if (0 == strcmp(line, "f"))  		/// Read indices
+			{
+				meshFile.getline(line, MAX_PATH);
+				
+				std::stringstream strStream(line);
+				uint32_t index[4] = { 0U };
+				uint32_t i = 0U;
+				while (strStream >> line)
+				{
+					std::stringstream ss(line);
+					ss >> index[i++];
+					///int32_t idx = atoi(line);
+					///assert(idx >= 0);
+					///index[i++] = (uint32_t)idx;
+				}
+
+				indices.push_back(index[0] - 1);
+				indices.push_back(index[1] - 1);
+				indices.push_back(index[2] - 1);
+
+				/// Quad face?
+				if (i >= 4U)
+				{
+					indices.push_back(index[2] - 1);
+					indices.push_back(index[3] - 1);
+					indices.push_back(index[0] - 1);
+				}
+			}
+		}
+
+		meshFile.close();
+
+		CreateVIBuffer(vertices, indices);
+	}
+	else
+	{
+		assert(0);
+	}
+}
+
+void ObjMesh::CreateVIBuffer(const std::vector<Vec3> &vertices, const std::vector<uint32_t> &indices)
+{
+	m_VertexCount = (uint32_t)vertices.size();
+	m_IndexCount = (uint32_t)indices.size();
+
+	assert(m_VertexCount && m_IndexCount);
+
+	D3D11_INPUT_ELEMENT_DESC layout[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+	Ref<ID3D11VertexShader> vs;
+	static char *const s_ShaderName = "ObjFake.hlsl";
+
+	g_Renderer->CreateVertexShaderAndInputLayout(vs.Reference(), m_InputLayout.Reference(), layout, ARRAYSIZE(layout), s_ShaderName, "VS_Main");
+
+	g_Renderer->CreateVertexBuffer(m_VertexBuffer.Reference(), sizeof(Vec3) * m_VertexCount, D3D11_USAGE_IMMUTABLE, &vertices[0]);
+
+	g_Renderer->CreateIndexBuffer(m_IndexBuffer.Reference(), sizeof(uint32_t) * m_IndexCount, D3D11_USAGE_IMMUTABLE, &indices[0]);
 }
