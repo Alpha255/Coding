@@ -401,7 +401,7 @@ void ApplicationFXAA::DrawShadowMap()
 	g_Renderer->SetBlendState(s_States.ColorWritesOff.Ptr(), Vec4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
 	g_Renderer->SetRasterizerState(s_States.CullFront.Ptr());
 
-	s_CryptModel.DrawCustom();
+	///s_CryptModel.DrawCustom();
 
 	g_Renderer->SetBlendState(s_States.ColorWritesOn.Ptr(), Vec4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
 	g_Renderer->SetRasterizerState(s_States.CullBack.Ptr());

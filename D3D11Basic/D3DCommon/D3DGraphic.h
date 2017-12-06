@@ -15,7 +15,7 @@ public:
 		eSDKMesh,
 		eTxtMesh,
 		eObjMesh,
-		eCount
+		eResTypeCount
 	};
 
 	enum eShaderType
@@ -24,7 +24,9 @@ public:
 		eHullShader,
 		eDomainShader,
 		eGeometryShader,
-		ePixelShader
+		ePixelShader,
+		eComputeShader,
+		eShaderTypeCount
 	};
 
 	enum eBufferType
@@ -46,8 +48,27 @@ public:
 
 	void CreateShaderResourceView(__out ID3D11ShaderResourceView** ppSRV, const char* pFileName);
 	void CreateShaderResourceView(__out ID3D11ShaderResourceView** ppSRV, ID3D11Texture2D* pTex, DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN, D3D11_SRV_DIMENSION dimension = D3D11_SRV_DIMENSION_TEXTURE2D);
+	void CreateUnorderedAccessView(__out ID3D11UnorderedAccessView **ppUAV, ID3D11Resource *pRes, uint32_t numElems, uint32_t firstElem = 0U, DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN, D3D11_UAV_DIMENSION dimension = D3D11_UAV_DIMENSION_UNKNOWN, uint32_t bufFlag = 0U);
 	void CreateRenderTargetView(__out ID3D11RenderTargetView** ppRTV, ID3D11Texture2D* pTex, const D3D11_RENDER_TARGET_VIEW_DESC *pRTVDesc = nullptr);
 	void CreateDepthStencilView(__out ID3D11DepthStencilView** ppDSV, ID3D11Texture2D* pTex, DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN, uint32_t width = 0U, uint32_t height = 0U, D3D11_DSV_DIMENSION dimension = D3D11_DSV_DIMENSION_TEXTURE2D);
+	
+	inline void CreateUnorderedAccessView(
+		__out ID3D11UnorderedAccessView **ppUAV, 
+		__out ID3D11Buffer **ppBuf, 
+		uint32_t byteWidth, 
+		D3D11_USAGE usage, 
+		uint32_t miscFlag,
+		uint32_t byteStride, 
+		uint32_t numElems, 
+		uint32_t bindFlags = 0U,
+		uint32_t firstElem = 0U, 
+		DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN, 
+		D3D11_UAV_DIMENSION dimension = D3D11_UAV_DIMENSION_UNKNOWN, 
+		uint32_t bufFlag = 0U)
+	{
+		CreateUnorderedAccessBuffer(ppBuf, byteWidth, usage, miscFlag, byteStride, bindFlags);
+		CreateUnorderedAccessView(ppUAV, *ppBuf, numElems, firstElem, format, dimension, bufFlag);
+	}
 
 	inline void CreateVertexBuffer(__out ID3D11Buffer** ppBuf, uint32_t byteWidth, D3D11_USAGE usage, const void* pBuf, uint32_t cpuAccessFlag = 0U)
 	{
@@ -64,12 +85,21 @@ public:
 		CreateBuffer(ppBuf, D3D11_BIND_CONSTANT_BUFFER, byteWidth, usage, pBuf, cpuAccessFlag);
 	}
 
-	void CreateVertexShader(__out ID3D11VertexShader** ppVS, __out ID3DBlob **ppBlob, char *pFileName, char *pEntryPoint, const D3D_SHADER_MACRO *pDefines = nullptr, ID3DInclude* pInclude = nullptr);
+	inline void CreateUnorderedAccessBuffer(__out ID3D11Buffer **ppBuf, uint32_t byteWidth, D3D11_USAGE usage, uint32_t miscFlag, 
+		uint32_t byteStride, uint32_t bindFlags = 0U)
+	{
+		assert(byteStride);
+		CreateBuffer(ppBuf, bindFlags | D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS, byteWidth, usage, nullptr, 0U, miscFlag, byteStride);
+	}
+
 	void CreateVertexShader(__out ID3D11VertexShader** ppVS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines = nullptr, ID3DInclude* pInclude = nullptr);
 	void CreatePixelShader(__out ID3D11PixelShader** ppPS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines = nullptr, ID3DInclude* pInclude = nullptr);
 	void CreateHullShader(__out ID3D11HullShader **ppHS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines = nullptr, ID3DInclude* pInclude = nullptr);
 	void CreateDomainShader(__out ID3D11DomainShader **ppDS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines = nullptr, ID3DInclude* pInclude = nullptr);
+	void CreateGeometryShader(__out ID3D11GeometryShader **ppGS, char *pFileName, char *pEntryPoint, const D3D_SHADER_MACRO *pDefines = nullptr, ID3DInclude *pInclude = nullptr);
+	void CreateComputeShader(__out ID3D11ComputeShader **ppCS, char *pFileName, char *pEntryPoint, const D3D_SHADER_MACRO *pDefines = nullptr, ID3DInclude *pInclude = nullptr);
 	void CreateVertexShaderAndInputLayout(__out ID3D11VertexShader** ppVS, __out ID3D11InputLayout** ppLayout, D3D11_INPUT_ELEMENT_DESC* pInputElement, uint32_t size, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO *pDefines = nullptr, ID3DInclude* pInclude = nullptr);
+	///void CreateShader(eShaderType shaderType, struct D3DShaders &targetShaders, char *pFileName, char *pEntryPoint, const D3D_SHADER_MACRO *pDefines, ID3DInclude *pInclude);
 
 	void CreateInputLayout(__out ID3D11InputLayout** ppLayout, D3D11_INPUT_ELEMENT_DESC* pInputElement, uint32_t size, ID3DBlob* pRes);
 
@@ -98,10 +128,12 @@ public:
 	void SetRasterizerState(ID3D11RasterizerState* pRasterizerState);
 	void SetDepthStencilState(ID3D11DepthStencilState* pDepthStencilState, uint32_t stencilRef);
 	void SetBlendState(ID3D11BlendState* pBlendState, Vec4 blendFactor, uint32_t mask);
-	void SetVertexShader(ID3D11VertexShader* pVertexShader);
+	void SetVertexShader(ID3D11VertexShader* pVS);
 	void SetHullShader(ID3D11HullShader *pHS);
 	void SetDomainShader(ID3D11DomainShader *pDS);
-	void SetPixelShader(ID3D11PixelShader* pPixelShader);
+	void SetPixelShader(ID3D11PixelShader* pPS);
+	void SetGeometryShader(ID3D11GeometryShader *pGS);
+	void SetComputeShader(ID3D11ComputeShader *pCS);
 	void SetConstantBuffer(ID3D11Buffer* pConstantBuf, uint32_t slot, eShaderType shaderType);
 
 	void GetBackBufferDesc(D3D11_TEXTURE2D_DESC& tex2DDesc);
@@ -119,21 +151,15 @@ public:
 		assert(m_D3DDevice.Valid());
 		return m_D3DDevice.Ptr();
 	}
+	inline ID3D11DeviceContext *GetIMContext() const
+	{
+		assert(m_D3DContext.Valid());
+		return m_D3DContext.Ptr();
+	}
 
 	inline void Flip()
 	{
 		m_SwapChain->Present(0U, 0U);
-	}
-
-	inline D3D11_VIEWPORT GetViewport()
-	{
-		assert(m_D3DContext.Valid());
-
-		uint32_t count = 1U;
-		D3D11_VIEWPORT viewports[1] = { 0 };
-		m_D3DContext->RSGetViewports(&count, viewports);
-
-		return viewports[0];
 	}
 
 	void FlushState();
@@ -156,6 +182,8 @@ protected:
 		eFSPixelShader,
 		eFSHullShader,
 		eFSDomainShader,
+		eFSGeometryShader,
+		eFSComputeShader,
 		eFSInputLayout,
 		eFSRenderTarget,
 		eFSDepthStencil,
@@ -175,10 +203,8 @@ protected:
 
 	void RecreateBackBuffer();
 
-	void CreateBuffer(__out ID3D11Buffer** ppBuffer, D3D11_BIND_FLAG bindFlag, uint32_t byteWidth, D3D11_USAGE usage, const void* pBuf, uint32_t cpuAccessFlag);
+	void CreateBuffer(__out ID3D11Buffer** ppBuffer, uint32_t bindFlag, uint32_t byteWidth, D3D11_USAGE usage, const void* pBuf, uint32_t cpuAccessFlag, uint32_t miscFlag = 0U, uint32_t byteStride = 0U);
 	void CompileShaderFile(__out ID3DBlob** ppRes, char* pFileName, char* pEntryPoint, char* pTarget, const D3D_SHADER_MACRO* pDefines, ID3DInclude* pInclude);
-
-	friend class D3DModel;
 private:
 	static D3DGraphic* m_sInstance;
 
@@ -196,6 +222,16 @@ private:
 		uint32_t      Offset[eVertexStreamCount];
 	};
 
+	///struct D3DShaders
+	///{
+	///	ID3D11VertexShader**      VertexShader = nullptr;
+	///	ID3D11HullShader**        HullShader = nullptr;
+	///	ID3D11DomainShader**      DomainShader = nullptr;
+	///	ID3D11PixelShader**       PixelShader = nullptr;
+	///	ID3D11GeometryShader**    GeometryShader = nullptr;
+	///	ID3D11ComputeShader**     ComputeShader = nullptr;
+	///};
+
 	struct D3DPipelineState
 	{
 		ID3D11InputLayout*       InputLayout;
@@ -209,6 +245,8 @@ private:
 		D3D11_VIEWPORT*          Viewports;
 		D3D11_RECT*              ScissorRects;
 		ID3D11PixelShader*       PixelShader;
+		ID3D11GeometryShader*    GeometryShader;
+		ID3D11ComputeShader*     ComputeShader;
 		ID3D11BlendState*        BlendState;
 		ID3D11DepthStencilState* DepthStencilState;
 		ID3D11RenderTargetView*  RenderTarget[eRenderTargetCount];

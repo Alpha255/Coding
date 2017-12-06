@@ -149,13 +149,13 @@ void AppDisplacement::RenderScene()
 		g_Renderer->SetRasterizerState(s_Resource.Wireframe.Ptr());
 	}
 
-	g_Renderer->DrawIndexed(6U, 0U, 0, D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
+	g_Renderer->DrawIndexed(3U, 0U, 0, D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 
 	/// Draw GUI
 	g_Renderer->SetHullShader(nullptr);
 	g_Renderer->SetDomainShader(nullptr);
 	ImGui::Checkbox("Wireframe", &m_bWireframe);
-	ImGui::SliderFloat("HeightScale", &s_CB.HeightScale, 0.1f, 1.0f);
+	ImGui::SliderFloat("HeightScale", &s_CB.HeightScale, 0.0f, 0.5f);
 	ImGui::SliderFloat("MinTessFactor", &s_CB.MinTessFactor, 1.0f, 10.0f);
 	ImGui::SliderFloat("MaxTessFactor", &s_CB.MaxTessFactor, 1.0f, 10.0f);
 }
