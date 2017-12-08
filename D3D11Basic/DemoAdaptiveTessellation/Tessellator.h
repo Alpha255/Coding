@@ -1,6 +1,6 @@
 #pragma once
 
-#include "D3DGraphic.h"
+#include "Scanner.h"
 
 class Tessellator
 {
@@ -37,6 +37,8 @@ public:
 	{
 		CreateLookupTable();
 		CreateResource(vertexCount, pVertexBuf);
+
+		m_Scanner.Init(vertexCount);
 	}
 protected:
 	void CreateLookupTable();
@@ -62,5 +64,13 @@ private:
 		Ref<ID3D11Buffer> CB_LookupTable;
 		Ref<ID3D11Buffer> CB_Tess;
 		Ref<ID3D11Buffer> CB_ReadBackBuf;
+
+		Ref<ID3D11ShaderResourceView> SRV_SrcVB;
+		Ref<ID3D11ShaderResourceView> SRV_TessedVB;
+		Ref<ID3D11ShaderResourceView> SRV_EdgeFactor;
+
+		Ref<ID3D11UnorderedAccessView> UAV_EdgeFactor;
 	}m_Res;
+
+	Scanner m_Scanner;
 };

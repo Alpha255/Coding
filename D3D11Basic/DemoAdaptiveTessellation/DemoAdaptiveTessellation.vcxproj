@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClInclude Include="..\D3DCommon\resource.h" />
     <ClInclude Include="AdaptiveTessellation.h" />
+    <ClInclude Include="Scanner.h" />
     <ClInclude Include="Tessellator.h" />
   </ItemGroup>
   <ItemGroup>
@@ -159,6 +160,7 @@
   <ItemGroup>
     <ClCompile Include="AdaptiveTessellation.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Scanner.cpp" />
     <ClCompile Include="Tessellator.cpp" />
   </ItemGroup>
   <ItemGroup>

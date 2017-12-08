@@ -11,6 +11,7 @@
     </ClInclude>
     <ClInclude Include="AdaptiveTessellation.h" />
     <ClInclude Include="Tessellator.h" />
+    <ClInclude Include="Scanner.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\D3DCommon\D3DCommon.rc">
@@ -26,5 +27,6 @@
     <ClCompile Include="AdaptiveTessellation.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Tessellator.cpp" />
+    <ClCompile Include="Scanner.cpp" />
   </ItemGroup>
 </Project>

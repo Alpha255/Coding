@@ -47,49 +47,31 @@ public:
 		uint32_t miscFlags = 0U, D3D11_USAGE usage = D3D11_USAGE_DEFAULT, const void* pData = nullptr, uint32_t pitch = 0U, uint32_t slice = 0U);
 
 	void CreateShaderResourceView(__out ID3D11ShaderResourceView** ppSRV, const char* pFileName);
-	void CreateShaderResourceView(__out ID3D11ShaderResourceView** ppSRV, ID3D11Texture2D* pTex, DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN, D3D11_SRV_DIMENSION dimension = D3D11_SRV_DIMENSION_TEXTURE2D);
-	void CreateUnorderedAccessView(__out ID3D11UnorderedAccessView **ppUAV, ID3D11Resource *pRes, uint32_t numElems, uint32_t firstElem = 0U, DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN, D3D11_UAV_DIMENSION dimension = D3D11_UAV_DIMENSION_UNKNOWN, uint32_t bufFlag = 0U);
+	void CreateShaderResourceView(__out ID3D11ShaderResourceView** ppSRV, ID3D11Resource *pSrc, DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN, D3D11_SRV_DIMENSION dimension = D3D11_SRV_DIMENSION_TEXTURE2D, uint32_t firstElem = 0U, uint32_t numElems = 0U);
+	void CreateUnorderedAccessView(__out ID3D11UnorderedAccessView **ppUAV, ID3D11Resource *pSrc, DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN, D3D11_UAV_DIMENSION dimension = D3D11_UAV_DIMENSION_UNKNOWN, uint32_t firstElem = 0U, uint32_t numElems = 0U, uint32_t bufFlag = 0U);
 	void CreateRenderTargetView(__out ID3D11RenderTargetView** ppRTV, ID3D11Texture2D* pTex, const D3D11_RENDER_TARGET_VIEW_DESC *pRTVDesc = nullptr);
 	void CreateDepthStencilView(__out ID3D11DepthStencilView** ppDSV, ID3D11Texture2D* pTex, DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN, uint32_t width = 0U, uint32_t height = 0U, D3D11_DSV_DIMENSION dimension = D3D11_DSV_DIMENSION_TEXTURE2D);
-	
-	inline void CreateUnorderedAccessView(
-		__out ID3D11UnorderedAccessView **ppUAV, 
-		__out ID3D11Buffer **ppBuf, 
-		uint32_t byteWidth, 
-		D3D11_USAGE usage, 
-		uint32_t miscFlag,
-		uint32_t byteStride, 
-		uint32_t numElems, 
-		uint32_t bindFlags = 0U,
-		uint32_t firstElem = 0U, 
-		DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN, 
-		D3D11_UAV_DIMENSION dimension = D3D11_UAV_DIMENSION_UNKNOWN, 
-		uint32_t bufFlag = 0U)
-	{
-		CreateUnorderedAccessBuffer(ppBuf, byteWidth, usage, miscFlag, byteStride, bindFlags);
-		CreateUnorderedAccessView(ppUAV, *ppBuf, numElems, firstElem, format, dimension, bufFlag);
-	}
 
 	inline void CreateVertexBuffer(__out ID3D11Buffer** ppBuf, uint32_t byteWidth, D3D11_USAGE usage, const void* pBuf, uint32_t cpuAccessFlag = 0U)
 	{
-		CreateBuffer(ppBuf, D3D11_BIND_VERTEX_BUFFER, byteWidth, usage, pBuf, cpuAccessFlag);
+		CreateBuffer(ppBuf, D3D11_BIND_VERTEX_BUFFER, byteWidth, usage, pBuf, cpuAccessFlag, 0U, 0U, 0U, 0U);
 	}
 
 	inline void CreateIndexBuffer(__out ID3D11Buffer** ppBuf, uint32_t byteWidth, D3D11_USAGE usage, const void* pBuf, uint32_t cpuAccessFlag = 0U)
 	{
-		CreateBuffer(ppBuf, D3D11_BIND_INDEX_BUFFER, byteWidth, usage, pBuf, cpuAccessFlag);
+		CreateBuffer(ppBuf, D3D11_BIND_INDEX_BUFFER, byteWidth, usage, pBuf, cpuAccessFlag, 0U, 0U, 0U, 0U);
 	}
 
 	inline void CreateConstantBuffer(__out ID3D11Buffer** ppBuf, uint32_t byteWidth, D3D11_USAGE usage, const void* pBuf, uint32_t cpuAccessFlag = 0U)
 	{
-		CreateBuffer(ppBuf, D3D11_BIND_CONSTANT_BUFFER, byteWidth, usage, pBuf, cpuAccessFlag);
+		CreateBuffer(ppBuf, D3D11_BIND_CONSTANT_BUFFER, byteWidth, usage, pBuf, cpuAccessFlag, 0U, 0U, 0U, 0U);
 	}
 
 	inline void CreateUnorderedAccessBuffer(__out ID3D11Buffer **ppBuf, uint32_t byteWidth, D3D11_USAGE usage, uint32_t miscFlag, 
 		uint32_t byteStride, uint32_t bindFlags = 0U)
 	{
 		assert(byteStride);
-		CreateBuffer(ppBuf, bindFlags | D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS, byteWidth, usage, nullptr, 0U, miscFlag, byteStride);
+		CreateBuffer(ppBuf, bindFlags | D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS, byteWidth, usage, nullptr, 0U, miscFlag, byteStride, 0U, 0U);
 	}
 
 	void CreateVertexShader(__out ID3D11VertexShader** ppVS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines = nullptr, ID3DInclude* pInclude = nullptr);
@@ -135,6 +117,20 @@ public:
 	void SetGeometryShader(ID3D11GeometryShader *pGS);
 	void SetComputeShader(ID3D11ComputeShader *pCS);
 	void SetConstantBuffer(ID3D11Buffer* pConstantBuf, uint32_t slot, eShaderType shaderType);
+
+	inline void SetUnorderedAccessView(ID3D11UnorderedAccessView *pUAV, uint32_t startSlot = 0U, uint32_t srcNums = 1U)
+	{
+		assert(pUAV && (srcNums == 1));
+
+		ID3D11UnorderedAccessView *uavs[1]{ pUAV };
+		m_D3DContext->CSSetUnorderedAccessViews(startSlot, srcNums, uavs, nullptr);
+	}
+
+	inline void ExeCommandlist(uint32_t tx, uint32_t ty, uint32_t tz)
+	{
+		FlushState();
+		m_D3DContext->Dispatch(tx, ty, tz);
+	}
 
 	void GetBackBufferDesc(D3D11_TEXTURE2D_DESC& tex2DDesc);
 
@@ -203,7 +199,7 @@ protected:
 
 	void RecreateBackBuffer();
 
-	void CreateBuffer(__out ID3D11Buffer** ppBuffer, uint32_t bindFlag, uint32_t byteWidth, D3D11_USAGE usage, const void* pBuf, uint32_t cpuAccessFlag, uint32_t miscFlag = 0U, uint32_t byteStride = 0U);
+	void CreateBuffer(__out ID3D11Buffer** ppBuffer, uint32_t bindFlag, uint32_t byteWidth, D3D11_USAGE usage, const void* pBuf, uint32_t cpuAccessFlag, uint32_t miscFlag, uint32_t byteStride, uint32_t memPitch, uint32_t memSlicePitch);
 	void CompileShaderFile(__out ID3DBlob** ppRes, char* pFileName, char* pEntryPoint, char* pTarget, const D3D_SHADER_MACRO* pDefines, ID3DInclude* pInclude);
 private:
 	static D3DGraphic* m_sInstance;

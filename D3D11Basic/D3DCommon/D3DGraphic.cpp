@@ -188,50 +188,47 @@ void D3DGraphic::CreateRenderTargetView(ID3D11RenderTargetView** ppRTV, ID3D11Te
 	HRCheck(m_D3DDevice->CreateRenderTargetView(pTex, pRTVDesc, ppRTV));
 }
 
-void D3DGraphic::CreateShaderResourceView(ID3D11ShaderResourceView** ppSRV, ID3D11Texture2D* pTex, DXGI_FORMAT format, D3D11_SRV_DIMENSION dimension)
+void D3DGraphic::CreateShaderResourceView(ID3D11ShaderResourceView** ppSRV, ID3D11Resource *pSrc, DXGI_FORMAT format, D3D11_SRV_DIMENSION dimension, 
+	uint32_t firstElem, uint32_t numElems)
 {
-	assert(ppSRV && pTex);
+	assert(ppSRV && pSrc);
 
-	if (DXGI_FORMAT_UNKNOWN == format)
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	memset(&srvDesc, 0, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+	srvDesc.Format = format;
+	srvDesc.ViewDimension = dimension;
+	switch (dimension)
 	{
-		HRCheck(m_D3DDevice->CreateShaderResourceView(pTex, nullptr, ppSRV));
+	case D3D11_SRV_DIMENSION_TEXTURE1D:
+		srvDesc.Texture1D.MipLevels = 1U;
+		srvDesc.Texture1D.MostDetailedMip = 0U;
+		break;
+	case D3D11_SRV_DIMENSION_TEXTURE2D:
+		srvDesc.Texture2D.MipLevels = 1U;
+		srvDesc.Texture2D.MostDetailedMip = 0U;
+		break;
+	case D3D11_SRV_DIMENSION_TEXTURE3D:
+		srvDesc.Texture3D.MipLevels = 1U;
+		srvDesc.Texture3D.MostDetailedMip = 0U;
+		break;
+	case D3D11_SRV_DIMENSION_TEXTURECUBE:
+		srvDesc.TextureCube.MipLevels = 1U;
+		srvDesc.TextureCube.MostDetailedMip = 0U;
+		break;
+	case D3D11_SRV_DIMENSION_BUFFER:
+		srvDesc.Buffer.FirstElement = firstElem;
+		srvDesc.Buffer.NumElements = numElems;
+	default:
+		assert("Unsupport yet!!");
+		break;
 	}
-	else
-	{
-		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-		memset(&srvDesc, 0, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
-		srvDesc.Format = format;
-		srvDesc.ViewDimension = dimension;
-		switch (dimension)
-		{
-		case D3D11_SRV_DIMENSION_TEXTURE1D:
-			srvDesc.Texture1D.MipLevels = 1U;
-			srvDesc.Texture1D.MostDetailedMip = 0U;
-			break;
-		case D3D11_SRV_DIMENSION_TEXTURE2D:
-			srvDesc.Texture2D.MipLevels = 1U;
-			srvDesc.Texture2D.MostDetailedMip = 0U;
-			break;
-		case D3D11_SRV_DIMENSION_TEXTURE3D:
-			srvDesc.Texture3D.MipLevels = 1U;
-			srvDesc.Texture3D.MostDetailedMip = 0U;
-			break;
-		case D3D11_SRV_DIMENSION_TEXTURECUBE:
-			srvDesc.TextureCube.MipLevels = 1U;
-			srvDesc.TextureCube.MostDetailedMip = 0U;
-			break;
-		default:
-			assert("Invalid type!!");
-			break;
-		}
-		HRCheck(m_D3DDevice->CreateShaderResourceView(pTex, &srvDesc, ppSRV));
-	}
+	HRCheck(m_D3DDevice->CreateShaderResourceView(pSrc, &srvDesc, ppSRV));
 }
 
-void D3DGraphic::CreateUnorderedAccessView(ID3D11UnorderedAccessView **ppUAV, ID3D11Resource *pRes, uint32_t numElems, uint32_t firstElem, 
-	DXGI_FORMAT format, D3D11_UAV_DIMENSION dimension, uint32_t bufFlag)
+void D3DGraphic::CreateUnorderedAccessView(ID3D11UnorderedAccessView **ppUAV, ID3D11Resource *pSrc, 
+	DXGI_FORMAT format, D3D11_UAV_DIMENSION dimension, uint32_t firstElem, uint32_t numElems, uint32_t bufFlag)
 {
-	assert(ppUAV && pRes);
+	assert(ppUAV && pSrc);
 
 	D3D11_UNORDERED_ACCESS_VIEW_DESC desc;
 	memset(&desc, 0, sizeof(D3D11_UNORDERED_ACCESS_VIEW_DESC));
@@ -241,11 +238,11 @@ void D3DGraphic::CreateUnorderedAccessView(ID3D11UnorderedAccessView **ppUAV, ID
 	desc.Buffer.Flags = bufFlag;
 	desc.Buffer.NumElements = numElems;
 
-	HRCheck(m_D3DDevice->CreateUnorderedAccessView(pRes, &desc, ppUAV));
+	HRCheck(m_D3DDevice->CreateUnorderedAccessView(pSrc, &desc, ppUAV));
 }
 
 void D3DGraphic::CreateBuffer(ID3D11Buffer** ppBuffer, uint32_t bindFlag, uint32_t byteWidth,
-	D3D11_USAGE usage, const void* pBuf, uint32_t cpuAccessFlag, uint32_t miscFlag, uint32_t byteStride)
+	D3D11_USAGE usage, const void* pBuf, uint32_t cpuAccessFlag, uint32_t miscFlag, uint32_t byteStride, uint32_t memPitch, uint32_t memSlicePitch)
 {
 	assert(ppBuffer);
 
@@ -262,18 +259,10 @@ void D3DGraphic::CreateBuffer(ID3D11Buffer** ppBuffer, uint32_t bindFlag, uint32
 	bufDesc.StructureByteStride = byteStride;
 
 	srcData.pSysMem = pBuf;
-	srcData.SysMemPitch = 0U;
-	srcData.SysMemSlicePitch = 0U;
+	srcData.SysMemPitch = memPitch;
+	srcData.SysMemSlicePitch = memSlicePitch;
 
-	/// May not necessary
-	if ((bindFlag & D3D11_BIND_INDEX_BUFFER) || (bindFlag & D3D11_BIND_VERTEX_BUFFER))
-	{
-		HRCheck(m_D3DDevice->CreateBuffer(&bufDesc, ((nullptr == pBuf) ? nullptr : &srcData), ppBuffer));
-	}
-	else
-	{
-		HRCheck(m_D3DDevice->CreateBuffer(&bufDesc, nullptr, ppBuffer));
-	}
+	HRCheck(m_D3DDevice->CreateBuffer(&bufDesc, ((nullptr == pBuf) ? nullptr : &srcData), ppBuffer));
 }
 
 void D3DGraphic::CreateBlendState(ID3D11BlendState** ppBlendState, D3D11_BLEND_DESC* pBlendDesc)
