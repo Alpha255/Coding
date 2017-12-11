@@ -71,7 +71,7 @@ void AppAdaptiveTessellation::RenderScene()
 	g_Renderer->SetVertexShader(s_Resource.VertexShader.Ptr());
 	g_Renderer->SetPixelShader(s_Resource.PixelShader.Ptr());
 	g_Renderer->SetInputLayout(s_Mesh.GetInputLayout());
-	g_Renderer->SetVertexBuffer(s_Mesh.GetVertexBuffer(), sizeof(ObjMesh::Vertex), 0U);
+	g_Renderer->SetVertexBuffer(s_Mesh.GetVertexBuffer(), sizeof(Math::Geometry::BasicVertex), 0U);
 	g_Renderer->SetIndexBuffer(s_Mesh.GetIndexBuffer(), DXGI_FORMAT_R32_UINT);
 	g_Renderer->SetRasterizerState(s_Resource.WireframeNullCulling.Ptr());
 

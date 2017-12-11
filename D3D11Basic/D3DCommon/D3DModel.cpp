@@ -255,12 +255,6 @@ void ObjMesh::Create(const char *pFileName)
 	if (meshFile.good())
 	{
 		char line[MAX_PATH] = { 0 };
-		struct ObjIndex
-		{
-			uint32_t i = 0U;
-			uint32_t t = 0U;
-			uint32_t n = 0U;
-		};
 		std::vector<Vec3> vertices;
 		std::vector<ObjIndex> indices;
 		std::vector<Vec3> normals;
@@ -299,25 +293,52 @@ void ObjMesh::Create(const char *pFileName)
 				/// f 1//1   i/n
 				/// f 1/1/1  i/t/n
 				ObjIndex index[4];
+				const char *pStrBeg = &line[1];
 				
-				std::stringstream ss(&line[1]);
+				std::stringstream ss(pStrBeg);
 				uint32_t m = 0U;
 				while (!ss.eof())
 				{
 					ss >> index[m].i;
-					int c = ss.get();
-					if (' ' == c)
+					const char *pStr = pStrBeg + ss.tellg();
+
+					if (' ' == *pStr)
 					{
 						++m;
 						continue;
 					}
-					else if ('/' == c)
+					else if ('/' == *pStr)
 					{
-						ss >> index[m].t;
 						ss.get();
-
-						ss >> index[m].n;
-						ss.get();
+						pStr = pStrBeg + ss.tellg();
+						if ('/' == *pStr)
+						{
+							ss.get();
+							ss >> index[m].n;
+						}
+						else
+						{
+							ss >> index[m].t;
+							pStr = pStrBeg + ss.tellg();
+							if (' ' == *pStr)
+							{
+								++m;
+								continue;
+							}
+							else if ('/' == *pStr)
+							{
+								ss.get();
+								ss >> index[m].n;
+							}
+							else
+							{
+								assert(!"Invalid obj file!!");
+							}
+						}
+					}
+					else
+					{
+						assert(!"Invalid obj file!!");
 					}
 
 					++m;
@@ -329,7 +350,7 @@ void ObjMesh::Create(const char *pFileName)
 
 		meshFile.close();
 
-		//CreateVIBuffer(vertices, indices);
+		CreateVIBuffer(vertices, indices, normals, uvs);
 	}
 	else
 	{
@@ -337,8 +358,57 @@ void ObjMesh::Create(const char *pFileName)
 	}
 }
 
-void ObjMesh::CreateVIBuffer(const std::vector<Vec3> &vertices, const std::vector<uint32_t> &indices)
+void ObjMesh::CreateVIBuffer(const std::vector<Vec3> &srcVertices, const std::vector<ObjIndex> &objIndices, const std::vector<Vec3> &normals, const std::vector<Vec2> &uvs)
 {
+	std::vector<uint32_t> indices;
+	std::vector<Math::Geometry::BasicVertex> vertices;
+
+	for (size_t i = 0U; i < objIndices.size(); i += 4)
+	{
+		for (size_t j = i; j < i + 3U; ++j)
+		{
+			const ObjIndex &face = objIndices.at(j);
+
+			Math::Geometry::BasicVertex v;
+			v.Position = srcVertices.at(face.i - 1U);
+			v.Normal = face.n > 0U ? normals.at(face.n - 1U) : Vec3(0.0f, 0.0f, 0.0f);
+			v.UV = face.t > 0U ? uvs.at(face.t - 1U) : Vec2(0.0f, 0.0f);
+
+			vertices.push_back(v);
+			indices.push_back(face.i - 1U);
+		}
+
+		if (objIndices.at(i + 3U).i > 0U)  /// Quad ?
+		{
+			Math::Geometry::BasicVertex v;
+
+			size_t i0 = i + 2U;
+			const ObjIndex &face0 = objIndices.at(i0);
+			v.Position = srcVertices.at(face0.i - 1U);
+			v.Normal = face0.n > 0U ? normals.at(face0.n - 1U) : Vec3(0.0f, 0.0f, 0.0f);
+			v.UV = face0.t > 0U ? uvs.at(face0.t - 1U) : Vec2(0.0f, 0.0f);
+			vertices.push_back(v);
+			indices.push_back(face0.i - 1U);
+
+			size_t i1 = i + 3U;
+			const ObjIndex &face1 = objIndices.at(i1);
+			v.Position = srcVertices.at(face1.i - 1U);
+			v.Normal = face1.n > 0U ? normals.at(face1.n - 1U) : Vec3(0.0f, 0.0f, 0.0f);
+			v.UV = face1.t > 0U ? uvs.at(face1.t - 1U) : Vec2(0.0f, 0.0f);
+			vertices.push_back(v);
+			indices.push_back(face1.i - 1U);
+
+			size_t i2 = i;
+			const ObjIndex &face2 = objIndices.at(i2);
+			v.Position = srcVertices.at(face2.i - 1U);
+			v.Normal = face2.n > 0U ? normals.at(face2.n - 1U) : Vec3(0.0f, 0.0f, 0.0f);
+			v.UV = face2.t > 0U ? uvs.at(face2.t - 1U) : Vec2(0.0f, 0.0f);
+
+			vertices.push_back(v);
+			indices.push_back(face2.i - 1U);
+		}
+	}
+
 	m_VertexCount = (uint32_t)vertices.size();
 	m_IndexCount = (uint32_t)indices.size();
 
@@ -346,14 +416,18 @@ void ObjMesh::CreateVIBuffer(const std::vector<Vec3> &vertices, const std::vecto
 
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,  0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 24,  D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
-	Ref<ID3D11VertexShader> vs;
+
 	static char *const s_ShaderName = "ObjFake.hlsl";
+
+	Ref<ID3D11VertexShader> vs;
 
 	g_Renderer->CreateVertexShaderAndInputLayout(vs.Reference(), m_InputLayout.Reference(), layout, ARRAYSIZE(layout), s_ShaderName, "VS_Main");
 
-	g_Renderer->CreateVertexBuffer(m_VertexBuffer.Reference(), sizeof(Vec3) * m_VertexCount, D3D11_USAGE_IMMUTABLE, &vertices[0]);
+	g_Renderer->CreateVertexBuffer(m_VertexBuffer.Reference(), sizeof(Math::Geometry::BasicVertex) * m_VertexCount, D3D11_USAGE_IMMUTABLE, &vertices[0]);
 
 	g_Renderer->CreateIndexBuffer(m_IndexBuffer.Reference(), sizeof(uint32_t) * m_IndexCount, D3D11_USAGE_IMMUTABLE, &indices[0]);
 }

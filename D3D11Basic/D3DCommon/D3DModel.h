@@ -182,10 +182,23 @@ public:
 		assert(m_IndexCount);
 		return m_IndexCount;
 	}
-
-	typedef Vec3 Vertex;
 protected:
-	void CreateVIBuffer(const std::vector<Vec3> &vertices, const std::vector<uint32_t> &indices);
+	struct ObjIndex
+	{
+		uint32_t i = 0U;
+		uint32_t t = 0U;
+		uint32_t n = 0U;
+	};
+
+	enum eLayout
+	{
+		ePos,
+		ePosNormal,
+		ePosNormalUV,
+		eLayoutCount
+	};
+
+	void CreateVIBuffer(const std::vector<Vec3> &srcVertices, const std::vector<ObjIndex> &objIndices, const std::vector<Vec3> &normals, const std::vector<Vec2> &uvs);
 private:
 	Ref<ID3D11InputLayout> m_InputLayout;
 	Ref<ID3D11Buffer> m_IndexBuffer;

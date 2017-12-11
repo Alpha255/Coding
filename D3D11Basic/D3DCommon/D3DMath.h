@@ -272,6 +272,11 @@ struct BasicVertex
 	Vec3 Position;
 	Vec3 Normal;
 	Vec2 UV;
+
+	BasicVertex()
+	{
+		memset(this, 0, sizeof(BasicVertex));
+	}
 };
 
 struct Vertex 
@@ -281,7 +286,10 @@ struct Vertex
 	Vec3 Tangent;
 	Vec2 UV;
 
-	Vertex() {}
+	Vertex() 
+	{
+		memset(this, 0, sizeof(Vertex));
+	}
 	Vertex(const Vec3& pos, const Vec3& normal, const Vec3& tangent, const Vec2& uv)
 		: Position(pos)
 		, Normal(normal)
