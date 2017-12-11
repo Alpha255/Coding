@@ -255,8 +255,16 @@ void ObjMesh::Create(const char *pFileName)
 	if (meshFile.good())
 	{
 		char line[MAX_PATH] = { 0 };
+		struct ObjIndex
+		{
+			uint32_t i = 0U;
+			uint32_t t = 0U;
+			uint32_t n = 0U;
+		};
 		std::vector<Vec3> vertices;
-		std::vector<uint32_t> indices;
+		std::vector<ObjIndex> indices;
+		std::vector<Vec3> normals;
+		std::vector<Vec2> uvs;
 
 		while (meshFile >> line)
 		{
@@ -270,39 +278,58 @@ void ObjMesh::Create(const char *pFileName)
 				meshFile >> v.x >> v.y >> v.z;
 				vertices.push_back(v);
 			}
+			else if (0 == strcmp(line, "vn"))       /// Read normals
+			{
+				Vec3 vn;
+				meshFile >> vn.x >> vn.y >> vn.z;
+				normals.push_back(vn);
+			}
+			else if (0 == strcmp(line, "vt"))   	/// Read uvs
+			{
+				Vec2 vt;
+				meshFile >> vt.x >> vt.y;
+				uvs.push_back(vt);
+			}
 			else if (0 == strcmp(line, "f"))  		/// Read indices
 			{
 				meshFile.getline(line, MAX_PATH);
+
+				/// f 1      i
+				/// f 1/1    i/t
+				/// f 1//1   i/n
+				/// f 1/1/1  i/t/n
+				ObjIndex index[4];
 				
-				std::stringstream strStream(line);
-				uint32_t index[4] = { 0U };
-				uint32_t i = 0U;
-				while (strStream >> line)
+				std::stringstream ss(&line[1]);
+				uint32_t m = 0U;
+				while (!ss.eof())
 				{
-					std::stringstream ss(line);
-					ss >> index[i++];
-					///int32_t idx = atoi(line);
-					///assert(idx >= 0);
-					///index[i++] = (uint32_t)idx;
+					ss >> index[m].i;
+					int c = ss.get();
+					if (' ' == c)
+					{
+						++m;
+						continue;
+					}
+					else if ('/' == c)
+					{
+						ss >> index[m].t;
+						ss.get();
+
+						ss >> index[m].n;
+						ss.get();
+					}
+
+					++m;
 				}
 
-				indices.push_back(index[0] - 1);
-				indices.push_back(index[1] - 1);
-				indices.push_back(index[2] - 1);
-
-				/// Quad face?
-				if (i >= 4U)
-				{
-					indices.push_back(index[2] - 1);
-					indices.push_back(index[3] - 1);
-					indices.push_back(index[0] - 1);
-				}
+				indices.insert(indices.end(), &index[0], &index[0] + 4);
 			}
 		}
 
 		meshFile.close();
 
-		CreateVIBuffer(vertices, indices);
+		//CreateVIBuffer(vertices, indices);
 	}
 	else
 	{
