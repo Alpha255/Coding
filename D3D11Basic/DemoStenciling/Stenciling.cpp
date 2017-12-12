@@ -16,7 +16,7 @@ struct DemoStencilingResource
 	Ref<ID3D11VertexShader> VS;
 	Ref<ID3D11PixelShader> PS;
 
-	Ref<ID3D11RasterizerState> NoBackFaceCulling;
+	Ref<ID3D11RasterizerState> NullCulling;
 	Ref<ID3D11SamplerState> Sampler;
 
 	Ref<ID3D11BlendState> NoRTWrite;
@@ -147,7 +147,7 @@ void ApplicationStenciling::SetupScene()
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	g_Renderer->CreateSamplerState(s_Resource.Sampler.Reference(), &sampDesc);
 
-	g_Renderer->CreateRasterizerState(s_Resource.NoBackFaceCulling.Reference(), D3D11_FILL_SOLID, D3D11_CULL_NONE);
+	g_Renderer->CreateRasterizerState(s_Resource.NullCulling.Reference(), D3D11_FILL_SOLID, D3D11_CULL_NONE);
 
 	/// http://blog.csdn.net/qq_29523119/article/details/52824991
 	/// src(sr, sg, sb, sa)  dst(dr, dg, db, da)
@@ -284,7 +284,7 @@ void ApplicationStenciling::RenderScene()
 	g_Renderer->SetConstantBuffer(s_Resource.CBufPS.Ptr(), 0U, D3DGraphic::ePixelShader);
 	g_Renderer->UpdateBuffer(s_Resource.CBufVS.Ptr(), &s_CBVS, sizeof(ConstantsBufferVS));
 
-	///g_Renderer->SetRasterizerState(s_Resource.NoBackFaceCulling.Ptr());
+	g_Renderer->SetRasterizerState(s_Resource.NullCulling.Ptr());
 
 	/// Draw floor and walls
 
@@ -339,7 +339,7 @@ void ApplicationStenciling::RenderScene()
 		g_Renderer->Draw(6U, 24U);
 
 		/// Restore states.
-		///g_Renderer->SetDepthStencilState(nullptr, 0U);
+		g_Renderer->SetDepthStencilState(nullptr, 0U);
 		g_Renderer->SetBlendState(nullptr, Vec4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
 	}
 

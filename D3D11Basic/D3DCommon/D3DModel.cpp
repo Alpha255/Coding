@@ -211,7 +211,7 @@ void SDKMesh::Draw(const Camera &cam, bool bWireframe)
 		return;
 	}
 
-	g_Renderer->SetRasterizerState(m_D3DRes.BackFaceCulling.Ptr());
+	///g_Renderer->SetRasterizerState(m_D3DRes.BackFaceCulling.Ptr());
 
 	g_Renderer->SetVertexShader(m_D3DRes.VertexShader.Ptr());
 	g_Renderer->SetPixelShader(m_D3DRes.PixelShader.Ptr());
