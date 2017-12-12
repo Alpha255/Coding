@@ -35,14 +35,31 @@ public:
 
 	inline void Init(uint32_t vertexCount, ID3D11Buffer *pVertexBuf)
 	{
+		m_SrcVertexCount = vertexCount;
+
 		CreateLookupTable();
 		CreateResource(vertexCount, pVertexBuf);
 
 		m_Scanner.Init(vertexCount);
 	}
+
+	uint32_t DoTessellationByEdge(const class Camera &cam);
 protected:
 	void CreateLookupTable();
 	void CreateResource(uint32_t vertexCount, ID3D11Buffer *pVertexBuf);
+
+	void ExeComputeShader(
+		ID3D11ComputeShader *pTargetCS, 
+		uint32_t srvCount, 
+		ID3D11ShaderResourceView **ppSRVs, 
+		ID3D11Buffer *pCBConstant, 
+		ID3D11Buffer *pCBUpdate, 
+		uint32_t cbufSize, 
+		const void *pBufData,
+		ID3D11UnorderedAccessView *pUAV,
+		uint32_t patchX, 
+		uint32_t patchY, 
+		uint32_t patchZ);
 private:
 	ePartitioningMode m_ptMode = eFractionalEven;
 	Vec2 m_EdgeLenScale = Vec2(0.0f, 0.0f);
@@ -65,12 +82,30 @@ private:
 		Ref<ID3D11Buffer> CB_Tess;
 		Ref<ID3D11Buffer> CB_ReadBackBuf;
 
-		Ref<ID3D11ShaderResourceView> SRV_SrcVB;
-		Ref<ID3D11ShaderResourceView> SRV_TessedVB;
+		Ref<ID3D11Buffer> VB_Scatter;
+		Ref<ID3D11Buffer> IB_Scatter;
+
+		Ref<ID3D11Buffer> VB_Tessed;
+		Ref<ID3D11Buffer> IB_Tessed;
+
+		Ref<ID3D11ShaderResourceView> SRV_VB_Src;
+		Ref<ID3D11ShaderResourceView> SRV_VB_Tessed;
 		Ref<ID3D11ShaderResourceView> SRV_EdgeFactor;
 
+		Ref<ID3D11ShaderResourceView> SRV_VB_Scatter;
+		Ref<ID3D11ShaderResourceView> SRV_IB_Scatter;
+
 		Ref<ID3D11UnorderedAccessView> UAV_EdgeFactor;
+
+		Ref<ID3D11UnorderedAccessView> UAV_VB_Scatter;
+		Ref<ID3D11UnorderedAccessView> UAV_IB_Scatter;
+
+		Ref<ID3D11UnorderedAccessView> UAV_VB_Tessed;
+		Ref<ID3D11UnorderedAccessView> UAV_IB_Tessed;
 	}m_Res;
 
 	Scanner m_Scanner;
+
+	uint32_t m_SrcVertexCount = 0U;
+	uint32_t m_CachedTessedVertexCount = 0U;
 };

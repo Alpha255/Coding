@@ -10,6 +10,20 @@ public:
 
 	void Init(uint32_t vertexCount);
 	void Scan(uint32_t numToScan);
+
+	inline ID3D11UnorderedAccessView *GetScanUAV0()
+	{
+		assert(m_Res.UAV_Scan0.Valid());
+
+		return m_Res.UAV_Scan0.Ptr();
+	}
+
+	inline ID3D11Buffer *GetScanBuf()
+	{
+		assert(m_Res.CB_Scan.Valid());
+
+		return m_Res.CB_Scan.Ptr();
+	}
 protected:
 private:
 	struct D3DResource

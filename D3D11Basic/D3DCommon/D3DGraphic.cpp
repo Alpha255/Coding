@@ -839,11 +839,31 @@ void D3DGraphic::GetBackBufferDesc(D3D11_TEXTURE2D_DESC& tex2DDesc)
 	backBuffer->GetDesc(&tex2DDesc);
 }
 
-void D3DGraphic::ResolveSubResource(ID3D11Texture2D* pDstResource, ID3D11Texture2D* pSrcResource, uint32_t dstCount, uint32_t srcCount, DXGI_FORMAT fmt)
-{
-	assert(pDstResource && pSrcResource);
+///void D3DGraphic::ResolveSubResource(ID3D11Texture2D* pDstResource, ID3D11Texture2D* pSrcResource, uint32_t dstCount, uint32_t srcCount, DXGI_FORMAT fmt)
+///{
+///	assert(pDstResource && pSrcResource);
+///
+///	m_D3DContext->ResolveSubresource(pDstResource, dstCount, pSrcResource, srcCount, fmt);
+///}
 
-	m_D3DContext->ResolveSubresource(pDstResource, dstCount, pSrcResource, srcCount, fmt);
+void D3DGraphic::CopyBuffer(ID3D11Resource *pSrc, ID3D11Resource *pDst, void *pDstMem, size_t memSize, ::RECT &rect)
+{
+	assert(pSrc && pDst && memSize);
+
+	D3D11_BOX box = { 0U };
+	box.left = (uint32_t)rect.left;
+	box.right = (uint32_t)rect.right;
+	box.top = rect.top;
+	box.bottom = rect.bottom;
+	box.front = 0U;
+	box.back = 1U;
+
+	D3D11_MAPPED_SUBRESOURCE mappedSrc = { 0U };
+
+	m_D3DContext->CopySubresourceRegion(pSrc, 0U, 0U, 0U, 0U, pDst, 0U, &box);
+	HRCheck(m_D3DContext->Map(pSrc, 0U, D3D11_MAP_READ, 0U, &mappedSrc));
+	memcpy(pDstMem, mappedSrc.pData, memSize);
+	m_D3DContext->Unmap(pSrc, 0U);
 }
 
 void D3DGraphic::Draw(uint32_t vertexCount, uint32_t startIndex, D3D_PRIMITIVE_TOPOLOGY prim)
