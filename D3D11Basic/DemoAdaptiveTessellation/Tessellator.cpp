@@ -65,7 +65,7 @@ void Tessellator::CreateLookupTable()
 			}
 		}
 
-		for (uint32_t m = halfFactor; m >= 0; --m)
+		for (int32_t m = halfFactor; m >= 0; --m)
 		{
 			if (m_InsidePointIndex[i][m][0])
 			{
@@ -88,14 +88,27 @@ void Tessellator::CreateResource(uint32_t vertexCount, ID3D11Buffer *pVertexBuf)
 	g_Renderer->CreateComputeShader(m_Res.ScatterVertexTriID_IndexID.Reference(), "Tessellator_ScatterID.hlsl", "Func_ScatterVertexTriID_IndexID");
 	g_Renderer->CreateComputeShader(m_Res.ScatterIndexTriID_IndexID.Reference(), "Tessellator_ScatterID.hlsl", "Func_ScatterIndexTriID_IndexID");
 
-	g_Renderer->CreateComputeShader(m_Res.NumVI.Reference(), "Tessellator_NumVI", "Func_NumVI");
-	g_Renderer->CreateComputeShader(m_Res.TessVertex.Reference(), "Tessellator_TessVertex", "Func_TessVertex");
-	g_Renderer->CreateComputeShader(m_Res.TessIndex.Reference(), "Tessellator_TessIndex", "Func_TessIndex");
+	g_Renderer->CreateComputeShader(m_Res.NumVI.Reference(), "Tessellator_ScatterID.hlsl", "Func_NumVI");
+	g_Renderer->CreateComputeShader(m_Res.TessVertex.Reference(), "Tessellator_TessVI.hlsl", "Func_TessVertex");
+	g_Renderer->CreateComputeShader(m_Res.TessIndex.Reference(), "Tessellator_TessVI.hlsl", "Func_TessIndex");
 
-	int32_t lut[sizeof(m_InsidePointIndex) + sizeof(m_OutsidePointIndex) / sizeof(int32_t)] = { 0 };
-	memcpy(lut, m_InsidePointIndex, sizeof(m_InsidePointIndex));
-	memcpy(&lut[sizeof(m_InsidePointIndex) / sizeof(int32_t)], m_OutsidePointIndex, sizeof(m_OutsidePointIndex));
-	g_Renderer->CreateConstantBuffer(m_Res.CB_LookupTable.Reference(), sizeof(lut), D3D11_USAGE_IMMUTABLE, lut);
+	static const size_t s_LUTSize = (sizeof(m_InsidePointIndex) + sizeof(m_OutsidePointIndex)) / sizeof(int32_t);
+	struct ConstantsBuf
+	{
+		int32_t LUT[s_LUTSize] = { 0 };
+		
+		uint32_t PartitionMode;
+		uint32_t Dummy0 = 0U;
+		uint32_t Dummy1 = 0U;
+		uint32_t Dummy2 = 0U;
+	};
+
+	ConstantsBuf cbuf;
+	memcpy(&cbuf.LUT, m_InsidePointIndex, sizeof(m_InsidePointIndex));
+	memcpy(&cbuf.LUT + sizeof(m_InsidePointIndex), m_OutsidePointIndex, sizeof(m_OutsidePointIndex));
+	cbuf.PartitionMode = (uint32_t)m_ptMode;
+
+	g_Renderer->CreateConstantBuffer(m_Res.CB_LookupTable.Reference(), sizeof(ConstantsBuf), D3D11_USAGE_IMMUTABLE, &cbuf);
 
 	g_Renderer->CreateConstantBuffer(m_Res.CB_EdgeFactor.Reference(), sizeof(CB_EdgeFactor), D3D11_USAGE_DEFAULT, nullptr);
 
@@ -165,7 +178,7 @@ void Tessellator::ExeComputeShader(
 	g_Renderer->SetConstantBuffer(nullptr, 1U, D3DGraphic::eComputeShader);
 }
 
-uint32_t Tessellator::DoTessellationByEdge(const Camera &cam)
+void Tessellator::DoTessellationByEdge(const Camera &cam)
 {
 	uint32_t tessedVertexCount = 0U, tessedIndexCount = 0U;
 
@@ -214,10 +227,10 @@ uint32_t Tessellator::DoTessellationByEdge(const Camera &cam)
 		uint32_t copyBuf[2] = { 0U };
 		::RECT srcRect =
 		{
-			sizeof(uint32_t) * 2U * m_SrcVertexCount / 3U - sizeof(uint32_t) * 2U,
-			0U,
-			sizeof(uint32_t) * 2U * m_SrcVertexCount / 3U,
-			1U
+			(long)(sizeof(uint32_t) * 2L * m_SrcVertexCount / 3L - sizeof(uint32_t) * 2L),
+			0L,
+			(long)(sizeof(uint32_t) * 2L * m_SrcVertexCount / 3L),
+			1L
 		};
 		g_Renderer->CopyBuffer(m_Res.CB_ReadBackBuf.Ptr(), m_Scanner.GetScanBuf(), copyBuf, sizeof(uint32_t) * 2U, srcRect);
 		tessedVertexCount = copyBuf[0];
@@ -261,14 +274,95 @@ uint32_t Tessellator::DoTessellationByEdge(const Camera &cam)
 	}
 
 	{
+		if (!m_Res.IB_Tessed.Valid() || m_CachedTessedIndexCount < tessedIndexCount)
+		{
+			m_Res.IB_Scatter = NullBuf;
+			m_Res.SRV_IB_Scatter = NullSRV;
+			m_Res.UAV_IB_Scatter = NullUAV;
 
+			m_Res.IB_Tessed = NullBuf;
+			m_Res.UAV_IB_Tessed = NullUAV;
+
+			g_Renderer->CreateUnorderedAccessBuffer(m_Res.IB_Scatter.Reference(), sizeof(uint32_t) * 2U * tessedIndexCount,
+				D3D11_USAGE_DEFAULT, D3D11_RESOURCE_MISC_BUFFER_STRUCTURED, sizeof(uint32_t) * 2U);
+			g_Renderer->CreateShaderResourceView(m_Res.SRV_IB_Scatter.Reference(), m_Res.IB_Scatter.Ptr(),
+				DXGI_FORMAT_UNKNOWN, D3D11_SRV_DIMENSION_BUFFER, 0U, tessedIndexCount);
+			g_Renderer->CreateUnorderedAccessView(m_Res.UAV_IB_Scatter.Reference(), m_Res.IB_Scatter.Ptr(),
+				DXGI_FORMAT_UNKNOWN, D3D11_UAV_DIMENSION_BUFFER, 0U, tessedIndexCount);
+
+			g_Renderer->CreateUnorderedAccessBuffer(m_Res.IB_Tessed.Reference(), sizeof(uint32_t) * tessedIndexCount,
+				D3D11_USAGE_DEFAULT, D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS, sizeof(uint32_t) * 2, D3D11_BIND_INDEX_BUFFER);
+			g_Renderer->CreateUnorderedAccessView(m_Res.UAV_IB_Tessed.Reference(), m_Res.IB_Tessed.Ptr(),
+				DXGI_FORMAT_R32_TYPELESS, D3D11_UAV_DIMENSION_BUFFER, 0U, tessedIndexCount, D3D11_BUFFER_UAV_FLAG_RAW);
+
+			m_CachedTessedIndexCount = tessedIndexCount;
+		}
 	}
 
 	/// Scatter TriID, IndexID
+	{
+		uint32_t cbuf[4] = { m_SrcVertexCount / 3U, 0U, 0U, 0U };
+		ID3D11ShaderResourceView *ppSRV[1] = { m_Scanner.GetScanSRV0() };
+		ExeComputeShader(
+			m_Res.ScatterVertexTriID_IndexID.Ptr(),
+			1U,
+			ppSRV,
+			nullptr,
+			m_Res.CB_Tess.Ptr(),
+			sizeof(uint32_t) * 4U,
+			cbuf,
+			m_Res.UAV_VB_Scatter.Ptr(),
+			(uint32_t)(ceilf(m_SrcVertexCount / 3U / 128.0f)),
+			1U,
+			1U);
+
+		ExeComputeShader(
+			m_Res.ScatterIndexTriID_IndexID.Ptr(),
+			1U,
+			ppSRV,
+			nullptr,
+			m_Res.CB_Tess.Ptr(),
+			sizeof(uint32_t) * 4U,
+			cbuf,
+			m_Res.UAV_IB_Scatter.Ptr(),
+			(uint32_t)(ceilf(m_SrcVertexCount / 3U / 128.0f)),
+			1U,
+			1U);
+	}
 
 	/// Tessellate vertex
+	{
+		uint32_t cbuf[4] = { tessedVertexCount, 0U, 0U, 0U };
+		ID3D11ShaderResourceView *ppSRV[2] = { m_Res.SRV_VB_Scatter.Ptr(), m_Res.SRV_EdgeFactor.Ptr() };
+		ExeComputeShader(
+			m_Res.TessVertex.Ptr(),
+			2U,
+			ppSRV,
+			m_Res.CB_LookupTable.Ptr(),
+			m_Res.CB_Tess.Ptr(),
+			sizeof(uint32_t) * 4U,
+			cbuf,
+			m_Res.UAV_VB_Tessed.Ptr(),
+			(uint32_t)(ceilf(tessedVertexCount / 128.0f)),
+			1U,
+			1U);
+	}
 
 	/// Tessellate indices
-
-	return tessedIndexCount;
+	{
+		uint32_t cbuf[4] = { tessedIndexCount, 0U, 0U, 0U };
+		ID3D11ShaderResourceView *ppSRV[3] = { m_Res.SRV_IB_Scatter.Ptr(), m_Res.SRV_EdgeFactor.Ptr(), m_Scanner.GetScanSRV0() };
+		ExeComputeShader(
+			m_Res.ScatterIndexTriID_IndexID.Ptr(),
+			3U,
+			ppSRV,
+			m_Res.CB_LookupTable.Ptr(),
+			m_Res.CB_Tess.Ptr(),
+			sizeof(uint32_t) * 4U,
+			cbuf,
+			m_Res.UAV_IB_Scatter.Ptr(),
+			(uint32_t)(ceilf(tessedIndexCount / 128.0f)),
+			1U,
+			1U);
+	}
 }

@@ -43,7 +43,17 @@ public:
 		m_Scanner.Init(vertexCount);
 	}
 
-	uint32_t DoTessellationByEdge(const class Camera &cam);
+	inline uint32_t GetTessedVertexCount()
+	{
+		return m_CachedTessedVertexCount;
+	}
+
+	inline uint32_t GetTessedIndexCount()
+	{
+		return m_CachedTessedIndexCount;
+	}
+
+	void DoTessellationByEdge(const class Camera &cam);
 protected:
 	void CreateLookupTable();
 	void CreateResource(uint32_t vertexCount, ID3D11Buffer *pVertexBuf);
@@ -108,4 +118,5 @@ private:
 
 	uint32_t m_SrcVertexCount = 0U;
 	uint32_t m_CachedTessedVertexCount = 0U;
+	uint32_t m_CachedTessedIndexCount = 0U;
 };

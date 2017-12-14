@@ -24,6 +24,13 @@ public:
 
 		return m_Res.CB_Scan.Ptr();
 	}
+
+	inline ID3D11ShaderResourceView *GetScanSRV0()
+	{
+		assert(m_Res.SRV_Scan0.Valid());
+
+		return m_Res.SRV_Scan0.Ptr();
+	}
 protected:
 private:
 	struct D3DResource

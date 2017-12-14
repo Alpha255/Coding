@@ -3,6 +3,7 @@
 #include "D3DGraphic.h"
 #include "D3DModel.h"
 #include "Camera.h"
+#include "Tessellator.h"
 
 extern D3DGraphic* g_Renderer;
 
@@ -24,6 +25,7 @@ struct ConstantsBufferVS
 static ObjMesh s_Mesh;
 static D3DResource s_Resource;
 static ConstantsBufferVS s_CBVS;
+static Tessellator s_Tessellator;
 
 void AppAdaptiveTessellation::SetupScene()
 {
@@ -55,6 +57,8 @@ void AppAdaptiveTessellation::SetupScene()
 
 	m_Camera->SetViewRadius(350.0f);
 
+	s_Tessellator.Init(s_Mesh.GetVertexCount(), s_Mesh.GetVertexBuffer());
+
 	m_bInited = true;
 }
 
@@ -76,4 +80,11 @@ void AppAdaptiveTessellation::RenderScene()
 	g_Renderer->SetRasterizerState(s_Resource.WireframeNullCulling.Ptr());
 
 	g_Renderer->DrawIndexed(s_Mesh.GetIndexCount(), 0U, 0);
+}
+
+void AppAdaptiveTessellation::ResizeWindow(uint32_t width, uint32_t height)
+{
+	s_Tessellator.Resize(width, height);
+
+	Base::ResizeWindow(width, height);
 }
