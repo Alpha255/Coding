@@ -38,7 +38,6 @@ bool AxisTest(uint3 axis, float3 v0, float3 v1, float3 boxHalfSize, float2 ab, f
 }
 ///////////////////////////////////////////////////////////////////////////////////////
 
-/// http://jgt.akpeters.com/papers/akeninemoller01/tribox.html
 bool IsPlaneBoxOverlap(float3 normal, float d, float3 maxBox)
 {
     float3 vmin = maxBox, vmax = maxBox;
@@ -72,6 +71,8 @@ bool IsPlaneBoxOverlap(float3 normal, float d, float3 maxBox)
 
 bool IsTriangleBoxOverlap(float3 boxCenter, float3 boxHalfSize, float3 triP0, float3 triP1, float3 triP2)
 {
+	/// https://github.com/JChehe/blog/issues/8
+	/// http://blog.csdn.net/yorhomwang/article/details/54869018
 	/// https://gamedevelopment.tutsplus.com/tutorials/collision-detection-using-the-separating-axis-theorem--gamedev-169
 	/*  use separating axis theorem to test overlap between triangle and box need to test for overlap in these directions: */
     /*  1) the {x,y,z}-directions (actually, since we use the AABB of the triangle we do not even need to test these) */
@@ -148,5 +149,22 @@ void Func_EdgeFactor(uint3 dispatchThreadID : SV_DispatchThreadID)
         p0 /= p0.w;
         p1 /= p1.w;
         p2 /= p2.w;
+
+        float4 factor;
+		/// Only triangles which are completely inside or intersect with the view frustum are taken into account 
+        if (IsTriangleBoxOverlap(float3(0.0f, 0.0f, 0.5f), float3(1.02f, 1.02f, 0.52f), p0.xyz, p1.xyz, p2.xyz))
+        {
+            factor.x = length((p0.xy - p2.xy) * TessEdgeLenScale);
+            factor.y = length((p1.xy - p0.xy) * TessEdgeLenScale);
+            factor.z = length((p2.xy - p1.xy) * TessEdgeLenScale);
+            factor.w = min(min(factor.x, factor.y), factor.z);
+            factor = clamp(factor, 0.0f, 9.0f);
+        }
+        else
+        {
+            factor = 0.0f;
+        }
+
+        EdgeFactorBuffer_Out[dispatchThreadID.x] = factor;
     }
 }

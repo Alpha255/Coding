@@ -1,7 +1,25 @@
 #define MaxFactor 16
 
-#define TessFactor_Parity_Even  0
-#define TessFactor_Parity_Odd   1
+#define TessFactor_Parity_Even  (0)
+#define TessFactor_Parity_Odd   (1)
+
+#define PartitioningMode_Integer        (0)
+#define PartitioningMode_Pow2           (1)
+#define PartitioningMode_FractionalOdd  (2)
+#define PartitioningMode_FractionalEven (3)
+
+#define TessFactor_Odd_Min  (1)
+#define TessFactor_Odd_Max  (63)
+#define TessFactor_Even_Min (2)
+#define TessFactor_Even_Max (64)
+
+#define Epsilon 1e-6f
+
+struct TessFactorTriangle
+{
+	float4 OutInTessFactor;
+	int4 OutInTessFactorParity;
+};
 
 cbuffer cBufConstant : register(b0)
 {
@@ -88,4 +106,17 @@ void ComputeTessFactor(
     numCeilSegments -= s;
     invNumSegsFloorTessFactor = 1.0f / numFloorSegments;
     invNumSegsCeilTessFactor = 1.0f / numCeilSegments;
+}
+
+int TriProcessTessFactor(
+	inout float4 tessFactor, 
+	out TessFactorTriangle tessFactors,
+	int paititioningMode)
+{
+    int parity = TessFactor_Parity_Even;
+
+    switch (paititioningMode)
+    {
+    	case 
+    }
 }
