@@ -34,6 +34,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{E9CA
 		Application\Resource\Shaders\Stenciling.hlsl = Application\Resource\Shaders\Stenciling.hlsl
 		Application\Resource\Shaders\Tessellator_Common.hlsli = Application\Resource\Shaders\Tessellator_Common.hlsli
 		Application\Resource\Shaders\Tessellator_EdgeFactor.hlsl = Application\Resource\Shaders\Tessellator_EdgeFactor.hlsl
+		Application\Resource\Shaders\Tessellator_NumVI.hlsl = Application\Resource\Shaders\Tessellator_NumVI.hlsl
 		Application\Resource\Shaders\Tessellator_ScatterID.hlsl = Application\Resource\Shaders\Tessellator_ScatterID.hlsl
 	EndProjectSection
 EndProject
