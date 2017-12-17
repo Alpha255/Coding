@@ -85,10 +85,12 @@ void Tessellator::CreateResource(uint32_t vertexCount, ID3D11Buffer *pVertexBuf)
 	assert(g_Renderer && pVertexBuf);
 
 	g_Renderer->CreateComputeShader(m_Res.EdgeFactor.Reference(), "Tessellator_EdgeFactor.hlsl", "Func_EdgeFactor");
+
 	g_Renderer->CreateComputeShader(m_Res.ScatterVertexTriID_IndexID.Reference(), "Tessellator_ScatterID.hlsl", "Func_ScatterVertexTriID_IndexID");
 	g_Renderer->CreateComputeShader(m_Res.ScatterIndexTriID_IndexID.Reference(), "Tessellator_ScatterID.hlsl", "Func_ScatterIndexTriID_IndexID");
 
-	g_Renderer->CreateComputeShader(m_Res.NumVI.Reference(), "Tessellator_ScatterID.hlsl", "Func_NumVI");
+	g_Renderer->CreateComputeShader(m_Res.NumVI.Reference(), "Tessellator_NumVI.hlsl", "Func_NumVI");
+
 	g_Renderer->CreateComputeShader(m_Res.TessVertex.Reference(), "Tessellator_TessVI.hlsl", "Func_TessVertex");
 	g_Renderer->CreateComputeShader(m_Res.TessIndex.Reference(), "Tessellator_TessVI.hlsl", "Func_TessIndex");
 
