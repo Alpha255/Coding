@@ -36,6 +36,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{E9CA
 		Application\Resource\Shaders\Tessellator_EdgeFactor.hlsl = Application\Resource\Shaders\Tessellator_EdgeFactor.hlsl
 		Application\Resource\Shaders\Tessellator_NumVI.hlsl = Application\Resource\Shaders\Tessellator_NumVI.hlsl
 		Application\Resource\Shaders\Tessellator_ScatterID.hlsl = Application\Resource\Shaders\Tessellator_ScatterID.hlsl
+		Application\Resource\Shaders\Tessellator_TessIndex.hlsl = Application\Resource\Shaders\Tessellator_TessIndex.hlsl
+		Application\Resource\Shaders\Tessellator_TessVertex.hlsl = Application\Resource\Shaders\Tessellator_TessVertex.hlsl
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DemoStenciling", "D3D11Basic\DemoStenciling\DemoStenciling.vcxproj", "{CCEF649D-0663-4907-B0C8-C2A5DDE0BDA9}"

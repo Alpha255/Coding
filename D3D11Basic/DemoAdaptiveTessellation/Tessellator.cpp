@@ -91,8 +91,9 @@ void Tessellator::CreateResource(uint32_t vertexCount, ID3D11Buffer *pVertexBuf)
 
 	g_Renderer->CreateComputeShader(m_Res.NumVI.Reference(), "Tessellator_NumVI.hlsl", "Func_NumVI");
 
-	g_Renderer->CreateComputeShader(m_Res.TessVertex.Reference(), "Tessellator_TessVI.hlsl", "Func_TessVertex");
-	g_Renderer->CreateComputeShader(m_Res.TessIndex.Reference(), "Tessellator_TessVI.hlsl", "Func_TessIndex");
+	g_Renderer->CreateComputeShader(m_Res.TessVertex.Reference(), "Tessellator_TessVertex.hlsl", "Func_TessVertex");
+
+	g_Renderer->CreateComputeShader(m_Res.TessIndex.Reference(), "Tessellator_TessIndex.hlsl", "Func_TessIndex");
 
 	static const size_t s_LUTSize = (sizeof(m_InsidePointIndex) + sizeof(m_OutsidePointIndex)) / sizeof(int32_t);
 	struct ConstantsBuf
@@ -106,8 +107,8 @@ void Tessellator::CreateResource(uint32_t vertexCount, ID3D11Buffer *pVertexBuf)
 	};
 
 	ConstantsBuf cbuf;
-	memcpy(&cbuf.LUT, m_InsidePointIndex, sizeof(m_InsidePointIndex));
-	memcpy(&cbuf.LUT + sizeof(m_InsidePointIndex), m_OutsidePointIndex, sizeof(m_OutsidePointIndex));
+	memcpy(cbuf.LUT, m_InsidePointIndex, sizeof(m_InsidePointIndex));
+	memcpy(cbuf.LUT + sizeof(m_InsidePointIndex) / sizeof(int32_t), m_OutsidePointIndex, sizeof(m_OutsidePointIndex));
 	cbuf.PartitionMode = (uint32_t)m_ptMode;
 
 	g_Renderer->CreateConstantBuffer(m_Res.CB_LookupTable.Reference(), sizeof(ConstantsBuf), D3D11_USAGE_IMMUTABLE, &cbuf);
@@ -116,9 +117,9 @@ void Tessellator::CreateResource(uint32_t vertexCount, ID3D11Buffer *pVertexBuf)
 
 	g_Renderer->CreateConstantBuffer(m_Res.CB_Tess.Reference(), sizeof(uint32_t) * 4, D3D11_USAGE_DEFAULT, nullptr);
 
-	g_Renderer->CreateConstantBuffer(m_Res.CB_ReadBackBuf.Reference(), sizeof(uint32_t) * 2, D3D11_USAGE_STAGING, nullptr);
+	g_Renderer->CreateReadOnlyBuffer(m_Res.CB_ReadBackBuf.Reference(), sizeof(uint32_t) * 2, nullptr, D3D11_CPU_ACCESS_READ);
 
-	g_Renderer->CreateShaderResourceView(m_Res.SRV_VB_Src.Reference(), pVertexBuf, DXGI_FORMAT_R32G32B32A32_FLOAT, D3D11_SRV_DIMENSION_BUFFER, 0U, vertexCount);
+	///g_Renderer->CreateShaderResourceView(m_Res.SRV_VB_Src.Reference(), pVertexBuf, DXGI_FORMAT_R32G32B32A32_FLOAT, D3D11_SRV_DIMENSION_BUFFER, 0U, vertexCount);
 
 	Ref<ID3D11Buffer> edgeFactor;
 	g_Renderer->CreateUnorderedAccessBuffer(edgeFactor.Reference(), sizeof(float) * vertexCount / 3U * 4U, 

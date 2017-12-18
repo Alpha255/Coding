@@ -74,6 +74,11 @@ public:
 		CreateBuffer(ppBuf, bindFlags | D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS, byteWidth, usage, nullptr, 0U, miscFlag, byteStride, 0U, 0U);
 	}
 
+	inline void CreateReadOnlyBuffer(__out ID3D11Buffer** ppBuf, uint32_t byteWidth, const void* pBuf, uint32_t cpuAccessFlag = 0U)
+	{
+		CreateBuffer(ppBuf, 0U, byteWidth, D3D11_USAGE_STAGING, pBuf, cpuAccessFlag, 0U, 0U, 0U, 0U);
+	}
+
 	void CreateVertexShader(__out ID3D11VertexShader** ppVS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines = nullptr, ID3DInclude* pInclude = nullptr);
 	void CreatePixelShader(__out ID3D11PixelShader** ppPS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines = nullptr, ID3DInclude* pInclude = nullptr);
 	void CreateHullShader(__out ID3D11HullShader **ppHS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines = nullptr, ID3DInclude* pInclude = nullptr);
