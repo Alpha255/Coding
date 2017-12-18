@@ -163,47 +163,56 @@ uint3 GetNumStitchTransition(int4 numOutInTessFactorHalf, int4 parity)
             }
         }
 	}
+
+	return numIndex;
 }
 
-void ComputeTessFactor(in out TessFactorTriangle processdTessFactors)
+void ComputeTessFactor(
+	float4 tessFactor, 
+	int4 parity,
+	out float4 tessFactorFloor,
+	out float4 tessFactorCeil,
+	out float4 tessFactorHalf,
+	out int4 tessFactorSplitPointFloorHalf)
 {
-    processdTessFactors.OutInTessFactorHalf = processdTessFactors.OutInTessFactor / 2.0f;
-    processdTessFactors.OutInTessFactorHalf += 0.5f * ((TessFactor_Parity_Odd == processdTessFactors.OutInTessFactorParity) | (0.5f == processdTessFactors.OutInTessFactorHalf));
+    tessFactorHalf = tessFactor / 2.0f;
+    tessFactorHalf += 0.5f * ((TessFactor_Parity_Odd == parity) | (0.5f == tessFactorHalf));
 
-    float4 fHalfTessFactor = floor(processdTessFactors.OutInTessFactorHalf);
-    float4 cHalfTessFactor = ceil(processdTessFactors.OutInTessFactorHalf);
+    float4 fHalfTessFactor = floor(tessFactorHalf);
+    float4 cHalfTessFactor = ceil(tessFactorHalf);
     int4 numHalfTessFactorPoints = int4(cHalfTessFactor);
 
+	[unroll]
     for (int i = 0; i < 4; ++i)
     {
         if (cHalfTessFactor[i] == fHalfTessFactor[i])
         {
-            processdTessFactors.OutInTessFactorHalfSplitPointFloor[i] = numHalfTessFactorPoints[i] + 1;
+            tessFactorSplitPointFloorHalf[i] = numHalfTessFactorPoints[i] + 1;
         }
-        else if (TessFactor_Parity_Odd == processdTessFactors.OutInTessFactorParity[i])
+        else if (TessFactor_Parity_Odd == parity[i])
         {
             if (fHalfTessFactor[i] == 1)
             {
-                processdTessFactors.OutInTessFactorHalfSplitPointFloor[i] = 0;
+                tessFactorSplitPointFloorHalf[i] = 0;
             }
 			else
             {
-                processdTessFactors.OutInTessFactorHalfSplitPointFloor[i] = (RemoveMSB(int(fHalfTessFactor[i] - 1) << 1)) + 1;
+                tessFactorSplitPointFloorHalf[i] = (RemoveMSB(int(fHalfTessFactor[i] - 1) << 1)) + 1;
             }
         }
 		else
         {
-            processdTessFactors.OutInTessFactorHalfSplitPointFloor[i] = (RemoveMSB(int(fHalfTessFactor[i]) << 1)) + 1;
+            tessFactorSplitPointFloorHalf[i] = (RemoveMSB(int(fHalfTessFactor[i]) << 1)) + 1;
         }
     }
 
     int4 numFloorSegments = int4(fHalfTessFactor * 2);
     int4 numCeilSegments = int4(cHalfTessFactor * 2);
-    int4 s = (TessFactor_Parity_Odd == processdTessFactors.OutInTessFactorParity);
+    int4 s = (TessFactor_Parity_Odd == parity);
     numFloorSegments -= s;
     numCeilSegments -= s;
-    processdTessFactors.OutInTessFactorFloor = 1.0f / numFloorSegments;
-    processdTessFactors.OutInTessFactorCeil = 1.0f / numCeilSegments;
+    tessFactorFloor = 1.0f / numFloorSegments;
+    tessFactorCeil = 1.0f / numCeilSegments;
 }
 
 int TriProcessTessFactor(
@@ -315,7 +324,14 @@ int TriProcessTessFactor(
     }
 	    
 	/// Compute per-TessFactor metadata
-    ComputeTessFactor(processdTessFactors);
+    ComputeTessFactor(
+		processdTessFactors.OutInTessFactor,
+		processdTessFactors.OutInTessFactorParity,
+		processdTessFactors.OutInTessFactorFloor,
+		processdTessFactors.OutInTessFactorCeil,
+		processdTessFactors.OutInTessFactorHalf,
+		processdTessFactors.OutInTessFactorHalfSplitPointFloor
+	);
 
 	/// Compute some initial data.
 

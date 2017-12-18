@@ -360,7 +360,7 @@ void MakeGeoSphere(float radius, uint32_t subDivisions, Mesh& mesh)
 	}
 }
 
-void MakeCylinderTopBottomCap(bool bTop, float bottomRadius, float topRadius, float height, uint32_t slice, uint32_t stack, Mesh &mesh)
+void MakeCylinderTopBottomCap(bool bTop, float bottomRadius, float topRadius, float height, uint32_t slice, Mesh &mesh)
 {
 	float y = bTop ? (0.5f * height) : (-0.5f * height);
 	float r = bTop ? topRadius : bottomRadius;
@@ -486,8 +486,8 @@ void MakeCylinder(float bottomRadius, float topRadius, float height, uint32_t sl
 		}
 	}
 
-	MakeCylinderTopBottomCap(true, bottomRadius, topRadius, height, slice, stack, mesh);
-	MakeCylinderTopBottomCap(false, bottomRadius, topRadius, height, slice, stack, mesh);
+	MakeCylinderTopBottomCap(true, bottomRadius, topRadius, height, slice, mesh);
+	MakeCylinderTopBottomCap(false, bottomRadius, topRadius, height, slice, mesh);
 }
 
 void MakeGrid(float width, float depth, uint32_t m, uint32_t n, Mesh& mesh)
