@@ -151,7 +151,7 @@ public:
 	ObjMesh() = default;
 	~ObjMesh() = default;
 
-	void Create(const char *pFileName);
+	void Create(const char *pFileName, bool bUseAsSRV = false);
 
 	inline ID3D11InputLayout *GetInputLayout() const 
 	{
@@ -198,7 +198,12 @@ protected:
 		eLayoutCount
 	};
 
-	void CreateVIBuffer(const std::vector<Vec3> &srcVertices, const std::vector<ObjIndex> &objIndices, const std::vector<Vec3> &normals, const std::vector<Vec2> &uvs);
+	void CreateVIBuffer(
+		const std::vector<Vec3> &srcVertices, 
+		const std::vector<ObjIndex> &objIndices, 
+		const std::vector<Vec3> &normals, 
+		const std::vector<Vec2> &uvs, 
+		bool bUseAsSRV);
 private:
 	Ref<ID3D11InputLayout> m_InputLayout;
 	Ref<ID3D11Buffer> m_IndexBuffer;

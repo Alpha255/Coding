@@ -792,7 +792,7 @@ void D3DGraphic::SetComputeShader(ID3D11ComputeShader *pCS)
 
 void D3DGraphic::SetConstantBuffer(ID3D11Buffer* pConstantBuf, uint32_t slot, eShaderType shaderType)
 {
-	assert(pConstantBuf);
+	///assert(pConstantBuf);
 
 	switch (shaderType)
 	{
@@ -824,6 +824,7 @@ void D3DGraphic::UpdateBuffer(ID3D11Buffer* pBuffer, const void* pSource, size_t
 	D3D11_MAPPED_SUBRESOURCE mapData;
 	memset(&mapData, 0, sizeof(D3D11_MAPPED_SUBRESOURCE));
 
+	/// Map cannot be called with MAP_WRITE_DISCARD access
 	HRCheck(m_D3DContext->Map(pBuffer, 0U, D3D11_MAP_WRITE_DISCARD, 0U, &mapData));
 	memcpy(mapData.pData, pSource, size);
 	m_D3DContext->Unmap(pBuffer, 0U);

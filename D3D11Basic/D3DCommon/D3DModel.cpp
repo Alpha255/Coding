@@ -244,7 +244,7 @@ void SDKMesh::Draw(const Camera &cam, bool bWireframe)
 	m_CBufferVS.World.Identity();
 }
 
-void ObjMesh::Create(const char *pFileName)
+void ObjMesh::Create(const char *pFileName, bool bUseAsSRV)
 {
 	assert(pFileName && g_Renderer);
 
@@ -350,7 +350,7 @@ void ObjMesh::Create(const char *pFileName)
 
 		meshFile.close();
 
-		CreateVIBuffer(vertices, indices, normals, uvs);
+		CreateVIBuffer(vertices, indices, normals, uvs, bUseAsSRV);
 	}
 	else
 	{
@@ -358,7 +358,12 @@ void ObjMesh::Create(const char *pFileName)
 	}
 }
 
-void ObjMesh::CreateVIBuffer(const std::vector<Vec3> &srcVertices, const std::vector<ObjIndex> &objIndices, const std::vector<Vec3> &normals, const std::vector<Vec2> &uvs)
+void ObjMesh::CreateVIBuffer(
+	const std::vector<Vec3> &srcVertices, 
+	const std::vector<ObjIndex> &objIndices, 
+	const std::vector<Vec3> &normals, 
+	const std::vector<Vec2> &uvs, 
+	bool bUseAsSRV)
 {
 	std::vector<uint32_t> indices;
 	std::vector<Math::Geometry::BasicVertex> vertices;
@@ -427,7 +432,8 @@ void ObjMesh::CreateVIBuffer(const std::vector<Vec3> &srcVertices, const std::ve
 
 	g_Renderer->CreateVertexShaderAndInputLayout(vs.Reference(), m_InputLayout.Reference(), layout, ARRAYSIZE(layout), s_ShaderName, "VS_Main");
 
-	g_Renderer->CreateVertexBuffer(m_VertexBuffer.Reference(), sizeof(Math::Geometry::BasicVertex) * m_VertexCount, D3D11_USAGE_IMMUTABLE, &vertices[0]);
+	g_Renderer->CreateVertexBuffer(m_VertexBuffer.Reference(), sizeof(Math::Geometry::BasicVertex) * m_VertexCount, 
+		D3D11_USAGE_IMMUTABLE, &vertices[0], 0U, bUseAsSRV ? D3D11_BIND_SHADER_RESOURCE : 0U);
 
 	g_Renderer->CreateIndexBuffer(m_IndexBuffer.Reference(), sizeof(uint32_t) * m_IndexCount, D3D11_USAGE_IMMUTABLE, &indices[0]);
 }

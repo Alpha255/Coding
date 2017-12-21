@@ -29,13 +29,6 @@ public:
 		eShaderTypeCount
 	};
 
-	enum eBufferType
-	{
-		eVertexBuffer,
-		eIndexBuffer,
-		eConstantsBuffer
-	};
-
 	static void CreateInstance(void) { if (nullptr == m_sInstance) { m_sInstance = new D3DGraphic(); assert(m_sInstance); } }
 	static D3DGraphic* GetInstance(void) { return m_sInstance; }
 	static void DestoryInstance(void) { SafeDelete(m_sInstance); }
@@ -52,9 +45,9 @@ public:
 	void CreateRenderTargetView(__out ID3D11RenderTargetView** ppRTV, ID3D11Texture2D* pTex, const D3D11_RENDER_TARGET_VIEW_DESC *pRTVDesc = nullptr);
 	void CreateDepthStencilView(__out ID3D11DepthStencilView** ppDSV, ID3D11Texture2D* pTex, DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN, uint32_t width = 0U, uint32_t height = 0U, D3D11_DSV_DIMENSION dimension = D3D11_DSV_DIMENSION_TEXTURE2D);
 
-	inline void CreateVertexBuffer(__out ID3D11Buffer** ppBuf, uint32_t byteWidth, D3D11_USAGE usage, const void* pBuf, uint32_t cpuAccessFlag = 0U)
+	inline void CreateVertexBuffer(__out ID3D11Buffer** ppBuf, uint32_t byteWidth, D3D11_USAGE usage, const void* pBuf, uint32_t cpuAccessFlag = 0U, uint32_t bindFlags = 0U)
 	{
-		CreateBuffer(ppBuf, D3D11_BIND_VERTEX_BUFFER, byteWidth, usage, pBuf, cpuAccessFlag, 0U, 0U, 0U, 0U);
+		CreateBuffer(ppBuf, D3D11_BIND_VERTEX_BUFFER | bindFlags, byteWidth, usage, pBuf, cpuAccessFlag, 0U, 0U, 0U, 0U);
 	}
 
 	inline void CreateIndexBuffer(__out ID3D11Buffer** ppBuf, uint32_t byteWidth, D3D11_USAGE usage, const void* pBuf, uint32_t cpuAccessFlag = 0U)
@@ -125,7 +118,7 @@ public:
 
 	inline void SetUnorderedAccessView(ID3D11UnorderedAccessView *pUAV, uint32_t startSlot = 0U, uint32_t srcNums = 1U)
 	{
-		assert(pUAV && (srcNums == 1));
+		assert(srcNums == 1);
 
 		ID3D11UnorderedAccessView *uavs[1]{ pUAV };
 		m_D3DContext->CSSetUnorderedAccessViews(startSlot, srcNums, uavs, nullptr);
@@ -142,6 +135,21 @@ public:
 	///void ResolveSubResource(ID3D11Texture2D* pDstResource, ID3D11Texture2D* pSrcResource, uint32_t dstCount, uint32_t srcCount, DXGI_FORMAT fmt);
 
 	void UpdateBuffer(ID3D11Buffer* pBuffer, const void* pSource, size_t size);
+	inline void UpdateBuffer(ID3D11Resource *pRes, uint32_t dstSubRes, const ::RECT *pRect, const void *pSrcData, uint32_t srcRowPitch, uint32_t srcDepthPitch)
+	{
+		D3D11_BOX box = { 0U };
+		if (pRect)
+		{
+			box.left = (uint32_t)pRect->left;
+			box.right = (uint32_t)pRect->right;
+			box.top = pRect->top;
+			box.bottom = pRect->bottom;
+			box.front = 0U;
+			box.back = 1U;
+		}
+
+		m_D3DContext->UpdateSubresource(pRes, dstSubRes, pRect ? &box : nullptr, pSrcData, srcRowPitch, srcDepthPitch);
+	}
 
 	void CopyBuffer(ID3D11Resource *pSrc, ID3D11Resource *pDst, void *pDstMem, size_t memSize, ::RECT &rect);
 

@@ -53,7 +53,22 @@ public:
 		return m_CachedTessedIndexCount;
 	}
 
-	void DoTessellationByEdge(const class Camera &cam);
+	inline ID3D11ShaderResourceView *GetSourceVertexBufferSRV()
+	{
+		return m_Res.SRV_VB_Src.Ptr();
+	}
+
+	inline ID3D11ShaderResourceView *GetTessedVertexBufferSRV()
+	{
+		return m_Res.SRV_VB_Tessed.Ptr();
+	}
+
+	inline ID3D11Buffer *GetTessedIndexBuffer()
+	{
+		return m_Res.IB_Tessed.Ptr();
+	}
+
+	bool DoTessellationByEdge(const class Camera &cam);
 protected:
 	void CreateLookupTable();
 	void CreateResource(uint32_t vertexCount, ID3D11Buffer *pVertexBuf);

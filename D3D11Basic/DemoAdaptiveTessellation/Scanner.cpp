@@ -36,9 +36,12 @@ void Scanner::Init(uint32_t vertexCount)
 	g_Renderer->CreateUnorderedAccessView(m_Res.UAV_Scan0.Reference(), scan0.Ptr(), DXGI_FORMAT_UNKNOWN,
 		D3D11_UAV_DIMENSION_BUFFER, 0U, vertexCount / 3);
 
-	g_Renderer->CreateShaderResourceView(m_Res.SRV_Scan1.Reference(), scan0.Ptr(), DXGI_FORMAT_UNKNOWN,
+	Ref<ID3D11Buffer> scan1;
+	g_Renderer->CreateUnorderedAccessBuffer(scan1.Reference(), sizeof(uint32_t) * 2 * vertexCount / 3, D3D11_USAGE_DEFAULT,
+		D3D11_RESOURCE_MISC_BUFFER_STRUCTURED, sizeof(uint32_t) * 2);
+	g_Renderer->CreateShaderResourceView(m_Res.SRV_Scan1.Reference(), scan1.Ptr(), DXGI_FORMAT_UNKNOWN,
 		D3D11_SRV_DIMENSION_BUFFER, 0U, vertexCount / 3);
-	g_Renderer->CreateUnorderedAccessView(m_Res.UAV_Scan1.Reference(), scan0.Ptr(), DXGI_FORMAT_UNKNOWN,
+	g_Renderer->CreateUnorderedAccessView(m_Res.UAV_Scan1.Reference(), scan1.Ptr(), DXGI_FORMAT_UNKNOWN,
 		D3D11_UAV_DIMENSION_BUFFER, 0U, vertexCount / 3);
 }
 
