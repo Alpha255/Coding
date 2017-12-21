@@ -318,11 +318,6 @@ void ApplicationFXAA::CreateConstantsBuffers()
 
 void ApplicationFXAA::SetupScene()
 {
-	if (m_bInited)
-	{
-		return;
-	}
-
 	CreateTextures();
 	CreateViews();
 	CreateInputLayoutAndShaders();
@@ -332,8 +327,6 @@ void ApplicationFXAA::SetupScene()
 
 	s_Viewport = { 0.0f, 0.0f, float(m_Width), float(m_Height), 0.0f, 1.0f };
 	s_ScissorRect = { 0, 0, (long)m_Width, (long)m_Height };
-
-	m_bInited = true;
 }
 
 void ApplicationFXAA::DrawDebugShadowMap()

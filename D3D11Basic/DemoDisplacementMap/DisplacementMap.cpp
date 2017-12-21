@@ -104,8 +104,6 @@ void AppDisplacement::SetupScene()
 	g_Renderer->SetViewports(&vp);
 
 	m_Camera->SetViewRadius(5.0f);
-
-	m_bInited = true;
 }
 
 void AppDisplacement::RenderScene()

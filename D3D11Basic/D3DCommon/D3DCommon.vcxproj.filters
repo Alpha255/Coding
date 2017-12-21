@@ -2,29 +2,25 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="Common.h" />
     <ClInclude Include="D3DGraphic.h" />
     <ClInclude Include="D3DMath.h" />
     <ClInclude Include="D3DModel.h" />
     <ClInclude Include="GUI_AntTweakBar.h" />
-    <ClInclude Include="IApplication.h" />
-    <ClInclude Include="RefCountPtr.h" />
     <ClInclude Include="SkyBox.h" />
-    <ClInclude Include="Timer.h" />
     <ClInclude Include="resource.h">
       <Filter>Resource</Filter>
     </ClInclude>
     <ClInclude Include="GUI_imGUI.h" />
+    <ClInclude Include="D3DApplication.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="D3DGraphic.cpp" />
     <ClCompile Include="D3DMath.cpp" />
     <ClCompile Include="D3DModel.cpp" />
     <ClCompile Include="GUI_AntTweakBar.cpp" />
-    <ClCompile Include="IApplication.cpp" />
     <ClCompile Include="SkyBox.cpp" />
-    <ClCompile Include="Timer.cpp" />
     <ClCompile Include="GUI_imGUI.cpp" />
+    <ClCompile Include="D3DApplication.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resource">

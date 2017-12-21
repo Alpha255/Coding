@@ -1,8 +1,8 @@
 #pragma once
 
-#include <IApplication.h>
+#include "D3DApplication.h"
 
-class ApplicationMapping : public IApplication
+class ApplicationMapping : public D3DApplication
 {
 public:
 	ApplicationMapping() = default;

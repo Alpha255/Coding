@@ -1,8 +1,8 @@
 #pragma once
 
-#include <IApplication.h>
+#include "D3DApplication.h"
 
-class ApplicationStenciling : public IApplication
+class ApplicationStenciling : public D3DApplication
 {
 public:
 	ApplicationStenciling();

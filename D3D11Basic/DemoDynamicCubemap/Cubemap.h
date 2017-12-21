@@ -1,8 +1,8 @@
 #pragma once
 
-#include <IApplication.h>
+#include "D3DApplication.h"
 
-class ApplicationCubemap : public IApplication
+class ApplicationCubemap : public D3DApplication
 {
 public:
 	ApplicationCubemap() = default;

@@ -59,6 +59,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tessellation", "Tessellatio
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DemoAdaptiveTessellation", "D3D11Basic\DemoAdaptiveTessellation\DemoAdaptiveTessellation.vcxproj", "{41EC5845-1693-4FD4-9236-715CD1A5F805}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Utility", "Utility\Utility.vcxproj", "{EAB653A1-BDBE-491E-92A1-8BB9276B6275}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -163,6 +165,14 @@ Global
 		{41EC5845-1693-4FD4-9236-715CD1A5F805}.Release|x64.Build.0 = Release|x64
 		{41EC5845-1693-4FD4-9236-715CD1A5F805}.Release|x86.ActiveCfg = Release|Win32
 		{41EC5845-1693-4FD4-9236-715CD1A5F805}.Release|x86.Build.0 = Release|Win32
+		{EAB653A1-BDBE-491E-92A1-8BB9276B6275}.Debug|x64.ActiveCfg = Debug|x64
+		{EAB653A1-BDBE-491E-92A1-8BB9276B6275}.Debug|x64.Build.0 = Debug|x64
+		{EAB653A1-BDBE-491E-92A1-8BB9276B6275}.Debug|x86.ActiveCfg = Debug|Win32
+		{EAB653A1-BDBE-491E-92A1-8BB9276B6275}.Debug|x86.Build.0 = Debug|Win32
+		{EAB653A1-BDBE-491E-92A1-8BB9276B6275}.Release|x64.ActiveCfg = Release|x64
+		{EAB653A1-BDBE-491E-92A1-8BB9276B6275}.Release|x64.Build.0 = Release|x64
+		{EAB653A1-BDBE-491E-92A1-8BB9276B6275}.Release|x86.ActiveCfg = Release|Win32
+		{EAB653A1-BDBE-491E-92A1-8BB9276B6275}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -181,5 +191,6 @@ Global
 		{6AC5E4D4-A7CE-4A12-AD70-C3591652DE8E} = {CA6219F3-92E9-4844-B1A3-6F0D8A448533}
 		{51CE6B1A-A1B2-4B26-9CEE-C387197A6538} = {CA6219F3-92E9-4844-B1A3-6F0D8A448533}
 		{41EC5845-1693-4FD4-9236-715CD1A5F805} = {51CE6B1A-A1B2-4B26-9CEE-C387197A6538}
+		{EAB653A1-BDBE-491E-92A1-8BB9276B6275} = {CA6219F3-92E9-4844-B1A3-6F0D8A448533}
 	EndGlobalSection
 EndGlobal

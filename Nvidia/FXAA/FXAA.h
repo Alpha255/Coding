@@ -1,8 +1,8 @@
 #pragma once
 
-#include <IApplication.h>
+#include "D3DApplication.h"
 
-class ApplicationFXAA : public IApplication
+class ApplicationFXAA : public D3DApplication
 {
 public:
 	ApplicationFXAA();

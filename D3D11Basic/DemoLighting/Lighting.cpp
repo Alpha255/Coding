@@ -50,8 +50,6 @@ void ApplicationLighting::SetupScene()
 	EnableWireframe.SetVarFunc = SetWireframe;
 	m_GUI.AddWidget(EnableWireframe);
 #endif
-
-	m_bInited = true;
 }
 
 void ApplicationLighting::RenderScene()

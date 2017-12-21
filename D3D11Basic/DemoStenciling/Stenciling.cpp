@@ -253,8 +253,6 @@ void ApplicationStenciling::SetupScene()
 	viewport.MaxDepth = 1.0f;
 	viewport.TopLeftX = viewport.TopLeftY = 0.0f;
 	g_Renderer->SetViewports(&viewport);
-
-	m_bInited = true;
 }
 
 void ApplicationStenciling::RenderScene()

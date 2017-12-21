@@ -320,8 +320,6 @@ void ApplicationCubemap::SetupScene()
 	s_Resource.Skull.SetLightCount(3U);
 
 	m_Camera->Translation(0.0f, 2.0f, -15.0f);
-
-	m_bInited = true;
 }
 
 void ApplicationCubemap::DrawScene(const Camera &cam, bool bDrawCenterSphere)

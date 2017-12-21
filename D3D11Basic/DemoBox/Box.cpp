@@ -59,7 +59,7 @@ ApplicationBox::ApplicationBox()
 
 void ApplicationBox::SetupScene()
 {
-	assert(g_Renderer && !m_bInited);
+	assert(g_Renderer);
 
 #ifdef UsingTexture
 	D3D11_INPUT_ELEMENT_DESC layout[] =
@@ -166,8 +166,6 @@ void ApplicationBox::SetupScene()
 	g_Renderer->SetViewports(&vp);
 
 	m_Camera->SetViewRadius(5.0f);
-
-	m_bInited = true;
 }
 
 void ApplicationBox::RenderScene()

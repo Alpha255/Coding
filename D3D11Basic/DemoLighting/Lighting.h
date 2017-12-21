@@ -1,8 +1,8 @@
 #pragma once
 
-#include <IApplication.h>
+#include "D3DApplication.h"
 
-class ApplicationLighting : public IApplication
+class ApplicationLighting : public D3DApplication
 {
 public:
 	ApplicationLighting() = default;

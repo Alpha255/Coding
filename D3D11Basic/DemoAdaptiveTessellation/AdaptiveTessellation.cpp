@@ -30,7 +30,7 @@ static Tessellator s_Tessellator;
 
 void AppAdaptiveTessellation::SetupScene()
 {
-	assert(g_Renderer && !m_bInited);
+	assert(g_Renderer);
 
 	s_Mesh.Create("AdaptiveTessellation.obj", true);
 
@@ -60,8 +60,6 @@ void AppAdaptiveTessellation::SetupScene()
 	m_Camera->SetViewRadius(350.0f);
 
 	s_Tessellator.Init(s_Mesh.GetVertexCount(), s_Mesh.GetVertexBuffer());
-
-	m_bInited = true;
 }
 
 void AppAdaptiveTessellation::RenderScene()

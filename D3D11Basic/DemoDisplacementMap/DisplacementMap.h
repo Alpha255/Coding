@@ -1,8 +1,8 @@
 #pragma once
 
-#include <IApplication.h>
+#include "D3DApplication.h"
 
-class AppDisplacement : public IApplication
+class AppDisplacement : public D3DApplication
 {
 public:
 	AppDisplacement() = default;

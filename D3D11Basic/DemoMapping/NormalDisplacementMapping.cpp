@@ -269,8 +269,6 @@ void ApplicationMapping::SetupScene()
 	enableDisplacementMap.SetVarFunc = SetEnableDisplacementMap;
 	m_GUI.AddWidget(enableDisplacementMap);
 #endif
-
-	m_bInited = true;
 }
 
 void ApplicationMapping::RenderScene()
