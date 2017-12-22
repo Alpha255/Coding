@@ -23,6 +23,8 @@
 *.ipch
 *.ini
 *.opendb
+*.iobj
+*.ipdb
 
 Debug/
 Release/
