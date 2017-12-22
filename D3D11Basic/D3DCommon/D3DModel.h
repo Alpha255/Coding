@@ -182,6 +182,12 @@ public:
 		assert(m_IndexCount);
 		return m_IndexCount;
 	}
+
+	inline uint32_t GetVertexStride() const
+	{
+		assert(m_Stride > 0U);
+		return m_Stride;
+	}
 protected:
 	struct ObjIndex
 	{
@@ -193,6 +199,7 @@ protected:
 	enum eLayout
 	{
 		ePos,
+		ePosUV,
 		ePosNormal,
 		ePosNormalUV,
 		eLayoutCount
@@ -211,4 +218,6 @@ private:
 
 	uint32_t m_VertexCount = 0U;
 	uint32_t m_IndexCount = 0U;
+	uint32_t m_Stride = 0U;
+	eLayout m_LayoutType = eLayoutCount;
 };

@@ -134,7 +134,14 @@ bool IsTriangleBoxOverlap(float3 boxCenter, float3 boxHalfSize, float3 triP0, fl
     return true;
 }
 
-Buffer<float4> InputVertices : register(t0);
+struct VSInput
+{
+    float3 Pos : POSITION;
+    float3 Normal : NORMAL;
+    float2 UV : TEXCOORD;
+};
+
+StructuredBuffer<VSInput> InputVertices : register(t0);
 RWStructuredBuffer<float4> EdgeFactorBuffer_Out : register(u0);
 
 [numthreads(128, 1, 1)]
@@ -142,9 +149,9 @@ void Func_EdgeFactor(uint3 dispatchThreadID : SV_DispatchThreadID)
 {
     if (dispatchThreadID.x < TriCount)
     {
-        float4 p0 = mul(InputVertices[dispatchThreadID.x * 3 + 0], WVP);
-        float4 p1 = mul(InputVertices[dispatchThreadID.x * 3 + 1], WVP);
-        float4 p2 = mul(InputVertices[dispatchThreadID.x * 3 + 2], WVP);
+        float4 p0 = mul(float4(InputVertices[dispatchThreadID.x * 3 + 0].Pos, 1.0f), WVP);
+        float4 p1 = mul(float4(InputVertices[dispatchThreadID.x * 3 + 1].Pos, 1.0f), WVP);
+        float4 p2 = mul(float4(InputVertices[dispatchThreadID.x * 3 + 2].Pos, 1.0f), WVP);
 
         p0 /= p0.w;
         p1 /= p1.w;

@@ -6,8 +6,6 @@ cbuffer cbVS
 struct VSInput
 {
     float3 Pos : POSITION;
-    float3 Normal : NORMAL;
-    float2 UV : TEXCOORD;
 };
 
 struct VSOutput

@@ -418,20 +418,61 @@ void ObjMesh::CreateVIBuffer(
 
 	assert(m_VertexCount && m_IndexCount);
 
-	D3D11_INPUT_ELEMENT_DESC layout[] =
+	if (normals.size() > 0U)
 	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,  0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 24,  D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		m_LayoutType = (uvs.size() > 0U) ? ePosNormalUV : ePosNormal;
+	}
+	else
+	{
+		m_LayoutType = (uvs.size() > 0U) ? ePosUV : ePos;
+	}
+
+	switch (m_LayoutType)
+	{
+	case ePos: m_Stride = sizeof(Math::Geometry::BasicVertex::Position); break;
+	case ePosUV: m_Stride = sizeof(Math::Geometry::BasicVertex::Position) + sizeof(Math::Geometry::BasicVertex::UV); break;
+	case ePosNormal: m_Stride = sizeof(Math::Geometry::BasicVertex::Position) + sizeof(Math::Geometry::BasicVertex::Normal); break;
+	case ePosNormalUV: m_Stride = sizeof(Math::Geometry::BasicVertex); break;
+	}
+
+	D3D11_INPUT_ELEMENT_DESC layouts[][3] =
+	{
+		{
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,  0,  D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		},
+
+		{
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,  0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 12,  D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		},
+
+		{
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,  0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12,  D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		},
+
+		{
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,  0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 24,  D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		}
 	};
 
 	static char *const s_ShaderName = "ObjFake.hlsl";
+	static char *s_FunName[eLayoutCount] = 
+	{
+		"VS_Main_Pos",
+		"VS_Main_PosUV",
+		"VS_Main_PosNormal",
+		"VS_Main_PosNormalUV"
+	};
 
 	Ref<ID3D11VertexShader> vs;
 
-	g_Renderer->CreateVertexShaderAndInputLayout(vs.Reference(), m_InputLayout.Reference(), layout, ARRAYSIZE(layout), s_ShaderName, "VS_Main");
+	g_Renderer->CreateVertexShaderAndInputLayout(vs.Reference(), m_InputLayout.Reference(), layouts[m_LayoutType], 
+		(m_LayoutType == ePos || ePosUV) ? m_LayoutType + 1 : m_LayoutType, s_ShaderName, s_FunName[m_LayoutType]);
 
-	g_Renderer->CreateVertexBuffer(m_VertexBuffer.Reference(), sizeof(Math::Geometry::BasicVertex) * m_VertexCount, 
+	g_Renderer->CreateVertexBuffer(m_VertexBuffer.Reference(), m_Stride * m_VertexCount,
 		D3D11_USAGE_IMMUTABLE, &vertices[0], 0U, bUseAsSRV ? D3D11_BIND_SHADER_RESOURCE : 0U);
 
 	g_Renderer->CreateIndexBuffer(m_IndexBuffer.Reference(), sizeof(uint32_t) * m_IndexCount, D3D11_USAGE_IMMUTABLE, &indices[0]);

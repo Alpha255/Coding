@@ -98,7 +98,7 @@ void AppAdaptiveTessellation::RenderScene()
 	else
 	{
 		g_Renderer->SetVertexShader(s_Resource.VertexShader.Ptr());
-		g_Renderer->SetVertexBuffer(s_Mesh.GetVertexBuffer(), sizeof(Math::Geometry::BasicVertex), 0U);
+		g_Renderer->SetVertexBuffer(s_Mesh.GetVertexBuffer(), s_Mesh.GetVertexStride(), 0U);
 		g_Renderer->SetIndexBuffer(s_Mesh.GetIndexBuffer(), DXGI_FORMAT_R32_UINT);
 
 		g_Renderer->DrawIndexed(s_Mesh.GetIndexCount(), 0U, 0);

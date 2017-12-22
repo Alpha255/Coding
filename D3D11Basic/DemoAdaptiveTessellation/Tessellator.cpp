@@ -119,7 +119,7 @@ void Tessellator::CreateResource(uint32_t vertexCount, ID3D11Buffer *pVertexBuf)
 
 	g_Renderer->CreateReadOnlyBuffer(m_Res.CB_ReadBackBuf.Reference(), sizeof(uint32_t) * 2, nullptr, D3D11_CPU_ACCESS_READ);
 
-	g_Renderer->CreateShaderResourceView(m_Res.SRV_VB_Src.Reference(), pVertexBuf, DXGI_FORMAT_UNKNOWN, D3D11_SRV_DIMENSION_BUFFER, 0U, vertexCount);
+	g_Renderer->CreateShaderResourceView(m_Res.SRV_VB_Src.Reference(), pVertexBuf, DXGI_FORMAT_R32G32B32_FLOAT, D3D11_SRV_DIMENSION_BUFFER, 0U, vertexCount);
 
 	Ref<ID3D11Buffer> edgeFactor;
 	g_Renderer->CreateUnorderedAccessBuffer(edgeFactor.Reference(), sizeof(float) * vertexCount / 3U * 4U, 
