@@ -28,7 +28,7 @@ public:
 	GUIAntTweakBar() = default;
 	~GUIAntTweakBar();
 
-	void Init(HWND hWnd);
+	int Init(HWND hWnd);
 
 	void RenderBegin(const char * = "AntTweakBar"){}
 	void RenderEnd();

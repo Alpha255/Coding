@@ -10,7 +10,7 @@ GUIAntTweakBar::~GUIAntTweakBar()
 	TwTerminate();
 }
 
-void GUIAntTweakBar::Init(HWND hWnd)
+int GUIAntTweakBar::Init(HWND hWnd)
 {
 	assert(hWnd && g_Renderer);
 
@@ -23,6 +23,8 @@ void GUIAntTweakBar::Init(HWND hWnd)
 	TwWindowSize((int)(rect.right - rect.left), (int)(rect.bottom - rect.top));
 
 	m_Bar = TwNewBar("AntTweakBar");
+
+	return res;
 }
 
 int GUIAntTweakBar::WinProc(HWND hWnd, uint32_t msg, WPARAM wParam, LPARAM lParam)
