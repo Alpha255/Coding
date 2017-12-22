@@ -60,6 +60,8 @@ void AppAdaptiveTessellation::SetupScene()
 	m_Camera->SetViewRadius(350.0f);
 
 	s_Tessellator.Init(s_Mesh.GetVertexCount(), s_Mesh.GetVertexBuffer());
+
+	m_PartitioningMode = s_Tessellator.GetPartitioningMode();
 }
 
 void AppAdaptiveTessellation::RenderScene()
@@ -103,6 +105,9 @@ void AppAdaptiveTessellation::RenderScene()
 	}
 
 	ImGui::Checkbox("Enable Tessellation", &m_bEnableTess);
+	ImGui::Combo("PartitioningMode", &m_PartitioningMode, "Integer\0Pow2\0FractionalOdd\0FractionalEven\0");
+
+	s_Tessellator.SetPartitioningMode((Tessellator::ePartitioningMode)m_PartitioningMode);
 }
 
 void AppAdaptiveTessellation::ResizeWindow(uint32_t width, uint32_t height)

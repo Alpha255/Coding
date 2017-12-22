@@ -18,11 +18,11 @@ public:
 		return m_Res.UAV_Scan0.Ptr();
 	}
 
-	inline ID3D11Buffer *GetScanBuf()
+	inline ID3D11Buffer *GetScanBuf0()
 	{
-		assert(m_Res.CB_Scan.Valid());
+		assert(m_Res.UOB_ScanBuf0.Valid());
 
-		return m_Res.CB_Scan.Ptr();
+		return m_Res.UOB_ScanBuf0.Ptr();
 	}
 
 	inline ID3D11ShaderResourceView *GetScanSRV0()
@@ -40,6 +40,9 @@ private:
 		Ref<ID3D11ComputeShader> ScanAddBucketResult;
 
 		Ref<ID3D11Buffer> CB_Scan;
+		
+		Ref<ID3D11Buffer> UOB_ScanBuf0;
+		Ref<ID3D11Buffer> UOB_ScanBuf1;
 
 		Ref<ID3D11ShaderResourceView> SRV_Aux;
 		Ref<ID3D11ShaderResourceView> SRV_Scan0;

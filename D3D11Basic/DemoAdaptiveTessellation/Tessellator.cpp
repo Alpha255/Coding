@@ -119,7 +119,7 @@ void Tessellator::CreateResource(uint32_t vertexCount, ID3D11Buffer *pVertexBuf)
 
 	g_Renderer->CreateReadOnlyBuffer(m_Res.CB_ReadBackBuf.Reference(), sizeof(uint32_t) * 2, nullptr, D3D11_CPU_ACCESS_READ);
 
-	g_Renderer->CreateShaderResourceView(m_Res.SRV_VB_Src.Reference(), pVertexBuf, DXGI_FORMAT_R32G32B32A32_FLOAT, D3D11_SRV_DIMENSION_BUFFER, 0U, vertexCount);
+	g_Renderer->CreateShaderResourceView(m_Res.SRV_VB_Src.Reference(), pVertexBuf, DXGI_FORMAT_UNKNOWN, D3D11_SRV_DIMENSION_BUFFER, 0U, vertexCount);
 
 	Ref<ID3D11Buffer> edgeFactor;
 	g_Renderer->CreateUnorderedAccessBuffer(edgeFactor.Reference(), sizeof(float) * vertexCount / 3U * 4U, 
@@ -235,7 +235,7 @@ bool Tessellator::DoTessellationByEdge(const Camera &cam)
 			(long)(sizeof(uint32_t) * 2L * m_SrcVertexCount / 3L),
 			1L
 		};
-		g_Renderer->CopyBuffer(m_Res.CB_ReadBackBuf.Ptr(), m_Scanner.GetScanBuf(), copyBuf, sizeof(uint32_t) * 2U, srcRect);
+		g_Renderer->CopyBuffer(m_Res.CB_ReadBackBuf.Ptr(), m_Scanner.GetScanBuf0(), copyBuf, sizeof(uint32_t) * 2U, srcRect);
 		tessedVertexCount = copyBuf[0];
 		tessedIndexCount = copyBuf[1];
 	}

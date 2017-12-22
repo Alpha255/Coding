@@ -15,4 +15,5 @@ public:
 protected:
 private:
 	bool m_bEnableTess = false;
+	int32_t m_PartitioningMode = 0;
 };
