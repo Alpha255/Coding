@@ -1,38 +1,11 @@
 #include "D3DGraphic.h"
+#include "Utility.h"
+
 #include <fstream>
 #include <string>
 #include <DirectXTK/Inc/DDSTextureLoader.h>
 
 D3DGraphic* D3DGraphic::m_sInstance = nullptr;
-
-const char* D3DGraphic::ResourceFileDirectory(eResourceType resType)
-{
-	static const char* s_ResourcePath[D3DGraphic::eResourceType::eResTypeCount] =
-	{
-		"\\Resource\\Shaders\\",
-		"\\Resource\\Textures\\",
-		"\\Resource\\SDKMeshs\\",
-		"\\Resource\\TxtMeshs\\",
-		"\\Resource\\ObjMeshs\\",
-	};
-	static char directory[MAX_PATH] = { 0 };
-	::GetModuleFileNameA(::GetModuleHandle(nullptr), directory, MAX_PATH);
-	std::string strFileName(directory);
-	std::string strFilePath = strFileName.substr(0, strFileName.rfind("\\"));
-	strFilePath += s_ResourcePath[resType];
-	memset(directory, 0, MAX_PATH);
-	strcpy_s(directory, strFilePath.c_str());
-
-	return directory;
-}
-
-std::string D3DGraphic::ResourceFilePath(const char* pFileName, eResourceType resType)
-{
-	std::string filePath = ResourceFileDirectory(resType);
-	filePath += pFileName;
-
-	return filePath;
-}
 
 D3DGraphic::D3DGraphic()
 {
@@ -175,7 +148,7 @@ void D3DGraphic::CreateShaderResourceView(ID3D11ShaderResourceView** ppSRV, cons
 {
 	assert(pFileName && ppSRV); 
 
-	std::string texFilePath = ResourceFilePath(pFileName, eTexture);
+	std::string texFilePath = Utility::ResourceFilePath(pFileName, Utility::eTexture);
 	std::wstring wtexFilePath(texFilePath.begin(), texFilePath.end());
 
 	HRCheck(DirectX::CreateDDSTextureFromFile(m_D3DDevice.Ptr(), wtexFilePath.c_str(), nullptr, ppSRV));
@@ -276,8 +249,8 @@ void D3DGraphic::CompileShaderFile(ID3DBlob** ppRes, char* pFileName, char* pEnt
 {
 	assert(ppRes && pFileName && pEntryPoint && pTarget);
 
-	std::string shaderResPath = ResourceFileDirectory(eShader);
-	std::string shaderFilePath = shaderResPath + pFileName;
+	std::string shaderFileDir = Utility::ResourceFileDirectory(Utility::eShader);
+	std::string shaderFilePath = shaderFileDir + pFileName;
 
 	std::ifstream file(shaderFilePath, std::ios::in);
 	if (file.good())
@@ -297,7 +270,7 @@ void D3DGraphic::CompileShaderFile(ID3DBlob** ppRes, char* pFileName, char* pEnt
 		char workingDir[MAX_PATH] = { 0 };
 		::GetCurrentDirectoryA(MAX_PATH, workingDir);
 
-		::SetCurrentDirectoryA(shaderResPath.c_str());
+		::SetCurrentDirectoryA(shaderFileDir.c_str());
 		ID3DBlob* pErrMsg = nullptr;
 		ID3DInclude* pIncludeInfo = (nullptr == pInclude ? D3D_COMPILE_STANDARD_FILE_INCLUDE : pInclude);
 		if (FAILED(D3DCompile(pData, fileSize, pFileName, pDefines, pIncludeInfo, pEntryPoint, pTarget, flags, 0U, ppRes, &pErrMsg)))

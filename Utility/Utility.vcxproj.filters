@@ -5,9 +5,11 @@
     <ClInclude Include="IApplication.h" />
     <ClInclude Include="RefCountPtr.h" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="Utility.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IApplication.cpp" />
     <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="Utility.cpp" />
   </ItemGroup>
 </Project>

@@ -8,16 +8,6 @@
 class D3DGraphic
 {
 public:
-	enum eResourceType
-	{
-		eShader,
-		eTexture,
-		eSDKMesh,
-		eTxtMesh,
-		eObjMesh,
-		eResTypeCount
-	};
-
 	enum eShaderType
 	{
 		eVertexShader,
@@ -174,9 +164,6 @@ public:
 	}
 
 	void FlushState();
-
-	static std::string ResourceFilePath(const char* pFileName, eResourceType resType);
-	static const char* ResourceFileDirectory(eResourceType resType);
 protected:
 	enum eCounter
 	{

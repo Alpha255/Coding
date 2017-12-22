@@ -1,6 +1,7 @@
 #include "D3DModel.h"
 #include "D3DGraphic.h"
 #include "Camera.h"
+#include "Utility.h"
 
 #include <fstream>
 #include <sstream>
@@ -27,7 +28,7 @@ void D3DModel::CreateFromSDKMesh(const wchar_t* pName)
 		m_States = new DirectX::CommonStates(g_Renderer->GetDevice());
 	}
 
-	std::string meshFileDir = D3DGraphic::ResourceFileDirectory(D3DGraphic::eSDKMesh);
+	std::string meshFileDir = Utility::ResourceFileDirectory(Utility::eSDKMesh);
 
 	///size_t size = meshFilePath.size() + 1U;
 	///wchar_t* pMeshFilePath = new wchar_t[size]();
@@ -140,10 +141,9 @@ void SDKMesh::CreateFromTxt(const char *pName)
 {
 	assert(pName && g_Renderer);
 
-	std::string meshFileDir = D3DGraphic::ResourceFileDirectory(D3DGraphic::eTxtMesh);
-	meshFileDir += pName;
+	std::string meshFilePath = Utility::ResourceFilePath(pName, Utility::eTxtMesh);
 
-	std::ifstream meshFile(meshFileDir.c_str(), std::ios::in);
+	std::ifstream meshFile(meshFilePath.c_str(), std::ios::in);
 	if (meshFile.good())
 	{
 		uint32_t triangleCount = 0U;
@@ -248,10 +248,9 @@ void ObjMesh::Create(const char *pFileName, bool bUseAsSRV)
 {
 	assert(pFileName && g_Renderer);
 
-	std::string meshFileDir = D3DGraphic::ResourceFileDirectory(D3DGraphic::eObjMesh);
-	meshFileDir += pFileName;
+	std::string meshFilePath = Utility::ResourceFilePath(pFileName, Utility::eObjMesh);
 
-	std::ifstream meshFile(meshFileDir.c_str(), std::ios::in);
+	std::ifstream meshFile(meshFilePath.c_str(), std::ios::in);
 	if (meshFile.good())
 	{
 		char line[MAX_PATH] = { 0 };
