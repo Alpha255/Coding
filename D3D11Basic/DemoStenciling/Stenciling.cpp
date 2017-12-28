@@ -31,8 +31,11 @@ struct DemoStencilingResource
 	Ref<ID3D11Buffer> CBufVS;
 	Ref<ID3D11Buffer> CBufPS;
 
+	Ref<ID3D11InputLayout> Layout;
+	Ref<ID3D11Buffer> VertexBuffer;
+	Ref<ID3D11Buffer> IndexBuffer;
+
 	SDKMesh SkullMesh;
-	ObjMesh RoomMesh;
 };
 
 struct ConstantsBufferVS
@@ -122,14 +125,30 @@ void ApplicationStenciling::SetupScene()
 	///  /   Floor      /
 	/// /--------------/
 
+	ObjMesh roomMesh;
+	roomMesh.Create("Room.obj");
+	const std::vector<Math::Geometry::BasicVertex> &vertices = roomMesh.GetVertices();
+	const std::vector<uint32_t> &indices = roomMesh.GetIndices();
+
 	g_Renderer->CreateShaderResourceView(s_Resource.FloorDiffuseTex.Reference(), "checkboard.dds");
 	g_Renderer->CreateShaderResourceView(s_Resource.WallDiffuseTex.Reference(), "brick01.dds");
 	g_Renderer->CreateShaderResourceView(s_Resource.MirrorDiffuseTex.Reference(), "ice.dds");
 
-	g_Renderer->CreateVertexShader(s_Resource.VS.Reference(), s_ShaderName, "VS_Main");
+	D3D11_INPUT_ELEMENT_DESC layoutDesc[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,  0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 24,  D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
+	g_Renderer->CreateVertexShaderAndInputLayout(s_Resource.VS.Reference(), s_Resource.Layout.Reference(),
+		layoutDesc, ARRAYSIZE(layoutDesc), s_ShaderName, "VS_Main");
 	g_Renderer->CreatePixelShader(s_Resource.PS.Reference(), s_ShaderName, "PS_Main");
 
-	s_Resource.RoomMesh.Create("Room.obj");
+	g_Renderer->CreateVertexBuffer(s_Resource.VertexBuffer.Reference(), (uint32_t)vertices.size() * sizeof(Math::Geometry::BasicVertex),
+		D3D11_USAGE_IMMUTABLE, &vertices[0]);
+	g_Renderer->CreateIndexBuffer(s_Resource.IndexBuffer.Reference(), (uint32_t)indices.size() * sizeof(uint32_t),
+		D3D11_USAGE_IMMUTABLE, &indices[0]);
 
 	g_Renderer->CreateConstantBuffer(s_Resource.CBufVS.Reference(), sizeof(ConstantsBufferVS), 
 		D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
@@ -274,9 +293,9 @@ void ApplicationStenciling::RenderScene()
 	g_Renderer->SetVertexShader(s_Resource.VS.Ptr());
 	g_Renderer->SetPixelShader(s_Resource.PS.Ptr());
 
-	g_Renderer->SetInputLayout(s_Resource.RoomMesh.GetInputLayout());
-	g_Renderer->SetVertexBuffer(s_Resource.RoomMesh.GetVertexBuffer(), sizeof(Math::Geometry::BasicVertex), 0U);
-	g_Renderer->SetIndexBuffer(s_Resource.RoomMesh.GetIndexBuffer(), DXGI_FORMAT_R32_UINT);
+	g_Renderer->SetInputLayout(s_Resource.Layout.Ptr());
+	g_Renderer->SetVertexBuffer(s_Resource.VertexBuffer.Ptr(), sizeof(Math::Geometry::BasicVertex), 0U);
+	g_Renderer->SetIndexBuffer(s_Resource.IndexBuffer.Ptr(), DXGI_FORMAT_R32_UINT);
 
 	g_Renderer->SetConstantBuffer(s_Resource.CBufVS.Ptr(), 0U, D3DGraphic::eVertexShader);
 	g_Renderer->SetConstantBuffer(s_Resource.CBufPS.Ptr(), 0U, D3DGraphic::ePixelShader);
@@ -319,9 +338,9 @@ void ApplicationStenciling::RenderScene()
 		/// Draw mirror to stencil buffer
 		g_Renderer->SetVertexShader(s_Resource.VS.Ptr());
 		g_Renderer->SetPixelShader(nullptr);
-		g_Renderer->SetInputLayout(s_Resource.RoomMesh.GetInputLayout());
-		g_Renderer->SetVertexBuffer(s_Resource.RoomMesh.GetVertexBuffer(), sizeof(Math::Geometry::BasicVertex), 0U);
-		g_Renderer->SetIndexBuffer(s_Resource.RoomMesh.GetIndexBuffer(), DXGI_FORMAT_R32_UINT);
+		g_Renderer->SetInputLayout(s_Resource.Layout.Ptr());
+		g_Renderer->SetVertexBuffer(s_Resource.VertexBuffer.Ptr(), sizeof(Math::Geometry::BasicVertex), 0U);
+		g_Renderer->SetIndexBuffer(s_Resource.IndexBuffer.Ptr(), DXGI_FORMAT_R32_UINT);
 		g_Renderer->SetConstantBuffer(s_Resource.CBufVS.Ptr(), 0U, D3DGraphic::eVertexShader);
 		g_Renderer->SetConstantBuffer(s_Resource.CBufPS.Ptr(), 0U, D3DGraphic::ePixelShader);
 
@@ -361,9 +380,9 @@ void ApplicationStenciling::RenderScene()
 		/// dst = MaterialSkull, src = MaterialMirror
 		g_Renderer->SetVertexShader(s_Resource.VS.Ptr());
 		g_Renderer->SetPixelShader(s_Resource.PS.Ptr());
-		g_Renderer->SetInputLayout(s_Resource.RoomMesh.GetInputLayout());
-		g_Renderer->SetVertexBuffer(s_Resource.RoomMesh.GetVertexBuffer(), sizeof(Math::Geometry::BasicVertex), 0U);
-		g_Renderer->SetIndexBuffer(s_Resource.RoomMesh.GetIndexBuffer(), DXGI_FORMAT_R32_UINT);
+		g_Renderer->SetInputLayout(s_Resource.Layout.Ptr());
+		g_Renderer->SetVertexBuffer(s_Resource.VertexBuffer.Ptr(), sizeof(Math::Geometry::BasicVertex), 0U);
+		g_Renderer->SetIndexBuffer(s_Resource.IndexBuffer.Ptr(), DXGI_FORMAT_R32_UINT);
 		g_Renderer->SetConstantBuffer(s_Resource.CBufVS.Ptr(), 0U, D3DGraphic::eVertexShader);
 		g_Renderer->SetConstantBuffer(s_Resource.CBufPS.Ptr(), 0U, D3DGraphic::ePixelShader);
 
