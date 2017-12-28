@@ -5,8 +5,8 @@
 class ApplicationBox : public D3DApplication
 {
 public:
-	ApplicationBox();
-	~ApplicationBox() {}
+	ApplicationBox() = default;
+	~ApplicationBox() = default;
 
 	virtual void SetupScene();
 	virtual void RenderScene();

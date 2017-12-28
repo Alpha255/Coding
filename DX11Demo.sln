@@ -27,7 +27,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{E9CA
 		Application\Resource\Shaders\imGUI.hlsl = Application\Resource\Shaders\imGUI.hlsl
 		Application\Resource\Shaders\Lighting.hlsl = Application\Resource\Shaders\Lighting.hlsl
 		Application\Resource\Shaders\Mapping.hlsl = Application\Resource\Shaders\Mapping.hlsl
-		Application\Resource\Shaders\ObjFake.hlsl = Application\Resource\Shaders\ObjFake.hlsl
 		Application\Resource\Shaders\Quad.hlsl = Application\Resource\Shaders\Quad.hlsl
 		Application\Resource\Shaders\Scanner.hlsl = Application\Resource\Shaders\Scanner.hlsl
 		Application\Resource\Shaders\ShadowMap.hlsl = Application\Resource\Shaders\ShadowMap.hlsl

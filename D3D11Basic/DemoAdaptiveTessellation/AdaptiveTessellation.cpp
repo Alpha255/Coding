@@ -13,6 +13,11 @@ struct D3DResource
 	Ref<ID3D11VertexShader> VertexShader_Tessed;
 	Ref<ID3D11PixelShader> PixelShader;
 
+	Ref<ID3D11Buffer> VertexBuffer;
+	Ref<ID3D11Buffer> IndexBuffer;
+
+	Ref<ID3D11InputLayout> Layout;
+
 	Ref<ID3D11Buffer> CBVS;
 
 	Ref<ID3D11RasterizerState> WireframeNullCulling;
@@ -23,7 +28,6 @@ struct ConstantsBufferVS
 	Matrix WVP;
 };
 
-static ObjMesh s_Mesh;
 static D3DResource s_Resource;
 static ConstantsBufferVS s_CBVS;
 static Tessellator s_Tessellator;
@@ -32,13 +36,35 @@ void AppAdaptiveTessellation::SetupScene()
 {
 	assert(g_Renderer);
 
-	s_Mesh.Create("AdaptiveTessellation.obj", true);
+	ObjMesh mesh;
+	mesh.Create("AdaptiveTessellation.obj");
+	const std::vector<Math::Geometry::BasicVertex> &vertices = mesh.GetVertices();
+	const std::vector<uint32_t> &indices = mesh.GetIndices();
+	m_VertexCount = (uint32_t)vertices.size();
+	m_IndexCount = (uint32_t)indices.size();
+	std::vector<Vec4> copyVertices(m_VertexCount);
+	for (uint32_t i = 0U; i < m_VertexCount; ++i)
+	{
+		memcpy(&copyVertices.at(i), &vertices.at(i), sizeof(Vec3));
+		copyVertices.at(i).w = 1.0f;
+	}
 
 	static char *const s_ShaderName = "AdaptiveTessellation.hlsl";
 
-	g_Renderer->CreateVertexShader(s_Resource.VertexShader.Reference(), s_ShaderName, "VS_Main");
+	D3D11_INPUT_ELEMENT_DESC layoutDesc[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0,  0,  D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
+	g_Renderer->CreateVertexShaderAndInputLayout(s_Resource.VertexShader.Reference(), s_Resource.Layout.Reference(), 
+		layoutDesc, ARRAYSIZE(layoutDesc), s_ShaderName, "VS_Main");
 	g_Renderer->CreateVertexShader(s_Resource.VertexShader_Tessed.Reference(), s_ShaderName, "VS_Main_Tessed");
 	g_Renderer->CreatePixelShader(s_Resource.PixelShader.Reference(), s_ShaderName, "PS_Main");
+
+	g_Renderer->CreateVertexBuffer(s_Resource.VertexBuffer.Reference(), m_VertexCount * sizeof(Vec4),
+		D3D11_USAGE_IMMUTABLE, &copyVertices[0], 0U, D3D11_BIND_SHADER_RESOURCE);
+	g_Renderer->CreateIndexBuffer(s_Resource.IndexBuffer.Reference(), m_IndexCount * sizeof(uint32_t),
+		D3D11_USAGE_IMMUTABLE, &indices[0]);
 
 	g_Renderer->CreateConstantBuffer(s_Resource.CBVS.Reference(), sizeof(ConstantsBufferVS), 
 		D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
@@ -59,7 +85,7 @@ void AppAdaptiveTessellation::SetupScene()
 
 	m_Camera->SetViewRadius(350.0f);
 
-	s_Tessellator.Init(s_Mesh.GetVertexCount(), s_Mesh.GetVertexBuffer());
+	s_Tessellator.Init(m_VertexCount, s_Resource.VertexBuffer.Ptr());
 
 	m_PartitioningMode = s_Tessellator.GetPartitioningMode();
 }
@@ -75,7 +101,7 @@ void AppAdaptiveTessellation::RenderScene()
 
 	g_Renderer->SetConstantBuffer(s_Resource.CBVS.Ptr(), 0U, D3DGraphic::eVertexShader);
 	g_Renderer->SetPixelShader(s_Resource.PixelShader.Ptr());
-	g_Renderer->SetInputLayout(s_Mesh.GetInputLayout());
+	g_Renderer->SetInputLayout(s_Resource.Layout.Ptr());
 
 	g_Renderer->SetRasterizerState(s_Resource.WireframeNullCulling.Ptr());
 
@@ -98,10 +124,10 @@ void AppAdaptiveTessellation::RenderScene()
 	else
 	{
 		g_Renderer->SetVertexShader(s_Resource.VertexShader.Ptr());
-		g_Renderer->SetVertexBuffer(s_Mesh.GetVertexBuffer(), s_Mesh.GetVertexStride(), 0U);
-		g_Renderer->SetIndexBuffer(s_Mesh.GetIndexBuffer(), DXGI_FORMAT_R32_UINT);
+		g_Renderer->SetVertexBuffer(s_Resource.VertexBuffer.Ptr(), sizeof(Vec4), 0U);
+		g_Renderer->SetIndexBuffer(s_Resource.IndexBuffer.Ptr(), DXGI_FORMAT_R32_UINT);
 
-		g_Renderer->DrawIndexed(s_Mesh.GetIndexCount(), 0U, 0);
+		g_Renderer->DrawIndexed(m_IndexCount, 0U, 0);
 	}
 
 	ImGui::Checkbox("Enable Tessellation", &m_bEnableTess);

@@ -5,7 +5,7 @@ cbuffer cbVS
 
 struct VSInput
 {
-    float3 Pos : POSITION;
+    float4 Pos : POSITION;
 };
 
 struct VSOutput
@@ -30,7 +30,7 @@ float4 GetBarycentric(float4 v1, float4 v2, float4 v3, float2 bc)
 VSOutput VS_Main(VSInput input)
 {
     VSOutput output;
-    output.Pos = mul(float4(input.Pos, 1.0f), WVP);
+    output.Pos = mul(input.Pos, WVP);
 
     return output;
 }

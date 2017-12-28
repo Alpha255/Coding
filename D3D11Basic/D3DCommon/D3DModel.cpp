@@ -244,7 +244,7 @@ void SDKMesh::Draw(const Camera &cam, bool bWireframe)
 	m_CBufferVS.World.Identity();
 }
 
-void ObjMesh::Create(const char *pFileName, bool bUseAsSRV)
+void ObjMesh::Create(const char *pFileName)
 {
 	assert(pFileName && g_Renderer);
 
@@ -349,7 +349,7 @@ void ObjMesh::Create(const char *pFileName, bool bUseAsSRV)
 
 		meshFile.close();
 
-		CreateVIBuffer(vertices, indices, normals, uvs, bUseAsSRV);
+		CreateVI(vertices, indices, normals, uvs);
 	}
 	else
 	{
@@ -357,16 +357,12 @@ void ObjMesh::Create(const char *pFileName, bool bUseAsSRV)
 	}
 }
 
-void ObjMesh::CreateVIBuffer(
+void ObjMesh::CreateVI(
 	const std::vector<Vec3> &srcVertices, 
 	const std::vector<ObjIndex> &objIndices, 
 	const std::vector<Vec3> &normals, 
-	const std::vector<Vec2> &uvs, 
-	bool bUseAsSRV)
+	const std::vector<Vec2> &uvs)
 {
-	std::vector<uint32_t> indices;
-	std::vector<Math::Geometry::BasicVertex> vertices;
-
 	for (size_t i = 0U; i < objIndices.size(); i += 4)
 	{
 		for (size_t j = i; j < i + 3U; ++j)
@@ -378,8 +374,8 @@ void ObjMesh::CreateVIBuffer(
 			v.Normal = face.n > 0U ? normals.at(face.n - 1U) : Vec3(0.0f, 0.0f, 0.0f);
 			v.UV = face.t > 0U ? uvs.at(face.t - 1U) : Vec2(0.0f, 0.0f);
 
-			vertices.push_back(v);
-			indices.push_back(face.i - 1U);
+			m_Vertices.push_back(v);
+			m_Indices.push_back(face.i - 1U);
 		}
 
 		if (objIndices.at(i + 3U).i > 0U)  /// Quad ?
@@ -391,16 +387,16 @@ void ObjMesh::CreateVIBuffer(
 			v.Position = srcVertices.at(face0.i - 1U);
 			v.Normal = face0.n > 0U ? normals.at(face0.n - 1U) : Vec3(0.0f, 0.0f, 0.0f);
 			v.UV = face0.t > 0U ? uvs.at(face0.t - 1U) : Vec2(0.0f, 0.0f);
-			vertices.push_back(v);
-			indices.push_back(face0.i - 1U);
+			m_Vertices.push_back(v);
+			m_Indices.push_back(face0.i - 1U);
 
 			size_t i1 = i + 3U;
 			const ObjIndex &face1 = objIndices.at(i1);
 			v.Position = srcVertices.at(face1.i - 1U);
 			v.Normal = face1.n > 0U ? normals.at(face1.n - 1U) : Vec3(0.0f, 0.0f, 0.0f);
 			v.UV = face1.t > 0U ? uvs.at(face1.t - 1U) : Vec2(0.0f, 0.0f);
-			vertices.push_back(v);
-			indices.push_back(face1.i - 1U);
+			m_Vertices.push_back(v);
+			m_Indices.push_back(face1.i - 1U);
 
 			size_t i2 = i;
 			const ObjIndex &face2 = objIndices.at(i2);
@@ -408,72 +404,8 @@ void ObjMesh::CreateVIBuffer(
 			v.Normal = face2.n > 0U ? normals.at(face2.n - 1U) : Vec3(0.0f, 0.0f, 0.0f);
 			v.UV = face2.t > 0U ? uvs.at(face2.t - 1U) : Vec2(0.0f, 0.0f);
 
-			vertices.push_back(v);
-			indices.push_back(face2.i - 1U);
+			m_Vertices.push_back(v);
+			m_Indices.push_back(face2.i - 1U);
 		}
 	}
-
-	m_VertexCount = (uint32_t)vertices.size();
-	m_IndexCount = (uint32_t)indices.size();
-
-	assert(m_VertexCount && m_IndexCount);
-
-	if (normals.size() > 0U)
-	{
-		m_LayoutType = (uvs.size() > 0U) ? ePosNormalUV : ePosNormal;
-	}
-	else
-	{
-		m_LayoutType = (uvs.size() > 0U) ? ePosUV : ePos;
-	}
-
-	switch (m_LayoutType)
-	{
-	case ePos: m_Stride = sizeof(Math::Geometry::BasicVertex::Position); break;
-	case ePosUV: m_Stride = sizeof(Math::Geometry::BasicVertex::Position) + sizeof(Math::Geometry::BasicVertex::UV); break;
-	case ePosNormal: m_Stride = sizeof(Math::Geometry::BasicVertex::Position) + sizeof(Math::Geometry::BasicVertex::Normal); break;
-	case ePosNormalUV: m_Stride = sizeof(Math::Geometry::BasicVertex); break;
-	}
-
-	D3D11_INPUT_ELEMENT_DESC layouts[][3] =
-	{
-		{
-			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,  0,  D3D11_INPUT_PER_VERTEX_DATA, 0 }
-		},
-
-		{
-			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,  0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 12,  D3D11_INPUT_PER_VERTEX_DATA, 0 }
-		},
-
-		{
-			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,  0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12,  D3D11_INPUT_PER_VERTEX_DATA, 0 }
-		},
-
-		{
-			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,  0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 24,  D3D11_INPUT_PER_VERTEX_DATA, 0 }
-		}
-	};
-
-	static char *const s_ShaderName = "ObjFake.hlsl";
-	static char *s_FunName[eLayoutCount] = 
-	{
-		"VS_Main_Pos",
-		"VS_Main_PosUV",
-		"VS_Main_PosNormal",
-		"VS_Main_PosNormalUV"
-	};
-
-	Ref<ID3D11VertexShader> vs;
-
-	g_Renderer->CreateVertexShaderAndInputLayout(vs.Reference(), m_InputLayout.Reference(), layouts[m_LayoutType], 
-		(m_LayoutType == ePos || ePosUV) ? m_LayoutType + 1 : m_LayoutType, s_ShaderName, s_FunName[m_LayoutType]);
-
-	g_Renderer->CreateVertexBuffer(m_VertexBuffer.Reference(), m_Stride * m_VertexCount,
-		D3D11_USAGE_IMMUTABLE, &vertices[0], 0U, bUseAsSRV ? D3D11_BIND_SHADER_RESOURCE : 0U);
-
-	g_Renderer->CreateIndexBuffer(m_IndexBuffer.Reference(), sizeof(uint32_t) * m_IndexCount, D3D11_USAGE_IMMUTABLE, &indices[0]);
 }

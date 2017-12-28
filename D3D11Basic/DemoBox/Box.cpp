@@ -53,10 +53,6 @@ static uint32_t s_VertexOffset = 0U;
 	static char* const s_ShaderName = "Box.hlsl";
 #endif
 
-ApplicationBox::ApplicationBox()
-{
-}
-
 void ApplicationBox::SetupScene()
 {
 	assert(g_Renderer);

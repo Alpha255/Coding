@@ -151,42 +151,18 @@ public:
 	ObjMesh() = default;
 	~ObjMesh() = default;
 
-	void Create(const char *pFileName, bool bUseAsSRV = false);
+	void Create(const char *pFileName);
 
-	inline ID3D11InputLayout *GetInputLayout() const 
+	inline const std::vector<Math::Geometry::BasicVertex> &GetVertices() const
 	{
-		assert(m_InputLayout.Valid());
-		return m_InputLayout.Ptr();
+		assert(m_Vertices.size());
+		return m_Vertices;
 	}
 
-	inline ID3D11Buffer *GetIndexBuffer() const 
+	inline const std::vector<uint32_t> &GetIndices() const
 	{
-		assert(m_IndexBuffer.Valid());
-		return m_IndexBuffer.Ptr();
-	}
-
-	inline ID3D11Buffer *GetVertexBuffer() const
-	{
-		assert(m_VertexBuffer.Valid());
-		return m_VertexBuffer.Ptr();
-	}
-
-	inline uint32_t GetVertexCount() const
-	{
-		assert(m_VertexCount);
-		return m_VertexCount;
-	}
-
-	inline uint32_t GetIndexCount() const
-	{
-		assert(m_IndexCount);
-		return m_IndexCount;
-	}
-
-	inline uint32_t GetVertexStride() const
-	{
-		assert(m_Stride > 0U);
-		return m_Stride;
+		assert(m_Indices.size());
+		return m_Indices;
 	}
 protected:
 	struct ObjIndex
@@ -196,28 +172,12 @@ protected:
 		uint32_t n = 0U;
 	};
 
-	enum eLayout
-	{
-		ePos,
-		ePosUV,
-		ePosNormal,
-		ePosNormalUV,
-		eLayoutCount
-	};
-
-	void CreateVIBuffer(
-		const std::vector<Vec3> &srcVertices, 
-		const std::vector<ObjIndex> &objIndices, 
-		const std::vector<Vec3> &normals, 
-		const std::vector<Vec2> &uvs, 
-		bool bUseAsSRV);
+	void ObjMesh::CreateVI(
+		const std::vector<Vec3> &srcVertices,
+		const std::vector<ObjIndex> &objIndices,
+		const std::vector<Vec3> &normals,
+		const std::vector<Vec2> &uvs);
 private:
-	Ref<ID3D11InputLayout> m_InputLayout;
-	Ref<ID3D11Buffer> m_IndexBuffer;
-	Ref<ID3D11Buffer> m_VertexBuffer;
-
-	uint32_t m_VertexCount = 0U;
-	uint32_t m_IndexCount = 0U;
-	uint32_t m_Stride = 0U;
-	eLayout m_LayoutType = eLayoutCount;
+	std::vector<Math::Geometry::BasicVertex> m_Vertices;
+	std::vector<uint32_t> m_Indices;
 };

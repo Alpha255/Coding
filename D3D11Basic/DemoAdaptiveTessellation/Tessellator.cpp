@@ -119,7 +119,7 @@ void Tessellator::CreateResource(uint32_t vertexCount, ID3D11Buffer *pVertexBuf)
 
 	g_Renderer->CreateReadOnlyBuffer(m_Res.CB_ReadBackBuf.Reference(), sizeof(uint32_t) * 2, nullptr, D3D11_CPU_ACCESS_READ);
 
-	g_Renderer->CreateShaderResourceView(m_Res.SRV_VB_Src.Reference(), pVertexBuf, DXGI_FORMAT_R32G32B32_FLOAT, D3D11_SRV_DIMENSION_BUFFER, 0U, vertexCount);
+	g_Renderer->CreateShaderResourceView(m_Res.SRV_VB_Src.Reference(), pVertexBuf, DXGI_FORMAT_R32G32B32A32_FLOAT, D3D11_SRV_DIMENSION_BUFFER, 0U, vertexCount);
 
 	Ref<ID3D11Buffer> edgeFactor;
 	g_Renderer->CreateUnorderedAccessBuffer(edgeFactor.Reference(), sizeof(float) * vertexCount / 3U * 4U, 
@@ -273,9 +273,9 @@ bool Tessellator::DoTessellationByEdge(const Camera &cam)
 			/// Create the output tessellated vertices buffer
 			g_Renderer->CreateUnorderedAccessBuffer(m_Res.VB_Tessed.Reference(), sizeof(float) * 3U * tessedVertexCount,
 				D3D11_USAGE_DEFAULT, D3D11_RESOURCE_MISC_BUFFER_STRUCTURED, sizeof(float) * 3U);
-			g_Renderer->CreateShaderResourceView(m_Res.SRV_VB_Scatter.Reference(), m_Res.VB_Tessed.Ptr(), DXGI_FORMAT_UNKNOWN,
+			g_Renderer->CreateShaderResourceView(m_Res.SRV_VB_Tessed.Reference(), m_Res.VB_Tessed.Ptr(), DXGI_FORMAT_UNKNOWN,
 				D3D11_SRV_DIMENSION_BUFFER, 0U, tessedVertexCount);
-			g_Renderer->CreateUnorderedAccessView(m_Res.UAV_VB_Scatter.Reference(), m_Res.VB_Tessed.Ptr(), DXGI_FORMAT_UNKNOWN,
+			g_Renderer->CreateUnorderedAccessView(m_Res.UAV_VB_Tessed.Reference(), m_Res.VB_Tessed.Ptr(), DXGI_FORMAT_UNKNOWN,
 				D3D11_UAV_DIMENSION_BUFFER, 0U, tessedVertexCount);
 
 			m_CachedTessedVertexCount = tessedVertexCount;
@@ -299,6 +299,7 @@ bool Tessellator::DoTessellationByEdge(const Camera &cam)
 			g_Renderer->CreateUnorderedAccessView(m_Res.UAV_IB_Scatter.Reference(), m_Res.IB_Scatter.Ptr(),
 				DXGI_FORMAT_UNKNOWN, D3D11_UAV_DIMENSION_BUFFER, 0U, tessedIndexCount);
 
+			/// Generate the output tessellated indices buffer
 			g_Renderer->CreateUnorderedAccessBuffer(m_Res.IB_Tessed.Reference(), sizeof(uint32_t) * tessedIndexCount,
 				D3D11_USAGE_DEFAULT, D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS, sizeof(uint32_t) * 2, D3D11_BIND_INDEX_BUFFER);
 			g_Renderer->CreateUnorderedAccessView(m_Res.UAV_IB_Tessed.Reference(), m_Res.IB_Tessed.Ptr(),
@@ -362,14 +363,14 @@ bool Tessellator::DoTessellationByEdge(const Camera &cam)
 		uint32_t cbuf[4] = { tessedIndexCount, 0U, 0U, 0U };
 		ID3D11ShaderResourceView *ppSRV[3] = { m_Res.SRV_IB_Scatter.Ptr(), m_Res.SRV_EdgeFactor.Ptr(), m_Scanner.GetScanSRV0() };
 		ExeComputeShader(
-			m_Res.ScatterIndexTriID_IndexID.Ptr(),
+			m_Res.TessIndex.Ptr(),
 			3U,
 			ppSRV,
 			m_Res.CB_LookupTable.Ptr(),
 			m_Res.CB_Tess.Ptr(),
 			sizeof(uint32_t) * 4U,
 			cbuf,
-			m_Res.UAV_IB_Scatter.Ptr(),
+			m_Res.UAV_IB_Tessed.Ptr(),
 			(uint32_t)(ceilf(tessedIndexCount / 128.0f)),
 			1U,
 			1U);
