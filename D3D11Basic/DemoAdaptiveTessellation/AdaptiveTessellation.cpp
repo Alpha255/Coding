@@ -5,6 +5,8 @@
 #include "Camera.h"
 #include "Tessellator.h"
 
+#define SingleTriangle
+
 extern D3DGraphic* g_Renderer;
 
 struct D3DResource
@@ -36,6 +38,7 @@ void AppAdaptiveTessellation::SetupScene()
 {
 	assert(g_Renderer);
 
+#ifndef SingleTriangle
 	ObjMesh mesh;
 	mesh.Create("AdaptiveTessellation.obj");
 	const std::vector<Math::Geometry::BasicVertex> &vertices = mesh.GetVertices();
@@ -48,6 +51,7 @@ void AppAdaptiveTessellation::SetupScene()
 		memcpy(&copyVertices.at(i), &vertices.at(i), sizeof(Vec3));
 		copyVertices.at(i).w = 1.0f;
 	}
+#endif
 
 	static char *const s_ShaderName = "AdaptiveTessellation.hlsl";
 
@@ -61,10 +65,24 @@ void AppAdaptiveTessellation::SetupScene()
 	g_Renderer->CreateVertexShader(s_Resource.VertexShader_Tessed, s_ShaderName, "VS_Main_Tessed");
 	g_Renderer->CreatePixelShader(s_Resource.PixelShader, s_ShaderName, "PS_Main");
 
+#ifndef SingleTriangle
 	g_Renderer->CreateVertexBuffer(s_Resource.VertexBuffer, m_VertexCount * sizeof(Vec4),
 		D3D11_USAGE_IMMUTABLE, &copyVertices[0], 0U, D3D11_BIND_SHADER_RESOURCE);
 	g_Renderer->CreateIndexBuffer(s_Resource.IndexBuffer, m_IndexCount * sizeof(uint32_t),
 		D3D11_USAGE_IMMUTABLE, &indices[0]);
+#else
+	m_VertexCount = 3U;
+	Vec4 v0{   0.0f,   0.0f, 0.0f, 1.0f };
+	Vec4 v1{   0.0f, 100.0f, 0.0f, 1.0f };
+	Vec4 v2{ 100.0f,   0.0f, 0.0f, 1.0f };
+	std::vector<Vec4> vertices;
+	vertices.push_back(v0);
+	vertices.push_back(v1);
+	vertices.push_back(v2);
+
+	g_Renderer->CreateVertexBuffer(s_Resource.VertexBuffer, m_VertexCount * sizeof(Vec4),
+		D3D11_USAGE_IMMUTABLE, &vertices[0], 0U, D3D11_BIND_SHADER_RESOURCE);
+#endif
 
 	g_Renderer->CreateConstantBuffer(s_Resource.CBVS, sizeof(ConstantsBufferVS), 
 		D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
@@ -128,9 +146,12 @@ void AppAdaptiveTessellation::RenderScene()
 	{
 		g_Renderer->SetVertexShader(s_Resource.VertexShader);
 		g_Renderer->SetVertexBuffer(s_Resource.VertexBuffer, sizeof(Vec4), 0U);
+#ifndef SingleTriangle
 		g_Renderer->SetIndexBuffer(s_Resource.IndexBuffer, DXGI_FORMAT_R32_UINT);
-
 		g_Renderer->DrawIndexed(m_IndexCount, 0U, 0);
+#else
+		g_Renderer->Draw(m_VertexCount, 0U);
+#endif
 	}
 
 	ImGui::Checkbox("Enable Tessellation", &m_bEnableTess);

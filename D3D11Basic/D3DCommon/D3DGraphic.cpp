@@ -415,7 +415,8 @@ void D3DGraphic::ResizeBackBuffer(uint32_t width, uint32_t height)
 
 		if (m_DefaultDepthStencil.Valid())
 		{
-			m_DefaultDepthStencil->Release();
+			static Ref<ID3D11DepthStencilView> s_NullDepthStencilView;
+			m_DefaultDepthStencil = s_NullDepthStencilView;
 		}
 
 		CreateDepthStencilView(m_DefaultDepthStencil, nullptr, DXGI_FORMAT_D24_UNORM_S8_UINT, width, height);

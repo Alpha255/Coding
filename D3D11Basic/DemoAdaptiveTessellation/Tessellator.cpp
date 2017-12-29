@@ -84,16 +84,16 @@ void Tessellator::CreateResource(uint32_t vertexCount, ID3D11Buffer *pVertexBuf)
 {
 	assert(g_Renderer && pVertexBuf);
 
-	g_Renderer->CreateComputeShader(m_Res.EdgeFactor, "Tessellator_EdgeFactor.hlsl", "Func_EdgeFactor");
+	g_Renderer->CreateComputeShader(m_Res.CS_EdgeFactor, "Tessellator_EdgeFactor.hlsl", "Func_EdgeFactor");
 
-	g_Renderer->CreateComputeShader(m_Res.ScatterVertexTriID_IndexID, "Tessellator_ScatterID.hlsl", "Func_ScatterVertexTriID_IndexID");
-	g_Renderer->CreateComputeShader(m_Res.ScatterIndexTriID_IndexID, "Tessellator_ScatterID.hlsl", "Func_ScatterIndexTriID_IndexID");
+	g_Renderer->CreateComputeShader(m_Res.CS_ScatterVertexTriID_IndexID, "Tessellator_ScatterID.hlsl", "Func_ScatterVertexTriID_IndexID");
+	g_Renderer->CreateComputeShader(m_Res.CS_ScatterIndexTriID_IndexID, "Tessellator_ScatterID.hlsl", "Func_ScatterIndexTriID_IndexID");
 
-	g_Renderer->CreateComputeShader(m_Res.NumVI, "Tessellator_NumVI.hlsl", "Func_NumVI");
+	g_Renderer->CreateComputeShader(m_Res.CS_NumVI, "Tessellator_NumVI.hlsl", "Func_NumVI");
 
-	g_Renderer->CreateComputeShader(m_Res.TessVertex, "Tessellator_TessVertex.hlsl", "Func_TessVertex");
+	g_Renderer->CreateComputeShader(m_Res.CS_TessVertex, "Tessellator_TessVertex.hlsl", "Func_TessVertex");
 
-	g_Renderer->CreateComputeShader(m_Res.TessIndex, "Tessellator_TessIndex.hlsl", "Func_TessIndex");
+	g_Renderer->CreateComputeShader(m_Res.CS_TessIndex, "Tessellator_TessIndex.hlsl", "Func_TessIndex");
 
 	static const size_t s_LUTSize = (sizeof(m_InsidePointIndex) + sizeof(m_OutsidePointIndex)) / sizeof(int32_t);
 	struct ConstantsBuf
@@ -151,9 +151,9 @@ void Tessellator::ExeComputeShader(
 	}
 	g_Renderer->SetUnorderedAccessView(rUAV);
 
-	if (rCBConstant.Valid())
+	if (rCBUpdate.Valid())
 	{
-		g_Renderer->UpdateBuffer(rCBConstant.Ptr(), 0U, nullptr, pBufData, cbufSize, cbufSize);
+		g_Renderer->UpdateBuffer(rCBUpdate.Ptr(), 0U, nullptr, pBufData, cbufSize, cbufSize);
 	}
 
 	if (rCBConstant.Valid() && rCBUpdate.Valid())
@@ -202,7 +202,7 @@ bool Tessellator::DoTessellationByEdge(const Camera &cam)
 
 		ID3D11ShaderResourceView *ppSRV[1] = { m_Res.SRV_VB_Src.Ptr() };
 		ExeComputeShader(
-			m_Res.EdgeFactor,
+			m_Res.CS_EdgeFactor,
 			1U,
 			ppSRV,
 			s_NullBuffer,
@@ -220,7 +220,7 @@ bool Tessellator::DoTessellationByEdge(const Camera &cam)
 		uint32_t cbuf[4] = { m_SrcVertexCount / 3U, 0U, 0U, 0U };
 		ID3D11ShaderResourceView *ppSRV[1] = { m_Res.SRV_EdgeFactor.Ptr() };
 		ExeComputeShader(
-			m_Res.NumVI,
+			m_Res.CS_NumVI,
 			1U,
 			ppSRV,
 			m_Res.CB_LookupTable,
@@ -321,7 +321,7 @@ bool Tessellator::DoTessellationByEdge(const Camera &cam)
 		uint32_t cbuf[4] = { m_SrcVertexCount / 3U, 0U, 0U, 0U };
 		ID3D11ShaderResourceView *ppSRV[1] = { m_Scanner.GetScanSRV0().Ptr() };
 		ExeComputeShader(
-			m_Res.ScatterVertexTriID_IndexID,
+			m_Res.CS_ScatterVertexTriID_IndexID,
 			1U,
 			ppSRV,
 			s_NullBuffer,
@@ -334,7 +334,7 @@ bool Tessellator::DoTessellationByEdge(const Camera &cam)
 			1U);
 
 		ExeComputeShader(
-			m_Res.ScatterIndexTriID_IndexID,
+			m_Res.CS_ScatterIndexTriID_IndexID,
 			1U,
 			ppSRV,
 			s_NullBuffer,
@@ -352,7 +352,7 @@ bool Tessellator::DoTessellationByEdge(const Camera &cam)
 		uint32_t cbuf[4] = { tessedVertexCount, 0U, 0U, 0U };
 		ID3D11ShaderResourceView *ppSRV[2] = { m_Res.SRV_VB_Scatter.Ptr(), m_Res.SRV_EdgeFactor.Ptr() };
 		ExeComputeShader(
-			m_Res.TessVertex,
+			m_Res.CS_TessVertex,
 			2U,
 			ppSRV,
 			m_Res.CB_LookupTable,
@@ -370,7 +370,7 @@ bool Tessellator::DoTessellationByEdge(const Camera &cam)
 		uint32_t cbuf[4] = { tessedIndexCount, 0U, 0U, 0U };
 		ID3D11ShaderResourceView *ppSRV[3] = { m_Res.SRV_IB_Scatter.Ptr(), m_Res.SRV_EdgeFactor.Ptr(), m_Scanner.GetScanSRV0().Ptr() };
 		ExeComputeShader(
-			m_Res.TessIndex,
+			m_Res.CS_TessIndex,
 			3U,
 			ppSRV,
 			m_Res.CB_LookupTable,

@@ -95,12 +95,12 @@ private:
 
 	struct D3DResource
 	{
-		Ref<ID3D11ComputeShader> EdgeFactor;
-		Ref<ID3D11ComputeShader> NumVI;
-		Ref<ID3D11ComputeShader> ScatterVertexTriID_IndexID;
-		Ref<ID3D11ComputeShader> ScatterIndexTriID_IndexID;
-		Ref<ID3D11ComputeShader> TessVertex;
-		Ref<ID3D11ComputeShader> TessIndex;
+		Ref<ID3D11ComputeShader> CS_EdgeFactor;
+		Ref<ID3D11ComputeShader> CS_NumVI;
+		Ref<ID3D11ComputeShader> CS_ScatterVertexTriID_IndexID;
+		Ref<ID3D11ComputeShader> CS_ScatterIndexTriID_IndexID;
+		Ref<ID3D11ComputeShader> CS_TessVertex;
+		Ref<ID3D11ComputeShader> CS_TessIndex;
 
 		Ref<ID3D11Buffer> CB_EdgeFactor;
 		Ref<ID3D11Buffer> CB_LookupTable;
