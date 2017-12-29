@@ -208,15 +208,15 @@ void imGUI_D3D11::InitD3DResource()
 		{ "COLOR",    0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, (size_t)(&((ImDrawVert*)0)->col), D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
-	g_Renderer->CreateVertexShaderAndInputLayout(s_imResource.VertexShader.Reference(), s_imResource.VertexLayout.Reference(),
+	g_Renderer->CreateVertexShaderAndInputLayout(s_imResource.VertexShader, s_imResource.VertexLayout,
 		layout, ARRAYSIZE(layout), s_ShaderName, "VS_Main");
-	g_Renderer->CreatePixelShader(s_imResource.PixelShader.Reference(), s_ShaderName, "PS_Main");
+	g_Renderer->CreatePixelShader(s_imResource.PixelShader, s_ShaderName, "PS_Main");
 
-	g_Renderer->CreateConstantBuffer(s_imResource.CBufVS.Reference(), sizeof(ConstantsBufferVS),
+	g_Renderer->CreateConstantBuffer(s_imResource.CBufVS, sizeof(ConstantsBufferVS),
 		D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
 
-	g_Renderer->CreateRasterizerState(s_imResource.NoneCulling.Reference(), D3D11_FILL_SOLID, D3D11_CULL_NONE, false, true, true);
-	g_Renderer->CreateRasterizerState(s_imResource.BackFaceCulling.Reference(), D3D11_FILL_SOLID, D3D11_CULL_BACK);
+	g_Renderer->CreateRasterizerState(s_imResource.NoneCulling, D3D11_FILL_SOLID, D3D11_CULL_NONE, false, true, true);
+	g_Renderer->CreateRasterizerState(s_imResource.BackFaceCulling, D3D11_FILL_SOLID, D3D11_CULL_BACK);
 
 	D3D11_BLEND_DESC blendDesc{ 0 };
 	blendDesc.AlphaToCoverageEnable = false;
@@ -228,7 +228,7 @@ void imGUI_D3D11::InitD3DResource()
 	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
 	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	g_Renderer->CreateBlendState(s_imResource.ClrWriteBlend.Reference(), &blendDesc);
+	g_Renderer->CreateBlendState(s_imResource.ClrWriteBlend, &blendDesc);
 
 	D3D11_DEPTH_STENCIL_DESC depthstencilDesc{ 0 };
 	depthstencilDesc.DepthEnable = false;
@@ -238,7 +238,7 @@ void imGUI_D3D11::InitD3DResource()
 	depthstencilDesc.FrontFace.StencilFailOp = depthstencilDesc.FrontFace.StencilDepthFailOp = depthstencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
 	depthstencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 	depthstencilDesc.BackFace = depthstencilDesc.FrontFace;
-	g_Renderer->CreateDepthStencilState(s_imResource.DepthStencilOp.Reference(), &depthstencilDesc);
+	g_Renderer->CreateDepthStencilState(s_imResource.DepthStencilOp, &depthstencilDesc);
 
 	InitFontTextures();
 }
@@ -252,11 +252,11 @@ void imGUI_D3D11::InitFontTextures()
 	io.Fonts->GetTexDataAsRGBA32(&pPixels, &width, &height);
 
 	Ref<ID3D11Texture2D> fontTex;
-	g_Renderer->CreateTexture2D(fontTex.Reference(), DXGI_FORMAT_R8G8B8A8_UNORM,
+	g_Renderer->CreateTexture2D(fontTex, DXGI_FORMAT_R8G8B8A8_UNORM,
 		(uint32_t)width, (uint32_t)height,
-		D3D11_BIND_SHADER_RESOURCE, 1U, 1U, 0U, 1U, 0U, 0U,
-		D3D11_USAGE_DEFAULT, (const void*)pPixels, (uint32_t)width * 4, 0U);
-	g_Renderer->CreateShaderResourceView(s_imResource.FontTexture.Reference(), fontTex.Ptr(), DXGI_FORMAT_R8G8B8A8_UNORM);
+		D3D11_BIND_SHADER_RESOURCE, 1U, 1U, 0U, 0U,
+		D3D11_USAGE_DEFAULT, (const void*)pPixels, (uint32_t)width * 4);
+	g_Renderer->CreateShaderResourceView(s_imResource.FontTexture, fontTex.Ptr(), DXGI_FORMAT_R8G8B8A8_UNORM);
 
 	io.Fonts->TexID = (void *)s_imResource.FontTexture.Ptr();
 
@@ -270,7 +270,7 @@ void imGUI_D3D11::InitFontTextures()
 	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
 	samplerDesc.MinLOD = 0.f;
 	samplerDesc.MaxLOD = 0.f;
-	g_Renderer->CreateSamplerState(s_imResource.SamplerLinear.Reference(), &samplerDesc);
+	g_Renderer->CreateSamplerState(s_imResource.SamplerLinear, &samplerDesc);
 }
 
 void imGUI_D3D11::RenderListCallback(ImDrawData * pDrawData)
@@ -296,7 +296,7 @@ void imGUI_D3D11::RenderListCallback(ImDrawData * pDrawData)
 		0.0f, 0.0f, 0.5f, 0.0f,
 		(R + L) / (L - R), (T + B) / (B - T), 0.5f, 1.0f
 	);
-	g_Renderer->UpdateBuffer(s_imResource.CBufVS.Ptr(), &cbVS, sizeof(ConstantsBufferVS));
+	g_Renderer->UpdateBuffer(s_imResource.CBufVS, &cbVS, sizeof(ConstantsBufferVS));
 
 	D3D11_VIEWPORT vp{ 0 };
 	vp.Width = ImGui::GetIO().DisplaySize.x;
@@ -306,16 +306,16 @@ void imGUI_D3D11::RenderListCallback(ImDrawData * pDrawData)
 	vp.TopLeftX = vp.TopLeftY = 0.0f;
 	g_Renderer->SetViewports(&vp);
 
-	g_Renderer->SetVertexShader(s_imResource.VertexShader.Ptr());
-	g_Renderer->SetPixelShader(s_imResource.PixelShader.Ptr());
-	g_Renderer->SetInputLayout(s_imResource.VertexLayout.Ptr());
-	g_Renderer->SetVertexBuffer(s_imResource.VertexBuffer.Ptr(), sizeof(ImDrawVert), 0U);
-	g_Renderer->SetIndexBuffer(s_imResource.IndexBuffer.Ptr(), sizeof(ImDrawIdx) == 2 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT, 0U);
-	g_Renderer->SetConstantBuffer(s_imResource.CBufVS.Ptr(), 0U, D3DGraphic::eVertexShader);
-	g_Renderer->SetSamplerStates(s_imResource.SamplerLinear.Ptr());
-	g_Renderer->SetBlendState(s_imResource.ClrWriteBlend.Ptr(), Vec4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
-	g_Renderer->SetDepthStencilState(s_imResource.DepthStencilOp.Ptr(), 0U);
-	g_Renderer->SetRasterizerState(s_imResource.NoneCulling.Ptr());
+	g_Renderer->SetVertexShader(s_imResource.VertexShader);
+	g_Renderer->SetPixelShader(s_imResource.PixelShader);
+	g_Renderer->SetInputLayout(s_imResource.VertexLayout);
+	g_Renderer->SetVertexBuffer(s_imResource.VertexBuffer, sizeof(ImDrawVert), 0U);
+	g_Renderer->SetIndexBuffer(s_imResource.IndexBuffer, sizeof(ImDrawIdx) == 2 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT, 0U);
+	g_Renderer->SetConstantBuffer(s_imResource.CBufVS, 0U, D3DGraphic::eVertexShader);
+	g_Renderer->SetSamplerStates(s_imResource.SamplerLinear, 0U, D3DGraphic::ePixelShader);
+	g_Renderer->SetBlendState(s_imResource.ClrWriteBlend, Vec4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
+	g_Renderer->SetDepthStencilState(s_imResource.DepthStencilOp, 0U);
+	g_Renderer->SetRasterizerState(s_imResource.NoneCulling);
 
 	for (int i = 0, vOffset = 0, iOffset = 0; i < pDrawData->CmdListsCount; ++i)
 	{
@@ -330,7 +330,7 @@ void imGUI_D3D11::RenderListCallback(ImDrawData * pDrawData)
 			else
 			{
 				D3D11_RECT rect = { (LONG)pDrawCmd->ClipRect.x, (LONG)pDrawCmd->ClipRect.y, (LONG)pDrawCmd->ClipRect.z, (LONG)pDrawCmd->ClipRect.w };
-				g_Renderer->SetShaderResource(s_imResource.FontTexture.Ptr());
+				g_Renderer->SetShaderResource(s_imResource.FontTexture, 0U, D3DGraphic::ePixelShader);
 				g_Renderer->SetScissorRects(&rect);
 				g_Renderer->DrawIndexed(pDrawCmd->ElemCount, iOffset, vOffset);
 			}
@@ -357,7 +357,7 @@ void imGUI_D3D11::UpdateVIBuffers(bool bRecreateVB, bool bRecreateIB, const ImDr
 		SafeDeleteArray(s_pVertices);
 		s_pVertices = new ImDrawVert[m_VertexCount]();
 
-		g_Renderer->CreateVertexBuffer(s_imResource.VertexBuffer.Reference(), m_VertexCount * sizeof(ImDrawVert),
+		g_Renderer->CreateVertexBuffer(s_imResource.VertexBuffer, m_VertexCount * sizeof(ImDrawVert),
 			D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
 	}
 
@@ -370,7 +370,7 @@ void imGUI_D3D11::UpdateVIBuffers(bool bRecreateVB, bool bRecreateIB, const ImDr
 		SafeDeleteArray(s_pIndices);
 		s_pIndices = new ImDrawIdx[m_IndexCount]();
 
-		g_Renderer->CreateIndexBuffer(s_imResource.IndexBuffer.Reference(), m_IndexCount * sizeof(ImDrawIdx),
+		g_Renderer->CreateIndexBuffer(s_imResource.IndexBuffer, m_IndexCount * sizeof(ImDrawIdx),
 			D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
 	}
 
@@ -386,8 +386,8 @@ void imGUI_D3D11::UpdateVIBuffers(bool bRecreateVB, bool bRecreateIB, const ImDr
 		totalIndices += pDrawList->IdxBuffer.Size;
 	}
 
-	g_Renderer->UpdateBuffer(s_imResource.VertexBuffer.Ptr(), s_pVertices, sizeof(ImDrawVert) * m_VertexCount);
-	g_Renderer->UpdateBuffer(s_imResource.IndexBuffer.Ptr(), s_pIndices, sizeof(ImDrawIdx) * m_IndexCount);
+	g_Renderer->UpdateBuffer(s_imResource.VertexBuffer, s_pVertices, sizeof(ImDrawVert) * m_VertexCount);
+	g_Renderer->UpdateBuffer(s_imResource.IndexBuffer, s_pIndices, sizeof(ImDrawIdx) * m_IndexCount);
 }
 
 void imGUI_D3D11::RestoreD3DState()
@@ -409,11 +409,15 @@ void imGUI_D3D11::RestoreD3DState()
 
 	g_Renderer->SetScissorRects(&rect);
 
-	g_Renderer->SetRasterizerState(s_imResource.BackFaceCulling.Ptr());
+	g_Renderer->SetRasterizerState(s_imResource.BackFaceCulling);
 
-	g_Renderer->SetInputLayout(nullptr);
-	g_Renderer->SetBlendState(nullptr, Vec4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
-	g_Renderer->SetDepthStencilState(nullptr, 0U);
+	static Ref<ID3D11InputLayout> s_NullLayout;
+	static Ref<ID3D11BlendState> s_NullBlendState;
+	static Ref<ID3D11DepthStencilState> s_NullDepthStencilState;
+
+	g_Renderer->SetInputLayout(s_NullLayout);
+	g_Renderer->SetBlendState(s_NullBlendState, Vec4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
+	g_Renderer->SetDepthStencilState(s_NullDepthStencilState, 0U);
 }
 
 imGUI_D3D11::~imGUI_D3D11()

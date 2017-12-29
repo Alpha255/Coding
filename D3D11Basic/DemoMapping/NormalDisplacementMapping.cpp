@@ -143,9 +143,9 @@ void ApplicationMapping::InitGeometriesResource()
 	indices.insert(indices.end(), sphere.Indices.begin(), sphere.Indices.end());
 	indices.insert(indices.end(), cylinder.Indices.begin(), cylinder.Indices.end());
 
-	g_Renderer->CreateVertexBuffer(s_Resource.GeometriesVBuf.Reference(), sizeof(Math::Geometry::Vertex) * totalVertexCount,
+	g_Renderer->CreateVertexBuffer(s_Resource.GeometriesVBuf, sizeof(Math::Geometry::Vertex) * totalVertexCount,
 		D3D11_USAGE_IMMUTABLE, &vertices[0]);
-	g_Renderer->CreateIndexBuffer(s_Resource.GeometriesIBuf.Reference(), sizeof(uint32_t) * totalIndexCount,
+	g_Renderer->CreateIndexBuffer(s_Resource.GeometriesIBuf, sizeof(uint32_t) * totalIndexCount,
 		D3D11_USAGE_IMMUTABLE, &indices[0]);
 
 	D3D11_INPUT_ELEMENT_DESC layout[] =
@@ -158,20 +158,20 @@ void ApplicationMapping::InitGeometriesResource()
 
 	char *const pShaderName = "Mapping.hlsl";
 
-	g_Renderer->CreateVertexShaderAndInputLayout(s_Resource.NormalMapVS.Reference(), 
-		s_Resource.Layout.Reference(), layout, ARRAYSIZE(layout), pShaderName, "VS_Main_NormalMap");
-	g_Renderer->CreatePixelShader(s_Resource.NormalMapPS.Reference(), pShaderName, "PS_Main_NormalMap");
+	g_Renderer->CreateVertexShaderAndInputLayout(s_Resource.NormalMapVS, 
+		s_Resource.Layout, layout, ARRAYSIZE(layout), pShaderName, "VS_Main_NormalMap");
+	g_Renderer->CreatePixelShader(s_Resource.NormalMapPS, pShaderName, "PS_Main_NormalMap");
 
-	g_Renderer->CreateVertexShader(s_Resource.DisplacementMapVS.Reference(), pShaderName, "VS_Main_DisplacementMap");
-	g_Renderer->CreatePixelShader(s_Resource.DisplacementMapPS.Reference(), pShaderName, "PS_Main_DisplacementMap");
-	g_Renderer->CreateHullShader(s_Resource.DisplacementMapHS.Reference(), pShaderName, "HS_Main_DisplacementMap");
-	g_Renderer->CreateDomainShader(s_Resource.DisplacementMapDS.Reference(), pShaderName, "DS_Main_DisplacementMap");
+	g_Renderer->CreateVertexShader(s_Resource.DisplacementMapVS, pShaderName, "VS_Main_DisplacementMap");
+	g_Renderer->CreatePixelShader(s_Resource.DisplacementMapPS, pShaderName, "PS_Main_DisplacementMap");
+	g_Renderer->CreateHullShader(s_Resource.DisplacementMapHS, pShaderName, "HS_Main_DisplacementMap");
+	g_Renderer->CreateDomainShader(s_Resource.DisplacementMapDS, pShaderName, "DS_Main_DisplacementMap");
 
-	g_Renderer->CreateRasterizerState(s_Resource.Wireframe.Reference(), D3D11_FILL_WIREFRAME);
+	g_Renderer->CreateRasterizerState(s_Resource.Wireframe, D3D11_FILL_WIREFRAME);
 
-	g_Renderer->CreateConstantBuffer(s_Resource.ConstantsBufVS.Reference(), sizeof(ConstantsBufVS), 
+	g_Renderer->CreateConstantBuffer(s_Resource.ConstantsBufVS, sizeof(ConstantsBufVS), 
 		D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
-	g_Renderer->CreateConstantBuffer(s_Resource.ConstantsBufPS.Reference(), sizeof(ConstantsBufPS),
+	g_Renderer->CreateConstantBuffer(s_Resource.ConstantsBufPS, sizeof(ConstantsBufPS),
 		D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
 
 	s_Geometries.WorldGrid.Identity();
@@ -220,10 +220,10 @@ void ApplicationMapping::InitGeometriesResource()
 	s_CBufPS.DirLights[2].Specular = Vec4(0.2f, 0.2f, 0.2f, 1.0f);
 	s_CBufPS.DirLights[2].Direction = Vec4(-0.57735f, -0.57735f, -0.57735f, 0.0f);
 
-	g_Renderer->CreateShaderResourceView(s_Resource.FloorTex.Reference(), "floor.dds");
-	g_Renderer->CreateShaderResourceView(s_Resource.FloorNormalTex.Reference(), "floor_nmap.dds");
-	g_Renderer->CreateShaderResourceView(s_Resource.BrickTex.Reference(), "bricks.dds");
-	g_Renderer->CreateShaderResourceView(s_Resource.BrickNormalTex.Reference(), "bricks_nmap.dds");
+	g_Renderer->CreateShaderResourceView(s_Resource.FloorTex, "floor.dds");
+	g_Renderer->CreateShaderResourceView(s_Resource.FloorNormalTex, "floor_nmap.dds");
+	g_Renderer->CreateShaderResourceView(s_Resource.BrickTex, "bricks.dds");
+	g_Renderer->CreateShaderResourceView(s_Resource.BrickNormalTex, "bricks_nmap.dds");
 }
 
 void ApplicationMapping::SetupScene()
@@ -259,7 +259,7 @@ void ApplicationMapping::SetupScene()
 	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 	sampDesc.MinLOD = 0.0f;
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	g_Renderer->CreateSamplerState(s_Resource.Sampler.Reference(), &sampDesc);
+	g_Renderer->CreateSamplerState(s_Resource.Sampler, &sampDesc);
 
 #ifdef UsingAntTweakBar
 	GUIAntTweakBar::WidgeDesc enableDisplacementMap;
@@ -276,14 +276,14 @@ void ApplicationMapping::RenderScene()
 	g_Renderer->ClearRenderTarget(g_Renderer->DefaultRenderTarget());
 	g_Renderer->ClearDepthStencil(g_Renderer->DefaultDepthStencil(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0U);
 
-	g_Renderer->SetInputLayout(s_Resource.Layout.Ptr());
-	g_Renderer->SetVertexBuffer(s_Resource.GeometriesVBuf.Ptr(), sizeof(Math::Geometry::Vertex), 0U);
-	g_Renderer->SetIndexBuffer(s_Resource.GeometriesIBuf.Ptr(), DXGI_FORMAT_R32_UINT);
+	g_Renderer->SetInputLayout(s_Resource.Layout);
+	g_Renderer->SetVertexBuffer(s_Resource.GeometriesVBuf, sizeof(Math::Geometry::Vertex), 0U);
+	g_Renderer->SetIndexBuffer(s_Resource.GeometriesIBuf, DXGI_FORMAT_R32_UINT);
 
-	g_Renderer->SetConstantBuffer(s_Resource.ConstantsBufVS.Ptr(), 0U, D3DGraphic::eVertexShader);
-	g_Renderer->SetConstantBuffer(s_Resource.ConstantsBufPS.Ptr(), 0U, D3DGraphic::ePixelShader);
+	g_Renderer->SetConstantBuffer(s_Resource.ConstantsBufVS, 0U, D3DGraphic::eVertexShader);
+	g_Renderer->SetConstantBuffer(s_Resource.ConstantsBufPS, 0U, D3DGraphic::ePixelShader);
 
-	g_Renderer->SetSamplerStates(s_Resource.Sampler.Ptr());
+	g_Renderer->SetSamplerStates(s_Resource.Sampler, 0U, D3DGraphic::ePixelShader);
 
 	Matrix world;
 	Matrix view = m_Camera->GetViewMatrix();
@@ -300,35 +300,38 @@ void ApplicationMapping::RenderScene()
 
 	D3D11_PRIMITIVE_TOPOLOGY primitive = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
+	static Ref<ID3D11HullShader> s_NullHullShader;
+	static Ref<ID3D11DomainShader> s_NullDomainShader;
+
 	if (eNormalMap == m_MappingType)
 	{
 		primitive = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-		g_Renderer->SetVertexShader(s_Resource.NormalMapVS.Ptr());
-		g_Renderer->SetHullShader(nullptr);
-		g_Renderer->SetDomainShader(nullptr);
-		g_Renderer->SetPixelShader(s_Resource.NormalMapPS.Ptr());
+		g_Renderer->SetVertexShader(s_Resource.NormalMapVS);
+		g_Renderer->SetHullShader(s_NullHullShader);
+		g_Renderer->SetDomainShader(s_NullDomainShader);
+		g_Renderer->SetPixelShader(s_Resource.NormalMapPS);
 	}
 	else if (eDisplacementMap == m_MappingType)
 	{
 		primitive = D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST;
-		g_Renderer->SetVertexShader(s_Resource.DisplacementMapVS.Ptr());
-		g_Renderer->SetHullShader(s_Resource.DisplacementMapHS.Ptr());
-		g_Renderer->SetDomainShader(s_Resource.DisplacementMapDS.Ptr());
-		g_Renderer->SetPixelShader(s_Resource.DisplacementMapPS.Ptr());
+		g_Renderer->SetVertexShader(s_Resource.DisplacementMapVS);
+		g_Renderer->SetHullShader(s_Resource.DisplacementMapHS);
+		g_Renderer->SetDomainShader(s_Resource.DisplacementMapDS);
+		g_Renderer->SetPixelShader(s_Resource.DisplacementMapPS);
 
-		g_Renderer->SetConstantBuffer(s_Resource.ConstantsBufPS.Ptr(), 1U, D3DGraphic::eVertexShader);
+		g_Renderer->SetConstantBuffer(s_Resource.ConstantsBufPS, 1U, D3DGraphic::eVertexShader);
 
-		g_Renderer->SetSamplerStates(s_Resource.Sampler.Ptr(), 0U, 1U, D3DGraphic::eDomainShader);
+		g_Renderer->SetSamplerStates(s_Resource.Sampler, 0U, D3DGraphic::eDomainShader);
 
-		g_Renderer->SetConstantBuffer(s_Resource.ConstantsBufVS.Ptr(), 0U, D3DGraphic::eDomainShader);
-		g_Renderer->SetConstantBuffer(s_Resource.ConstantsBufPS.Ptr(), 1U, D3DGraphic::eDomainShader);
+		g_Renderer->SetConstantBuffer(s_Resource.ConstantsBufVS, 0U, D3DGraphic::eDomainShader);
+		g_Renderer->SetConstantBuffer(s_Resource.ConstantsBufPS, 1U, D3DGraphic::eDomainShader);
 
-		g_Renderer->SetShaderResource(s_Resource.BrickNormalTex.Ptr(), 0U, 1U, D3DGraphic::eDomainShader);
+		g_Renderer->SetShaderResource(s_Resource.BrickNormalTex, 0U, D3DGraphic::eDomainShader);
 	}
 
 	if (m_bWireframe)
 	{
-		g_Renderer->SetRasterizerState(s_Resource.Wireframe.Ptr());
+		g_Renderer->SetRasterizerState(s_Resource.Wireframe);
 	}
 
 	{
@@ -339,13 +342,13 @@ void ApplicationMapping::RenderScene()
 		cbVS.WorldInverse = cbVS.World.Inverse();
 		cbVS.WVP = wvp.Transpose();
 		cbVS.TexTransform = Matrix::Scaling(8.0f, 10.0f, 1.0f).Transpose();
-		g_Renderer->UpdateBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
+		g_Renderer->UpdateBuffer(s_Resource.ConstantsBufVS, &cbVS, sizeof(ConstantsBufVS));
 
 		memcpy(&s_CBufPS.Mat, &s_Geometries.MatGrid, sizeof(Lighting::Material));
-		g_Renderer->UpdateBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBufPS, sizeof(ConstantsBufPS));
+		g_Renderer->UpdateBuffer(s_Resource.ConstantsBufPS, &s_CBufPS, sizeof(ConstantsBufPS));
 
-		g_Renderer->SetShaderResource(s_Resource.FloorTex.Ptr(), 0U);
-		g_Renderer->SetShaderResource(s_Resource.FloorNormalTex.Ptr(), 1U);
+		g_Renderer->SetShaderResource(s_Resource.FloorTex, 0U, D3DGraphic::ePixelShader);
+		g_Renderer->SetShaderResource(s_Resource.FloorNormalTex, 1U, D3DGraphic::ePixelShader);
 
 		g_Renderer->DrawIndexed(s_Geometries.GridIndexCount, s_Geometries.GridIndexOffset, s_Geometries.GridVertexOffset, primitive);
 	}
@@ -358,13 +361,13 @@ void ApplicationMapping::RenderScene()
 		cbVS.WorldInverse = cbVS.World.Inverse();
 		cbVS.WVP = wvp.Transpose();
 		cbVS.TexTransform = Matrix::Scaling(2.0f, 1.0f, 1.0f).Transpose();
-		g_Renderer->UpdateBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
+		g_Renderer->UpdateBuffer(s_Resource.ConstantsBufVS, &cbVS, sizeof(ConstantsBufVS));
 
 		memcpy(&s_CBufPS.Mat, &s_Geometries.MatBox, sizeof(Lighting::Material));
-		g_Renderer->UpdateBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBufPS, sizeof(ConstantsBufPS));
+		g_Renderer->UpdateBuffer(s_Resource.ConstantsBufPS, &s_CBufPS, sizeof(ConstantsBufPS));
 
-		g_Renderer->SetShaderResource(s_Resource.BrickTex.Ptr(), 0U);
-		g_Renderer->SetShaderResource(s_Resource.BrickNormalTex.Ptr(), 1U);
+		g_Renderer->SetShaderResource(s_Resource.BrickTex, 0U, D3DGraphic::ePixelShader);
+		g_Renderer->SetShaderResource(s_Resource.BrickNormalTex, 1U, D3DGraphic::ePixelShader);
 
 		g_Renderer->DrawIndexed(s_Geometries.BoxIndexCount, s_Geometries.BoxIndexOffset, s_Geometries.BoxVertexOffset, primitive);
 	}
@@ -379,13 +382,13 @@ void ApplicationMapping::RenderScene()
 			cbVS.WorldInverse = cbVS.World.Inverse();
 			cbVS.WVP = wvp.Transpose();
 			cbVS.TexTransform = Matrix::Scaling(1.0f, 2.0f, 1.0f).Transpose();
-			g_Renderer->UpdateBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
+			g_Renderer->UpdateBuffer(s_Resource.ConstantsBufVS, &cbVS, sizeof(ConstantsBufVS));
 
 			memcpy(&s_CBufPS.Mat, &s_Geometries.MatCylinder, sizeof(Lighting::Material));
-			g_Renderer->UpdateBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBufPS, sizeof(ConstantsBufPS));
+			g_Renderer->UpdateBuffer(s_Resource.ConstantsBufPS, &s_CBufPS, sizeof(ConstantsBufPS));
 
-			g_Renderer->SetShaderResource(s_Resource.BrickTex.Ptr(), 0U);
-			g_Renderer->SetShaderResource(s_Resource.BrickNormalTex.Ptr(), 1U);
+			g_Renderer->SetShaderResource(s_Resource.BrickTex, 0U, D3DGraphic::ePixelShader);
+			g_Renderer->SetShaderResource(s_Resource.BrickNormalTex, 1U, D3DGraphic::ePixelShader);
 
 			g_Renderer->DrawIndexed(s_Geometries.CylinderIndexCount, s_Geometries.CylinderIndexOffset, s_Geometries.CylinderVertexOffset, primitive);
 		}
@@ -393,10 +396,10 @@ void ApplicationMapping::RenderScene()
 
 	if (eDisplacementMap == m_MappingType)
 	{
-		g_Renderer->SetVertexShader(s_Resource.NormalMapVS.Ptr());
-		g_Renderer->SetHullShader(nullptr);
-		g_Renderer->SetDomainShader(nullptr);
-		g_Renderer->SetPixelShader(s_Resource.NormalMapPS.Ptr());
+		g_Renderer->SetVertexShader(s_Resource.NormalMapVS);
+		g_Renderer->SetHullShader(s_NullHullShader);
+		g_Renderer->SetDomainShader(s_NullDomainShader);
+		g_Renderer->SetPixelShader(s_Resource.NormalMapPS);
 	}
 
 	{
@@ -409,12 +412,12 @@ void ApplicationMapping::RenderScene()
 			cbVS.WorldInverse = cbVS.World.Inverse();
 			cbVS.WVP = wvp.Transpose();
 			cbVS.TexTransform.Identity();
-			g_Renderer->UpdateBuffer(s_Resource.ConstantsBufVS.Ptr(), &cbVS, sizeof(ConstantsBufVS));
+			g_Renderer->UpdateBuffer(s_Resource.ConstantsBufVS, &cbVS, sizeof(ConstantsBufVS));
 
 			memcpy(&s_CBufPS.Mat, &s_Geometries.MatSphere, sizeof(Lighting::Material));
-			g_Renderer->UpdateBuffer(s_Resource.ConstantsBufPS.Ptr(), &s_CBufPS, sizeof(ConstantsBufPS));
+			g_Renderer->UpdateBuffer(s_Resource.ConstantsBufPS, &s_CBufPS, sizeof(ConstantsBufPS));
 
-			g_Renderer->SetShaderResource(s_Resource.Sky.GetCubemap(), 2U);
+			g_Renderer->SetShaderResource(s_Resource.Sky.GetCubemap(), 2U, D3DGraphic::ePixelShader);
 
 			g_Renderer->DrawIndexed(s_Geometries.SphereIndexCount, s_Geometries.SphereIndexOffset, s_Geometries.SphereVertexOffset);
 		}

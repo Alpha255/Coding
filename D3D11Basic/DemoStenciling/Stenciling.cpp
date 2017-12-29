@@ -130,9 +130,9 @@ void ApplicationStenciling::SetupScene()
 	const std::vector<Math::Geometry::BasicVertex> &vertices = roomMesh.GetVertices();
 	const std::vector<uint32_t> &indices = roomMesh.GetIndices();
 
-	g_Renderer->CreateShaderResourceView(s_Resource.FloorDiffuseTex.Reference(), "checkboard.dds");
-	g_Renderer->CreateShaderResourceView(s_Resource.WallDiffuseTex.Reference(), "brick01.dds");
-	g_Renderer->CreateShaderResourceView(s_Resource.MirrorDiffuseTex.Reference(), "ice.dds");
+	g_Renderer->CreateShaderResourceView(s_Resource.FloorDiffuseTex, "checkboard.dds");
+	g_Renderer->CreateShaderResourceView(s_Resource.WallDiffuseTex, "brick01.dds");
+	g_Renderer->CreateShaderResourceView(s_Resource.MirrorDiffuseTex, "ice.dds");
 
 	D3D11_INPUT_ELEMENT_DESC layoutDesc[] =
 	{
@@ -141,18 +141,18 @@ void ApplicationStenciling::SetupScene()
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 24,  D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
-	g_Renderer->CreateVertexShaderAndInputLayout(s_Resource.VS.Reference(), s_Resource.Layout.Reference(),
+	g_Renderer->CreateVertexShaderAndInputLayout(s_Resource.VS, s_Resource.Layout,
 		layoutDesc, ARRAYSIZE(layoutDesc), s_ShaderName, "VS_Main");
-	g_Renderer->CreatePixelShader(s_Resource.PS.Reference(), s_ShaderName, "PS_Main");
+	g_Renderer->CreatePixelShader(s_Resource.PS, s_ShaderName, "PS_Main");
 
-	g_Renderer->CreateVertexBuffer(s_Resource.VertexBuffer.Reference(), (uint32_t)vertices.size() * sizeof(Math::Geometry::BasicVertex),
+	g_Renderer->CreateVertexBuffer(s_Resource.VertexBuffer, (uint32_t)vertices.size() * sizeof(Math::Geometry::BasicVertex),
 		D3D11_USAGE_IMMUTABLE, &vertices[0]);
-	g_Renderer->CreateIndexBuffer(s_Resource.IndexBuffer.Reference(), (uint32_t)indices.size() * sizeof(uint32_t),
+	g_Renderer->CreateIndexBuffer(s_Resource.IndexBuffer, (uint32_t)indices.size() * sizeof(uint32_t),
 		D3D11_USAGE_IMMUTABLE, &indices[0]);
 
-	g_Renderer->CreateConstantBuffer(s_Resource.CBufVS.Reference(), sizeof(ConstantsBufferVS), 
+	g_Renderer->CreateConstantBuffer(s_Resource.CBufVS, sizeof(ConstantsBufferVS), 
 		D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
-	g_Renderer->CreateConstantBuffer(s_Resource.CBufPS.Reference(), sizeof(ConstantsBufferPS),
+	g_Renderer->CreateConstantBuffer(s_Resource.CBufPS, sizeof(ConstantsBufferPS),
 		D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
 
 	D3D11_SAMPLER_DESC sampDesc;
@@ -164,9 +164,9 @@ void ApplicationStenciling::SetupScene()
 	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 	sampDesc.MinLOD = 0.0f;
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	g_Renderer->CreateSamplerState(s_Resource.Sampler.Reference(), &sampDesc);
+	g_Renderer->CreateSamplerState(s_Resource.Sampler, &sampDesc);
 
-	g_Renderer->CreateRasterizerState(s_Resource.NullCulling.Reference(), D3D11_FILL_SOLID, D3D11_CULL_NONE);
+	g_Renderer->CreateRasterizerState(s_Resource.NullCulling, D3D11_FILL_SOLID, D3D11_CULL_NONE);
 
 	/// http://blog.csdn.net/qq_29523119/article/details/52824991
 	/// src(sr, sg, sb, sa)  dst(dr, dg, db, da)
@@ -183,7 +183,7 @@ void ApplicationStenciling::SetupScene()
 	noRTWrite.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
 	noRTWrite.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	noRTWrite.RenderTarget[0].RenderTargetWriteMask = 0U;
-	g_Renderer->CreateBlendState(s_Resource.NoRTWrite.Reference(), &noRTWrite);
+	g_Renderer->CreateBlendState(s_Resource.NoRTWrite, &noRTWrite);
 
 	/// http://blog.csdn.net/bonchoix/article/details/8499179
 	D3D11_DEPTH_STENCIL_DESC markMirror = { 0 };
@@ -201,7 +201,7 @@ void ApplicationStenciling::SetupScene()
 	markMirror.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
 	markMirror.BackFace.StencilPassOp = D3D11_STENCIL_OP_REPLACE;
 	markMirror.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-	g_Renderer->CreateDepthStencilState(s_Resource.MarkMirror.Reference(), &markMirror);
+	g_Renderer->CreateDepthStencilState(s_Resource.MarkMirror, &markMirror);
 
 	s_Resource.SkullMesh.CreateFromTxt("skull.txt");
 	Lighting::Material skullMat;
@@ -211,7 +211,7 @@ void ApplicationStenciling::SetupScene()
 	s_Resource.SkullMesh.SetMaterial(skullMat);
 	s_Resource.SkullMesh.SetLightCount(3U);
 
-	g_Renderer->CreateRasterizerState(s_Resource.CloclwiseCulling.Reference(), D3D11_FILL_SOLID, D3D11_CULL_BACK, true);
+	g_Renderer->CreateRasterizerState(s_Resource.CloclwiseCulling, D3D11_FILL_SOLID, D3D11_CULL_BACK, true);
 
 	D3D11_DEPTH_STENCIL_DESC reflection = { 0 };
 	reflection.DepthEnable = true;
@@ -228,7 +228,7 @@ void ApplicationStenciling::SetupScene()
 	reflection.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
 	reflection.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
 	reflection.BackFace.StencilFunc = D3D11_COMPARISON_EQUAL;
-	g_Renderer->CreateDepthStencilState(s_Resource.Reflection.Reference(), &reflection);
+	g_Renderer->CreateDepthStencilState(s_Resource.Reflection, &reflection);
 
 	/// src(sr, sg, sb, sa)  dst(dr, dg, db, da)
 	/// output(r, g, b) = sa * (sr, sg, sb) + (1 - sa) * (dr, dg, db)
@@ -244,7 +244,7 @@ void ApplicationStenciling::SetupScene()
 	transparent.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
 	transparent.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	transparent.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	g_Renderer->CreateBlendState(s_Resource.Transparent.Reference(), &transparent);
+	g_Renderer->CreateBlendState(s_Resource.Transparent, &transparent);
 
 	D3D11_DEPTH_STENCIL_DESC noDoubleBlend = { 0 };
 	noDoubleBlend.DepthEnable = true;
@@ -290,36 +290,41 @@ void ApplicationStenciling::RenderScene()
 	s_SkullWorld = Matrix::RotationAxis(0.0f, 1.0f, 0.0f, DirectX::XM_PIDIV2) * Matrix::Scaling(0.45f, 0.45f, 0.45f) * Matrix::Translation(s_SkullTranslation.x, 1.0f + s_SkullTranslation.y, -5.0f);
 	s_SkullWorldReflect = s_SkullWorld * Matrix::Reflect(0.0f, 0.0f, 1.0f);
 
-	g_Renderer->SetVertexShader(s_Resource.VS.Ptr());
-	g_Renderer->SetPixelShader(s_Resource.PS.Ptr());
+	g_Renderer->SetVertexShader(s_Resource.VS);
+	g_Renderer->SetPixelShader(s_Resource.PS);
 
-	g_Renderer->SetInputLayout(s_Resource.Layout.Ptr());
-	g_Renderer->SetVertexBuffer(s_Resource.VertexBuffer.Ptr(), sizeof(Math::Geometry::BasicVertex), 0U);
-	g_Renderer->SetIndexBuffer(s_Resource.IndexBuffer.Ptr(), DXGI_FORMAT_R32_UINT);
+	g_Renderer->SetInputLayout(s_Resource.Layout);
+	g_Renderer->SetVertexBuffer(s_Resource.VertexBuffer, sizeof(Math::Geometry::BasicVertex), 0U);
+	g_Renderer->SetIndexBuffer(s_Resource.IndexBuffer, DXGI_FORMAT_R32_UINT);
 
-	g_Renderer->SetConstantBuffer(s_Resource.CBufVS.Ptr(), 0U, D3DGraphic::eVertexShader);
-	g_Renderer->SetConstantBuffer(s_Resource.CBufPS.Ptr(), 0U, D3DGraphic::ePixelShader);
-	g_Renderer->UpdateBuffer(s_Resource.CBufVS.Ptr(), &s_CBVS, sizeof(ConstantsBufferVS));
+	g_Renderer->SetConstantBuffer(s_Resource.CBufVS, 0U, D3DGraphic::eVertexShader);
+	g_Renderer->SetConstantBuffer(s_Resource.CBufPS, 0U, D3DGraphic::ePixelShader);
+	g_Renderer->UpdateBuffer(s_Resource.CBufVS, &s_CBVS, sizeof(ConstantsBufferVS));
 
-	g_Renderer->SetRasterizerState(s_Resource.NullCulling.Ptr());
+	g_Renderer->SetRasterizerState(s_Resource.NullCulling);
+
+	static Ref<ID3D11PixelShader> s_NullPixelShader;
+	static Ref<ID3D11RasterizerState> s_NullRasterizerState;
+	static Ref<ID3D11DepthStencilState> s_NullDepthStencilState;
+	static Ref<ID3D11BlendState> s_NullBlendState;
 
 	/// Draw floor and walls
 
 	{
 		/// Floor
 		memcpy(&s_CBPS.Mat, &s_MatRoom, sizeof(Lighting::Material));
-		g_Renderer->UpdateBuffer(s_Resource.CBufPS.Ptr(), &s_CBPS, sizeof(ConstantsBufferPS));
-		g_Renderer->SetShaderResource(s_Resource.FloorDiffuseTex.Ptr(), 0U);
-		g_Renderer->SetSamplerStates(s_Resource.Sampler.Ptr());
+		g_Renderer->UpdateBuffer(s_Resource.CBufPS, &s_CBPS, sizeof(ConstantsBufferPS));
+		g_Renderer->SetShaderResource(s_Resource.FloorDiffuseTex, 0U, D3DGraphic::ePixelShader);
+		g_Renderer->SetSamplerStates(s_Resource.Sampler, 0U, D3DGraphic::ePixelShader);
 		g_Renderer->Draw(6U, 0U);
 	}
 
 	{
 		/// Wall
 		memcpy(&s_CBPS.Mat, &s_MatRoom, sizeof(Lighting::Material));
-		g_Renderer->UpdateBuffer(s_Resource.CBufPS.Ptr(), &s_CBPS, sizeof(ConstantsBufferPS));
-		g_Renderer->SetShaderResource(s_Resource.WallDiffuseTex.Ptr(), 0U);
-		g_Renderer->SetSamplerStates(s_Resource.Sampler.Ptr());
+		g_Renderer->UpdateBuffer(s_Resource.CBufPS, &s_CBPS, sizeof(ConstantsBufferPS));
+		g_Renderer->SetShaderResource(s_Resource.WallDiffuseTex, 0U, D3DGraphic::ePixelShader);
+		g_Renderer->SetSamplerStates(s_Resource.Sampler, 0U, D3DGraphic::ePixelShader);
 		g_Renderer->Draw(18U, 6U);
 	}
 
@@ -336,28 +341,28 @@ void ApplicationStenciling::RenderScene()
 	{
 		/// dst = MaterialSkull, src = MaterialMirror
 		/// Draw mirror to stencil buffer
-		g_Renderer->SetVertexShader(s_Resource.VS.Ptr());
-		g_Renderer->SetPixelShader(nullptr);
-		g_Renderer->SetInputLayout(s_Resource.Layout.Ptr());
-		g_Renderer->SetVertexBuffer(s_Resource.VertexBuffer.Ptr(), sizeof(Math::Geometry::BasicVertex), 0U);
-		g_Renderer->SetIndexBuffer(s_Resource.IndexBuffer.Ptr(), DXGI_FORMAT_R32_UINT);
-		g_Renderer->SetConstantBuffer(s_Resource.CBufVS.Ptr(), 0U, D3DGraphic::eVertexShader);
-		g_Renderer->SetConstantBuffer(s_Resource.CBufPS.Ptr(), 0U, D3DGraphic::ePixelShader);
+		g_Renderer->SetVertexShader(s_Resource.VS);
+		g_Renderer->SetPixelShader(s_NullPixelShader);
+		g_Renderer->SetInputLayout(s_Resource.Layout);
+		g_Renderer->SetVertexBuffer(s_Resource.VertexBuffer, sizeof(Math::Geometry::BasicVertex), 0U);
+		g_Renderer->SetIndexBuffer(s_Resource.IndexBuffer, DXGI_FORMAT_R32_UINT);
+		g_Renderer->SetConstantBuffer(s_Resource.CBufVS, 0U, D3DGraphic::eVertexShader);
+		g_Renderer->SetConstantBuffer(s_Resource.CBufPS, 0U, D3DGraphic::ePixelShader);
 
-		g_Renderer->UpdateBuffer(s_Resource.CBufVS.Ptr(), &s_CBVS, sizeof(ConstantsBufferVS));
-		g_Renderer->UpdateBuffer(s_Resource.CBufPS.Ptr(), &s_CBPS, sizeof(ConstantsBufferPS));
+		g_Renderer->UpdateBuffer(s_Resource.CBufVS, &s_CBVS, sizeof(ConstantsBufferVS));
+		g_Renderer->UpdateBuffer(s_Resource.CBufPS, &s_CBPS, sizeof(ConstantsBufferPS));
 
 		/// Do not write to render target.
-		g_Renderer->SetBlendState(s_Resource.NoRTWrite.Ptr(), Vec4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
+		g_Renderer->SetBlendState(s_Resource.NoRTWrite, Vec4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
 
 		/// Render visible mirror pixels to stencil buffer.
 		/// Do not write mirror depth to depth buffer at this point, otherwise it will occlude the reflection.
-		g_Renderer->SetDepthStencilState(s_Resource.MarkMirror.Ptr(), 1U);
+		g_Renderer->SetDepthStencilState(s_Resource.MarkMirror, 1U);
 		g_Renderer->Draw(6U, 24U);
 
 		/// Restore states.
-		g_Renderer->SetDepthStencilState(nullptr, 0U);
-		g_Renderer->SetBlendState(nullptr, Vec4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
+		g_Renderer->SetDepthStencilState(s_NullDepthStencilState, 0U);
+		g_Renderer->SetBlendState(s_NullBlendState, Vec4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
 	}
 
 	/// Draw skull reflection
@@ -367,30 +372,30 @@ void ApplicationStenciling::RenderScene()
 			s_Resource.SkullMesh.SetLight(i, s_DirLightsReflect[i]);
 		}
 		s_Resource.SkullMesh.SetWorldMatrix(s_SkullWorldReflect);
-		g_Renderer->SetRasterizerState(s_Resource.CloclwiseCulling.Ptr());
-		g_Renderer->SetDepthStencilState(s_Resource.Reflection.Ptr(), 1U);
+		g_Renderer->SetRasterizerState(s_Resource.CloclwiseCulling);
+		g_Renderer->SetDepthStencilState(s_Resource.Reflection, 1U);
 		s_Resource.SkullMesh.Draw(*m_Camera);
 
-		g_Renderer->SetRasterizerState(nullptr);
-		g_Renderer->SetDepthStencilState(nullptr, 0U);
+		g_Renderer->SetRasterizerState(s_NullRasterizerState);
+		g_Renderer->SetDepthStencilState(s_NullDepthStencilState, 0U);
 	}
 
 	/// Draw the mirror to the back buffer as usual but with transparency blending so the reflection shows through.
 	{
 		/// dst = MaterialSkull, src = MaterialMirror
-		g_Renderer->SetVertexShader(s_Resource.VS.Ptr());
-		g_Renderer->SetPixelShader(s_Resource.PS.Ptr());
-		g_Renderer->SetInputLayout(s_Resource.Layout.Ptr());
-		g_Renderer->SetVertexBuffer(s_Resource.VertexBuffer.Ptr(), sizeof(Math::Geometry::BasicVertex), 0U);
-		g_Renderer->SetIndexBuffer(s_Resource.IndexBuffer.Ptr(), DXGI_FORMAT_R32_UINT);
-		g_Renderer->SetConstantBuffer(s_Resource.CBufVS.Ptr(), 0U, D3DGraphic::eVertexShader);
-		g_Renderer->SetConstantBuffer(s_Resource.CBufPS.Ptr(), 0U, D3DGraphic::ePixelShader);
+		g_Renderer->SetVertexShader(s_Resource.VS);
+		g_Renderer->SetPixelShader(s_Resource.PS);
+		g_Renderer->SetInputLayout(s_Resource.Layout);
+		g_Renderer->SetVertexBuffer(s_Resource.VertexBuffer, sizeof(Math::Geometry::BasicVertex), 0U);
+		g_Renderer->SetIndexBuffer(s_Resource.IndexBuffer, DXGI_FORMAT_R32_UINT);
+		g_Renderer->SetConstantBuffer(s_Resource.CBufVS, 0U, D3DGraphic::eVertexShader);
+		g_Renderer->SetConstantBuffer(s_Resource.CBufPS, 0U, D3DGraphic::ePixelShader);
 
 		memcpy(&s_CBPS.Mat, &s_MatMirror, sizeof(Lighting::Material));
-		g_Renderer->UpdateBuffer(s_Resource.CBufVS.Ptr(), &s_CBVS, sizeof(ConstantsBufferVS));
-		g_Renderer->UpdateBuffer(s_Resource.CBufPS.Ptr(), &s_CBPS, sizeof(ConstantsBufferPS));
-		g_Renderer->SetShaderResource(s_Resource.MirrorDiffuseTex.Ptr());
-		g_Renderer->SetBlendState(s_Resource.Transparent.Ptr(), Vec4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
+		g_Renderer->UpdateBuffer(s_Resource.CBufVS, &s_CBVS, sizeof(ConstantsBufferVS));
+		g_Renderer->UpdateBuffer(s_Resource.CBufPS, &s_CBPS, sizeof(ConstantsBufferPS));
+		g_Renderer->SetShaderResource(s_Resource.MirrorDiffuseTex, 0U, D3DGraphic::ePixelShader);
+		g_Renderer->SetBlendState(s_Resource.Transparent, Vec4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
 		g_Renderer->Draw(6U, 24U);
 	}
 
@@ -400,7 +405,7 @@ void ApplicationStenciling::RenderScene()
 		//Vec4 toLight = s_DirLights[0].Direction * -1.0f;
 		//Matrix skullShadowWorld = Matrix::Shadow(shadowPlane, toLight) * Matrix::Translation(0.0f, 0.001f, 0.0f);
 		//s_Resource.SkullMesh.SetWorldMatrix(skullShadowWorld);
-		//g_Renderer->SetDepthStencilState(s_Resource.NoDoubleBlend.Ptr(), 0U);
+		//g_Renderer->SetDepthStencilState(s_Resource.NoDoubleBlend, 0U);
 		//s_Resource.SkullMesh.Draw(s_Camera);
 		//g_Renderer->SetBlendState(nullptr, Vec4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
 		//g_Renderer->SetDepthStencilState(nullptr, 0U);

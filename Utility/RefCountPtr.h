@@ -8,7 +8,7 @@ public:
 	{
 	}
 
-	__forceinline Ref(Type* pSrc)
+	__forceinline explicit Ref(Type* pSrc)
 		: m_pPtr(pSrc) 
 	{
 		if (m_pPtr != nullptr)

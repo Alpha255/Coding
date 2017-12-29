@@ -56,20 +56,20 @@ void AppAdaptiveTessellation::SetupScene()
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0,  0,  D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
-	g_Renderer->CreateVertexShaderAndInputLayout(s_Resource.VertexShader.Reference(), s_Resource.Layout.Reference(), 
+	g_Renderer->CreateVertexShaderAndInputLayout(s_Resource.VertexShader, s_Resource.Layout, 
 		layoutDesc, ARRAYSIZE(layoutDesc), s_ShaderName, "VS_Main");
-	g_Renderer->CreateVertexShader(s_Resource.VertexShader_Tessed.Reference(), s_ShaderName, "VS_Main_Tessed");
-	g_Renderer->CreatePixelShader(s_Resource.PixelShader.Reference(), s_ShaderName, "PS_Main");
+	g_Renderer->CreateVertexShader(s_Resource.VertexShader_Tessed, s_ShaderName, "VS_Main_Tessed");
+	g_Renderer->CreatePixelShader(s_Resource.PixelShader, s_ShaderName, "PS_Main");
 
-	g_Renderer->CreateVertexBuffer(s_Resource.VertexBuffer.Reference(), m_VertexCount * sizeof(Vec4),
+	g_Renderer->CreateVertexBuffer(s_Resource.VertexBuffer, m_VertexCount * sizeof(Vec4),
 		D3D11_USAGE_IMMUTABLE, &copyVertices[0], 0U, D3D11_BIND_SHADER_RESOURCE);
-	g_Renderer->CreateIndexBuffer(s_Resource.IndexBuffer.Reference(), m_IndexCount * sizeof(uint32_t),
+	g_Renderer->CreateIndexBuffer(s_Resource.IndexBuffer, m_IndexCount * sizeof(uint32_t),
 		D3D11_USAGE_IMMUTABLE, &indices[0]);
 
-	g_Renderer->CreateConstantBuffer(s_Resource.CBVS.Reference(), sizeof(ConstantsBufferVS), 
+	g_Renderer->CreateConstantBuffer(s_Resource.CBVS, sizeof(ConstantsBufferVS), 
 		D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
 
-	g_Renderer->CreateRasterizerState(s_Resource.WireframeNullCulling.Reference(), D3D11_FILL_WIREFRAME,
+	g_Renderer->CreateRasterizerState(s_Resource.WireframeNullCulling, D3D11_FILL_WIREFRAME,
 		D3D11_CULL_NONE);
 
 	g_Renderer->SetRenderTarget(g_Renderer->DefaultRenderTarget());
@@ -97,35 +97,38 @@ void AppAdaptiveTessellation::RenderScene()
 
 	Matrix wvp = m_Camera->GetWorldMatrix() * m_Camera->GetViewMatrix() * m_Camera->GetProjMatrix();
 	s_CBVS.WVP = wvp.Transpose();
-	g_Renderer->UpdateBuffer(s_Resource.CBVS.Ptr(), &s_CBVS, sizeof(ConstantsBufferVS));
+	g_Renderer->UpdateBuffer(s_Resource.CBVS, &s_CBVS, sizeof(ConstantsBufferVS));
 
-	g_Renderer->SetConstantBuffer(s_Resource.CBVS.Ptr(), 0U, D3DGraphic::eVertexShader);
-	g_Renderer->SetPixelShader(s_Resource.PixelShader.Ptr());
-	g_Renderer->SetInputLayout(s_Resource.Layout.Ptr());
+	g_Renderer->SetConstantBuffer(s_Resource.CBVS, 0U, D3DGraphic::eVertexShader);
+	g_Renderer->SetPixelShader(s_Resource.PixelShader);
+	g_Renderer->SetInputLayout(s_Resource.Layout);
 
-	g_Renderer->SetRasterizerState(s_Resource.WireframeNullCulling.Ptr());
+	g_Renderer->SetRasterizerState(s_Resource.WireframeNullCulling);
+
+	static Ref<ID3D11ShaderResourceView> s_NullSRV;
+	static Ref<ID3D11Buffer> s_NullBuffer;
 
 	if (m_bEnableTess && s_Tessellator.DoTessellationByEdge(*m_Camera))
 	{
-		g_Renderer->SetVertexShader(s_Resource.VertexShader_Tessed.Ptr());
+		g_Renderer->SetVertexShader(s_Resource.VertexShader_Tessed);
 
-		g_Renderer->SetShaderResource(s_Tessellator.GetSourceVertexBufferSRV(), 0U, 1U, D3DGraphic::eVertexShader);
-		g_Renderer->SetShaderResource(s_Tessellator.GetTessedVertexBufferSRV(), 1U, 1U, D3DGraphic::eVertexShader);
+		g_Renderer->SetShaderResource(s_Tessellator.GetSourceVertexBufferSRV(), 0U, D3DGraphic::eVertexShader);
+		g_Renderer->SetShaderResource(s_Tessellator.GetTessedVertexBufferSRV(), 1U, D3DGraphic::eVertexShader);
 
 		g_Renderer->SetIndexBuffer(s_Tessellator.GetTessedIndexBuffer(), DXGI_FORMAT_R32_UINT, 0U);
 
 		g_Renderer->DrawIndexed(s_Tessellator.GetTessedIndexCount(), 0U, 0, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-		g_Renderer->SetShaderResource(nullptr, 0U, 1U, D3DGraphic::eVertexShader);
-		g_Renderer->SetShaderResource(nullptr, 1U, 1U, D3DGraphic::eVertexShader);
+		g_Renderer->SetShaderResource(s_NullSRV, 0U, D3DGraphic::eVertexShader);
+		g_Renderer->SetShaderResource(s_NullSRV, 1U, D3DGraphic::eVertexShader);
 
-		g_Renderer->SetIndexBuffer(nullptr, DXGI_FORMAT_R32_UINT, 0U);
+		g_Renderer->SetIndexBuffer(s_NullBuffer, DXGI_FORMAT_R32_UINT, 0U);
 	}
 	else
 	{
-		g_Renderer->SetVertexShader(s_Resource.VertexShader.Ptr());
-		g_Renderer->SetVertexBuffer(s_Resource.VertexBuffer.Ptr(), sizeof(Vec4), 0U);
-		g_Renderer->SetIndexBuffer(s_Resource.IndexBuffer.Ptr(), DXGI_FORMAT_R32_UINT);
+		g_Renderer->SetVertexShader(s_Resource.VertexShader);
+		g_Renderer->SetVertexBuffer(s_Resource.VertexBuffer, sizeof(Vec4), 0U);
+		g_Renderer->SetIndexBuffer(s_Resource.IndexBuffer, DXGI_FORMAT_R32_UINT);
 
 		g_Renderer->DrawIndexed(m_IndexCount, 0U, 0);
 	}

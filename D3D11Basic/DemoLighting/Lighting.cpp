@@ -10,14 +10,7 @@
 
 extern D3DGraphic* g_Renderer;
 
-struct DemoLightingResource
-{
-	D3D11_VIEWPORT Viewport;
-
-	SDKMesh Model;
-};
-
-static DemoLightingResource s_Resource;
+static SDKMesh s_Model;
 
 bool ApplicationLighting::m_Wireframe = false;
 
@@ -28,19 +21,20 @@ void ApplicationLighting::SetupScene()
 #else
 	const char *pMeshName = "car.txt";
 #endif
-	s_Resource.Model.CreateFromTxt(pMeshName);
+	s_Model.CreateFromTxt(pMeshName);
 	Matrix modelWorld = Matrix::Scaling(0.8f, 0.8f, 0.8f) * Matrix::Translation(0.0f, -1.0f, 0.0f);
-	s_Resource.Model.SetWorldMatrix(modelWorld);
+	s_Model.SetWorldMatrix(modelWorld);
 
 	g_Renderer->SetRenderTarget(g_Renderer->DefaultRenderTarget());
 	g_Renderer->SetDepthStencil(g_Renderer->DefaultDepthStencil());
 
-	s_Resource.Viewport.Width = (float)m_Width;
-	s_Resource.Viewport.Height = (float)m_Height;
-	s_Resource.Viewport.MinDepth = 0.0f;
-	s_Resource.Viewport.MaxDepth = 1.0f;
-	s_Resource.Viewport.TopLeftX = s_Resource.Viewport.TopLeftY = 0.0f;
-	g_Renderer->SetViewports(&s_Resource.Viewport);
+	D3D11_VIEWPORT vp;
+	vp.Width = (float)m_Width;
+	vp.Height = (float)m_Height;
+	vp.MinDepth = 0.0f;
+	vp.MaxDepth = 1.0f;
+	vp.TopLeftX = vp.TopLeftY = 0.0f;
+	g_Renderer->SetViewports(&vp);
 
 #ifdef UsingAntTweakBar
 	GUIAntTweakBar::WidgeDesc EnableWireframe;
@@ -67,9 +61,9 @@ void ApplicationLighting::RenderScene()
 		m_PreLightCount = m_CurLightCount;
 	}
 
-	s_Resource.Model.SetLightCount(m_CurLightCount);
+	s_Model.SetLightCount(m_CurLightCount);
 
-	s_Resource.Model.Draw(*m_Camera, m_Wireframe);
+	s_Model.Draw(*m_Camera, m_Wireframe);
 
 #ifdef UsingimGUI
 	ImGui::Checkbox("Wireframe", &m_Wireframe);

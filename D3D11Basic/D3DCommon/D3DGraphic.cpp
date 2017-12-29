@@ -7,75 +7,6 @@
 
 D3DGraphic* D3DGraphic::m_sInstance = nullptr;
 
-D3DGraphic::D3DGraphic()
-{
-	memset(&m_D3DPipelineState, 0, sizeof(D3DPipelineState));
-	memset(&m_FlushState, 0, sizeof(bool) * eFSCount);
-	memset(&m_SwapChainDesc, 0, sizeof(DXGI_SWAP_CHAIN_DESC));
-	memset(&m_DefaultViewport, 0, sizeof(D3D11_VIEWPORT));
-	memset(&m_DefaultScissorRect, 0, sizeof(D3D11_RECT));
-}
-
-void D3DGraphic::CreateTexture2D(ID3D11Texture2D** ppTex, DXGI_FORMAT fmt, uint32_t width, uint32_t height,
-	uint32_t bindFlags, uint32_t mipLevels, uint32_t arraySize, uint32_t cpuFlags, uint32_t sampleCount, uint32_t sampleQuality,
-	uint32_t miscFlags, D3D11_USAGE usage, const void* pData, uint32_t pitch, uint32_t slice)
-{
-	D3D11_TEXTURE2D_DESC texDesc;
-	memset(&texDesc, 0, sizeof(D3D11_TEXTURE2D_DESC));
-	texDesc.Format = fmt;
-	texDesc.Width = width;
-	texDesc.Height = height;
-	texDesc.BindFlags = bindFlags;
-	texDesc.MipLevels = mipLevels;
-	texDesc.ArraySize = arraySize;
-	texDesc.CPUAccessFlags = cpuFlags;
-	texDesc.SampleDesc.Count = sampleCount;
-	texDesc.SampleDesc.Quality = sampleQuality;
-	texDesc.MiscFlags = miscFlags;
-	texDesc.Usage = usage;
-
-	D3D11_SUBRESOURCE_DATA subResData;
-	memset(&subResData, 0, sizeof(D3D11_SUBRESOURCE_DATA));
-	subResData.pSysMem = pData;
-	subResData.SysMemPitch = pitch;
-	subResData.SysMemSlicePitch = slice;
-
-	HRCheck(m_D3DDevice->CreateTexture2D(&texDesc, ((nullptr == pData) ?  nullptr : &subResData), ppTex));
-}
-
-void D3DGraphic::CreateDepthStencilView(ID3D11DepthStencilView** ppDSV, ID3D11Texture2D* ppTex, DXGI_FORMAT format, uint32_t width, uint32_t height, D3D11_DSV_DIMENSION dimension)
-{
-	assert(ppDSV);
-
-	if (ppTex)
-	{
-		D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
-		memset(&dsvDesc, 0, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
-		dsvDesc.Format = format;
-		dsvDesc.ViewDimension = dimension;
-		dsvDesc.Flags = 0U;
-		switch (dimension)
-		{
-		case D3D11_DSV_DIMENSION_TEXTURE1D:
-			dsvDesc.Texture1D.MipSlice = 0U;
-			break;
-		case D3D11_DSV_DIMENSION_TEXTURE2D:
-			dsvDesc.Texture2D.MipSlice = 0U;
-			break;
-		default:
-			assert("Invalid type!!!");
-			break;
-		}
-		HRCheck(m_D3DDevice->CreateDepthStencilView(ppTex, &dsvDesc, ppDSV));
-	}
-	else
-	{
-		Ref<ID3D11Texture2D> texture;
-		CreateTexture2D(texture.Reference(), format, width, height, D3D11_BIND_DEPTH_STENCIL);
-		HRCheck(m_D3DDevice->CreateDepthStencilView(texture.Ptr(), nullptr, ppDSV));
-	}
-}
-
 void D3DGraphic::InitD3DEnvironment(HWND hWnd, uint32_t width, uint32_t height, bool bWindowed)
 {
 	assert(hWnd);
@@ -118,24 +49,24 @@ void D3DGraphic::InitD3DEnvironment(HWND hWnd, uint32_t width, uint32_t height, 
 
 	for (UINT index = 0; index < ARRAYSIZE(driverTypes); ++index)
 	{
-		if (SUCCEEDED(D3D11CreateDeviceAndSwapChain(nullptr, 
-			driverTypes[index], 
-			nullptr, 
+		if (SUCCEEDED(D3D11CreateDeviceAndSwapChain(nullptr,
+			driverTypes[index],
+			nullptr,
 			flags,
-			featureLevels, 
-			ARRAYSIZE(featureLevels), 
+			featureLevels,
+			ARRAYSIZE(featureLevels),
 			D3D11_SDK_VERSION,
-			&m_SwapChainDesc, 
+			&m_SwapChainDesc,
 			m_SwapChain.Reference(),
 			m_D3DDevice.Reference(),
-			nullptr, 
-			m_D3DContext.Reference())))
+			nullptr,
+			m_IMContent.Reference())))
 		{
 			/// Create Back Buffer 
 			RecreateBackBuffer();
 
 			/// Create Depth Stencil View
-			CreateDepthStencilView(m_DefaultDepthStencil.Reference(), nullptr, DXGI_FORMAT_D24_UNORM_S8_UINT, width, height);
+			CreateDepthStencilView(m_DefaultDepthStencil, nullptr, DXGI_FORMAT_D24_UNORM_S8_UINT, width, height);
 
 			return;
 		}
@@ -144,27 +75,62 @@ void D3DGraphic::InitD3DEnvironment(HWND hWnd, uint32_t width, uint32_t height, 
 	assert(!"Failed to create D3D environment!!!");
 }
 
-void D3DGraphic::CreateShaderResourceView(ID3D11ShaderResourceView** ppSRV, const char* pFileName)
+void D3DGraphic::CreateTexture2D(Ref<ID3D11Texture2D> &rTex,
+	DXGI_FORMAT fmt, 
+	uint32_t width, 
+	uint32_t height,
+	uint32_t bindFlags, 
+	uint32_t mipLevels, 
+	uint32_t arraySize, 
+	uint32_t cpuFlags, 
+	uint32_t miscFlags, 
+	D3D11_USAGE usage, 
+	const void *pData,
+	uint32_t memPitch)
 {
-	assert(pFileName && ppSRV); 
+	assert(!rTex.Valid());
+
+	D3D11_TEXTURE2D_DESC texDesc;
+	memset(&texDesc, 0, sizeof(D3D11_TEXTURE2D_DESC));
+	texDesc.Format = fmt;
+	texDesc.Width = width;
+	texDesc.Height = height;
+	texDesc.BindFlags = bindFlags;
+	texDesc.MipLevels = mipLevels;
+	texDesc.ArraySize = arraySize;
+	texDesc.CPUAccessFlags = cpuFlags;
+	texDesc.SampleDesc.Count = 1U;
+	texDesc.SampleDesc.Quality = 0U;
+	texDesc.MiscFlags = miscFlags;
+	texDesc.Usage = usage;
+
+	D3D11_SUBRESOURCE_DATA subResData;
+	memset(&subResData, 0, sizeof(D3D11_SUBRESOURCE_DATA));
+	subResData.pSysMem = pData;
+	subResData.SysMemPitch = memPitch;
+	subResData.SysMemSlicePitch = 0U; 	/// System-memory-slice pitch is only used for 3D texture data as it has no meaning for the other resource types
+
+	HRCheck(m_D3DDevice->CreateTexture2D(&texDesc, ((nullptr == pData) ?  nullptr : &subResData), rTex.Reference()));
+}
+
+void D3DGraphic::CreateShaderResourceView(Ref<ID3D11ShaderResourceView> &rSRV, const char *pFileName)
+{
+	assert(pFileName && !rSRV.Valid());
 
 	std::string texFilePath = Utility::ResourceFilePath(pFileName, Utility::eTexture);
 	std::wstring wtexFilePath(texFilePath.begin(), texFilePath.end());
 
-	HRCheck(DirectX::CreateDDSTextureFromFile(m_D3DDevice.Ptr(), wtexFilePath.c_str(), nullptr, ppSRV));
+	HRCheck(DirectX::CreateDDSTextureFromFile(m_D3DDevice.Ptr(), wtexFilePath.c_str(), nullptr, rSRV.Reference()));
 }
 
-void D3DGraphic::CreateRenderTargetView(ID3D11RenderTargetView** ppRTV, ID3D11Texture2D* pTex, const D3D11_RENDER_TARGET_VIEW_DESC *pRTVDesc)
+void D3DGraphic::CreateShaderResourceView(Ref<ID3D11ShaderResourceView> &rSRV, 
+	ID3D11Resource *pSrc, 
+	DXGI_FORMAT format, 
+	D3D11_SRV_DIMENSION dimension, 
+	uint32_t firstElem, 
+	uint32_t numElems)
 {
-	assert(ppRTV && pTex); 
-	
-	HRCheck(m_D3DDevice->CreateRenderTargetView(pTex, pRTVDesc, ppRTV));
-}
-
-void D3DGraphic::CreateShaderResourceView(ID3D11ShaderResourceView** ppSRV, ID3D11Resource *pSrc, DXGI_FORMAT format, D3D11_SRV_DIMENSION dimension, 
-	uint32_t firstElem, uint32_t numElems)
-{
-	assert(ppSRV && pSrc);
+	assert(pSrc && !rSRV.Valid());
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 	memset(&srvDesc, 0, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
@@ -195,29 +161,87 @@ void D3DGraphic::CreateShaderResourceView(ID3D11ShaderResourceView** ppSRV, ID3D
 		assert("Unsupport yet!!");
 		break;
 	}
-	HRCheck(m_D3DDevice->CreateShaderResourceView(pSrc, &srvDesc, ppSRV));
+	HRCheck(m_D3DDevice->CreateShaderResourceView(pSrc, &srvDesc, rSRV.Reference()));
 }
 
-void D3DGraphic::CreateUnorderedAccessView(ID3D11UnorderedAccessView **ppUAV, ID3D11Resource *pSrc, 
-	DXGI_FORMAT format, D3D11_UAV_DIMENSION dimension, uint32_t firstElem, uint32_t numElems, uint32_t bufFlag)
+void D3DGraphic::CreateUnorderedAccessView(Ref<ID3D11UnorderedAccessView> &rUAV, 
+	ID3D11Resource *pSrc, 
+	DXGI_FORMAT format, 
+	D3D11_UAV_DIMENSION dimension, 
+	uint32_t firstElem, 
+	uint32_t numElems, 
+	uint32_t flags)
 {
-	assert(ppUAV && pSrc);
+	assert(pSrc && !rUAV.Valid());
 
 	D3D11_UNORDERED_ACCESS_VIEW_DESC desc;
 	memset(&desc, 0, sizeof(D3D11_UNORDERED_ACCESS_VIEW_DESC));
 	desc.Format = format;
 	desc.ViewDimension = dimension;
 	desc.Buffer.FirstElement = firstElem;
-	desc.Buffer.Flags = bufFlag;
+	desc.Buffer.Flags = flags;
 	desc.Buffer.NumElements = numElems;
 
-	HRCheck(m_D3DDevice->CreateUnorderedAccessView(pSrc, &desc, ppUAV));
+	HRCheck(m_D3DDevice->CreateUnorderedAccessView(pSrc, &desc, rUAV.Reference()));
 }
 
-void D3DGraphic::CreateBuffer(ID3D11Buffer** ppBuffer, uint32_t bindFlag, uint32_t byteWidth,
-	D3D11_USAGE usage, const void* pBuf, uint32_t cpuAccessFlag, uint32_t miscFlag, uint32_t byteStride, uint32_t memPitch, uint32_t memSlicePitch)
+void D3DGraphic::CreateRenderTargetView(Ref<ID3D11RenderTargetView> &rRTV, ID3D11Resource *pSrc, const D3D11_RENDER_TARGET_VIEW_DESC *pRTVDesc)
 {
-	assert(ppBuffer);
+	assert(pSrc && !rRTV.Valid());
+
+	/// Set pRTVDesc to NULL to create a view that accesses all of the subresources in mipmap level 0
+	HRCheck(m_D3DDevice->CreateRenderTargetView(pSrc, pRTVDesc, rRTV.Reference()));
+}
+
+void D3DGraphic::CreateDepthStencilView(Ref<ID3D11DepthStencilView> &rDSV,
+	ID3D11Resource* pSrc,
+	DXGI_FORMAT format,
+	uint32_t width,
+	uint32_t height,
+	D3D11_DSV_DIMENSION dimension)
+{
+	assert(!rDSV.Valid());
+
+	if (pSrc)
+	{
+		D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
+		memset(&dsvDesc, 0, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
+		dsvDesc.Format = format;
+		dsvDesc.ViewDimension = dimension;
+		dsvDesc.Flags = 0U;
+		switch (dimension)
+		{
+		case D3D11_DSV_DIMENSION_TEXTURE1D:
+			dsvDesc.Texture1D.MipSlice = 0U;
+			break;
+		case D3D11_DSV_DIMENSION_TEXTURE2D:
+			dsvDesc.Texture2D.MipSlice = 0U;
+			break;
+		default:
+			assert("Invalid type!!!");
+			break;
+		}
+		HRCheck(m_D3DDevice->CreateDepthStencilView(pSrc, &dsvDesc, rDSV.Reference()));
+	}
+	else
+	{
+		Ref<ID3D11Texture2D> texture;
+		CreateTexture2D(texture, format, width, height, D3D11_BIND_DEPTH_STENCIL);
+		HRCheck(m_D3DDevice->CreateDepthStencilView(texture.Ptr(), nullptr, rDSV.Reference()));
+	}
+}
+
+void D3DGraphic::CreateBuffer(Ref<ID3D11Buffer> &rBuf,
+	uint32_t bindFlags,
+	uint32_t byteWidth,
+	D3D11_USAGE usage,
+	const void *pData,
+	uint32_t cpuAccessFlags,
+	uint32_t miscFlags,
+	uint32_t byteStride,
+	uint32_t memPitch)
+{
+	assert(!rBuf.Valid());
 
 	D3D11_BUFFER_DESC bufDesc;
 	D3D11_SUBRESOURCE_DATA srcData;
@@ -226,28 +250,68 @@ void D3DGraphic::CreateBuffer(ID3D11Buffer** ppBuffer, uint32_t bindFlag, uint32
 
 	bufDesc.ByteWidth = byteWidth;
 	bufDesc.Usage = usage;
-	bufDesc.BindFlags = bindFlag;
-	bufDesc.CPUAccessFlags = cpuAccessFlag;
-	bufDesc.MiscFlags = miscFlag;
+	bufDesc.BindFlags = bindFlags;
+	bufDesc.CPUAccessFlags = cpuAccessFlags;
+	bufDesc.MiscFlags = miscFlags;
 	bufDesc.StructureByteStride = byteStride;
 
-	srcData.pSysMem = pBuf;
+	srcData.pSysMem = pData;
 	srcData.SysMemPitch = memPitch;
-	srcData.SysMemSlicePitch = memSlicePitch;
+	srcData.SysMemSlicePitch = 0U;
 
-	HRCheck(m_D3DDevice->CreateBuffer(&bufDesc, ((nullptr == pBuf) ? nullptr : &srcData), ppBuffer));
+	HRCheck(m_D3DDevice->CreateBuffer(&bufDesc, ((nullptr == pData) ? nullptr : &srcData), rBuf.Reference()));
 }
 
-void D3DGraphic::CreateBlendState(ID3D11BlendState** ppBlendState, D3D11_BLEND_DESC* pBlendDesc)
+D3DGraphic::D3DShaders D3DGraphic::CreateShader(eShaderType shaderType, const char *pFileName, const char *pEntryPoint, const D3D_SHADER_MACRO *pMacros, ID3DInclude *pInclude)
 {
-	assert(ppBlendState);
+	static const char *const s_ShaderModel[eShaderTypeCount] = 
+	{
+		"vs_5_0",
+		"hs_5_0",
+		"ds_5_0",
+		"gs_5_0",
+		"ps_5_0",
+		"cs_5_0"
+	};
 
-	HRCheck(m_D3DDevice->CreateBlendState(pBlendDesc, ppBlendState));
+	Ref<ID3DBlob> blob;
+	CompileShaderFile(blob, pFileName, pEntryPoint, s_ShaderModel[shaderType], pMacros, pInclude);
+
+	D3DShaders shaders;
+
+	switch (shaderType)
+	{
+	case eVertexShader:
+		HRCheck(m_D3DDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, shaders.VertexShader.Reference()));
+		break;
+	case eHullShader:
+		HRCheck(m_D3DDevice->CreateHullShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, shaders.HullShader.Reference()));
+		break;
+	case eDomainShader:
+		HRCheck(m_D3DDevice->CreateDomainShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, shaders.DomainShader.Reference()));
+		break;
+	case eGeometryShader:
+		HRCheck(m_D3DDevice->CreateGeometryShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, shaders.GeometryShader.Reference()));
+		break;
+	case ePixelShader:
+		HRCheck(m_D3DDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, shaders.PixelShader.Reference()));
+		break;
+	case eComputeShader:
+		HRCheck(m_D3DDevice->CreateComputeShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, shaders.ComputeShader.Reference()));
+		break;
+	}
+
+	return shaders;
 }
 
-void D3DGraphic::CompileShaderFile(ID3DBlob** ppRes, char* pFileName, char* pEntryPoint, char* pTarget, const D3D_SHADER_MACRO* pDefines, ID3DInclude* pInclude)
+void D3DGraphic::CompileShaderFile(Ref<ID3DBlob> &rBlob,
+	const char *pFileName, 
+	const char *pEntryPoint, 
+	const char *pTarget, 
+	const D3D_SHADER_MACRO* pDefines, 
+	ID3DInclude* pInclude)
 {
-	assert(ppRes && pFileName && pEntryPoint && pTarget);
+	assert(!rBlob.Valid() && pFileName && pEntryPoint && pTarget);
 
 	std::string shaderFileDir = Utility::ResourceFileDirectory(Utility::eShader);
 	std::string shaderFilePath = shaderFileDir + pFileName;
@@ -273,7 +337,7 @@ void D3DGraphic::CompileShaderFile(ID3DBlob** ppRes, char* pFileName, char* pEnt
 		::SetCurrentDirectoryA(shaderFileDir.c_str());
 		ID3DBlob* pErrMsg = nullptr;
 		ID3DInclude* pIncludeInfo = (nullptr == pInclude ? D3D_COMPILE_STANDARD_FILE_INCLUDE : pInclude);
-		if (FAILED(D3DCompile(pData, fileSize, pFileName, pDefines, pIncludeInfo, pEntryPoint, pTarget, flags, 0U, ppRes, &pErrMsg)))
+		if (FAILED(D3DCompile(pData, fileSize, pFileName, pDefines, pIncludeInfo, pEntryPoint, pTarget, flags, 0U, rBlob.Reference(), &pErrMsg)))
 		{
 			OutputDebugStringA((char*)pErrMsg->GetBufferPointer());
 			assert(!"Shader compile failed!!!");
@@ -297,123 +361,19 @@ void D3DGraphic::RecreateBackBuffer()
 	HRCheck(m_D3DDevice->CreateRenderTargetView(backBuffer.Ptr(), nullptr, m_DefaultRenderTarget.Reference()));
 }
 
-void D3DGraphic::CreateVertexShader(ID3D11VertexShader** ppVS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines, ID3DInclude* pInclude)
-{
-	assert(ppVS);
-
-	Ref<ID3DBlob> blob;
-	CompileShaderFile(blob.Reference(), pFileName, pEntryPoint, "vs_5_0", pDefines, pInclude);
-	HRCheck(m_D3DDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, ppVS));
-}
-
-void D3DGraphic::CreatePixelShader(ID3D11PixelShader** ppPS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines, ID3DInclude* pInclude)
-{
-	assert(ppPS);
-
-	Ref<ID3DBlob> blob;
-	CompileShaderFile(blob.Reference(), pFileName, pEntryPoint, "ps_5_0", pDefines, pInclude);
-	HRCheck(m_D3DDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, ppPS));
-}
-
-void D3DGraphic::CreateHullShader(ID3D11HullShader **ppHS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines, ID3DInclude* pInclude)
-{
-	assert(ppHS);
-
-	Ref<ID3DBlob> blob;
-	CompileShaderFile(blob.Reference(), pFileName, pEntryPoint, "hs_5_0", pDefines, pInclude);
-	HRCheck(m_D3DDevice->CreateHullShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, ppHS));
-}
-
-void D3DGraphic::CreateDomainShader(ID3D11DomainShader **ppDS, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO* pDefines, ID3DInclude* pInclude)
-{
-	assert(ppDS);
-
-	Ref<ID3DBlob> blob;
-	CompileShaderFile(blob.Reference(), pFileName, pEntryPoint, "ds_5_0", pDefines, pInclude);
-	HRCheck(m_D3DDevice->CreateDomainShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, ppDS));
-}
-
-void D3DGraphic::CreateGeometryShader(ID3D11GeometryShader **ppGS, char *pFileName, char *pEntryPoint, const D3D_SHADER_MACRO *pDefines, ID3DInclude *pInclude)
-{
-	assert(ppGS);
-
-	Ref<ID3DBlob> blob;
-	CompileShaderFile(blob.Reference(), pFileName, pEntryPoint, "gs_5_0", pDefines, pInclude);
-	HRCheck(m_D3DDevice->CreateGeometryShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, ppGS));
-}
-
-void D3DGraphic::CreateComputeShader(ID3D11ComputeShader **ppCS, char *pFileName, char *pEntryPoint, const D3D_SHADER_MACRO *pDefines, ID3DInclude *pInclude)
-{
-	assert(ppCS);
-
-	Ref<ID3DBlob> blob;
-	CompileShaderFile(blob.Reference(), pFileName, pEntryPoint, "cs_5_0", pDefines, pInclude);
-	HRCheck(m_D3DDevice->CreateComputeShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, ppCS));
-}
-
-void D3DGraphic::CreateVertexShaderAndInputLayout(ID3D11VertexShader** ppVS, ID3D11InputLayout** ppLayout, 
-	D3D11_INPUT_ELEMENT_DESC* pInputElement, uint32_t size, char* pFileName, char* pEntryPoint, const D3D_SHADER_MACRO *pDefines, ID3DInclude* pInclude)
-{
-	assert(ppVS);
-
-	Ref<ID3DBlob> blob;
-	CompileShaderFile(blob.Reference(), pFileName, pEntryPoint, "vs_5_0", pDefines, pInclude);
-	HRCheck(m_D3DDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, ppVS));
-	CreateInputLayout(ppLayout, pInputElement, size, blob.Ptr());
-}
-
-///void D3DGraphic::CreateShader(eShaderType shaderType, D3DShaders &targetShaders, char *pFileName, char *pEntryPoint, const D3D_SHADER_MACRO *pDefines, ID3DInclude *pInclude)
-///{
-///	static char *const s_ShaderModel[eShaderTypeCount] = 
-///	{
-///		"vs_5_0",
-///		"hs_5_0",
-///		"ds_5_0",
-///		"gs_5_0",
-///		"ps_5_0",
-///		"cs_5_0"
-///	};
-///
-///	Ref<ID3DBlob> blob;
-///	CompileShaderFile(blob.Reference(), pFileName, pEntryPoint, s_ShaderModel[shaderType], pDefines, pInclude);
-///
-///	switch (shaderType)
-///	{
-///	case eVertexShader:
-///		assert(targetShaders.VertexShader);
-///		HRCheck(m_D3DDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, targetShaders.VertexShader));
-///		break;
-///	case eHullShader:
-///		assert(targetShaders.HullShader);
-///		HRCheck(m_D3DDevice->CreateHullShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, targetShaders.HullShader));
-///		break;
-///	case eDomainShader:
-///		assert(targetShaders.DomainShader);
-///		HRCheck(m_D3DDevice->CreateDomainShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, targetShaders.DomainShader));
-///		break;
-///	case eGeometryShader:
-///		assert(targetShaders.GeometryShader);
-///		HRCheck(m_D3DDevice->CreateGeometryShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, targetShaders.GeometryShader));
-///		break;
-///	case ePixelShader:
-///		assert(targetShaders.PixelShader);
-///		HRCheck(m_D3DDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, targetShaders.PixelShader));
-///		break;
-///	case eComputeShader:
-///		assert(targetShaders.ComputeShader);
-///		HRCheck(m_D3DDevice->CreateComputeShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, targetShaders.ComputeShader));
-///		break;
-///	}
-///}
-
-void D3DGraphic::CreateRasterizerState(ID3D11RasterizerState** ppRasterizerState, D3D11_FILL_MODE fillMode, D3D11_CULL_MODE cullMode, bool cw, bool depthClip, bool bScissor)
+void D3DGraphic::CreateRasterizerState(Ref<ID3D11RasterizerState> &rRasterizerState, 
+	D3D11_FILL_MODE fillMode, 
+	D3D11_CULL_MODE cullMode, 
+	bool cw, 
+	bool depthClip, 
+	bool bScissor)
 {
 	/// FrontCounterClockwise
 	/// Determines if a triangle is front- or back-facing. If this parameter is true, 
 	/// then a triangle will be considered front-facing if its vertices are counter-clockwise on the render target 
 	/// and considered back-facing if they are clockwise. If this parameter is false then the opposite is true.
 
-	assert(ppRasterizerState);
+	assert(!rRasterizerState.Valid());
 
 	D3D11_RASTERIZER_DESC rsDesc;
 	memset(&rsDesc, 0, sizeof(D3D11_RASTERIZER_DESC));
@@ -428,45 +388,7 @@ void D3DGraphic::CreateRasterizerState(ID3D11RasterizerState** ppRasterizerState
 	rsDesc.DepthBias = 0;
 	rsDesc.DepthBiasClamp = 0.0f;
 
-	HRCheck(m_D3DDevice->CreateRasterizerState(&rsDesc, ppRasterizerState));
-}
-
-void D3DGraphic::CreateDepthStencilState(ID3D11DepthStencilState** ppDepthStencilState, const D3D11_DEPTH_STENCIL_DESC* pDepthStencilStateDesc)
-{
-	assert(ppDepthStencilState && pDepthStencilStateDesc);
-
-	HRCheck(m_D3DDevice->CreateDepthStencilState(pDepthStencilStateDesc, ppDepthStencilState));
-}
-
-void D3DGraphic::CreateSamplerState(ID3D11SamplerState** ppSamplerState, const D3D11_SAMPLER_DESC* pSamplerDesc)
-{
-	assert(ppSamplerState && pSamplerDesc);
-
-	HRCheck(m_D3DDevice->CreateSamplerState(pSamplerDesc, ppSamplerState));
-}
-
-void D3DGraphic::CreateInputLayout(ID3D11InputLayout** ppInputLayout, D3D11_INPUT_ELEMENT_DESC* pInputElement, uint32_t size, ID3DBlob* pRes)
-{
-	assert(ppInputLayout && pInputElement && (size > 0U) && pRes);
-
-	HRCheck(m_D3DDevice->CreateInputLayout(pInputElement, size, pRes->GetBufferPointer(), pRes->GetBufferSize(), ppInputLayout));
-}
-
-void D3DGraphic::ClearRenderTarget(ID3D11RenderTargetView* pRenderTarget, const float* pClearColor)
-{
-	assert(pRenderTarget);
-
-	float darkBlue[] = { 0.0f, 0.125f, 0.3f, 1.0f };
-	pClearColor = (nullptr == pClearColor ? darkBlue : pClearColor);
-
-	m_D3DContext->ClearRenderTargetView(pRenderTarget, pClearColor);
-}
-
-void D3DGraphic::ClearDepthStencil(ID3D11DepthStencilView* pDepthStencil, uint32_t clearFlags, float depth, uint8_t stencil)
-{
-	assert(pDepthStencil);
-
-	m_D3DContext->ClearDepthStencilView(pDepthStencil, clearFlags, depth, stencil);
+	HRCheck(m_D3DDevice->CreateRasterizerState(&rsDesc, rRasterizerState.Reference()));
 }
 
 void D3DGraphic::ResizeBackBuffer(uint32_t width, uint32_t height)
@@ -489,92 +411,92 @@ void D3DGraphic::ResizeBackBuffer(uint32_t width, uint32_t height)
 		}
 		m_SwapChain->ResizeBuffers(m_SwapChainDesc.BufferCount, width, height, m_SwapChainDesc.BufferDesc.Format, m_SwapChainDesc.Flags);
 		RecreateBackBuffer();
-		SetRenderTarget(m_DefaultRenderTarget.Ptr());
+		SetRenderTarget(m_DefaultRenderTarget);
 
 		if (m_DefaultDepthStencil.Valid())
 		{
 			m_DefaultDepthStencil->Release();
 		}
 
-		CreateDepthStencilView(m_DefaultDepthStencil.Reference(), nullptr, DXGI_FORMAT_D24_UNORM_S8_UINT, width, height);
-		SetDepthStencil(m_DefaultDepthStencil.Ptr());
+		CreateDepthStencilView(m_DefaultDepthStencil, nullptr, DXGI_FORMAT_D24_UNORM_S8_UINT, width, height);
+		SetDepthStencil(m_DefaultDepthStencil);
 	}
 }
 
-void D3DGraphic::SetVertexBuffer(const ID3D11Buffer* pVertexBuffer, uint32_t stride, uint32_t offset, uint32_t index)
+void D3DGraphic::SetVertexBuffer(const Ref<ID3D11Buffer> &rVertexBuffer, uint32_t stride, uint32_t offset, uint32_t index)
 {
 	assert(index <= eVertexStreamCount);
 
-	if (m_D3DPipelineState.VertexBuffer.Buffers[index] != pVertexBuffer ||
-		m_D3DPipelineState.VertexBuffer.Stride[index] != stride ||
-		m_D3DPipelineState.VertexBuffer.Offset[index] != offset)
+	if (m_PipelineState.VertexBuffer.Buffers[index] != rVertexBuffer.Ptr() ||
+		m_PipelineState.VertexBuffer.Stride[index] != stride ||
+		m_PipelineState.VertexBuffer.Offset[index] != offset)
 	{
-		m_D3DPipelineState.VertexBuffer.Buffers[index] = const_cast<ID3D11Buffer*>(pVertexBuffer);
-		m_D3DPipelineState.VertexBuffer.Stride[index] = stride;
-		m_D3DPipelineState.VertexBuffer.Offset[index] = offset;
+		m_PipelineState.VertexBuffer.Buffers[index] = rVertexBuffer.Ptr();
+		m_PipelineState.VertexBuffer.Stride[index] = stride;
+		m_PipelineState.VertexBuffer.Offset[index] = offset;
 
 		m_FlushState[eFSVertexBuffer] = true;
 	}
 }
 
-void D3DGraphic::SetIndexBuffer(const ID3D11Buffer* pIndexBuffer, DXGI_FORMAT format, uint32_t offset)
+void D3DGraphic::SetIndexBuffer(const Ref<ID3D11Buffer> &rIndexBuffer, DXGI_FORMAT format, uint32_t offset)
 {
-	if (m_D3DPipelineState.IndexBuffer.Buffers != pIndexBuffer ||
-		m_D3DPipelineState.IndexBuffer.Format != format ||
-		m_D3DPipelineState.IndexBuffer.Offset != offset)
+	if (m_PipelineState.IndexBuffer.Buffers != rIndexBuffer.Ptr() ||
+		m_PipelineState.IndexBuffer.Format != format ||
+		m_PipelineState.IndexBuffer.Offset != offset)
 	{
-		m_D3DPipelineState.IndexBuffer.Buffers = const_cast<ID3D11Buffer*>(pIndexBuffer);
-		m_D3DPipelineState.IndexBuffer.Format = format;
-		m_D3DPipelineState.IndexBuffer.Offset = offset;
+		m_PipelineState.IndexBuffer.Buffers = rIndexBuffer.Ptr();
+		m_PipelineState.IndexBuffer.Format = format;
+		m_PipelineState.IndexBuffer.Offset = offset;
 
 		m_FlushState[eFSIndexBuffer] = true;
 	}
 }
 
-void D3DGraphic::SetInputLayout(ID3D11InputLayout* pLayout)
+void D3DGraphic::SetInputLayout(const Ref<ID3D11InputLayout> &rInputLayout)
 {
-	ID3D11InputLayout* const pInputLayout = pLayout;
-	if (m_D3DPipelineState.InputLayout != pInputLayout)
+	ID3D11InputLayout *const pInputLayout = rInputLayout.Ptr();
+	if (m_PipelineState.InputLayout != pInputLayout)
 	{
-		m_D3DPipelineState.InputLayout = pInputLayout;
+		m_PipelineState.InputLayout = pInputLayout;
 
 		m_FlushState[eFSInputLayout] = true;
 	}
 }
 
-void D3DGraphic::SetRenderTarget(ID3D11RenderTargetView* pRenderTargetView, uint32_t slot)
+void D3DGraphic::SetRenderTarget(const Ref<ID3D11RenderTargetView> &rRenderTarget, uint32_t slot)
 {
 	assert(slot <= eRenderTargetCount);
 
-	ID3D11RenderTargetView* const pRenderTarget = pRenderTargetView;
-	if (m_D3DPipelineState.RenderTarget[slot] != pRenderTarget)
+	ID3D11RenderTargetView *const pRenderTarget = rRenderTarget.Ptr();
+	if (m_PipelineState.RenderTarget[slot] != pRenderTarget)
 	{
-		m_D3DPipelineState.RenderTarget[slot] = pRenderTarget;
+		m_PipelineState.RenderTarget[slot] = pRenderTarget;
 
 		m_FlushState[eFSRenderTarget] = true;
 	}
 }
 
-void D3DGraphic::SetDepthStencil(ID3D11DepthStencilView* pDepthStencilView)
+void D3DGraphic::SetDepthStencil(const Ref<ID3D11DepthStencilView> &rDepthStencilView)
 {
-	ID3D11DepthStencilView* const pDepthStencil = pDepthStencilView;
-	if (m_D3DPipelineState.DepthStencil != pDepthStencil)
+	ID3D11DepthStencilView *const pDepthStencil = rDepthStencilView.Ptr();
+	if (m_PipelineState.DepthStencil != pDepthStencil)
 	{
-		m_D3DPipelineState.DepthStencil = pDepthStencil;
+		m_PipelineState.DepthStencil = pDepthStencil;
 
 		m_FlushState[eFSDepthStencil] = true;
 	}
 }
 
-void D3DGraphic::SetViewports(D3D11_VIEWPORT* pViewports, uint32_t count)
+void D3DGraphic::SetViewports(const D3D11_VIEWPORT *pViewports, uint32_t count)
 {
 	assert(count <= 1U && "Unsupport yet!!!");
 
-	if (m_D3DPipelineState.ViewportCount != count ||
-		m_D3DPipelineState.Viewports != pViewports)
+	if (m_PipelineState.ViewportCount != count ||
+		m_PipelineState.Viewports != pViewports)
 	{
-		m_D3DPipelineState.ViewportCount = count;
-		m_D3DPipelineState.Viewports = pViewports;
+		m_PipelineState.ViewportCount = count;
+		m_PipelineState.Viewports = pViewports;
 
 		memcpy(&m_DefaultViewport, pViewports, sizeof(D3D11_VIEWPORT));
 
@@ -582,19 +504,20 @@ void D3DGraphic::SetViewports(D3D11_VIEWPORT* pViewports, uint32_t count)
 	}
 }
 
-void D3DGraphic::SetScissorRects(D3D11_RECT* pRects, uint32_t count)
+void D3DGraphic::SetScissorRects(const D3D11_RECT *pRects, uint32_t count)
 {
 	assert(count <= 1U && "Unsupport yet!!!");
 
-	if (nullptr == m_D3DPipelineState.ScissorRects)
+	if (nullptr == m_PipelineState.ScissorRects)
 	{
-		///m_D3DPipelineState.ScissorRects = new D3D11_RECT();
+		///m_PipelineState.ScissorRects = new D3D11_RECT();
+		///assert(0);
 	}
 
-	if (m_D3DPipelineState.ScissorRectCount != count ||
-		m_D3DPipelineState.ScissorRects != pRects)
+	if (m_PipelineState.ScissorRectCount != count ||
+		m_PipelineState.ScissorRects != pRects)
 	{
-		m_D3DPipelineState.ScissorRectCount = count;
+		m_PipelineState.ScissorRectCount = count;
 
 		memcpy(&m_DefaultScissorRect, pRects, sizeof(D3D11_RECT));
 
@@ -602,222 +525,217 @@ void D3DGraphic::SetScissorRects(D3D11_RECT* pRects, uint32_t count)
 	}
 }
 
-void D3DGraphic::SetSamplerStates(ID3D11SamplerState *pStates, uint32_t startSlot, uint32_t count, eShaderType type)
+void D3DGraphic::SetSamplerStates(const Ref<ID3D11SamplerState> &rSamplerStates, uint32_t startSlot, eShaderType shaderType)
 {
-	assert(pStates && count == 1U);
-
-	ID3D11SamplerState *samplers[1]{ pStates };
-	switch (type)
+	ID3D11SamplerState *samplers[1]{ rSamplerStates.Ptr() };
+	switch (shaderType)
 	{
 	case eVertexShader:
-		m_D3DContext->VSSetSamplers(startSlot, count, samplers);
+		m_IMContent->VSSetSamplers(startSlot, 1U, samplers);
 		break;
 	case eHullShader:
-		m_D3DContext->HSSetSamplers(startSlot, count, samplers);
+		m_IMContent->HSSetSamplers(startSlot, 1U, samplers);
 		break;
 	case eDomainShader:
-		m_D3DContext->DSSetSamplers(startSlot, count, samplers);
+		m_IMContent->DSSetSamplers(startSlot, 1U, samplers);
 		break;
 	case eGeometryShader:
-		m_D3DContext->GSSetSamplers(startSlot, count, samplers);
+		m_IMContent->GSSetSamplers(startSlot, 1U, samplers);
 		break;
 	case ePixelShader:
-		m_D3DContext->PSSetSamplers(startSlot, count, samplers);
+		m_IMContent->PSSetSamplers(startSlot, 1U, samplers);
 		break;
 	case eComputeShader:
-		m_D3DContext->CSSetSamplers(startSlot, count, samplers);
+		m_IMContent->CSSetSamplers(startSlot, 1U, samplers);
 		break;
 	}
 }
 
-void D3DGraphic::SetShaderResource(ID3D11ShaderResourceView *pSRV, uint32_t startSlot, uint32_t count, eShaderType type)
+void D3DGraphic::SetShaderResource(const Ref<ID3D11ShaderResourceView> &rSRV, uint32_t startSlot, eShaderType type)
 {
-	assert(count == 1U);
-
-	ID3D11ShaderResourceView *srvs[1]{ pSRV };
+	ID3D11ShaderResourceView *const ppSRV[1]{ rSRV.Ptr() };
 	switch (type)
 	{
 	case eVertexShader:
-		m_D3DContext->VSSetShaderResources(startSlot, count, srvs);
+		m_IMContent->VSSetShaderResources(startSlot, 1U, ppSRV);
 		break;
 	case eHullShader:
-		m_D3DContext->HSSetShaderResources(startSlot, count, srvs);
+		m_IMContent->HSSetShaderResources(startSlot, 1U, ppSRV);
 		break;
 	case eDomainShader:
-		m_D3DContext->DSSetShaderResources(startSlot, count, srvs);
+		m_IMContent->DSSetShaderResources(startSlot, 1U, ppSRV);
 		break;
 	case eGeometryShader:
-		m_D3DContext->GSSetShaderResources(startSlot, count, srvs);
+		m_IMContent->GSSetShaderResources(startSlot, 1U, ppSRV);
 		break;
 	case ePixelShader:
-		m_D3DContext->PSSetShaderResources(startSlot, count, srvs);
+		m_IMContent->PSSetShaderResources(startSlot, 1U, ppSRV);
 		break;
 	case eComputeShader:
-		m_D3DContext->CSSetShaderResources(startSlot, count, srvs);
+		m_IMContent->CSSetShaderResources(startSlot, 1U, ppSRV);
 		break;
 	}
 }
 
-void D3DGraphic::SetRasterizerState(ID3D11RasterizerState* pRS)
+void D3DGraphic::SetRasterizerState(const Ref<ID3D11RasterizerState> &rRasterizerState)
 {
-	ID3D11RasterizerState* const pRasterizerState = pRS;
-	if (m_D3DPipelineState.RasterizerState != pRasterizerState)
+	ID3D11RasterizerState *const pRasterizerState = rRasterizerState.Ptr();
+	if (m_PipelineState.RasterizerState != pRasterizerState)
 	{
-		m_D3DPipelineState.RasterizerState = pRasterizerState;
+		m_PipelineState.RasterizerState = pRasterizerState;
 
 		m_FlushState[eFSRasterizerState] = true;
 	}
 }
 
-void D3DGraphic::SetDepthStencilState(ID3D11DepthStencilState* pDS, uint32_t stencilRef)
+void D3DGraphic::SetDepthStencilState(const Ref<ID3D11DepthStencilState> &rDepthStencilState, uint32_t stencilRef)
 {
-	ID3D11DepthStencilState* const pDepthStencilState = pDS;
-	if (m_D3DPipelineState.DepthStencilState != pDepthStencilState || m_D3DPipelineState.StencilRef != stencilRef)
+	ID3D11DepthStencilState *const pDepthStencilState = rDepthStencilState.Ptr();
+	if (m_PipelineState.DepthStencilState != pDepthStencilState || m_PipelineState.StencilRef != stencilRef)
 	{
-		m_D3DPipelineState.DepthStencilState = pDepthStencilState;
-		m_D3DPipelineState.StencilRef = stencilRef;
+		m_PipelineState.DepthStencilState = pDepthStencilState;
+		m_PipelineState.StencilRef = stencilRef;
 
 		m_FlushState[eFSDepthStencilState] = true;
 	}
 }
 
-void D3DGraphic::SetBlendState(ID3D11BlendState* pBS, Vec4 blendFactor, uint32_t mask)
+void D3DGraphic::SetBlendState(const Ref<ID3D11BlendState> &rBlendState, Vec4 blendFactor, uint32_t mask)
 {
-	ID3D11BlendState* const pBlendState = pBS;
-	if (m_D3DPipelineState.BlendState != pBlendState ||
-		m_D3DPipelineState.SampleMask != mask)
+	ID3D11BlendState *const pBlendState = rBlendState.Ptr();
+	if (m_PipelineState.BlendState != pBlendState ||
+		m_PipelineState.SampleMask != mask)
 	{
-		m_D3DPipelineState.BlendState = pBlendState;
-		memcpy(m_D3DPipelineState.BlendFactor, &blendFactor, sizeof(Vec4));
-		m_D3DPipelineState.SampleMask = mask;
+		m_PipelineState.BlendState = pBlendState;
+		memcpy(m_PipelineState.BlendFactor, &blendFactor, sizeof(Vec4));
+		m_PipelineState.SampleMask = mask;
 
 		m_FlushState[eFSBlendState] = true;
 	}
 }
 
-void D3DGraphic::SetVertexShader(ID3D11VertexShader* pVS)
+void D3DGraphic::SetVertexShader(const Ref<ID3D11VertexShader> &rVS)
 {
-	assert(pVS);
+	assert(rVS.Valid());
 
-	ID3D11VertexShader* const pVertexShader = pVS;
-	if (m_D3DPipelineState.VertexShader != pVertexShader)
+	ID3D11VertexShader *const pVertexShader = rVS.Ptr();
+	if (m_PipelineState.VertexShader != pVertexShader)
 	{
-		m_D3DPipelineState.VertexShader = pVertexShader;
+		m_PipelineState.VertexShader = pVertexShader;
 
 		m_FlushState[eFSVertexShader] = true;
 	}
 }
 
-void D3DGraphic::SetHullShader(ID3D11HullShader *pHS)
+void D3DGraphic::SetHullShader(const Ref<ID3D11HullShader> &rHS)
 {
-	ID3D11HullShader *const pHullShader = pHS;
-	if (m_D3DPipelineState.HullShader != pHullShader)
+	ID3D11HullShader *const pHullShader = rHS.Ptr();
+	if (m_PipelineState.HullShader != pHullShader)
 	{
-		m_D3DPipelineState.HullShader = pHullShader;
+		m_PipelineState.HullShader = pHullShader;
 
 		m_FlushState[eFSHullShader] = true;
 	}
 }
 
-void D3DGraphic::SetDomainShader(ID3D11DomainShader *pDS)
+void D3DGraphic::SetDomainShader(const Ref<ID3D11DomainShader> &rDS)
 {
-	ID3D11DomainShader *const pDomainShader = pDS;
-	if (m_D3DPipelineState.DomainShader != pDomainShader)
+	ID3D11DomainShader *const pDomainShader = rDS.Ptr();
+	if (m_PipelineState.DomainShader != pDomainShader)
 	{
-		m_D3DPipelineState.DomainShader = pDomainShader;
+		m_PipelineState.DomainShader = pDomainShader;
 
 		m_FlushState[eFSDomainShader] = true;
 	}
 }
 
-void D3DGraphic::SetPixelShader(ID3D11PixelShader* pPS)
+void D3DGraphic::SetPixelShader(const Ref<ID3D11PixelShader> &rPS)
 {
-	ID3D11PixelShader* const pPixelShader = pPS;
-	if (m_D3DPipelineState.PixelShader != pPixelShader)
+	ID3D11PixelShader *const pPixelShader = rPS.Ptr();
+	if (m_PipelineState.PixelShader != pPixelShader)
 	{
-		m_D3DPipelineState.PixelShader = pPixelShader;
+		m_PipelineState.PixelShader = pPixelShader;
 
 		m_FlushState[eFSPixelShader] = true;
 	}
 }
 
-void D3DGraphic::SetGeometryShader(ID3D11GeometryShader *pGS)
+void D3DGraphic::SetGeometryShader(const Ref<ID3D11GeometryShader> &rGS)
 {
-	ID3D11GeometryShader *const pGeometryShader = pGS;
-	if (m_D3DPipelineState.GeometryShader != pGeometryShader)
+	ID3D11GeometryShader *const pGeometryShader = rGS.Ptr();
+	if (m_PipelineState.GeometryShader != pGeometryShader)
 	{
-		m_D3DPipelineState.GeometryShader = pGeometryShader;
+		m_PipelineState.GeometryShader = pGeometryShader;
 
 		m_FlushState[eFSGeometryShader] = true;
 	}
 }
 
-void D3DGraphic::SetComputeShader(ID3D11ComputeShader *pCS)
+void D3DGraphic::SetComputeShader(const Ref<ID3D11ComputeShader> &rCS)
 {
-	ID3D11ComputeShader *const pComputeShader = pCS;
-	if (m_D3DPipelineState.ComputeShader != pComputeShader)
+	ID3D11ComputeShader *const pComputeShader = rCS.Ptr();
+	if (m_PipelineState.ComputeShader != pComputeShader)
 	{
-		m_D3DPipelineState.ComputeShader = pComputeShader;
+		m_PipelineState.ComputeShader = pComputeShader;
 
 		m_FlushState[eFSComputeShader] = true;
 	}
 }
 
-void D3DGraphic::SetConstantBuffer(ID3D11Buffer* pConstantBuf, uint32_t slot, eShaderType shaderType)
+void D3DGraphic::SetConstantBuffer(const Ref<ID3D11Buffer> &rConstantBuf, uint32_t slot, eShaderType shaderType)
 {
-	///assert(pConstantBuf);
-
+	ID3D11Buffer *const ppBuf[1] = { rConstantBuf.Ptr() };
 	switch (shaderType)
 	{
 	case eVertexShader:
-		m_D3DContext->VSSetConstantBuffers(slot, 1U, &pConstantBuf);
+		m_IMContent->VSSetConstantBuffers(slot, 1U, ppBuf);
 		break;
 	case eHullShader:
-		m_D3DContext->HSSetConstantBuffers(slot, 1U, &pConstantBuf);
+		m_IMContent->HSSetConstantBuffers(slot, 1U, ppBuf);
 		break;
 	case eDomainShader:
-		m_D3DContext->DSSetConstantBuffers(slot, 1U, &pConstantBuf);
+		m_IMContent->DSSetConstantBuffers(slot, 1U, ppBuf);
 		break;
 	case eGeometryShader:
-		m_D3DContext->GSSetConstantBuffers(slot, 1U, &pConstantBuf);
+		m_IMContent->GSSetConstantBuffers(slot, 1U, ppBuf);
 		break;
 	case ePixelShader:
-		m_D3DContext->PSSetConstantBuffers(slot, 1U, &pConstantBuf);
+		m_IMContent->PSSetConstantBuffers(slot, 1U, ppBuf);
 		break;
 	case eComputeShader:
-		m_D3DContext->CSSetConstantBuffers(slot, 1U, &pConstantBuf);
+		m_IMContent->CSSetConstantBuffers(slot, 1U, ppBuf);
 		break;
 	}
 }
 
-void D3DGraphic::UpdateBuffer(ID3D11Buffer* pBuffer, const void* pSource, size_t size)
+void D3DGraphic::UpdateBuffer(Ref<ID3D11Buffer> &rBuffer, const void *pSource, size_t size)
 {
-	assert(pSource && (size > 0U));
+	assert(pSource && (size > 0U) && rBuffer.Valid());
 
 	D3D11_MAPPED_SUBRESOURCE mapData;
 	memset(&mapData, 0, sizeof(D3D11_MAPPED_SUBRESOURCE));
 
 	/// Map cannot be called with MAP_WRITE_DISCARD access
-	HRCheck(m_D3DContext->Map(pBuffer, 0U, D3D11_MAP_WRITE_DISCARD, 0U, &mapData));
+	HRCheck(m_IMContent->Map(rBuffer.Ptr(), 0U, D3D11_MAP_WRITE_DISCARD, 0U, &mapData));
 	memcpy(mapData.pData, pSource, size);
-	m_D3DContext->Unmap(pBuffer, 0U);
+	m_IMContent->Unmap(rBuffer.Ptr(), 0U);
 }
 
-void D3DGraphic::GetBackBufferDesc(D3D11_TEXTURE2D_DESC& tex2DDesc)
-{
-	assert(m_SwapChain.Valid());
-
-	Ref<ID3D11Texture2D> backBuffer;
-	HRCheck(m_SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)backBuffer.Reference()));
-
-	backBuffer->GetDesc(&tex2DDesc);
-}
+///void D3DGraphic::GetBackBufferDesc(D3D11_TEXTURE2D_DESC& tex2DDesc)
+///{
+///	assert(m_SwapChain.Valid());
+///
+///	Ref<ID3D11Texture2D> backBuffer;
+///	HRCheck(m_SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)backBuffer.Reference()));
+///
+///	backBuffer->GetDesc(&tex2DDesc);
+///}
 
 ///void D3DGraphic::ResolveSubResource(ID3D11Texture2D* pDstResource, ID3D11Texture2D* pSrcResource, uint32_t dstCount, uint32_t srcCount, DXGI_FORMAT fmt)
 ///{
 ///	assert(pDstResource && pSrcResource);
 ///
-///	m_D3DContext->ResolveSubresource(pDstResource, dstCount, pSrcResource, srcCount, fmt);
+///	m_IMContent->ResolveSubresource(pDstResource, dstCount, pSrcResource, srcCount, fmt);
 ///}
 
 void D3DGraphic::CopyBuffer(ID3D11Resource *pSrc, ID3D11Resource *pDst, void *pDstMem, size_t memSize, ::RECT &rect)
@@ -834,81 +752,46 @@ void D3DGraphic::CopyBuffer(ID3D11Resource *pSrc, ID3D11Resource *pDst, void *pD
 
 	D3D11_MAPPED_SUBRESOURCE mappedSrc = { 0U };
 
-	m_D3DContext->CopySubresourceRegion(pSrc, 0U, 0U, 0U, 0U, pDst, 0U, &box);
-	HRCheck(m_D3DContext->Map(pSrc, 0U, D3D11_MAP_READ, 0U, &mappedSrc));
+	m_IMContent->CopySubresourceRegion(pSrc, 0U, 0U, 0U, 0U, pDst, 0U, &box);
+	HRCheck(m_IMContent->Map(pSrc, 0U, D3D11_MAP_READ, 0U, &mappedSrc));
 	memcpy(pDstMem, mappedSrc.pData, memSize);
-	m_D3DContext->Unmap(pSrc, 0U);
+	m_IMContent->Unmap(pSrc, 0U);
 }
 
 void D3DGraphic::Draw(uint32_t vertexCount, uint32_t startIndex, D3D_PRIMITIVE_TOPOLOGY prim)
 {
-	if (m_D3DPipelineState.PrimitiveTopology != prim)
+	if (m_PipelineState.PrimitiveTopology != prim)
 	{
-		m_D3DPipelineState.PrimitiveTopology = prim;
+		m_PipelineState.PrimitiveTopology = prim;
 		m_FlushState[eFSPrimitiveTopology] = true;
 	}
 
 	FlushState();
 
-	m_D3DContext->Draw(vertexCount, startIndex);
+	m_IMContent->Draw(vertexCount, startIndex);
 }
 
 void D3DGraphic::DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, D3D_PRIMITIVE_TOPOLOGY prim)
 {
-	if (m_D3DPipelineState.PrimitiveTopology != prim)
+	if (m_PipelineState.PrimitiveTopology != prim)
 	{
-		m_D3DPipelineState.PrimitiveTopology = prim;
+		m_PipelineState.PrimitiveTopology = prim;
 		m_FlushState[eFSPrimitiveTopology] = true;
 	}
 
 	FlushState();
 
-	m_D3DContext->DrawIndexed(indexCount, startIndex, offset);
+	m_IMContent->DrawIndexed(indexCount, startIndex, offset);
 }
 
-void D3DGraphic::DrawQuad(float top, float left, float width, float height)
+void D3DGraphic::DrawQuad(float /*top*/, float /*left*/, float /*width*/, float /*height*/)
 {
-	static uint32_t indices[6] = { 0U, 1U, 2U, 0U, 2U, 3U };
-	static Ref<ID3D11Buffer> ib;
-	if (!ib.Valid())
-	{
-		CreateIndexBuffer(ib.Reference(), sizeof(uint32_t) * 6U, D3D11_USAGE_IMMUTABLE, indices);
-	}
-
-	struct Vertex
-	{
-		Vec3 Pos;
-		Vec2 UV;
-
-		Vertex() {}
-		Vertex(float x, float y, float z, float u, float v)
-			: Pos(x, y, z)
-			, UV(u, v)
-		{
-		}
-	};
-
-	static Vertex vertices[4];
-	vertices[0] = Vertex(top, left, 1.0f, 0.0f, 0.0f);
-	vertices[1] = Vertex(top + width, left, 1.0f, 1.0f, 0.0f);
-	vertices[2] = Vertex(top + width, left + height, 1.0f, 1.0f, 1.0f);
-	vertices[3] = Vertex(top, left + height, 1.0f, 0.0f, 1.0f);
-	static Ref<ID3D11Buffer> vb;
-	if (!vb.Valid())
-	{
-		CreateVertexBuffer(vb.Reference(), sizeof(Vertex) * 4, D3D11_USAGE_DYNAMIC, vertices, D3D11_CPU_ACCESS_WRITE);
-	}
-
-	SetVertexBuffer(vb.Ptr(), sizeof(Vertex), 0U);
-
-	SetIndexBuffer(ib.Ptr(), DXGI_FORMAT_R32_UINT);
-
-	DrawIndexed(6U, 0U, 0U);
+	assert(0);
 }
 
 void D3DGraphic::FlushState()
 {
-	if (!m_D3DContext.Valid())
+	if (!m_IMContent.Valid())
 	{
 		return;
 	}
@@ -916,103 +799,103 @@ void D3DGraphic::FlushState()
 	/// Input Assembler
 	if (m_FlushState[eFSInputLayout])
 	{
-		m_D3DContext->IASetInputLayout(m_D3DPipelineState.InputLayout);
+		m_IMContent->IASetInputLayout(m_PipelineState.InputLayout);
 		m_FlushState[eFSInputLayout] = false;
 	}
 
 	if (m_FlushState[eFSVertexBuffer])
 	{
-		m_D3DContext->IASetVertexBuffers(0, eVertexStreamCount, m_D3DPipelineState.VertexBuffer.Buffers,
-			m_D3DPipelineState.VertexBuffer.Stride, m_D3DPipelineState.VertexBuffer.Offset);
+		m_IMContent->IASetVertexBuffers(0, eVertexStreamCount, m_PipelineState.VertexBuffer.Buffers,
+			m_PipelineState.VertexBuffer.Stride, m_PipelineState.VertexBuffer.Offset);
 		m_FlushState[eFSVertexBuffer] = false;
 	}
 
 	if (m_FlushState[eFSIndexBuffer])
 	{
-		m_D3DContext->IASetIndexBuffer(m_D3DPipelineState.IndexBuffer.Buffers, m_D3DPipelineState.IndexBuffer.Format,
-			m_D3DPipelineState.IndexBuffer.Offset);
+		m_IMContent->IASetIndexBuffer(m_PipelineState.IndexBuffer.Buffers, m_PipelineState.IndexBuffer.Format,
+			m_PipelineState.IndexBuffer.Offset);
 		m_FlushState[eFSIndexBuffer] = false;
 	}
 
 	if (m_FlushState[eFSPrimitiveTopology])
 	{
-		m_D3DContext->IASetPrimitiveTopology(m_D3DPipelineState.PrimitiveTopology);
+		m_IMContent->IASetPrimitiveTopology(m_PipelineState.PrimitiveTopology);
 		m_FlushState[eFSPrimitiveTopology] = false;
 	}
 
 	/// VS->HS->DS->GS
 	if (m_FlushState[eFSVertexShader])
 	{
-		m_D3DContext->VSSetShader(m_D3DPipelineState.VertexShader, nullptr, 0U);
+		m_IMContent->VSSetShader(m_PipelineState.VertexShader, nullptr, 0U);
 		m_FlushState[eFSVertexShader] = false;
 	}
 
 	if (m_FlushState[eFSHullShader])
 	{
-		m_D3DContext->HSSetShader(m_D3DPipelineState.HullShader, nullptr, 0U);
+		m_IMContent->HSSetShader(m_PipelineState.HullShader, nullptr, 0U);
 		m_FlushState[eFSHullShader] = false;
 	}
 
 	if (m_FlushState[eFSDomainShader])
 	{
-		m_D3DContext->DSSetShader(m_D3DPipelineState.DomainShader, nullptr, 0U);
+		m_IMContent->DSSetShader(m_PipelineState.DomainShader, nullptr, 0U);
 		m_FlushState[eFSDomainShader] = false;
 	}
 
 	if (m_FlushState[eFSGeometryShader])
 	{
-		m_D3DContext->GSSetShader(m_D3DPipelineState.GeometryShader, nullptr, 0U);
+		m_IMContent->GSSetShader(m_PipelineState.GeometryShader, nullptr, 0U);
 		m_FlushState[eFSGeometryShader] = false;
 	}
 
 	/// Rasterizer
 	if (m_FlushState[eFSRasterizerState])
 	{
-		m_D3DContext->RSSetState(m_D3DPipelineState.RasterizerState);
+		m_IMContent->RSSetState(m_PipelineState.RasterizerState);
 		m_FlushState[eFSRasterizerState] = false;
 	}
 
 	if (m_FlushState[eFSViewports])
 	{
-		m_D3DContext->RSSetViewports(m_D3DPipelineState.ViewportCount, &m_DefaultViewport);
+		m_IMContent->RSSetViewports(m_PipelineState.ViewportCount, &m_DefaultViewport);
 		m_FlushState[eFSViewports] = false;
 	}
 
 	if (m_FlushState[eFSScissorRect])
 	{
-		m_D3DContext->RSSetScissorRects(m_D3DPipelineState.ScissorRectCount, /*m_D3DPipelineState.ScissorRects*/&m_DefaultScissorRect);
+		m_IMContent->RSSetScissorRects(m_PipelineState.ScissorRectCount, /*m_PipelineState.ScissorRects*/&m_DefaultScissorRect);
 		m_FlushState[eFSScissorRect] = false;
 	}
 
 	/// Pixel Shader
 	if (m_FlushState[eFSPixelShader])
 	{
-		m_D3DContext->PSSetShader(m_D3DPipelineState.PixelShader, nullptr, 0U);
+		m_IMContent->PSSetShader(m_PipelineState.PixelShader, nullptr, 0U);
 		m_FlushState[eFSPixelShader] = false;
 	}
 
 	if (m_FlushState[eFSComputeShader])
 	{
-		m_D3DContext->CSSetShader(m_D3DPipelineState.ComputeShader, nullptr, 0U);
+		m_IMContent->CSSetShader(m_PipelineState.ComputeShader, nullptr, 0U);
 		m_FlushState[eFSComputeShader] = false;
 	}
 
 	/// Output Merge
 	if (m_FlushState[eFSBlendState])
 	{
-		m_D3DContext->OMSetBlendState(m_D3DPipelineState.BlendState, m_D3DPipelineState.BlendFactor, m_D3DPipelineState.SampleMask);
+		m_IMContent->OMSetBlendState(m_PipelineState.BlendState, m_PipelineState.BlendFactor, m_PipelineState.SampleMask);
 		m_FlushState[eFSBlendState] = false;
 	}
 
 	if (m_FlushState[eFSDepthStencilState])
 	{
-		m_D3DContext->OMSetDepthStencilState(m_D3DPipelineState.DepthStencilState, m_D3DPipelineState.StencilRef);
+		m_IMContent->OMSetDepthStencilState(m_PipelineState.DepthStencilState, m_PipelineState.StencilRef);
 		m_FlushState[eFSDepthStencilState] = false;
 	}
 
 	if (m_FlushState[eFSRenderTarget] || m_FlushState[eFSDepthStencil] || eBackBufferCount > 1U)
 	{
-		m_D3DContext->OMSetRenderTargets(eRenderTargetCount, m_D3DPipelineState.RenderTarget, m_D3DPipelineState.DepthStencil);
+		m_IMContent->OMSetRenderTargets(eRenderTargetCount, m_PipelineState.RenderTarget, m_PipelineState.DepthStencil);
 		m_FlushState[eFSRenderTarget] = m_FlushState[eFSDepthStencil] = false;
 	}
 }

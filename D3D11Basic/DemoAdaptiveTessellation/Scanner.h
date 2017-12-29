@@ -11,25 +11,25 @@ public:
 	void Init(uint32_t vertexCount);
 	void Scan(uint32_t numToScan);
 
-	inline ID3D11UnorderedAccessView *GetScanUAV0()
+	inline const Ref<ID3D11UnorderedAccessView> &GetScanUAV0() const
 	{
 		assert(m_Res.UAV_Scan0.Valid());
 
-		return m_Res.UAV_Scan0.Ptr();
+		return m_Res.UAV_Scan0;
 	}
 
-	inline ID3D11Buffer *GetScanBuf0()
+	inline const Ref<ID3D11Buffer> &GetScanBuf0() const 
 	{
 		assert(m_Res.UOB_ScanBuf0.Valid());
 
-		return m_Res.UOB_ScanBuf0.Ptr();
+		return m_Res.UOB_ScanBuf0;
 	}
 
-	inline ID3D11ShaderResourceView *GetScanSRV0()
+	inline const Ref<ID3D11ShaderResourceView> &GetScanSRV0() const
 	{
 		assert(m_Res.SRV_Scan0.Valid());
 
-		return m_Res.SRV_Scan0.Ptr();
+		return m_Res.SRV_Scan0;
 	}
 protected:
 private:

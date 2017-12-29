@@ -12,10 +12,10 @@ public:
 
 	void Draw(const class Camera &cam);
 
-	inline ID3D11ShaderResourceView *GetCubemap() const
+	inline const Ref<ID3D11ShaderResourceView> &GetCubemap() const
 	{
 		assert(m_Cubemap.Valid());
-		return m_Cubemap.Ptr();
+		return m_Cubemap;
 	}
 protected:
 	SkyBox(const SkyBox &) = default;

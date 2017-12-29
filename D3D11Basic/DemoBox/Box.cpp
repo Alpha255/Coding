@@ -80,7 +80,7 @@ void ApplicationBox::SetupScene()
 
 	s_IndexCount = (uint32_t)box.Indices.size();
 
-	g_Renderer->CreateShaderResourceView(s_D3DResource.Texture.Reference(), "WoodCrate01.dds");
+	g_Renderer->CreateShaderResourceView(s_D3DResource.Texture, "WoodCrate01.dds");
 	
 	D3D11_SAMPLER_DESC sampDesc;
 	memset(&sampDesc, 0, sizeof(D3D11_SAMPLER_DESC));
@@ -91,11 +91,11 @@ void ApplicationBox::SetupScene()
 	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 	sampDesc.MinLOD = 0.0f;
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	g_Renderer->CreateSamplerState(s_D3DResource.Sampler.Reference(), &sampDesc);
+	g_Renderer->CreateSamplerState(s_D3DResource.Sampler, &sampDesc);
 
-	g_Renderer->CreateVertexBuffer(s_D3DResource.VertexBuffer.Reference(), (uint32_t)(sizeof(Vertex) * box.Vertices.size()),
+	g_Renderer->CreateVertexBuffer(s_D3DResource.VertexBuffer, (uint32_t)(sizeof(Vertex) * box.Vertices.size()),
 		D3D11_USAGE_IMMUTABLE, &vertices[0]);
-	g_Renderer->CreateIndexBuffer(s_D3DResource.IndexBuffer.Reference(), (uint32_t)(sizeof(uint32_t) * box.Indices.size()),
+	g_Renderer->CreateIndexBuffer(s_D3DResource.IndexBuffer, (uint32_t)(sizeof(uint32_t) * box.Indices.size()),
 		D3D11_USAGE_IMMUTABLE, &indices[0]);
 #else
 	D3D11_INPUT_ELEMENT_DESC layout[] =
@@ -144,10 +144,10 @@ void ApplicationBox::SetupScene()
 		D3D11_USAGE_IMMUTABLE, indices);
 #endif
 
-	g_Renderer->CreateVertexShaderAndInputLayout(s_D3DResource.VertexShader.Reference(), s_D3DResource.InputLayout.Reference(),
+	g_Renderer->CreateVertexShaderAndInputLayout(s_D3DResource.VertexShader, s_D3DResource.InputLayout,
 		layout, ARRAYSIZE(layout), s_ShaderName, "VSMain");
-	g_Renderer->CreatePixelShader(s_D3DResource.PixelShader.Reference(), s_ShaderName, "PSMain");
-	g_Renderer->CreateConstantBuffer(s_D3DResource.ConstantsBuffer.Reference(), sizeof(Constants),
+	g_Renderer->CreatePixelShader(s_D3DResource.PixelShader, s_ShaderName, "PSMain");
+	g_Renderer->CreateConstantBuffer(s_D3DResource.ConstantsBuffer, sizeof(Constants),
 		D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
 
 	g_Renderer->SetRenderTarget(g_Renderer->DefaultRenderTarget());
@@ -171,21 +171,21 @@ void ApplicationBox::RenderScene()
 
 	Matrix wvp = m_Camera->GetWorldMatrix() * m_Camera->GetViewMatrix() * m_Camera->GetProjMatrix();
 
-	g_Renderer->SetVertexShader(s_D3DResource.VertexShader.Ptr());
-	g_Renderer->SetPixelShader(s_D3DResource.PixelShader.Ptr());
-	g_Renderer->SetVertexBuffer(s_D3DResource.VertexBuffer.Ptr(), sizeof(Vertex), 0U);
-	g_Renderer->SetIndexBuffer(s_D3DResource.IndexBuffer.Ptr(), DXGI_FORMAT_R32_UINT);
-	g_Renderer->SetInputLayout(s_D3DResource.InputLayout.Ptr());
+	g_Renderer->SetVertexShader(s_D3DResource.VertexShader);
+	g_Renderer->SetPixelShader(s_D3DResource.PixelShader);
+	g_Renderer->SetVertexBuffer(s_D3DResource.VertexBuffer, sizeof(Vertex), 0U);
+	g_Renderer->SetIndexBuffer(s_D3DResource.IndexBuffer, DXGI_FORMAT_R32_UINT);
+	g_Renderer->SetInputLayout(s_D3DResource.InputLayout);
 
 	Constants cBuffer;
 	memset(&cBuffer, 0, sizeof(Constants));
 	cBuffer.WVP = wvp.Transpose();
-	g_Renderer->UpdateBuffer(s_D3DResource.ConstantsBuffer.Ptr(), &cBuffer, sizeof(Constants));
-	g_Renderer->SetConstantBuffer(s_D3DResource.ConstantsBuffer.Ptr(), 0U, D3DGraphic::eVertexShader);
+	g_Renderer->UpdateBuffer(s_D3DResource.ConstantsBuffer, &cBuffer, sizeof(Constants));
+	g_Renderer->SetConstantBuffer(s_D3DResource.ConstantsBuffer, 0U, D3DGraphic::eVertexShader);
 
 #ifdef UsingTexture
-	g_Renderer->SetShaderResource(s_D3DResource.Texture.Ptr(), 0U, 1U);
-	g_Renderer->SetSamplerStates(s_D3DResource.Sampler.Ptr());
+	g_Renderer->SetShaderResource(s_D3DResource.Texture, 0U, D3DGraphic::ePixelShader);
+	g_Renderer->SetSamplerStates(s_D3DResource.Sampler, 0U, D3DGraphic::ePixelShader);
 #endif
 
 	g_Renderer->DrawIndexed(s_IndexCount, s_IndexOffset, s_VertexOffset);

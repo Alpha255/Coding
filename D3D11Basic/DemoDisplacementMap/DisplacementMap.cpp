@@ -58,28 +58,28 @@ void AppDisplacement::SetupScene()
 		{ "TANGENT",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	    { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
-	g_Renderer->CreateVertexShaderAndInputLayout(s_Resource.VertexShader.Reference(), s_Resource.InputLayout.Reference(),
+	g_Renderer->CreateVertexShaderAndInputLayout(s_Resource.VertexShader, s_Resource.InputLayout,
 		layout, ARRAYSIZE(layout), s_ShaderName, "VS_Main");
-	g_Renderer->CreateHullShader(s_Resource.HullShader.Reference(), s_ShaderName, "HS_Main");
-	g_Renderer->CreateDomainShader(s_Resource.DomainShader.Reference(), s_ShaderName, "DS_Main");
-	g_Renderer->CreatePixelShader(s_Resource.PixelShader.Reference(), s_ShaderName, "PS_Main");
+	g_Renderer->CreateHullShader(s_Resource.HullShader, s_ShaderName, "HS_Main");
+	g_Renderer->CreateDomainShader(s_Resource.DomainShader, s_ShaderName, "DS_Main");
+	g_Renderer->CreatePixelShader(s_Resource.PixelShader, s_ShaderName, "PS_Main");
 
 
 	Math::Geometry::Mesh quad;
 	Math::Geometry::MakeQuad(quad);
-	g_Renderer->CreateVertexBuffer(s_Resource.VertexBuffer.Reference(), (uint32_t)(sizeof(Math::Geometry::Vertex) * quad.Vertices.size()),
+	g_Renderer->CreateVertexBuffer(s_Resource.VertexBuffer, (uint32_t)(sizeof(Math::Geometry::Vertex) * quad.Vertices.size()),
 		D3D11_USAGE_IMMUTABLE, &quad.Vertices[0]);
-	g_Renderer->CreateIndexBuffer(s_Resource.IndexBuffer.Reference(), (uint32_t)(sizeof(uint32_t) * quad.Indices.size()),
+	g_Renderer->CreateIndexBuffer(s_Resource.IndexBuffer, (uint32_t)(sizeof(uint32_t) * quad.Indices.size()),
 		D3D11_USAGE_IMMUTABLE, &quad.Indices[0]);
 
-	g_Renderer->CreateConstantBuffer(s_Resource.ConstantsBuf.Reference(), sizeof(ConstantsBuffer),
+	g_Renderer->CreateConstantBuffer(s_Resource.ConstantsBuf, sizeof(ConstantsBuffer),
 		D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
 
-	g_Renderer->CreateRasterizerState(s_Resource.Wireframe.Reference(), D3D11_FILL_WIREFRAME);
+	g_Renderer->CreateRasterizerState(s_Resource.Wireframe, D3D11_FILL_WIREFRAME);
 
-	g_Renderer->CreateShaderResourceView(s_Resource.DiffuseTex.Reference(), "wall_diffuse.dds");
+	g_Renderer->CreateShaderResourceView(s_Resource.DiffuseTex, "wall_diffuse.dds");
 	///g_Renderer->CreateShaderResourceView(s_Resource.NormalTex.Reference(), "wall_normal.dds");
-	g_Renderer->CreateShaderResourceView(s_Resource.HeightMapTex.Reference(), "wall_disp.dds");
+	g_Renderer->CreateShaderResourceView(s_Resource.HeightMapTex, "wall_disp.dds");
 
 	D3D11_SAMPLER_DESC sampDesc;
 	memset(&sampDesc, 0, sizeof(D3D11_SAMPLER_DESC));
@@ -90,7 +90,7 @@ void AppDisplacement::SetupScene()
 	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 	sampDesc.MinLOD = 0.0f;
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	g_Renderer->CreateSamplerState(s_Resource.SamplerLinear.Reference(), &sampDesc);
+	g_Renderer->CreateSamplerState(s_Resource.SamplerLinear, &sampDesc);
 
 	g_Renderer->SetRenderTarget(g_Renderer->DefaultRenderTarget());
 	g_Renderer->SetDepthStencil(g_Renderer->DefaultDepthStencil());
@@ -122,36 +122,39 @@ void AppDisplacement::RenderScene()
 	s_CB.WorldInverse = s_CB.World.Inverse();
 	s_CB.EyePos = Vec3(eyePos.x, eyePos.y, eyePos.z);
 
-	g_Renderer->UpdateBuffer(s_Resource.ConstantsBuf.Ptr(), &s_CB, sizeof(ConstantsBuffer));
+	g_Renderer->UpdateBuffer(s_Resource.ConstantsBuf, &s_CB, sizeof(ConstantsBuffer));
 
-	g_Renderer->SetVertexBuffer(s_Resource.VertexBuffer.Ptr(), sizeof(Math::Geometry::Vertex), 0U);
-	g_Renderer->SetIndexBuffer(s_Resource.IndexBuffer.Ptr(), DXGI_FORMAT_R32_UINT);
+	g_Renderer->SetVertexBuffer(s_Resource.VertexBuffer, sizeof(Math::Geometry::Vertex), 0U);
+	g_Renderer->SetIndexBuffer(s_Resource.IndexBuffer, DXGI_FORMAT_R32_UINT);
 	
-	g_Renderer->SetInputLayout(s_Resource.InputLayout.Ptr());
-	g_Renderer->SetVertexShader(s_Resource.VertexShader.Ptr());
-	g_Renderer->SetHullShader(s_Resource.HullShader.Ptr());
-	g_Renderer->SetDomainShader(s_Resource.DomainShader.Ptr());
-	g_Renderer->SetPixelShader(s_Resource.PixelShader.Ptr());
+	g_Renderer->SetInputLayout(s_Resource.InputLayout);
+	g_Renderer->SetVertexShader(s_Resource.VertexShader);
+	g_Renderer->SetHullShader(s_Resource.HullShader);
+	g_Renderer->SetDomainShader(s_Resource.DomainShader);
+	g_Renderer->SetPixelShader(s_Resource.PixelShader);
 	
-	g_Renderer->SetConstantBuffer(s_Resource.ConstantsBuf.Ptr(), 0U, D3DGraphic::eVertexShader);
-	g_Renderer->SetConstantBuffer(s_Resource.ConstantsBuf.Ptr(), 0U, D3DGraphic::eDomainShader);
+	g_Renderer->SetConstantBuffer(s_Resource.ConstantsBuf, 0U, D3DGraphic::eVertexShader);
+	g_Renderer->SetConstantBuffer(s_Resource.ConstantsBuf, 0U, D3DGraphic::eDomainShader);
 	
-	g_Renderer->SetSamplerStates(s_Resource.SamplerLinear.Ptr(), 0U, 1U, D3DGraphic::eDomainShader);
-	g_Renderer->SetSamplerStates(s_Resource.SamplerLinear.Ptr(), 0U, 1U, D3DGraphic::ePixelShader);
+	g_Renderer->SetSamplerStates(s_Resource.SamplerLinear, 0U, D3DGraphic::eDomainShader);
+	g_Renderer->SetSamplerStates(s_Resource.SamplerLinear, 0U, D3DGraphic::ePixelShader);
 
-	g_Renderer->SetShaderResource(s_Resource.DiffuseTex.Ptr(), 0U, 1U, D3DGraphic::ePixelShader);
-	g_Renderer->SetShaderResource(s_Resource.HeightMapTex.Ptr(), 0U, 1U, D3DGraphic::eDomainShader);
+	g_Renderer->SetShaderResource(s_Resource.DiffuseTex, 0U, D3DGraphic::ePixelShader);
+	g_Renderer->SetShaderResource(s_Resource.HeightMapTex, 0U, D3DGraphic::eDomainShader);
 
 	if (m_bWireframe)
 	{
-		g_Renderer->SetRasterizerState(s_Resource.Wireframe.Ptr());
+		g_Renderer->SetRasterizerState(s_Resource.Wireframe);
 	}
 
 	g_Renderer->DrawIndexed(3U, 0U, 0, D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 
 	/// Draw GUI
-	g_Renderer->SetHullShader(nullptr);
-	g_Renderer->SetDomainShader(nullptr);
+	static Ref<ID3D11HullShader> s_NullHullShader;
+	static Ref<ID3D11DomainShader> s_NullDomainShader;
+
+	g_Renderer->SetHullShader(s_NullHullShader);
+	g_Renderer->SetDomainShader(s_NullDomainShader);
 	ImGui::Checkbox("Wireframe", &m_bWireframe);
 	ImGui::SliderFloat("HeightScale", &s_CB.HeightScale, 0.0f, 0.5f);
 	ImGui::SliderFloat("MinTessFactor", &s_CB.MinTessFactor, 1.0f, 10.0f);

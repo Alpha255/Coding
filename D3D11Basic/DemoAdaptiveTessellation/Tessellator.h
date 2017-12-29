@@ -53,19 +53,19 @@ public:
 		return m_CachedTessedIndexCount;
 	}
 
-	inline ID3D11ShaderResourceView *GetSourceVertexBufferSRV()
+	inline const Ref<ID3D11ShaderResourceView> &GetSourceVertexBufferSRV() const 
 	{
-		return m_Res.SRV_VB_Src.Ptr();
+		return m_Res.SRV_VB_Src;
 	}
 
-	inline ID3D11ShaderResourceView *GetTessedVertexBufferSRV()
+	inline const Ref<ID3D11ShaderResourceView> &GetTessedVertexBufferSRV() const 
 	{
-		return m_Res.SRV_VB_Tessed.Ptr();
+		return m_Res.SRV_VB_Tessed;
 	}
 
-	inline ID3D11Buffer *GetTessedIndexBuffer()
+	inline const Ref<ID3D11Buffer> &GetTessedIndexBuffer() const
 	{
-		return m_Res.IB_Tessed.Ptr();
+		return m_Res.IB_Tessed;
 	}
 
 	bool DoTessellationByEdge(const class Camera &cam);
@@ -74,14 +74,14 @@ protected:
 	void CreateResource(uint32_t vertexCount, ID3D11Buffer *pVertexBuf);
 
 	void ExeComputeShader(
-		ID3D11ComputeShader *pTargetCS, 
+		const Ref<ID3D11ComputeShader> &rTargetCS, 
 		uint32_t srvCount, 
 		ID3D11ShaderResourceView **ppSRVs, 
-		ID3D11Buffer *pCBConstant, 
-		ID3D11Buffer *pCBUpdate, 
+		const Ref<ID3D11Buffer> &rCBConstant, 
+		const Ref<ID3D11Buffer> &rCBUpdate, 
 		uint32_t cbufSize, 
 		const void *pBufData,
-		ID3D11UnorderedAccessView *pUAV,
+		const Ref<ID3D11UnorderedAccessView> &rUAV,
 		uint32_t patchX, 
 		uint32_t patchY, 
 		uint32_t patchZ);
