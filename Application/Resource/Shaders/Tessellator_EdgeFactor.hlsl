@@ -12,22 +12,31 @@ bool AxisTest(uint3 axis, float3 v0, float3 v1, float3 boxHalfSize, float2 ab, f
 {
     float factor = 1.0f;
     float2 box = float2(0.0f, 0.0f);
-    if (axis.y == 1)
+
+	float p0 = 0.0f, p1 = 0.0f;
+
+    if (axis.x == 1)
+    {
+        box = boxHalfSize.yz;
+
+		p0 = factor * ab.x * v0.y - factor * ab.y * v0.z;
+        p1 = factor * ab.x * v1.y - factor * ab.y * v1.z;
+    }
+	else if (axis.y == 1)
     {
         factor = -1.0f;
         box = boxHalfSize.xz;
-    }
-	else if (axis.x == 1)
-    {
-        box = boxHalfSize.yz;
+
+		p0 = factor * ab.x * v0.x - factor * ab.y * v0.z;
+        p1 = factor * ab.x * v1.x - factor * ab.y * v1.z;
     }
 	else if (axis.z == 1)
     {
         box = boxHalfSize.xy;
-    }
 
-    float p0 = factor * ab.x * v0.y - factor * ab.y * v0.z;
-    float p1 = factor * ab.x * v1.y - factor * ab.y * v1.z;
+		p0 = factor * ab.x * v0.x - factor * ab.y * v0.y;
+        p1 = factor * ab.x * v1.x - factor * ab.y * v1.y;
+    }
 
     float minV = min(p0, p1);
     float maxV = max(p0, p1);
