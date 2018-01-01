@@ -11,6 +11,8 @@ std::string ResourceFileDirectory(eResourceType resType)
 		"\\Resource\\SDKMeshs\\",
 		"\\Resource\\TxtMeshs\\",
 		"\\Resource\\ObjMeshs\\",
+		"\\Resource\\Sounds\\",
+		"\\Resource\\RawData\\",
 	};
 	static char directory[MAX_PATH]{};
 	::GetModuleFileNameA(::GetModuleHandle(nullptr), directory, MAX_PATH);
@@ -20,6 +22,15 @@ std::string ResourceFileDirectory(eResourceType resType)
 	resFileDir += s_ResourcePath[resType];
 
 	return resFileDir;
+}
+
+std::string ResourceFilePath(const char *pFileName, eResourceType resType)
+{
+	std::string path = ResourceFileDirectory(resType);
+
+	path += pFileName;
+
+	return path;
 }
 
 NamespaceEnd(Utility)

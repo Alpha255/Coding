@@ -13,9 +13,11 @@ public:
 	~GameApplication() = default;
 
 	virtual	LRESULT MsgProc(HWND hWnd, uint32_t msg, WPARAM wParam, LPARAM lParam);
-	virtual void RenderToWindow(){}
+	virtual void RenderToWindow();
 protected:
+	void InitResource();
 private:
+	bool m_bInited = false;
 };
 
 

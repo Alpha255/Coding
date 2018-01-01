@@ -147,10 +147,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="GameApplication.cpp" />
+    <ClCompile Include="Image.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameApplication.h" />
+    <ClInclude Include="Image.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
@@ -162,7 +164,7 @@
     <ResourceCompile Include="Mario.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\Application\Resource\JustForFun\Mario\Mario.ico" />
+    <Image Include="..\..\Application\Resource\Mario.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

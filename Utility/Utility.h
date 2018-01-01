@@ -12,23 +12,13 @@ enum eResourceType
 	eSDKMesh,
 	eTxtMesh,
 	eObjMesh,
+	eSound,
+	eRawData,
 	eResTypeCount
 };
 
 std::string ResourceFileDirectory(eResourceType resType);
 
-inline std::string ResourceFilePath(const char *pFileName, eResourceType resType, const char *pSecondLevelDir = nullptr)
-{
-	std::string path = ResourceFileDirectory(resType);
-
-	if (pSecondLevelDir)
-	{
-		path += pSecondLevelDir;
-	}
-
-	path += pFileName;
-
-	return path;
-}
+std::string ResourceFilePath(const char *pFileName, eResourceType resType);
 
 NamespaceEnd(Utility)
