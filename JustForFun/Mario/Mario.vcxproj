@@ -159,6 +159,9 @@
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\D3D11Basic\D3DCommon\D3DCommon.vcxproj">
+      <Project>{6ac5e4d4-a7ce-4a12-ad70-c3591652de8e}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\Utility\Utility.vcxproj">
       <Project>{eab653a1-bdbe-491e-92a1-8bb9276b6275}</Project>
     </ProjectReference>

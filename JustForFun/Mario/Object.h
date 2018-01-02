@@ -1,25 +1,46 @@
 #pragma once
 
-#include "Common.h"
+#include "D3DMath.h"
 
 class Object2D
 {
 public:
+	enum eType
+	{
+		eMario,
+		eMonster,
+		eTurtle,
+		eTurtleFly,
+		eCoin,
+		eMushroom,
+		eFlower,
+		eBullet,
+		eBrick,
+		eSpark,
+		eTypeCount
+	};
+
+	enum eOrientation
+	{
+		eLeft,
+		eRight
+	};
+
+	enum eMotion
+	{
+		eNone,
+		eStatic,
+		eWalk,
+		eCrouch,
+		eJump,
+		eStop,
+		eSlide,
+		eDead,
+		eUpsidedown
+	};
+
 	Object2D() = default;
-	Object2D(const class Image *pImage);
 	~Object2D() = default;
-
-	inline virtual uint32_t Width() 
-	{
-		assert(m_Width);
-		return m_Width;
-	}
-
-	inline virtual uint32_t Height()
-	{
-		assert(m_Height);
-		return m_Height;
-	}
 
 	inline virtual const class Image *GetImage() const
 	{
@@ -27,11 +48,26 @@ public:
 		return m_Image;
 	}
 
-	bool IsCollision(const Object2D &other);
+	inline void Move(eOrientation orientation, eMotion motion)
+	{
+		m_Orientation = orientation;
+		m_Motion = motion;
+	}
+
+	void Update(float elapseTime);
+
+	bool IsCollision(const Object2D &object);
+	bool IsCollision(const class Map &map);
 protected:
-private:
-	uint32_t m_Width = 0U;
-	uint32_t m_Height = 0U;
+	eType m_Type = eTypeCount;
+	eOrientation m_Orientation = eLeft;
+	eMotion m_Motion = eNone;
+
+	::RECT m_ClientRect;
+
+	Vec2 m_Velocity = {};
+	Vec2 m_Accelerate = {};
 
 	const class Image *m_Image = nullptr;
+private:
 };
