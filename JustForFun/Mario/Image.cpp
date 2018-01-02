@@ -41,33 +41,35 @@ void Image::Create(const char *pFileName)
 
 void Image::CreateAsBmp(const char *pFilePath)
 {
-	std::ifstream bmpFile(pFilePath, std::ios::in);
+	std::ifstream bmpFile(pFilePath, std::ios::in | std::ios::binary);
 	if (bmpFile.good())
 	{
-		BITMAPFILEHEADER fileHeader{};
-		bmpFile.read((char *)&fileHeader, sizeof(BITMAPFILEHEADER));
+		::BITMAPFILEHEADER fileHeader{};
+		bmpFile.read((char *)&fileHeader, sizeof(::BITMAPFILEHEADER));
 		assert(fileHeader.bfType == 0x4d42); /// "BM"
 		///assert((sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + sizeof(RGBQUAD) * 256) == fileHeader.bfOffBits);
 
-		BITMAPINFOHEADER infoHeader{};
-		bmpFile.read((char*)&infoHeader, sizeof(BITMAPINFOHEADER));
+		::BITMAPINFOHEADER infoHeader{};
+		bmpFile.read((char*)&infoHeader, sizeof(::BITMAPINFOHEADER));
 
-		RGBQUAD rgb[256]{}; /// ???
-		bmpFile.read((char *)rgb, sizeof(RGBQUAD) * 256); /// ???
+		assert(infoHeader.biBitCount == 8); /// Not for common use ???
 
-		LPBITMAPINFO lpBmpInfo = (LPBITMAPINFO)new BYTE[sizeof(BITMAPINFOHEADER) + sizeof(RGBQUAD) * 256]();
-		memcpy(&lpBmpInfo->bmiHeader, &infoHeader, sizeof(BITMAPINFOHEADER));
-		memcpy(lpBmpInfo->bmiColors, rgb, sizeof(RGBQUAD) * 256);
+		///::RGBQUAD rgb[256]{}; /// ???
+		///bmpFile.read((char *)rgb, sizeof(::RGBQUAD) * 256); /// ???
+
+		///LPBITMAPINFO lpBmpInfo = (LPBITMAPINFO)new BYTE[sizeof(BITMAPINFOHEADER) + sizeof(RGBQUAD) * 256]();
+		///memcpy(&lpBmpInfo->bmiHeader, &infoHeader, sizeof(BITMAPINFOHEADER));
+		///memcpy(lpBmpInfo->bmiColors, rgb, sizeof(RGBQUAD) * 256);
 
 		bmpFile.seekg(fileHeader.bfOffBits, std::ios::beg);
 		uint32_t bytesPerLine = (infoHeader.biWidth * (infoHeader.biBitCount / 8) + 3) / 4 * 4; 
-		size_t dataSize = bytesPerLine * abs(infoHeader.biHeight);
+		size_t dataSize = bytesPerLine * ::abs(infoHeader.biHeight);
 		m_pData = new byte[dataSize]();
 		bmpFile.read((char *)m_pData, dataSize);
 
 		bmpFile.close();
 
-		delete lpBmpInfo;
+		///delete lpBmpInfo;
 	}
 	else
 	{

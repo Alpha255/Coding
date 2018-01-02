@@ -10,6 +10,7 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="GameApplication.cpp" />
     <ClCompile Include="Image.cpp" />
+    <ClCompile Include="Renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameApplication.h" />
@@ -17,6 +18,8 @@
       <Filter>Resource Files</Filter>
     </ClInclude>
     <ClInclude Include="Image.h" />
+    <ClInclude Include="Renderer.h" />
+    <ClInclude Include="Object.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Mario.rc">

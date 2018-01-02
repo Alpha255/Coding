@@ -21,13 +21,13 @@ public:
 
 	void Create(const char *pFileName);
 
-	inline uint32_t Width() const 
+	inline uint32_t Width() 
 	{
 		assert(m_pData && m_Width);
 		return m_Width;
 	}
 
-	inline uint32_t Height() const
+	inline uint32_t Height()
 	{
 		assert(m_pData && m_Height);
 		return m_Height;

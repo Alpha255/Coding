@@ -149,10 +149,13 @@
     <ClCompile Include="GameApplication.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameApplication.h" />
     <ClInclude Include="Image.h" />
+    <ClInclude Include="Object.h" />
+    <ClInclude Include="Renderer.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
