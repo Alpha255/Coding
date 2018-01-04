@@ -7,16 +7,16 @@ class Object2D
 public:
 	enum eType
 	{
+		eBrickDebris,
+		eBullet,
+		eCoin,
+		eExplode,
+		eFlower,
 		eMario,
 		eMonster,
-		eTurtle,
-		eTurtleFly,
-		eCoin,
 		eMushroom,
-		eFlower,
-		eBullet,
-		eBrick,
-		eSpark,
+		eTile,
+		eTurtle,
 		eTypeCount
 	};
 
@@ -63,7 +63,13 @@ protected:
 	eOrientation m_Orientation = eLeft;
 	eMotion m_Motion = eNone;
 
-	::RECT m_ClientRect;
+	struct Area
+	{
+		uint32_t Top = 0U;
+		uint32_t Left = 0U;
+		uint32_t Width = 0U;
+		uint32_t Height = 0U;
+	}m_Area;
 
 	Vec2 m_Velocity = {};
 	Vec2 m_Accelerate = {};

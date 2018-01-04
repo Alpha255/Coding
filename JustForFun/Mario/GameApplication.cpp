@@ -1,6 +1,6 @@
 #include "GameApplication.h"
 
-#include "Image.h"
+#include "Engine.h"
 
 LRESULT GameApplication::MsgProc(HWND hWnd, uint32_t msg, WPARAM wParam, LPARAM lParam)
 {
@@ -17,13 +17,7 @@ void GameApplication::RenderToWindow()
 {
 	if (!m_bInited)
 	{
-		InitResource();
+		Engine::Instance().LoadResource();
 		m_bInited = true;
 	}
-}
-
-void GameApplication::InitResource()
-{
-	Image imageTest;
-	imageTest.Create("mario.bmp");
 }
