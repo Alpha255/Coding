@@ -25,6 +25,18 @@ public:
 
 	void InitD3DEnvironment(HWND hWnd, uint32_t width, uint32_t height, bool bWindowed);
 
+	void CreateTexture1D(__out Ref<ID3D11Texture1D> &rTex,
+		DXGI_FORMAT fmt,
+		uint32_t width,
+		uint32_t bindFlags,
+		uint32_t mipLevels = 1U,
+		uint32_t arraySize = 1U,
+		uint32_t cpuFlags = 0U,
+		uint32_t miscFlags = 0U,
+		D3D11_USAGE usage = D3D11_USAGE_DEFAULT,
+		const void *pData = nullptr,
+		uint32_t memPitch = 0U);
+
 	void CreateTexture2D(__out Ref<ID3D11Texture2D> &rTex, 
 		DXGI_FORMAT fmt, 
 		uint32_t width, 
@@ -232,6 +244,8 @@ public:
 		bool depthClip = true, 
 		bool bScissor = false);
 
+	void CreateRandomTexture1D(__out Ref<ID3D11ShaderResourceView> &rSRV);
+
 
 	inline void ClearRenderTarget(const Ref<ID3D11RenderTargetView> &rRenderTarget, const float *pClearColor = nullptr)
 	{
@@ -280,6 +294,8 @@ public:
 	
 	void SetShaderResource(const Ref<ID3D11ShaderResourceView> &rSRV, uint32_t startSlot, eShaderType);
 
+	void SetStreamOut(const Ref<ID3D11Buffer> &rBuf, uint32_t offset = 0U);
+
 	inline void SetUnorderedAccessView(const Ref<ID3D11UnorderedAccessView> &rUAV, uint32_t startSlot = 0U)
 	{
 		ID3D11UnorderedAccessView *const ppUAV[1]{ rUAV.Ptr() };
@@ -319,6 +335,13 @@ public:
 	void DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, D3D_PRIMITIVE_TOPOLOGY prim = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	void DrawQuad(float x, float y, float width, float height);
 
+	inline void DrawAuto()
+	{
+		FlushState();
+
+		m_IMContent->DrawAuto();
+	}
+
 	inline ID3D11Device *GetDevice() const
 	{
 		assert(m_D3DDevice.Valid());
@@ -355,6 +378,7 @@ protected:
 		eFSGeometryShader,
 		eFSComputeShader,
 		eFSInputLayout,
+		eFSStreamOut,
 		eFSRenderTarget,
 		eFSDepthStencil,
 		eFSViewports,
@@ -439,6 +463,7 @@ private:
 		ID3D11PixelShader*       PixelShader;
 		ID3D11GeometryShader*    GeometryShader;
 		ID3D11ComputeShader*     ComputeShader;
+		ID3D11Buffer*            StreamOut[1];
 		ID3D11BlendState*        BlendState;
 		ID3D11DepthStencilState* DepthStencilState;
 		ID3D11RenderTargetView*  RenderTarget[eRenderTargetCount];
@@ -449,6 +474,7 @@ private:
 		uint32_t                 ViewportCount;
 		uint32_t                 ScissorRectCount;
 		uint32_t                 StencilRef;
+		uint32_t                 StreamOutOffset[1];
 	}m_PipelineState = { 0 };
 
 	DXGI_SWAP_CHAIN_DESC m_SwapChainDesc = { 0 };

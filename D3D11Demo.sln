@@ -27,6 +27,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{E9CA
 		Application\Resource\Shaders\imGUI.hlsl = Application\Resource\Shaders\imGUI.hlsl
 		Application\Resource\Shaders\Lighting.hlsl = Application\Resource\Shaders\Lighting.hlsl
 		Application\Resource\Shaders\Mapping.hlsl = Application\Resource\Shaders\Mapping.hlsl
+		Application\Resource\Shaders\ParticleFire.hlsl = Application\Resource\Shaders\ParticleFire.hlsl
+		Application\Resource\Shaders\ParticleRain.hlsl = Application\Resource\Shaders\ParticleRain.hlsl
 		Application\Resource\Shaders\Quad.hlsl = Application\Resource\Shaders\Quad.hlsl
 		Application\Resource\Shaders\Scanner.hlsl = Application\Resource\Shaders\Scanner.hlsl
 		Application\Resource\Shaders\ShadowMap.hlsl = Application\Resource\Shaders\ShadowMap.hlsl
@@ -61,6 +63,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "App_Nvidia", "App_Nvidia", "{97C76228-9E58-4085-8F5E-C9A1BD939BDC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "App", "App", "{7715569A-AEE2-41E3-948F-C91D42E70933}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ParticleSystem", "D3D11Basic\ParticleSystem\ParticleSystem.vcxproj", "{B17FF1BE-AAF4-4EB2-83D0-95A1E03A1361}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -174,6 +178,14 @@ Global
 		{EAB653A1-BDBE-491E-92A1-8BB9276B6275}.Release|x64.Build.0 = Release|x64
 		{EAB653A1-BDBE-491E-92A1-8BB9276B6275}.Release|x86.ActiveCfg = Release|Win32
 		{EAB653A1-BDBE-491E-92A1-8BB9276B6275}.Release|x86.Build.0 = Release|Win32
+		{B17FF1BE-AAF4-4EB2-83D0-95A1E03A1361}.Debug|x64.ActiveCfg = Debug|x64
+		{B17FF1BE-AAF4-4EB2-83D0-95A1E03A1361}.Debug|x64.Build.0 = Debug|x64
+		{B17FF1BE-AAF4-4EB2-83D0-95A1E03A1361}.Debug|x86.ActiveCfg = Debug|Win32
+		{B17FF1BE-AAF4-4EB2-83D0-95A1E03A1361}.Debug|x86.Build.0 = Debug|Win32
+		{B17FF1BE-AAF4-4EB2-83D0-95A1E03A1361}.Release|x64.ActiveCfg = Release|x64
+		{B17FF1BE-AAF4-4EB2-83D0-95A1E03A1361}.Release|x64.Build.0 = Release|x64
+		{B17FF1BE-AAF4-4EB2-83D0-95A1E03A1361}.Release|x86.ActiveCfg = Release|Win32
+		{B17FF1BE-AAF4-4EB2-83D0-95A1E03A1361}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -192,5 +204,6 @@ Global
 		{6AC5E4D4-A7CE-4A12-AD70-C3591652DE8E} = {CA6219F3-92E9-4844-B1A3-6F0D8A448533}
 		{41EC5845-1693-4FD4-9236-715CD1A5F805} = {7715569A-AEE2-41E3-948F-C91D42E70933}
 		{EAB653A1-BDBE-491E-92A1-8BB9276B6275} = {CA6219F3-92E9-4844-B1A3-6F0D8A448533}
+		{B17FF1BE-AAF4-4EB2-83D0-95A1E03A1361} = {7715569A-AEE2-41E3-948F-C91D42E70933}
 	EndGlobalSection
 EndGlobal

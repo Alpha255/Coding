@@ -6,7 +6,7 @@ class Camera
 {
 public:
 	Camera()
-		: m_EyePos(0.0f, 0.0f, 0.0f, 1.0f)
+		: m_EyePos(0.0f, 0.0f, 0.0f, 0.0f)
 		, m_LookAt(0.0f, 0.0f, 0.0f, 1.0f)
 		, m_UpDir(0.0f, 1.0f, 0.0f, 1.0f)
 	{

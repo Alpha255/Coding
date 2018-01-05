@@ -75,6 +75,39 @@ void D3DGraphic::InitD3DEnvironment(HWND hWnd, uint32_t width, uint32_t height, 
 	assert(!"Failed to create D3D environment!!!");
 }
 
+void D3DGraphic::CreateTexture1D(__out Ref<ID3D11Texture1D> &rTex,
+	DXGI_FORMAT fmt,
+	uint32_t width,
+	uint32_t bindFlags,
+	uint32_t mipLevels,
+	uint32_t arraySize,
+	uint32_t cpuFlags,
+	uint32_t miscFlags,
+	D3D11_USAGE usage,
+	const void *pData,
+	uint32_t memPitch)
+{
+	assert(!rTex.Valid());
+
+	D3D11_TEXTURE1D_DESC texDesc = {};
+	texDesc.Format = fmt;
+	texDesc.Width = width;
+	texDesc.BindFlags = bindFlags;
+	texDesc.MipLevels = mipLevels;
+	texDesc.ArraySize = arraySize;
+	texDesc.CPUAccessFlags = cpuFlags;
+	texDesc.MiscFlags = miscFlags;
+	texDesc.Usage = usage;
+
+	D3D11_SUBRESOURCE_DATA subResData;
+	memset(&subResData, 0, sizeof(D3D11_SUBRESOURCE_DATA));
+	subResData.pSysMem = pData;
+	subResData.SysMemPitch = memPitch;
+	subResData.SysMemSlicePitch = 0U; 	/// System-memory-slice pitch is only used for 3D texture data as it has no meaning for the other resource types
+
+	HRCheck(m_D3DDevice->CreateTexture1D(&texDesc, ((nullptr == pData) ? nullptr : &subResData), rTex.Reference()));
+}
+
 void D3DGraphic::CreateTexture2D(Ref<ID3D11Texture2D> &rTex,
 	DXGI_FORMAT fmt, 
 	uint32_t width, 
@@ -391,6 +424,28 @@ void D3DGraphic::CreateRasterizerState(Ref<ID3D11RasterizerState> &rRasterizerSt
 	HRCheck(m_D3DDevice->CreateRasterizerState(&rsDesc, rRasterizerState.Reference()));
 }
 
+void D3DGraphic::CreateRandomTexture1D(Ref<ID3D11ShaderResourceView> &rSRV)
+{
+	assert(!rSRV.Valid());
+
+	static const uint32_t size = 1024U;
+	Vec4 random[size] = {};
+
+	for (uint32_t i = 0U; i < size; ++i)
+	{
+		random[i].x = Math::RandF(-1.0f, 1.0f);
+		random[i].y = Math::RandF(-1.0f, 1.0f);
+		random[i].z = Math::RandF(-1.0f, 1.0f);
+		random[i].w = Math::RandF(-1.0f, 1.0f);
+	}
+
+	Ref<ID3D11Texture1D> tex;
+	CreateTexture1D(tex, DXGI_FORMAT_R32G32B32A32_FLOAT, size, D3D11_BIND_SHADER_RESOURCE, 1U, 1U, 0U, 0U, 
+		D3D11_USAGE_IMMUTABLE, random, size * sizeof(Vec4));
+
+	CreateShaderResourceView(rSRV, tex.Ptr(), DXGI_FORMAT_R32G32B32A32_FLOAT, D3D11_SRV_DIMENSION_TEXTURE1D);
+}
+
 void D3DGraphic::ResizeBackBuffer(uint32_t width, uint32_t height)
 {
 	if (!m_SwapChain.Valid())
@@ -575,6 +630,17 @@ void D3DGraphic::SetShaderResource(const Ref<ID3D11ShaderResourceView> &rSRV, ui
 	case eComputeShader:
 		m_IMContent->CSSetShaderResources(startSlot, 1U, ppSRV);
 		break;
+	}
+}
+
+void D3DGraphic::SetStreamOut(const Ref<ID3D11Buffer> &rBuf, uint32_t offset)
+{
+	if (rBuf.Ptr() != m_PipelineState.StreamOut[0] || offset != m_PipelineState.StreamOutOffset[0])
+	{
+		m_PipelineState.StreamOut[0] = rBuf.Ptr();
+		m_PipelineState.StreamOutOffset[0] = offset;
+
+		m_FlushState[eFSStreamOut] = true;
 	}
 }
 
@@ -822,6 +888,11 @@ void D3DGraphic::FlushState()
 	{
 		m_IMContent->IASetPrimitiveTopology(m_PipelineState.PrimitiveTopology);
 		m_FlushState[eFSPrimitiveTopology] = false;
+	}
+
+	if (m_FlushState[eFSStreamOut])
+	{
+		m_IMContent->SOSetTargets(1U, m_PipelineState.StreamOut, m_PipelineState.StreamOutOffset);
 	}
 
 	/// VS->HS->DS->GS

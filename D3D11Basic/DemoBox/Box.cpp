@@ -1,7 +1,6 @@
 #include "Box.h"
-#include <RefCountPtr.h>
-#include <D3DGraphic.h>
-#include <Camera.h>
+#include "D3DGraphic.h"
+#include "Camera.h"
 
 #define UsingTexture
 

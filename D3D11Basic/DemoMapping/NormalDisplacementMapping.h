@@ -19,6 +19,6 @@ protected:
 
 	void InitGeometriesResource();
 private:
-	int m_MappingType = eNormalMap;
+	int32_t m_MappingType = eNormalMap;
 	bool m_bWireframe = false;
 };
