@@ -12,6 +12,8 @@
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="Object.cpp" />
+    <ClCompile Include="Map.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameApplication.h" />
@@ -22,6 +24,7 @@
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Engine.h" />
+    <ClInclude Include="Map.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Mario.rc">

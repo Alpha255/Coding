@@ -52,14 +52,17 @@ void Image::CreateAsBmp(const char *pFilePath)
 		::BITMAPINFOHEADER infoHeader{};
 		bmpFile.read((char*)&infoHeader, sizeof(::BITMAPINFOHEADER));
 
+		m_Width = infoHeader.biWidth;
+		m_Height = infoHeader.biHeight;
+
 		assert(infoHeader.biBitCount == 8); /// Not for common use ???
 
-		///::RGBQUAD rgb[256]{}; /// ???
-		///bmpFile.read((char *)rgb, sizeof(::RGBQUAD) * 256); /// ???
+		::RGBQUAD rgb[256]{}; /// ???
+		bmpFile.read((char *)rgb, sizeof(::RGBQUAD) * 256); /// ???
 
-		///LPBITMAPINFO lpBmpInfo = (LPBITMAPINFO)new BYTE[sizeof(BITMAPINFOHEADER) + sizeof(RGBQUAD) * 256]();
-		///memcpy(&lpBmpInfo->bmiHeader, &infoHeader, sizeof(BITMAPINFOHEADER));
-		///memcpy(lpBmpInfo->bmiColors, rgb, sizeof(RGBQUAD) * 256);
+		m_pBitmapInfo = (LPBITMAPINFO)new BYTE[sizeof(BITMAPINFOHEADER) + sizeof(RGBQUAD) * 256]();
+		memcpy(&m_pBitmapInfo->bmiHeader, &infoHeader, sizeof(BITMAPINFOHEADER));
+		memcpy(m_pBitmapInfo->bmiColors, rgb, sizeof(RGBQUAD) * 256);
 
 		bmpFile.seekg(fileHeader.bfOffBits, std::ios::beg);
 		uint32_t bytesPerLine = (infoHeader.biWidth * (infoHeader.biBitCount / 8) + 3) / 4 * 4; 

@@ -39,13 +39,28 @@ public:
 		eUpsidedown
 	};
 
+	struct Area
+	{
+		uint32_t Top = 0U;
+		uint32_t Left = 0U;
+		uint32_t Width = 0U;
+		uint32_t Height = 0U;
+	};
+
 	Object2D() = default;
-	~Object2D() = default;
+	virtual ~Object2D() = default;
+
+	Object2D(eType type);
 
 	inline virtual const class Image *GetImage() const
 	{
 		assert(m_Image);
 		return m_Image;
+	}
+
+	inline virtual const Area &GetArea() const
+	{
+		return m_Area;
 	}
 
 	inline void Move(eOrientation orientation, eMotion motion)
@@ -63,16 +78,10 @@ protected:
 	eOrientation m_Orientation = eLeft;
 	eMotion m_Motion = eNone;
 
-	struct Area
-	{
-		uint32_t Top = 0U;
-		uint32_t Left = 0U;
-		uint32_t Width = 0U;
-		uint32_t Height = 0U;
-	}m_Area;
+	Area m_Area;
 
-	Vec2 m_Velocity = {};
-	Vec2 m_Accelerate = {};
+	Vec2 m_Velocity = { 0.0f, 0.0f };
+	Vec2 m_Acceleration = { 0.0f, 0.0f };
 
 	const class Image *m_Image = nullptr;
 private:

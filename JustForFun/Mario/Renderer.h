@@ -22,7 +22,11 @@ public:
 
 	void Init(HWND hWnd, uint32_t width, uint32_t height);
 
-	void DrawImage(const class Image *pImage);
+	void Clear();
+
+	void Flip();
+
+	void DrawObject(const class Object2D *pObject);
 protected:
 private:
 #ifdef UseGDI
@@ -30,4 +34,7 @@ private:
 	::HDC m_DCCompatible = nullptr;
 	::HBITMAP m_BackBuffer = nullptr;
 #endif
+
+	uint32_t m_WindowWidth = 0U;
+	uint32_t m_WindowHeight = 0U;
 };
