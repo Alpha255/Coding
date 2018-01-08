@@ -446,6 +446,60 @@ void D3DGraphic::CreateRandomTexture1D(Ref<ID3D11ShaderResourceView> &rSRV)
 	CreateShaderResourceView(rSRV, tex.Ptr(), DXGI_FORMAT_R32G32B32A32_FLOAT, D3D11_SRV_DIMENSION_TEXTURE1D);
 }
 
+void D3DGraphic::CreateSamplerState(__out Ref<ID3D11SamplerState> &rSamplerState,
+	D3D11_FILTER filter,
+	D3D11_TEXTURE_ADDRESS_MODE addressMode,
+	float LODBias,
+	D3D11_COMPARISON_FUNC,
+	const Vec4 &borderClr,
+	float minLOD,
+	float maxLOD)
+{
+	assert(!rSamplerState.Valid());
+
+	D3D11_SAMPLER_DESC desc;
+	memset(&desc, 0, sizeof(D3D11_SAMPLER_DESC));
+	desc.Filter = filter;
+	desc.AddressU = desc.AddressV = desc.AddressW = addressMode;
+	desc.MipLODBias = LODBias;
+	desc.MaxAnisotropy = 0U;
+	desc.MinLOD = minLOD;
+	desc.MaxLOD = maxLOD;
+	memcpy(desc.BorderColor, &borderClr, sizeof(Vec4));
+
+	HRCheck(m_D3DDevice->CreateSamplerState(&desc, rSamplerState.Reference()));
+}
+
+void D3DGraphic::CreateBlendState(__out Ref<ID3D11BlendState> &rBlendState,
+	bool bBlend,
+	bool bAlphaToCoverage,
+	D3D11_BLEND srcColor,
+	D3D11_BLEND dstColor,
+	D3D11_BLEND_OP colorOp,
+	D3D11_BLEND srcAlpha,
+	D3D11_BLEND dstAlpha,
+	D3D11_BLEND_OP alphaOp,
+	D3D11_COLOR_WRITE_ENABLE writeMask)
+{
+	assert(!rBlendState.Valid());
+
+	D3D11_BLEND_DESC desc{ 0 };
+	desc.AlphaToCoverageEnable = bAlphaToCoverage;
+	desc.IndependentBlendEnable = false;
+	desc.RenderTarget[0].BlendEnable = bBlend;
+	desc.RenderTarget[0].SrcBlend = srcColor;
+	desc.RenderTarget[0].DestBlend = dstColor;
+	desc.RenderTarget[0].BlendOp = colorOp;
+	
+	desc.RenderTarget[0].SrcBlendAlpha = srcAlpha;
+	desc.RenderTarget[0].DestBlendAlpha = dstAlpha;
+	desc.RenderTarget[0].BlendOpAlpha = alphaOp;
+
+	desc.RenderTarget[0].RenderTargetWriteMask = (uint8_t)writeMask;
+
+	HRCheck(m_D3DDevice->CreateBlendState(&desc, rBlendState.Reference()));
+}
+
 void D3DGraphic::ResizeBackBuffer(uint32_t width, uint32_t height)
 {
 	if (!m_SwapChain.Valid())
@@ -856,6 +910,19 @@ void D3DGraphic::DrawQuad(float /*top*/, float /*left*/, float /*width*/, float 
 	assert(0);
 }
 
+void D3DGraphic::DrawAuto(D3D_PRIMITIVE_TOPOLOGY prim)
+{
+	if (m_PipelineState.PrimitiveTopology != prim)
+	{
+		m_PipelineState.PrimitiveTopology = prim;
+		m_FlushState[eFSPrimitiveTopology] = true;
+	}
+
+	FlushState();
+
+	m_IMContent->DrawAuto();
+}
+
 void D3DGraphic::FlushState()
 {
 	if (!m_IMContent.Valid())
@@ -868,6 +935,11 @@ void D3DGraphic::FlushState()
 	{
 		m_IMContent->IASetInputLayout(m_PipelineState.InputLayout);
 		m_FlushState[eFSInputLayout] = false;
+	}
+
+	if (m_FlushState[eFSStreamOut])
+	{
+		m_IMContent->SOSetTargets(1U, m_PipelineState.StreamOut, m_PipelineState.StreamOutOffset);
 	}
 
 	if (m_FlushState[eFSVertexBuffer])
@@ -888,11 +960,6 @@ void D3DGraphic::FlushState()
 	{
 		m_IMContent->IASetPrimitiveTopology(m_PipelineState.PrimitiveTopology);
 		m_FlushState[eFSPrimitiveTopology] = false;
-	}
-
-	if (m_FlushState[eFSStreamOut])
-	{
-		m_IMContent->SOSetTargets(1U, m_PipelineState.StreamOut, m_PipelineState.StreamOutOffset);
 	}
 
 	/// VS->HS->DS->GS

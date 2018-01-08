@@ -246,6 +246,26 @@ public:
 
 	void CreateRandomTexture1D(__out Ref<ID3D11ShaderResourceView> &rSRV);
 
+	void CreateSamplerState(__out Ref<ID3D11SamplerState> &rSamplerState, 
+		D3D11_FILTER filter, 
+		D3D11_TEXTURE_ADDRESS_MODE addressMode,
+		float LODBias = 0.0f,
+		D3D11_COMPARISON_FUNC = D3D11_COMPARISON_NEVER,
+		const Vec4 &borderClr = { 0.0f, 0.0f, 0.0f, 0.0f },
+		float minLOD = 0.0f,
+		float maxLOD = D3D11_FLOAT32_MAX);
+
+	void CreateBlendState(__out Ref<ID3D11BlendState> &rBlendState,
+		bool bBlend,
+		bool bAlphaToCoverage,
+		D3D11_BLEND srcColor,
+		D3D11_BLEND dstColor,
+		D3D11_BLEND_OP colorOp,
+		D3D11_BLEND srcAlpha, 
+		D3D11_BLEND dstAlpha,
+		D3D11_BLEND_OP alphaOp,
+		D3D11_COLOR_WRITE_ENABLE writeMask);
+
 
 	inline void ClearRenderTarget(const Ref<ID3D11RenderTargetView> &rRenderTarget, const float *pClearColor = nullptr)
 	{
@@ -334,13 +354,7 @@ public:
 	void Draw(uint32_t vertexCount, uint32_t startIndex, D3D_PRIMITIVE_TOPOLOGY prim = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	void DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, D3D_PRIMITIVE_TOPOLOGY prim = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	void DrawQuad(float x, float y, float width, float height);
-
-	inline void DrawAuto()
-	{
-		FlushState();
-
-		m_IMContent->DrawAuto();
-	}
+	void DrawAuto(D3D_PRIMITIVE_TOPOLOGY prim = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	inline ID3D11Device *GetDevice() const
 	{

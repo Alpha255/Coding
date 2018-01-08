@@ -100,6 +100,7 @@ struct VSOutput
 {
 	float3 Pos : Position;
 	float4 Clr : Color;	
+
 	float2 Size : Size;
 	uint Type : Type;
 };
@@ -135,34 +136,36 @@ void GSDraw(point VSOutput input[1], inout TriangleStream<GSOutput> triangleStre
 	/// do not draw emitter particles.
 	if (input[0].Type != Emitter)
 	{
-		// Compute world matrix so that billboard faces the camera.
-		float3 lookAt = normalize(EyePos.xyz - input[0].Pos);
-		float3 right = normalize(cross(float3(0.0f, 1.0f, 0.0f), lookAt));
-		float3 up = cross(lookAt, right);
+		return;
+	}
 
-		/// Compute triangle strip vertices (quad) in world space
-		float halfWidth = 0.5f * input[0].Size.x;
-		float halfHeight = 0.5f * input[0].Size.y;
+	/// Compute world matrix so that billboard faces the camera.
+	float3 lookAt = normalize(EyePos.xyz - input[0].Pos);
+	float3 right = normalize(cross(float3(0.0f, 1.0f, 0.0f), lookAt));
+	float3 up = cross(lookAt, right);
 
-		float4 v[4];
-		v[0] = float4(input[0].Pos + halfWidth * right - halfHeight * up, 1.0f);
-		v[1] = float4(input[0].Pos + halfWidth * right + halfHeight * up, 1.0f);
-		v[2] = float4(input[0].Pos - halfWidth * right - halfHeight * up, 1.0f);
-		v[3] = float4(input[0].Pos - halfWidth * right + halfHeight * up, 1.0f);
+	/// Compute triangle strip vertices (quad) in world space
+	float halfWidth = 0.5f * input[0].Size.x;
+	float halfHeight = 0.5f * input[0].Size.y;
 
-		// Transform quad vertices to world space and output them as a triangle strip.
-		GSOutput output;
+	float4 v[4];
+	v[0] = float4(input[0].Pos + halfWidth * right - halfHeight * up, 1.0f);
+	v[1] = float4(input[0].Pos + halfWidth * right + halfHeight * up, 1.0f);
+	v[2] = float4(input[0].Pos - halfWidth * right - halfHeight * up, 1.0f);
+	v[3] = float4(input[0].Pos - halfWidth * right + halfHeight * up, 1.0f);
 
-		[unroll]
-		for (int i = 0; i < 4; ++i)
-		{
-			output.Pos = mul(v[i], VP);
-			output.UV = g_QuadUV[i];
-			output.Clr = input[0].Clr;
+	// Transform quad vertices to world space and output them as a triangle strip.
+	GSOutput output;
 
-			triangleStream.Append(output);
-		}
-    }
+	[unroll]
+	for (int i = 0; i < 4; ++i)
+	{
+		output.Pos = mul(v[i], VP);
+		output.UV = g_QuadUV[i];
+		output.Clr = input[0].Clr;
+
+		triangleStream.Append(output);
+	}
 }
 
 float4 PSMain(GSOutput input) : SV_Target

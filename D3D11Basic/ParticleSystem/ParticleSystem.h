@@ -9,7 +9,7 @@ public:
 	{
 		eFire,
 		eRain,
-		eTypeCount = 1
+		eTypeCount
 	};
 
 	ParticleSystem() = default;
@@ -24,6 +24,11 @@ public:
 	{
 		assert(type < eTypeCount);
 		m_Type = type;
+	}
+
+	inline void EnableWireframe(bool bWireFrame)
+	{
+		m_bWireframe = bWireFrame;
 	}
 protected:
 private:
@@ -64,9 +69,22 @@ private:
 		Ref<ID3D11GeometryShader> GSDraw[eTypeCount];
 
 		Ref<ID3D11PixelShader> PixelShaders[eTypeCount];
+
+		Ref<ID3D11RasterizerState> Wireframe;
+		Ref<ID3D11RasterizerState> NullCulling;
+		
+		Ref<ID3D11BlendState> AlphaToCoverage;
+		Ref<ID3D11BlendState> Transparent;
+		Ref<ID3D11BlendState> AdditiveBlending;
+
+		Ref<ID3D11SamplerState> SamplerLinear;
+		
+		Ref<ID3D11DepthStencilState> DisableDepth;
+		Ref<ID3D11DepthStencilState> NoDepthWrites;
 	}m_Res;
 
 	eParticleType m_Type = eFire;
 
 	bool m_bInited = false;
+	bool m_bWireframe = false;
 };
