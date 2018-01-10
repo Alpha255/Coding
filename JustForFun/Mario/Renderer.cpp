@@ -35,8 +35,10 @@ void Renderer::Clear()
 
 void Renderer::Flip()
 {
+	static const uint32_t s_BackgroundClr = RGB(255, 60, 174);
+
 #ifdef UseGDI
-	::TransparentBlt(m_DC, 0, 0, m_WindowWidth, m_WindowHeight, m_DCCompatible, 0, 0, m_WindowWidth, m_WindowHeight, RGB(255, 60, 174));
+	::TransparentBlt(m_DC, 0, 0, m_WindowWidth, m_WindowHeight, m_DCCompatible, 0, 0, m_WindowWidth, m_WindowHeight, s_BackgroundClr);
 #else
 #endif
 }

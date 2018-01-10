@@ -4,7 +4,7 @@ INT WINAPI wWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPWSTR
 {
 	GameApplication Mario;
 
-	Mario.Startup(L"Mario");
+	Mario.Startup(L"Mario", 800U, 600U, true, WS_THICKFRAME ^ WS_MAXIMIZEBOX);
 
 	Mario.Running();
 

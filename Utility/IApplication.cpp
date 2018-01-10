@@ -14,7 +14,7 @@ IApplication::IApplication()
 {
 }
 
-void IApplication::MakeWindow(LPCWSTR lpTitle, uint32_t width, uint32_t height)
+void IApplication::MakeWindow(LPCWSTR lpTitle, uint32_t width, uint32_t height, uint32_t windowStyle)
 {
 	HINSTANCE hInst = ::GetModuleHandle(nullptr);
 	assert(hInst && lpTitle);
@@ -37,7 +37,7 @@ void IApplication::MakeWindow(LPCWSTR lpTitle, uint32_t width, uint32_t height)
 	{
 		RECT rect{ 0, 0, (long)width, (long)height };
 		AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, false);
-		m_hWnd = CreateWindow(lpTitle, lpTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
+		m_hWnd = CreateWindow(lpTitle, lpTitle, WS_OVERLAPPEDWINDOW ^ windowStyle, CW_USEDEFAULT, CW_USEDEFAULT,
 			rect.right - rect.left, rect.bottom - rect.top, 0, 0, hInst, nullptr);
 		assert(m_hWnd);
 
@@ -118,13 +118,13 @@ void IApplication::HandleInput(uint32_t msg, WPARAM wParam, LPARAM lParam)
 	}
 }
 
-void IApplication::Startup(LPCWSTR lpTitle, uint32_t width, uint32_t height, bool bWindowed)
+void IApplication::Startup(LPCWSTR lpTitle, uint32_t width, uint32_t height, bool bWindowed, uint32_t windowStyle)
 {
 	s_Application = this;
 
 	m_bWindowed = bWindowed;
 
-	MakeWindow(lpTitle, width, height);
+	MakeWindow(lpTitle, width, height, windowStyle);
 }
 
 void IApplication::Running()

@@ -29,11 +29,11 @@ public:
 
 	virtual void RenderToWindow() = 0;
 
-	void Startup(LPCWSTR lpTitle, uint32_t width = 800U, uint32_t height = 600U, bool bWindowed = true);
+	void Startup(LPCWSTR lpTitle, uint32_t width = 800U, uint32_t height = 600U, bool bWindowed = true, uint32_t windowStyle = 0U);
 	void Running();
 	void ShutDown() {}
 protected:
-	void MakeWindow(LPCWSTR lpTitle, uint32_t width, uint32_t height);
+	void MakeWindow(LPCWSTR lpTitle, uint32_t width, uint32_t height, uint32_t windowStyle);
 
 	HWND m_hWnd = nullptr;
 	int32_t m_LastMousePos[2] = { 0, 0 };
