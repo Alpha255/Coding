@@ -31,7 +31,7 @@ public:
 	void Update(float elapseTime, float totalTime);
 	void RenderScene();
 
-	void HandleInput(uint32_t msg, WPARAM lParam, LPARAM wParam);
+	void HandleInput(uint32_t msg, WPARAM wParam, LPARAM lParam);
 
 	inline const class Image *GetImage(uint32_t index) const
 	{
@@ -51,6 +51,8 @@ private:
 	static Engine *s_Instance;
 
 	class Renderer *m_Renderer = nullptr;
+
+	class Map *m_CurrentMap = nullptr;
 
 	std::vector<class Image *> m_Textures;
 	std::vector<class Object2D *> m_Objects;

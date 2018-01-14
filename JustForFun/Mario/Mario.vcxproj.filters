@@ -12,8 +12,9 @@
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Engine.cpp" />
-    <ClCompile Include="Object.cpp" />
     <ClCompile Include="Map.cpp" />
+    <ClCompile Include="Object2D.cpp" />
+    <ClCompile Include="Objects.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameApplication.h" />
@@ -22,9 +23,10 @@
     </ClInclude>
     <ClInclude Include="Image.h" />
     <ClInclude Include="Renderer.h" />
-    <ClInclude Include="Object.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Map.h" />
+    <ClInclude Include="Object2D.h" />
+    <ClInclude Include="Objects.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Mario.rc">
