@@ -33,6 +33,8 @@ public:
 
 	void HandleInput(uint32_t msg, WPARAM wParam, LPARAM lParam);
 
+	void Resize(uint32_t width, uint32_t height);
+
 	inline const class Image *GetImage(uint32_t index) const
 	{
 		assert(index < m_Textures.size());

@@ -57,8 +57,6 @@ private:
 
 	int32_t m_Left = 0U;
 
-	class Image *m_pImage = nullptr;
-
 	char *m_StaticMarks = nullptr;
 	char *m_DynamicMarks = nullptr;
 };

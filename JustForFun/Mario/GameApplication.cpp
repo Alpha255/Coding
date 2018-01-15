@@ -27,6 +27,11 @@ void GameApplication::RenderToWindow()
 	Engine::Instance().RenderScene();
 }
 
+void GameApplication::ResizeWindow(uint32_t width, uint32_t height)
+{
+	Engine::Instance().Resize(width, height);
+}
+
 GameApplication::~GameApplication()
 {
 	Engine::Destory();

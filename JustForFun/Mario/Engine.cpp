@@ -64,7 +64,7 @@ void Engine::DrawMap()
 	static const uint32_t s_InvertImageY = (s_MapObject.GetImage()->Height() - s_MapObjectH);
 
 	uint32_t min = m_CurrentMap->Left() / s_MapObjectW;
-	uint32_t max = min + 20U;
+	uint32_t max = min + 20U;  /// WindowWidth / s_MapObjectW
 	int32_t deltaLeft = m_CurrentMap->Left() - min * s_MapObjectW;
 
 	for (uint32_t i = 0U; i < m_CurrentMap->Height(); ++i)
@@ -167,6 +167,14 @@ void Engine::RenderScene()
 #endif
 
 	m_Renderer->Flip();
+}
+
+void Engine::Resize(uint32_t width, uint32_t height)
+{
+	if (m_Renderer)
+	{
+		m_Renderer->Resize(width, height);
+	}
 }
 
 Engine::~Engine()

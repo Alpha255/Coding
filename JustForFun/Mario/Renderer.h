@@ -34,6 +34,8 @@ public:
 
 	void Flip();
 
+	void Resize(uint32_t width, uint32_t height);
+
 	void DrawObject(const class Object2D *pObject);
 protected:
 private:
@@ -45,4 +47,5 @@ private:
 #endif
 
 	::RECT m_WindowRect = { 0L, 0L, 0L, 0L };
+	::RECT m_WindowRectResize = { 0L, 0L, 0L, 0L };
 };

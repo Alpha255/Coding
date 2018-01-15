@@ -56,13 +56,13 @@ public:
 
 	Object2D(eType type);
 
-	inline virtual const class Image *GetImage() const
+	inline const class Image *GetImage() const
 	{
 		assert(m_Image);
 		return m_Image;
 	}
 
-	inline virtual const Area &GetArea() const
+	inline const Area &GetArea() const
 	{
 		return m_Area;
 	}
@@ -83,7 +83,7 @@ public:
 		m_Area.ImageY = imageY;
 	}
 
-	void Update(float elapseTime);
+	void virtual Update(float /*elapseTime*/) {}
 
 	bool IsCollision(const Object2D &object);
 	bool IsCollision(const class Map &map);

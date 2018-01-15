@@ -7,8 +7,8 @@ void Renderer::Init(HWND hWnd, uint32_t width, uint32_t height)
 {
 	assert(hWnd && width && height);
 
-	m_WindowRect.right = width;
-	m_WindowRect.bottom = height;
+	m_WindowRect.right = m_WindowRectResize.right = width;
+	m_WindowRect.bottom = m_WindowRectResize.bottom = height;
 
 #if defined (UseGDI)
 	m_DC = ::GetDC(hWnd);
@@ -46,15 +46,28 @@ void Renderer::Clear()
 void Renderer::Flip()
 {
 #ifdef UseGDI
-	::BitBlt(
-		m_DC, 
-		m_WindowRect.left, 
-		m_WindowRect.top, 
-		m_WindowRect.right, 
-		m_WindowRect.bottom, 
-		m_DCCompatible, 
-		0, 
-		0, 
+	//::BitBlt(
+	//	m_DC, 
+	//	m_WindowRect.left, 
+	//	m_WindowRect.top, 
+	//	m_WindowRect.right, 
+	//	m_WindowRect.bottom, 
+	//	m_DCCompatible, 
+	//	0, 
+	//	0, 
+	//	SRCCOPY);
+
+	::StretchBlt(
+		m_DC,
+		m_WindowRectResize.left,
+		m_WindowRectResize.top,
+		m_WindowRectResize.right,
+		m_WindowRectResize.bottom,
+		m_DCCompatible,
+		m_WindowRect.left,
+		m_WindowRect.top,
+		m_WindowRect.right,
+		m_WindowRect.bottom,
 		SRCCOPY);
 #else
 #endif
@@ -97,4 +110,10 @@ void Renderer::DrawObject(const Object2D *pObject)
 		s_AlphaClr);
 #else
 #endif
+}
+
+void Renderer::Resize(uint32_t width, uint32_t height)
+{
+	m_WindowRectResize.right = width;
+	m_WindowRectResize.bottom = height;
 }
