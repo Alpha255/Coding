@@ -472,7 +472,6 @@ private:
 		ID3D11HullShader*        HullShader;
 		ID3D11DomainShader*      DomainShader;
 		ID3D11RasterizerState*   RasterizerState;
-		const D3D11_VIEWPORT*    Viewports;
 		const D3D11_RECT*        ScissorRects;
 		ID3D11PixelShader*       PixelShader;
 		ID3D11GeometryShader*    GeometryShader;

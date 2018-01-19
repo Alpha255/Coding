@@ -33,6 +33,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{E9CA
 		Application\Resource\Shaders\Scanner.hlsl = Application\Resource\Shaders\Scanner.hlsl
 		Application\Resource\Shaders\ShadowMap.hlsl = Application\Resource\Shaders\ShadowMap.hlsl
 		Application\Resource\Shaders\SkyBox.hlsl = Application\Resource\Shaders\SkyBox.hlsl
+		Application\Resource\Shaders\SkyDome.hlsl = Application\Resource\Shaders\SkyDome.hlsl
 		Application\Resource\Shaders\Stenciling.hlsl = Application\Resource\Shaders\Stenciling.hlsl
 		Application\Resource\Shaders\Tessellator_Common.hlsli = Application\Resource\Shaders\Tessellator_Common.hlsli
 		Application\Resource\Shaders\Tessellator_EdgeFactor.hlsl = Application\Resource\Shaders\Tessellator_EdgeFactor.hlsl
@@ -65,6 +66,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "App", "App", "{7715569A-AEE2-41E3-948F-C91D42E70933}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ParticleSystem", "D3D11Basic\ParticleSystem\ParticleSystem.vcxproj", "{B17FF1BE-AAF4-4EB2-83D0-95A1E03A1361}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OceanFFT", "Nvidia\OceanFFT\OceanFFT.vcxproj", "{E873CAAC-FFFD-4D1D-A2B5-3E62A8BA81D4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -186,6 +189,14 @@ Global
 		{B17FF1BE-AAF4-4EB2-83D0-95A1E03A1361}.Release|x64.Build.0 = Release|x64
 		{B17FF1BE-AAF4-4EB2-83D0-95A1E03A1361}.Release|x86.ActiveCfg = Release|Win32
 		{B17FF1BE-AAF4-4EB2-83D0-95A1E03A1361}.Release|x86.Build.0 = Release|Win32
+		{E873CAAC-FFFD-4D1D-A2B5-3E62A8BA81D4}.Debug|x64.ActiveCfg = Debug|x64
+		{E873CAAC-FFFD-4D1D-A2B5-3E62A8BA81D4}.Debug|x64.Build.0 = Debug|x64
+		{E873CAAC-FFFD-4D1D-A2B5-3E62A8BA81D4}.Debug|x86.ActiveCfg = Debug|Win32
+		{E873CAAC-FFFD-4D1D-A2B5-3E62A8BA81D4}.Debug|x86.Build.0 = Debug|Win32
+		{E873CAAC-FFFD-4D1D-A2B5-3E62A8BA81D4}.Release|x64.ActiveCfg = Release|x64
+		{E873CAAC-FFFD-4D1D-A2B5-3E62A8BA81D4}.Release|x64.Build.0 = Release|x64
+		{E873CAAC-FFFD-4D1D-A2B5-3E62A8BA81D4}.Release|x86.ActiveCfg = Release|Win32
+		{E873CAAC-FFFD-4D1D-A2B5-3E62A8BA81D4}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -205,5 +216,6 @@ Global
 		{41EC5845-1693-4FD4-9236-715CD1A5F805} = {7715569A-AEE2-41E3-948F-C91D42E70933}
 		{EAB653A1-BDBE-491E-92A1-8BB9276B6275} = {CA6219F3-92E9-4844-B1A3-6F0D8A448533}
 		{B17FF1BE-AAF4-4EB2-83D0-95A1E03A1361} = {7715569A-AEE2-41E3-948F-C91D42E70933}
+		{E873CAAC-FFFD-4D1D-A2B5-3E62A8BA81D4} = {97C76228-9E58-4085-8F5E-C9A1BD939BDC}
 	EndGlobalSection
 EndGlobal

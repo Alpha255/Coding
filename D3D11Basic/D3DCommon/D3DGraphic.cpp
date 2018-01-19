@@ -602,16 +602,14 @@ void D3DGraphic::SetViewports(const D3D11_VIEWPORT *pViewports, uint32_t count)
 {
 	assert(count <= 1U && "Unsupport yet!!!");
 
-	if (m_PipelineState.ViewportCount != count ||
-		m_PipelineState.Viewports != pViewports)
+	if (m_PipelineState.ViewportCount != count)
 	{
 		m_PipelineState.ViewportCount = count;
-		m_PipelineState.Viewports = pViewports;
-
-		memcpy(&m_DefaultViewport, pViewports, sizeof(D3D11_VIEWPORT));
-
-		m_FlushState[eFSViewports] = true;
 	}
+
+	memcpy(&m_DefaultViewport, pViewports, sizeof(D3D11_VIEWPORT));
+
+	m_FlushState[eFSViewports] = true;
 }
 
 void D3DGraphic::SetScissorRects(const D3D11_RECT *pRects, uint32_t count)
