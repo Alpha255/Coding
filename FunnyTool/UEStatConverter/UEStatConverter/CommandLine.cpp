@@ -5,6 +5,7 @@
 bool CommandLine::s_Inited = false;
 char CommandLine::s_InFileDir[MAX_PATH] = {};
 char CommandLine::s_OutFileDir[MAX_PATH] = {};
+std::vector<std::string> CommandLine::s_StatList;
 
 bool CommandLine::IsValidDir(const char *pDir)
 {
@@ -16,7 +17,7 @@ bool CommandLine::IsValidDir(const char *pDir)
 	{
 		bValid = true;
 	}
-	FindClose(fileHandle);
+	::FindClose(fileHandle);
 
 	return bValid;
 }
@@ -36,6 +37,22 @@ void CommandLine::Parse(uint32_t argc, const char **ppArgv)
 		{
 			strcpy_s(s_OutFileDir, ppArgv[i + 1]);
 			++i;
+		}
+		else if (0 == strcmp(ppArgv[i], "--StatList"))
+		{
+			++i;
+			while (i < argc)
+			{
+				if (strncmp(ppArgv[i], "--", 2U) != 0)
+				{
+					s_StatList.push_back(ppArgv[i]);
+				}
+				else
+				{
+					break;
+				}
+				++i;
+			}
 		}
 		else
 		{

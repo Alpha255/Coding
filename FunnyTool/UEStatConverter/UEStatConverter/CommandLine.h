@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <Windows.h>
 #include <assert.h>
+#include <vector>
 
 class CommandLine
 {
@@ -29,4 +30,5 @@ private:
 	static char s_InFileDir[MAX_PATH];
 	static char s_OutFileDir[MAX_PATH];
 	static bool s_Inited;
+	static std::vector<std::string> s_StatList;
 };

@@ -12,10 +12,7 @@ void Map::Create(const char *pFileName)
 	std::string filePath = Utility::ResourceFilePath(pFileName, Utility::eRawData);
 	std::ifstream mapFile(filePath, std::ios::in);
 
-	if (!mapFile.good())
-	{
-		assert(0);
-	}
+	assert(mapFile.good());
 
 	mapFile >> m_DarkBg;
 

@@ -1,5 +1,6 @@
 #include "StatFileConverter.h"
 #include "CommandLine.h"
+#include "StatFileReader.h"
 
 #include <iostream>
 
@@ -15,6 +16,11 @@ void StatFileConverter::BuildStatFileList()
 
 void StatFileConverter::DoConvert()
 {
+	typedef std::vector<std::pair<std::string, std::string>>::const_iterator itFile;
+	for (itFile it = m_FileList.begin(); it != m_FileList.end(); ++it)
+	{
+		StatFileReader reader(it->first.c_str());
+	}
 }
 
 void StatFileConverter::RecurveFileList(const char *pInFileDir, const char *pOutFileDir, bool bKeepSrcDir)
@@ -64,7 +70,7 @@ void StatFileConverter::RecurveFileList(const char *pInFileDir, const char *pOut
 			}
 		}
 
-		if (!FindNextFileA(hFileHandle, &findData))
+		if (!::FindNextFileA(hFileHandle, &findData))
 		{
 			break;
 		}

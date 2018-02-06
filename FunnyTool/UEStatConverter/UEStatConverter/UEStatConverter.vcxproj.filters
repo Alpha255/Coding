@@ -4,9 +4,11 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="CommandLine.cpp" />
     <ClCompile Include="StatFileConverter.cpp" />
+    <ClCompile Include="StatFileReader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommandLine.h" />
     <ClInclude Include="StatFileConverter.h" />
+    <ClInclude Include="StatFileReader.h" />
   </ItemGroup>
 </Project>
