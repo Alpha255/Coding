@@ -5,10 +5,12 @@
     <ClCompile Include="CommandLine.cpp" />
     <ClCompile Include="StatFileConverter.cpp" />
     <ClCompile Include="StatFile.cpp" />
+    <ClCompile Include="UName.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommandLine.h" />
     <ClInclude Include="StatFileConverter.h" />
     <ClInclude Include="StatFile.h" />
+    <ClInclude Include="UName.h" />
   </ItemGroup>
 </Project>

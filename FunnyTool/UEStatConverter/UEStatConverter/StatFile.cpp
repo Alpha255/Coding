@@ -1,5 +1,7 @@
 #include "StatFile.h"
 
+#include "UName.h"
+
 #include <assert.h>
 
 StatFile::StatFile(const char *pInFile)
@@ -103,6 +105,8 @@ void StatFile::ReadNameInfo(std::ifstream &inFileStream, StatMessage::NameInfo &
 	{
 		std::string name;
 		ReadString(inFileStream, name);
+
+		UName theUame(name.c_str());
 	}
 	else
 	{
@@ -120,11 +124,13 @@ void StatFile::ReadNamesAndMetaDataMsgs(std::ifstream &inFileStream)
 	/// Read NameInfo, build name-index map
 	inFileStream.seekg(m_Header.NameTableOffset, std::ios::beg);
 	StatMessage::NameInfo tempName;
-	ReadNameInfo(inFileStream, tempName);
+	for (uint32_t i = 0U; i < m_Header.NumNames; ++i)
+	{
+		ReadNameInfo(inFileStream, tempName);
+	}
 
 	/// Read StatMessages
 	inFileStream.seekg(m_Header.MetaDataMsgOffset, std::ios::beg);
-
 	m_StatMsgs.resize(m_Header.NumMetaDataMsgs);
 	for (uint32_t i = 0U; i < m_Header.NumMetaDataMsgs; ++i)
 	{
