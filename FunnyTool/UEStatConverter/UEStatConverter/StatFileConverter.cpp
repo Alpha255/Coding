@@ -1,6 +1,6 @@
 #include "StatFileConverter.h"
 #include "CommandLine.h"
-#include "StatFileReader.h"
+#include "StatFile.h"
 
 #include <iostream>
 
@@ -16,12 +16,10 @@ void StatFileConverter::BuildStatFileList()
 
 void StatFileConverter::DoConvert()
 {
-	///typedef std::vector<std::pair<std::string, std::string>>::const_iterator itFile;
 	typedef std::vector<std::string>::const_iterator itFile;
 	for (itFile it = m_FileList.begin(); it != m_FileList.end(); ++it)
 	{
-		///StatFileReader reader(it->first.c_str());
-		StatFileReader reader(it->c_str());
+		StatFile statFile(it->c_str());
 	}
 }
 
@@ -49,7 +47,6 @@ void StatFileConverter::RecurveFileList(const char *pInFileDir, const char *pOut
 			else
 			{
 				std::string fileName(findData.cFileName);
-				///size_t postFixPos = fileName.rfind(".ue4stats");
 				if (IsEndwithStr(fileName, ".ue4stats"))
 				{
 					std::string inFile(pInFileDir);
@@ -60,25 +57,6 @@ void StatFileConverter::RecurveFileList(const char *pInFileDir, const char *pOut
 
 					m_FileList.push_back(inFile);
 				}
-				///if (std::string::npos != postFixPos)
-				///{
-				///	std::string inFile(pInFileDir);
-				///	std::string outFileNameFix = inFile.substr(inFile.rfind('\\') + 1U);
-				///
-				///	inFile += '\\';
-				///	inFile += fileName;
-				///
-				///	std::string outFileName = fileName.substr(0U, postFixPos);
-				///	outFileName += '.';
-				///	outFileName += outFileNameFix;
-				///	///outFileName += ".csv";
-				///
-				///	std::string outFile = bKeepSrcDir ? pInFileDir : pOutFileDir;
-				///	outFile += '\\';
-				///	outFile += outFileName;
-				///
-				///	m_FileList.push_back(std::make_pair(inFile, outFile));
-				///}
 			}
 		}
 

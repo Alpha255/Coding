@@ -19,6 +19,5 @@ protected:
 		return (findPos != std::string::npos) && ((src.length() - findPos) == strlen(pTarget));
 	}
 private:
-	///std::vector<std::pair<std::string, std::string>> m_FileList;
 	std::vector<std::string> m_FileList;
 };

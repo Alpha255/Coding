@@ -1,8 +1,8 @@
-#include "StatFileReader.h"
+#include "StatFile.h"
 
 #include <assert.h>
 
-StatFileReader::StatFileReader(const char *pInFile)
+StatFile::StatFile(const char *pInFile)
 {
 	assert(pInFile);
 
@@ -21,9 +21,11 @@ StatFileReader::StatFileReader(const char *pInFile)
 	ReadNamesAndMetaDataMsgs(fileStream);
 
 	fileStream.close();
+
+	m_bReady = true;
 }
 
-bool StatFileReader::IsWithHeader(std::ifstream & inFileStream)
+bool StatFile::IsWithHeader(std::ifstream &inFileStream)
 {
 	uint32_t magic = 0U;
 	inFileStream.read((char*)&magic, sizeof(uint32_t));
@@ -54,10 +56,8 @@ bool StatFileReader::IsWithHeader(std::ifstream & inFileStream)
 	return bHeader;
 }
 
-void StatFileReader::ReadHeader(std::ifstream &inFileStream)
+void StatFile::ReadString(std::ifstream &inFileStream, std::string &outStr)
 {
-	inFileStream.read((char*)&m_Header.Version, sizeof(uint32_t));
-
 	int32_t saveNum = 0;
 	inFileStream.read((char*)&saveNum, sizeof(int32_t));
 	bool bLoadUCS2Char = saveNum < 0;
@@ -69,9 +69,16 @@ void StatFileReader::ReadHeader(std::ifstream &inFileStream)
 	size_t byte = bLoadUCS2Char ? sizeof(unsigned short) : sizeof(char);
 	char *pData = new char[saveNum * byte]();
 	inFileStream.read(pData, saveNum * byte);
-	m_Header.Platform = pData;
+	outStr = pData;
 	delete pData;
 	pData = nullptr;
+}
+
+void StatFile::ReadHeader(std::ifstream &inFileStream)
+{
+	inFileStream.read((char*)&m_Header.Version, sizeof(uint32_t));
+
+	ReadString(inFileStream, m_Header.Platform);
 
 	inFileStream.read((char*)&m_Header.FrameTableOffset, sizeof(uint64_t));
 	inFileStream.read((char*)&m_Header.NameTableOffset, sizeof(uint64_t));
@@ -84,11 +91,47 @@ void StatFileReader::ReadHeader(std::ifstream &inFileStream)
 	m_Header.RawStatFile = !!rawStatFile;
 }
 
-void StatFileReader::ReadNamesAndMetaDataMsgs(std::ifstream & inFileStream)
+void StatFile::ReadNameInfo(std::ifstream &inFileStream, StatMessage::NameInfo &outNameInfo)
 {
+	int32_t index = 0;
+	inFileStream.read((char*)&index, sizeof(int32_t));
 
+	int32_t number = 0;
+	inFileStream.read((char*)&number, sizeof(int32_t));
+
+	if (number & (eSendingName << (eShift + eStatShift)))
+	{
+		std::string name;
+		ReadString(inFileStream, name);
+	}
+	else
+	{
+
+	}
 }
 
-StatFileReader::~StatFileReader()
+void StatFile::ReadMessage(std::ifstream &inFileStream, StatMessage &outMsg)
+{
+	ReadNameInfo(inFileStream, outMsg.Name);
+}
+
+void StatFile::ReadNamesAndMetaDataMsgs(std::ifstream &inFileStream)
+{
+	/// Read NameInfo, build name-index map
+	inFileStream.seekg(m_Header.NameTableOffset, std::ios::beg);
+	StatMessage::NameInfo tempName;
+	ReadNameInfo(inFileStream, tempName);
+
+	/// Read StatMessages
+	inFileStream.seekg(m_Header.MetaDataMsgOffset, std::ios::beg);
+
+	m_StatMsgs.resize(m_Header.NumMetaDataMsgs);
+	for (uint32_t i = 0U; i < m_Header.NumMetaDataMsgs; ++i)
+	{
+		ReadMessage(inFileStream, m_StatMsgs[i]);
+	}
+}
+
+StatFile::~StatFile()
 {
 }

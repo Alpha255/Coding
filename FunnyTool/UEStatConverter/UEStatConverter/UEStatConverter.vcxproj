@@ -22,12 +22,12 @@
     <ClCompile Include="CommandLine.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="StatFileConverter.cpp" />
-    <ClCompile Include="StatFileReader.cpp" />
+    <ClCompile Include="StatFile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommandLine.h" />
     <ClInclude Include="StatFileConverter.h" />
-    <ClInclude Include="StatFileReader.h" />
+    <ClInclude Include="StatFile.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{67387DAD-62F7-4533-8A21-9FA3A28459CC}</ProjectGuid>
