@@ -5,8 +5,8 @@
 class StatFileConverter
 {
 public:
-	StatFileConverter() = default;
-	~StatFileConverter() = default;
+	StatFileConverter();
+	~StatFileConverter();
 
 	void BuildStatFileList();
 

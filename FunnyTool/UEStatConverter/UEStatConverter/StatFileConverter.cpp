@@ -1,8 +1,14 @@
 #include "StatFileConverter.h"
 #include "CommandLine.h"
 #include "StatFile.h"
+#include "UNameHashTable.h"
 
 #include <iostream>
+
+StatFileConverter::StatFileConverter()
+{
+	UNameHashTable::Instance()->InitGCRCTable();
+}
 
 void StatFileConverter::BuildStatFileList()
 {
@@ -65,4 +71,9 @@ void StatFileConverter::RecurveFileList(const char *pInFileDir, const char *pOut
 			break;
 		}
 	}
+}
+
+StatFileConverter::~StatFileConverter()
+{
+	UNameHashTable::Destory();
 }

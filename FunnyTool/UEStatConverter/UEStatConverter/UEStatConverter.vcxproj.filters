@@ -6,11 +6,18 @@
     <ClCompile Include="StatFileConverter.cpp" />
     <ClCompile Include="StatFile.cpp" />
     <ClCompile Include="UName.cpp" />
+    <ClCompile Include="UNameHashTable.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommandLine.h" />
     <ClInclude Include="StatFileConverter.h" />
     <ClInclude Include="StatFile.h" />
     <ClInclude Include="UName.h" />
+    <ClInclude Include="UCommon.h" />
+    <ClInclude Include="UNameHashTable.h" />
+    <ClInclude Include="UNameEnum.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="UnrealNames.inl" />
   </ItemGroup>
 </Project>
