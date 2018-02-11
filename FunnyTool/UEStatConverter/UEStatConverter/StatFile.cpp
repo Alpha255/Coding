@@ -4,7 +4,7 @@
 
 #include <assert.h>
 
-StatFile::StatFile(const char *pInFile)
+StatFile::StatFile(const char *pInFile, const std::vector<std::string> &statList)
 {
 	assert(pInFile);
 
@@ -20,7 +20,9 @@ StatFile::StatFile(const char *pInFile)
 	assert(m_Header.HasCompressedData());
 	assert(m_Header.Version >= eVersion);
 
-	ReadNamesAndMetaDataMsgs(fileStream);
+	ReadFramesInfo(fileStream);
+
+	ReadStats(fileStream);
 
 	fileStream.close();
 
@@ -93,69 +95,34 @@ void StatFile::ReadHeader(std::ifstream &inFileStream)
 	m_Header.RawStatFile = !!rawStatFile;
 }
 
-void StatFile::ReadNameInfo(std::ifstream &inFileStream, StatMessage::NameInfo &outNameInfo)
+void StatFile::ReadFramesInfo(std::ifstream &inFileStream)
 {
-	int32_t index = 0;
-	inFileStream.read((char*)&index, sizeof(int32_t));
+	inFileStream.seekg(m_Header.FrameTableOffset, std::ios::beg);
 
-	int32_t number = 0;
-	inFileStream.read((char*)&number, sizeof(int32_t));
+	int32_t frameNumber = 0;
+	inFileStream.read((char*)&frameNumber, sizeof(int32_t));
 
-	UName resultName;
-
-	if (number & (eSendingName << (eShift + eStartShift)))
+	for (int32_t i = 0; i < frameNumber; ++i)
 	{
-		std::string name;
-		ReadString(inFileStream, name);
 
-		resultName = UName(name.c_str());
-		m_NameIndexMap.insert(std::make_pair(index, resultName.GetComparisonIndex()));
-		number &= ~(eSendingName << (eShift + eStartShift));
+	}
+}
+
+void StatFile::ReadStats(std::ifstream &inFileStream)
+{
+	if (m_Header.RawStatFile)
+	{
+		ReadStatsRaw(inFileStream);
 	}
 	else
 	{
-		NameIndexMap::const_iterator itFind = m_NameIndexMap.find(index);
-		if (itFind != m_NameIndexMap.cend())
-		{
-			int32_t keyValue = itFind->second;
-			resultName = UName(keyValue, keyValue, 0);
-		}
-		else
-		{
-			assert(0);
-		}
+		ReadStatsRegular(inFileStream);
 	}
-
-	outNameInfo.Init(resultName.GetComparisonIndex(), resultName.GetNumber());
-	outNameInfo.SetNumber(number);
 }
 
-void StatFile::ReadMessage(std::ifstream &inFileStream, StatMessage &outMsg)
+void StatFile::ReadStatsRegular(std::ifstream &inFileStream)
 {
-	ReadNameInfo(inFileStream, outMsg.Name);
 
-	size_t dataSize = sizeof(StatMessage::StatData);
-
-	int x = 000;
-}
-
-void StatFile::ReadNamesAndMetaDataMsgs(std::ifstream &inFileStream)
-{
-	/// Read NameInfo, build name-index map
-	inFileStream.seekg(m_Header.NameTableOffset, std::ios::beg);
-	StatMessage::NameInfo tempName;
-	for (uint32_t i = 0U; i < m_Header.NumNames; ++i)
-	{
-		ReadNameInfo(inFileStream, tempName);
-	}
-
-	/// Read StatMessages
-	inFileStream.seekg(m_Header.MetaDataMsgOffset, std::ios::beg);
-	m_StatMsgs.resize(m_Header.NumMetaDataMsgs);
-	for (uint32_t i = 0U; i < m_Header.NumMetaDataMsgs; ++i)
-	{
-		ReadMessage(inFileStream, m_StatMsgs[i]);
-	}
 }
 
 StatFile::~StatFile()

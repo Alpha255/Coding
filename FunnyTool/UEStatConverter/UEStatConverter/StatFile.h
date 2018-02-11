@@ -4,12 +4,42 @@
 #include <vector>
 #include <unordered_map>
 #include <assert.h>
+#include <Windows.h>
 
 class StatFile
 {
 public:
-	StatFile(const char *pInFile);
+	enum eParticleType
+	{
+		eCascade,
+		ePopcornFX,
+		eParticleCount
+	};
+
+	enum eStatType
+	{
+		eDrawCalls,
+		eFrameTime,
+		eGPUTime,
+		eMemoryUsage,
+		eStatCount
+	};
+
+	struct StatsInfo
+	{
+		uint64_t Frame = 0U;
+		char Name[MAX_PATH] = {};
+		double Value = 0.0;
+	};
+
+	StatFile(const char *pInFile, const std::vector<std::string> &statList);
 	~StatFile();
+
+	const std::vector<StatsInfo> &GetStats(eParticleType particleType, eStatType eStat) const
+	{
+		assert(particleType < eParticleCount && eStat < eStatCount);
+		return m_Stats[particleType][eStat];
+	}
 protected:
 	enum eStatMagic : uint32_t
 	{
@@ -19,14 +49,6 @@ protected:
 		eMagicHeaderSwapped = 0x47382910,
 		eVersion = 6U,
 		eHasCompressedData = 4U
-	};
-
-	enum eStatMetaFlag
-	{
-		eSendingName = 0x40,
-		eShift = 0x07,
-		eStartShift = 0x09,
-		eDummyAlwaysOne = 1
 	};
 
 	struct StatHeader
@@ -51,71 +73,27 @@ protected:
 		}
 	};
 
-	struct StatMessage
+	struct StatFrameInfo
 	{
-		struct NameInfo
-		{
-			int32_t Index = 0;
-			int32_t Number = 0;
-
-			inline void Init(int32_t comparisonIndex, int32_t number, bool bHasMeta = false)
-			{
-				Index = comparisonIndex;
-				Number = number;
-
-				if (!bHasMeta)
-				{
-					assert(!(Number >> StatFile::eStartShift));
-					Number |= StatFile::eDummyAlwaysOne << (StatFile::eStartShift + StatFile::eShift);
-				}
-
-				assert(IsValid());
-			}
-
-			inline bool IsValid()
-			{
-				return (Number & (StatFile::eDummyAlwaysOne << (StatFile::eStartShift + StatFile::eShift))) && Index;
-			}
-
-			inline void SetNumber(int32_t inNum)
-			{
-				Number = inNum;
-			}
-		};
-
-		struct StatData
-		{
-			enum
-			{
-				eDataSize = 8,
-				eDataAlign = 8
-			};
-
-			template <size_t TSize = eDataSize, size_t TAlign = eDataAlign> struct __declspec(align(TAlign)) DataBuffer
-			{
-				uint8_t Mem[TSize] = {};
-			};
-
-			DataBuffer<> Mem;
-		};
-
-		StatData Data;
-		NameInfo Name;
+		int64_t FileOffset;
+		std::unordered_map<uint32_t, int64_t> ThreadCycles;
 	};
 
 	bool IsWithHeader(std::ifstream &inFileStream);
 	void ReadString(std::ifstream &inFileStream, std::string &outStr);
 	void ReadHeader(std::ifstream &inFileStream);
-	void ReadNameInfo(std::ifstream &inFileStream, StatMessage::NameInfo &outNameInfo);
-	void ReadMessage(std::ifstream &inFileStream, StatMessage &outMsg);
-	void ReadNamesAndMetaDataMsgs(std::ifstream &inFileStream);
+	void ReadFramesInfo(std::ifstream &inFileStream);
+	void ReadStats(std::ifstream &inFileStream);
+	void ReadStatsRaw(std::ifstream &/*inFileStream*/)
+	{
+		assert(0);
+	}
+	void ReadStatsRegular(std::ifstream &inFileStream);
 private:
 	bool m_bReady = false;
 	bool m_bByteSwapping = false;
 
 	StatHeader m_Header;
-	std::vector<StatMessage> m_StatMsgs;
 
-	typedef std::unordered_map<int32_t, int32_t> NameIndexMap;
-	NameIndexMap m_NameIndexMap;
+	std::vector<StatsInfo> m_Stats[eParticleCount][eStatCount];
 };

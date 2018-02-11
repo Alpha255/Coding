@@ -24,11 +24,23 @@ public:
 		assert(s_Inited);
 		return s_OutFileDir;
 	}
+
+	static inline const std::vector<std::string> &GetStatList()
+	{
+		assert(s_Inited);
+		return s_StatList;
+	}
+
+	static inline bool IsKeepFileInSrcDir()
+	{
+		return s_KeepFileInSrc;
+	}
 protected:
 	static bool IsValidDir(const char *pDir);
 private:
 	static char s_InFileDir[MAX_PATH];
 	static char s_OutFileDir[MAX_PATH];
 	static bool s_Inited;
+	static bool s_KeepFileInSrc;
 	static std::vector<std::string> s_StatList;
 };

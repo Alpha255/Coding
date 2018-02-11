@@ -1,18 +1,19 @@
 #pragma once
 
 #include <vector>
+#include <set>
 
 class StatFileConverter
 {
 public:
-	StatFileConverter();
-	~StatFileConverter();
+	StatFileConverter() = default;
+	~StatFileConverter() = default;
 
-	void BuildStatFileList();
+	void BuildStatFileList(const char *pInFileDir);
 
 	void DoConvert();
+	void DoTask(uint32_t startIndex, uint32_t endIndex);
 protected:
-	void RecurveFileList(const char *pInFileDir, const char *pOutFileDir, bool bKeepSrcDir);
 	inline bool IsEndwithStr(const std::string &src, const char *pTarget)
 	{
 		size_t findPos = src.rfind(pTarget);

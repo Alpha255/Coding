@@ -20,23 +20,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CommandLine.cpp" />
+    <ClCompile Include="CSVWriter.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="StatFileConverter.cpp" />
     <ClCompile Include="StatFile.cpp" />
-    <ClCompile Include="UName.cpp" />
-    <ClCompile Include="UNameHashTable.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommandLine.h" />
+    <ClInclude Include="CSVWriter.h" />
     <ClInclude Include="StatFileConverter.h" />
     <ClInclude Include="StatFile.h" />
-    <ClInclude Include="UCommon.h" />
-    <ClInclude Include="UName.h" />
-    <ClInclude Include="UNameEnum.h" />
-    <ClInclude Include="UNameHashTable.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="UnrealNames.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{67387DAD-62F7-4533-8A21-9FA3A28459CC}</ProjectGuid>

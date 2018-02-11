@@ -8,7 +8,7 @@ int main(int argc, const char *argv[])
 	CommandLine::Parse(argc, argv);
 
 	StatFileConverter converter;
-	converter.BuildStatFileList();
+	converter.BuildStatFileList(CommandLine::GetInFileDir());
 
 	converter.DoConvert();
 

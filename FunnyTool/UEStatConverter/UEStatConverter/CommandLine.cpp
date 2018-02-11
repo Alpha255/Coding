@@ -3,6 +3,7 @@
 #include <direct.h>
 
 bool CommandLine::s_Inited = false;
+bool CommandLine::s_KeepFileInSrc = false;
 char CommandLine::s_InFileDir[MAX_PATH] = {};
 char CommandLine::s_OutFileDir[MAX_PATH] = {};
 std::vector<std::string> CommandLine::s_StatList;
@@ -65,12 +66,13 @@ void CommandLine::Parse(uint32_t argc, const char **ppArgv)
 	if (0U == strnlen_s(s_OutFileDir, MAX_PATH))
 	{
 		strcpy_s(s_OutFileDir, s_InFileDir);
+		s_KeepFileInSrc = true;
 	}
-	else if (!IsValidDir(s_OutFileDir))
+	else
 	{
-		if (::_mkdir(s_OutFileDir) != 0)
+		if (0 == strcmp(s_InFileDir, s_OutFileDir))
 		{
-			assert(!"Failed to create file directory!!!!");
+			s_KeepFileInSrc = true;
 		}
 	}
 
