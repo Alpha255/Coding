@@ -3,6 +3,7 @@
 #include <fstream>
 #include <vector>
 #include <unordered_map>
+#include <assert.h>
 
 class StatFile
 {
@@ -24,7 +25,8 @@ protected:
 	{
 		eSendingName = 0x40,
 		eShift = 0x07,
-		eStatShift = 0x09
+		eStartShift = 0x09,
+		eDummyAlwaysOne = 1
 	};
 
 	struct StatHeader
@@ -55,7 +57,50 @@ protected:
 		{
 			int32_t Index = 0;
 			int32_t Number = 0;
-		}Name;
+
+			inline void Init(int32_t comparisonIndex, int32_t number, bool bHasMeta = false)
+			{
+				Index = comparisonIndex;
+				Number = number;
+
+				if (!bHasMeta)
+				{
+					assert(!(Number >> StatFile::eStartShift));
+					Number |= StatFile::eDummyAlwaysOne << (StatFile::eStartShift + StatFile::eShift);
+				}
+
+				assert(IsValid());
+			}
+
+			inline bool IsValid()
+			{
+				return (Number & (StatFile::eDummyAlwaysOne << (StatFile::eStartShift + StatFile::eShift))) && Index;
+			}
+
+			inline void SetNumber(int32_t inNum)
+			{
+				Number = inNum;
+			}
+		};
+
+		struct StatData
+		{
+			enum
+			{
+				eDataSize = 8,
+				eDataAlign = 8
+			};
+
+			template <size_t TSize = eDataSize, size_t TAlign = eDataAlign> struct __declspec(align(TAlign)) DataBuffer
+			{
+				uint8_t Mem[TSize] = {};
+			};
+
+			DataBuffer<> Mem;
+		};
+
+		StatData Data;
+		NameInfo Name;
 	};
 
 	bool IsWithHeader(std::ifstream &inFileStream);
@@ -70,5 +115,7 @@ private:
 
 	StatHeader m_Header;
 	std::vector<StatMessage> m_StatMsgs;
-	std::unordered_map<int32_t, int32_t> m_NameIndexMap;
+
+	typedef std::unordered_map<int32_t, int32_t> NameIndexMap;
+	NameIndexMap m_NameIndexMap;
 };

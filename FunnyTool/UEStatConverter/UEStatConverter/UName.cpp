@@ -9,9 +9,9 @@
 
 #define NameExternalToInternal(x) (x + 1)
 
-UName::UName(const char *pInName, int32_t inNum, eFindName eType, bool bSplitName, int32_t hardcodeIndex)
+UName::UName(const char *pInName, int32_t inNum, eAction eAct, bool bSplitName, int32_t hardcodeIndex)
 {
-	Init(pInName, inNum, eType, bSplitName, hardcodeIndex);
+	Init(pInName, inNum, eAct, bSplitName, hardcodeIndex);
 }
 
 UName::UName(eUNameEnum hardcodeIndex, const char *pName)
@@ -19,16 +19,18 @@ UName::UName(eUNameEnum hardcodeIndex, const char *pName)
 	Init(pName, 0, eAdd, false, hardcodeIndex);
 }
 
-void UName::Init(const char *pInName, int32_t inNum, eFindName eType, bool bSplitName, int32_t hardcodeIndex)
+void UName::Init(const char *pInName, int32_t inNum, eAction eAct, bool bSplitName, int32_t hardcodeIndex)
 {
 	char temp[UNameHashTable::eNameSize] = {};
 	int32_t tempNum = 0;
 
 	if (inNum == 0 && bSplitName)
 	{
-		SplitName(pInName, temp, UNameHashTable::eNameSize, tempNum);
-		pInName = temp;
-		inNum = NameExternalToInternal(tempNum);
+		if (SplitName(pInName, temp, UNameHashTable::eNameSize, tempNum))
+		{
+			pInName = temp;
+			inNum = NameExternalToInternal(tempNum);
+		}
 	}
 
 	if (!pInName[0])
@@ -44,7 +46,7 @@ void UName::Init(const char *pInName, int32_t inNum, eFindName eType, bool bSpli
 	const uint16_t casePreservingHash = GetCasePreservingHash(pInName);
 	int32_t comparisonIndex = hardcodeIndex;
 	int32_t displayIndex = hardcodeIndex;
-	bool bFound = UNameHashTable::Instance()->RegisterUName(pInName, eType, hardcodeIndex, nonCasePreservingHash, casePreservingHash, comparisonIndex, displayIndex);
+	bool bFound = UNameHashTable::Instance()->RegisterUName(pInName, eAct, hardcodeIndex, nonCasePreservingHash, casePreservingHash, comparisonIndex, displayIndex);
 	if (bFound)
 	{
 		m_ComparisonIndex = comparisonIndex;

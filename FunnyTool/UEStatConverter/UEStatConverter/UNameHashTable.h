@@ -44,9 +44,9 @@ public:
 
 	void InitGCRCTable();
 
-	bool RegisterUName(const char *pInName, UName::eFindName findType, int32_t hardcodeIndex, 
+	bool RegisterUName(const char *pInName, UName::eAction eAct, int32_t hardcodeIndex,
 		uint16_t nonCasePreservingHash, uint16_t casePreservingHash, int32_t &outComparisonIndex, int32_t &outDisplayIndex);
-	bool FindOrAddUNameEntry(const char *pInName, UName::eFindName findType, eComparisonMode mode, uint16_t hash, int32_t &outIndex);
+	bool FindOrAddUNameEntry(const char *pInName, UName::eAction eAct, eComparisonMode mode, uint16_t hash, int32_t &outIndex);
 protected:
 	struct UNameEntry
 	{
@@ -55,15 +55,16 @@ protected:
 		char AnsiName[eNameSize] = {};
 	};
 
-	template <uint32_t TMaxElems, uint32_t TElemsPerChunk> struct NameEntryArray
+	template <int32_t TMaxElems, int32_t TElemsPerChunk> struct NameEntryArray
 	{
-		int32_t ExpandChunk(int32_t numToAdd)
+		int32_t ExpandChunks(int32_t numToAdd)
 		{
 			assert(NumElems + numToAdd <= TMaxElems);
+			int32_t result = NumElems;
 
-			uint32_t newSize = NumElems + numToAdd - 1;
-			assert(newSize >= 0 && newSize < TMaxElems);
-			uint32_t chunkIndex = newSize / TElemsPerChunk;
+			int32_t index = NumElems + numToAdd - 1;
+			assert(index >= 0 && index < TMaxElems);
+			int32_t chunkIndex = index / TElemsPerChunk;
 			
 			while (true)
 			{
@@ -72,41 +73,27 @@ protected:
 					break;
 				}
 
-				UNameEntry ***pppChunk = &Chunk[chunkIndex];
-				UNameEntry **ppNewChunk = new UNameEntry*[sizeof(UNameEntry*) * TElemsPerChunk]();
-#ifdef _X64
-				if (::_InterlockedCompareExchange64((int64_t volatile *)pppChunk, (int64_t)ppNewChunk, (int64_t)nullptr))
-#else
-				if (::_InterlockedCompareExchange((long volatile *)pppChunk, (long)ppNewChunk, nullptr)
-#endif
-				{
-					assert(0);
-				}
-				else
-				{
-					++NumChunk;
-				}
+				assert(Chunks[chunkIndex] == nullptr);
+				Chunks[chunkIndex] = new UNameEntry*[TElemsPerChunk]();
+				++NumChunk;
 			}
 
-			assert(chunkIndex < NumChunk && Chunk[chunkIndex]);
+			assert(chunkIndex < NumChunk && Chunks[chunkIndex]);
 
-			int32_t result = NumElems;
 			NumElems += numToAdd;
 			return result;
 		}
 
-		UNameEntry const* const& operator[](int32_t index) const
+		UNameEntry* & operator[](int32_t index)
 		{
 			int32_t chunkIndex = index / TElemsPerChunk;
 			int32_t withinChunkIndex = index % TElemsPerChunk;
-			assert(index < NumChunk && index >= 0);
-			assert(chunkIndex < NumChunk);
-			assert(index < TMaxElems);
+			assert(index < NumElems && index >= 0 && chunkIndex < NumChunk && index < TMaxElems);
 
-			UNameEntry **ppEntry = Chunk[chunkIndex];
+			UNameEntry **ppEntry = Chunks[chunkIndex];
 			assert(ppEntry);
 
-			UNameEntry const* const* ppResult = ppEntry + withinChunkIndex;
+			UNameEntry **ppResult = ppEntry + withinChunkIndex;
 			assert(ppResult);
 
 			return *ppResult;
@@ -117,13 +104,13 @@ protected:
 			eChunkSize = (TMaxElems + TElemsPerChunk - 1) / TElemsPerChunk
 		};
 
-		UNameEntry **Chunk[eChunkSize] = {};
+		UNameEntry **Chunks[eChunkSize] = {};
 
 		int32_t NumElems = 0;
 		int32_t NumChunk = 0;
 	};
 
-	typedef NameEntryArray<2U * 1024U * 1024U, 16384U> TNameEntryArray;
+	typedef NameEntryArray<2 * 1024 * 1024, 16384> TNameEntryArray;
 
 	UNameHashTable() = default;
 	~UNameHashTable() = default;

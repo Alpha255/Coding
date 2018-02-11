@@ -8,7 +8,7 @@ void UNameHashTable::InitGCRCTable()
 	assert(!m_bInited);
 	assert((eNameHashBucketCount & (eNameHashBucketCount - 1)) == 0);
 
-	m_TNameEntryArray.ExpandChunk(eMaxHardcodedNameIndex + 1);
+	m_TNameEntryArray.ExpandChunks(eMaxHardcodedNameIndex + 1);
 
 	/// Register all hardcoded names.
 #define RegisterName(num, nameStr) UName Temp_##nameStr(eUNameEnum(num), (#nameStr));
@@ -18,19 +18,35 @@ void UNameHashTable::InitGCRCTable()
 	m_bInited = true;
 }
 
-bool UNameHashTable::RegisterUName(const char *pInName, UName::eFindName findType, int32_t hardcodeIndex,
+bool UNameHashTable::RegisterUName(const char *pInName, UName::eAction eAct, int32_t hardcodeIndex,
 	uint16_t nonCasePreservingHash, uint16_t casePreservingHash, int32_t &outComparisonIndex, int32_t &outDisplayIndex)
 {
 	assert(pInName);
 
-	bool bFound = FindOrAddUNameEntry(pInName, findType, eIgnoreCase, nonCasePreservingHash, outComparisonIndex);
+	bool bFound = FindOrAddUNameEntry(pInName, eAct, eIgnoreCase, nonCasePreservingHash, outComparisonIndex);
+
+	if (bFound && hardcodeIndex < 0)
+	{
+		const UNameEntry *pEntry = m_TNameEntryArray[outComparisonIndex];
+		if (strcmp(pInName, pEntry->AnsiName) != 0)
+		{
+			if (!FindOrAddUNameEntry(pInName, eAct, eCaseSensitive, casePreservingHash, outDisplayIndex))
+			{
+				outDisplayIndex = outComparisonIndex;
+			}
+		}
+		else
+		{
+			outDisplayIndex = outComparisonIndex;
+		}
+	}
 
 	outDisplayIndex = outComparisonIndex;
 
 	return bFound;
 }
 
-bool UNameHashTable::FindOrAddUNameEntry(const char *pInName, UName::eFindName findType, eComparisonMode mode, uint16_t hash, int32_t &outIndex)
+bool UNameHashTable::FindOrAddUNameEntry(const char *pInName, UName::eAction eAct, eComparisonMode mode, uint16_t hash, int32_t &outIndex)
 {
 	if (outIndex < 0)
 	{
@@ -38,12 +54,12 @@ bool UNameHashTable::FindOrAddUNameEntry(const char *pInName, UName::eFindName f
 		{
 			::_mm_prefetch((char const*)(pEntry->HashNext), _MM_HINT_T0);
 
-			bool bEqual = (mode == eIgnoreCase) ? (stricmp(pInName, pEntry->AnsiName) == 0) : (strcmp(pInName, pEntry->AnsiName) == 0);
+			bool bEqual = (mode == eIgnoreCase) ? (_stricmp(pInName, pEntry->AnsiName) == 0) : (strcmp(pInName, pEntry->AnsiName) == 0);
 			if (bEqual)
 			{
 				outIndex = pEntry->Index;
 
-				if (findType == UName::eReplace)
+				if (eAct == UName::eReplace)
 				{
 					assert(strlen(pInName) == strlen(pEntry->AnsiName));
 					strcpy_s(pEntry->AnsiName, pInName);
@@ -54,7 +70,7 @@ bool UNameHashTable::FindOrAddUNameEntry(const char *pInName, UName::eFindName f
 			}
 		}
 
-		if (findType == UName::eFind)
+		if (eAct == UName::eFind)
 		{
 			return false;
 		}
@@ -62,54 +78,31 @@ bool UNameHashTable::FindOrAddUNameEntry(const char *pInName, UName::eFindName f
 
 	if (outIndex < 0)
 	{
-		outIndex = m_TNameEntryArray.ExpandChunk(1);
+		outIndex = m_TNameEntryArray.ExpandChunks(1);
 	}
 	else
 	{
 		assert(outIndex < m_TNameEntryArray.NumElems);
 	}
 
+	assert(m_TNameEntryArray[outIndex] == nullptr);
 	UNameEntry *pNewEntry = MakeNameEntry(pInName, outIndex);
-
-#ifdef _X64
-	if (::_InterlockedCompareExchange64((int64_t volatile *)&m_TNameEntryArray[outIndex], (int64_t)pNewEntry, (int64_t)nullptr) != 0L)
-#else
-	if (::_InterlockedCompareExchange((long volatile *)&pppChunk, (long)ppNewChunk, nullptr)
-#endif
-	{
-		assert(0);
-	}
+	m_TNameEntryArray[outIndex] = pNewEntry;
 
 	UNameEntry *pOldHashHead = m_NameHashHead[hash];
 	UNameEntry *pOldHashTail = m_NameHashTail[hash];
 	if (!pOldHashHead)
 	{
-		assert(!pOldHashTail);
+		assert(!pOldHashTail && m_NameHashHead[hash] == pOldHashHead);
 
-#ifdef _X64
-		if (::_InterlockedCompareExchange64((int64_t volatile *)&m_NameHashHead[outIndex], (int64_t)pNewEntry, (int64_t)pOldHashHead) != (int64_t)pOldHashHead)
-#else
-		if (::_InterlockedCompareExchange((long volatile *)pppChunk, (long)ppNewChunk, nullptr)
-#endif
-		{
-			assert(0);
-		}
-
+		m_NameHashHead[hash] = pNewEntry;
 		m_NameHashTail[hash] = pNewEntry;
 	}
 	else
 	{
-		assert(pOldHashTail);
+		assert(pOldHashTail && pOldHashTail->HashNext == nullptr);
 
-#ifdef _X64
-		if (::_InterlockedCompareExchange64((int64_t volatile *)&pOldHashTail->HashNext[outIndex], (int64_t)pNewEntry, (int64_t)nullptr) != (int64_t)nullptr)
-#else
-		if (::_InterlockedCompareExchange((long volatile *)pppChunk, (long)ppNewChunk, nullptr)
-#endif
-		{
-			assert(0);
-		}
-
+		pOldHashTail->HashNext = pNewEntry;
 		m_NameHashTail[hash] = pNewEntry;
 	}
 
@@ -122,14 +115,8 @@ UNameHashTable::UNameEntry *UNameHashTable::MakeNameEntry(const char *pName, int
 	UNameEntry *pNewEntry = new UNameEntry();
 	assert(pNewEntry);
 
-	_InterlockedExchange((long*)&pNewEntry->Index, (index << 1) | 0);
-
-#ifdef _X64
-	::_InterlockedExchange64((int64_t*)(&pNewEntry->HashNext), (int64_t)(nullptr));
-#else
-	::_InterlockedExchange((long*)(&pNewEntry->HashNext), (long)(nullptr));
-#endif
-
+	pNewEntry->Index = (index << 1) | 0;
+	pNewEntry->HashNext = nullptr;
 	strcpy_s(pNewEntry->AnsiName, pName);
 
 	return pNewEntry;

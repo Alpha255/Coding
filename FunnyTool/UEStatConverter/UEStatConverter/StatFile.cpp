@@ -101,22 +101,42 @@ void StatFile::ReadNameInfo(std::ifstream &inFileStream, StatMessage::NameInfo &
 	int32_t number = 0;
 	inFileStream.read((char*)&number, sizeof(int32_t));
 
-	if (number & (eSendingName << (eShift + eStatShift)))
+	UName resultName;
+
+	if (number & (eSendingName << (eShift + eStartShift)))
 	{
 		std::string name;
 		ReadString(inFileStream, name);
 
-		UName theUame(name.c_str());
+		resultName = UName(name.c_str());
+		m_NameIndexMap.insert(std::make_pair(index, resultName.GetComparisonIndex()));
+		number &= ~(eSendingName << (eShift + eStartShift));
 	}
 	else
 	{
-
+		NameIndexMap::const_iterator itFind = m_NameIndexMap.find(index);
+		if (itFind != m_NameIndexMap.cend())
+		{
+			int32_t keyValue = itFind->second;
+			resultName = UName(keyValue, keyValue, 0);
+		}
+		else
+		{
+			assert(0);
+		}
 	}
+
+	outNameInfo.Init(resultName.GetComparisonIndex(), resultName.GetNumber());
+	outNameInfo.SetNumber(number);
 }
 
 void StatFile::ReadMessage(std::ifstream &inFileStream, StatMessage &outMsg)
 {
 	ReadNameInfo(inFileStream, outMsg.Name);
+
+	size_t dataSize = sizeof(StatMessage::StatData);
+
+	int x = 000;
 }
 
 void StatFile::ReadNamesAndMetaDataMsgs(std::ifstream &inFileStream)
