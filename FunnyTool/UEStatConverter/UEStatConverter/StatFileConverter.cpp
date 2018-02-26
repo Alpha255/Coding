@@ -6,6 +6,7 @@
 #include <iostream>
 #include <thread>
 #include <direct.h>
+#include <mutex>
 
 void CreateSubDir(const char *pSubDir)
 {
@@ -73,9 +74,10 @@ void StatFileConverter::BuildStatFileList(const char *pInFileDir)
 
 void StatFileConverter::DoConvert()
 {
-	::SYSTEM_INFO sysInfo = {};
-	::GetSystemInfo(&sysInfo);
-	uint32_t threadNum = sysInfo.dwNumberOfProcessors;
+	///::SYSTEM_INFO sysInfo = {};
+	///::GetSystemInfo(&sysInfo);
+	///uint32_t threadNum = sysInfo.dwNumberOfProcessors;
+	uint32_t threadNum = std::thread::hardware_concurrency() - 1; /// minus main thread
 	uint32_t totalFileNum = (uint32_t)m_FileList.size();
 	uint32_t fileNumPerThread = totalFileNum / threadNum;
 
@@ -92,8 +94,10 @@ void StatFileConverter::DoConvert()
 
 void StatFileConverter::DoTask(uint32_t startIndex, uint32_t endIndex)
 {
+	static std::mutex mx;
 	for (uint32_t i = startIndex; i < endIndex; ++i)
 	{
+		std::lock_guard<std::mutex> lock(mx);
 		StatFile statFile(m_FileList.at(i).c_str(), CommandLine::GetStatList());
 		///CSVWriter writer("test.csv");
 		///writer.WriteRow("Frame, Name, Value\n");

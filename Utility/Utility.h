@@ -2,6 +2,7 @@
 
 #include "Common.h"
 #include <string>
+#include <vector>
 
 NamespaceBegin(Utility)
 
@@ -20,5 +21,11 @@ enum eResourceType
 std::string ResourceFileDirectory(eResourceType resType);
 
 std::string ResourceFilePath(const char *pFileName, eResourceType resType);
+
+bool IsStrEndwith(const std::string &srcStr, const char *pPostfix);
+
+void GetFileListFromDirectory(std::vector<std::string> &outFileList, const char *pTargetDir, const char *pFilter = nullptr);
+
+bool IsValidDirectory(const char *pTargetDir);
 
 NamespaceEnd(Utility)

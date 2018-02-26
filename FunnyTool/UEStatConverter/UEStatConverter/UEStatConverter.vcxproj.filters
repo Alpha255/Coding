@@ -12,5 +12,6 @@
     <ClInclude Include="StatFileConverter.h" />
     <ClInclude Include="StatFile.h" />
     <ClInclude Include="CSVWriter.h" />
+    <ClInclude Include="threadsafe_stack.h" />
   </ItemGroup>
 </Project>

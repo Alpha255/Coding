@@ -30,6 +30,7 @@
     <ClInclude Include="CSVWriter.h" />
     <ClInclude Include="StatFileConverter.h" />
     <ClInclude Include="StatFile.h" />
+    <ClInclude Include="threadsafe_stack.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{67387DAD-62F7-4533-8A21-9FA3A28459CC}</ProjectGuid>
