@@ -74,10 +74,10 @@ void GetFileListFromDirectory(std::vector<std::string> &outFileList, const char 
 				{
 					outFileList.push_back(fileNameFull);
 				}
-				else
-				{
-					outFileList.push_back(fileNameFull);
-				}
+				///else
+				///{
+				///	outFileList.push_back(fileNameFull);
+				///}
 			}
 		}
 

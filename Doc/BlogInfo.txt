@@ -17,3 +17,5 @@ http://www.humus.name/?page=3D&ID=61
 https://forums.ubi.com/showthread.php/737860-what-is-alpha-to-coverage-and-does-it-work-on-dx9-Forums
 
 https://plot.ly
+
+http://www.codinglabs.net/article_world_view_projection_matrix.aspx

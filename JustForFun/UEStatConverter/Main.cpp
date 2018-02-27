@@ -8,7 +8,7 @@ int main(int argc, const char *argv[])
 	StatFileConverter converter;
 	converter.DoConvert();
 
-	system("pause");
+	///system("pause");
 
 	return 0;
 }

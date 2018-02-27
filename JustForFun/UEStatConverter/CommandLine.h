@@ -24,9 +24,16 @@ public:
 		assert(s_Inited);
 		return s_OutFileDir;
 	}
+
+	static inline const char *GetUERootDir()
+	{
+		assert(s_Inited);
+		return s_UERootDir;
+	}
 protected:
 private:
 	static char s_InFileDir[MAX_PATH];
 	static char s_OutFileDir[MAX_PATH];
+	static char s_UERootDir[MAX_PATH];
 	static bool s_Inited;
 };
