@@ -19,8 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AdaptiveLock.h" />
     <ClInclude Include="Common.h" />
+    <ClInclude Include="Event.h" />
     <ClInclude Include="IApplication.h" />
+    <ClInclude Include="IThread.h" />
     <ClInclude Include="RefCountPtr.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Utility.h" />
