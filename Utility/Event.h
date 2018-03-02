@@ -5,10 +5,6 @@
 class Event
 {
 public:
-	inline Event()
-	{
-	}
-
 	inline Event(bool bManualReset, bool bInitialState)
 	{
 		m_Handle = ::CreateEventA(nullptr, bManualReset, bInitialState, nullptr);
