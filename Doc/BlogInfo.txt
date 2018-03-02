@@ -19,3 +19,5 @@ https://forums.ubi.com/showthread.php/737860-what-is-alpha-to-coverage-and-does-
 https://plot.ly
 
 http://www.codinglabs.net/article_world_view_projection_matrix.aspx
+
+https://github.com/RichieSams/FiberTaskingLib
