@@ -12,6 +12,7 @@ https://github.com/sumatrapdfreader/sumatrapdf
 https://github.com/google/VoltAir
 https://github.com/GameTechDev/OcclusionCulling.git
 https://github.com/JoeyDeVries/LearnOpenGL.git
+https://github.com/Microsoft/DirectXShaderCompiler.git
 
 https://plot.ly
 
