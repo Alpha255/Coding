@@ -7,12 +7,13 @@ http://www.humus.name/?page=3D&ID=61
 https://forums.ubi.com/showthread.php/737860-what-is-alpha-to-coverage-and-does-it-work-on-dx9-Forums
 http://www.codinglabs.net/article_world_view_projection_matrix.aspx
 
-https://github.com/RichieSams/FiberTaskingLib
-https://github.com/sumatrapdfreader/sumatrapdf
-https://github.com/google/VoltAir
+https://github.com/RichieSams/FiberTaskingLib.git
+https://github.com/sumatrapdfreader/sumatrapdf.git
+https://github.com/google/VoltAir.git
 https://github.com/GameTechDev/OcclusionCulling.git
 https://github.com/JoeyDeVries/LearnOpenGL.git
 https://github.com/Microsoft/DirectXShaderCompiler.git
+https://github.com/paroj/nv_dds.git
 
 https://plot.ly
 
