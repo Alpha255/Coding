@@ -26,6 +26,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{E9CA
 		Application\Resource\Shaders\Fxaa.hlsl = Application\Resource\Shaders\Fxaa.hlsl
 		Application\Resource\Shaders\imGUI.hlsl = Application\Resource\Shaders\imGUI.hlsl
 		Application\Resource\Shaders\Lighting.hlsl = Application\Resource\Shaders\Lighting.hlsl
+		Application\Resource\Shaders\LightingBasic.hlsl = Application\Resource\Shaders\LightingBasic.hlsl
 		Application\Resource\Shaders\Mapping.hlsl = Application\Resource\Shaders\Mapping.hlsl
 		Application\Resource\Shaders\ParticleFire.hlsl = Application\Resource\Shaders\ParticleFire.hlsl
 		Application\Resource\Shaders\ParticleRain.hlsl = Application\Resource\Shaders\ParticleRain.hlsl
@@ -70,6 +71,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OceanFFT", "Nvidia\OceanFFT\OceanFFT.vcxproj", "{E873CAAC-FFFD-4D1D-A2B5-3E62A8BA81D4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WIP", "WIP", "{DA5CED55-2BF6-40D7-9A3B-AD6DC0FC6D5A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightingBasic", "D3D11Basic\LightingBasic\LightingBasic.vcxproj", "{D4351FD3-7B4B-472A-A1E2-E91EE04169F5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -199,6 +202,14 @@ Global
 		{E873CAAC-FFFD-4D1D-A2B5-3E62A8BA81D4}.Release|x64.Build.0 = Release|x64
 		{E873CAAC-FFFD-4D1D-A2B5-3E62A8BA81D4}.Release|x86.ActiveCfg = Release|Win32
 		{E873CAAC-FFFD-4D1D-A2B5-3E62A8BA81D4}.Release|x86.Build.0 = Release|Win32
+		{D4351FD3-7B4B-472A-A1E2-E91EE04169F5}.Debug|x64.ActiveCfg = Debug|x64
+		{D4351FD3-7B4B-472A-A1E2-E91EE04169F5}.Debug|x64.Build.0 = Debug|x64
+		{D4351FD3-7B4B-472A-A1E2-E91EE04169F5}.Debug|x86.ActiveCfg = Debug|Win32
+		{D4351FD3-7B4B-472A-A1E2-E91EE04169F5}.Debug|x86.Build.0 = Debug|Win32
+		{D4351FD3-7B4B-472A-A1E2-E91EE04169F5}.Release|x64.ActiveCfg = Release|x64
+		{D4351FD3-7B4B-472A-A1E2-E91EE04169F5}.Release|x64.Build.0 = Release|x64
+		{D4351FD3-7B4B-472A-A1E2-E91EE04169F5}.Release|x86.ActiveCfg = Release|Win32
+		{D4351FD3-7B4B-472A-A1E2-E91EE04169F5}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -219,5 +230,6 @@ Global
 		{EAB653A1-BDBE-491E-92A1-8BB9276B6275} = {CA6219F3-92E9-4844-B1A3-6F0D8A448533}
 		{B17FF1BE-AAF4-4EB2-83D0-95A1E03A1361} = {DA5CED55-2BF6-40D7-9A3B-AD6DC0FC6D5A}
 		{E873CAAC-FFFD-4D1D-A2B5-3E62A8BA81D4} = {DA5CED55-2BF6-40D7-9A3B-AD6DC0FC6D5A}
+		{D4351FD3-7B4B-472A-A1E2-E91EE04169F5} = {DA5CED55-2BF6-40D7-9A3B-AD6DC0FC6D5A}
 	EndGlobalSection
 EndGlobal
