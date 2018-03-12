@@ -34,6 +34,11 @@ public:
 		: DirectX::XMFLOAT3(pArray)
 	{
 	}
+
+	inline friend Vec3 operator-(const Vec3 &left, const Vec3 &right)
+	{
+		return Vec3(left.x - right.x, left.y - right.y, left.z - right.z);
+	}
 };
 
 class Matrix : public DirectX::XMMATRIX
@@ -375,6 +380,7 @@ void MakeBox(float width, float height, float depth, Mesh& mesh);
 void MakeCube(float width, Mesh& mesh);
 void MakeSphere(float radius, uint32_t slice, uint32_t stack, Mesh& mesh);
 void MakeGeoSphere(float radius, uint32_t subDivisions, Mesh& mesh);
+void MakeFlatGeoSphere(float radius, uint32_t subDivisions, Mesh& mesh);
 void MakeCylinder(float bottomRadius, float topRadius, float height, uint32_t slice, uint32_t stack, Mesh& mesh);
 void MakeGrid(float width, float depth, uint32_t m, uint32_t n, Mesh& mesh);
 void MakeQuad(Mesh& mesh);

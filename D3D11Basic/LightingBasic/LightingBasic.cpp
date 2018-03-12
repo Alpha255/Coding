@@ -17,6 +17,22 @@ struct D3DResource
 	Ref<ID3D11PixelShader> PixelShader;
 };
 
+struct ConstantsBufferVS
+{
+	Matrix World;
+	Matrix WorldTranspose;
+	Matrix WVP;
+};
+
+struct ConstantsBufferPS
+{
+	Vec4 Eye;
+
+	Lighting::Material Mat;
+
+	Lighting::DirectionalLight DirLight;
+};
+
 static D3DResource s_Resource;
 
 void AppLightingBasic::SetupScene()
@@ -24,7 +40,7 @@ void AppLightingBasic::SetupScene()
 	assert(g_Renderer);
 
 	Math::Geometry::Mesh sphere;
-	Math::Geometry::MakeGeoSphere(0.5f, 2U, sphere);
+	Math::Geometry::MakeFlatGeoSphere(0.5f, 2U, sphere);
 	m_IndexCount = (uint32_t)sphere.Indices.size();
 
 	g_Renderer->CreateVertexBuffer(s_Resource.VertexBuffer, (uint32_t)(sizeof(Math::Geometry::Vertex) * sphere.Vertices.size()), D3D11_USAGE_IMMUTABLE, &sphere.Vertices[0]);

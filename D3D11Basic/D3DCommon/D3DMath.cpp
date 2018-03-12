@@ -360,6 +360,31 @@ void MakeGeoSphere(float radius, uint32_t subDivisions, Mesh& mesh)
 	}
 }
 
+void MakeFlatGeoSphere(float radius, uint32_t subDivisions, Mesh& mesh)
+{
+	MakeGeoSphere(radius, subDivisions, mesh);
+
+	uint32_t numTris = (uint32_t)mesh.Indices.size() / 3;
+	for (uint32_t i = 0; i < numTris; ++i)
+	{
+		Vertex &v0 = mesh.Vertices[mesh.Indices[i * 3 + 0]];
+		Vertex &v1 = mesh.Vertices[mesh.Indices[i * 3 + 1]];
+		Vertex &v2 = mesh.Vertices[mesh.Indices[i * 3 + 2]];
+
+		Vec3 v01 = v0.Position - v1.Position;
+		Vec3 v12 = v1.Position - v2.Position;
+
+		DirectX::XMVECTOR dv01 = DirectX::XMLoadFloat3(&v01);
+		DirectX::XMVECTOR dv12 = DirectX::XMLoadFloat3(&v12);
+		DirectX::XMVECTOR normal = DirectX::XMVector3Cross(dv01, dv12);
+		normal = DirectX::XMVector3Normalize(normal);
+
+		DirectX::XMStoreFloat3(&v0.Normal, normal);
+		DirectX::XMStoreFloat3(&v1.Normal, normal);
+		DirectX::XMStoreFloat3(&v2.Normal, normal);
+	}
+}
+
 void MakeCylinderTopBottomCap(bool bTop, float bottomRadius, float topRadius, float height, uint32_t slice, Mesh &mesh)
 {
 	float y = bTop ? (0.5f * height) : (-0.5f * height);
