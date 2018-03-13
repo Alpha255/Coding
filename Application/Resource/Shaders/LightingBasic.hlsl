@@ -1,6 +1,19 @@
-cbuffer ConstantBuffer
+#include "CommonLighting.hlsli"
+
+cbuffer CBufferVS
 {
+    matrix World;
+    matrix WorldTranspose;
 	matrix WVP;
+};
+
+cbuffer CBufferPS
+{
+    float4 EyePos;
+
+    Material Mat;
+
+    DirectionalLight DirLight;
 };
 
 struct VSInput
