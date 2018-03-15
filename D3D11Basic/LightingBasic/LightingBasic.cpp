@@ -11,29 +11,48 @@ struct D3DResource
 
 	Ref<ID3D11InputLayout> Layout;
 
-	Ref<ID3D11Buffer> ConstantsBuffer;
+	Ref<ID3D11Buffer> ConstantsBufferVS;
 
 	Ref<ID3D11VertexShader> VertexShader;
 	Ref<ID3D11PixelShader> PixelShader;
+
+	Ref<ID3D11RasterizerState> Wireframe;
 };
 
-struct ConstantsBufferVS
+struct CBufferVS
 {
 	Matrix World;
-	Matrix WorldTranspose;
+	Matrix WorldInverseTranspose;
 	Matrix WVP;
-};
 
-struct ConstantsBufferPS
-{
-	Vec4 Eye;
+	Vec4 EyePos;
+
+	Lighting::DirectionalLight DirLight;
 
 	Lighting::Material Mat;
 
-	Lighting::DirectionalLight DirLight;
+	CBufferVS()
+	{
+		World.Identity();
+		WorldInverseTranspose.Identity();
+		WVP.Identity();
+
+		EyePos = Vec4(0.0f, 0.0f, 0.0f, 0.0f);
+
+		DirLight.Ambient = Vec4(0.2f, 0.2f, 0.2f, 1.0f);
+		DirLight.Diffuse = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		DirLight.Specular = Vec4(0.5f, 0.5f, 0.5f, 1.0f);
+		DirLight.Direction = Vec4(-0.5f, 0.5f, -0.5f, 0.0f);
+
+		Mat.Ambient = Vec4(0.8f, 0.8f, 0.8f, 1.0f);
+		Mat.Diffuse = Vec4(0.8f, 0.8f, 0.8f, 1.0f);
+		Mat.Specular = Vec4(0.8f, 0.8f, 0.8f, 16.0f);
+		Mat.Reflect = Vec4(0.0f, 0.0f, 0.0f, 0.0f);
+	}
 };
 
 static D3DResource s_Resource;
+static CBufferVS s_CBufferVS;
 
 void AppLightingBasic::SetupScene()
 {
@@ -46,7 +65,7 @@ void AppLightingBasic::SetupScene()
 	g_Renderer->CreateVertexBuffer(s_Resource.VertexBuffer, (uint32_t)(sizeof(Math::Geometry::Vertex) * sphere.Vertices.size()), D3D11_USAGE_IMMUTABLE, &sphere.Vertices[0]);
 	g_Renderer->CreateIndexBuffer(s_Resource.IndexBuffer, (uint32_t)(sizeof(uint32_t) * sphere.Indices.size()), D3D11_USAGE_IMMUTABLE, &sphere.Indices[0]);
 
-	g_Renderer->CreateConstantBuffer(s_Resource.ConstantsBuffer, (uint32_t)sizeof(Matrix), D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
+	g_Renderer->CreateConstantBuffer(s_Resource.ConstantsBufferVS, (uint32_t)sizeof(CBufferVS), D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
 
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
@@ -58,7 +77,17 @@ void AppLightingBasic::SetupScene()
 	g_Renderer->CreateVertexShaderAndInputLayout(s_Resource.VertexShader, s_Resource.Layout, layout, ARRAYSIZE(layout), "LightingBasic.hlsl", "VSMain");
 	g_Renderer->CreatePixelShader(s_Resource.PixelShader, "LightingBasic.hlsl", "PSMain");
 
+	g_Renderer->CreateRasterizerState(s_Resource.Wireframe, D3D11_FILL_WIREFRAME);
+
 	m_Camera->SetViewRadius(2.5f);
+
+	D3D11_VIEWPORT vp;
+	vp.Width = (float)m_Width;
+	vp.Height = (float)m_Height;
+	vp.MinDepth = 0.0f;
+	vp.MaxDepth = 1.0f;
+	vp.TopLeftX = vp.TopLeftY = 0.0f;
+	g_Renderer->SetViewports(&vp);
 }
 
 void AppLightingBasic::RenderScene()
@@ -76,12 +105,21 @@ void AppLightingBasic::RenderScene()
 	g_Renderer->SetVertexShader(s_Resource.VertexShader);
 	g_Renderer->SetPixelShader(s_Resource.PixelShader);
 
-	Matrix wvp = m_Camera->GetWorldMatrix() * m_Camera->GetViewMatrix() * m_Camera->GetProjMatrix();
-	wvp = wvp.Transpose();
-	g_Renderer->UpdateBuffer(s_Resource.ConstantsBuffer, &wvp, sizeof(Matrix));
-	g_Renderer->SetConstantBuffer(s_Resource.ConstantsBuffer, 0U, D3DGraphic::eVertexShader);
+	Matrix world = m_Camera->GetWorldMatrix();
+	s_CBufferVS.World = world.Transpose();
+	s_CBufferVS.WorldInverseTranspose = world.InverseTranspose();
+	s_CBufferVS.WVP = (m_Camera->GetWorldMatrix() * m_Camera->GetViewMatrix() * m_Camera->GetProjMatrix()).Transpose();
+	s_CBufferVS.EyePos = m_Camera->GetEyePos();
+	g_Renderer->UpdateBuffer(s_Resource.ConstantsBufferVS, &s_CBufferVS, sizeof(CBufferVS));
+	g_Renderer->SetConstantBuffer(s_Resource.ConstantsBufferVS, 0U, D3DGraphic::eVertexShader);
+
+	if (m_bWireframe)
+	{
+		g_Renderer->SetRasterizerState(s_Resource.Wireframe);
+	}
 
 	g_Renderer->DrawIndexed(m_IndexCount, 0U, 0);
 
-	ImGui::Combo("MappingType", (int32_t*)&m_ShadingMode, "Flat\0Gouraud\0Phong\0Lambert\0BlinnPhong");
+	ImGui::Combo("ShadingType", (int32_t*)&m_ShadingMode, "Flat\0Gouraud\0Phong\0Lambert\0BlinnPhong");
+	ImGui::Checkbox("Wireframe", &m_bWireframe);
 }
