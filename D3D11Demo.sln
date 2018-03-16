@@ -25,6 +25,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{E9CA
 		Application\Resource\Shaders\DisplacementMap.hlsl = Application\Resource\Shaders\DisplacementMap.hlsl
 		Application\Resource\Shaders\Fxaa.hlsl = Application\Resource\Shaders\Fxaa.hlsl
 		Application\Resource\Shaders\imGUI.hlsl = Application\Resource\Shaders\imGUI.hlsl
+		Application\Resource\Shaders\Lamp.hlsl = Application\Resource\Shaders\Lamp.hlsl
 		Application\Resource\Shaders\Lighting.hlsl = Application\Resource\Shaders\Lighting.hlsl
 		Application\Resource\Shaders\LightingBasic.hlsl = Application\Resource\Shaders\LightingBasic.hlsl
 		Application\Resource\Shaders\Mapping.hlsl = Application\Resource\Shaders\Mapping.hlsl

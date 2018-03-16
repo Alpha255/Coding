@@ -384,6 +384,7 @@ void MakeFlatGeoSphere(float radius, uint32_t subDivisions, Mesh& mesh);
 void MakeCylinder(float bottomRadius, float topRadius, float height, uint32_t slice, uint32_t stack, Mesh& mesh);
 void MakeGrid(float width, float depth, uint32_t m, uint32_t n, Mesh& mesh);
 void MakeQuad(Mesh& mesh);
+void MakeQuad(const Vec3 &center, float length, Mesh& mesh);
 void SubDivide(Mesh& mesh);
 NamespaceEnd(Geometry)
 NamespaceEnd(Math)
@@ -402,7 +403,16 @@ XMGLOBALCONST Vec4 LightSteelBlue = { 0.69f, 0.77f, 0.87f, 1.0f };
 XMGLOBALCONST Vec4 DarkBlue = { 0.0f, 0.125f, 0.3f, 1.0f };
 NamespaceEnd(Color)
 
+class Camera;
 NamespaceBegin(Lighting)
+enum eLightType
+{
+	eDirectional,
+	ePoint,
+	eSpot,
+	eLightTypeCount
+};
+
 struct DirectionalLight
 {
 	Vec4 Ambient;
@@ -445,4 +455,6 @@ struct Material
 	Vec4 Specular;
 	Vec4 Reflect;
 };
+
+void DrawLight(eLightType type, const Vec3 &position, const Camera &cam);
 NamespaceEnd(Lighting)
