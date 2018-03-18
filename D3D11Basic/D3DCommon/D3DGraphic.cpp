@@ -877,7 +877,7 @@ void D3DGraphic::CopyBuffer(ID3D11Resource *pSrc, ID3D11Resource *pDst, void *pD
 	m_IMContent->Unmap(pSrc, 0U);
 }
 
-void D3DGraphic::Draw(uint32_t vertexCount, uint32_t startIndex, D3D_PRIMITIVE_TOPOLOGY prim)
+void D3DGraphic::Draw(uint32_t vertexCount, uint32_t startVertex, D3D_PRIMITIVE_TOPOLOGY prim)
 {
 	if (m_PipelineState.PrimitiveTopology != prim)
 	{
@@ -887,7 +887,7 @@ void D3DGraphic::Draw(uint32_t vertexCount, uint32_t startIndex, D3D_PRIMITIVE_T
 
 	FlushState();
 
-	m_IMContent->Draw(vertexCount, startIndex);
+	m_IMContent->Draw(vertexCount, startVertex);
 }
 
 void D3DGraphic::DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, D3D_PRIMITIVE_TOPOLOGY prim)

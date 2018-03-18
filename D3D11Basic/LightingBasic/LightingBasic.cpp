@@ -53,17 +53,17 @@ struct CBufferVS
 
 static D3DResource s_Resource;
 static CBufferVS s_CBufferVS;
+static Math::Geometry::Mesh s_Sphere;
 
 void AppLightingBasic::SetupScene()
 {
 	assert(g_Renderer);
 
-	Math::Geometry::Mesh sphere;
-	Math::Geometry::MakeFlatGeoSphere(0.5f, 2U, sphere);
-	m_IndexCount = (uint32_t)sphere.Indices.size();
+	Math::Geometry::MakeFlatGeoSphere(0.5f, 2U, s_Sphere);
+	m_IndexCount = (uint32_t)s_Sphere.Indices.size();
 
-	g_Renderer->CreateVertexBuffer(s_Resource.VertexBuffer, (uint32_t)(sizeof(Math::Geometry::Vertex) * sphere.Vertices.size()), D3D11_USAGE_IMMUTABLE, &sphere.Vertices[0]);
-	g_Renderer->CreateIndexBuffer(s_Resource.IndexBuffer, (uint32_t)(sizeof(uint32_t) * sphere.Indices.size()), D3D11_USAGE_IMMUTABLE, &sphere.Indices[0]);
+	g_Renderer->CreateVertexBuffer(s_Resource.VertexBuffer, (uint32_t)(sizeof(Math::Geometry::Vertex) * s_Sphere.Vertices.size()), D3D11_USAGE_IMMUTABLE, &s_Sphere.Vertices[0]);
+	g_Renderer->CreateIndexBuffer(s_Resource.IndexBuffer, (uint32_t)(sizeof(uint32_t) * s_Sphere.Indices.size()), D3D11_USAGE_IMMUTABLE, &s_Sphere.Indices[0]);
 
 	g_Renderer->CreateConstantBuffer(s_Resource.ConstantsBufferVS, (uint32_t)sizeof(CBufferVS), D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
 
@@ -122,6 +122,8 @@ void AppLightingBasic::RenderScene()
 
 	Vec3 lightPos = Vec3(s_CBufferVS.DirLight.Direction.x, s_CBufferVS.DirLight.Direction.y, s_CBufferVS.DirLight.Direction.z);
 	Lighting::DrawLight(lightPos, *m_Camera);
+
+	s_Sphere.DrawNormal(*m_Camera, true);
 
 	ImGui::Combo("ShadingType", (int32_t*)&m_ShadingMode, "Flat\0Gouraud\0Phong\0Lambert\0BlinnPhong");
 	ImGui::Checkbox("Wireframe", &m_bWireframe);

@@ -40,9 +40,19 @@ public:
 		return Vec3(left.x - right.x, left.y - right.y, left.z - right.z);
 	}
 
+	inline friend Vec3 operator+(const Vec3 &left, const Vec3 &right)
+	{
+		return Vec3(left.x + right.x, left.y + right.y, left.z + right.z);
+	}
+
 	inline friend float operator*(const Vec3 &left, const Vec3 &right)
 	{
 		return (left.x * right.x + left.y * right.y + left.z * right.z);
+	}
+
+	inline friend Vec3 operator*(const Vec3 &left, float scale)
+	{
+		return Vec3(left.x * scale, left.y * scale, left.z * scale);
 	}
 
 	inline static Vec3 Cross(const Vec3 &v0, const Vec3 &v1)
@@ -245,6 +255,8 @@ inline Matrix Matrix::Shadow(const Vec4 &plane, const Vec4 &litDir)
 	return *(static_cast<Matrix*>(&result));
 }
 
+class Camera;
+
 NamespaceBegin(Math)
 template<typename T> inline T Clamp(const T& x, const T& low, const T& high) 
 {
@@ -333,8 +345,13 @@ struct Vertex
 
 struct Mesh
 {
+public:
 	std::vector<Vertex> Vertices;
 	std::vector<uint32_t> Indices;
+
+	void DrawNormal(const Camera &cam, bool bFlatSphere = false);
+protected:
+	void InitResource(bool bFlatSphere);
 };
 
 class Waves
@@ -420,7 +437,6 @@ XMGLOBALCONST Vec4 LightSteelBlue = { 0.69f, 0.77f, 0.87f, 1.0f };
 XMGLOBALCONST Vec4 DarkBlue = { 0.0f, 0.125f, 0.3f, 1.0f };
 NamespaceEnd(Color)
 
-class Camera;
 NamespaceBegin(Lighting)
 struct DirectionalLight
 {

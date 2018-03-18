@@ -1,14 +1,11 @@
 struct VSInput
 {
-	float3 Pos : POSITION;
-	float3 Normal : NORMAL;
-	float3 Tangent : TANGENT;
-	float2 UV : TEXCOORD;	
+    float3 Pos : POSITION;
 };
 
 cbuffer cbVS
 {
-	matrix WVP;	
+    matrix WVP;
 };
 
 float4 VSMain(VSInput vsInput) : SV_Position

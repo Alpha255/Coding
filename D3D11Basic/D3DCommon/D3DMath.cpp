@@ -376,8 +376,8 @@ void MakeFlatGeoSphere(float radius, uint32_t subDivisions, Mesh& mesh)
 		Vertex &v1 = mesh.Vertices[mesh.Indices[i * 3 + 1]];
 		Vertex &v2 = mesh.Vertices[mesh.Indices[i * 3 + 2]];
 
-		Vec3 v01 = v0.Position - v1.Position;
-		Vec3 v12 = v1.Position - v2.Position;
+		Vec3 v01 = v1.Position - v0.Position;
+		Vec3 v12 = v2.Position - v1.Position;
 
 		DirectX::XMVECTOR dv01 = DirectX::XMLoadFloat3(&v01);
 		DirectX::XMVECTOR dv12 = DirectX::XMLoadFloat3(&v12);
@@ -718,6 +718,91 @@ void SubDivide(Mesh& mesh)
 		mesh.Indices.push_back(i * 6 + 1);
 		mesh.Indices.push_back(i * 6 + 4);
 	}
+}
+
+struct MeshResource
+{
+	Ref<ID3D11InputLayout> VertexLayout;
+
+	Ref<ID3D11Buffer> VertexBuffer;
+	Ref<ID3D11Buffer> IndexBuffer;
+
+	Ref<ID3D11VertexShader> VertexShader;
+	Ref<ID3D11PixelShader> PixelShader;
+
+	Ref<ID3D11Buffer> CBufferVS;
+
+	uint32_t VertexCount = 0U;
+	bool Inited = false;
+};
+
+static MeshResource s_MeshResource;
+
+void Mesh::InitResource(bool bFlatSphere)
+{
+	if (s_MeshResource.Inited)
+	{
+		return;
+	}
+
+	assert(g_Renderer && !s_MeshResource.Inited);
+
+	D3D11_INPUT_ELEMENT_DESC layout[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,  0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+	g_Renderer->CreateVertexShaderAndInputLayout(s_MeshResource.VertexShader, s_MeshResource.VertexLayout, layout,
+		ARRAYSIZE(layout), "MeshNormal.hlsl", "VSMain");
+	g_Renderer->CreatePixelShader(s_MeshResource.PixelShader, "MeshNormal.hlsl", "PSMain");
+
+	g_Renderer->CreateConstantBuffer(s_MeshResource.CBufferVS, sizeof(Matrix), D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
+
+	std::vector<Vec3> lineVertices;
+	if (bFlatSphere)
+	{
+		for (uint32_t i = 0U; i < Indices.size(); i += 3)
+		{
+			Vec3 v0(0.0f, 0.0f, 0.0f);
+			Vec3 v1 = Vertices[Indices[i]].Normal * 0.7f;
+			lineVertices.push_back(v0);
+			lineVertices.push_back(v1);
+		}
+	}
+	else
+	{
+		for (uint32_t i = 0U; i < Vertices.size(); i += 3)
+		{
+			Vec3 v0 = Vertices[i].Position;
+			Vec3 v1 = Vertices[i].Normal * 0.65f;
+			lineVertices.push_back(v0);
+			lineVertices.push_back(v1);
+		}
+	}
+
+	g_Renderer->CreateVertexBuffer(s_MeshResource.VertexBuffer, (uint32_t)(sizeof(Math::Geometry::Vertex) * lineVertices.size()), D3D11_USAGE_IMMUTABLE, &lineVertices[0]);
+
+	s_MeshResource.VertexCount = (uint32_t)lineVertices.size();
+
+	s_MeshResource.Inited = true;
+}
+
+void Mesh::DrawNormal(const Camera &cam, bool bFlatSphere)
+{
+	InitResource(bFlatSphere);
+
+	g_Renderer->SetInputLayout(s_MeshResource.VertexLayout);
+
+	g_Renderer->SetVertexBuffer(s_MeshResource.VertexBuffer, sizeof(Vec3), 0U, 0U);
+
+	Matrix wvp = cam.GetWorldMatrix() * cam.GetViewMatrix() * cam.GetProjMatrix();
+	wvp = wvp.Transpose();
+	g_Renderer->UpdateBuffer(s_MeshResource.CBufferVS, &wvp, sizeof(Matrix));
+	g_Renderer->SetConstantBuffer(s_MeshResource.CBufferVS, 0U, D3DGraphic::eVertexShader);
+
+	g_Renderer->SetVertexShader(s_MeshResource.VertexShader);
+	g_Renderer->SetPixelShader(s_MeshResource.PixelShader);
+
+	g_Renderer->Draw(s_MeshResource.VertexCount, 0U, D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 }
 
 NamespaceEnd(Geometry)
