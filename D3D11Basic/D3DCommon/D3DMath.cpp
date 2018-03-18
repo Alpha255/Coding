@@ -736,22 +736,20 @@ struct LightResource
 	Ref<ID3D11VertexShader> VertexShader;
 	Ref<ID3D11PixelShader> PixelShader;
 
-	Ref<ID3D11ShaderResourceView> LightTex[eLightTypeCount];
-
-	Ref<ID3D11SamplerState> LinearSampler;
-
 	Ref<ID3D11RasterizerState> Solid;
 
-	Ref<ID3D11BlendState> AlphaBlend;
+	Matrix TransformMatrix;
 
-	Ref<ID3D11BlendState> NullBlend;
+	///Ref<ID3D11BlendState> AlphaBlend;
 
 	bool Inited = false;
+
+	uint32_t IndexCount = 0U;
 };
 
 static LightResource s_LightResource;
 
-void InitResource(const Vec3 &center)
+void InitResource(const Vec3 &pos)
 {
 	if (s_LightResource.Inited)
 	{
@@ -773,64 +771,71 @@ void InitResource(const Vec3 &center)
 
 	g_Renderer->CreateConstantBuffer(s_LightResource.CBufferVS, sizeof(Matrix), D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
 
-	g_Renderer->CreateShaderResourceView(s_LightResource.LightTex[eDirectional], "lightdirectional.dds");
-	g_Renderer->CreateShaderResourceView(s_LightResource.LightTex[ePoint], "lightpoint.dds");
-	g_Renderer->CreateShaderResourceView(s_LightResource.LightTex[eSpot], "lightspot.dds");
-
-	D3D11_SAMPLER_DESC sampDesc;
-	memset(&sampDesc, 0, sizeof(D3D11_SAMPLER_DESC));
-	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	sampDesc.MinLOD = 0.0f;
-	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	g_Renderer->CreateSamplerState(s_LightResource.LinearSampler, &sampDesc);
-
 	g_Renderer->CreateRasterizerState(s_LightResource.Solid, D3D11_FILL_SOLID);
 
-	D3D11_BLEND_DESC blendDesc = {};
-	blendDesc.AlphaToCoverageEnable = false;
-	blendDesc.IndependentBlendEnable = false;
-	blendDesc.RenderTarget[0].BlendEnable = true;
-	blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
-	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	g_Renderer->CreateBlendState(s_LightResource.AlphaBlend, &blendDesc);
+	///D3D11_BLEND_DESC blendDesc = {};
+	///blendDesc.AlphaToCoverageEnable = false;
+	///blendDesc.IndependentBlendEnable = false;
+	///blendDesc.RenderTarget[0].BlendEnable = true;
+	///blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	///blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	///blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	///blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	///blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	///blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	///blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	///g_Renderer->CreateBlendState(s_LightResource.AlphaBlend, &blendDesc);
 
-	Math::Geometry::Mesh quad;
-	Math::Geometry::MakeQuad(center, 0.15f, quad);
-	g_Renderer->CreateVertexBuffer(s_LightResource.VertexBuffer, (uint32_t)(sizeof(Math::Geometry::Vertex) * quad.Vertices.size()), D3D11_USAGE_IMMUTABLE, &quad.Vertices[0]);
-	g_Renderer->CreateIndexBuffer(s_LightResource.IndexBuffer, (uint32_t)(sizeof(uint32_t) * quad.Indices.size()), D3D11_USAGE_IMMUTABLE, &quad.Indices[0]);
+	Math::Geometry::Mesh cylinder;
+	Math::Geometry::MakeCylinder(0.01f, 0.01f, 0.12f, 10U, 10U, cylinder);
+	
+	Math::Geometry::Mesh cone;
+	Math::Geometry::MakeCylinder(0.0f, 0.02f, 0.07f, 10U, 10U, cone);
+
+	for (uint32_t i = 0U; i < cone.Vertices.size(); ++i)
+	{
+		cone.Vertices[i].Position.y -= 0.12f * 0.8f;
+	}
+
+	const uint32_t cylinderVSize = (uint32_t)cylinder.Vertices.size();
+	for (uint32_t i = 0U; i < cone.Indices.size(); ++i)
+	{
+		cone.Indices[i] += cylinderVSize;
+	}
+
+	Math::Geometry::Mesh arrow;
+	arrow.Vertices.insert(arrow.Vertices.end(), cylinder.Vertices.begin(), cylinder.Vertices.end());
+	arrow.Vertices.insert(arrow.Vertices.end(), cone.Vertices.begin(), cone.Vertices.end());
+
+	arrow.Indices.insert(arrow.Indices.end(), cylinder.Indices.begin(), cylinder.Indices.end());
+	arrow.Indices.insert(arrow.Indices.end(), cone.Indices.begin(), cone.Indices.end());
+
+	g_Renderer->CreateVertexBuffer(s_LightResource.VertexBuffer, (uint32_t)(sizeof(Math::Geometry::Vertex) * arrow.Vertices.size()), D3D11_USAGE_IMMUTABLE, &arrow.Vertices[0]);
+	g_Renderer->CreateIndexBuffer(s_LightResource.IndexBuffer, (uint32_t)(sizeof(uint32_t) * arrow.Indices.size()), D3D11_USAGE_IMMUTABLE, &arrow.Indices[0]);
+
+	s_LightResource.IndexCount = (uint32_t)arrow.Indices.size();
+
+	Vec3 v0(0.0f, 1.0f, 0.0f);
+	Vec3 v1 = pos;
+	Vec3 coord = Vec3::Cross(v0, v1);
+	float angle = acosf(v0 * v1);
+	Matrix rotate = Matrix::RotationAxis(coord.x, coord.y, coord.z, angle);
+	Matrix translation = Matrix::Translation(pos.x, pos.y, pos.z);
+	s_LightResource.TransformMatrix = rotate * translation;
 
 	s_LightResource.Inited = true;
 }
 
-void DrawLight(eLightType type, const Vec3 &position, const Camera &cam)
+void DrawLight(const Vec3 &pos, const Camera &cam)
 {
-	assert(type != eLightTypeCount);
-
-	InitResource(position);
+	InitResource(pos);
 
 	g_Renderer->SetInputLayout(s_LightResource.VertexLayout);
 
 	g_Renderer->SetVertexBuffer(s_LightResource.VertexBuffer, sizeof(Math::Geometry::Vertex), 0U, 0U);
 	g_Renderer->SetIndexBuffer(s_LightResource.IndexBuffer, DXGI_FORMAT_R32_UINT, 0U);
 
-	//Vec4 camPos = cam.GetEyePos();
-	//float rotateAngle = atan2f(position.x - camPos.x, position.z - camPos.z) * (180.0f / DirectX::XM_PI) * 0.0174532925f;
-	//Matrix world = cam.GetWorldMatrix();
-	//Matrix rotateMatrix = Matrix::RotationAxis(0.0f, 1.0f, 0.0f, rotateAngle);
-	//rotateMatrix = world * rotateMatrix;
-	//Matrix translationMatrix = Matrix::Translation(position.x, position.y, position.z);
-	//world = rotateMatrix * translationMatrix;
-
-	Matrix wvp = cam.GetWorldMatrix() * cam.GetViewMatrix() * cam.GetProjMatrix();
+	Matrix wvp = cam.GetWorldMatrix() * s_LightResource.TransformMatrix * cam.GetViewMatrix() * cam.GetProjMatrix();
 	wvp = wvp.Transpose();
 	g_Renderer->UpdateBuffer(s_LightResource.CBufferVS, &wvp, sizeof(Matrix));
 	g_Renderer->SetConstantBuffer(s_LightResource.CBufferVS, 0U, D3DGraphic::eVertexShader);
@@ -838,15 +843,8 @@ void DrawLight(eLightType type, const Vec3 &position, const Camera &cam)
 	g_Renderer->SetVertexShader(s_LightResource.VertexShader);
 	g_Renderer->SetPixelShader(s_LightResource.PixelShader);
 
-	g_Renderer->SetShaderResource(s_LightResource.LightTex[type], 0U, D3DGraphic::ePixelShader);
-	g_Renderer->SetSamplerStates(s_LightResource.LinearSampler, 0U, D3DGraphic::ePixelShader);
-
 	g_Renderer->SetRasterizerState(s_LightResource.Solid);
 
-	g_Renderer->SetBlendState(s_LightResource.AlphaBlend, Vec4(0.0f, 0.0f, 0.0f, 1.0f), 0xffffffff);
-
-	g_Renderer->DrawIndexed(6U, 0U, 0);
-
-	g_Renderer->SetBlendState(s_LightResource.NullBlend, Vec4(0.0f, 0.0f, 0.0f, 1.0f), 0xffffffff);
+	g_Renderer->DrawIndexed(s_LightResource.IndexCount, 0U, 0);
 }
 NamespaceEnd(Lighting)

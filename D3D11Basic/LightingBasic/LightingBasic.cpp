@@ -121,7 +121,7 @@ void AppLightingBasic::RenderScene()
 	g_Renderer->DrawIndexed(m_IndexCount, 0U, 0);
 
 	Vec3 lightPos = Vec3(s_CBufferVS.DirLight.Direction.x, s_CBufferVS.DirLight.Direction.y, s_CBufferVS.DirLight.Direction.z);
-	Lighting::DrawLight(Lighting::eDirectional, lightPos, *m_Camera);
+	Lighting::DrawLight(lightPos, *m_Camera);
 
 	ImGui::Combo("ShadingType", (int32_t*)&m_ShadingMode, "Flat\0Gouraud\0Phong\0Lambert\0BlinnPhong");
 	ImGui::Checkbox("Wireframe", &m_bWireframe);

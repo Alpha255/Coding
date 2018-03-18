@@ -39,6 +39,23 @@ public:
 	{
 		return Vec3(left.x - right.x, left.y - right.y, left.z - right.z);
 	}
+
+	inline friend float operator*(const Vec3 &left, const Vec3 &right)
+	{
+		return (left.x * right.x + left.y * right.y + left.z * right.z);
+	}
+
+	inline static Vec3 Cross(const Vec3 &v0, const Vec3 &v1)
+	{
+		DirectX::XMVECTOR xv0 = DirectX::XMLoadFloat3(&v0);
+
+		DirectX::XMVECTOR xv1 = DirectX::XMLoadFloat3(&v1);
+
+		Vec3 result;
+		DirectX::XMStoreFloat3(&result, DirectX::XMVector3Cross(xv0, xv1));
+
+		return result;
+	}
 };
 
 class Matrix : public DirectX::XMMATRIX
@@ -405,14 +422,6 @@ NamespaceEnd(Color)
 
 class Camera;
 NamespaceBegin(Lighting)
-enum eLightType
-{
-	eDirectional,
-	ePoint,
-	eSpot,
-	eLightTypeCount
-};
-
 struct DirectionalLight
 {
 	Vec4 Ambient;
@@ -456,5 +465,5 @@ struct Material
 	Vec4 Reflect;
 };
 
-void DrawLight(eLightType type, const Vec3 &position, const Camera &cam);
+void DrawLight(const Vec3 &pos, const Camera &cam);
 NamespaceEnd(Lighting)

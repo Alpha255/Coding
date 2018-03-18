@@ -27,10 +27,11 @@ VSOutput VSMain(VSInput vsInput)
 	return output;
 }
 
-Texture2D LightTex;
-SamplerState LinearSampler;
+///Texture2D LightTex;
+///SamplerState LinearSampler;
 
 float4 PSMain(VSOutput psInput) : SV_Target
 {
-	return LightTex.Sample(LinearSampler, psInput.UV);
+	///return LightTex.Sample(LinearSampler, psInput.UV);
+    return float4(0.75, 0.75f, 0.22f, 1.0f);
 }
