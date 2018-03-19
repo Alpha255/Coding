@@ -44,7 +44,9 @@ VSOutputFlatGouraud VSMainFlat(VSInput vsInput)
 
 	float4 ambient = DirLight.Ambient * Mat.Ambient;
 
-	float4 diffuse = DirLight.Diffuse * Mat.Diffuse * dot(DirLight.Direction.xyz, normal);
+    float3 lightDir = normalize(-DirLight.Direction.xyz);
+
+    float4 diffuse = DirLight.Diffuse * Mat.Diffuse * dot(lightDir, normal);
 
 	vsOutput.Color = ambient + diffuse;
 
@@ -66,10 +68,12 @@ VSOutputFlatGouraud VSMainGouraud(VSInput vsInput)
 
 	float3 normal = normalize(mul(vsInput.Normal, (float3x3)WorldInverse));
 
-	float4 diffuse = DirLight.Diffuse * Mat.Diffuse * max(dot(DirLight.Direction.xyz, normal), 0.0f);
+    float3 lightDir = normalize(-DirLight.Direction.xyz);
+
+    float4 diffuse = DirLight.Diffuse * Mat.Diffuse * max(dot(lightDir, normal), 0.0f);
 
 	float3 viewDir = normalize(EyePos.xyz - mul(float4(vsInput.Pos, 1.0f), World).xyz);
-	float3 reflection = reflect(-DirLight.Direction.xyz, normal);
+    float3 reflection = reflect(-lightDir, normal);
     float specFactor = pow(max(dot(reflection, viewDir), 0.0f), Mat.Specular.w);
 	float4 specular = DirLight.Specular * Mat.Specular * specFactor;
 
@@ -112,10 +116,12 @@ float4 PSMainPhong(VSOutputPhong psInput) : SV_Target
 
 	float3 normal = normalize(psInput.NormalW);
 
-	float4 diffuse = DirLightPS.Diffuse * MatPS.Diffuse * max(dot(DirLightPS.Direction.xyz, normal), 0.0f);
+    float3 lightDir = normalize(-DirLightPS.Direction.xyz);
+
+    float4 diffuse = DirLightPS.Diffuse * MatPS.Diffuse * max(dot(lightDir, normal), 0.0f);
 
 	float3 viewDir = normalize(EyePosPS.xyz - psInput.PosW);
-	float3 reflection = reflect(-DirLightPS.Direction.xyz, normal);
+    float3 reflection = reflect(-lightDir, normal);
     float specFactor = pow(max(dot(reflection, viewDir), 0.0f), MatPS.Specular.w);
 	float4 specular = DirLightPS.Specular * MatPS.Specular * specFactor;
 
@@ -144,10 +150,12 @@ float4 PSMainBlinnPhong(VSOutputPhong psInput) : SV_Target
 
 	float3 normal = normalize(psInput.NormalW);
 
-	float4 diffuse = DirLightPS.Diffuse * MatPS.Diffuse * max(dot(DirLightPS.Direction.xyz, normal), 0.0f);
+    float3 lightDir = normalize(-DirLightPS.Direction.xyz);
+
+    float4 diffuse = DirLightPS.Diffuse * MatPS.Diffuse * max(dot(lightDir, normal), 0.0f);
 
 	float3 viewDir = normalize(EyePosPS.xyz - psInput.PosW);
-	float3 halfwayVec = normalize(viewDir + normalize(DirLightPS.Direction.xyz));
+    float3 halfwayVec = normalize(viewDir + lightDir);
     float specFactor = pow(max(dot(halfwayVec, normal), 0.0f), MatPS.Specular.w);
 	float4 specular = DirLightPS.Specular * MatPS.Specular * specFactor;
 

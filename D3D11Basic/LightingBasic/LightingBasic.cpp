@@ -46,7 +46,7 @@ struct CBufferVS
 		DirLight.Ambient = Vec4(0.2f, 0.2f, 0.2f, 1.0f);
 		DirLight.Diffuse = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
 		DirLight.Specular = Vec4(0.5f, 0.5f, 0.5f, 1.0f);
-		DirLight.Direction = Vec4(-0.5f, 0.5f, -0.5f, 0.0f);
+		DirLight.Direction = Vec4(0.5f, -0.5f, 0.5f, 0.0f);
 
 		Mat.Ambient = Vec4(0.8f, 0.8f, 0.8f, 1.0f);
 		Mat.Diffuse = Vec4(0.8f, 0.8f, 0.8f, 1.0f);
@@ -70,7 +70,7 @@ struct CBufferPS
 		DirLight.Ambient = Vec4(0.2f, 0.2f, 0.2f, 1.0f);
 		DirLight.Diffuse = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
 		DirLight.Specular = Vec4(0.5f, 0.5f, 0.5f, 1.0f);
-		DirLight.Direction = Vec4(-0.5f, 0.5f, -0.5f, 0.0f);
+		DirLight.Direction = Vec4(0.5f, -0.5f, 0.5f, 0.0f);
 
 		Mat.Ambient = Vec4(0.8f, 0.8f, 0.8f, 1.0f);
 		Mat.Diffuse = Vec4(0.8f, 0.8f, 0.8f, 1.0f);
@@ -188,7 +188,7 @@ void AppLightingBasic::RenderScene()
 	uint32_t indexCount = (eFlat == m_ShadingMode) ? (uint32_t)s_SphereFlat.Indices.size() : (uint32_t)s_Sphere.Indices.size();
 	g_Renderer->DrawIndexed(indexCount, 0U, 0);
 
-	Vec3 lightPos = Vec3(s_CBufferVS.DirLight.Direction.x, s_CBufferVS.DirLight.Direction.y, s_CBufferVS.DirLight.Direction.z);
+	Vec3 lightPos = Vec3(-s_CBufferVS.DirLight.Direction.x, -s_CBufferVS.DirLight.Direction.y, -s_CBufferVS.DirLight.Direction.z);
 	Lighting::DrawLight(lightPos, *m_Camera);
 
 	if (m_bDrawNormal)
@@ -206,7 +206,7 @@ void AppLightingBasic::RenderScene()
 	ImGui::Combo("ShadingType", (int32_t*)&m_ShadingMode, "Flat\0Gouraud\0Phong\0BlinnPhong");
 	ImGui::Checkbox("Wireframe", &m_bWireframe);
 	ImGui::Checkbox("DrawNormal", &m_bDrawNormal);
-	ImGui::SliderFloat("SpecularFactor", &s_CBufferPS.Mat.Specular.w, 1.0f, 12.0f);
+	ImGui::SliderFloat("SpecularFactor", &s_CBufferPS.Mat.Specular.w, 1.0f, 32.0f);
 	ImGui::ColorEdit4("LightColorVS", (float*)&s_CBufferVS.DirLight.Diffuse);
 	ImGui::ColorEdit4("LightColorPS", (float*)&s_CBufferPS.DirLight.Diffuse);
 }
