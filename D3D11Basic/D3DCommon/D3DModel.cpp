@@ -241,6 +241,9 @@ void SDKMesh::Draw(const Camera &cam, bool bWireframe)
 
 	g_Renderer->DrawIndexed(m_IndexCount, 0U, 0);
 
+	///Vec4 pos = m_CBufferPS.DirLight[m_CBufferPS.LightCount - 1].Direction;
+	///Lighting::DrawLight(Vec3(pos.x, pos.y, pos.z), cam);
+
 	m_CBufferVS.World.Identity();
 }
 

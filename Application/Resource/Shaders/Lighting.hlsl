@@ -33,10 +33,9 @@ struct VSOutput
 VSOutput VSMain(VSInput input)
 {
     VSOutput output;
+	output.PosH = mul(float4(input.Pos, 1.0f), WVP);
     output.PosW = mul(float4(input.Pos, 1.0f), World).xyz;
     output.NormalW = mul(input.Normal, (float3x3)WorldInverse);
-
-    output.PosH = mul(float4(input.Pos, 1.0f), WVP);
 
     return output;
 }

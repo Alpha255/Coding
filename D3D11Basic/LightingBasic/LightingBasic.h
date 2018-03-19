@@ -10,7 +10,6 @@ public:
 		eFlat,
 		eGouraud,
 		ePhong,
-		eLambert,
 		eBlinnPhong,
 		eShadingModeCount
 	};
@@ -23,6 +22,6 @@ public:
 protected:
 private:
 	eShadingMode m_ShadingMode = eFlat;
-	uint32_t m_IndexCount = 0U;
 	bool m_bWireframe = false;
+	bool m_bDrawNormal = false;
 };

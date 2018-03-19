@@ -26,7 +26,7 @@ void ComputeDirectionalLight(in Material i_Mat,
     o_Diffuse = float4(.0f, .0f, .0f, .0f);
     o_Specular = float4(.0f, .0f, .0f, .0f);
 
-    float3 lightVec = -i_Light.Direction.xyz;
+    float3 lightVec = i_Light.Direction.xyz;
 
     o_Ambient = i_Mat.Ambient * i_Light.Ambient;
 
@@ -37,7 +37,7 @@ void ComputeDirectionalLight(in Material i_Mat,
     {
 		/// ret reflect(i, n) 
 		/// This function calculates the reflection vector using the following formula: v = i - 2 * n * dot(i•n)
-        float3 refVec = reflect(i_Light.Direction.xyz, i_Normal);
+        float3 refVec = reflect(-i_Light.Direction.xyz, i_Normal);
         float specFactor = pow(max(dot(refVec, i_ToEye), 0.0f), i_Mat.Specular.w);
 
         o_Diffuse = diffuseFactor * i_Mat.Diffuse * i_Light.Diffuse;
