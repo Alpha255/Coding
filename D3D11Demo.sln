@@ -18,6 +18,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{E9CA6D5D-2A65-4B6F-886A-5CB009BAB060}"
 	ProjectSection(SolutionItems) = preProject
 		Application\Resource\Shaders\AdaptiveTessellation.hlsl = Application\Resource\Shaders\AdaptiveTessellation.hlsl
+		Application\Resource\Shaders\AlphaBlend.hlsl = Application\Resource\Shaders\AlphaBlend.hlsl
 		Application\Resource\Shaders\Box.hlsl = Application\Resource\Shaders\Box.hlsl
 		Application\Resource\Shaders\BoxTexture.hlsl = Application\Resource\Shaders\BoxTexture.hlsl
 		Application\Resource\Shaders\CommonLighting.hlsli = Application\Resource\Shaders\CommonLighting.hlsli
@@ -75,6 +76,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WIP", "WIP", "{DA5CED55-2BF6-40D7-9A3B-AD6DC0FC6D5A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightingBasic", "D3D11Basic\LightingBasic\LightingBasic.vcxproj", "{D4351FD3-7B4B-472A-A1E2-E91EE04169F5}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AlphaBlend", "D3D11Basic\AlphaBlend\AlphaBlend.vcxproj", "{D6ED9212-57C8-4381-925B-934430997671}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -212,6 +215,14 @@ Global
 		{D4351FD3-7B4B-472A-A1E2-E91EE04169F5}.Release|x64.Build.0 = Release|x64
 		{D4351FD3-7B4B-472A-A1E2-E91EE04169F5}.Release|x86.ActiveCfg = Release|Win32
 		{D4351FD3-7B4B-472A-A1E2-E91EE04169F5}.Release|x86.Build.0 = Release|Win32
+		{D6ED9212-57C8-4381-925B-934430997671}.Debug|x64.ActiveCfg = Debug|x64
+		{D6ED9212-57C8-4381-925B-934430997671}.Debug|x64.Build.0 = Debug|x64
+		{D6ED9212-57C8-4381-925B-934430997671}.Debug|x86.ActiveCfg = Debug|Win32
+		{D6ED9212-57C8-4381-925B-934430997671}.Debug|x86.Build.0 = Debug|Win32
+		{D6ED9212-57C8-4381-925B-934430997671}.Release|x64.ActiveCfg = Release|x64
+		{D6ED9212-57C8-4381-925B-934430997671}.Release|x64.Build.0 = Release|x64
+		{D6ED9212-57C8-4381-925B-934430997671}.Release|x86.ActiveCfg = Release|Win32
+		{D6ED9212-57C8-4381-925B-934430997671}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -233,5 +244,6 @@ Global
 		{B17FF1BE-AAF4-4EB2-83D0-95A1E03A1361} = {DA5CED55-2BF6-40D7-9A3B-AD6DC0FC6D5A}
 		{E873CAAC-FFFD-4D1D-A2B5-3E62A8BA81D4} = {DA5CED55-2BF6-40D7-9A3B-AD6DC0FC6D5A}
 		{D4351FD3-7B4B-472A-A1E2-E91EE04169F5} = {7715569A-AEE2-41E3-948F-C91D42E70933}
+		{D6ED9212-57C8-4381-925B-934430997671} = {DA5CED55-2BF6-40D7-9A3B-AD6DC0FC6D5A}
 	EndGlobalSection
 EndGlobal
