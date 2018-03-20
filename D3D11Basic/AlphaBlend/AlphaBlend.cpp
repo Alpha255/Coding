@@ -156,7 +156,10 @@ void AppAlphaBlend::RenderScene()
 	g_Renderer->SetIndexBuffer(s_Resource.IndexBufferWindow, DXGI_FORMAT_R32_UINT, 0U);
 	g_Renderer->SetShaderResource(s_Resource.TexWindow, 0U, D3DGraphic::ePixelShader);
 	g_Renderer->SetRasterizerState(s_Resource.NullCulling);
-	g_Renderer->SetBlendState(s_Resource.AlphaBlend, Vec4(0.0f, 0.0f, 0.0f, 1.0f), 0xffffffff);
+	if (m_bAlphaBlend)
+	{
+		g_Renderer->SetBlendState(s_Resource.AlphaBlend, Vec4(0.0f, 0.0f, 0.0f, 1.0f), 0xffffffff);
+	}
 	g_Renderer->DrawIndexed(6U, 0U, 0);
 
 	/// Draw window1
@@ -174,4 +177,6 @@ void AppAlphaBlend::RenderScene()
 		g_Renderer->UpdateBuffer(s_Resource.CBufferVS, &s_CBufferVS, sizeof(ConstantsBufferVS));
 		g_Renderer->DrawIndexed(6U, 0U, 0);
 	}
+
+	ImGui::Checkbox("AlphaBlend", &m_bAlphaBlend);
 }

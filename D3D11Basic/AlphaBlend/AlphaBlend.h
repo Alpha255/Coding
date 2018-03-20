@@ -12,4 +12,5 @@ public:
 	virtual void RenderScene();
 protected:
 private:
+	bool m_bAlphaBlend = true;
 };
