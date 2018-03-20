@@ -4,7 +4,7 @@ INT WINAPI wWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPWSTR
 {
 	AppAlphaBlend alphaBlend;
 
-	alphaBlend.Startup(L"AlphaBlend");
+	alphaBlend.Startup(L"AlphaBlend", 1280U, 720U);
 
 	alphaBlend.Running();
 

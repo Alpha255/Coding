@@ -621,25 +621,25 @@ void MakeQuad(const Vec3 &center, float length, Mesh& mesh)
 
 	/// Position coordinates specified in NDC space.
 	mesh.Vertices[0] = Vertex(
-		center.x - halfLen, center.y, center.z - halfLen,
+		center.x - halfLen, center.y - halfLen, center.z,
 		0.0f, 0.0f, -1.0f,
 		1.0f, 0.0f, 0.0f,
 		0.0f, 1.0f);
 
 	mesh.Vertices[1] = Vertex(
-		center.x - halfLen, center.y, center.z + halfLen,
+		center.x - halfLen, center.y + halfLen, center.z,
 		0.0f, 0.0f, -1.0f,
 		1.0f, 0.0f, 0.0f,
 		0.0f, 0.0f);
 
 	mesh.Vertices[2] = Vertex(
-		center.x + halfLen, center.y, center.z + halfLen,
+		center.x + halfLen, center.y + halfLen, center.z,
 		0.0f, 0.0f, -1.0f,
 		1.0f, 0.0f, 0.0f,
 		1.0f, 0.0f);
 
 	mesh.Vertices[3] = Vertex(
-		center.x + halfLen, center.y, center.z - halfLen,
+		center.x + halfLen, center.y - halfLen, center.z,
 		0.0f, 0.0f, -1.0f,
 		1.0f, 0.0f, 0.0f,
 		1.0f, 1.0f);
