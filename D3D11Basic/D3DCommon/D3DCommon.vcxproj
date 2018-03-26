@@ -21,9 +21,11 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="D3DApplication.h" />
+    <ClInclude Include="D3DGeometry.h" />
     <ClInclude Include="D3DGraphic.h" />
     <ClInclude Include="D3DMath.h" />
     <ClInclude Include="D3DModel.h" />
+    <ClInclude Include="D3DTexture.h" />
     <ClInclude Include="GUI_AntTweakBar.h" />
     <ClInclude Include="GUI_imGUI.h" />
     <ClInclude Include="resource.h" />
@@ -34,9 +36,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="D3DApplication.cpp" />
+    <ClCompile Include="D3DGeometry.cpp" />
     <ClCompile Include="D3DGraphic.cpp" />
-    <ClCompile Include="D3DMath.cpp" />
+    <ClCompile Include="D3DMath.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="D3DModel.cpp" />
+    <ClCompile Include="D3DTexture.cpp" />
     <ClCompile Include="GUI_AntTweakBar.cpp" />
     <ClCompile Include="GUI_imGUI.cpp" />
     <ClCompile Include="SkyBox.cpp" />

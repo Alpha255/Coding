@@ -1,21 +1,33 @@
-struct DirectionalLight
+struct Light
 {
+    float3 Position;
+    uint Type;
+
+    float3 Direction;
+    float Range;
+
+    float3 Attenuation;
+    float SpotFactor;
+
     float4 Ambient;
     float4 Diffuse;
     float4 Specular;
-    float4 Direction;
 };
 
 struct Material
 {
+    uint EnableTexture[4];
+
+    float4 VertexColor;
+
     float4 Ambient;
     float4 Diffuse;
     float4 Specular;
-    float4 Reflect;
+    float4 Reflection;
 };
 
 void ComputeDirectionalLight(in Material i_Mat,
-                             in DirectionalLight i_Light,
+                             in Light i_Light,
                              in float3 i_Normal,
                              in float3 i_ToEye,
                              out float4 o_Ambient,

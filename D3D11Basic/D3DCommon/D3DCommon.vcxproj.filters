@@ -12,6 +12,8 @@
     </ClInclude>
     <ClInclude Include="GUI_imGUI.h" />
     <ClInclude Include="D3DApplication.h" />
+    <ClInclude Include="D3DTexture.h" />
+    <ClInclude Include="D3DGeometry.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="D3DGraphic.cpp" />
@@ -21,6 +23,8 @@
     <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="GUI_imGUI.cpp" />
     <ClCompile Include="D3DApplication.cpp" />
+    <ClCompile Include="D3DGeometry.cpp" />
+    <ClCompile Include="D3DTexture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resource">

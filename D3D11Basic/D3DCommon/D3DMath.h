@@ -162,7 +162,7 @@ public:
 	{
 		DirectX::XMVECTOR axis = DirectX::XMVectorSet(x, y, z, 0.0f);
 
-		DirectX::XMMATRIX result = DirectX::XMMatrixRotationAxis(axis, angle);
+		DirectX::XMMATRIX result = DirectX::XMMatrixRotationAxis(axis, angle * DirectX::XM_PI / 180.0f);
 
 		return *(static_cast<Matrix*>(&result));
 	}
@@ -300,127 +300,127 @@ inline float AngleFromXY(float x, float y)
 	return theta;
 }
 
-NamespaceBegin(Geometry)
-struct BasicVertex 
-{
-	Vec3 Position;
-	Vec3 Normal;
-	Vec2 UV;
+//NamespaceBegin(Geometry)
+//struct BasicVertex 
+//{
+//	Vec3 Position;
+//	Vec3 Normal;
+//	Vec2 UV;
+//
+//	BasicVertex()
+//	{
+//		memset(this, 0, sizeof(BasicVertex));
+//	}
+//};
+//
+//struct Vertex 
+//{
+//	Vec3 Position;
+//	Vec3 Normal;
+//	Vec3 Tangent;
+//	Vec2 UV;
+//
+//	Vertex() 
+//	{
+//		memset(this, 0, sizeof(Vertex));
+//	}
+//	Vertex(const Vec3& pos, const Vec3& normal, const Vec3& tangent, const Vec2& uv)
+//		: Position(pos)
+//		, Normal(normal)
+//		, Tangent(tangent)
+//		, UV(uv) 
+//	{
+//	}
+//	Vertex(float px, float py, float pz,
+//		float nx, float ny, float nz,
+//		float tx, float ty, float tz,
+//		float u, float v)
+//		: Position(px, py, pz)
+//		, Normal(nx, ny, nz)
+//		, Tangent(tx, ty, tz)
+//		, UV(u, v) 
+//	{
+//	}
+//};
+//
+//struct Mesh
+//{
+//public:
+//	std::vector<Vertex> Vertices;
+//	std::vector<uint32_t> Indices;
+//
+//	void DrawNormal(const Camera &cam, bool bFlatSphere = false);
+//protected:
+//	void InitResource(bool bFlatSphere);
+//};
+//
+//class Waves
+//{
+//public:
+//	Waves() 
+//		: m_Row(0U)
+//		, m_Column(0U)
+//		, m_VertexNum(0U)
+//		, m_TriangleNum(0U)
+//		, m_TimeStep(0.0f)
+//		, m_SpatialStep(0.0f)
+//		, m_K1(0.0f)
+//		, m_K2(0.0f)
+//		, m_K3(0.0f)
+//		, m_pCurSolution(nullptr)
+//		, m_pPrevSolution(nullptr)
+//		, m_pNormals(nullptr)
+//	{
+//	}
+//	~Waves() 
+//	{
+//		SafeDeleteArray(m_pPrevSolution);
+//		SafeDeleteArray(m_pCurSolution);
+//		SafeDeleteArray(m_pNormals);
+//	}
+//
+//	inline uint32_t Row() const { return m_Row; }
+//	inline uint32_t Column() const { return m_Column; }
+//	inline uint32_t VertexCount() const { return m_VertexNum; }
+//	inline uint32_t TriangleCount() const { return m_TriangleNum; }
+//	inline const Vec3& operator[](int i) const { return m_pCurSolution[i]; }
+//	inline const Vec3& Normal(int index) const { return m_pNormals[index]; }
+//	inline float Width() const { return m_Column * m_SpatialStep; }
+//	inline float Depth() const { return m_Row * m_SpatialStep; }
+//
+//	void Create(uint32_t row, uint32_t col, float spatialStep, float timeStep, float speed, float damping);
+//	void Update(float fElapsed);
+//	void Disturb(uint32_t i, uint32_t j, float magnitude);
+//protected:
+//private:
+//	uint32_t m_Row;
+//	uint32_t m_Column;
+//	uint32_t m_VertexNum;
+//	uint32_t m_TriangleNum;
+//
+//	float m_TimeStep;
+//	float m_SpatialStep;
+//
+//	float m_K1;
+//	float m_K2;
+//	float m_K3;
+//
+//	Vec3* m_pPrevSolution;
+//	Vec3* m_pCurSolution;
+//	Vec3* m_pNormals;
+//};
 
-	BasicVertex()
-	{
-		memset(this, 0, sizeof(BasicVertex));
-	}
-};
-
-struct Vertex 
-{
-	Vec3 Position;
-	Vec3 Normal;
-	Vec3 Tangent;
-	Vec2 UV;
-
-	Vertex() 
-	{
-		memset(this, 0, sizeof(Vertex));
-	}
-	Vertex(const Vec3& pos, const Vec3& normal, const Vec3& tangent, const Vec2& uv)
-		: Position(pos)
-		, Normal(normal)
-		, Tangent(tangent)
-		, UV(uv) 
-	{
-	}
-	Vertex(float px, float py, float pz,
-		float nx, float ny, float nz,
-		float tx, float ty, float tz,
-		float u, float v)
-		: Position(px, py, pz)
-		, Normal(nx, ny, nz)
-		, Tangent(tx, ty, tz)
-		, UV(u, v) 
-	{
-	}
-};
-
-struct Mesh
-{
-public:
-	std::vector<Vertex> Vertices;
-	std::vector<uint32_t> Indices;
-
-	void DrawNormal(const Camera &cam, bool bFlatSphere = false);
-protected:
-	void InitResource(bool bFlatSphere);
-};
-
-class Waves
-{
-public:
-	Waves() 
-		: m_Row(0U)
-		, m_Column(0U)
-		, m_VertexNum(0U)
-		, m_TriangleNum(0U)
-		, m_TimeStep(0.0f)
-		, m_SpatialStep(0.0f)
-		, m_K1(0.0f)
-		, m_K2(0.0f)
-		, m_K3(0.0f)
-		, m_pCurSolution(nullptr)
-		, m_pPrevSolution(nullptr)
-		, m_pNormals(nullptr)
-	{
-	}
-	~Waves() 
-	{
-		SafeDeleteArray(m_pPrevSolution);
-		SafeDeleteArray(m_pCurSolution);
-		SafeDeleteArray(m_pNormals);
-	}
-
-	inline uint32_t Row() const { return m_Row; }
-	inline uint32_t Column() const { return m_Column; }
-	inline uint32_t VertexCount() const { return m_VertexNum; }
-	inline uint32_t TriangleCount() const { return m_TriangleNum; }
-	inline const Vec3& operator[](int i) const { return m_pCurSolution[i]; }
-	inline const Vec3& Normal(int index) const { return m_pNormals[index]; }
-	inline float Width() const { return m_Column * m_SpatialStep; }
-	inline float Depth() const { return m_Row * m_SpatialStep; }
-
-	void Create(uint32_t row, uint32_t col, float spatialStep, float timeStep, float speed, float damping);
-	void Update(float fElapsed);
-	void Disturb(uint32_t i, uint32_t j, float magnitude);
-protected:
-private:
-	uint32_t m_Row;
-	uint32_t m_Column;
-	uint32_t m_VertexNum;
-	uint32_t m_TriangleNum;
-
-	float m_TimeStep;
-	float m_SpatialStep;
-
-	float m_K1;
-	float m_K2;
-	float m_K3;
-
-	Vec3* m_pPrevSolution;
-	Vec3* m_pCurSolution;
-	Vec3* m_pNormals;
-};
-
-void MakeBox(float width, float height, float depth, Mesh& mesh);
-void MakeCube(float width, Mesh& mesh);
-void MakeSphere(float radius, uint32_t slice, uint32_t stack, Mesh& mesh);
-void MakeGeoSphere(float radius, uint32_t subDivisions, Mesh& mesh);
-void MakeFlatGeoSphere(float radius, uint32_t subDivisions, Mesh& mesh);
-void MakeCylinder(float bottomRadius, float topRadius, float height, uint32_t slice, uint32_t stack, Mesh& mesh);
-void MakeGrid(float width, float depth, uint32_t m, uint32_t n, Mesh& mesh);
-void MakeQuad(Mesh& mesh);
-void MakeQuad(const Vec3 &center, float length, Mesh& mesh);
-void SubDivide(Mesh& mesh);
-NamespaceEnd(Geometry)
+//void MakeBox(float width, float height, float depth, Mesh& mesh);
+//void MakeCube(float width, Mesh& mesh);
+//void MakeSphere(float radius, uint32_t slice, uint32_t stack, Mesh& mesh);
+//void MakeGeoSphere(float radius, uint32_t subDivisions, Mesh& mesh);
+//void MakeFlatGeoSphere(float radius, uint32_t subDivisions, Mesh& mesh);
+//void MakeCylinder(float bottomRadius, float topRadius, float height, uint32_t slice, uint32_t stack, Mesh& mesh);
+//void MakeGrid(float width, float depth, uint32_t m, uint32_t n, Mesh& mesh);
+//void MakeQuad(Mesh& mesh);
+//void MakeQuad(const Vec3 &center, float length, Mesh& mesh);
+//void SubDivide(Mesh& mesh);
+//NamespaceEnd(Geometry)
 NamespaceEnd(Math)
 
 NamespaceBegin(Color)
@@ -437,49 +437,49 @@ XMGLOBALCONST Vec4 LightSteelBlue = { 0.69f, 0.77f, 0.87f, 1.0f };
 XMGLOBALCONST Vec4 DarkBlue = { 0.0f, 0.125f, 0.3f, 1.0f };
 NamespaceEnd(Color)
 
-NamespaceBegin(Lighting)
-struct DirectionalLight
-{
-	Vec4 Ambient;
-	Vec4 Diffuse;
-	Vec4 Specular;
-	Vec4 Direction;  
-};
-
-struct PointLight 
-{
-	Vec4 Ambient;
-	Vec4 Diffuse;
-	Vec4 Specular;
-
-	Vec3 Position;
-	float Range;
-
-	Vec4 Attenuation;
-};
-
-struct SpotLight 
-{
-	Vec4 Ambient;
-	Vec4 Diffuse;
-	Vec4 Specular;
-
-	Vec3 Position;
-	float Range;
-
-	Vec3 Direction;
-	float Spot;
-
-	Vec4 Attenuation; /// padding with sizeof(float)
-};
-
-struct Material 
-{
-	Vec4 Ambient;
-	Vec4 Diffuse;
-	Vec4 Specular;
-	Vec4 Reflect;
-};
-
-void DrawLight(const Vec3 &pos, const Camera &cam);
-NamespaceEnd(Lighting)
+//NamespaceBegin(Lighting)
+//struct DirectionalLight
+//{
+//	Vec4 Ambient;
+//	Vec4 Diffuse;
+//	Vec4 Specular;
+//	Vec4 Direction;  
+//};
+//
+//struct PointLight 
+//{
+//	Vec4 Ambient;
+//	Vec4 Diffuse;
+//	Vec4 Specular;
+//
+//	Vec3 Position;
+//	float Range;
+//
+//	Vec4 Attenuation;
+//};
+//
+//struct SpotLight 
+//{
+//	Vec4 Ambient;
+//	Vec4 Diffuse;
+//	Vec4 Specular;
+//
+//	Vec3 Position;
+//	float Range;
+//
+//	Vec3 Direction;
+//	float Spot;
+//
+//	Vec4 Attenuation; /// padding with sizeof(float)
+//};
+//
+//struct Material 
+//{
+//	Vec4 Ambient;
+//	Vec4 Diffuse;
+//	Vec4 Specular;
+//	Vec4 Reflect;
+//};
+//
+//void DrawLight(const Vec3 &pos, const Camera &cam);
+//NamespaceEnd(Lighting)

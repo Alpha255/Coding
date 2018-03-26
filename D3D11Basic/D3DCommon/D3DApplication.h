@@ -34,6 +34,9 @@ protected:
 	class Camera* m_Camera = nullptr;
 
 	typedef D3DApplication Base;
+
+	void SetupDefault();
+	void ClearRenderSurface();
 private:
 	int32_t m_MouseWheelDelta = 0;
 

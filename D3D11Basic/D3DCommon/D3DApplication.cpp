@@ -83,6 +83,26 @@ void D3DApplication::UpdateScene(float, float)
 	m_Camera->Update();
 }
 
+void D3DApplication::SetupDefault()
+{
+	g_Renderer->SetRenderTarget(g_Renderer->DefaultRenderTarget());
+	g_Renderer->SetDepthStencil(g_Renderer->DefaultDepthStencil());
+
+	D3D11_VIEWPORT vp{ 0 };
+	vp.Width = (float)m_Width;
+	vp.Height = (float)m_Height;
+	vp.MinDepth = 0.0f;
+	vp.MaxDepth = 1.0f;
+	vp.TopLeftX = vp.TopLeftY = 0.0f;
+	g_Renderer->SetViewports(&vp);
+}
+
+void D3DApplication::ClearRenderSurface()
+{
+	g_Renderer->ClearRenderTarget(g_Renderer->DefaultRenderTarget(), reinterpret_cast<const float*>(&Color::DarkBlue));
+	g_Renderer->ClearDepthStencil(g_Renderer->DefaultDepthStencil(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0U);
+}
+
 void D3DApplication::RenderToWindow()
 {
 	if (nullptr == g_Renderer)
@@ -97,6 +117,7 @@ void D3DApplication::RenderToWindow()
 	if (!m_bInited)
 	{
 		SetupScene();
+		SetupDefault();
 		m_bInited = true;
 	}
 
@@ -104,6 +125,7 @@ void D3DApplication::RenderToWindow()
 
 	m_GUI.RenderBegin();
 
+	ClearRenderSurface();
 	RenderScene();
 
 	m_GUI.RenderEnd();

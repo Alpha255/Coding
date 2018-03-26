@@ -68,6 +68,11 @@ public:
 		return m_Proj;
 	}
 
+	inline const Matrix &GetWVPMatrix() const
+	{
+		return m_World * m_View * m_Proj;
+	}
+
 	inline const Vec4& GetEyePos() const
 	{
 		return m_EyePos;
