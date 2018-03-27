@@ -2,12 +2,14 @@
 
 #include "Common.h"
 #include <DirectXMath.h>
-#include <vector>
 
 class Vec2 : public DirectX::XMFLOAT2
 {
 public:
-	inline Vec2() {}
+	inline Vec2()
+		: DirectX::XMFLOAT2(0.0f, 0.0f)
+	{
+	}
 
 	inline Vec2(float x, float y)
 		: DirectX::XMFLOAT2(x, y)
@@ -18,12 +20,48 @@ public:
 		: DirectX::XMFLOAT2(pArray)
 	{
 	}
+
+	inline void operator+=(const Vec2 &right)
+	{
+		x += right.x;
+		y += right.y;
+	}
+
+	inline void operator-=(const Vec2 &right)
+	{
+		x -= right.x;
+		y -= right.y;
+	}
+
+	inline void operator*=(const float f)
+	{
+		x *= f;
+		y *= f;
+	}
+
+	inline friend Vec2 operator*(const Vec2 &left, const float f)
+	{
+		return Vec2(left.x * f, left.y * f);
+	}
+
+	inline friend Vec2 operator+(const Vec2 &left, const Vec2 &right)
+	{
+		return Vec2(left.x + right.x, left.y + right.y);
+	}
+
+	inline friend Vec2 operator-(const Vec2 &left, const Vec2 &right)
+	{
+		return Vec2(left.x - right.x, left.y - right.y);
+	}
 };
 
 class Vec3 : public DirectX::XMFLOAT3
 {
 public:
-	inline Vec3() {}
+	inline Vec3()
+		: DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f)
+	{
+	}
 
 	inline Vec3(float x, float y, float z)
 		: DirectX::XMFLOAT3(x, y, z)
@@ -35,14 +73,35 @@ public:
 	{
 	}
 
-	inline friend Vec3 operator-(const Vec3 &left, const Vec3 &right)
+	inline void operator+=(const Vec3 &right)
 	{
-		return Vec3(left.x - right.x, left.y - right.y, left.z - right.z);
+		x += right.x;
+		y += right.y;
+		z += right.z;
+	}
+
+	inline void operator-=(const Vec3 &right)
+	{
+		x -= right.x;
+		y -= right.y;
+		z -= right.z;
+	}
+
+	inline void operator*=(const float f)
+	{
+		x *= f;
+		y *= f;
+		z *= f;
 	}
 
 	inline friend Vec3 operator+(const Vec3 &left, const Vec3 &right)
 	{
 		return Vec3(left.x + right.x, left.y + right.y, left.z + right.z);
+	}
+
+	inline friend Vec3 operator-(const Vec3 &left, const Vec3 &right)
+	{
+		return Vec3(left.x - right.x, left.y - right.y, left.z - right.z);
 	}
 
 	inline friend float operator*(const Vec3 &left, const Vec3 &right)
@@ -68,11 +127,102 @@ public:
 	}
 };
 
+class Vec4 : public DirectX::XMFLOAT4
+{
+public:
+	inline Vec4() 
+		: DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0)
+	{
+	}
+
+	inline Vec4(float x, float y, float z, float w)
+		: DirectX::XMFLOAT4(x, y, z, w)
+	{
+	}
+
+	inline Vec4(const float* pArray)
+		: DirectX::XMFLOAT4(pArray)
+	{
+	}
+
+	inline void operator+=(const Vec4 &right)
+	{
+		x += right.x;
+		y += right.y;
+		z += right.z;
+		w += right.w;
+	}
+
+	inline void operator-=(const Vec4 &right)
+	{
+		x -= right.x;
+		y -= right.y;
+		z -= right.z;
+		w -= right.w;
+	}
+
+	inline void operator*=(const float f)
+	{
+		x *= f;
+		y *= f;
+		z *= f;
+		w *= f;
+	}
+
+	inline friend Vec4 operator+(const Vec4 &left, const Vec4 &right)
+	{
+		return Vec4(left.x + right.x, left.y + right.y, left.z + right.z, left.w + right.w);
+	}
+
+	inline friend Vec4 operator-(const Vec4 &left, const Vec4 &right)
+	{
+		return Vec4(left.x - right.x, left.y - right.y, left.z - right.z, left.w - right.w);
+	}
+
+	inline friend Vec4 operator*(const Vec4 &left, const float f)
+	{
+		return Vec4(left.x * f, left.y * f, left.z * f, left.w * f);
+	}
+
+	inline static Vec4 Cross(const Vec4 &v0, const Vec4 &v1, const Vec4 &v2)
+	{
+		DirectX::XMVECTOR xv0 = DirectX::XMLoadFloat4(&v0);
+
+		DirectX::XMVECTOR xv1 = DirectX::XMLoadFloat4(&v1);
+
+		DirectX::XMVECTOR xv2 = DirectX::XMLoadFloat4(&v2);
+
+		Vec4 result;
+		DirectX::XMStoreFloat4(&result, DirectX::XMVector4Cross(xv0, xv1, xv2));
+
+		return result;
+	}
+
+	///inline void Transform(const class Matrix& matrix)
+	///{
+	///	DirectX::XMVECTOR srcVec = DirectX::XMVectorSet(x, y, z, w);
+	///
+	///	DirectX::XMVECTOR result = DirectX::XMVector3Transform(srcVec, matrix);
+	///
+	///	memcpy(this, &result, sizeof(DirectX::XMVECTOR));
+	///}
+	///
+	///inline void TransformNormal(const class Matrix& matrix)
+	///{
+	///	DirectX::XMVECTOR srcVec = DirectX::XMVectorSet(x, y, z, w);
+	///
+	///	DirectX::XMVECTOR result = DirectX::XMVector3TransformNormal(srcVec, matrix);
+	///
+	///	memcpy(this, &result, sizeof(DirectX::XMVECTOR));
+	///}
+};
+
 class Matrix : public DirectX::XMMATRIX
 {
 public:
 	inline Matrix()
 	{
+		memset(this, 0, sizeof(DirectX::XMMATRIX));
 	}
 
 	inline Matrix(float m00, float m01, float m02, float m03,
@@ -92,21 +242,46 @@ public:
 	{
 	}
 
-	inline Matrix Transpose()
+	inline void Transpose()
+	{
+		DirectX::XMMATRIX result = DirectX::XMMatrixTranspose(*this);
+		memcpy(this, &result, sizeof(DirectX::XMMATRIX));
+	}
+
+	inline Matrix Transpose() const
 	{
 		DirectX::XMMATRIX result = DirectX::XMMatrixTranspose(*this);
 
 		return *(static_cast<Matrix*>(&result));
 	}
 
-	inline Matrix Inverse()
+	inline void Inverse()
+	{
+		DirectX::XMMATRIX result = DirectX::XMMatrixInverse(nullptr, *this);
+		memcpy(this, &result, sizeof(DirectX::XMMATRIX));
+	}
+
+	inline Matrix Inverse() const
 	{
 		DirectX::XMMATRIX result = DirectX::XMMatrixInverse(nullptr, *this);
 
 		return *(static_cast<Matrix*>(&result));
 	}
 
-	inline Matrix InverseTranspose()
+	inline void InverseTranspose()
+	{
+		/// Inverse-transpose is just applied to normals.  So zero out 
+		/// translation row so that it doesn't get into our inverse-transpose
+		/// calculation--we don't want the inverse-transpose of the translation.
+		Matrix temp = *this;
+		temp.r[3] = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+
+		DirectX::XMVECTOR det = DirectX::XMMatrixDeterminant(temp);
+		DirectX::XMMATRIX result = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(&det, *this));
+		memcpy(this, &result, sizeof(DirectX::XMMATRIX));
+	}
+
+	inline Matrix InverseTranspose() const
 	{
 		/// Inverse-transpose is just applied to normals.  So zero out 
 		/// translation row so that it doesn't get into our inverse-transpose
@@ -122,11 +297,18 @@ public:
 
 	inline void Identity()
 	{
-		static const DirectX::XMMATRIX I = DirectX::XMMatrixIdentity();
+		DirectX::XMMATRIX I = DirectX::XMMatrixIdentity();
 		memcpy(this, &I, sizeof(Matrix));
 	}
 
-	inline static Matrix LookAtLH(const Vec3& eyePos, const Vec3& lookAt, const Vec3& upDir)
+	inline Matrix Identity() const
+	{
+		DirectX::XMMATRIX I = DirectX::XMMatrixIdentity();
+
+		return *(static_cast<Matrix*>(&I));
+	}
+
+	inline static Matrix LookAtLH(const Vec3 &eyePos, const Vec3 &lookAt, const Vec3 &upDir)
 	{
 		DirectX::XMVECTOR eye = DirectX::XMVectorSet(eyePos.x, eyePos.y, eyePos.z, 1.0f);
 		DirectX::XMVECTOR look = DirectX::XMVectorSet(lookAt.x, lookAt.y, lookAt.z, 0.0f);
@@ -186,13 +368,32 @@ public:
 		return *(static_cast<Matrix*>(&result));
 	}
 
-	inline static Matrix Shadow(const class Vec4 &plane, const class Vec4 &litDir);
+	inline static Matrix Shadow(const Vec4 &plane, const Vec4 &litDir)
+	{
+		DirectX::XMVECTOR p = DirectX::XMVectorSet(plane.x, plane.y, plane.z, plane.w);
+		DirectX::XMVECTOR lit = DirectX::XMVectorSet(litDir.x, litDir.y, litDir.z, 0.0f);
 
-	inline Matrix operator*(const Matrix& matrix) const
+		DirectX::XMMATRIX result = DirectX::XMMatrixShadow(p, lit);
+
+		return *(static_cast<Matrix*>(&result));
+	}
+
+	inline void operator*=(const Matrix &right)
 	{
 		DirectX::XMMATRIX lMatrix, rMatrix;
-		memcpy(&lMatrix, this, sizeof(Matrix));
-		memcpy(&rMatrix, &matrix, sizeof(Matrix));
+		memcpy(&lMatrix, this, sizeof(DirectX::XMMATRIX));
+		memcpy(&rMatrix, &right, sizeof(DirectX::XMMATRIX));
+
+		DirectX::XMMATRIX result = lMatrix * rMatrix;
+
+		memcpy(this, &result, sizeof(DirectX::XMMATRIX));
+	}
+
+	inline friend Matrix operator*(const Matrix &left, const Matrix &right)
+	{
+		DirectX::XMMATRIX lMatrix, rMatrix;
+		memcpy(&lMatrix, &left, sizeof(DirectX::XMMATRIX));
+		memcpy(&rMatrix, &right, sizeof(DirectX::XMMATRIX));
 
 		DirectX::XMMATRIX result = lMatrix * rMatrix;
 
@@ -200,64 +401,9 @@ public:
 	}
 };
 
-class Vec4 : public DirectX::XMFLOAT4
-{
-public:
-	inline Vec4() {}
-
-	inline Vec4(float x, float y, float z, float w)
-		: DirectX::XMFLOAT4(x, y, z, w)
-	{
-	}
-
-	inline Vec4(const float* pArray)
-		: DirectX::XMFLOAT4(pArray)
-	{
-	}
-
-	inline void Transform(const class Matrix& matrix)
-	{
-		DirectX::XMVECTOR srcVec = DirectX::XMVectorSet(x, y, z, w);
-
-		DirectX::XMVECTOR result = DirectX::XMVector3Transform(srcVec, matrix);
-
-		memcpy(this, &result, sizeof(DirectX::XMVECTOR));
-	}
-
-	inline void TransformNormal(const class Matrix& matrix)
-	{
-		DirectX::XMVECTOR srcVec = DirectX::XMVectorSet(x, y, z, w);
-
-		DirectX::XMVECTOR result = DirectX::XMVector3TransformNormal(srcVec, matrix);
-
-		memcpy(this, &result, sizeof(DirectX::XMVECTOR));
-	}
-
-	friend inline Vec4 operator* (const Vec4 &left, float factor)
-	{
-		Vec4 result = left;
-		result.x *= factor;
-		result.y *= factor;
-		result.z *= factor;
-		result.w *= factor;
-
-		return result;
-	}
-};
-
-inline Matrix Matrix::Shadow(const Vec4 &plane, const Vec4 &litDir)
-{
-	DirectX::XMVECTOR p = DirectX::XMVectorSet(plane.x, plane.y, plane.z, plane.w);
-	DirectX::XMVECTOR lit = DirectX::XMVectorSet(litDir.x, litDir.y, litDir.z, 0.0f);
-
-	DirectX::XMMATRIX result = DirectX::XMMatrixShadow(p, lit);
-
-	return *(static_cast<Matrix*>(&result));
-}
-
-class Camera;
-
 NamespaceBegin(Math)
+using namespace DirectX;
+
 template<typename T> inline T Clamp(const T& x, const T& low, const T& high) 
 {
 	return x < low ? low : (x > high ? high : x);
@@ -288,71 +434,17 @@ inline float AngleFromXY(float x, float y)
 
 		if (theta < 0.0f)
 		{
-			theta += 2.0f * DirectX::XM_PI; /// in [0, 2*pi).
+			theta += 2.0f * XM_PI; /// in [0, 2*pi).
 		}
 	}
 	/// Quadrant II or III
 	else
 	{
-		theta = atanf(y / x) + DirectX::XM_PI; /// in [0, 2*pi).
+		theta = atanf(y / x) + XM_PI; /// in [0, 2*pi).
 	}
 
 	return theta;
 }
-
-//NamespaceBegin(Geometry)
-//struct BasicVertex 
-//{
-//	Vec3 Position;
-//	Vec3 Normal;
-//	Vec2 UV;
-//
-//	BasicVertex()
-//	{
-//		memset(this, 0, sizeof(BasicVertex));
-//	}
-//};
-//
-//struct Vertex 
-//{
-//	Vec3 Position;
-//	Vec3 Normal;
-//	Vec3 Tangent;
-//	Vec2 UV;
-//
-//	Vertex() 
-//	{
-//		memset(this, 0, sizeof(Vertex));
-//	}
-//	Vertex(const Vec3& pos, const Vec3& normal, const Vec3& tangent, const Vec2& uv)
-//		: Position(pos)
-//		, Normal(normal)
-//		, Tangent(tangent)
-//		, UV(uv) 
-//	{
-//	}
-//	Vertex(float px, float py, float pz,
-//		float nx, float ny, float nz,
-//		float tx, float ty, float tz,
-//		float u, float v)
-//		: Position(px, py, pz)
-//		, Normal(nx, ny, nz)
-//		, Tangent(tx, ty, tz)
-//		, UV(u, v) 
-//	{
-//	}
-//};
-//
-//struct Mesh
-//{
-//public:
-//	std::vector<Vertex> Vertices;
-//	std::vector<uint32_t> Indices;
-//
-//	void DrawNormal(const Camera &cam, bool bFlatSphere = false);
-//protected:
-//	void InitResource(bool bFlatSphere);
-//};
 //
 //class Waves
 //{
@@ -409,18 +501,6 @@ inline float AngleFromXY(float x, float y)
 //	Vec3* m_pCurSolution;
 //	Vec3* m_pNormals;
 //};
-
-//void MakeBox(float width, float height, float depth, Mesh& mesh);
-//void MakeCube(float width, Mesh& mesh);
-//void MakeSphere(float radius, uint32_t slice, uint32_t stack, Mesh& mesh);
-//void MakeGeoSphere(float radius, uint32_t subDivisions, Mesh& mesh);
-//void MakeFlatGeoSphere(float radius, uint32_t subDivisions, Mesh& mesh);
-//void MakeCylinder(float bottomRadius, float topRadius, float height, uint32_t slice, uint32_t stack, Mesh& mesh);
-//void MakeGrid(float width, float depth, uint32_t m, uint32_t n, Mesh& mesh);
-//void MakeQuad(Mesh& mesh);
-//void MakeQuad(const Vec3 &center, float length, Mesh& mesh);
-//void SubDivide(Mesh& mesh);
-//NamespaceEnd(Geometry)
 NamespaceEnd(Math)
 
 NamespaceBegin(Color)
@@ -436,50 +516,3 @@ XMGLOBALCONST Vec4 Silver = { 0.75f, 0.75f, 0.75f, 1.0f };
 XMGLOBALCONST Vec4 LightSteelBlue = { 0.69f, 0.77f, 0.87f, 1.0f };
 XMGLOBALCONST Vec4 DarkBlue = { 0.0f, 0.125f, 0.3f, 1.0f };
 NamespaceEnd(Color)
-
-//NamespaceBegin(Lighting)
-//struct DirectionalLight
-//{
-//	Vec4 Ambient;
-//	Vec4 Diffuse;
-//	Vec4 Specular;
-//	Vec4 Direction;  
-//};
-//
-//struct PointLight 
-//{
-//	Vec4 Ambient;
-//	Vec4 Diffuse;
-//	Vec4 Specular;
-//
-//	Vec3 Position;
-//	float Range;
-//
-//	Vec4 Attenuation;
-//};
-//
-//struct SpotLight 
-//{
-//	Vec4 Ambient;
-//	Vec4 Diffuse;
-//	Vec4 Specular;
-//
-//	Vec3 Position;
-//	float Range;
-//
-//	Vec3 Direction;
-//	float Spot;
-//
-//	Vec4 Attenuation; /// padding with sizeof(float)
-//};
-//
-//struct Material 
-//{
-//	Vec4 Ambient;
-//	Vec4 Diffuse;
-//	Vec4 Specular;
-//	Vec4 Reflect;
-//};
-//
-//void DrawLight(const Vec3 &pos, const Camera &cam);
-//NamespaceEnd(Lighting)

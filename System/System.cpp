@@ -39,12 +39,8 @@ bool IsStrEndwith(const std::string &srcStr, const char *pPostfix)
 	return (findPos != std::string::npos) && ((srcStr.length() - findPos) == strlen(pPostfix));
 }
 
-void GetFileListFromDirectory(std::vector<std::string> &outFileList, const char *pTargetDir, const char *pFilter)
+void RecursiveFileList(std::vector<std::string> &outFileList, const char *pTargetDir)
 {
-	assert(pTargetDir);
-
-	///outFileList.clear();
-
 	char rootDir[MAX_PATH] = {};
 	strcpy_s(rootDir, pTargetDir);
 	strcat_s(rootDir, "\\*.*");
@@ -62,7 +58,7 @@ void GetFileListFromDirectory(std::vector<std::string> &outFileList, const char 
 				strcat_s(subDir, "\\");
 				strcat_s(subDir, findData.cFileName);
 
-				GetFileListFromDirectory(outFileList, subDir, pFilter);
+				RecursiveFileList(outFileList, subDir);
 			}
 			else
 			{
@@ -70,14 +66,7 @@ void GetFileListFromDirectory(std::vector<std::string> &outFileList, const char 
 				std::string fileNameFull(pTargetDir);
 				fileNameFull += '\\';
 				fileNameFull += fileName;
-				if (pFilter && IsStrEndwith(fileName, pFilter))
-				{
-					outFileList.push_back(fileNameFull);
-				}
-				///else
-				///{
-				///	outFileList.push_back(fileNameFull);
-				///}
+				outFileList.push_back(fileNameFull);
 			}
 		}
 
@@ -85,6 +74,63 @@ void GetFileListFromDirectory(std::vector<std::string> &outFileList, const char 
 		{
 			break;
 		}
+	}
+}
+
+void RecursiveFileListWithFilter(std::vector<std::string> &outFileList, const char *pTargetDir, const char *pFilter)
+{
+	char rootDir[MAX_PATH] = {};
+	strcpy_s(rootDir, pTargetDir);
+	strcat_s(rootDir, "\\*.*");
+
+	::WIN32_FIND_DATAA findData = {};
+	::HANDLE hFileHandle = ::FindFirstFileA(rootDir, &findData);
+	while (true)
+	{
+		if (findData.cFileName[0] != '.')
+		{
+			if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+			{
+				char subDir[MAX_PATH] = {};
+				strcpy_s(subDir, pTargetDir);
+				strcat_s(subDir, "\\");
+				strcat_s(subDir, findData.cFileName);
+
+				RecursiveFileListWithFilter(outFileList, subDir, pFilter);
+			}
+			else
+			{
+				std::string fileName(findData.cFileName);
+				std::string fileNameFull(pTargetDir);
+				fileNameFull += '\\';
+				fileNameFull += fileName;
+				if (IsStrEndwith(fileName, pFilter))
+				{
+					outFileList.push_back(fileNameFull);
+				}
+			}
+		}
+
+		if (!::FindNextFileA(hFileHandle, &findData))
+		{
+			break;
+		}
+	}
+}
+
+void GetFileListFromDirectory(std::vector<std::string> &outFileList, const char *pTargetDir, const char *pFilter)
+{
+	assert(pTargetDir);
+
+	outFileList.clear();
+
+	if (pFilter)
+	{
+		RecursiveFileListWithFilter(outFileList, pTargetDir, pFilter);
+	}
+	else
+	{
+		RecursiveFileList(outFileList, pTargetDir);
 	}
 }
 

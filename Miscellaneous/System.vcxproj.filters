@@ -18,6 +18,7 @@
     <ClInclude Include="..\System\Semaphore.h">
       <Filter>Thread</Filter>
     </ClInclude>
+    <ClInclude Include="..\System\D3DMath.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\System\IApplication.cpp" />

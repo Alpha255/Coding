@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\JustForFun\Mario\Engine.cpp" />
+    <ClCompile Include="..\JustForFun\Mario\GameApplication.cpp" />
+    <ClCompile Include="..\JustForFun\Mario\Image.cpp" />
+    <ClCompile Include="..\JustForFun\Mario\Main.cpp" />
+    <ClCompile Include="..\JustForFun\Mario\Map.cpp" />
+    <ClCompile Include="..\JustForFun\Mario\Object2D.cpp" />
+    <ClCompile Include="..\JustForFun\Mario\Objects.cpp" />
+    <ClCompile Include="..\JustForFun\Mario\Renderer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\JustForFun\Mario\Engine.h" />
+    <ClInclude Include="..\JustForFun\Mario\GameApplication.h" />
+    <ClInclude Include="..\JustForFun\Mario\Image.h" />
+    <ClInclude Include="..\JustForFun\Mario\Map.h" />
+    <ClInclude Include="..\JustForFun\Mario\Object2D.h" />
+    <ClInclude Include="..\JustForFun\Mario\Objects.h" />
+    <ClInclude Include="..\JustForFun\Mario\Renderer.h" />
+    <ClInclude Include="..\JustForFun\Mario\resource.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Resource">
+      <UniqueIdentifier>{45270eb1-2e36-4d1b-a6f0-fb472f3c1473}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\JustForFun\Mario\Mario.rc">
+      <Filter>Resource</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Application\Resource\Mario.ico">
+      <Filter>Resource</Filter>
+    </Image>
+  </ItemGroup>
+</Project>

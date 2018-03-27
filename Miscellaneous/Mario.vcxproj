@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{59796EDB-0241-46D4-8BC9-2C9B2B7D3826}</ProjectGuid>
+    <ProjectGuid>{3D30D096-C9DB-40B5-BACA-5DB9F5BAB9EA}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Mario</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
@@ -57,19 +57,19 @@
   <ImportGroup Label="Shared">
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <Import Project="..\JustForFun.props" />
+    <Import Project="UniformProperty.props" />
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <Import Project="..\JustForFun.props" />
+    <Import Project="UniformProperty.props" />
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Import Project="..\JustForFun.props" />
+    <Import Project="UniformProperty.props" />
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Import Project="..\JustForFun.props" />
+    <Import Project="UniformProperty.props" />
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -96,7 +96,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>msimg32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Msimg32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -110,7 +110,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>msimg32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Msimg32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -128,7 +128,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>msimg32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Msimg32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -146,42 +146,39 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>msimg32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Msimg32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Engine.cpp" />
-    <ClCompile Include="GameApplication.cpp" />
-    <ClCompile Include="Image.cpp" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Map.cpp" />
-    <ClCompile Include="Object2D.cpp" />
-    <ClCompile Include="Objects.cpp" />
-    <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="..\JustForFun\Mario\Engine.cpp" />
+    <ClCompile Include="..\JustForFun\Mario\GameApplication.cpp" />
+    <ClCompile Include="..\JustForFun\Mario\Image.cpp" />
+    <ClCompile Include="..\JustForFun\Mario\Main.cpp" />
+    <ClCompile Include="..\JustForFun\Mario\Map.cpp" />
+    <ClCompile Include="..\JustForFun\Mario\Object2D.cpp" />
+    <ClCompile Include="..\JustForFun\Mario\Objects.cpp" />
+    <ClCompile Include="..\JustForFun\Mario\Renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Engine.h" />
-    <ClInclude Include="GameApplication.h" />
-    <ClInclude Include="Image.h" />
-    <ClInclude Include="Map.h" />
-    <ClInclude Include="Object2D.h" />
-    <ClInclude Include="Objects.h" />
-    <ClInclude Include="Renderer.h" />
-    <ClInclude Include="resource.h" />
+    <ClInclude Include="..\JustForFun\Mario\Engine.h" />
+    <ClInclude Include="..\JustForFun\Mario\GameApplication.h" />
+    <ClInclude Include="..\JustForFun\Mario\Image.h" />
+    <ClInclude Include="..\JustForFun\Mario\Map.h" />
+    <ClInclude Include="..\JustForFun\Mario\Object2D.h" />
+    <ClInclude Include="..\JustForFun\Mario\Objects.h" />
+    <ClInclude Include="..\JustForFun\Mario\Renderer.h" />
+    <ClInclude Include="..\JustForFun\Mario\resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\D3D11Basic\D3DCommon\D3DCommon.vcxproj">
-      <Project>{6ac5e4d4-a7ce-4a12-ad70-c3591652de8e}</Project>
+    <ResourceCompile Include="..\JustForFun\Mario\Mario.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Application\Resource\Mario.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="System.vcxproj">
+      <Project>{6db11869-f668-4424-b0db-de705c4124c9}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\Utility\Utility.vcxproj">
-      <Project>{eab653a1-bdbe-491e-92a1-8bb9276b6275}</Project>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Mario.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="..\..\Application\Resource\Mario.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

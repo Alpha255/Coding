@@ -1,15 +1,15 @@
 #include "Map.h"
+#include "System.h"
+#include "Image.h"
 
 #include <string>
 #include <fstream>
-#include "Utility.h"
-#include "Image.h"
 
 void Map::Create(const char *pFileName)
 {
 	assert(pFileName);
 
-	std::string filePath = Utility::ResourceFilePath(pFileName, Utility::eRawData);
+	std::string filePath = System::ResourceFilePath(pFileName, System::eRawData);
 	std::ifstream mapFile(filePath, std::ios::in);
 
 	assert(mapFile.good());

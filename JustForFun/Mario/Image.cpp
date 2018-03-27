@@ -1,8 +1,8 @@
 ﻿#include "Image.h"
+#include "System.h"
 
 #include <string>
 #include <fstream>
-#include "Utility.h"
 
 void Image::Create(const char *pFileName)
 {
@@ -19,7 +19,7 @@ void Image::Create(const char *pFileName)
 		".jpg"
 	};
 
-	std::string filePath = Utility::ResourceFilePath(pFileName, Utility::eTexture);
+	std::string filePath = System::ResourceFilePath(pFileName, System::eTexture);
 
 	if (ext == s_Ext[eBmp])
 	{
