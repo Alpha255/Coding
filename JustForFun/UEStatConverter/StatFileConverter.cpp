@@ -1,6 +1,6 @@
 #include "StatFileConverter.h"
 #include "CommandLine.h"
-#include "Utility.h"
+#include "System.h"
 
 #include <thread>
 #include <iostream>
@@ -40,7 +40,7 @@ void StatFileConverter::DoConvert()
 	s_UEFrontendDir = std::string(CommandLine::GetUERootDir());
 	s_UEFrontendDir += "\\Engine\\Binaries\\Win64\\UnrealFrontend.exe";
 
-	Utility::GetFileListFromDirectory(m_FileList, CommandLine::GetInFileDir(), ".ue4stats");
+	System::GetFileListFromDirectory(m_FileList, CommandLine::GetInFileDir(), ".ue4stats");
 
 	uint32_t threadNum = std::thread::hardware_concurrency() - 1; /// main thread
 	uint32_t totalFileNum = (uint32_t)m_FileList.size();

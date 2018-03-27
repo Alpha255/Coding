@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="..\System\Common.h" />
+    <ClInclude Include="..\System\IApplication.h" />
+    <ClInclude Include="..\System\RefCountPtr.h" />
+    <ClInclude Include="..\System\System.h" />
+    <ClInclude Include="..\System\Timer.h" />
+    <ClInclude Include="..\System\Event.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\System\CriticalSection.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\System\IThread.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\System\Semaphore.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\System\IApplication.cpp" />
+    <ClCompile Include="..\System\System.cpp" />
+    <ClCompile Include="..\System\Timer.cpp" />
+    <ClCompile Include="..\System\IThread.cpp">
+      <Filter>Thread</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Thread">
+      <UniqueIdentifier>{5b430f72-660c-427d-b2e6-8b6d7ac3fa3e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

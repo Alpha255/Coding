@@ -1,4 +1,5 @@
 #include "Timer.h"
+#include "Common.h"
 
 Timer::Timer()
 	: m_SecondsPerCount(0.0)

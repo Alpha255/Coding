@@ -146,7 +146,7 @@ void Mesh::Draw(const Camera &cam)
 	g_Renderer->SetIndexBuffer(m_Resource.IndexBuffer, DXGI_FORMAT_R32_UINT, 0U);
 
 	Matrix world = cam.GetWorldMatrix();
-	world = world * m_Transform.Rotate * m_Transform.Translation * m_Transform.Scale;
+	world = world * m_Transform.Scale * m_Transform.Rotate * m_Transform.Translation;
 	Matrix wvp = world * cam.GetViewMatrix() * cam.GetProjMatrix();
 
 	m_CBufferVS.World = world.Transpose();

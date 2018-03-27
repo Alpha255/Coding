@@ -6,12 +6,12 @@
 extern D3DGraphic* g_Renderer;
 
 static Geometry::Mesh s_Box;
-static Ref<ID3D11ShaderResourceView> tex;
 
 void ApplicationBox::SetupScene()
 {
 	Geometry::Mesh::MakeCube(1.0f, s_Box);
 
+	Ref<ID3D11ShaderResourceView> tex;
 	g_Renderer->CreateShaderResourceView(tex, "WoodCrate01.dds");
 	Geometry::Material mat;
 	mat.SetTexture(Geometry::Material::eDiffuseMap, tex);

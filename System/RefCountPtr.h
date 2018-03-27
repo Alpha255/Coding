@@ -34,28 +34,6 @@ public:
 		}
 	}
 
-	///__forceinline Ref& operator= (const Ref& refSrc) 
-	///{
-	///	if (refSrc.m_pPtr == m_pPtr)
-	///	{
-	///		return *this;
-	///	}
-	///
-	///	if (m_pPtr != nullptr)
-	///	{
-	///		m_pPtr->Release();
-	///	}
-	///
-	///	m_pPtr = refSrc.m_pPtr;
-	///
-	///	if (m_pPtr)
-	///	{
-	///		m_pPtr->AddRef();
-	///	}
-	///
-	///	return *this;
-	///}
-
 	__forceinline void operator=(const Ref &srcRef)
 	{
 		if (srcRef.m_pPtr == m_pPtr)
@@ -74,11 +52,6 @@ public:
 		{
 			m_pPtr->AddRef();
 		}
-
-		///if (srcRef.m_pPtr)
-		///{
-		///	srcRef.m_pPtr->Release();
-		///}
 	}
 
 	__forceinline bool operator== (const Ref& refSrc) const 

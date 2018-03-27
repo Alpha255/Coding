@@ -19,9 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{81257B88-2F1E-4018-8384-553F4241643C}</ProjectGuid>
+    <ProjectGuid>{5F5E2077-A3A6-439B-B584-E9449222DE6C}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>DataStructures</RootNamespace>
+    <RootNamespace>UEStatConverter</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -57,19 +57,19 @@
   <ImportGroup Label="Shared">
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <Import Project="..\Miscellaneous.props" />
+    <Import Project="UniformProperty.props" />
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <Import Project="..\Miscellaneous.props" />
+    <Import Project="UniformProperty.props" />
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Import Project="..\Miscellaneous.props" />
+    <Import Project="UniformProperty.props" />
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Import Project="..\Miscellaneous.props" />
+    <Import Project="UniformProperty.props" />
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -146,12 +146,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="MainTester.cpp" />
+    <ClCompile Include="..\JustForFun\UEStatConverter\CommandLine.cpp" />
+    <ClCompile Include="..\JustForFun\UEStatConverter\Main.cpp" />
+    <ClCompile Include="..\JustForFun\UEStatConverter\StatFileConverter.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="linearlist.hpp" />
-    <ClInclude Include="linkedlist.hpp" />
-    <ClInclude Include="Node.h" />
+    <ClInclude Include="..\JustForFun\UEStatConverter\CommandLine.h" />
+    <ClInclude Include="..\JustForFun\UEStatConverter\StatFileConverter.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="System.vcxproj">
+      <Project>{6db11869-f668-4424-b0db-de705c4124c9}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

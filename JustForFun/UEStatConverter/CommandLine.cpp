@@ -1,6 +1,5 @@
 #include "CommandLine.h"
-
-#include "Utility.h"
+#include "System.h"
 
 bool CommandLine::s_Inited = false;
 char CommandLine::s_InFileDir[MAX_PATH] = {};
@@ -34,8 +33,8 @@ void CommandLine::Parse(uint32_t argc, const char **ppArgv)
 		}
 	}
 
-	assert(Utility::IsValidDirectory(s_InFileDir));
-	assert(Utility::IsValidDirectory(s_UERootDir));
+	assert(System::IsValidDirectory(s_InFileDir));
+	assert(System::IsValidDirectory(s_UERootDir));
 
 	if (0U == strnlen_s(s_OutFileDir, MAX_PATH))
 	{

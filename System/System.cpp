@@ -1,6 +1,6 @@
-#include "Utility.h"
+#include "System.h"
 
-NamespaceBegin(Utility)
+NamespaceBegin(System)
 
 std::string ResourceFileDirectory(eResourceType resType)
 {
@@ -105,4 +105,4 @@ bool IsValidDirectory(const char *pTargetDir)
 	return bValid;
 }
 
-NamespaceEnd(Utility)
+NamespaceEnd(System)

@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-NamespaceBegin(Utility)
+NamespaceBegin(System)
 
 enum eResourceType
 {
@@ -28,4 +28,4 @@ void GetFileListFromDirectory(std::vector<std::string> &outFileList, const char 
 
 bool IsValidDirectory(const char *pTargetDir);
 
-NamespaceEnd(Utility)
+NamespaceEnd(System)
