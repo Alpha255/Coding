@@ -18,6 +18,57 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\D3D11\D3DApplication.cpp" />
+    <ClCompile Include="..\D3D11\D3DBuffer.cpp" />
+    <ClCompile Include="..\D3D11\D3DEngine.cpp" />
+    <ClCompile Include="..\D3D11\D3DGeometry.cpp" />
+    <ClCompile Include="..\D3D11\D3DGraphic.cpp" />
+    <ClCompile Include="..\D3D11\D3DMath.cpp" />
+    <ClCompile Include="..\D3D11\D3DModel.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\D3D11\D3DShader.cpp" />
+    <ClCompile Include="..\D3D11\D3DState.cpp" />
+    <ClCompile Include="..\D3D11\D3DTexture.cpp" />
+    <ClCompile Include="..\D3D11\D3DGUI_AntTweakBar.cpp" />
+    <ClCompile Include="..\D3D11\D3DGUI_imGui.cpp" />
+    <ClCompile Include="..\D3D11\D3DSkyBox.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\D3D11\D3DApplication.h" />
+    <ClInclude Include="..\D3D11\D3DBuffer.h" />
+    <ClInclude Include="..\D3D11\D3DEngine.h" />
+    <ClInclude Include="..\D3D11\D3DGeometry.h" />
+    <ClInclude Include="..\D3D11\D3DGraphic.h" />
+    <ClInclude Include="..\D3D11\D3DModel.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\D3D11\D3DResource.h" />
+    <ClInclude Include="..\D3D11\D3DShader.h" />
+    <ClInclude Include="..\D3D11\D3DState.h" />
+    <ClInclude Include="..\D3D11\D3DTexture.h" />
+    <ClInclude Include="..\D3D11\D3DView.h" />
+    <ClInclude Include="..\D3D11\D3DGUI_AntTweakBar.h" />
+    <ClInclude Include="..\D3D11\D3DGUI_imGui.h" />
+    <ClInclude Include="..\D3D11\D3DSkyBox.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{DD9FA08B-7CE1-4151-8456-2E3217505704}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>

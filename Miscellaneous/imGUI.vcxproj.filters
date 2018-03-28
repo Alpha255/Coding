@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="extra_fonts">
+      <UniqueIdentifier>{e3debaef-00c2-4290-ba5d-75c620602a2a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\ThirdParty\GUI\ocornut\extra_fonts\binary_to_compressed_c.cpp">
+      <Filter>extra_fonts</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParty\GUI\ocornut\imgui.cpp" />
+    <ClCompile Include="..\ThirdParty\GUI\ocornut\imgui_demo.cpp" />
+    <ClCompile Include="..\ThirdParty\GUI\ocornut\imgui_draw.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="..\ThirdParty\GUI\ocornut\extra_fonts\Cousine-Regular.ttf">
+      <Filter>extra_fonts</Filter>
+    </Font>
+    <Font Include="..\ThirdParty\GUI\ocornut\extra_fonts\DroidSans.ttf">
+      <Filter>extra_fonts</Filter>
+    </Font>
+    <Font Include="..\ThirdParty\GUI\ocornut\extra_fonts\Karla-Regular.ttf">
+      <Filter>extra_fonts</Filter>
+    </Font>
+    <Font Include="..\ThirdParty\GUI\ocornut\extra_fonts\ProggyClean.ttf">
+      <Filter>extra_fonts</Filter>
+    </Font>
+    <Font Include="..\ThirdParty\GUI\ocornut\extra_fonts\ProggyTiny.ttf">
+      <Filter>extra_fonts</Filter>
+    </Font>
+    <Font Include="..\ThirdParty\GUI\ocornut\extra_fonts\Roboto-Medium.ttf">
+      <Filter>extra_fonts</Filter>
+    </Font>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\ThirdParty\GUI\ocornut\extra_fonts\README.txt">
+      <Filter>extra_fonts</Filter>
+    </Text>
+    <Text Include="..\ThirdParty\GUI\ocornut\LICENSE.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\ThirdParty\GUI\ocornut\.travis.yml" />
+    <None Include="..\ThirdParty\GUI\ocornut\README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\ThirdParty\GUI\ocornut\imconfig.h" />
+    <ClInclude Include="..\ThirdParty\GUI\ocornut\imgui.h" />
+    <ClInclude Include="..\ThirdParty\GUI\ocornut\imgui_internal.h" />
+    <ClInclude Include="..\ThirdParty\GUI\ocornut\stb_rect_pack.h" />
+    <ClInclude Include="..\ThirdParty\GUI\ocornut\stb_textedit.h" />
+    <ClInclude Include="..\ThirdParty\GUI\ocornut\stb_truetype.h" />
+  </ItemGroup>
+</Project>

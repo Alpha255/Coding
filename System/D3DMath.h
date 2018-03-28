@@ -222,7 +222,7 @@ class Matrix : public DirectX::XMMATRIX
 public:
 	inline Matrix()
 	{
-		memset(this, 0, sizeof(DirectX::XMMATRIX));
+		this->Identity();
 	}
 
 	inline Matrix(float m00, float m01, float m02, float m03,

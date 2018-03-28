@@ -19,35 +19,44 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\System\Camera.h" />
-    <ClInclude Include="..\System\Common.h" />
-    <ClInclude Include="..\System\CriticalSection.h" />
-    <ClInclude Include="..\System\Event.h" />
-    <ClInclude Include="..\System\IApplication.h" />
-    <ClInclude Include="..\System\IThread.h" />
-    <ClInclude Include="..\System\D3DMath.h" />
-    <ClInclude Include="..\System\RefCountPtr.h" />
-    <ClInclude Include="..\System\resource.h" />
-    <ClInclude Include="..\System\Semaphore.h" />
-    <ClInclude Include="..\System\System.h" />
-    <ClInclude Include="..\System\Timer.h" />
+    <ClCompile Include="..\ThirdParty\GUI\ocornut\extra_fonts\binary_to_compressed_c.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParty\GUI\ocornut\imgui.cpp" />
+    <ClCompile Include="..\ThirdParty\GUI\ocornut\imgui_demo.cpp" />
+    <ClCompile Include="..\ThirdParty\GUI\ocornut\imgui_draw.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\System\IApplication.cpp" />
-    <ClCompile Include="..\System\IThread.cpp" />
-    <ClCompile Include="..\System\System.cpp" />
-    <ClCompile Include="..\System\Timer.cpp" />
+    <Font Include="..\ThirdParty\GUI\ocornut\extra_fonts\Cousine-Regular.ttf" />
+    <Font Include="..\ThirdParty\GUI\ocornut\extra_fonts\DroidSans.ttf" />
+    <Font Include="..\ThirdParty\GUI\ocornut\extra_fonts\Karla-Regular.ttf" />
+    <Font Include="..\ThirdParty\GUI\ocornut\extra_fonts\ProggyClean.ttf" />
+    <Font Include="..\ThirdParty\GUI\ocornut\extra_fonts\ProggyTiny.ttf" />
+    <Font Include="..\ThirdParty\GUI\ocornut\extra_fonts\Roboto-Medium.ttf" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\System\Resource.rc" />
+    <Text Include="..\ThirdParty\GUI\ocornut\extra_fonts\README.txt" />
+    <Text Include="..\ThirdParty\GUI\ocornut\LICENSE.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\Application\Resource\directx.ico" />
+    <None Include="..\ThirdParty\GUI\ocornut\.travis.yml" />
+    <None Include="..\ThirdParty\GUI\ocornut\README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\ThirdParty\GUI\ocornut\imconfig.h" />
+    <ClInclude Include="..\ThirdParty\GUI\ocornut\imgui.h" />
+    <ClInclude Include="..\ThirdParty\GUI\ocornut\imgui_internal.h" />
+    <ClInclude Include="..\ThirdParty\GUI\ocornut\stb_rect_pack.h" />
+    <ClInclude Include="..\ThirdParty\GUI\ocornut\stb_textedit.h" />
+    <ClInclude Include="..\ThirdParty\GUI\ocornut\stb_truetype.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{6DB11869-F668-4424-B0DB-DE705C4124C9}</ProjectGuid>
+    <ProjectGuid>{DC209B60-DE63-473C-B591-509783CF2FD6}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>System</RootNamespace>
+    <RootNamespace>imGUI</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -99,7 +108,22 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)Application\</OutDir>
+    <IntDir>$(SolutionDir)Intermediate\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)Application\</OutDir>
+    <IntDir>$(SolutionDir)Intermediate\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)Application\</OutDir>
+    <IntDir>$(SolutionDir)Intermediate\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)Application\</OutDir>
+    <IntDir>$(SolutionDir)Intermediate\$(ProjectName)\</IntDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>

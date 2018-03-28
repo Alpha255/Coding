@@ -1,2 +1,47 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" />
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="GUI">
+      <UniqueIdentifier>{fd3c9033-bfa0-40df-bb11-d034d533d9b8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\D3D11\D3DApplication.cpp" />
+    <ClCompile Include="..\D3D11\D3DGeometry.cpp" />
+    <ClCompile Include="..\D3D11\D3DGraphic.cpp" />
+    <ClCompile Include="..\D3D11\D3DMath.cpp" />
+    <ClCompile Include="..\D3D11\D3DModel.cpp" />
+    <ClCompile Include="..\D3D11\D3DTexture.cpp" />
+    <ClCompile Include="..\D3D11\D3DEngine.cpp" />
+    <ClCompile Include="..\D3D11\D3DBuffer.cpp" />
+    <ClCompile Include="..\D3D11\D3DState.cpp" />
+    <ClCompile Include="..\D3D11\D3DSkyBox.cpp" />
+    <ClCompile Include="..\D3D11\D3DShader.cpp" />
+    <ClCompile Include="..\D3D11\D3DGUI_imGui.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\D3D11\D3DGUI_AntTweakBar.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\D3D11\D3DApplication.h" />
+    <ClInclude Include="..\D3D11\D3DGeometry.h" />
+    <ClInclude Include="..\D3D11\D3DGraphic.h" />
+    <ClInclude Include="..\D3D11\D3DModel.h" />
+    <ClInclude Include="..\D3D11\D3DTexture.h" />
+    <ClInclude Include="..\D3D11\D3DResource.h" />
+    <ClInclude Include="..\D3D11\D3DView.h" />
+    <ClInclude Include="..\D3D11\D3DBuffer.h" />
+    <ClInclude Include="..\D3D11\D3DShader.h" />
+    <ClInclude Include="..\D3D11\D3DState.h" />
+    <ClInclude Include="..\D3D11\D3DEngine.h" />
+    <ClInclude Include="..\D3D11\D3DSkyBox.h" />
+    <ClInclude Include="..\D3D11\D3DGUI_imGui.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\D3D11\D3DGUI_AntTweakBar.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

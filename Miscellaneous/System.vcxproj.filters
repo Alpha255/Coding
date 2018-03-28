@@ -19,6 +19,10 @@
       <Filter>Thread</Filter>
     </ClInclude>
     <ClInclude Include="..\System\D3DMath.h" />
+    <ClInclude Include="..\System\resource.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="..\System\Camera.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\System\IApplication.cpp" />
@@ -32,5 +36,18 @@
     <Filter Include="Thread">
       <UniqueIdentifier>{5b430f72-660c-427d-b2e6-8b6d7ac3fa3e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource">
+      <UniqueIdentifier>{a6f108ca-81da-4403-bd56-a161f47376d2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\System\Resource.rc">
+      <Filter>Resource</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Application\Resource\directx.ico">
+      <Filter>Resource</Filter>
+    </Image>
   </ItemGroup>
 </Project>
