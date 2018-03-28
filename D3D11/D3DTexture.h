@@ -28,20 +28,44 @@ private:
 
 class D3DTexture1D : public D3DTexture
 {
-
+public:
+	D3DTexture1D()
+	{
+		m_Type = e1D;
+	}
+protected:
+private:
 };
 
 class D3DTexture2D : public D3DTexture
 {
-
+public:
+	D3DTexture2D()
+	{
+		m_Type = e2D;
+	}
+protected:
+private:
 };
 
 class D3DTexture3D : public D3DTexture
 {
-
+public:
+	D3DTexture3D()
+	{
+		m_Type = e3D;
+	}
+protected:
+private:
 };
 
 class D3DTextureCube : public D3DTexture
 {
-
+public:
+	D3DTextureCube()
+	{
+		m_Type = eCubemap;
+	}
+protected:
+private:
 };

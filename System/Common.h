@@ -27,3 +27,14 @@
 
 #define NamespaceBegin(name) namespace name {
 #define NamespaceEnd(name) }
+
+class NoneCopyable
+{
+public:
+	NoneCopyable() = default;
+	~NoneCopyable() = default;
+	NoneCopyable(const NoneCopyable &) = delete;
+	void operator=(const NoneCopyable &) = delete;
+protected:
+private:
+};
