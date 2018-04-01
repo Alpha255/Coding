@@ -6,7 +6,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\D3D11\D3DApplication.cpp" />
     <ClCompile Include="..\D3D11\D3DGeometry.cpp" />
     <ClCompile Include="..\D3D11\D3DGraphic.cpp" />
     <ClCompile Include="..\D3D11\D3DMath.cpp" />
@@ -23,14 +22,15 @@
     <ClCompile Include="..\D3D11\D3DGUI_AntTweakBar.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
+    <ClCompile Include="D3DObject.cpp" />
+    <ClCompile Include="..\D3D11\D3DApp.cpp" />
+    <ClCompile Include="..\D3D11\D3DView.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\D3D11\D3DApplication.h" />
     <ClInclude Include="..\D3D11\D3DGeometry.h" />
     <ClInclude Include="..\D3D11\D3DGraphic.h" />
     <ClInclude Include="..\D3D11\D3DModel.h" />
     <ClInclude Include="..\D3D11\D3DTexture.h" />
-    <ClInclude Include="..\D3D11\D3DResource.h" />
     <ClInclude Include="..\D3D11\D3DView.h" />
     <ClInclude Include="..\D3D11\D3DBuffer.h" />
     <ClInclude Include="..\D3D11\D3DShader.h" />
@@ -43,5 +43,7 @@
     <ClInclude Include="..\D3D11\D3DGUI_AntTweakBar.h">
       <Filter>GUI</Filter>
     </ClInclude>
+    <ClInclude Include="..\D3D11\D3DObject.h" />
+    <ClInclude Include="..\D3D11\D3DApp.h" />
   </ItemGroup>
 </Project>

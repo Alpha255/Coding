@@ -1,22 +1,12 @@
 #pragma once
 
 #include "IApplication.h"
-#include "resource.h"
 
-#define UsingimGUI
-///#define UsingAntTweakBar
-
-#if defined UsingimGUI
-#include "GUI_imGUI.h"
-#elif defined UsingAntTweakBar
-#include "GUI_AntTweakBar.h"
-#endif
-
-class D3DApplication : public IApplication
+class D3DApp : public IApplication
 {
 public:
-	D3DApplication();
-	virtual ~D3DApplication();
+	D3DApp();
+	virtual ~D3DApp();
 
 	virtual	LRESULT MsgProc(HWND hWnd, uint32_t msg, WPARAM wParam, LPARAM lParam);
 
@@ -33,12 +23,13 @@ public:
 protected:
 	class Camera* m_Camera = nullptr;
 
-	typedef D3DApplication Base;
+	typedef D3DApp Base;
 
 	void SetupDefault();
-	void ClearRenderSurface();
 private:
 	int32_t m_MouseWheelDelta = 0;
+
+	class D3DEngine *s_Renderer = nullptr;
 
 #if defined UsingimGUI
 	imGUI_D3D11 m_GUI;

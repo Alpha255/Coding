@@ -1,4 +1,4 @@
-//#include "Box.h"
+#include "Box.h"
 //
 //INT WINAPI wWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpCmdLine*/, int /*nShow*/)
 //{
@@ -15,19 +15,20 @@
 #include "Common.h"
 #include "D3DEngine.h"
 #include "System.h"
+#include <iostream>
+#include <d3d11.h>
 
-void fnl() 
-{ 
-	D3DEngine::Instance();
-}
+///atexit(fnl);
 
 int32_t WINAPI wWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpCmdLine*/, int /*nShow*/)
 {
-	D3DEngine::Instance();
+	AppBox box;
 
-	D3DEngine::Destory();
+	box.Startup(L"Box");
 
-	///atexit(fnl);
+	box.Running();
+
+	box.ShutDown();
 
 	return 0;
 }

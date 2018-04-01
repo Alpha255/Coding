@@ -117,7 +117,7 @@
 //		}
 //	};
 //
-//	struct D3DResource
+//	struct D3DObject
 //	{
 //		Ref<ID3D11VertexShader> VertexShader;
 //		Ref<ID3D11PixelShader> PixelShader;
@@ -135,7 +135,7 @@
 //	ConstantsBufferVS m_CBufferVS;
 //	ConstantsBufferPS m_CBufferPS;
 //
-//	D3DResource m_D3DRes;
+//	D3DObject m_D3DRes;
 //
 //	Matrix m_World;
 //

@@ -1,12 +1,12 @@
 #pragma once
 
-#include "D3DApplication.h"
+#include "D3DApp.h"
 
-class ApplicationBox : public D3DApplication
+class AppBox : public D3DApp
 {
 public:
-	ApplicationBox() = default;
-	~ApplicationBox() = default;
+	AppBox() = default;
+	~AppBox() = default;
 
 	virtual void SetupScene();
 	virtual void RenderScene();

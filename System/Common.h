@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <assert.h>
 #include <memory>
+#include <functional>
+#include <array>
 #include "RefCountPtr.h"
 
 /// http://blog.csdn.net/slshelly/article/details/8720487

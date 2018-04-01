@@ -1,71 +1,43 @@
 #pragma once
 
-#include "D3DResource.h"
+#include "D3DObject.h"
 
-class D3DTexture : public D3DResource<struct ID3D11ShaderResourceView>
+class D3DTexture1D : public D3DObject<ID3D11Texture1D>
 {
 public:
-	enum eType
-	{
-		e1D,
-		e2D,
-		e3D,
-		eCubemap,
-		eTypeCount
-	};
+	void Create(
+		uint32_t fmt,
+		uint32_t width,
+		uint32_t bindFlags,
+		uint32_t mipLevels = 1U,
+		uint32_t arraySize = 1U,
+		uint32_t cpuFlags = 0U,
+		uint32_t miscFlags = 0U,
+		uint32_t usage = 0U,
+		const void *pData = nullptr,
+		uint32_t memPitch = 0U);
 
-	D3DTexture() = default;
-	~D3DTexture() = default;
-
-	void CreateFromDDS(const char *pFileName);
-protected:
-	eType m_Type = eTypeCount;
-	uint32_t m_Width = 0U;
-	uint32_t m_Height = 0U;
-	uint32_t m_MipLevel = 1U;
-private:
+	void CreateRandomTexture();
 };
 
-class D3DTexture1D : public D3DTexture
+class D3DTexture2D : public D3DObject<ID3D11Texture2D>
 {
 public:
-	D3DTexture1D()
-	{
-		m_Type = e1D;
-	}
-protected:
-private:
+	void Create(
+		uint32_t fmt,
+		uint32_t width,
+		uint32_t height,
+		uint32_t bindFlags,
+		uint32_t mipLevels = 1U,
+		uint32_t arraySize = 1U,
+		uint32_t cpuFlags = 0U,
+		uint32_t miscFlags = 0U,
+		uint32_t usage = 0U,
+		const void *pData = nullptr,
+		uint32_t memPitch = 0U);
 };
 
-class D3DTexture2D : public D3DTexture
+class D3DTexture3D : public D3DObject<ID3D11Texture3D>
 {
 public:
-	D3DTexture2D()
-	{
-		m_Type = e2D;
-	}
-protected:
-private:
-};
-
-class D3DTexture3D : public D3DTexture
-{
-public:
-	D3DTexture3D()
-	{
-		m_Type = e3D;
-	}
-protected:
-private:
-};
-
-class D3DTextureCube : public D3DTexture
-{
-public:
-	D3DTextureCube()
-	{
-		m_Type = eCubemap;
-	}
-protected:
-private:
 };
