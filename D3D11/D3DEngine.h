@@ -170,7 +170,10 @@ protected:
 		float                    BlendFactor[4] = {};
 		bool                     DirtyFlags[eDirtyFlagCount] = {};
 
-		std::array<D3DVertexBuffer, eMaxVertexStream> VertexBufferCache;
+		std::array<ID3D11Buffer *, eMaxVertexStream> VertexBufferCache;
+		std::array<uint32_t, eMaxVertexStream> VertexStrideCache;
+		std::array<uint32_t, eMaxVertexStream> VertexOffsetCache;
+
 		std::array<ID3D11RenderTargetView *, eMaxRenderTargetViews> RenderTargetViewCache;
 
 		std::array<std::array<ID3D11Buffer *, eMaxConstantBuffers>, D3DShader::eShaderTypeCount> ConstantBufferCache;

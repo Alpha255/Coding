@@ -160,6 +160,9 @@ void D3DEngine::SetVertexBuffer(const D3DBuffer &vertexBuffer, uint32_t stride, 
 		m_Pipeline.VertexBuffers[slot].Buffer = vertexBuffer;
 
 		size_t index = m_Pipeline.VertexBufferCache.size();
+		m_Pipeline.VertexBufferCache[index] = vertexBuffer.Get();
+		m_Pipeline.VertexStrideCache[index] = stride;
+		m_Pipeline.VertexOffsetCache[index] = offset;
 
 		m_Pipeline.DirtyFlags[eDVertexBuffer] = true;
 	}
@@ -186,6 +189,9 @@ void D3DEngine::SetSamplerStates(const D3DSamplerState &samplerState, uint32_t s
 	if (m_Pipeline.SamplerStates[targetShader][slot] != samplerState)
 	{
 		m_Pipeline.SamplerStates[targetShader][slot] = samplerState;
+
+		size_t index = m_Pipeline.SamplerStateCache[targetShader].size();
+		m_Pipeline.SamplerStateCache[targetShader][index] = samplerState.Get();
 
 		m_Pipeline.DirtyFlags[eDSamplerState] = true;
 	}
@@ -303,6 +309,9 @@ void D3DEngine::SetConstantBuffer(const D3DBuffer &constantBuffer, uint32_t slot
 	{
 		m_Pipeline.ConstantBuffers[targetShader][slot] = constantBuffer;
 
+		size_t index = m_Pipeline.ConstantBufferCache[targetShader].size();
+		m_Pipeline.ConstantBufferCache[targetShader][index] = constantBuffer.Get();
+
 		m_Pipeline.DirtyFlags[eDConstantBuffer] = true;
 	}
 }
@@ -315,6 +324,9 @@ void D3DEngine::SetViewport(const D3DViewport &viewport, uint32_t slot)
 	{
 		m_Pipeline.Viewports[slot] = viewport;
 
+		size_t index = m_Pipeline.ViewportCache.size();
+		m_Pipeline.ViewportCache[index] = viewport;
+
 		m_Pipeline.DirtyFlags[eDViewport] = true;
 	}
 }
@@ -326,6 +338,9 @@ void D3DEngine::SetScissorRect(const D3DRect &rect, uint32_t slot)
 	if (m_Pipeline.ScissorRects[slot] != rect)
 	{
 		m_Pipeline.ScissorRects[slot] = rect;
+
+		size_t index = m_Pipeline.ScissorRectCache.size();
+		m_Pipeline.ScissorRectCache[index] = rect;
 
 		m_Pipeline.DirtyFlags[eDScissorRect] = true;
 	}
@@ -347,25 +362,14 @@ void D3DEngine::D3DPipeline::CommitState(const D3DContext &IMContext)
 
 	if (DirtyFlags[eDVertexBuffer])
 	{
-		std::array<ID3D11Buffer *, eMaxVertexStream> vertexBuffers;
-		std::array<uint32_t, eMaxVertexStream> strides;
-		std::array<uint32_t, eMaxVertexStream> offsets;
+		assert(!VertexBufferCache.empty());
 
-		uint32_t index = 0U;
-		for (uint32_t i = 0U; i < eMaxVertexStream; ++i)
-		{
-			if (VertexBuffers[i].Buffer.IsValid())
-			{
-				vertexBuffers[index] = VertexBuffers[i].Buffer.Get();
-				strides[index] = VertexBuffers[i].Stride;
-				offsets[index] = VertexBuffers[i].Offset;
-				++index;
-			}
-		}
+		IMContext->IASetVertexBuffers(0U, (uint32_t)VertexBufferCache.size(), VertexBufferCache.data(), VertexStrideCache.data(), VertexOffsetCache.data());
 
-		assert(vertexBuffers.empty());
+		VertexBufferCache.fill(nullptr);
+		VertexStrideCache.fill(0U);
+		VertexOffsetCache.fill(0U);
 
-		IMContext->IASetVertexBuffers(0, (uint32_t)vertexBuffers.size(), vertexBuffers.data(), strides.data(), offsets.data());
 		DirtyFlags[eDVertexBuffer] = false;
 	}
 
@@ -453,19 +457,11 @@ void D3DEngine::D3DPipeline::CommitState(const D3DContext &IMContext)
 
 	if (DirtyFlags[eDRenderTargetView] || DirtyFlags[eDDepthStencilView])
 	{
-		uint32_t index = 0U;
-		std::array<ID3D11RenderTargetView *, eMaxRenderTargetViews> renderTargetViews;
-		for (uint32_t i = 0U; i < eMaxRenderTargetViews; ++i)
-		{
-			if (RenderTargetViews[i].IsValid())
-			{
-				renderTargetViews[index++] = RenderTargetViews[i].Get();
-			}
-		}
+		assert(!RenderTargetViewCache.empty());
 
-		assert(!renderTargetViews.empty());
+		IMContext->OMSetRenderTargets((uint32_t)RenderTargetViewCache.size(), RenderTargetViewCache.data(), DepthStencilView.Get());
 
-		IMContext->OMSetRenderTargets((uint32_t)renderTargetViews.size(), renderTargetViews.data(), DepthStencilView.Get());
+		RenderTargetViewCache.fill(nullptr);
 		
 		DirtyFlags[eDRenderTargetView] = false;
 		DirtyFlags[eDDepthStencilView] = false;
@@ -481,24 +477,20 @@ void D3DEngine::D3DPipeline::BindConstantBuffers(const D3DContext &IMContext)
 
 	for (uint32_t i = 0U; i < D3DShader::eShaderTypeCount; ++i)
 	{
-		uint32_t index = 0U;
-		std::array<ID3D11Buffer *, eMaxConstantBuffers> constantBuffers;
-		for (uint32_t j = 0U; j < eMaxConstantBuffers; ++j)
+		std::array<ID3D11Buffer *, eMaxConstantBuffers> &constantBuffers = ConstantBufferCache[i];
+		if (!constantBuffers.empty())
 		{
-			if (ConstantBuffers[i][j].IsValid())
+			switch ((D3DShader::eShaderType)i)
 			{
-				constantBuffers[index++] = ConstantBuffers[i][j].Get();
+			case D3DShader::eVertexShader:   IMContext->VSSetConstantBuffers(0U, (uint32_t)constantBuffers.size(), constantBuffers.data()); break;
+			case D3DShader::eHullShader:     IMContext->HSSetConstantBuffers(0U, (uint32_t)constantBuffers.size(), constantBuffers.data()); break;
+			case D3DShader::eDomainShader:   IMContext->DSSetConstantBuffers(0U, (uint32_t)constantBuffers.size(), constantBuffers.data()); break;
+			case D3DShader::eGeometryShader: IMContext->GSSetConstantBuffers(0U, (uint32_t)constantBuffers.size(), constantBuffers.data()); break;
+			case D3DShader::ePixelShader:    IMContext->PSSetConstantBuffers(0U, (uint32_t)constantBuffers.size(), constantBuffers.data()); break;
+			case D3DShader::eComputeShader:  IMContext->CSSetConstantBuffers(0U, (uint32_t)constantBuffers.size(), constantBuffers.data()); break;
 			}
-		}
 
-		switch ((D3DShader::eShaderType)i)
-		{
-		case D3DShader::eVertexShader:   IMContext->VSSetConstantBuffers(0U, (uint32_t)constantBuffers.size(), constantBuffers.data()); break;
-		case D3DShader::eHullShader:     IMContext->HSSetConstantBuffers(0U, (uint32_t)constantBuffers.size(), constantBuffers.data()); break;
-		case D3DShader::eDomainShader:   IMContext->DSSetConstantBuffers(0U, (uint32_t)constantBuffers.size(), constantBuffers.data()); break;
-		case D3DShader::eGeometryShader: IMContext->GSSetConstantBuffers(0U, (uint32_t)constantBuffers.size(), constantBuffers.data()); break;
-		case D3DShader::ePixelShader:    IMContext->PSSetConstantBuffers(0U, (uint32_t)constantBuffers.size(), constantBuffers.data()); break;
-		case D3DShader::eComputeShader:  IMContext->CSSetConstantBuffers(0U, (uint32_t)constantBuffers.size(), constantBuffers.data()); break;
+			constantBuffers.fill(nullptr);
 		}
 	}
 
@@ -514,24 +506,20 @@ void D3DEngine::D3DPipeline::BindSamplerStates(const D3DContext &IMContext)
 
 	for (uint32_t i = 0U; i < D3DShader::eShaderTypeCount; ++i)
 	{
-		uint32_t index = 0U;
-		std::array<ID3D11SamplerState *, eMaxSamplers> samplerStates;
-		for (uint32_t j = 0U; j < eMaxSamplers; ++j)
+		std::array<ID3D11SamplerState *, eMaxSamplers> &samplerStates = SamplerStateCache[i];
+		if (!samplerStates.empty())
 		{
-			if (SamplerStates[i][j].IsValid())
+			switch ((D3DShader::eShaderType)i)
 			{
-				samplerStates[index++] = SamplerStates[i][j].Get();
+			case D3DShader::eVertexShader:   IMContext->VSSetSamplers(0U, (uint32_t)samplerStates.size(), samplerStates.data()); break;
+			case D3DShader::eHullShader:     IMContext->HSSetSamplers(0U, (uint32_t)samplerStates.size(), samplerStates.data()); break;
+			case D3DShader::eDomainShader:   IMContext->DSSetSamplers(0U, (uint32_t)samplerStates.size(), samplerStates.data()); break;
+			case D3DShader::eGeometryShader: IMContext->GSSetSamplers(0U, (uint32_t)samplerStates.size(), samplerStates.data()); break;
+			case D3DShader::ePixelShader:    IMContext->PSSetSamplers(0U, (uint32_t)samplerStates.size(), samplerStates.data()); break;
+			case D3DShader::eComputeShader:  IMContext->CSSetSamplers(0U, (uint32_t)samplerStates.size(), samplerStates.data()); break;
 			}
-		}
 
-		switch ((D3DShader::eShaderType)i)
-		{
-		case D3DShader::eVertexShader:   IMContext->VSSetSamplers(0U, (uint32_t)samplerStates.size(), samplerStates.data()); break;
-		case D3DShader::eHullShader:     IMContext->HSSetSamplers(0U, (uint32_t)samplerStates.size(), samplerStates.data()); break;
-		case D3DShader::eDomainShader:   IMContext->DSSetSamplers(0U, (uint32_t)samplerStates.size(), samplerStates.data()); break;
-		case D3DShader::eGeometryShader: IMContext->GSSetSamplers(0U, (uint32_t)samplerStates.size(), samplerStates.data()); break;
-		case D3DShader::ePixelShader:    IMContext->PSSetSamplers(0U, (uint32_t)samplerStates.size(), samplerStates.data()); break;
-		case D3DShader::eComputeShader:  IMContext->CSSetSamplers(0U, (uint32_t)samplerStates.size(), samplerStates.data()); break;
+			samplerStates.fill(nullptr);
 		}
 	}
 
@@ -547,24 +535,20 @@ void D3DEngine::D3DPipeline::BindShaderResourceViews(const D3DContext &IMContext
 
 	for (uint32_t i = 0U; i < D3DShader::eShaderTypeCount; ++i)
 	{
-		uint32_t index = 0U;
-		std::array<ID3D11ShaderResourceView *, eMaxShaderResourceView> shaderResourceViews;
-		for (uint32_t j = 0U; j < eMaxShaderResourceView; ++j)
+		std::array<ID3D11ShaderResourceView *, eMaxShaderResourceView> &shaderResourceViews = ShaderResourceViewCache[i];
+		if (!shaderResourceViews.empty())
 		{
-			if (ShaderResourceViews[i][j].IsValid())
+			switch ((D3DShader::eShaderType)i)
 			{
-				shaderResourceViews[index++] = ShaderResourceViews[i][j].Get();
+			case D3DShader::eVertexShader:   IMContext->VSSetShaderResources(0U, (uint32_t)shaderResourceViews.size(), shaderResourceViews.data()); break;
+			case D3DShader::eHullShader:     IMContext->HSSetShaderResources(0U, (uint32_t)shaderResourceViews.size(), shaderResourceViews.data()); break;
+			case D3DShader::eDomainShader:   IMContext->DSSetShaderResources(0U, (uint32_t)shaderResourceViews.size(), shaderResourceViews.data()); break;
+			case D3DShader::eGeometryShader: IMContext->GSSetShaderResources(0U, (uint32_t)shaderResourceViews.size(), shaderResourceViews.data()); break;
+			case D3DShader::ePixelShader:    IMContext->PSSetShaderResources(0U, (uint32_t)shaderResourceViews.size(), shaderResourceViews.data()); break;
+			case D3DShader::eComputeShader:  IMContext->CSSetShaderResources(0U, (uint32_t)shaderResourceViews.size(), shaderResourceViews.data()); break;
 			}
-		}
 
-		switch ((D3DShader::eShaderType)i)
-		{
-		case D3DShader::eVertexShader:   IMContext->VSSetShaderResources(0U, (uint32_t)shaderResourceViews.size(), shaderResourceViews.data()); break;
-		case D3DShader::eHullShader:     IMContext->HSSetShaderResources(0U, (uint32_t)shaderResourceViews.size(), shaderResourceViews.data()); break;
-		case D3DShader::eDomainShader:   IMContext->DSSetShaderResources(0U, (uint32_t)shaderResourceViews.size(), shaderResourceViews.data()); break;
-		case D3DShader::eGeometryShader: IMContext->GSSetShaderResources(0U, (uint32_t)shaderResourceViews.size(), shaderResourceViews.data()); break;
-		case D3DShader::ePixelShader:    IMContext->PSSetShaderResources(0U, (uint32_t)shaderResourceViews.size(), shaderResourceViews.data()); break;
-		case D3DShader::eComputeShader:  IMContext->CSSetShaderResources(0U, (uint32_t)shaderResourceViews.size(), shaderResourceViews.data()); break;
+			shaderResourceViews.fill(nullptr);
 		}
 	}
 
@@ -578,17 +562,10 @@ void D3DEngine::D3DPipeline::BindUnorderedAccessViews(const D3DContext &IMContex
 		return;
 	}
 
-	uint32_t index = 0U;
-	std::array<ID3D11UnorderedAccessView *, eMaxUnorderedAccessViews> unorderedAccessViews;
-	for (uint32_t i = 0U; i < eMaxUnorderedAccessViews; ++i)
+	if (!UnorderedAccessViewCache.empty())
 	{
-		if (UnorderedAccessViews[i].IsValid())
-		{
-			unorderedAccessViews[index++] = UnorderedAccessViews[i].Get();
-		}
+		IMContext->CSSetUnorderedAccessViews(0U, (uint32_t)UnorderedAccessViewCache.size(), UnorderedAccessViewCache.data(), nullptr);
 	}
-
-	IMContext->CSSetUnorderedAccessViews(0U, (uint32_t)unorderedAccessViews.size(), unorderedAccessViews.data(), nullptr);
 
 	DirtyFlags[eDUnorderedAccessView] = false;
 }
@@ -600,6 +577,10 @@ void D3DEngine::D3DPipeline::BindViewports(const D3DContext &IMContext)
 		return;
 	}
 
+	assert(ViewportCache.empty());
+
+	IMContext->RSSetViewports((uint32_t)ViewportCache.size(), ViewportCache.data());
+
 	DirtyFlags[eDViewport] = false;
 }
 
@@ -609,6 +590,8 @@ void D3DEngine::D3DPipeline::BindScirrorRects(const D3DContext &IMContext)
 	{
 		return;
 	}
+
+	IMContext->RSSetScissorRects((uint32_t)ScissorRectCache.size(), ScissorRectCache.data());
 
 	DirtyFlags[eDScissorRect] = false;
 }
