@@ -66,14 +66,15 @@ public:
 
 	void Resize(uint32_t width, uint32_t height);
 
-	void SetRenderTargetView(const D3DRenderTargetView &renderTarget, uint32_t slot);
+	void SetRenderTargetView(const D3DRenderTargetView &renderTarget, uint32_t slot = 0U);
 	void SetDepthStencilView(const D3DDepthStencilView &depthStencilView);
-	void SetShaderResource(const D3DShaderResourceView &shaderResourceView, uint32_t slot, D3DShader::eShaderType targetShader);
+	void SetShaderResourceView(const D3DShaderResourceView &shaderResourceView, uint32_t slot, D3DShader::eShaderType targetShader);
+	void SetUnorderedAccessView(const D3DUnorderedAccessView &unorderedAccessView, uint32_t slot, D3DShader::eShaderType targetShader = D3DShader::eComputeShader);
 
-	void SetVertexBuffer(const D3DBuffer &vertexBuffer, uint32_t stride, uint32_t offset, uint32_t index);
+	void SetVertexBuffer(const D3DBuffer &vertexBuffer, uint32_t stride, uint32_t offset, uint32_t slot = 0U);
 	void SetIndexBuffer(const D3DBuffer &indexBuffer, uint32_t fmt, uint32_t offset);
 
-	void SetSamplerStates(const D3DSamplerState &samplerStates, uint32_t startSlot, D3DShader::eShaderType targetShader);
+	void SetSamplerStates(const D3DSamplerState &samplerState, uint32_t slot, D3DShader::eShaderType targetShader);
 	void SetRasterizerState(const D3DRasterizerState &rasterizerState);
 	void SetDepthStencilState(const D3DDepthStencilState &depthStencilState, uint32_t stencilRef);
 	void SetBlendState(const D3DBlendState &blendState, const float *pFactor = nullptr, uint32_t mask = 0xFFFFFFFF);
@@ -86,27 +87,27 @@ public:
 	void SetGeometryShader(const D3DGeometryShader &geometryShader);
 	void SetComputeShader(const D3DComputeShader &computeShader);
 
-	void SetConstantBuffer(const D3DBuffer &constantsBuf, uint32_t slot, D3DShader::eShaderType targetShader);
+	void SetConstantBuffer(const D3DBuffer &constantBuffer, uint32_t slot, D3DShader::eShaderType targetShader);
 
-	void SetViewport(const D3DViewport &viewport, uint32_t index);
-	void SetScissorRect(const D3DRect &rect, uint32_t index);
+	void SetViewport(const D3DViewport &viewport, uint32_t slot = 0U);
+	void SetScissorRect(const D3DRect &rect, uint32_t slot = 0U);
 protected:
 	enum eResourceLimits
 	{
 		eMaxViewports = D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE,
-		eMaxScissorRect = eMaxViewports,
+		eMaxScissorRects = eMaxViewports,
 		eMaxSamplers = D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT,
 		eMaxConstantBuffers = D3D11_COMMONSHADER_CONSTANT_BUFFER_HW_SLOT_COUNT,
-		eMaxRenderTargets = D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT,
-		eMaxShaderResource = D3D11_COMMONSHADER_INPUT_RESOURCE_REGISTER_COUNT,
-		eMaxUnorderedAccessView = D3D11_PS_CS_UAV_REGISTER_COUNT,
+		eMaxRenderTargetViews = D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT,
+		eMaxShaderResourceView = D3D11_COMMONSHADER_INPUT_RESOURCE_REGISTER_COUNT,
+		eMaxUnorderedAccessViews = D3D11_PS_CS_UAV_REGISTER_COUNT,  /// D3D11_1_UAV_SLOT_COUNT
 		eMaxVertexStream = 1  /// Custom
 	};
 
 	enum eDirtyFlag
 	{
 		eDInputLayout,
-		eDVerteBuffer,
+		eDVertexBuffer,
 		eDIndexBuffer,
 		eDConstantBuffer,
 		
@@ -127,20 +128,21 @@ protected:
 		eDShaderResourceView,
 		eDUnorderedAccessView,
 		
-		eDRect,
+		eDScissorRect,
 		eDViewport,
 
-		eDPrimitiveTopolgy,
+		eDPrimitiveTopology,
 
 		eDirtyFlagCount
 	};
 
 	struct D3DPipeline
 	{
+	public:
 		D3DInputLayout           InputLayout;
 		D3DVertexBuffer          VertexBuffers[eMaxVertexStream];
 		D3DIndexBuffer           IndexBuffer;
-		D3DBuffer                ConstantBuffers[eMaxConstantBuffers];
+		D3DBuffer                ConstantBuffers[D3DShader::eShaderTypeCount][eMaxConstantBuffers];
 
 		D3DVertexShader          VertexShader;
 		D3DHullShader            HullShader;
@@ -150,19 +152,43 @@ protected:
 		D3DComputeShader         ComputeShader;
 
 		D3DRasterizerState       RasterizerState;
-		D3DSamplerState          SamplerState[eMaxSamplers];
+		D3DSamplerState          SamplerStates[D3DShader::eShaderTypeCount][eMaxSamplers];
 		D3DBlendState            BlendState;
 		D3DDepthStencilState     DepthStencilState;
 
-		D3DRenderTargetView      RenderTargetView[eMaxRenderTargets];
+		D3DRenderTargetView      RenderTargetViews[eMaxRenderTargetViews];
 		D3DDepthStencilView      DepthStencilView;
-		D3DShaderResourceView    ShaderResourceView[eMaxShaderResource];
-		D3DUnorderedAccessView   UnorderedAccessView[eMaxUnorderedAccessView];
+		D3DShaderResourceView    ShaderResourceViews[D3DShader::eShaderTypeCount][eMaxShaderResourceView];
+		D3DUnorderedAccessView   UnorderedAccessViews[eMaxUnorderedAccessViews];
 
 		D3DViewport              Viewports[eMaxViewports];
-		D3DRect                  ScissorRects[eMaxScissorRect];
+		D3DRect                  ScissorRects[eMaxScissorRects];
 
-		uint32_t                 PrimitiveTopology;
+		uint32_t                 PrimitiveTopology = eTriangleList;
+		uint32_t                 StencilRef = 0U;
+		uint32_t                 BlendMask = 0U;
+		float                    BlendFactor[4] = {};
+		bool                     DirtyFlags[eDirtyFlagCount] = {};
+
+		std::array<D3DVertexBuffer, eMaxVertexStream> VertexBufferCache;
+		std::array<ID3D11RenderTargetView *, eMaxRenderTargetViews> RenderTargetViewCache;
+
+		std::array<std::array<ID3D11Buffer *, eMaxConstantBuffers>, D3DShader::eShaderTypeCount> ConstantBufferCache;
+		std::array<std::array<ID3D11SamplerState *, eMaxSamplers>, D3DShader::eShaderTypeCount> SamplerStateCache;
+		std::array<std::array<ID3D11ShaderResourceView *, eMaxShaderResourceView>, D3DShader::eShaderTypeCount> ShaderResourceViewCache;
+
+		std::array<ID3D11UnorderedAccessView *, eMaxUnorderedAccessViews> UnorderedAccessViewCache;
+		std::array<D3DViewport, eMaxViewports> ViewportCache;
+		std::array<D3DRect, eMaxScissorRects> ScissorRectCache;
+
+		void CommitState(const D3DContext &IMContext);
+	protected:
+		void BindConstantBuffers(const D3DContext &IMContext);
+		void BindSamplerStates(const D3DContext &IMContext);
+		void BindShaderResourceViews(const D3DContext &IMContext);
+		void BindUnorderedAccessViews(const D3DContext &IMContext);
+		void BindViewports(const D3DContext &IMContext);
+		void BindScirrorRects(const D3DContext &IMContext);
 	};
 
 	D3DEngine() = default;
@@ -179,5 +205,4 @@ private:
 	D3DDepthStencilView m_DepthStencil;
 
 	D3DPipeline m_Pipeline;
-	bool m_DirtyFlags[eDirtyFlagCount] = {};
 };

@@ -74,16 +74,36 @@ public:
 
 struct D3DVertexBuffer
 {
-	D3DBuffer VertexBuffer;
+	D3DBuffer Buffer;
 	uint32_t Stride = 0U;
 	uint32_t Offset = 0U;
+
+	bool operator==(const D3DVertexBuffer &other)
+	{
+		return (Stride == other.Stride && Offset == other.Offset && Buffer == other.Buffer);
+	}
+
+	bool operator!=(const D3DVertexBuffer &other)
+	{
+		return !(*this == other);
+	}
 };
 
 struct D3DIndexBuffer
 {
-	D3DBuffer IndexBuffer;
+	D3DBuffer Buffer;
 	uint32_t Format = 0U;
 	uint32_t Offset = 0U;
+
+	bool operator==(const D3DIndexBuffer &other)
+	{
+		return (Format == other.Format && Offset == other.Offset && Buffer == other.Buffer);
+	}
+
+	bool operator!=(const D3DIndexBuffer &other)
+	{
+		return !(*this == other);
+	}
 };
 
 enum ePrimitiveTopology

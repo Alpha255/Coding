@@ -32,7 +32,7 @@ public:
 	{
 		if (m_Object != other.m_Object)
 		{
-			m_Object = other;
+			m_Object = other.m_Object;
 		}
 	}
 
@@ -49,7 +49,7 @@ public:
 	{
 		if (m_Object != other.m_Object)
 		{
-			m_Object = other;
+			m_Object = other.m_Object;
 		}
 	}
 
