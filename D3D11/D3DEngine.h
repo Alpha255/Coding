@@ -91,6 +91,11 @@ public:
 
 	void SetViewport(const D3DViewport &viewport, uint32_t slot = 0U);
 	void SetScissorRect(const D3DRect &rect, uint32_t slot = 0U);
+
+	void Draw(uint32_t vertexCount, uint32_t startVertex, uint32_t primitive);
+	void DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, uint32_t primitive);
+	void DrawInstanced();
+	void DrawAuto();
 protected:
 	enum eResourceLimits
 	{
@@ -170,19 +175,19 @@ protected:
 		float                    BlendFactor[4] = {};
 		bool                     DirtyFlags[eDirtyFlagCount] = {};
 
-		std::array<ID3D11Buffer *, eMaxVertexStream> VertexBufferCache;
-		std::array<uint32_t, eMaxVertexStream> VertexStrideCache;
-		std::array<uint32_t, eMaxVertexStream> VertexOffsetCache;
+		std::vector<ID3D11Buffer *> VertexBufferCache;
+		std::vector<uint32_t> VertexStrideCache;
+		std::vector<uint32_t> VertexOffsetCache;
 
-		std::array<ID3D11RenderTargetView *, eMaxRenderTargetViews> RenderTargetViewCache;
+		std::vector<ID3D11RenderTargetView *> RenderTargetViewCache;
+		std::vector<ID3D11UnorderedAccessView *> UnorderedAccessViewCache;
+		std::array<std::vector<ID3D11ShaderResourceView *>, D3DShader::eShaderTypeCount> ShaderResourceViewCache;
 
-		std::array<std::array<ID3D11Buffer *, eMaxConstantBuffers>, D3DShader::eShaderTypeCount> ConstantBufferCache;
-		std::array<std::array<ID3D11SamplerState *, eMaxSamplers>, D3DShader::eShaderTypeCount> SamplerStateCache;
-		std::array<std::array<ID3D11ShaderResourceView *, eMaxShaderResourceView>, D3DShader::eShaderTypeCount> ShaderResourceViewCache;
+		std::array<std::vector<ID3D11Buffer *>, D3DShader::eShaderTypeCount> ConstantBufferCache;
+		std::array<std::vector<ID3D11SamplerState *>, D3DShader::eShaderTypeCount> SamplerStateCache;
 
-		std::array<ID3D11UnorderedAccessView *, eMaxUnorderedAccessViews> UnorderedAccessViewCache;
-		std::array<D3DViewport, eMaxViewports> ViewportCache;
-		std::array<D3DRect, eMaxScissorRects> ScissorRectCache;
+		std::vector<D3DViewport> ViewportCache;
+		std::vector<D3DRect> ScissorRectCache;
 
 		void CommitState(const D3DContext &IMContext);
 	protected:
@@ -190,8 +195,6 @@ protected:
 		void BindSamplerStates(const D3DContext &IMContext);
 		void BindShaderResourceViews(const D3DContext &IMContext);
 		void BindUnorderedAccessViews(const D3DContext &IMContext);
-		void BindViewports(const D3DContext &IMContext);
-		void BindScirrorRects(const D3DContext &IMContext);
 	};
 
 	D3DEngine() = default;
@@ -204,8 +207,8 @@ private:
 	D3DDevice m_Device;
 	D3DContext m_IMContext;
 	D3DSwapChain m_SwapChain;
-	D3DRenderTargetView m_RenderTarget;
-	D3DDepthStencilView m_DepthStencil;
+	D3DRenderTargetView m_RenderTargetView;
+	D3DDepthStencilView m_DepthStencilView;
 
 	D3DPipeline m_Pipeline;
 };

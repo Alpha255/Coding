@@ -64,22 +64,27 @@ void D3DEngine::RecreateRenderTargetDepthStencil(uint32_t width, uint32_t height
 
 	D3DResource surface;
 	surface.MakeObject(pTexture2D);
-	m_RenderTarget.Create(surface);
+	m_RenderTargetView.Create(surface);
 
 	D3DResource empty;
-	m_DepthStencil.Create(empty, DXGI_FORMAT_D24_UNORM_S8_UINT, width, height, D3D11_DSV_DIMENSION_TEXTURE2D);
+	m_DepthStencilView.Create(empty, DXGI_FORMAT_D24_UNORM_S8_UINT, width, height, D3D11_DSV_DIMENSION_TEXTURE2D);
 
-	SetRenderTargetView(m_RenderTarget);
+	SetRenderTargetView(m_RenderTargetView);
 
-	SetDepthStencilView(m_DepthStencil);
+	SetDepthStencilView(m_DepthStencilView);
 }
 
 void D3DEngine::Resize(uint32_t width, uint32_t height)
 {
 	assert((width > 0U) && (height > 0U));
 
-	m_RenderTarget.Reset();
-	m_DepthStencil.Reset();
+	for (uint32_t i = 0U; i < eMaxRenderTargetViews; ++i)
+	{
+		m_Pipeline.RenderTargetViews[i].Reset();
+	}
+
+	m_RenderTargetView.Reset();
+	m_DepthStencilView.Reset();
 
 	if (!m_SwapChain.Resize(width, height))
 	{
@@ -100,8 +105,7 @@ void D3DEngine::SetRenderTargetView(const D3DRenderTargetView &renderTarget, uin
 	{
 		m_Pipeline.RenderTargetViews[slot] = renderTarget;
 
-		size_t index = m_Pipeline.RenderTargetViewCache.size();
-		m_Pipeline.RenderTargetViewCache[index] = renderTarget.Get();
+		m_Pipeline.RenderTargetViewCache.push_back(renderTarget.Get());
 
 		m_Pipeline.DirtyFlags[eDRenderTargetView] = true;
 	}
@@ -125,8 +129,7 @@ void D3DEngine::SetShaderResourceView(const D3DShaderResourceView &shaderResourc
 	{
 		m_Pipeline.ShaderResourceViews[targetShader][slot] = shaderResourceView;
 
-		size_t index = m_Pipeline.ShaderResourceViewCache[targetShader].size();
-		m_Pipeline.ShaderResourceViewCache[targetShader][index] = shaderResourceView.Get();
+		m_Pipeline.ShaderResourceViewCache[targetShader].push_back(shaderResourceView.Get());
 
 		m_Pipeline.DirtyFlags[eDShaderResourceView] = true;
 	}
@@ -140,8 +143,7 @@ void D3DEngine::SetUnorderedAccessView(const D3DUnorderedAccessView &unorderedAc
 	{
 		m_Pipeline.UnorderedAccessViews[slot] = unorderedAccessView;
 
-		size_t index = m_Pipeline.UnorderedAccessViewCache.size();
-		m_Pipeline.UnorderedAccessViewCache[index] = unorderedAccessView.Get();
+		m_Pipeline.UnorderedAccessViewCache.push_back(unorderedAccessView.Get());
 
 		m_Pipeline.DirtyFlags[eDUnorderedAccessView] = true;
 	}
@@ -159,10 +161,9 @@ void D3DEngine::SetVertexBuffer(const D3DBuffer &vertexBuffer, uint32_t stride, 
 		m_Pipeline.VertexBuffers[slot].Offset = offset;
 		m_Pipeline.VertexBuffers[slot].Buffer = vertexBuffer;
 
-		size_t index = m_Pipeline.VertexBufferCache.size();
-		m_Pipeline.VertexBufferCache[index] = vertexBuffer.Get();
-		m_Pipeline.VertexStrideCache[index] = stride;
-		m_Pipeline.VertexOffsetCache[index] = offset;
+		m_Pipeline.VertexBufferCache.push_back(vertexBuffer.Get());
+		m_Pipeline.VertexStrideCache.push_back(stride);
+		m_Pipeline.VertexOffsetCache.push_back(offset);
 
 		m_Pipeline.DirtyFlags[eDVertexBuffer] = true;
 	}
@@ -190,8 +191,7 @@ void D3DEngine::SetSamplerStates(const D3DSamplerState &samplerState, uint32_t s
 	{
 		m_Pipeline.SamplerStates[targetShader][slot] = samplerState;
 
-		size_t index = m_Pipeline.SamplerStateCache[targetShader].size();
-		m_Pipeline.SamplerStateCache[targetShader][index] = samplerState.Get();
+		m_Pipeline.SamplerStateCache[targetShader].push_back(samplerState.Get());
 
 		m_Pipeline.DirtyFlags[eDSamplerState] = true;
 	}
@@ -309,8 +309,7 @@ void D3DEngine::SetConstantBuffer(const D3DBuffer &constantBuffer, uint32_t slot
 	{
 		m_Pipeline.ConstantBuffers[targetShader][slot] = constantBuffer;
 
-		size_t index = m_Pipeline.ConstantBufferCache[targetShader].size();
-		m_Pipeline.ConstantBufferCache[targetShader][index] = constantBuffer.Get();
+		m_Pipeline.ConstantBufferCache[targetShader].push_back(constantBuffer.Get());
 
 		m_Pipeline.DirtyFlags[eDConstantBuffer] = true;
 	}
@@ -324,8 +323,7 @@ void D3DEngine::SetViewport(const D3DViewport &viewport, uint32_t slot)
 	{
 		m_Pipeline.Viewports[slot] = viewport;
 
-		size_t index = m_Pipeline.ViewportCache.size();
-		m_Pipeline.ViewportCache[index] = viewport;
+		m_Pipeline.ViewportCache.push_back(viewport);
 
 		m_Pipeline.DirtyFlags[eDViewport] = true;
 	}
@@ -339,8 +337,7 @@ void D3DEngine::SetScissorRect(const D3DRect &rect, uint32_t slot)
 	{
 		m_Pipeline.ScissorRects[slot] = rect;
 
-		size_t index = m_Pipeline.ScissorRectCache.size();
-		m_Pipeline.ScissorRectCache[index] = rect;
+		m_Pipeline.ScissorRectCache.push_back(rect);
 
 		m_Pipeline.DirtyFlags[eDScissorRect] = true;
 	}
@@ -366,9 +363,9 @@ void D3DEngine::D3DPipeline::CommitState(const D3DContext &IMContext)
 
 		IMContext->IASetVertexBuffers(0U, (uint32_t)VertexBufferCache.size(), VertexBufferCache.data(), VertexStrideCache.data(), VertexOffsetCache.data());
 
-		VertexBufferCache.fill(nullptr);
-		VertexStrideCache.fill(0U);
-		VertexOffsetCache.fill(0U);
+		VertexBufferCache.clear();
+		VertexStrideCache.clear();
+		VertexOffsetCache.clear();
 
 		DirtyFlags[eDVertexBuffer] = false;
 	}
@@ -396,6 +393,7 @@ void D3DEngine::D3DPipeline::CommitState(const D3DContext &IMContext)
 	/// VS->HS->DS->GS
 	if (DirtyFlags[eDVertexShader])
 	{
+		assert(VertexShader.IsValid());
 		IMContext->VSSetShader(VertexShader.Get(), nullptr, 0U);
 		DirtyFlags[eDVertexShader] = false;
 	}
@@ -425,9 +423,28 @@ void D3DEngine::D3DPipeline::CommitState(const D3DContext &IMContext)
 		DirtyFlags[eDRasterizerState] = false;
 	}
 
-	BindViewports(IMContext);
+	if (DirtyFlags[eDViewport])
+	{
+		assert(ViewportCache.empty());
 
-	BindScirrorRects(IMContext);
+		IMContext->RSSetViewports((uint32_t)ViewportCache.size(), ViewportCache.data());
+
+		ViewportCache.clear();
+
+		DirtyFlags[eDViewport] = false;
+	}
+
+	if (DirtyFlags[eDScissorRect])
+	{
+		if (!ScissorRectCache.empty())
+		{
+			IMContext->RSSetScissorRects((uint32_t)ScissorRectCache.size(), ScissorRectCache.data());
+
+			ScissorRectCache.clear();
+		}
+
+		DirtyFlags[eDScissorRect] = false;
+	}
 
 	/// Pixel Shader
 	if (DirtyFlags[eDPixelShader])
@@ -461,7 +478,7 @@ void D3DEngine::D3DPipeline::CommitState(const D3DContext &IMContext)
 
 		IMContext->OMSetRenderTargets((uint32_t)RenderTargetViewCache.size(), RenderTargetViewCache.data(), DepthStencilView.Get());
 
-		RenderTargetViewCache.fill(nullptr);
+		RenderTargetViewCache.clear();
 		
 		DirtyFlags[eDRenderTargetView] = false;
 		DirtyFlags[eDDepthStencilView] = false;
@@ -477,7 +494,7 @@ void D3DEngine::D3DPipeline::BindConstantBuffers(const D3DContext &IMContext)
 
 	for (uint32_t i = 0U; i < D3DShader::eShaderTypeCount; ++i)
 	{
-		std::array<ID3D11Buffer *, eMaxConstantBuffers> &constantBuffers = ConstantBufferCache[i];
+		std::vector<ID3D11Buffer *> &constantBuffers = ConstantBufferCache[i];
 		if (!constantBuffers.empty())
 		{
 			switch ((D3DShader::eShaderType)i)
@@ -490,7 +507,7 @@ void D3DEngine::D3DPipeline::BindConstantBuffers(const D3DContext &IMContext)
 			case D3DShader::eComputeShader:  IMContext->CSSetConstantBuffers(0U, (uint32_t)constantBuffers.size(), constantBuffers.data()); break;
 			}
 
-			constantBuffers.fill(nullptr);
+			constantBuffers.clear();
 		}
 	}
 
@@ -506,7 +523,7 @@ void D3DEngine::D3DPipeline::BindSamplerStates(const D3DContext &IMContext)
 
 	for (uint32_t i = 0U; i < D3DShader::eShaderTypeCount; ++i)
 	{
-		std::array<ID3D11SamplerState *, eMaxSamplers> &samplerStates = SamplerStateCache[i];
+		std::vector<ID3D11SamplerState *> &samplerStates = SamplerStateCache[i];
 		if (!samplerStates.empty())
 		{
 			switch ((D3DShader::eShaderType)i)
@@ -519,7 +536,7 @@ void D3DEngine::D3DPipeline::BindSamplerStates(const D3DContext &IMContext)
 			case D3DShader::eComputeShader:  IMContext->CSSetSamplers(0U, (uint32_t)samplerStates.size(), samplerStates.data()); break;
 			}
 
-			samplerStates.fill(nullptr);
+			samplerStates.clear();
 		}
 	}
 
@@ -535,7 +552,7 @@ void D3DEngine::D3DPipeline::BindShaderResourceViews(const D3DContext &IMContext
 
 	for (uint32_t i = 0U; i < D3DShader::eShaderTypeCount; ++i)
 	{
-		std::array<ID3D11ShaderResourceView *, eMaxShaderResourceView> &shaderResourceViews = ShaderResourceViewCache[i];
+		std::vector<ID3D11ShaderResourceView *> &shaderResourceViews = ShaderResourceViewCache[i];
 		if (!shaderResourceViews.empty())
 		{
 			switch ((D3DShader::eShaderType)i)
@@ -548,7 +565,7 @@ void D3DEngine::D3DPipeline::BindShaderResourceViews(const D3DContext &IMContext
 			case D3DShader::eComputeShader:  IMContext->CSSetShaderResources(0U, (uint32_t)shaderResourceViews.size(), shaderResourceViews.data()); break;
 			}
 
-			shaderResourceViews.fill(nullptr);
+			shaderResourceViews.clear();
 		}
 	}
 
@@ -565,33 +582,35 @@ void D3DEngine::D3DPipeline::BindUnorderedAccessViews(const D3DContext &IMContex
 	if (!UnorderedAccessViewCache.empty())
 	{
 		IMContext->CSSetUnorderedAccessViews(0U, (uint32_t)UnorderedAccessViewCache.size(), UnorderedAccessViewCache.data(), nullptr);
+
+		UnorderedAccessViewCache.clear();
 	}
 
 	DirtyFlags[eDUnorderedAccessView] = false;
 }
 
-void D3DEngine::D3DPipeline::BindViewports(const D3DContext &IMContext)
+void D3DEngine::Draw(uint32_t vertexCount, uint32_t startVertex, uint32_t primitive)
 {
-	if (!DirtyFlags[eDViewport])
+	if (m_Pipeline.PrimitiveTopology != primitive)
 	{
-		return;
+		m_Pipeline.PrimitiveTopology = primitive;
+		m_Pipeline.DirtyFlags[eDPrimitiveTopology] = true;
 	}
 
-	assert(ViewportCache.empty());
+	m_Pipeline.CommitState(m_IMContext);
 
-	IMContext->RSSetViewports((uint32_t)ViewportCache.size(), ViewportCache.data());
-
-	DirtyFlags[eDViewport] = false;
+	m_IMContext->Draw(vertexCount, startVertex);
 }
 
-void D3DEngine::D3DPipeline::BindScirrorRects(const D3DContext &IMContext)
+void D3DEngine::DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, uint32_t primitive)
 {
-	if (!DirtyFlags[eDScissorRect])
+	if (m_Pipeline.PrimitiveTopology != primitive)
 	{
-		return;
+		m_Pipeline.PrimitiveTopology = primitive;
+		m_Pipeline.DirtyFlags[eDPrimitiveTopology] = true;
 	}
 
-	IMContext->RSSetScissorRects((uint32_t)ScissorRectCache.size(), ScissorRectCache.data());
+	m_Pipeline.CommitState(m_IMContext);
 
-	DirtyFlags[eDScissorRect] = false;
+	m_IMContext->DrawIndexed(indexCount, startIndex, offset);
 }

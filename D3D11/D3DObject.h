@@ -119,7 +119,7 @@ public:
 		HRCheck(m_Object->Present(m_bVSync ? 1U : 0U, 0U));
 	}
 protected:
-	enum 
+	enum eConstant
 	{
 		eBufferCount = 2
 	};
