@@ -1,7 +1,8 @@
 #pragma once
 
-#include "D3DGraphic.h"
-///#include "D3DTexture.h"
+#include "D3DEngine.h"
+
+class Camera;
 
 NamespaceBegin(Geometry)
 
@@ -122,29 +123,27 @@ public:
 	///	}
 	///}
 
-	void operator=(const Material &srcMat)
-	{
-		memcpy(&Params, &srcMat.Params, sizeof(ShaderParams));
-		for (uint32_t i = 0U; i < eTexTypeCount; ++i)
-		{
-			if (srcMat.Textures[i].Valid())
-			{
-				Textures[i] = srcMat.Textures[i];
-			}
-		}
-
-		Sampler = srcMat.Sampler;
-	}
+	///void operator=(const Material &srcMat)
+	///{
+	///	memcpy(&Params, &srcMat.Params, sizeof(ShaderParams));
+	///	for (uint32_t i = 0U; i < eTexTypeCount; ++i)
+	///	{
+	///		if (srcMat.Textures[i].Valid())
+	///		{
+	///			Textures[i] = srcMat.Textures[i];
+	///		}
+	///	}
+	///	Sampler = srcMat.Sampler;
+	///}
 
 	ShaderParams Params;
 
-	Ref<ID3D11ShaderResourceView> Textures[eTexTypeCount];
+	D3DShaderResourceView Textures[eTexTypeCount];
 
-	Ref<ID3D11SamplerState> Sampler;
+	///D3DSamplerState Sampler;
 
-	void SetTexture(eTextureType type, const Ref<ID3D11ShaderResourceView> &srcTex);
+	void SetTexture(eTextureType type, const D3DShaderResourceView &texture);
 protected:
-	void Init();
 };
 
 class Mesh
@@ -201,21 +200,19 @@ public:
 protected:
 	struct RenderResource
 	{
-		Ref<ID3D11InputLayout> VertexLayout;
+		D3DInputLayout VertexLayout;
 
-		Ref<ID3D11VertexShader> VertexShader;
-		Ref<ID3D11PixelShader> PixelShader;
+		D3DVertexShader VertexShader;
+		D3DPixelShader PixelShader;
 
-		Ref<ID3D11Buffer> CBufferVS;
-		Ref<ID3D11Buffer> CBufferPS;
+		D3DBuffer CBufferVS;
+		D3DBuffer CBufferPS;
 
-		Ref<ID3D11Buffer> VertexBuffer;
-		Ref<ID3D11Buffer> IndexBuffer;
-
-		Ref<ID3D11RasterizerState> Wireframe;
+		D3DBuffer VertexBuffer;
+		D3DBuffer IndexBuffer;
 	};
 
-	struct ConstantsBufferVS
+	struct ConstantBufferVS
 	{
 		Matrix World;
 		Matrix WorldInverse;
@@ -224,7 +221,7 @@ protected:
 		Vec4 EyePos;
 	};
 
-	struct ConstantsBufferPS
+	struct ConstantBufferPS
 	{
 		Light::ShaderParams LightParams;
 
@@ -260,8 +257,8 @@ protected:
 private:
 	RenderResource m_Resource;
 
-	ConstantsBufferVS m_CBufferVS;
-	ConstantsBufferPS m_CBufferPS;
+	ConstantBufferVS m_CBufferVS;
+	ConstantBufferPS m_CBufferPS;
 
 	Transform m_Transform;
 

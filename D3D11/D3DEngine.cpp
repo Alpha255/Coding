@@ -72,11 +72,19 @@ void D3DEngine::RecreateRenderTargetDepthStencil(uint32_t width, uint32_t height
 	SetRenderTargetView(m_RenderTargetView);
 
 	SetDepthStencilView(m_DepthStencilView);
+
+	D3DViewport viewport(0.0f, 0.0f, (float)width, (float)height);
+	SetViewport(viewport);
 }
 
 void D3DEngine::Resize(uint32_t width, uint32_t height)
 {
 	assert((width > 0U) && (height > 0U));
+
+	if (width == m_SwapChain.Width() && height == m_SwapChain.Height())
+	{
+		return;
+	}
 
 	for (uint32_t i = 0U; i < eMaxRenderTargetViews; ++i)
 	{
@@ -86,10 +94,7 @@ void D3DEngine::Resize(uint32_t width, uint32_t height)
 	m_RenderTargetView.Reset();
 	m_DepthStencilView.Reset();
 
-	if (!m_SwapChain.Resize(width, height))
-	{
-		return;
-	}
+	m_SwapChain.Resize(width, height);
 
 	RecreateRenderTargetDepthStencil(width, height);
 
@@ -425,7 +430,7 @@ void D3DEngine::D3DPipeline::CommitState(const D3DContext &IMContext)
 
 	if (DirtyFlags[eDViewport])
 	{
-		assert(ViewportCache.empty());
+		assert(!ViewportCache.empty());
 
 		IMContext->RSSetViewports((uint32_t)ViewportCache.size(), ViewportCache.data());
 

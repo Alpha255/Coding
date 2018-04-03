@@ -10,9 +10,9 @@ public:
 
 	~D3DGUI_imGui();
 
-	void Init(HWND hWnd);
+	void Init(::HWND hWnd);
 
-	LRESULT WinProc(HWND hWnd, uint32_t uMsg, WPARAM wParam, LPARAM lParam);
+	::LRESULT WinProc(::HWND hWnd, uint32_t uMsg, ::WPARAM wParam, ::LPARAM lParam);
 
 	void RenderBegin(const char *pPanelName = "imGUI");
 	void RenderEnd();
@@ -23,7 +23,7 @@ public:
 		return io.WantCaptureMouse || io.WantCaptureKeyboard;
 	}
 protected:
-	void InitKeyMap(HWND hWnd);
+	void InitKeyMap(::HWND hWnd);
 	void InitD3DResource();
 	void InitFontTextures();
 	static void RenderListCallback(ImDrawData *pDrawData);

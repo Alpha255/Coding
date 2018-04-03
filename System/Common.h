@@ -41,3 +41,5 @@ public:
 protected:
 private:
 };
+
+///atexit(func);

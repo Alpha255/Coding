@@ -7,7 +7,7 @@ class D3DBlob : public D3DObject<ID3DBlob> {};
 class D3DInputLayout : public D3DObject<ID3D11InputLayout>
 {
 public:
-	void Create(D3DBlob &blob, const D3D11_INPUT_ELEMENT_DESC *pInputElement, uint32_t elementSize);
+	void Create(D3DBlob &blob, const D3D11_INPUT_ELEMENT_DESC *pInputElement, size_t elementSize);
 };
 
 class D3DShader

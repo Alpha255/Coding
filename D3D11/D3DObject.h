@@ -99,7 +99,7 @@ class D3DSwapChain : public D3DObject<IDXGISwapChain>
 {
 public:
 	void Create(HWND hWnd, uint32_t width, uint32_t height, bool bWindowed);
-	bool Resize(uint32_t width, uint32_t height);
+	void Resize(uint32_t width, uint32_t height);
 
 	inline void SetVSync(bool bVSync)
 	{
@@ -117,6 +117,18 @@ public:
 
 		/// DXGI_PRESENT 
 		HRCheck(m_Object->Present(m_bVSync ? 1U : 0U, 0U));
+	}
+
+	inline uint32_t Width() const
+	{
+		assert(IsValid());
+		return m_Desc.BufferDesc.Width;
+	}
+
+	inline uint32_t Height() const
+	{
+		assert(IsValid());
+		return m_Desc.BufferDesc.Height;
 	}
 protected:
 	enum eConstant

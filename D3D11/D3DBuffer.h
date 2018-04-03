@@ -23,7 +23,7 @@ public:
 	void Create(
 		uint32_t bindFlags,
 		size_t byteWidth,
-		eUsage usage,
+		uint32_t usage,
 		const void *pData,
 		uint32_t cpuAccessFlag = 0U,
 		uint32_t miscFlags = 0U,
@@ -32,7 +32,7 @@ public:
 
 	inline void CreateVertexBuffer(
 		size_t byteWidth,
-		eUsage usage,
+		uint32_t usage,
 		const void *pData,
 		uint32_t cpuAccessFlags = 0U,
 		uint32_t bindFlags = 0U)
@@ -42,7 +42,7 @@ public:
 
 	inline void CreateIndexBuffer(
 		size_t byteWidth,
-		eUsage usage,
+		uint32_t usage,
 		const void *pData,
 		uint32_t cpuAccessFlags = 0U)
 	{
@@ -51,7 +51,7 @@ public:
 
 	inline void CreateConstantBuffer(
 		size_t byteWidth,
-		eUsage usage,
+		uint32_t usage,
 		const void *pData,
 		uint32_t cpuAccessFlags = 0U)
 	{
@@ -60,7 +60,7 @@ public:
 
 	inline void CreateUnorderedAccessBuffer(
 		size_t byteWidth,
-		eUsage usage,
+		uint32_t usage,
 		uint32_t miscFlags,
 		uint32_t byteStride,
 		uint32_t bindFlags = 0U)

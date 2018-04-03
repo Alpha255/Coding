@@ -242,18 +242,25 @@ public:
 	{
 	}
 
-	inline void Transpose()
-	{
-		DirectX::XMMATRIX result = DirectX::XMMatrixTranspose(*this);
-		memcpy(this, &result, sizeof(DirectX::XMMATRIX));
-	}
+	//inline void Transpose()
+	//{
+	//	DirectX::XMMATRIX result = DirectX::XMMatrixTranspose(*this);
+	//	memcpy(this, &result, sizeof(DirectX::XMMATRIX));
+	//}
 
-	inline Matrix Transpose() const
+	inline Matrix Transpose()
 	{
 		DirectX::XMMATRIX result = DirectX::XMMatrixTranspose(*this);
 
 		return *(static_cast<Matrix*>(&result));
 	}
+
+	//inline Matrix Transpose() const
+	//{
+	//	DirectX::XMMATRIX result = DirectX::XMMatrixTranspose(*this);
+
+	//	return *(static_cast<Matrix*>(&result));
+	//}
 
 	inline void Inverse()
 	{
@@ -268,20 +275,20 @@ public:
 		return *(static_cast<Matrix*>(&result));
 	}
 
-	inline void InverseTranspose()
-	{
-		/// Inverse-transpose is just applied to normals.  So zero out 
-		/// translation row so that it doesn't get into our inverse-transpose
-		/// calculation--we don't want the inverse-transpose of the translation.
-		Matrix temp = *this;
-		temp.r[3] = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+	//inline void InverseTranspose()
+	//{
+	//	/// Inverse-transpose is just applied to normals.  So zero out 
+	//	/// translation row so that it doesn't get into our inverse-transpose
+	//	/// calculation--we don't want the inverse-transpose of the translation.
+	//	Matrix temp = *this;
+	//	temp.r[3] = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 
-		DirectX::XMVECTOR det = DirectX::XMMatrixDeterminant(temp);
-		DirectX::XMMATRIX result = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(&det, *this));
-		memcpy(this, &result, sizeof(DirectX::XMMATRIX));
-	}
+	//	DirectX::XMVECTOR det = DirectX::XMMatrixDeterminant(temp);
+	//	DirectX::XMMATRIX result = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(&det, *this));
+	//	memcpy(this, &result, sizeof(DirectX::XMMATRIX));
+	//}
 
-	inline Matrix InverseTranspose() const
+	inline Matrix InverseTranspose()
 	{
 		/// Inverse-transpose is just applied to normals.  So zero out 
 		/// translation row so that it doesn't get into our inverse-transpose
@@ -294,6 +301,20 @@ public:
 
 		return *(static_cast<Matrix*>(&result));
 	}
+
+	//inline Matrix InverseTranspose() const
+	//{
+	//	/// Inverse-transpose is just applied to normals.  So zero out 
+	//	/// translation row so that it doesn't get into our inverse-transpose
+	//	/// calculation--we don't want the inverse-transpose of the translation.
+	//	Matrix temp = *this;
+	//	temp.r[3] = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+
+	//	DirectX::XMVECTOR det = DirectX::XMMatrixDeterminant(temp);
+	//	DirectX::XMMATRIX result = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(&det, *this));
+
+	//	return *(static_cast<Matrix*>(&result));
+	//}
 
 	inline void Identity()
 	{

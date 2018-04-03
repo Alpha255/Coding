@@ -47,6 +47,13 @@ public:
 		m_IMContext->ClearDepthStencilView(depthStencil.Get(), clearFlag, depth, stencil);
 	}
 
+	inline void ClearRenderSurfaces()
+	{
+		ClearRenderTargetView(m_RenderTargetView);
+
+		ClearDepthStencilView(m_DepthStencilView, D3DDepthStencilView::eDepthStencil, 1.0f, 0U);
+	}
+
 	inline void Flush()
 	{
 		m_SwapChain.Flush();
@@ -169,7 +176,7 @@ protected:
 		D3DViewport              Viewports[eMaxViewports];
 		D3DRect                  ScissorRects[eMaxScissorRects];
 
-		uint32_t                 PrimitiveTopology = eTriangleList;
+		uint32_t                 PrimitiveTopology = -1;
 		uint32_t                 StencilRef = 0U;
 		uint32_t                 BlendMask = 0U;
 		float                    BlendFactor[4] = {};

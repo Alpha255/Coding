@@ -35,6 +35,7 @@ void D3DApp::ResizeWindow(uint32_t width, uint32_t height)
 {
 	uint32_t dstWidth = std::max<uint32_t>(width, 32U);
 	uint32_t dstHeight = std::max<uint32_t>(height, 32U);
+
 	if (s_Renderer)
 	{
 		m_Width = dstWidth;
@@ -70,52 +71,46 @@ void D3DApp::MouseMove(WPARAM wParam, int32_t x, int32_t y)
 	IApplication::MouseMove(wParam, x, y);
 }
 
-void D3DApp::UpdateScene(float, float)
-{
-	m_Camera->Update();
-}
-
-void D3DApp::SetupDefault()
-{
-	//g_Renderer->SetRenderTarget(g_Renderer->DefaultRenderTarget());
-	//g_Renderer->SetDepthStencil(g_Renderer->DefaultDepthStencil());
-
-	//D3D11_VIEWPORT vp{ 0 };
-	//vp.Width = (float)m_Width;
-	//vp.Height = (float)m_Height;
-	//vp.MinDepth = 0.0f;
-	//vp.MaxDepth = 1.0f;
-	//vp.TopLeftX = vp.TopLeftY = 0.0f;
-	//g_Renderer->SetViewports(&vp);
-}
-
-void D3DApp::RenderToWindow()
+void D3DApp::InitRenderer()
 {
 	if (nullptr == s_Renderer)
 	{
 		s_Renderer = &D3DEngine::Instance();
+
+		assert(s_Renderer);
+
 		s_Renderer->Initialize(m_hWnd, m_Width, m_Height, m_bWindowed);
 
 		///m_GUI.Init(m_hWnd);
 	}
+}
 
-	if (!m_bInited)
-	{
-		SetupScene();
-		SetupDefault();
-		m_bInited = true;
-	}
+void D3DApp::Frame()
+{
+	m_Camera->Update();
 
-	UpdateScene(m_pTimer->DeltaTime(), m_pTimer->TotalTime());  
+	Update(m_pTimer->DeltaTime(), m_pTimer->TotalTime());
+
+	s_Renderer->ClearRenderSurfaces();
 
 	///m_GUI.RenderBegin();
 
-	///ClearRenderSurface();
 	RenderScene();
 
 	///m_GUI.RenderEnd();
 
-	///g_Renderer->Flip();
+	s_Renderer->Flush();
+}
+
+void D3DApp::RenderToWindow()
+{
+	if (!m_bInited)
+	{
+		PreInit();
+		m_bInited = true;
+	}
+
+	Frame();
 }
 
 D3DApp::~D3DApp()

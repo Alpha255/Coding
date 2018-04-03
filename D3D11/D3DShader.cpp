@@ -5,12 +5,12 @@
 #include <fstream>
 #include <d3dcompiler.h>
 
-void D3DInputLayout::Create(D3DBlob &blob, const D3D11_INPUT_ELEMENT_DESC *pInputElement, uint32_t elementSize)
+void D3DInputLayout::Create(D3DBlob &blob, const D3D11_INPUT_ELEMENT_DESC *pInputElement, size_t elementSize)
 {
 	assert(blob.IsValid() && pInputElement && elementSize);
 
 	ID3D11InputLayout *pLayout = nullptr;
-	HRCheck(D3DEngine::Instance().GetDevice()->CreateInputLayout(pInputElement, elementSize, blob->GetBufferPointer(), blob->GetBufferSize(), &pLayout));
+	HRCheck(D3DEngine::Instance().GetDevice()->CreateInputLayout(pInputElement, (uint32_t)elementSize, blob->GetBufferPointer(), blob->GetBufferSize(), &pLayout));
 
 	MakeObject(pLayout);
 }
@@ -32,7 +32,7 @@ D3DBlob D3DShader::CompileShaderFile(const char *pFileName, const char *pEntryPo
 	std::string shaderFileDir = System::ResourceFileDirectory(System::eShader);
 	std::string shaderFilePath = shaderFileDir + pFileName;
 
-	D3DBlob result;
+	static D3DBlob result;
 	D3DBlob errMsg;
 	ID3DBlob *pResult = nullptr;
 	ID3DBlob *pErrMsg = nullptr;
@@ -79,10 +79,10 @@ D3DBlob D3DShader::CompileShaderFile(const char *pFileName, const char *pEntryPo
 
 void D3DVertexShader::Create(const char *pFileName, const char *pEntryPoint, const D3D_SHADER_MACRO *pMacros, ID3DInclude *pInclude)
 {
-	D3DBlob blob = CompileShaderFile(pFileName, pEntryPoint, pMacros, pInclude);
+	m_Blob = CompileShaderFile(pFileName, pEntryPoint, pMacros, pInclude);
 
 	ID3D11VertexShader *pVertexShader = nullptr;
-	HRCheck(D3DEngine::Instance().GetDevice()->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &pVertexShader));
+	HRCheck(D3DEngine::Instance().GetDevice()->CreateVertexShader(m_Blob->GetBufferPointer(), m_Blob->GetBufferSize(), nullptr, &pVertexShader));
 
 	MakeObject(pVertexShader);
 }

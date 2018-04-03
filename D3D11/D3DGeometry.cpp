@@ -1,8 +1,6 @@
 #include "D3DGeometry.h"
 #include "Camera.h"
 
-extern D3DGraphic* g_Renderer;
-
 NamespaceBegin(Geometry)
 
 void Light::Init()
@@ -20,33 +18,13 @@ void Light::Draw()
 	Init();
 }
 
-void Material::Init()
+void Material::SetTexture(eTextureType type, const D3DShaderResourceView &texture)
 {
-	D3D11_SAMPLER_DESC sampDesc;
-	memset(&sampDesc, 0, sizeof(D3D11_SAMPLER_DESC));
-	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	sampDesc.MinLOD = 0.0f;
-	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	assert(type < eTexTypeCount);
 
-	g_Renderer->CreateSamplerState(Sampler, &sampDesc);
-}
-
-void Material::SetTexture(eTextureType type, const Ref<ID3D11ShaderResourceView> &srcTex)
-{
-	assert((type < eTexTypeCount) && !Textures[type].Valid() && srcTex.Valid());
-
-	Textures[type] = srcTex;
+	Textures[type] = texture;
 
 	Params.EnableTexture[type] = 1U;
-
-	if (!Sampler.Valid())
-	{
-		Init();
-	}
 }
 
 void Mesh::SetLight(const Light *pLight, bool bReset)
@@ -78,7 +56,7 @@ void Mesh::Init()
 		return;
 	}
 
-	assert(g_Renderer && m_Created);
+	assert(m_Created);
 
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
@@ -87,17 +65,16 @@ void Mesh::Init()
 		{ "TANGENT",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
-	g_Renderer->CreateVertexShaderAndInputLayout(m_Resource.VertexShader, m_Resource.VertexLayout, layout,
-		ARRAYSIZE(layout), "Mesh.hlsl", "VSMain");
-	g_Renderer->CreatePixelShader(m_Resource.PixelShader, "Mesh.hlsl", "PSMain");
 
-	g_Renderer->CreateConstantBuffer(m_Resource.CBufferVS, sizeof(ConstantsBufferVS), D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
-	g_Renderer->CreateConstantBuffer(m_Resource.CBufferPS, sizeof(ConstantsBufferPS), D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
+	m_Resource.VertexShader.Create("Mesh.hlsl", "VSMain");
+	m_Resource.VertexLayout.Create(m_Resource.VertexShader.GetBlob(), layout, 4U);
+	m_Resource.PixelShader.Create("Mesh.hlsl", "PSMain");
 
-	g_Renderer->CreateVertexBuffer(m_Resource.VertexBuffer, (uint32_t)(sizeof(Vertex) * m_Vertices.size()), D3D11_USAGE_IMMUTABLE, &m_Vertices[0]);
-	g_Renderer->CreateIndexBuffer(m_Resource.IndexBuffer, (uint32_t)(sizeof(uint32_t) * m_Indices.size()), D3D11_USAGE_IMMUTABLE, &m_Indices[0]);
+	m_Resource.CBufferVS.CreateConstantBuffer(sizeof(ConstantBufferVS), D3DBuffer::eGpuReadCpuWrite, nullptr, D3DBuffer::eCpuWrite);
+	m_Resource.CBufferPS.CreateConstantBuffer(sizeof(ConstantBufferPS), D3DBuffer::eGpuReadCpuWrite, nullptr, D3DBuffer::eCpuWrite);
 
-	g_Renderer->CreateRasterizerState(m_Resource.Wireframe, D3D11_FILL_WIREFRAME);
+	m_Resource.VertexBuffer.CreateVertexBuffer(sizeof(Vertex) * m_Vertices.size(), D3DBuffer::eGpuReadOnly, m_Vertices.data());
+	m_Resource.IndexBuffer.CreateIndexBuffer(sizeof(uint32_t) * m_Indices.size(), D3DBuffer::eGpuReadOnly, m_Indices.data());
 
 	m_Inited = true;
 }
@@ -115,11 +92,11 @@ void Mesh::ApplyMaterial()
 	{
 		if (1U == m_Material.Params.EnableTexture[i])
 		{
-			g_Renderer->SetShaderResource(m_Material.Textures[i], i, D3DGraphic::ePixelShader);
+			D3DEngine::Instance().SetShaderResourceView(m_Material.Textures[i], i, D3DShader::ePixelShader);
 		}
 	}
 
-	g_Renderer->SetSamplerStates(m_Material.Sampler, 0U, D3DGraphic::ePixelShader);
+	///g_Renderer->SetSamplerStates(m_Material.Sampler, 0U, D3DGraphic::ePixelShader);
 }
 
 void Mesh::ApplyLight()
@@ -140,10 +117,10 @@ void Mesh::Draw(const Camera &cam)
 
 	ApplyLight();
 
-	g_Renderer->SetInputLayout(m_Resource.VertexLayout);
+	D3DEngine::Instance().SetInputLayout(m_Resource.VertexLayout);
 
-	g_Renderer->SetVertexBuffer(m_Resource.VertexBuffer, sizeof(Vertex), 0U, 0U);
-	g_Renderer->SetIndexBuffer(m_Resource.IndexBuffer, DXGI_FORMAT_R32_UINT, 0U);
+	D3DEngine::Instance().SetVertexBuffer(m_Resource.VertexBuffer, sizeof(Vertex), 0U);
+	D3DEngine::Instance().SetIndexBuffer(m_Resource.IndexBuffer, eR32_UInt, 0U);
 
 	Matrix world = cam.GetWorldMatrix();
 	world = world * m_Transform.Scale * m_Transform.Rotate * m_Transform.Translation;
@@ -153,21 +130,21 @@ void Mesh::Draw(const Camera &cam)
 	m_CBufferVS.WorldInverse = world.InverseTranspose();
 	m_CBufferVS.WorldViewProj = wvp.Transpose();
 	m_CBufferVS.EyePos = cam.GetEyePos();
-	g_Renderer->UpdateBuffer(m_Resource.CBufferVS, &m_CBufferVS, sizeof(ConstantsBufferVS));
-	g_Renderer->SetConstantBuffer(m_Resource.CBufferVS, 0U, D3DGraphic::eVertexShader);
+	m_Resource.CBufferVS.Update(&m_CBufferVS, sizeof(ConstantBufferVS));
+	D3DEngine::Instance().SetConstantBuffer(m_Resource.CBufferVS, 0U, D3DShader::eVertexShader);
 
-	g_Renderer->UpdateBuffer(m_Resource.CBufferPS, &m_CBufferPS, sizeof(ConstantsBufferPS));
-	g_Renderer->SetConstantBuffer(m_Resource.CBufferPS, 0U, D3DGraphic::ePixelShader);
+	m_Resource.CBufferPS.Update(&m_CBufferPS, sizeof(ConstantBufferPS));
+	D3DEngine::Instance().SetConstantBuffer(m_Resource.CBufferPS, 0U, D3DShader::ePixelShader);
 
-	g_Renderer->SetVertexShader(m_Resource.VertexShader);
-	g_Renderer->SetPixelShader(m_Resource.PixelShader);
+	D3DEngine::Instance().SetVertexShader(m_Resource.VertexShader);
+	D3DEngine::Instance().SetPixelShader(m_Resource.PixelShader);
 
-	if (m_Wireframe)
-	{
-		g_Renderer->SetRasterizerState(m_Resource.Wireframe);
-	}
+	//if (m_Wireframe)
+	//{
+	//	g_Renderer->SetRasterizerState(m_Resource.Wireframe);
+	//}
 
-	g_Renderer->DrawIndexed((uint32_t)m_Indices.size(), 0U, 0);
+	D3DEngine::Instance().DrawIndexed((uint32_t)m_Indices.size(), 0U, 0, eTriangleList);
 }
 
 void Mesh::DrawNormal(const Camera &/*cam*/)

@@ -8,8 +8,8 @@ public:
 	AppBox() = default;
 	~AppBox() = default;
 
-	virtual void SetupScene();
-	virtual void RenderScene();
+	virtual void PreInit() override;
+	virtual void RenderScene() override;
 protected:
 private:
 };

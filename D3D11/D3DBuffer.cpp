@@ -4,7 +4,7 @@
 void D3DBuffer::Create(
 	uint32_t bindFlags,
 	size_t byteWidth,
-	eUsage usage,
+	uint32_t usage,
 	const void *pData,
 	uint32_t cpuAccessFlag,
 	uint32_t miscFlags,

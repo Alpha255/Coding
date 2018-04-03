@@ -3,7 +3,7 @@
 
 static IApplication* s_Application = nullptr;
 
-LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+::LRESULT WINAPI WndProc(::HWND hWnd, uint32_t msg, ::WPARAM wParam, ::LPARAM lParam)
 {
 	assert(s_Application);
 	return s_Application->MsgProc(hWnd, msg, wParam, lParam);
@@ -14,38 +14,38 @@ IApplication::IApplication()
 {
 }
 
-void IApplication::MakeWindow(LPCWSTR lpTitle, uint32_t width, uint32_t height, uint32_t windowStyle)
+void IApplication::MakeWindow(const wchar_t *pTitle, uint32_t width, uint32_t height, uint32_t windowStyle)
 {
-	HINSTANCE hInst = ::GetModuleHandle(nullptr);
-	assert(hInst && lpTitle);
+	::HINSTANCE hInst = ::GetModuleHandle(nullptr);
+	assert(hInst && pTitle);
 
-	WNDCLASSEX wndClassEx;
-	memset(&wndClassEx, 0, sizeof(WNDCLASSEX));
+	::WNDCLASSEX wndClassEx;
+	memset(&wndClassEx, 0, sizeof(::WNDCLASSEX));
 	wndClassEx.cbClsExtra = 0;
-	wndClassEx.cbSize = sizeof(WNDCLASSEX);
-	wndClassEx.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-	wndClassEx.hCursor = LoadCursor(0, IDC_ARROW);
-	wndClassEx.hIcon = LoadIcon(hInst, MAKEINTRESOURCE(m_IconID));
+	wndClassEx.cbSize = sizeof(::WNDCLASSEX);
+	wndClassEx.hbrBackground = (::HBRUSH)GetStockObject(BLACK_BRUSH);
+	wndClassEx.hCursor = ::LoadCursor(0, IDC_ARROW);
+	wndClassEx.hIcon = ::LoadIcon(hInst, MAKEINTRESOURCE(m_IconID));
 	wndClassEx.hIconSm = wndClassEx.hIcon;
 	wndClassEx.hInstance = hInst;
 	wndClassEx.lpfnWndProc = WndProc;
-	wndClassEx.lpszClassName = lpTitle;
+	wndClassEx.lpszClassName = pTitle;
 	wndClassEx.lpszMenuName = nullptr;
 	wndClassEx.style = CS_HREDRAW | CS_VREDRAW;
 
 	if (RegisterClassEx(&wndClassEx))
 	{
 		RECT rect{ 0, 0, (long)width, (long)height };
-		AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, false);
-		m_hWnd = CreateWindow(lpTitle, lpTitle, WS_OVERLAPPEDWINDOW ^ windowStyle, CW_USEDEFAULT, CW_USEDEFAULT,
+		::AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, false);
+		m_hWnd = ::CreateWindow(pTitle, pTitle, WS_OVERLAPPEDWINDOW ^ windowStyle, CW_USEDEFAULT, CW_USEDEFAULT,
 			rect.right - rect.left, rect.bottom - rect.top, 0, 0, hInst, nullptr);
 		assert(m_hWnd);
 
 		m_Width = width;
 		m_Height = height;
 
-		ShowWindow(m_hWnd, SW_SHOWDEFAULT);
-		UpdateWindow(m_hWnd);
+		::ShowWindow(m_hWnd, SW_SHOWDEFAULT);
+		::UpdateWindow(m_hWnd);
 	}
 	else
 	{
@@ -53,7 +53,7 @@ void IApplication::MakeWindow(LPCWSTR lpTitle, uint32_t width, uint32_t height, 
 	}
 }
 
-void IApplication::HandleWindowMessage(uint32_t msg, WPARAM wParam, LPARAM)
+void IApplication::HandleWindowMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM)
 {
 	switch (msg)
 	{
@@ -85,14 +85,14 @@ void IApplication::HandleWindowMessage(uint32_t msg, WPARAM wParam, LPARAM)
 		break;
 	}
 	case WM_DESTROY:
-		PostQuitMessage(0);
+		::PostQuitMessage(0);
 		break;
 	case WM_GETMINMAXINFO:
 		break;
 	}
 }
 
-void IApplication::HandleInput(uint32_t msg, WPARAM wParam, LPARAM lParam)
+void IApplication::HandleInput(uint32_t msg, ::WPARAM wParam, ::LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -118,18 +118,20 @@ void IApplication::HandleInput(uint32_t msg, WPARAM wParam, LPARAM lParam)
 	}
 }
 
-void IApplication::Startup(LPCWSTR lpTitle, uint32_t width, uint32_t height, bool bWindowed, uint32_t windowStyle)
+void IApplication::Startup(const wchar_t *pTitle, uint32_t width, uint32_t height, bool bWindowed, uint32_t windowStyle)
 {
 	s_Application = this;
 
 	m_bWindowed = bWindowed;
 
-	MakeWindow(lpTitle, width, height, windowStyle);
+	MakeWindow(pTitle, width, height, windowStyle);
+
+	InitRenderer();
 }
 
 void IApplication::Running()
 {
-	MSG msg = { 0 };
+	::MSG msg = { 0 };
 
 	m_pTimer->Reset();
 
@@ -137,8 +139,8 @@ void IApplication::Running()
 	{
 		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
 		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
+			::TranslateMessage(&msg);
+			::DispatchMessage(&msg);
 		}
 		else
 		{
@@ -150,7 +152,7 @@ void IApplication::Running()
 			}
 			else
 			{
-				Sleep(100);
+				::Sleep(100);
 			}
 		}
 	}

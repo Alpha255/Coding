@@ -29,20 +29,13 @@ void D3DSwapChain::Create(HWND hWnd, uint32_t width, uint32_t height, bool bWind
 	MakeObject(pSwapChain);
 }
 
-bool D3DSwapChain::Resize(uint32_t width, uint32_t height)
+void D3DSwapChain::Resize(uint32_t width, uint32_t height)
 {
 	assert(IsValid());
-
-	if (width == m_Desc.BufferDesc.Width && height == m_Desc.BufferDesc.Height)
-	{
-		return false;
-	}
 
 	m_Desc.BufferDesc.Width = width;
 	m_Desc.BufferDesc.Height = height;
 
 	HRCheck(m_Object->ResizeBuffers(m_Desc.BufferCount, width, height, m_Desc.BufferDesc.Format, m_Desc.Flags));
-
-	return true;
 }
 
