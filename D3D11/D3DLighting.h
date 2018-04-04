@@ -5,7 +5,6 @@
 
 struct Light
 {
-public:
 	enum eLightType
 	{
 		ePoint,
@@ -16,33 +15,23 @@ public:
 
 	struct ShaderParams
 	{
-		Vec3 Position;
-		uint32_t Type;
+		Vec3 Position = {};
+		uint32_t Type = eLightTypeCount;
 
-		Vec3 Direction;
-		float Range;
+		Vec3 Direction = {};
+		float Range = 0.0f;
 
-		Vec3 Attenuation;
-		float SpotFactor;
+		Vec3 Attenuation = {};
+		float SpotFactor = 0.0f;
 
-		Vec4 Ambient;
-		Vec4 Diffuse;
-		Vec4 Specular;
-
-		ShaderParams()
-		{
-			memset(this, 0, sizeof(ShaderParams));
-			Type = eLightTypeCount;
-		}
+		Vec4 Ambient = {};
+		Vec4 Diffuse = {};
+		Vec4 Specular = {};
 	};
 
 	ShaderParams Params;
 
-	void Draw();
-protected:
-	void Init();
-
-	bool m_Inited = false;
+	static void DrawLight(const Light &light);
 };
 
 struct Material
@@ -61,51 +50,43 @@ public:
 	{
 		uint32_t EnableTexture[eTexTypeCount] = {};
 
-		Vec4 VertexColor;
+		Vec4 VertexColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-		Vec4 Ambient;
-		Vec4 Diffuse;
-		Vec4 Specular;
-		Vec4 Reflection;
-
-		ShaderParams()
-		{
-			memset(this, 0, sizeof(ShaderParams));
-			VertexColor = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		}
+		Vec4 Ambient = {};
+		Vec4 Diffuse = {};
+		Vec4 Specular = {};
+		Vec4 Reflection = {};
 	};
 
 	Material() = default;
-	///Material(const Material &srcMat)
-	///{
-	///	memcpy(&Params, &srcMat.Params, sizeof(ShaderParams));
-	///	for (uint32_t i = 0U; i < eTexTypeCount; ++i)
-	///	{
-	///		if (srcMat.Textures[i].Valid())
-	///		{
-	///			Textures[i] = srcMat.Textures[i];
-	///		}
-	///	}
-	///}
 
-	///void operator=(const Material &srcMat)
-	///{
-	///	memcpy(&Params, &srcMat.Params, sizeof(ShaderParams));
-	///	for (uint32_t i = 0U; i < eTexTypeCount; ++i)
-	///	{
-	///		if (srcMat.Textures[i].Valid())
-	///		{
-	///			Textures[i] = srcMat.Textures[i];
-	///		}
-	///	}
-	///	Sampler = srcMat.Sampler;
-	///}
+	Material(const Material &other)
+	{
+		memcpy(&Params, &other.Params, sizeof(ShaderParams));
+		for (uint32_t i = 0U; i < eTexTypeCount; ++i)
+		{
+			if (other.Textures[i].IsValid())
+			{
+				Textures[i] = other.Textures[i];
+			}
+		}
+	}
+
+	void operator=(const Material &other)
+	{
+		memcpy(&Params, &other.Params, sizeof(ShaderParams));
+		for (uint32_t i = 0U; i < eTexTypeCount; ++i)
+		{
+			if (other.Textures[i].IsValid())
+			{
+				Textures[i] = other.Textures[i];
+			}
+		}
+	}
 
 	ShaderParams Params;
 
 	D3DShaderResourceView Textures[eTexTypeCount];
-
-	///D3DSamplerState Sampler;
 
 	void SetTexture(eTextureType type, const D3DShaderResourceView &texture);
 protected:

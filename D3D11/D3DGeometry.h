@@ -52,9 +52,9 @@ public:
 	void CreateAsGrid(float width, float depth, uint32_t m, uint32_t n);
 	void CreateAsQuad(float length);
 
-	void SetLight(const Light *pLight, bool bReset = false);
+	void SetLight(const Light &light, bool bReset = false);
 
-	void SetMaterial(const Material *pMaterial, bool bReset = false);
+	void SetMaterial(const Material &material, bool bReset = false);
 
 	inline void Rotate(float x, float y, float z, float angle)
 	{
@@ -79,6 +79,21 @@ public:
 	inline void SetWireframe(bool bWireframe)
 	{
 		m_Wireframe = bWireframe;
+	}
+
+	inline bool IsLightEnabled()
+	{
+		return (1U == m_CBufferPS.EnableLight);
+	}
+
+	inline bool IsMaterialEnabled()
+	{
+		return (1U == m_CBufferPS.EnableMaterial);
+	}
+
+	inline const Light &GetLight() const
+	{
+		return m_Light;
 	}
 
 	void Draw(const Camera &cam);
@@ -154,8 +169,6 @@ private:
 
 	Light m_Light;
 
-	bool m_LightEnabled = false;
-	bool m_MaterialEnabled = false;
 	bool m_Created = false;
 	bool m_Inited = false;
 	bool m_Wireframe = false;

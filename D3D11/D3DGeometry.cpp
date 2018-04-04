@@ -4,24 +4,24 @@
 
 NamespaceBegin(Geometry)
 
-void Mesh::SetLight(const Light *pLight, bool bReset)
+void Mesh::SetLight(const Light &light, bool bReset)
 {
-	assert(pLight->Params.Type != Light::eLightTypeCount);
+	assert(light.Params.Type != Light::eLightTypeCount);
 
-	if (!m_LightEnabled || bReset)
+	if (!(1U == m_CBufferPS.EnableLight) || bReset)
 	{
-		memcpy(&m_Light, &m_Light, sizeof(Light));
-		m_LightEnabled = true;
+		m_Light = light;
+
 		m_CBufferPS.EnableLight = 1U;
 	}
 }
 
-void Mesh::SetMaterial(const Material *pMaterial, bool bReset)
+void Mesh::SetMaterial(const Material &material, bool bReset)
 {
-	if (!m_MaterialEnabled || bReset)
+	if (!(1U == m_CBufferPS.EnableMaterial) || bReset)
 	{
-		m_Material = *pMaterial;
-		m_MaterialEnabled = true;
+		m_Material = material;
+
 		m_CBufferPS.EnableMaterial = 1U;
 	}
 }
@@ -47,18 +47,18 @@ void Mesh::Init()
 	m_Resource.VertexLayout.Create(m_Resource.VertexShader.GetBlob(), layout, 4U);
 	m_Resource.PixelShader.Create("Mesh.hlsl", "PSMain");
 
-	m_Resource.CBufferVS.CreateConstantBuffer(sizeof(ConstantBufferVS), D3DBuffer::eGpuReadCpuWrite, nullptr, D3DBuffer::eCpuWrite);
-	m_Resource.CBufferPS.CreateConstantBuffer(sizeof(ConstantBufferPS), D3DBuffer::eGpuReadCpuWrite, nullptr, D3DBuffer::eCpuWrite);
+	m_Resource.CBufferVS.CreateAsConstantBuffer(sizeof(ConstantBufferVS), D3DBuffer::eGpuReadCpuWrite, nullptr, D3DBuffer::eCpuWrite);
+	m_Resource.CBufferPS.CreateAsConstantBuffer(sizeof(ConstantBufferPS), D3DBuffer::eGpuReadCpuWrite, nullptr, D3DBuffer::eCpuWrite);
 
-	m_Resource.VertexBuffer.CreateVertexBuffer(sizeof(Vertex) * m_Vertices.size(), D3DBuffer::eGpuReadOnly, m_Vertices.data());
-	m_Resource.IndexBuffer.CreateIndexBuffer(sizeof(uint32_t) * m_Indices.size(), D3DBuffer::eGpuReadOnly, m_Indices.data());
+	m_Resource.VertexBuffer.CreateAsVertexBuffer(sizeof(Vertex) * m_Vertices.size(), D3DBuffer::eGpuReadOnly, m_Vertices.data());
+	m_Resource.IndexBuffer.CreateAsIndexBuffer(sizeof(uint32_t) * m_Indices.size(), D3DBuffer::eGpuReadOnly, m_Indices.data());
 
 	m_Inited = true;
 }
 
 void Mesh::ApplyMaterial()
 {
-	if (!m_MaterialEnabled)
+	if (!(IsMaterialEnabled()))
 	{
 		return;
 	}
@@ -78,12 +78,10 @@ void Mesh::ApplyMaterial()
 
 void Mesh::ApplyLight()
 {
-	if (!m_LightEnabled)
+	if (IsLightEnabled())
 	{
-		return;
+		memcpy(&m_CBufferPS.LightParams, &m_Light.Params, sizeof(Light::ShaderParams));
 	}
-
-	memcpy(&m_CBufferPS.LightParams, &m_Light.Params, sizeof(Light::ShaderParams));
 }
 
 void Mesh::Draw(const Camera &cam)

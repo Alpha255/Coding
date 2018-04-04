@@ -129,14 +129,14 @@ public:
 	void Create(uint32_t fillMode, uint32_t cullMode, bool cw, bool depthClip, bool bScissor);
 };
 
-struct StaticD3DState
+struct D3DStaticState
 {
-	D3DSamplerState PointSampler;
-	D3DSamplerState LinearSampler;
-	D3DSamplerState AnisotropicSampler;
+	static D3DSamplerState PointSampler;
+	static D3DSamplerState LinearSampler;
+	static D3DSamplerState AnisotropicSampler;
 
-	D3DRasterizerState Wireframe;
-	D3DRasterizerState Solid;
-	D3DRasterizerState WireframeNoneCulling;
-	D3DRasterizerState SolidNoneCulling;
+	static D3DRasterizerState Wireframe;
+	static D3DRasterizerState Solid;
+	static D3DRasterizerState WireframeNoneCulling;
+	static D3DRasterizerState SolidNoneCulling;
 };

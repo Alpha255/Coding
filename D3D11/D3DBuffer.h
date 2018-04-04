@@ -30,7 +30,7 @@ public:
 		uint32_t byteStride = 0U,
 		uint32_t memPitch = 0U);
 
-	inline void CreateVertexBuffer(
+	inline void CreateAsVertexBuffer(
 		size_t byteWidth,
 		uint32_t usage,
 		const void *pData,
@@ -40,7 +40,7 @@ public:
 		Create(D3D11_BIND_VERTEX_BUFFER | bindFlags, byteWidth, usage, pData, cpuAccessFlags);
 	}
 
-	inline void CreateIndexBuffer(
+	inline void CreateAsIndexBuffer(
 		size_t byteWidth,
 		uint32_t usage,
 		const void *pData,
@@ -49,7 +49,7 @@ public:
 		Create(D3D11_BIND_INDEX_BUFFER, byteWidth, usage, pData, cpuAccessFlags);
 	}
 
-	inline void CreateConstantBuffer(
+	inline void CreateAsConstantBuffer(
 		size_t byteWidth,
 		uint32_t usage,
 		const void *pData,
@@ -58,7 +58,7 @@ public:
 		Create(D3D11_BIND_CONSTANT_BUFFER, byteWidth, usage, pData, cpuAccessFlags);
 	}
 
-	inline void CreateUnorderedAccessBuffer(
+	inline void CreateAsUnorderedAccessBuffer(
 		size_t byteWidth,
 		uint32_t usage,
 		uint32_t miscFlags,

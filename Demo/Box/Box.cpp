@@ -10,9 +10,11 @@ void AppBox::PreInit()
 
 	D3DShaderResourceView tex;
 	tex.Create("WoodCrate01.dds");
+
 	Material mat;
 	mat.SetTexture(Material::eDiffuseMap, tex);
-	s_Box.SetMaterial(&mat);
+	
+	s_Box.SetMaterial(mat);
 
 	m_Camera->SetViewRadius(5.0f);
 }

@@ -79,6 +79,8 @@ D3DBlob D3DShader::CompileShaderFile(const char *pFileName, const char *pEntryPo
 
 void D3DVertexShader::Create(const char *pFileName, const char *pEntryPoint, const D3D_SHADER_MACRO *pMacros, ID3DInclude *pInclude)
 {
+	assert(!IsValid());
+
 	m_Blob = CompileShaderFile(pFileName, pEntryPoint, pMacros, pInclude);
 
 	ID3D11VertexShader *pVertexShader = nullptr;
@@ -89,6 +91,8 @@ void D3DVertexShader::Create(const char *pFileName, const char *pEntryPoint, con
 
 void D3DHullShader::Create(const char *pFileName, const char *pEntryPoint, const D3D_SHADER_MACRO *pMacros, ID3DInclude *pInclude)
 {
+	assert(!IsValid());
+
 	D3DBlob blob = CompileShaderFile(pFileName, pEntryPoint, pMacros, pInclude);
 
 	ID3D11HullShader *pHullShader = nullptr;
@@ -99,6 +103,8 @@ void D3DHullShader::Create(const char *pFileName, const char *pEntryPoint, const
 
 void D3DDomainShader::Create(const char *pFileName, const char *pEntryPoint, const D3D_SHADER_MACRO *pMacros, ID3DInclude *pInclude)
 {
+	assert(!IsValid());
+
 	D3DBlob blob = CompileShaderFile(pFileName, pEntryPoint, pMacros, pInclude);
 
 	ID3D11DomainShader *pDomainShader = nullptr;
@@ -109,6 +115,8 @@ void D3DDomainShader::Create(const char *pFileName, const char *pEntryPoint, con
 
 void D3DGeometryShader::Create(const char *pFileName, const char *pEntryPoint, const D3D_SHADER_MACRO *pMacros, ID3DInclude *pInclude)
 {
+	assert(!IsValid());
+
 	D3DBlob blob = CompileShaderFile(pFileName, pEntryPoint, pMacros, pInclude);
 
 	ID3D11GeometryShader *pGeometryShader = nullptr;
@@ -119,6 +127,8 @@ void D3DGeometryShader::Create(const char *pFileName, const char *pEntryPoint, c
 
 void D3DPixelShader::Create(const char *pFileName, const char *pEntryPoint, const D3D_SHADER_MACRO *pMacros, ID3DInclude *pInclude)
 {
+	assert(!IsValid());
+
 	D3DBlob blob = CompileShaderFile(pFileName, pEntryPoint, pMacros, pInclude);
 
 	ID3D11PixelShader *pPixelShader = nullptr;
@@ -129,6 +139,8 @@ void D3DPixelShader::Create(const char *pFileName, const char *pEntryPoint, cons
 
 void D3DComputeShader::Create(const char *pFileName, const char *pEntryPoint, const D3D_SHADER_MACRO *pMacros, ID3DInclude *pInclude)
 {
+	assert(!IsValid());
+
 	D3DBlob blob = CompileShaderFile(pFileName, pEntryPoint, pMacros, pInclude);
 
 	ID3D11ComputeShader *pComputeShader = nullptr;
