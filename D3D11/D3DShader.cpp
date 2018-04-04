@@ -32,7 +32,7 @@ D3DBlob D3DShader::CompileShaderFile(const char *pFileName, const char *pEntryPo
 	std::string shaderFileDir = System::ResourceFileDirectory(System::eShader);
 	std::string shaderFilePath = shaderFileDir + pFileName;
 
-	static D3DBlob result;
+	D3DBlob result;
 	D3DBlob errMsg;
 	ID3DBlob *pResult = nullptr;
 	ID3DBlob *pErrMsg = nullptr;

@@ -36,15 +36,6 @@ public:
 		}
 	}
 
-	inline D3DObject(D3DObject &&other)
-	{
-		if (m_Object != other.m_Object)
-		{
-			m_Object.reset(other.Get(), std::mem_fn(&T::Release));
-			other.Reset();
-		}
-	}
-
 	inline void operator=(const D3DObject &other)
 	{
 		if (m_Object != other.m_Object)
@@ -82,7 +73,7 @@ public:
 	{
 		if (pObject)
 		{
-			m_Object.reset(pObject, std::mem_fn(&T::Release));
+			m_Object.reset(pObject, std::function<void(T *)>([](T *pObject){ SafeRelease(pObject) }));
 		}
 	}
 protected:

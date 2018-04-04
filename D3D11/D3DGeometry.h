@@ -1,6 +1,8 @@
 #pragma once
 
-#include "D3DEngine.h"
+#include "D3DLighting.h"
+#include "D3DBuffer.h"
+#include "D3DShader.h"
 
 class Camera;
 
@@ -8,15 +10,12 @@ NamespaceBegin(Geometry)
 
 struct Vertex
 {
-	Vec3 Position;
-	Vec3 Normal;
-	Vec3 Tangent;
-	Vec2 UV;
+	Vec3 Position = {};
+	Vec3 Normal = {};
+	Vec3 Tangent = {};
+	Vec2 UV = {};
 
-	Vertex() 
-	{ 
-		memset(this, 0, sizeof(Vertex)); 
-	}
+	Vertex() = default;
 
 	Vertex(const Vec3 &pos, const Vec3 &normal, const Vec3 &tangent, const Vec2 &uv)
 		: Position(pos)
@@ -38,131 +37,20 @@ struct Vertex
 	}
 };
 
-struct Light 
-{
-public:
-	enum eLightType
-	{
-		ePoint,
-		eDirectional,
-		eSpot,
-		eLightTypeCount
-	};
-
-	struct ShaderParams
-	{
-		Vec3 Position;
-		uint32_t Type;
-
-		Vec3 Direction;
-		float Range;
-
-		Vec3 Attenuation;
-		float SpotFactor;
-
-		Vec4 Ambient;
-		Vec4 Diffuse;
-		Vec4 Specular;
-
-		ShaderParams()
-		{
-			memset(this, 0, sizeof(ShaderParams));
-			Type = eLightTypeCount;
-		}
-	};
-
-	ShaderParams Params;
-
-	void Draw();
-protected:
-	void Init();
-
-	bool m_Inited = false;
-};
-
-struct Material
-{
-public:
-	enum eTextureType
-	{
-		eDiffuseMap,
-		eNormalMap,
-		eSprcularMap,
-		eHeightMap,
-		eTexTypeCount
-	};
-
-	struct ShaderParams
-	{
-		uint32_t EnableTexture[eTexTypeCount] = {};
-
-		Vec4 VertexColor;
-
-		Vec4 Ambient;
-		Vec4 Diffuse;
-		Vec4 Specular;
-		Vec4 Reflection;
-
-		ShaderParams()
-		{
-			memset(this, 0, sizeof(ShaderParams));
-			VertexColor = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		}
-	};
-
-	Material() = default;
-	///Material(const Material &srcMat)
-	///{
-	///	memcpy(&Params, &srcMat.Params, sizeof(ShaderParams));
-	///	for (uint32_t i = 0U; i < eTexTypeCount; ++i)
-	///	{
-	///		if (srcMat.Textures[i].Valid())
-	///		{
-	///			Textures[i] = srcMat.Textures[i];
-	///		}
-	///	}
-	///}
-
-	///void operator=(const Material &srcMat)
-	///{
-	///	memcpy(&Params, &srcMat.Params, sizeof(ShaderParams));
-	///	for (uint32_t i = 0U; i < eTexTypeCount; ++i)
-	///	{
-	///		if (srcMat.Textures[i].Valid())
-	///		{
-	///			Textures[i] = srcMat.Textures[i];
-	///		}
-	///	}
-	///	Sampler = srcMat.Sampler;
-	///}
-
-	ShaderParams Params;
-
-	D3DShaderResourceView Textures[eTexTypeCount];
-
-	///D3DSamplerState Sampler;
-
-	void SetTexture(eTextureType type, const D3DShaderResourceView &texture);
-protected:
-};
-
 class Mesh
 {
 public:
 	Mesh() = default;
 	~Mesh() = default;
 
-	///Mesh(Mesh &&srcMesh);
-	///Mesh &operator=(Mesh &&srcMesh);
-
-	static void MakeBox(float width, float height, float depth, Mesh &mesh);
-	static void MakeCube(float width, Mesh &mesh);
-	static void MakeSphere(float radius, uint32_t slice, uint32_t stack, Mesh &mesh);
-	static void MakeGeoSphere(float radius, uint32_t subDivisions, Mesh &mesh);
-	static void MakeFlatGeoSphere(float radius, uint32_t subDivisions, Mesh &mesh);
-	static void MakeCylinder(float bottomRadius, float topRadius, float height, uint32_t slice, uint32_t stack, Mesh &mesh);
-	static void MakeGrid(float width, float depth, uint32_t m, uint32_t n, Mesh &mesh);
-	static void MakeQuad(float length, Mesh &mesh);
+	void CreateAsBox(float width, float height, float depth);
+	void CreateAsCube(float width);
+	void CreateAsSphere(float radius, uint32_t slice, uint32_t stack);
+	void CreateAsGeoSphere(float radius, uint32_t subDivisions);
+	void CreateAsFlatGeoSphere(float radius, uint32_t subDivisions);
+	void CreateAsCylinder(float bottomRadius, float topRadius, float height, uint32_t slice, uint32_t stack);
+	void CreateAsGrid(float width, float depth, uint32_t m, uint32_t n);
+	void CreateAsQuad(float length);
 
 	void SetLight(const Light *pLight, bool bReset = false);
 
@@ -188,7 +76,7 @@ public:
 		m_Transform.Scale = Matrix::Scaling(x, y, z);
 	}
 
-	inline void SetWireframeMode(bool bWireframe)
+	inline void SetWireframe(bool bWireframe)
 	{
 		m_Wireframe = bWireframe;
 	}
@@ -196,7 +84,6 @@ public:
 	void Draw(const Camera &cam);
 
 	void DrawNormal(const Camera &cam);
-	void Init();
 protected:
 	struct RenderResource
 	{
@@ -249,11 +136,12 @@ protected:
 	std::vector<Vertex> m_Vertices;
 	std::vector<uint32_t> m_Indices;
 
+	void Init();
 	void ApplyMaterial();
 	void ApplyLight();
 
-	static void SubDivide(Mesh& mesh);
-	static void MakeCylinderTopBottomCap(bool bTop, float bottomRadius, float topRadius, float height, uint32_t slice, Mesh &mesh);
+	void SubDivide();
+	void MakeCylinderTopBottomCap(bool bTop, float bottomRadius, float topRadius, float height, uint32_t slice);
 private:
 	RenderResource m_Resource;
 

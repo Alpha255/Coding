@@ -6,12 +6,12 @@ static Geometry::Mesh s_Box;
 
 void AppBox::PreInit()
 {
-	Geometry::Mesh::MakeCube(1.0f, s_Box);
+	s_Box.CreateAsCube(1.0f);
 
 	D3DShaderResourceView tex;
 	tex.Create("WoodCrate01.dds");
-	Geometry::Material mat;
-	mat.SetTexture(Geometry::Material::eDiffuseMap, tex);
+	Material mat;
+	mat.SetTexture(Material::eDiffuseMap, tex);
 	s_Box.SetMaterial(&mat);
 
 	m_Camera->SetViewRadius(5.0f);

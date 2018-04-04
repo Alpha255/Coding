@@ -176,7 +176,7 @@ protected:
 		D3DViewport              Viewports[eMaxViewports];
 		D3DRect                  ScissorRects[eMaxScissorRects];
 
-		uint32_t                 PrimitiveTopology = -1;
+		uint32_t                 PrimitiveTopology = UINT32_MAX;
 		uint32_t                 StencilRef = 0U;
 		uint32_t                 BlendMask = 0U;
 		float                    BlendFactor[4] = {};

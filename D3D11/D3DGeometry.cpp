@@ -1,31 +1,8 @@
 #include "D3DGeometry.h"
+#include "D3DEngine.h"
 #include "Camera.h"
 
 NamespaceBegin(Geometry)
-
-void Light::Init()
-{
-	if (m_Inited)
-	{
-		return;
-	}
-
-	m_Inited = true;
-}
-
-void Light::Draw()
-{
-	Init();
-}
-
-void Material::SetTexture(eTextureType type, const D3DShaderResourceView &texture)
-{
-	assert(type < eTexTypeCount);
-
-	Textures[type] = texture;
-
-	Params.EnableTexture[type] = 1U;
-}
 
 void Mesh::SetLight(const Light *pLight, bool bReset)
 {
@@ -126,9 +103,9 @@ void Mesh::Draw(const Camera &cam)
 	world = world * m_Transform.Scale * m_Transform.Rotate * m_Transform.Translation;
 	Matrix wvp = world * cam.GetViewMatrix() * cam.GetProjMatrix();
 
-	m_CBufferVS.World = world.Transpose();
-	m_CBufferVS.WorldInverse = world.InverseTranspose();
-	m_CBufferVS.WorldViewProj = wvp.Transpose();
+	m_CBufferVS.World = Matrix::Transpose(world);
+	m_CBufferVS.WorldInverse = Matrix::InverseTranspose(world);
+	m_CBufferVS.WorldViewProj = Matrix::Transpose(wvp);
 	m_CBufferVS.EyePos = cam.GetEyePos();
 	m_Resource.CBufferVS.Update(&m_CBufferVS, sizeof(ConstantBufferVS));
 	D3DEngine::Instance().SetConstantBuffer(m_Resource.CBufferVS, 0U, D3DShader::eVertexShader);
@@ -152,13 +129,13 @@ void Mesh::DrawNormal(const Camera &/*cam*/)
 
 }
 
-void Mesh::SubDivide(Mesh& mesh)
+void Mesh::SubDivide()
 {
 	/// Save a copy of the input geometry.
-	Mesh inputCopy = mesh;
+	Mesh inputCopy = *this;
 
-	mesh.m_Vertices.resize(0);
-	mesh.m_Indices.resize(0);
+	m_Vertices.resize(0);
+	m_Indices.resize(0);
 
 	///       v1
 	///       *
@@ -194,38 +171,38 @@ void Mesh::SubDivide(Mesh& mesh)
 		/// Add new geometry.
 		///
 
-		mesh.m_Vertices.push_back(v0); /// 0
-		mesh.m_Vertices.push_back(v1); /// 1
-		mesh.m_Vertices.push_back(v2); /// 2
-		mesh.m_Vertices.push_back(m0); /// 3
-		mesh.m_Vertices.push_back(m1); /// 4
-		mesh.m_Vertices.push_back(m2); /// 5
+		m_Vertices.push_back(v0); /// 0
+		m_Vertices.push_back(v1); /// 1
+		m_Vertices.push_back(v2); /// 2
+		m_Vertices.push_back(m0); /// 3
+		m_Vertices.push_back(m1); /// 4
+		m_Vertices.push_back(m2); /// 5
 
-		mesh.m_Indices.push_back(i * 6 + 0);
-		mesh.m_Indices.push_back(i * 6 + 3);
-		mesh.m_Indices.push_back(i * 6 + 5);
-			 
-		mesh.m_Indices.push_back(i * 6 + 3);
-		mesh.m_Indices.push_back(i * 6 + 4);
-		mesh.m_Indices.push_back(i * 6 + 5);
-			 
-		mesh.m_Indices.push_back(i * 6 + 5);
-		mesh.m_Indices.push_back(i * 6 + 4);
-		mesh.m_Indices.push_back(i * 6 + 2);
-			 
-		mesh.m_Indices.push_back(i * 6 + 3);
-		mesh.m_Indices.push_back(i * 6 + 1);
-		mesh.m_Indices.push_back(i * 6 + 4);
+		m_Indices.push_back(i * 6 + 0);
+		m_Indices.push_back(i * 6 + 3);
+		m_Indices.push_back(i * 6 + 5);
+		
+		m_Indices.push_back(i * 6 + 3);
+		m_Indices.push_back(i * 6 + 4);
+		m_Indices.push_back(i * 6 + 5);
+		
+		m_Indices.push_back(i * 6 + 5);
+		m_Indices.push_back(i * 6 + 4);
+		m_Indices.push_back(i * 6 + 2);
+		
+		m_Indices.push_back(i * 6 + 3);
+		m_Indices.push_back(i * 6 + 1);
+		m_Indices.push_back(i * 6 + 4);
 	}
 }
 
-void Mesh::MakeCylinderTopBottomCap(bool bTop, float bottomRadius, float topRadius, float height, uint32_t slice, Mesh &mesh)
+void Mesh::MakeCylinderTopBottomCap(bool bTop, float bottomRadius, float topRadius, float height, uint32_t slice)
 {
 	float y = bTop ? (0.5f * height) : (-0.5f * height);
 	float r = bTop ? topRadius : bottomRadius;
 	float cy = bTop ? 1.0f : -1.0f;
 	float theta = DirectX::XM_2PI / slice;
-	uint32_t baseIndex = (uint32_t)mesh.m_Vertices.size();
+	uint32_t baseIndex = (uint32_t)m_Vertices.size();
 
 	/// Duplicate cap ring vertices because the texture coordinates and normals differ.
 	for (uint32_t i = 0U; i <= slice; ++i)
@@ -239,30 +216,32 @@ void Mesh::MakeCylinderTopBottomCap(bool bTop, float bottomRadius, float topRadi
 			0.0f, cy, 0.0f,
 			1.0f, 0.0f, 0.0f,
 			x / height + 0.5f, z / height + 0.5f);
-		mesh.m_Vertices.push_back(v);
+		m_Vertices.push_back(v);
 	}
 
 	/// Cap center vertex.
 	Vertex center(0.0f, y, 0.0f, 0.0f, cy, 0.0f, 1.0f, 0.0f, 0.0f, 0.5f, 0.5f);
-	mesh.m_Vertices.push_back(center);
+	m_Vertices.push_back(center);
 
 	/// Cache the index of center vertex.
-	uint32_t centerIndex = (uint32_t)(mesh.m_Vertices.size() - 1U);
+	uint32_t centerIndex = (uint32_t)(m_Vertices.size() - 1U);
 
 	for (uint32_t i = 0U; i < slice; ++i)
 	{
-		mesh.m_Indices.push_back(centerIndex);
+		m_Indices.push_back(centerIndex);
 
 		uint32_t i1 = bTop ? (baseIndex + i + 1) : (baseIndex + i);
 		uint32_t i2 = bTop ? (baseIndex + i) : (baseIndex + i + 1);
 
-		mesh.m_Indices.push_back(i1);
-		mesh.m_Indices.push_back(i2);
+		m_Indices.push_back(i1);
+		m_Indices.push_back(i2);
 	}
 }
 
-void Mesh::MakeBox(float width, float height, float depth, Mesh &mesh)
+void Mesh::CreateAsBox(float width, float height, float depth)
 {
+	assert(!m_Created);
+
 	Vertex vertices[24];
 
 	float w = width  * 0.5f;
@@ -299,7 +278,7 @@ void Mesh::MakeBox(float width, float height, float depth, Mesh &mesh)
 	vertices[22] = Vertex(w, h, d, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
 	vertices[23] = Vertex(w, -h, d, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
 
-	mesh.m_Vertices.assign(&vertices[0], &vertices[24]);
+	m_Vertices.assign(&vertices[0], &vertices[24]);
 
 	uint32_t indices[36] = { 0 };
 
@@ -321,20 +300,22 @@ void Mesh::MakeBox(float width, float height, float depth, Mesh &mesh)
 	/// right
 	indices[30] = 20; indices[31] = 21; indices[32] = 22; indices[33] = 20; indices[34] = 22; indices[35] = 23;
 
-	mesh.m_Indices.assign(&indices[0], &indices[36]);
+	m_Indices.assign(&indices[0], &indices[36]);
 
-	mesh.m_Created = true;
+	m_Created = true;
 }
 
-void Mesh::MakeCube(float width, Mesh &mesh)
+void Mesh::CreateAsCube(float width)
 {
-	MakeBox(width, width, width, mesh);
+	CreateAsBox(width, width, width);
 }
 
-void Mesh::MakeSphere(float radius, uint32_t slice, uint32_t stack, Mesh &mesh)
+void Mesh::CreateAsSphere(float radius, uint32_t slice, uint32_t stack)
 {
-	mesh.m_Vertices.clear();
-	mesh.m_Indices.clear();
+	assert(!m_Created);
+
+	m_Vertices.clear();
+	m_Indices.clear();
 
 	Vertex tVertex(0.0f, radius, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 	Vertex bVertex(0.0f, -radius, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
@@ -343,7 +324,7 @@ void Mesh::MakeSphere(float radius, uint32_t slice, uint32_t stack, Mesh &mesh)
 	float thetaStep = 2.0f * DirectX::XM_PI / slice;
 
 	/// Compute vertices for each stack ring (do not count the poles as rings).
-	mesh.m_Vertices.push_back(tVertex);
+	m_Vertices.push_back(tVertex);
 	for (uint32_t i = 1; i < stack; ++i)
 	{
 		float phi = i * phiStep;
@@ -371,10 +352,10 @@ void Mesh::MakeSphere(float radius, uint32_t slice, uint32_t stack, Mesh &mesh)
 			vec.UV.x = theta / DirectX::XM_2PI;
 			vec.UV.y = phi / DirectX::XM_PI;
 
-			mesh.m_Vertices.push_back(vec);
+			m_Vertices.push_back(vec);
 		}
 	}
-	mesh.m_Vertices.push_back(bVertex);
+	m_Vertices.push_back(bVertex);
 
 	///
 	/// Compute indices for top stack.  The top stack was written first to the vertex buffer
@@ -382,9 +363,9 @@ void Mesh::MakeSphere(float radius, uint32_t slice, uint32_t stack, Mesh &mesh)
 	///
 	for (uint32_t i = 1; i <= slice; ++i)
 	{
-		mesh.m_Indices.push_back(0);
-		mesh.m_Indices.push_back(i + 1);
-		mesh.m_Indices.push_back(i);
+		m_Indices.push_back(0);
+		m_Indices.push_back(i + 1);
+		m_Indices.push_back(i);
 	}
 
 	///
@@ -398,13 +379,13 @@ void Mesh::MakeSphere(float radius, uint32_t slice, uint32_t stack, Mesh &mesh)
 	{
 		for (uint32_t j = 0; j < slice; ++j)
 		{
-			mesh.m_Indices.push_back(baseIndex + i * ringVertexCount + j);
-			mesh.m_Indices.push_back(baseIndex + i * ringVertexCount + j + 1);
-			mesh.m_Indices.push_back(baseIndex + (i + 1) * ringVertexCount + j);
-				 
-			mesh.m_Indices.push_back(baseIndex + (i + 1) * ringVertexCount + j);
-			mesh.m_Indices.push_back(baseIndex + i * ringVertexCount + j + 1);
-			mesh.m_Indices.push_back(baseIndex + (i + 1) * ringVertexCount + j + 1);
+			m_Indices.push_back(baseIndex + i * ringVertexCount + j);
+			m_Indices.push_back(baseIndex + i * ringVertexCount + j + 1);
+			m_Indices.push_back(baseIndex + (i + 1) * ringVertexCount + j);
+			
+			m_Indices.push_back(baseIndex + (i + 1) * ringVertexCount + j);
+			m_Indices.push_back(baseIndex + i * ringVertexCount + j + 1);
+			m_Indices.push_back(baseIndex + (i + 1) * ringVertexCount + j + 1);
 		}
 	}
 
@@ -413,21 +394,25 @@ void Mesh::MakeSphere(float radius, uint32_t slice, uint32_t stack, Mesh &mesh)
 	/// and connects the bottom pole to the bottom ring.
 	///
 	/// South pole vertex was added last.
-	uint32_t southPoleIndex = (uint32_t)mesh.m_Vertices.size() - 1;
+	uint32_t southPoleIndex = (uint32_t)m_Vertices.size() - 1;
 
 	// Offset the indices to the index of the first vertex in the last ring.
 	baseIndex = southPoleIndex - ringVertexCount;
 
 	for (uint32_t i = 0; i < slice; ++i)
 	{
-		mesh.m_Indices.push_back(southPoleIndex);
-		mesh.m_Indices.push_back(baseIndex + i);
-		mesh.m_Indices.push_back(baseIndex + i + 1);
+		m_Indices.push_back(southPoleIndex);
+		m_Indices.push_back(baseIndex + i);
+		m_Indices.push_back(baseIndex + i + 1);
 	}
+
+	m_Created = true;
 }
 
-void Mesh::MakeGeoSphere(float radius, uint32_t subDivisions, Mesh &mesh)
+void Mesh::CreateAsGeoSphere(float radius, uint32_t subDivisions)
 {
+	assert(!m_Created);
+
 	/// Put a cap on the number of subdivisions.
 	subDivisions = min(subDivisions, 5u);
 
@@ -454,64 +439,66 @@ void Mesh::MakeGeoSphere(float radius, uint32_t subDivisions, Mesh &mesh)
 		10, 1, 6,  11, 0, 9,  2, 11,  9,  5, 2,  9,  11, 2, 7
 	};
 
-	mesh.m_Vertices.resize(12);
-	mesh.m_Indices.resize(60);
+	m_Vertices.resize(12);
+	m_Indices.resize(60);
 
 	for (uint32_t i = 0; i < 12; ++i)
 	{
-		mesh.m_Vertices[i].Position = pos[i];
+		m_Vertices[i].Position = pos[i];
 	}
 
 	for (uint32_t i = 0; i < 60; ++i)
 	{
-		mesh.m_Indices[i] = k[i];
+		m_Indices[i] = k[i];
 	}
 
 	for (uint32_t i = 0; i < subDivisions; ++i)
 	{
-		SubDivide(mesh);
+		SubDivide();
 	}
 
 	/// Project vertices onto sphere and scale.
-	for (uint32_t i = 0; i < mesh.m_Vertices.size(); ++i)
+	for (uint32_t i = 0; i < m_Vertices.size(); ++i)
 	{
 		/// Project onto unit sphere.
-		DirectX::XMVECTOR n = DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&mesh.m_Vertices[i].Position));
+		DirectX::XMVECTOR n = DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&m_Vertices[i].Position));
 
 		/// Project onto sphere.
 		DirectX::XMVECTOR p = DirectX::XMVectorScale(n, radius);
 
-		DirectX::XMStoreFloat3(&mesh.m_Vertices[i].Position, p);
-		DirectX::XMStoreFloat3(&mesh.m_Vertices[i].Normal, n);
+		DirectX::XMStoreFloat3(&m_Vertices[i].Position, p);
+		DirectX::XMStoreFloat3(&m_Vertices[i].Normal, n);
 
 		/// Derive texture coordinates from spherical coordinates.
-		float theta = Math::AngleFromXY(mesh.m_Vertices[i].Position.x, mesh.m_Vertices[i].Position.z);
+		float theta = Math::AngleFromXY(m_Vertices[i].Position.x, m_Vertices[i].Position.z);
 
-		float phi = acosf(mesh.m_Vertices[i].Position.y / radius);
+		float phi = acosf(m_Vertices[i].Position.y / radius);
 
-		mesh.m_Vertices[i].UV.x = theta / DirectX::XM_2PI;
-		mesh.m_Vertices[i].UV.y = phi / DirectX::XM_PI;
+		m_Vertices[i].UV.x = theta / DirectX::XM_2PI;
+		m_Vertices[i].UV.y = phi / DirectX::XM_PI;
 
 		/// Partial derivative of P with respect to theta
-		mesh.m_Vertices[i].Tangent.x = -radius * sinf(phi) * sinf(theta);
-		mesh.m_Vertices[i].Tangent.y = 0.0f;
-		mesh.m_Vertices[i].Tangent.z = radius * sinf(phi) * cosf(theta);
+		m_Vertices[i].Tangent.x = -radius * sinf(phi) * sinf(theta);
+		m_Vertices[i].Tangent.y = 0.0f;
+		m_Vertices[i].Tangent.z = radius * sinf(phi) * cosf(theta);
 
-		DirectX::XMVECTOR T = DirectX::XMLoadFloat3(&mesh.m_Vertices[i].Tangent);
-		DirectX::XMStoreFloat3(&mesh.m_Vertices[i].Tangent, DirectX::XMVector3Normalize(T));
+		DirectX::XMVECTOR T = DirectX::XMLoadFloat3(&m_Vertices[i].Tangent);
+		DirectX::XMStoreFloat3(&m_Vertices[i].Tangent, DirectX::XMVector3Normalize(T));
 	}
+
+	m_Created = true;
 }
 
-void Mesh::MakeFlatGeoSphere(float radius, uint32_t subDivisions, Mesh &mesh)
+void Mesh::CreateAsFlatGeoSphere(float radius, uint32_t subDivisions)
 {
-	MakeGeoSphere(radius, subDivisions, mesh);
+	CreateAsGeoSphere(radius, subDivisions);
 
-	uint32_t numTris = (uint32_t)mesh.m_Indices.size() / 3;
+	uint32_t numTris = (uint32_t)m_Indices.size() / 3;
 	for (uint32_t i = 0; i < numTris; ++i)
 	{
-		Vertex &v0 = mesh.m_Vertices[mesh.m_Indices[i * 3 + 0]];
-		Vertex &v1 = mesh.m_Vertices[mesh.m_Indices[i * 3 + 1]];
-		Vertex &v2 = mesh.m_Vertices[mesh.m_Indices[i * 3 + 2]];
+		Vertex &v0 = m_Vertices[m_Indices[i * 3 + 0]];
+		Vertex &v1 = m_Vertices[m_Indices[i * 3 + 1]];
+		Vertex &v2 = m_Vertices[m_Indices[i * 3 + 2]];
 
 		Vec3 v01 = v1.Position - v0.Position;
 		Vec3 v12 = v2.Position - v1.Position;
@@ -527,10 +514,12 @@ void Mesh::MakeFlatGeoSphere(float radius, uint32_t subDivisions, Mesh &mesh)
 	}
 }
 
-void Mesh::MakeCylinder(float bottomRadius, float topRadius, float height, uint32_t slice, uint32_t stack, Mesh &mesh)
+void Mesh::CreateAsCylinder(float bottomRadius, float topRadius, float height, uint32_t slice, uint32_t stack)
 {
-	mesh.m_Vertices.clear();
-	mesh.m_Indices.clear();
+	assert(!m_Created);
+
+	m_Vertices.clear();
+	m_Indices.clear();
 
 	float stackHeight = height / stack;
 
@@ -588,7 +577,7 @@ void Mesh::MakeCylinder(float bottomRadius, float topRadius, float height, uint3
 			DirectX::XMVECTOR N = DirectX::XMVector3Cross(T, B);
 			DirectX::XMStoreFloat3(&v.Normal, N);
 
-			mesh.m_Vertices.push_back(v);
+			m_Vertices.push_back(v);
 		}
 	}
 
@@ -601,22 +590,26 @@ void Mesh::MakeCylinder(float bottomRadius, float topRadius, float height, uint3
 	{
 		for (uint32_t j = 0U; j < slice; ++j)
 		{
-			mesh.m_Indices.push_back(i * ringVertexCount + j);
-			mesh.m_Indices.push_back((i + 1) * ringVertexCount + j);
-			mesh.m_Indices.push_back((i + 1) * ringVertexCount + j + 1);
-				 
-			mesh.m_Indices.push_back(i * ringVertexCount + j);
-			mesh.m_Indices.push_back((i + 1) * ringVertexCount + j + 1);
-			mesh.m_Indices.push_back(i * ringVertexCount + j + 1);
+			m_Indices.push_back(i * ringVertexCount + j);
+			m_Indices.push_back((i + 1) * ringVertexCount + j);
+			m_Indices.push_back((i + 1) * ringVertexCount + j + 1);
+			
+			m_Indices.push_back(i * ringVertexCount + j);
+			m_Indices.push_back((i + 1) * ringVertexCount + j + 1);
+			m_Indices.push_back(i * ringVertexCount + j + 1);
 		}
 	}
 
-	MakeCylinderTopBottomCap(true, bottomRadius, topRadius, height, slice, mesh);
-	MakeCylinderTopBottomCap(false, bottomRadius, topRadius, height, slice, mesh);
+	MakeCylinderTopBottomCap(true, bottomRadius, topRadius, height, slice);
+	MakeCylinderTopBottomCap(false, bottomRadius, topRadius, height, slice);
+
+	m_Created = true;
 }
 
-void Mesh::MakeGrid(float width, float depth, uint32_t m, uint32_t n, Mesh &mesh)
+void Mesh::CreateAsGrid(float width, float depth, uint32_t m, uint32_t n)
 {
+	assert(!m_Created);
+
 	uint32_t vertexCount = m * n;
 	uint32_t faceCount = (m - 1) * (n - 1) * 2;
 
@@ -630,7 +623,7 @@ void Mesh::MakeGrid(float width, float depth, uint32_t m, uint32_t n, Mesh &mesh
 	float du = 1.0f / (n - 1);
 	float dv = 1.0f / (m - 1);
 
-	mesh.m_Vertices.resize(vertexCount);
+	m_Vertices.resize(vertexCount);
 	for (uint32_t i = 0; i < m; ++i)
 	{
 		float z = halfDepth - i * dz;
@@ -638,75 +631,81 @@ void Mesh::MakeGrid(float width, float depth, uint32_t m, uint32_t n, Mesh &mesh
 		{
 			float x = -halfWidth + j * dx;
 
-			mesh.m_Vertices[i * n + j].Position = Vec3(x, 0.0f, z);
-			mesh.m_Vertices[i * n + j].Normal = Vec3(0.0f, 1.0f, 0.0f);
-			mesh.m_Vertices[i * n + j].Tangent = Vec3(1.0f, 0.0f, 0.0f);
-				 
-			mesh.m_Vertices[i * n + j].UV.x = j * du;
-			mesh.m_Vertices[i * n + j].UV.y = i * dv;
+			m_Vertices[i * n + j].Position = Vec3(x, 0.0f, z);
+			m_Vertices[i * n + j].Normal = Vec3(0.0f, 1.0f, 0.0f);
+			m_Vertices[i * n + j].Tangent = Vec3(1.0f, 0.0f, 0.0f);
+			
+			m_Vertices[i * n + j].UV.x = j * du;
+			m_Vertices[i * n + j].UV.y = i * dv;
 		}		 
 	}
 
 	/// Create the indices
-	mesh.m_Indices.resize(faceCount * 3);
+	m_Indices.resize(faceCount * 3);
 
 	uint32_t k = 0;
 	for (uint32_t i = 0; i < m - 1; ++i)
 	{
 		for (uint32_t j = 0; j < n - 1; ++j)
 		{
-			mesh.m_Indices[k] = i * n + j;
-			mesh.m_Indices[k + 1] = i * n + j + 1;
-			mesh.m_Indices[k + 2] = (i + 1) * n + j;
-				 
-			mesh.m_Indices[k + 3] = (i + 1) * n + j;
-			mesh.m_Indices[k + 4] = i * n + j + 1;
-			mesh.m_Indices[k + 5] = (i + 1) * n + j + 1;
+			m_Indices[k] = i * n + j;
+			m_Indices[k + 1] = i * n + j + 1;
+			m_Indices[k + 2] = (i + 1) * n + j;
+			
+			m_Indices[k + 3] = (i + 1) * n + j;
+			m_Indices[k + 4] = i * n + j + 1;
+			m_Indices[k + 5] = (i + 1) * n + j + 1;
 
 			k += 6;
 		}
 	}
+
+	m_Created = true;
 }
 
-void Mesh::MakeQuad(float length, Mesh &mesh)
+void Mesh::CreateAsQuad(float length)
 {
-	mesh.m_Vertices.resize(4U);
-	mesh.m_Indices.resize(6U);
+	assert(!m_Created);
+
+	m_Vertices.resize(4U);
+	m_Indices.resize(6U);
 
 	float halfLen = length / 2.0f;
 
 	/// Position coordinates specified in NDC space.
-	mesh.m_Vertices[0] = Vertex(
+	m_Vertices[0] = Vertex(
 		-halfLen, -halfLen, 0.0f,
 		0.0f, 0.0f, -1.0f,
 		1.0f, 0.0f, 0.0f,
 		0.0f, 1.0f);
 
-	mesh.m_Vertices[1] = Vertex(
+	m_Vertices[1] = Vertex(
 		-halfLen, +halfLen, 0.0f,
 		0.0f, 0.0f, -1.0f,
 		1.0f, 0.0f, 0.0f,
 		0.0f, 0.0f);
 
-	mesh.m_Vertices[2] = Vertex(
+	m_Vertices[2] = Vertex(
 		+halfLen, +halfLen, 0.0f,
 		0.0f, 0.0f, -1.0f,
 		1.0f, 0.0f, 0.0f,
 		1.0f, 0.0f);
 
-	mesh.m_Vertices[3] = Vertex(
+	m_Vertices[3] = Vertex(
 		+halfLen, -halfLen, 0.0f,
 		0.0f, 0.0f, -1.0f,
 		1.0f, 0.0f, 0.0f,
 		1.0f, 1.0f);
 
-	mesh.m_Indices[0] = 0;
-	mesh.m_Indices[1] = 1;
-	mesh.m_Indices[2] = 2;
-		 
-	mesh.m_Indices[3] = 0;
-	mesh.m_Indices[4] = 2;
-	mesh.m_Indices[5] = 3;
+	m_Indices[0] = 0;
+	m_Indices[1] = 1;
+	m_Indices[2] = 2;
+	
+	m_Indices[3] = 0;
+	m_Indices[4] = 2;
+	m_Indices[5] = 3;
+
+	m_Created = true;
 }
 
 NamespaceEnd(Geometry)

@@ -2,13 +2,13 @@
 
 INT WINAPI wWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpCmdLine*/, int /*nShow*/)
 {
-	GameApplication Mario;
+	//GameApplication Mario;
 
-	Mario.Startup(L"Mario", 640U, 480U, true/*, WS_THICKFRAME ^ WS_MAXIMIZEBOX*/);
+	//Mario.Startup(L"Mario", 640U, 480U, true/*, WS_THICKFRAME ^ WS_MAXIMIZEBOX*/);
 
-	Mario.Running();
+	//Mario.Running();
 
-	Mario.ShutDown();
+	//Mario.ShutDown();
 
 	return 0;
 }

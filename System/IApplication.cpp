@@ -73,7 +73,6 @@ void IApplication::HandleWindowMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM)
 		m_bActive = false;
 		m_pTimer->Stop();
 		break;
-	case WM_SIZE:
 	case WM_EXITSIZEMOVE:
 	{
 		m_pTimer->Start();
