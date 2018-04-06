@@ -25,6 +25,12 @@ private:
 	Geometry::Mesh m_FlatSphere;
 	Geometry::Mesh m_Sphere;
 
+	D3DVertexShader m_VertexShader[eShadingModeCount];
+	D3DPixelShader m_PixelShader[eShadingModeCount];
+
+	D3DBuffer m_CBufferVS;
+	D3DBuffer m_CBufferPS;
+
 	eShadingMode m_ShadingMode = eFlat;
 	bool m_bWireframe = false;
 	bool m_bDrawNormal = false;

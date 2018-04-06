@@ -151,6 +151,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Demo\Lighting\Lighting.h" />
+    <ClInclude Include="..\System\resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ThirdParty\DirectXTK\DirectXTK_Desktop_2015.vcxproj">
@@ -165,6 +166,12 @@
     <ProjectReference Include="System.vcxproj">
       <Project>{6db11869-f668-4424-b0db-de705c4124c9}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\System\Resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Application\Resource\directx.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

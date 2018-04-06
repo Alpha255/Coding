@@ -44,7 +44,7 @@ void D3DGUI_imGui::Initialize(::HWND hWnd)
 	m_Resource.VertexLayout.Create(m_Resource.VertexShader.GetBlob(), layout, 3U);
 	m_Resource.PixelShader.Create("imGUI.hlsl", "PS_Main");
 
-	m_Resource.ConstantBufferVS.CreateAsConstantBuffer(sizeof(Matrix), D3DBuffer::eGpuReadCpuWrite, nullptr, D3DBuffer::eCpuWrite);
+	m_Resource.ConstantBufferVS.CreateAsConstantBuffer(sizeof(Matrix), D3DBuffer::eGpuReadCpuWrite, nullptr);
 
 	m_Resource.ClrWriteBlend.Create(false, false, 0U, true, D3DState::eSrcAlpha, D3DState::eInvSrcAlpha, D3DState::eAdd, 
 		D3DState::eInvSrcAlpha, D3DState::eZero, D3DState::eAdd, D3DState::eAll);
@@ -217,7 +217,7 @@ void D3DGUI_imGui::UpdateAndRender()
 	D3DEngine::Instance().SetVertexBuffer(m_Resource.VertexBuffer, sizeof(ImDrawVert), 0U);
 	D3DEngine::Instance().SetIndexBuffer(m_Resource.IndexBuffer, sizeof(ImDrawIdx) == 2U ? eR16_UInt : eR32_UInt, 0U);
 	D3DEngine::Instance().SetConstantBuffer(m_Resource.ConstantBufferVS, 0U, D3DShader::eVertexShader);
-	D3DEngine::Instance().SetSamplerStates(D3DStaticState::LinearSampler, 0U, D3DShader::ePixelShader);
+	D3DEngine::Instance().SetSamplerState(D3DStaticState::LinearSampler, 0U, D3DShader::ePixelShader);
 	D3DEngine::Instance().SetBlendState(m_Resource.ClrWriteBlend);
 	D3DEngine::Instance().SetDepthStencilState(D3DStaticState::DisableDepthStencil, 0U);
 	D3DEngine::Instance().SetRasterizerState(D3DStaticState::SolidNoneCulling);
@@ -271,7 +271,7 @@ void D3DGUI_imGui::UpdateDrawData(bool bRecreateVB, bool bRecreateIB, const ImDr
 		m_pVertices = new ImDrawVert[m_VertexCount]();
 
 		m_Resource.VertexBuffer.Reset();
-		m_Resource.VertexBuffer.CreateAsVertexBuffer(m_VertexCount * sizeof(ImDrawVert), D3DBuffer::eGpuReadCpuWrite, nullptr, D3DBuffer::eCpuWrite);
+		m_Resource.VertexBuffer.CreateAsVertexBuffer(m_VertexCount * sizeof(ImDrawVert), D3DBuffer::eGpuReadCpuWrite, nullptr);
 	}
 
 	if (bRecreateIB)
@@ -282,7 +282,7 @@ void D3DGUI_imGui::UpdateDrawData(bool bRecreateVB, bool bRecreateIB, const ImDr
 		m_pIndices = new ImDrawIdx[m_IndexCount]();
 
 		m_Resource.IndexBuffer.Reset();
-		m_Resource.IndexBuffer.CreateAsIndexBuffer(m_IndexCount * sizeof(ImDrawIdx), D3DBuffer::eGpuReadCpuWrite, nullptr, D3DBuffer::eCpuWrite);
+		m_Resource.IndexBuffer.CreateAsIndexBuffer(m_IndexCount * sizeof(ImDrawIdx), D3DBuffer::eGpuReadCpuWrite, nullptr);
 	}
 
 	/// Update vertices and indices

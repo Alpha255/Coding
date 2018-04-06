@@ -1,41 +1,19 @@
 #include "D3DGeometry.h"
 #include "D3DEngine.h"
 #include "Camera.h"
+#include "System.h"
+
+#include <fstream>
+#include <sstream>
 
 NamespaceBegin(Geometry)
 
-void Mesh::SetLight(const Light &light, bool bReset)
+void Mesh::CreateRenderResource()
 {
-	assert(light.Params.Type != Light::eLightTypeCount);
+	VertexCount = (uint32_t)m_Vertices.size();
+	IndexCount = (uint32_t)m_Indices.size();
 
-	if (!(1U == m_CBufferPS.EnableLight) || bReset)
-	{
-		m_Light = light;
-
-		m_CBufferPS.EnableLight = 1U;
-	}
-}
-
-void Mesh::SetMaterial(const Material &material, bool bReset)
-{
-	if (!(1U == m_CBufferPS.EnableMaterial) || bReset)
-	{
-		m_Material = material;
-
-		m_CBufferPS.EnableMaterial = 1U;
-	}
-}
-
-void Mesh::Init()
-{
-	if (m_Inited)
-	{
-		return;
-	}
-
-	assert(m_Created);
-
-	D3D11_INPUT_ELEMENT_DESC layout[] =
+	const D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,  0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -43,83 +21,14 @@ void Mesh::Init()
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
-	m_Resource.VertexShader.Create("Mesh.hlsl", "VSMain");
-	m_Resource.VertexLayout.Create(m_Resource.VertexShader.GetBlob(), layout, 4U);
-	m_Resource.PixelShader.Create("Mesh.hlsl", "PSMain");
+	D3DVertexShader vertexShader;
+	vertexShader.Create("Mesh.hlsl", "VSMain");
+	VertexLayout.Create(vertexShader.GetBlob(), layout, 4U);
 
-	m_Resource.CBufferVS.CreateAsConstantBuffer(sizeof(ConstantBufferVS), D3DBuffer::eGpuReadCpuWrite, nullptr, D3DBuffer::eCpuWrite);
-	m_Resource.CBufferPS.CreateAsConstantBuffer(sizeof(ConstantBufferPS), D3DBuffer::eGpuReadCpuWrite, nullptr, D3DBuffer::eCpuWrite);
+	VertexBuffer.CreateAsVertexBuffer(sizeof(Vertex) * m_Vertices.size(), D3DBuffer::eGpuReadOnly, m_Vertices.data());
+	IndexBuffer.CreateAsIndexBuffer(sizeof(uint32_t) * m_Indices.size(), D3DBuffer::eGpuReadOnly, m_Indices.data());
 
-	m_Resource.VertexBuffer.CreateAsVertexBuffer(sizeof(Vertex) * m_Vertices.size(), D3DBuffer::eGpuReadOnly, m_Vertices.data());
-	m_Resource.IndexBuffer.CreateAsIndexBuffer(sizeof(uint32_t) * m_Indices.size(), D3DBuffer::eGpuReadOnly, m_Indices.data());
-
-	m_Inited = true;
-}
-
-void Mesh::ApplyMaterial()
-{
-	if (!(IsMaterialEnabled()))
-	{
-		return;
-	}
-
-	memcpy(&m_CBufferPS.MaterialParams, &m_Material.Params, sizeof(Material::ShaderParams));
-
-	for (uint32_t i = 0U; i < Material::eTexTypeCount; ++i)
-	{
-		if (1U == m_Material.Params.EnableTexture[i])
-		{
-			D3DEngine::Instance().SetShaderResourceView(m_Material.Textures[i], i, D3DShader::ePixelShader);
-		}
-	}
-
-	D3DEngine::Instance().SetSamplerStates(D3DStaticState::LinearSampler, 0U, D3DShader::ePixelShader);
-}
-
-void Mesh::ApplyLight()
-{
-	if (IsLightEnabled())
-	{
-		memcpy(&m_CBufferPS.LightParams, &m_Light.Params, sizeof(Light::ShaderParams));
-	}
-}
-
-void Mesh::Draw(const Camera &cam)
-{
-	Init();
-
-	ApplyMaterial();
-
-	ApplyLight();
-
-	D3DEngine::Instance().SetInputLayout(m_Resource.VertexLayout);
-
-	D3DEngine::Instance().SetVertexBuffer(m_Resource.VertexBuffer, sizeof(Vertex), 0U);
-	D3DEngine::Instance().SetIndexBuffer(m_Resource.IndexBuffer, eR32_UInt, 0U);
-
-	Matrix world = cam.GetWorldMatrix();
-	world = world * m_Transform.Scale * m_Transform.Rotate * m_Transform.Translation;
-	Matrix wvp = world * cam.GetViewMatrix() * cam.GetProjMatrix();
-
-	m_CBufferVS.World = Matrix::Transpose(world);
-	m_CBufferVS.WorldInverse = Matrix::InverseTranspose(world);
-	m_CBufferVS.WorldViewProj = Matrix::Transpose(wvp);
-	m_CBufferVS.EyePos = cam.GetEyePos();
-	m_Resource.CBufferVS.Update(&m_CBufferVS, sizeof(ConstantBufferVS));
-	D3DEngine::Instance().SetConstantBuffer(m_Resource.CBufferVS, 0U, D3DShader::eVertexShader);
-
-	m_Resource.CBufferPS.Update(&m_CBufferPS, sizeof(ConstantBufferPS));
-	D3DEngine::Instance().SetConstantBuffer(m_Resource.CBufferPS, 0U, D3DShader::ePixelShader);
-
-	D3DEngine::Instance().SetVertexShader(m_Resource.VertexShader);
-	D3DEngine::Instance().SetPixelShader(m_Resource.PixelShader);
-
-	if (m_Wireframe)
-	{
-		D3DEngine::Instance().SetRasterizerState(D3DStaticState::Wireframe);
-	}
-
-	D3DEngine::Instance().DrawIndexed((uint32_t)m_Indices.size(), 0U, 0, eTriangleList);
+	m_Created = true;
 }
 
 void Mesh::DrawNormal(const Camera &/*cam*/)
@@ -300,7 +209,7 @@ void Mesh::CreateAsBox(float width, float height, float depth)
 
 	m_Indices.assign(&indices[0], &indices[36]);
 
-	m_Created = true;
+	CreateRenderResource();
 }
 
 void Mesh::CreateAsCube(float width)
@@ -404,7 +313,7 @@ void Mesh::CreateAsSphere(float radius, uint32_t slice, uint32_t stack)
 		m_Indices.push_back(baseIndex + i + 1);
 	}
 
-	m_Created = true;
+	CreateRenderResource();
 }
 
 void Mesh::CreateAsGeoSphere(float radius, uint32_t subDivisions)
@@ -484,7 +393,7 @@ void Mesh::CreateAsGeoSphere(float radius, uint32_t subDivisions)
 		DirectX::XMStoreFloat3(&m_Vertices[i].Tangent, DirectX::XMVector3Normalize(T));
 	}
 
-	m_Created = true;
+	CreateRenderResource();
 }
 
 void Mesh::CreateAsFlatGeoSphere(float radius, uint32_t subDivisions)
@@ -601,7 +510,7 @@ void Mesh::CreateAsCylinder(float bottomRadius, float topRadius, float height, u
 	MakeCylinderTopBottomCap(true, bottomRadius, topRadius, height, slice);
 	MakeCylinderTopBottomCap(false, bottomRadius, topRadius, height, slice);
 
-	m_Created = true;
+	CreateRenderResource();
 }
 
 void Mesh::CreateAsGrid(float width, float depth, uint32_t m, uint32_t n)
@@ -658,7 +567,7 @@ void Mesh::CreateAsGrid(float width, float depth, uint32_t m, uint32_t n)
 		}
 	}
 
-	m_Created = true;
+	CreateRenderResource();
 }
 
 void Mesh::CreateAsQuad(float length)
@@ -703,7 +612,175 @@ void Mesh::CreateAsQuad(float length)
 	m_Indices[4] = 2;
 	m_Indices[5] = 3;
 
-	m_Created = true;
+	CreateRenderResource();
+}
+
+void ObjMesh::Create(const char *pFileName)
+{
+	assert(pFileName);
+
+	std::string meshFilePath = System::ResourceFilePath(pFileName, System::eObjMesh);
+
+	std::ifstream meshFile(meshFilePath.c_str(), std::ios::in);
+	if (meshFile.good())
+	{
+		char line[MAX_PATH] = { 0 };
+		std::vector<Vec3> vertices;
+		std::vector<ObjIndex> indices;
+		std::vector<Vec3> normals;
+		std::vector<Vec2> uvs;
+
+		while (meshFile >> line)
+		{
+			if (0 == strcmp(line, "#"))
+			{
+				meshFile.getline(line, MAX_PATH);
+			}
+			else if (0 == strcmp(line, "v"))   		/// Read vertices
+			{
+				Vec3 v;
+				meshFile >> v.x >> v.y >> v.z;
+				vertices.push_back(v);
+			}
+			else if (0 == strcmp(line, "vn"))       /// Read normals
+			{
+				Vec3 vn;
+				meshFile >> vn.x >> vn.y >> vn.z;
+				normals.push_back(vn);
+			}
+			else if (0 == strcmp(line, "vt"))   	/// Read uvs
+			{
+				Vec2 vt;
+				meshFile >> vt.x >> vt.y;
+				uvs.push_back(vt);
+			}
+			else if (0 == strcmp(line, "f"))  		/// Read indices
+			{
+				meshFile.getline(line, MAX_PATH);
+
+				/// f 1      i
+				/// f 1/1    i/t
+				/// f 1//1   i/n
+				/// f 1/1/1  i/t/n
+				ObjIndex index[4];
+				const char *pStrBeg = &line[1];
+				
+				std::stringstream ss(pStrBeg);
+				uint32_t m = 0U;
+				while (!ss.eof())
+				{
+					ss >> index[m].i;
+					const char *pStr = pStrBeg + ss.tellg();
+
+					if (' ' == *pStr)
+					{
+						++m;
+						continue;
+					}
+					else if ('/' == *pStr)
+					{
+						ss.get();
+						pStr = pStrBeg + ss.tellg();
+						if ('/' == *pStr)
+						{
+							ss.get();
+							ss >> index[m].n;
+						}
+						else
+						{
+							ss >> index[m].t;
+							pStr = pStrBeg + ss.tellg();
+							if (' ' == *pStr)
+							{
+								++m;
+								continue;
+							}
+							else if ('/' == *pStr)
+							{
+								ss.get();
+								ss >> index[m].n;
+							}
+							else
+							{
+								assert(!"Invalid obj file!!");
+							}
+						}
+					}
+					else
+					{
+						assert(!"Invalid obj file!!");
+					}
+
+					++m;
+				}
+
+				indices.insert(indices.end(), &index[0], &index[0] + 4);
+			}
+		}
+
+		meshFile.close();
+
+		CreateVertexData(vertices, indices, normals, uvs);
+
+		CreateRenderResource();
+	}
+	else
+	{
+		assert(0);
+	}
+}
+
+void ObjMesh::CreateVertexData(
+	const std::vector<Vec3> &srcVertices, 
+	const std::vector<ObjIndex> &objIndices, 
+	const std::vector<Vec3> &normals, 
+	const std::vector<Vec2> &uvs)
+{
+	for (size_t i = 0U; i < objIndices.size(); i += 4)
+	{
+		for (size_t j = i; j < i + 3U; ++j)
+		{
+			const ObjIndex &face = objIndices.at(j);
+
+			Vertex v;
+			v.Position = srcVertices.at(face.i - 1U);
+			v.Normal = face.n > 0U ? normals.at(face.n - 1U) : Vec3(0.0f, 0.0f, 0.0f);
+			v.UV = face.t > 0U ? uvs.at(face.t - 1U) : Vec2(0.0f, 0.0f);
+
+			m_Vertices.push_back(v);
+			m_Indices.push_back(face.i - 1U);
+		}
+
+		if (objIndices.at(i + 3U).i > 0U)  /// Quad ?
+		{
+			Vertex v;
+
+			size_t i0 = i + 2U;
+			const ObjIndex &face0 = objIndices.at(i0);
+			v.Position = srcVertices.at(face0.i - 1U);
+			v.Normal = face0.n > 0U ? normals.at(face0.n - 1U) : Vec3(0.0f, 0.0f, 0.0f);
+			v.UV = face0.t > 0U ? uvs.at(face0.t - 1U) : Vec2(0.0f, 0.0f);
+			m_Vertices.push_back(v);
+			m_Indices.push_back(face0.i - 1U);
+
+			size_t i1 = i + 3U;
+			const ObjIndex &face1 = objIndices.at(i1);
+			v.Position = srcVertices.at(face1.i - 1U);
+			v.Normal = face1.n > 0U ? normals.at(face1.n - 1U) : Vec3(0.0f, 0.0f, 0.0f);
+			v.UV = face1.t > 0U ? uvs.at(face1.t - 1U) : Vec2(0.0f, 0.0f);
+			m_Vertices.push_back(v);
+			m_Indices.push_back(face1.i - 1U);
+
+			size_t i2 = i;
+			const ObjIndex &face2 = objIndices.at(i2);
+			v.Position = srcVertices.at(face2.i - 1U);
+			v.Normal = face2.n > 0U ? normals.at(face2.n - 1U) : Vec3(0.0f, 0.0f, 0.0f);
+			v.UV = face2.t > 0U ? uvs.at(face2.t - 1U) : Vec2(0.0f, 0.0f);
+
+			m_Vertices.push_back(v);
+			m_Indices.push_back(face2.i - 1U);
+		}
+	}
 }
 
 NamespaceEnd(Geometry)

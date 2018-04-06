@@ -30,9 +30,8 @@ public:
 	}
 
 	virtual void Create(const char *pFileName, const char *pEntryPoint, const D3D_SHADER_MACRO *pMacros = nullptr, ID3DInclude *pInclude = nullptr) = 0;
-
-	D3DBlob CompileShaderFile(const char *pFileName, const char *pEntryPoint, const D3D_SHADER_MACRO *pMacros, ID3DInclude *pInclude);
 protected:
+	D3DBlob CompileShaderFile(const char *pFileName, const char *pEntryPoint, const D3D_SHADER_MACRO *pMacros, ID3DInclude *pInclude);
 	eShaderType m_Type = eShaderTypeCount;
 private:
 };

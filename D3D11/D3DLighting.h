@@ -1,10 +1,11 @@
 #pragma once
 
 #include "D3DMath.h"
-#include "D3DView.h"
+#include "D3DGeometry.h"
 
 struct Light
 {
+public:
 	enum eLightType
 	{
 		ePoint,
@@ -13,81 +14,63 @@ struct Light
 		eLightTypeCount
 	};
 
-	struct ShaderParams
-	{
-		Vec3 Position = {};
-		uint32_t Type = eLightTypeCount;
+	static void DrawLight(const Vec3 &position, const eLightType type, const class Camera &cam);
 
-		Vec3 Direction = {};
-		float Range = 0.0f;
+protected:
+	static Geometry::ObjMesh s_PointLightMesh;
+	static Geometry::ObjMesh s_DirLightMesh;
+	static Geometry::ObjMesh s_SpotLightMesh;
 
-		Vec3 Attenuation = {};
-		float SpotFactor = 0.0f;
+	static D3DVertexShader VertexShader;
+	static D3DPixelShader PixelShader;
+	static D3DBuffer CBufferVS;
 
-		Vec4 Ambient = {};
-		Vec4 Diffuse = {};
-		Vec4 Specular = {};
-	};
+	static bool Inited;
 
-	ShaderParams Params;
+	static void Initialize();
+};
 
-	static void DrawLight(const Light &light);
+struct PointLight : public Light
+{
+	Vec4 Ambient = {};
+	Vec4 Diffuse = {};
+	Vec4 Specular = {};
+
+	Vec3 Position = {};
+	float Range = 0.0f;
+
+	Vec4 Attenuation = {};
+};
+
+struct DirectionalLight : public Light
+{
+	Vec4 Ambient = {};
+	Vec4 Diffuse = {};
+	Vec4 Specular = {};
+	Vec4 Direction = {};
+};
+
+struct SpotLight : public Light
+{
+	Vec4 Ambient = {};
+	Vec4 Diffuse = {};
+	Vec4 Specular = {};
+
+	Vec3 Position = {};
+	float Range = 0.0f;
+
+	Vec3 Direction = {};
+	float Spot = 0.0f;
+
+	Vec4 Attenuation = {};
 };
 
 struct Material
 {
-public:
-	enum eTextureType
-	{
-		eDiffuseMap,
-		eNormalMap,
-		eSprcularMap,
-		eHeightMap,
-		eTexTypeCount
-	};
+	Vec4 VertexColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-	struct ShaderParams
-	{
-		uint32_t EnableTexture[eTexTypeCount] = {};
-
-		Vec4 VertexColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-
-		Vec4 Ambient = {};
-		Vec4 Diffuse = {};
-		Vec4 Specular = {};
-		Vec4 Reflection = {};
-	};
-
-	Material() = default;
-
-	Material(const Material &other)
-	{
-		memcpy(&Params, &other.Params, sizeof(ShaderParams));
-		for (uint32_t i = 0U; i < eTexTypeCount; ++i)
-		{
-			if (other.Textures[i].IsValid())
-			{
-				Textures[i] = other.Textures[i];
-			}
-		}
-	}
-
-	void operator=(const Material &other)
-	{
-		memcpy(&Params, &other.Params, sizeof(ShaderParams));
-		for (uint32_t i = 0U; i < eTexTypeCount; ++i)
-		{
-			if (other.Textures[i].IsValid())
-			{
-				Textures[i] = other.Textures[i];
-			}
-		}
-	}
-
-	ShaderParams Params;
-
-	D3DShaderResourceView Textures[eTexTypeCount];
-
-	void SetTexture(eTextureType type, const D3DShaderResourceView &texture);
-protected:
+	Vec4 Ambient = {};
+	Vec4 Diffuse = {};
+	Vec4 Specular = {};
+	Vec4 Reflection = {};
 };

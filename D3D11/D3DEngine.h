@@ -81,7 +81,7 @@ public:
 	void SetVertexBuffer(const D3DBuffer &vertexBuffer, uint32_t stride, uint32_t offset, uint32_t slot = 0U);
 	void SetIndexBuffer(const D3DBuffer &indexBuffer, uint32_t fmt, uint32_t offset);
 
-	void SetSamplerStates(const D3DSamplerState &samplerState, uint32_t slot, D3DShader::eShaderType targetShader);
+	void SetSamplerState(const D3DSamplerState &samplerState, uint32_t slot, D3DShader::eShaderType targetShader);
 	void SetRasterizerState(const D3DRasterizerState &rasterizerState);
 	void SetDepthStencilState(const D3DDepthStencilState &depthStencilState, uint32_t stencilRef);
 	void SetBlendState(const D3DBlendState &blendState, const float *pFactor = nullptr, uint32_t mask = 0xFFFFFFFF);

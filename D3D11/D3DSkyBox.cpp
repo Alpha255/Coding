@@ -25,7 +25,7 @@ void D3DSkyBox::Draw(const Camera &cam)
 	D3DEngine::Instance().SetRasterizerState(D3DStaticState::SolidNoneCulling);
 	D3DEngine::Instance().SetDepthStencilState(m_Resource.DepthLessEqual, 1U);
 
-	m_Sphere.Draw(cam);
+	///m_Sphere.Draw(cam);
 
 	D3DEngine::Instance().SetRasterizerState(D3DStaticState::Solid);
 	D3DEngine::Instance().SetDepthStencilState(D3DStaticState::NoneDepthStencilState, 1U);

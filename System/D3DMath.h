@@ -343,6 +343,13 @@ public:
 		return *(static_cast<Matrix*>(&result));
 	}
 
+	inline static Matrix Scaling(float f)
+	{
+		DirectX::XMMATRIX result = DirectX::XMMatrixScaling(f, f, f);
+
+		return *(static_cast<Matrix*>(&result));
+	}
+
 	inline static Matrix RotationAxis(float x, float y, float z, float angle)
 	{
 		DirectX::XMVECTOR axis = DirectX::XMVectorSet(x, y, z, 0.0f);

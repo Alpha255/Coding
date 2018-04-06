@@ -13,5 +13,10 @@ public:
 	virtual void RenderScene() override;
 protected:
 private:
-	Geometry::Mesh m_Box;
+	Geometry::Mesh m_BoxMesh;
+
+	D3DVertexShader m_VertexShader;
+	D3DPixelShader m_PixelShader;
+	D3DBuffer m_CBufferVS;
+	D3DShaderResourceView m_DiffuseTex;
 };

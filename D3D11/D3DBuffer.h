@@ -48,28 +48,25 @@ public:
 		size_t byteWidth,
 		uint32_t usage,
 		const void *pData,
-		uint32_t cpuAccessFlags = 0U,
 		uint32_t bindFlags = 0U)
 	{
-		Create(eBindAsVertexBuffer | bindFlags, byteWidth, usage, pData, cpuAccessFlags);
+		Create(eBindAsVertexBuffer | bindFlags, byteWidth, usage, pData, GetCpuAccessFlag(usage));
 	}
 
 	inline void CreateAsIndexBuffer(
 		size_t byteWidth,
 		uint32_t usage,
-		const void *pData,
-		uint32_t cpuAccessFlags = 0U)
+		const void *pData)
 	{
-		Create(eBindAsIndexBuffer, byteWidth, usage, pData, cpuAccessFlags);
+		Create(eBindAsIndexBuffer, byteWidth, usage, pData, GetCpuAccessFlag(usage));
 	}
 
 	inline void CreateAsConstantBuffer(
 		size_t byteWidth,
 		uint32_t usage,
-		const void *pData,
-		uint32_t cpuAccessFlags = 0U)
+		const void *pData)
 	{
-		Create(eBindAsConstantBuffer, byteWidth, usage, pData, cpuAccessFlags);
+		Create(eBindAsConstantBuffer, byteWidth, usage, pData, GetCpuAccessFlag(usage));
 	}
 
 	inline void CreateAsUnorderedAccessBuffer(
@@ -84,6 +81,24 @@ public:
 	}
 
 	void Update(const void *pData, size_t size);
+
+protected:
+	inline uint32_t GetCpuAccessFlag(uint32_t usage) const 
+	{
+		switch (usage)
+		{
+		case eGpuReadWrite:
+		case eGpuReadOnly:
+			return 0U;
+		case eGpuReadCpuWrite:
+			return eCpuWrite;
+		case eGpuCopyToCpu:
+			return eCpuRead;
+		}
+
+		assert(0);
+		return 0U;
+	}
 };
 
 struct D3DVertexBuffer

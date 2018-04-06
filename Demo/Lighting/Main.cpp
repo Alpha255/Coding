@@ -1,10 +1,10 @@
-#include "LightingBasic.h"
+#include "Lighting.h"
 
 INT WINAPI wWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpCmdLine*/, int /*nShow*/)
 {
-	AppLightingBasic lighting;
+	AppLighting lighting;
 
-	lighting.Startup(L"LightingBasic");
+	lighting.Startup(L"Lighting");
 
 	lighting.Running();
 

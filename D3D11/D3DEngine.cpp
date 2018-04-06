@@ -193,7 +193,7 @@ void D3DEngine::SetIndexBuffer(const D3DBuffer &indexBuffer, uint32_t fmt, uint3
 	}
 }
 
-void D3DEngine::SetSamplerStates(const D3DSamplerState &samplerState, uint32_t slot, D3DShader::eShaderType targetShader)
+void D3DEngine::SetSamplerState(const D3DSamplerState &samplerState, uint32_t slot, D3DShader::eShaderType targetShader)
 {
 	assert(slot < eMaxSamplers && targetShader < D3DShader::eShaderTypeCount);
 

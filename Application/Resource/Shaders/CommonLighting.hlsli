@@ -1,23 +1,13 @@
-struct Light
+struct DirectionalLight
 {
-    float3 Position;
-    uint Type;
-
-    float3 Direction;
-    float Range;
-
-    float3 Attenuation;
-    float SpotFactor;
-
     float4 Ambient;
     float4 Diffuse;
     float4 Specular;
+    float4 Direction;
 };
 
 struct Material
 {
-    uint EnableTexture[4];
-
     float4 VertexColor;
 
     float4 Ambient;
@@ -27,7 +17,7 @@ struct Material
 };
 
 void ComputeDirectionalLight(in Material i_Mat,
-                             in Light i_Light,
+                             in DirectionalLight i_Light,
                              in float3 i_Normal,
                              in float3 i_ToEye,
                              out float4 o_Ambient,
@@ -48,7 +38,7 @@ void ComputeDirectionalLight(in Material i_Mat,
     if (diffuseFactor > 0.0f)
     {
 		/// ret reflect(i, n) 
-		/// This function calculates the reflection vector using the following formula: v = i - 2 * n * dot(i•n)
+		/// This function calculates the reflection vector using the following formula: v = i - 2 * n * dot(i * n)
         float3 refVec = reflect(-lightVec, i_Normal);
         float specFactor = pow(max(dot(refVec, i_ToEye), 0.0f), i_Mat.Specular.w);
 

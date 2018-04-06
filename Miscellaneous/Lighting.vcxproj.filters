@@ -6,5 +6,23 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Demo\Lighting\Lighting.h" />
+    <ClInclude Include="..\System\resource.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Resource">
+      <UniqueIdentifier>{ddf2fb7b-f07c-4261-94f7-83fa7e736655}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\System\Resource.rc">
+      <Filter>Resource</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Application\Resource\directx.ico">
+      <Filter>Resource</Filter>
+    </Image>
   </ItemGroup>
 </Project>
