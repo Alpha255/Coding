@@ -1,34 +1,70 @@
 #pragma once
 
 #include "Common.h"
+#include "D3DShader.h"
+#include "D3DView.h"
+#include "D3DState.h"
+#include "D3DBuffer.h"
+
 #include <GUI/ocornut/imgui.h>
 
 class D3DGUI_imGui
 {
 public:
-	D3DGUI_imGui() = default;
+	static D3DGUI_imGui &Instance()
+	{
+		if (!s_Instance)
+		{
+			s_Instance = std::unique_ptr<D3DGUI_imGui>(new D3DGUI_imGui());
+		}
 
-	~D3DGUI_imGui();
+		return *s_Instance;
+	}
 
-	void Init(::HWND hWnd);
+	static void Destroy(D3DGUI_imGui *pGUI)
+	{
+		if (pGUI)
+		{
+			ImGui::Shutdown();
+
+			SafeDeleteArray(pGUI->m_pVertices);
+			SafeDeleteArray(pGUI->m_pIndices);
+		}
+	}
+
+	void Initialize(::HWND hWnd);
 
 	::LRESULT WinProc(::HWND hWnd, uint32_t uMsg, ::WPARAM wParam, ::LPARAM lParam);
 
 	void RenderBegin(const char *pPanelName = "imGUI");
 	void RenderEnd();
+	void UpdateAndRender();
 
-	inline bool IsFocus()
+	inline bool IsFocus() const 
 	{
-		ImGuiIO &io = ImGui::GetIO();
+		const ImGuiIO &io = ImGui::GetIO();
 		return io.WantCaptureMouse || io.WantCaptureKeyboard;
 	}
 protected:
-	void InitKeyMap(::HWND hWnd);
-	void InitD3DResource();
-	void InitFontTextures();
-	static void RenderListCallback(ImDrawData *pDrawData);
-	static void RestoreD3DState();
-	static void UpdateVIBuffers(bool bRecreateVB, bool bRecreateIB, const ImDrawData *pDrawData);
+	D3DGUI_imGui() = default;
+
+	struct RenderResource
+	{
+		D3DInputLayout VertexLayout;
+
+		D3DVertexShader VertexShader;
+		D3DPixelShader PixelShader;
+
+		D3DBuffer VertexBuffer;
+		D3DBuffer IndexBuffer;
+		D3DBuffer ConstantBufferVS;
+
+		D3DBlendState ClrWriteBlend;
+
+		D3DShaderResourceView FontTexture;
+	};
+	
+	void UpdateDrawData(bool bRecreateVB, bool bRecreateIB, const ImDrawData *pDrawData);
 
 	bool IsMouseBtnDown()
 	{
@@ -44,6 +80,15 @@ protected:
 		return false;
 	}
 private:
-	static int32_t m_VertexCount;
-	static int32_t m_IndexCount;
+	static std::unique_ptr<D3DGUI_imGui> s_Instance;
+
+	int32_t m_VertexCount = 0;
+	int32_t m_IndexCount = 0;
+
+	ImDrawVert *m_pVertices = nullptr;
+	ImDrawIdx *m_pIndices = nullptr;
+
+	RenderResource m_Resource;
+
+	bool m_Inited = false;
 };

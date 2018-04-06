@@ -53,7 +53,7 @@ void IApplication::MakeWindow(const wchar_t *pTitle, uint32_t width, uint32_t he
 	}
 }
 
-void IApplication::HandleWindowMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM)
+void IApplication::HandleWindowMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM /*lParam*/)
 {
 	switch (msg)
 	{
@@ -69,25 +69,34 @@ void IApplication::HandleWindowMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM)
 			m_pTimer->Start();
 		}
 		break;
+	case WM_SYSCOMMAND:
+		if (SC_MAXIMIZE == wParam || SC_RESTORE == wParam)
+		{
+			m_bNeedResize = true;
+		}
+		break;
 	case WM_ENTERSIZEMOVE:
 		m_bActive = false;
 		m_pTimer->Stop();
+		m_bNeedResize = true;
 		break;
 	case WM_EXITSIZEMOVE:
-	{
 		m_pTimer->Start();
-		::RECT rect;
-		::GetClientRect(m_hWnd, &rect);
-
-		ResizeWindow(rect.right - rect.left, rect.bottom - rect.top);
 		m_bActive = true;
 		break;
-	}
 	case WM_DESTROY:
 		::PostQuitMessage(0);
 		break;
-	case WM_GETMINMAXINFO:
+	case WM_NCLBUTTONDBLCLK:
+		if (wParam == HTCAPTION)
+		{
+			m_bNeedResize = true;
+		}
 		break;
+	///case WM_GETMINMAXINFO:
+		///::MINMAXINFO minmaxInfo;
+		///memcpy(&minmaxInfo, (const void *)lParam, sizeof(::MINMAXINFO));
+		///break;
 	}
 }
 
@@ -115,6 +124,24 @@ void IApplication::HandleInput(uint32_t msg, ::WPARAM wParam, ::LPARAM lParam)
 		///Keyboard(wParam);
 		break;
 	}
+}
+
+void IApplication::UpdateWindow()
+{
+	if (!m_bNeedResize)
+	{
+		return;
+	}
+
+	::RECT rect;
+	::GetClientRect(m_hWnd, &rect);
+
+	m_Width = std::max<uint32_t>((rect.right - rect.left), 32U);
+	m_Height = std::max<uint32_t>((rect.bottom - rect.top), 32U);
+
+	ResizeWindow(m_Width, m_Height);
+
+	m_bNeedResize = false;
 }
 
 void IApplication::Startup(const wchar_t *pTitle, uint32_t width, uint32_t height, bool bWindowed, uint32_t windowStyle)
@@ -147,6 +174,8 @@ void IApplication::Running()
 
 			if (m_bActive)
 			{
+				UpdateWindow();
+
 				RenderToWindow();
 			}
 			else

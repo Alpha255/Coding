@@ -30,8 +30,8 @@ public:
 	enum eCullMode
 	{
 		eNone = D3D11_CULL_NONE,
-		eFront = D3D11_CULL_FRONT,
-		eBack = D3D11_CULL_BACK
+		eFrontFace = D3D11_CULL_FRONT,
+		eBackFace = D3D11_CULL_BACK
 	};
 
 	enum eComparisonFunc
@@ -92,18 +92,56 @@ public:
 		eAlpha = D3D11_COLOR_WRITE_ENABLE_ALPHA,
 		eAll = D3D11_COLOR_WRITE_ENABLE_ALL
 	};
+
+	enum eDepthWriteMask
+	{
+		eDepthMaskZero = D3D11_DEPTH_WRITE_MASK_ZERO,
+		eDepthMaskAll = D3D11_DEPTH_WRITE_MASK_ALL
+	};
+
+	enum eStencilMask : uint8_t
+	{
+		eStencilDefaultReadMask = D3D11_DEFAULT_STENCIL_READ_MASK,
+		eStencilDefaultWriteMask = D3D11_DEFAULT_STENCIL_WRITE_MASK
+	};
+
+	enum eStencilOp
+	{
+		eStencilKeep = D3D11_STENCIL_OP_KEEP,
+		eStencilZero = D3D11_STENCIL_OP_ZERO,
+		eStencilReplace = D3D11_STENCIL_OP_REPLACE,
+		eStencilIncrSat = D3D11_STENCIL_OP_INCR_SAT,
+		eStencilDecrSat = D3D11_STENCIL_OP_DECR_SAT,
+		eStencilInvert = D3D11_STENCIL_OP_INVERT,
+		eStencilIncr = D3D11_STENCIL_OP_INCR,
+		eStencilDecr = D3D11_STENCIL_OP_DECR
+	};
 };
 
 class D3DSamplerState : public D3DObject<ID3D11SamplerState>, public D3DState
 {
 public:
-	void Create(uint32_t filter, uint32_t addressMode, float LODBias, uint32_t compFunc, const float *borderClr, float minLOD, float maxLOD);
+	void Create(uint32_t filter, uint32_t addressMode, float LODBias, uint32_t compFunc, const float *pBorderClr, float minLOD, float maxLOD);
 };
 
 class D3DDepthStencilState : public D3DObject<ID3D11DepthStencilState>, public D3DState
 {
 public:
-	void Create();
+	void Create(
+		bool bDepthEnable,
+		uint32_t depthWriteMask,
+		uint32_t compFunc,
+		bool bStencilEnable,
+		uint8_t stencilReadMask,
+		uint8_t stencilWriteMask,
+		uint32_t stencilFailOpFrontFace,
+		uint32_t stencilDepthFailOpFrontFace,
+		uint32_t stencilPassOpFrontFace,
+		uint32_t stencilCompFuncFrontFace,
+		uint32_t stencilFailOpBackFace,
+		uint32_t stencilDepthFailOpBackFace,
+		uint32_t stencilPassOpBackFace,
+		uint32_t stencilCompFuncBackFace);
 };
 
 class D3DBlendState : public D3DObject<ID3D11BlendState>, public D3DState
@@ -131,6 +169,8 @@ public:
 
 struct D3DStaticState
 {
+	static void Initialize();
+
 	static D3DSamplerState PointSampler;
 	static D3DSamplerState LinearSampler;
 	static D3DSamplerState AnisotropicSampler;
@@ -139,4 +179,11 @@ struct D3DStaticState
 	static D3DRasterizerState Solid;
 	static D3DRasterizerState WireframeNoneCulling;
 	static D3DRasterizerState SolidNoneCulling;
+
+	static D3DDepthStencilState DisableDepthStencil;
+
+	static D3DBlendState NoneBlendState;
+	static D3DDepthStencilState NoneDepthStencilState;
+
+	static bool Inited;
 };

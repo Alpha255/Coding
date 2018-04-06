@@ -2,7 +2,7 @@
 
 #include "D3DObject.h"
 
-class D3DTexture1D : public D3DObject<ID3D11Texture1D>
+class D3DTexture1D : public D3DResource
 {
 public:
 	void Create(
@@ -20,7 +20,7 @@ public:
 	void CreateRandomTexture();
 };
 
-class D3DTexture2D : public D3DObject<ID3D11Texture2D>
+class D3DTexture2D : public D3DResource
 {
 public:
 	void Create(
@@ -37,7 +37,7 @@ public:
 		uint32_t memPitch = 0U);
 };
 
-class D3DTexture3D : public D3DObject<ID3D11Texture3D>
+class D3DTexture3D : public D3DResource
 {
 public:
 };

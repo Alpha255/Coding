@@ -15,32 +15,6 @@ public:
 	inline const Ref<ID3D11RenderTargetView> &DefaultRenderTarget() const { assert(m_DefaultRenderTarget.Valid()); return m_DefaultRenderTarget; }
 	inline const Ref<ID3D11DepthStencilView> &DefaultDepthStencil() const { assert(m_DefaultDepthStencil.Valid()); return m_DefaultDepthStencil; }
 
-	void SetRenderTarget(const Ref<ID3D11RenderTargetView> &rRenderTarget, uint32_t slot = 0U);
-	void SetDepthStencil(const Ref<ID3D11DepthStencilView> &rDepthStencilView);
-
-	void SetInputLayout(const Ref<ID3D11InputLayout> &rInputLayout);
-	void SetVertexBuffer(const Ref<ID3D11Buffer> &rVertexBuffer, uint32_t stride, uint32_t offset, uint32_t index = 0U);
-	void SetIndexBuffer(const Ref<ID3D11Buffer> &rIndexBuffer, DXGI_FORMAT format, uint32_t offset = 0U);
-
-	void SetViewports(const D3D11_VIEWPORT *pViewports, uint32_t count = 1U);
-	void SetScissorRects(const D3D11_RECT *pRects, uint32_t count = 1U);
-
-	void SetSamplerStates(const Ref<ID3D11SamplerState> &rSamplerStates, uint32_t startSlot, eShaderType shaderType);
-	void SetRasterizerState(const Ref<ID3D11RasterizerState> &rRasterizerState);
-	void SetDepthStencilState(const Ref<ID3D11DepthStencilState> &rDepthStencilState, uint32_t stencilRef);
-	void SetBlendState(const Ref<ID3D11BlendState> &rBlendState, Vec4 blendFactor, uint32_t mask);
-
-	void SetVertexShader(const Ref<ID3D11VertexShader> &rVS);
-	void SetHullShader(const Ref<ID3D11HullShader> &rHS);
-	void SetDomainShader(const Ref<ID3D11DomainShader> &rDS);
-	void SetPixelShader(const Ref<ID3D11PixelShader> &rPS);
-	void SetGeometryShader(const Ref<ID3D11GeometryShader> &rGS);
-	void SetComputeShader(const Ref<ID3D11ComputeShader> &rCS);
-	
-	void SetConstantBuffer(const Ref<ID3D11Buffer> &rConstantBuf, uint32_t slot, eShaderType shaderType);
-	
-	void SetShaderResource(const Ref<ID3D11ShaderResourceView> &rSRV, uint32_t startSlot, eShaderType);
-
 	void SetStreamOut(const Ref<ID3D11Buffer> &rBuf, uint32_t offset = 0U);
 
 	inline void SetUnorderedAccessView(const Ref<ID3D11UnorderedAccessView> &rUAV, uint32_t startSlot = 0U)
@@ -51,7 +25,7 @@ public:
 
 	inline void ExeCommandlist(uint32_t tx, uint32_t ty, uint32_t tz)
 	{
-		FlushState();
+		///FlushState();
 		m_IMContent->Dispatch(tx, ty, tz);
 	}
 
@@ -75,9 +49,6 @@ public:
 	}
 
 	void CopyBuffer(ID3D11Resource *pSrc, ID3D11Resource *pDst, void *pDstMem, size_t memSize, ::RECT &rect);
-
-	void Draw(uint32_t vertexCount, uint32_t startVertex, D3D_PRIMITIVE_TOPOLOGY prim = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	void DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, D3D_PRIMITIVE_TOPOLOGY prim = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	void DrawAuto(D3D_PRIMITIVE_TOPOLOGY prim = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	inline ID3D11Device *GetDevice() const
@@ -95,8 +66,6 @@ public:
 	{
 		m_SwapChain->Present(0U, 0U);
 	}
-
-	void FlushState();
 protected:
 	enum eCounter
 	{

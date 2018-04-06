@@ -4,7 +4,7 @@ std::unique_ptr<D3DEngine, std::function<void(D3DEngine *)>> D3DEngine::s_Instan
 
 void D3DEngine::Initialize(HWND hWnd, uint32_t width, uint32_t height, bool bWindowed)
 {
-	assert(hWnd);
+	assert(hWnd && !m_Inited);
 
 	uint32_t flags = 0;
 #if defined(DEBUG) || defined(_DEBUG)
@@ -47,6 +47,10 @@ void D3DEngine::Initialize(HWND hWnd, uint32_t width, uint32_t height, bool bWin
 			m_SwapChain.Create(hWnd, width, height, bWindowed);
 
 			RecreateRenderTargetDepthStencil(width, height);
+
+			D3DStaticState::Initialize();
+
+			m_Inited = true;
 
 			return;
 		}
@@ -110,7 +114,8 @@ void D3DEngine::SetRenderTargetView(const D3DRenderTargetView &renderTarget, uin
 	{
 		m_Pipeline.RenderTargetViews[slot] = renderTarget;
 
-		m_Pipeline.RenderTargetViewCache.push_back(renderTarget.Get());
+		///m_Pipeline.RenderTargetViewCache.push_back(renderTarget.Get());
+		m_Pipeline.RenderTargetViewCache.assign(1U, renderTarget.Get());
 
 		m_Pipeline.DirtyFlags[eDRenderTargetView] = true;
 	}
@@ -229,7 +234,12 @@ void D3DEngine::SetBlendState(const D3DBlendState &blendState, const float *pFac
 	if (m_Pipeline.BlendState != blendState)
 	{
 		m_Pipeline.BlendMask = mask;
-		memcpy(&m_Pipeline.BlendFactor, pFactor, sizeof(float) * 4);
+		
+		if (pFactor)
+		{
+			memcpy(&m_Pipeline.BlendFactor, pFactor, sizeof(float) * 4);
+		}
+
 		m_Pipeline.BlendState = blendState;
 
 		m_Pipeline.DirtyFlags[eDBlendState] = true;
@@ -282,7 +292,7 @@ void D3DEngine::SetPixelShader(const D3DPixelShader &pixelShader)
 	{
 		m_Pipeline.PixelShader = pixelShader;
 
-		m_Pipeline.DirtyFlags[eDVertexShader] = true;
+		m_Pipeline.DirtyFlags[eDPixelShader] = true;
 	}
 }
 
@@ -483,9 +493,9 @@ void D3DEngine::D3DPipeline::CommitState(const D3DContext &IMContext)
 
 		IMContext->OMSetRenderTargets((uint32_t)RenderTargetViewCache.size(), RenderTargetViewCache.data(), DepthStencilView.Get());
 
-		RenderTargetViewCache.clear();
-		
-		DirtyFlags[eDRenderTargetView] = false;
+		///RenderTargetViewCache.clear();
+
+		///DirtyFlags[eDRenderTargetView] = false;
 		DirtyFlags[eDDepthStencilView] = false;
 	}
 }

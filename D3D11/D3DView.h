@@ -34,3 +34,12 @@ class D3DUnorderedAccessView : public D3DObject<ID3D11UnorderedAccessView>
 public:
 	void Create(D3DResource &resource, uint32_t format, uint32_t dimension, uint32_t firstElem, uint32_t numElems, uint32_t flags);
 };
+
+enum eSRVDimension
+{
+	eSRVUnknown = D3D11_SRV_DIMENSION_UNKNOWN,
+	eSRVBuffer = D3D11_SRV_DIMENSION_BUFFER,
+	eSRVTexture1D = D3D11_SRV_DIMENSION_TEXTURE1D,
+	eSRVTexture2D = D3D11_SRV_DIMENSION_TEXTURE2D,
+	eSRVTexture3D = D3D11_SRV_DIMENSION_TEXTURE3D
+};

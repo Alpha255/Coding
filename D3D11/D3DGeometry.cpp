@@ -73,7 +73,7 @@ void Mesh::ApplyMaterial()
 		}
 	}
 
-	///g_Renderer->SetSamplerStates(m_Material.Sampler, 0U, D3DGraphic::ePixelShader);
+	D3DEngine::Instance().SetSamplerStates(D3DStaticState::LinearSampler, 0U, D3DShader::ePixelShader);
 }
 
 void Mesh::ApplyLight()
@@ -114,10 +114,10 @@ void Mesh::Draw(const Camera &cam)
 	D3DEngine::Instance().SetVertexShader(m_Resource.VertexShader);
 	D3DEngine::Instance().SetPixelShader(m_Resource.PixelShader);
 
-	//if (m_Wireframe)
-	//{
-	//	g_Renderer->SetRasterizerState(m_Resource.Wireframe);
-	//}
+	if (m_Wireframe)
+	{
+		D3DEngine::Instance().SetRasterizerState(D3DStaticState::Wireframe);
+	}
 
 	D3DEngine::Instance().DrawIndexed((uint32_t)m_Indices.size(), 0U, 0, eTriangleList);
 }

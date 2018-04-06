@@ -18,7 +18,7 @@ public:
 	virtual void RenderToWindow() final;
 	virtual void InitRenderer() final;
 
-	virtual void PreInit() {}
+	virtual void Initialize() {}
 	virtual void Update(float, float) {};
 	virtual void RenderScene() {};
 	
@@ -26,16 +26,11 @@ public:
 protected:
 	class Camera* m_Camera = nullptr;
 	class D3DEngine *s_Renderer = nullptr;
+	class D3DGUI_imGui *s_GUI = nullptr;
 
 	typedef D3DApp Base;
 private:
 	int32_t m_MouseWheelDelta = 0;
-
-#if defined UsingimGUI
-	imGUI_D3D11 m_GUI;
-#elif defined UsingAntTweakBar
-	GUIAntTweakBar m_GUI;
-#endif
 
 	bool m_bInited = false;
 };

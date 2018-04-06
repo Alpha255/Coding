@@ -218,4 +218,6 @@ private:
 	D3DDepthStencilView m_DepthStencilView;
 
 	D3DPipeline m_Pipeline;
+
+	bool m_Inited = false;
 };

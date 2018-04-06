@@ -1,56 +1,69 @@
 #include "D3DGUI_imGui.h"
+#include "D3DEngine.h"
+#include "D3DTexture.h"
 
-#include "D3DGraphic.h"
+std::unique_ptr<D3DGUI_imGui> D3DGUI_imGui::s_Instance;
 
-extern D3DGraphic *g_Renderer;
-
-struct imGUIResource
+void D3DGUI_imGui::Initialize(::HWND hWnd)
 {
-	Ref<ID3D11InputLayout> VertexLayout;
+	assert(hWnd && !m_Inited);
 
-	Ref<ID3D11VertexShader> VertexShader;
-	Ref<ID3D11PixelShader> PixelShader;
-
-	Ref<ID3D11Buffer> VertexBuffer;
-	Ref<ID3D11Buffer> IndexBuffer;
-
-	Ref<ID3D11Buffer> CBufVS;
-
-	Ref<ID3D11BlendState> ClrWriteBlend;
-
-	Ref<ID3D11RasterizerState> NoneCulling;
-
-	Ref<ID3D11RasterizerState> BackFaceCulling;
-
-	Ref<ID3D11DepthStencilState> DepthStencilOp;
-
-	Ref<ID3D11ShaderResourceView> FontTexture;
-	Ref<ID3D11SamplerState> SamplerLinear;
-};
-
-struct ConstantsBufferVS
-{
-	Matrix WVP;
-};
-
-static imGUIResource s_imResource;
-
-static ImDrawVert *s_pVertices = nullptr;
-static ImDrawIdx *s_pIndices = nullptr;
-
-int32_t D3DGUI_imGui::m_VertexCount = 0U;
-int32_t D3DGUI_imGui::m_IndexCount = 0U;
-
-void D3DGUI_imGui::Init(HWND hWnd)
-{
-	assert(hWnd && g_Renderer);
-
-	InitKeyMap(hWnd);
+	/// Init key map
+	ImGuiIO &io = ImGui::GetIO();
+	io.KeyMap[ImGuiKey_Tab] = VK_TAB;
+	io.KeyMap[ImGuiKey_LeftArrow] = VK_LEFT;
+	io.KeyMap[ImGuiKey_RightArrow] = VK_RIGHT;
+	io.KeyMap[ImGuiKey_UpArrow] = VK_UP;
+	io.KeyMap[ImGuiKey_DownArrow] = VK_DOWN;
+	io.KeyMap[ImGuiKey_PageUp] = VK_PRIOR;
+	io.KeyMap[ImGuiKey_PageDown] = VK_NEXT;
+	io.KeyMap[ImGuiKey_Home] = VK_HOME;
+	io.KeyMap[ImGuiKey_End] = VK_END;
+	io.KeyMap[ImGuiKey_Delete] = VK_DELETE;
+	io.KeyMap[ImGuiKey_Backspace] = VK_BACK;
+	io.KeyMap[ImGuiKey_Enter] = VK_RETURN;
+	io.KeyMap[ImGuiKey_Escape] = VK_ESCAPE;
+	io.KeyMap[ImGuiKey_A] = 'A';
+	io.KeyMap[ImGuiKey_C] = 'C';
+	io.KeyMap[ImGuiKey_V] = 'V';
+	io.KeyMap[ImGuiKey_X] = 'X';
+	io.KeyMap[ImGuiKey_Y] = 'Y';
+	io.KeyMap[ImGuiKey_Z] = 'Z';
+	io.RenderDrawListsFn = nullptr;
+	io.ImeWindowHandle = hWnd;
 	
-	InitD3DResource();
+	/// Init D3D resource
+	const D3D11_INPUT_ELEMENT_DESC layout[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (size_t)(&((ImDrawVert*)0)->pos), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (size_t)(&((ImDrawVert*)0)->uv),  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "COLOR",    0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, (size_t)(&((ImDrawVert*)0)->col), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+
+	m_Resource.VertexShader.Create("imGUI.hlsl", "VS_Main");
+	m_Resource.VertexLayout.Create(m_Resource.VertexShader.GetBlob(), layout, 3U);
+	m_Resource.PixelShader.Create("imGUI.hlsl", "PS_Main");
+
+	m_Resource.ConstantBufferVS.CreateAsConstantBuffer(sizeof(Matrix), D3DBuffer::eGpuReadCpuWrite, nullptr, D3DBuffer::eCpuWrite);
+
+	m_Resource.ClrWriteBlend.Create(false, false, 0U, true, D3DState::eSrcAlpha, D3DState::eInvSrcAlpha, D3DState::eAdd, 
+		D3DState::eInvSrcAlpha, D3DState::eZero, D3DState::eAdd, D3DState::eAll);
+
+	unsigned char *pPixels = nullptr;
+	int32_t width = 0, height = 0;
+	io.Fonts->GetTexDataAsRGBA32(&pPixels, &width, &height);
+
+	D3DTexture2D fontTex;
+	fontTex.Create(eRGBA8_UNorm, (uint32_t)width, (uint32_t)height, D3DBuffer::eBindAsShaderResource, 1U, 1U, 0U, 0U,
+		D3DBuffer::eGpuReadWrite, (const void*)pPixels, (uint32_t)width * 4U);
+
+	m_Resource.FontTexture.Create(fontTex, eRGBA8_UNorm, eSRVTexture2D, 0U, 1U);
+	io.Fonts->TexID = (void *)m_Resource.FontTexture.Get();
+
+	m_Inited = true;
 }
 
-LRESULT D3DGUI_imGui::WinProc(HWND hWnd, uint32_t uMsg, WPARAM wParam, LPARAM lParam)
+::LRESULT D3DGUI_imGui::WinProc(::HWND hWnd, uint32_t uMsg, ::WPARAM wParam, ::LPARAM lParam)
 {
 	ImGuiIO &io = ImGui::GetIO();
 
@@ -124,7 +137,7 @@ LRESULT D3DGUI_imGui::WinProc(HWND hWnd, uint32_t uMsg, WPARAM wParam, LPARAM lP
 void D3DGUI_imGui::RenderBegin(const char *pPanelName)
 {
 	ImGuiIO &io = ImGui::GetIO();
-	HWND hWnd = (HWND)io.ImeWindowHandle;
+	::HWND hWnd = (::HWND)io.ImeWindowHandle;
 	assert(hWnd);
 
 	::RECT rect;
@@ -166,156 +179,48 @@ void D3DGUI_imGui::RenderEnd()
 	ImGui::End();
 
 	ImGui::Render();
+
+	UpdateAndRender();
 }
 
-void D3DGUI_imGui::InitKeyMap(HWND hWnd)
+void D3DGUI_imGui::UpdateAndRender()
 {
-	ImGuiIO &io = ImGui::GetIO();
-
-	io.KeyMap[ImGuiKey_Tab] = VK_TAB;
-	io.KeyMap[ImGuiKey_LeftArrow] = VK_LEFT;
-	io.KeyMap[ImGuiKey_RightArrow] = VK_RIGHT;
-	io.KeyMap[ImGuiKey_UpArrow] = VK_UP;
-	io.KeyMap[ImGuiKey_DownArrow] = VK_DOWN;
-	io.KeyMap[ImGuiKey_PageUp] = VK_PRIOR;
-	io.KeyMap[ImGuiKey_PageDown] = VK_NEXT;
-	io.KeyMap[ImGuiKey_Home] = VK_HOME;
-	io.KeyMap[ImGuiKey_End] = VK_END;
-	io.KeyMap[ImGuiKey_Delete] = VK_DELETE;
-	io.KeyMap[ImGuiKey_Backspace] = VK_BACK;
-	io.KeyMap[ImGuiKey_Enter] = VK_RETURN;
-	io.KeyMap[ImGuiKey_Escape] = VK_ESCAPE;
-	io.KeyMap[ImGuiKey_A] = 'A';
-	io.KeyMap[ImGuiKey_C] = 'C';
-	io.KeyMap[ImGuiKey_V] = 'V';
-	io.KeyMap[ImGuiKey_X] = 'X';
-	io.KeyMap[ImGuiKey_Y] = 'Y';
-	io.KeyMap[ImGuiKey_Z] = 'Z';
-
-	/// Alternatively you can set this to NULL and call ImGui::GetDrawData() after ImGui::Render() to get the same ImDrawData pointer.
-	io.RenderDrawListsFn = RenderListCallback;
-	io.ImeWindowHandle = hWnd;
-}
-
-void D3DGUI_imGui::InitD3DResource()
-{
-	static char *const s_ShaderName = "imGUI.hlsl";
-
-	D3D11_INPUT_ELEMENT_DESC layout[] =
-	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (size_t)(&((ImDrawVert*)0)->pos), D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (size_t)(&((ImDrawVert*)0)->uv),  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR",    0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, (size_t)(&((ImDrawVert*)0)->col), D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
-
-	g_Renderer->CreateVertexShaderAndInputLayout(s_imResource.VertexShader, s_imResource.VertexLayout,
-		layout, ARRAYSIZE(layout), s_ShaderName, "VS_Main");
-	g_Renderer->CreatePixelShader(s_imResource.PixelShader, s_ShaderName, "PS_Main");
-
-	g_Renderer->CreateConstantBuffer(s_imResource.CBufVS, sizeof(ConstantsBufferVS),
-		D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
-
-	g_Renderer->CreateRasterizerState(s_imResource.NoneCulling, D3D11_FILL_SOLID, D3D11_CULL_NONE, false, true, true);
-	g_Renderer->CreateRasterizerState(s_imResource.BackFaceCulling, D3D11_FILL_SOLID, D3D11_CULL_BACK);
-
-	D3D11_BLEND_DESC blendDesc{ 0 };
-	blendDesc.AlphaToCoverageEnable = false;
-	blendDesc.RenderTarget[0].BlendEnable = true;
-	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-	blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
-	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
-	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	g_Renderer->CreateBlendState(s_imResource.ClrWriteBlend, &blendDesc);
-
-	D3D11_DEPTH_STENCIL_DESC depthstencilDesc{ 0 };
-	depthstencilDesc.DepthEnable = false;
-	depthstencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	depthstencilDesc.DepthFunc = D3D11_COMPARISON_ALWAYS;
-	depthstencilDesc.StencilEnable = false;
-	depthstencilDesc.FrontFace.StencilFailOp = depthstencilDesc.FrontFace.StencilDepthFailOp = depthstencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	depthstencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-	depthstencilDesc.BackFace = depthstencilDesc.FrontFace;
-	g_Renderer->CreateDepthStencilState(s_imResource.DepthStencilOp, &depthstencilDesc);
-
-	InitFontTextures();
-}
-
-void D3DGUI_imGui::InitFontTextures()
-{
-	ImGuiIO &io = ImGui::GetIO();
-
-	unsigned char *pPixels = nullptr;
-	int32_t width = 0, height = 0;
-	io.Fonts->GetTexDataAsRGBA32(&pPixels, &width, &height);
-
-	Ref<ID3D11Texture2D> fontTex;
-	g_Renderer->CreateTexture2D(fontTex, DXGI_FORMAT_R8G8B8A8_UNORM,
-		(uint32_t)width, (uint32_t)height,
-		D3D11_BIND_SHADER_RESOURCE, 1U, 1U, 0U, 0U,
-		D3D11_USAGE_DEFAULT, (const void*)pPixels, (uint32_t)width * 4);
-	g_Renderer->CreateShaderResourceView(s_imResource.FontTexture, fontTex.Ptr(), DXGI_FORMAT_R8G8B8A8_UNORM);
-
-	io.Fonts->TexID = (void *)s_imResource.FontTexture.Ptr();
-
-	D3D11_SAMPLER_DESC samplerDesc;
-	memset(&samplerDesc, 0, sizeof(D3D11_SAMPLER_DESC));
-	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.MipLODBias = 0.f;
-	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-	samplerDesc.MinLOD = 0.f;
-	samplerDesc.MaxLOD = 0.f;
-	g_Renderer->CreateSamplerState(s_imResource.SamplerLinear, &samplerDesc);
-}
-
-void D3DGUI_imGui::RenderListCallback(ImDrawData * pDrawData)
-{
+	ImDrawData *pDrawData = ImGui::GetDrawData();
 	if (!pDrawData)
 	{
 		return;
 	}
 
-	UpdateVIBuffers(
-		(!s_imResource.VertexBuffer.Valid() || m_VertexCount < pDrawData->TotalVtxCount),
-		(!s_imResource.IndexBuffer.Valid() || m_IndexCount < pDrawData->TotalIdxCount),
+	UpdateDrawData(
+		(!m_Resource.VertexBuffer.IsValid() || m_VertexCount < pDrawData->TotalVtxCount),
+		(!m_Resource.IndexBuffer.IsValid() || m_IndexCount < pDrawData->TotalIdxCount),
 		pDrawData);
 
 	float L = 0.0f;
 	float R = ImGui::GetIO().DisplaySize.x;
 	float B = ImGui::GetIO().DisplaySize.y;
 	float T = 0.0f;
-	ConstantsBufferVS cbVS;
-	cbVS.WVP = Matrix(
+	Matrix wvp(
 		2.0f / (R - L), 0.0f, 0.0f, 0.0f,
 		0.0f, 2.0f / (T - B), 0.0f, 0.0f,
 		0.0f, 0.0f, 0.5f, 0.0f,
 		(R + L) / (L - R), (T + B) / (B - T), 0.5f, 1.0f
 	);
-	g_Renderer->UpdateBuffer(s_imResource.CBufVS, &cbVS, sizeof(ConstantsBufferVS));
+	m_Resource.ConstantBufferVS.Update(&wvp, sizeof(Matrix));
 
-	D3D11_VIEWPORT vp{ 0 };
-	vp.Width = ImGui::GetIO().DisplaySize.x;
-	vp.Height = ImGui::GetIO().DisplaySize.y;
-	vp.MinDepth = 0.0f;
-	vp.MaxDepth = 1.0f;
-	vp.TopLeftX = vp.TopLeftY = 0.0f;
-	g_Renderer->SetViewports(&vp);
-
-	g_Renderer->SetVertexShader(s_imResource.VertexShader);
-	g_Renderer->SetPixelShader(s_imResource.PixelShader);
-	g_Renderer->SetInputLayout(s_imResource.VertexLayout);
-	g_Renderer->SetVertexBuffer(s_imResource.VertexBuffer, sizeof(ImDrawVert), 0U);
-	g_Renderer->SetIndexBuffer(s_imResource.IndexBuffer, sizeof(ImDrawIdx) == 2 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT, 0U);
-	g_Renderer->SetConstantBuffer(s_imResource.CBufVS, 0U, D3DGraphic::eVertexShader);
-	g_Renderer->SetSamplerStates(s_imResource.SamplerLinear, 0U, D3DGraphic::ePixelShader);
-	g_Renderer->SetBlendState(s_imResource.ClrWriteBlend, Vec4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
-	g_Renderer->SetDepthStencilState(s_imResource.DepthStencilOp, 0U);
-	g_Renderer->SetRasterizerState(s_imResource.NoneCulling);
+	D3DViewport vp(0.0f, 0.0f, ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y);
+	
+	D3DEngine::Instance().SetViewport(vp);
+	D3DEngine::Instance().SetVertexShader(m_Resource.VertexShader);
+	D3DEngine::Instance().SetPixelShader(m_Resource.PixelShader);
+	D3DEngine::Instance().SetInputLayout(m_Resource.VertexLayout);
+	D3DEngine::Instance().SetVertexBuffer(m_Resource.VertexBuffer, sizeof(ImDrawVert), 0U);
+	D3DEngine::Instance().SetIndexBuffer(m_Resource.IndexBuffer, sizeof(ImDrawIdx) == 2U ? eR16_UInt : eR32_UInt, 0U);
+	D3DEngine::Instance().SetConstantBuffer(m_Resource.ConstantBufferVS, 0U, D3DShader::eVertexShader);
+	D3DEngine::Instance().SetSamplerStates(D3DStaticState::LinearSampler, 0U, D3DShader::ePixelShader);
+	D3DEngine::Instance().SetBlendState(m_Resource.ClrWriteBlend);
+	D3DEngine::Instance().SetDepthStencilState(D3DStaticState::DisableDepthStencil, 0U);
+	D3DEngine::Instance().SetRasterizerState(D3DStaticState::SolidNoneCulling);
 
 	for (int i = 0, vOffset = 0, iOffset = 0; i < pDrawData->CmdListsCount; ++i)
 	{
@@ -329,10 +234,11 @@ void D3DGUI_imGui::RenderListCallback(ImDrawData * pDrawData)
 			}
 			else
 			{
-				D3D11_RECT rect = { (LONG)pDrawCmd->ClipRect.x, (LONG)pDrawCmd->ClipRect.y, (LONG)pDrawCmd->ClipRect.z, (LONG)pDrawCmd->ClipRect.w };
-				g_Renderer->SetShaderResource(s_imResource.FontTexture, 0U, D3DGraphic::ePixelShader);
-				g_Renderer->SetScissorRects(&rect);
-				g_Renderer->DrawIndexed(pDrawCmd->ElemCount, iOffset, vOffset);
+				D3DRect rect((uint32_t)pDrawCmd->ClipRect.x, (uint32_t)pDrawCmd->ClipRect.y, (uint32_t)pDrawCmd->ClipRect.z, (uint32_t)pDrawCmd->ClipRect.w);
+
+				D3DEngine::Instance().SetShaderResourceView(m_Resource.FontTexture, 0U, D3DShader::ePixelShader);
+				D3DEngine::Instance().SetScissorRect(rect);
+				D3DEngine::Instance().DrawIndexed(pDrawCmd->ElemCount, iOffset, vOffset, eTriangleList);
 			}
 
 			iOffset += pDrawCmd->ElemCount;
@@ -341,37 +247,42 @@ void D3DGUI_imGui::RenderListCallback(ImDrawData * pDrawData)
 		vOffset += pDrawList->VtxBuffer.Size;
 	}
 
-	RestoreD3DState();
+	/// Restore D3D state
+	::HWND hWnd = (::HWND)ImGui::GetIO().ImeWindowHandle;
+	D3DRect rect;
+	::GetClientRect(hWnd, &rect);
+
+	D3DViewport vpOld(0.0f, 0.0f, (float)(rect.right - rect.left), (float)(rect.bottom - rect.top));
+
+	D3DEngine::Instance().SetViewport(vpOld);
+	D3DEngine::Instance().SetScissorRect(rect);
+	D3DEngine::Instance().SetRasterizerState(D3DStaticState::Solid);
+	D3DEngine::Instance().SetBlendState(D3DStaticState::NoneBlendState);
+	D3DEngine::Instance().SetDepthStencilState(D3DStaticState::NoneDepthStencilState, 0U);
 }
 
-void D3DGUI_imGui::UpdateVIBuffers(bool bRecreateVB, bool bRecreateIB, const ImDrawData *pDrawData)
+void D3DGUI_imGui::UpdateDrawData(bool bRecreateVB, bool bRecreateIB, const ImDrawData *pDrawData)
 {
-	static Ref<ID3D11Buffer> nullBuffer;
-
 	if (bRecreateVB)
 	{
 		m_VertexCount = pDrawData->TotalVtxCount + 5000;
 		
-		s_imResource.VertexBuffer = nullBuffer;
+		SafeDeleteArray(m_pVertices);
+		m_pVertices = new ImDrawVert[m_VertexCount]();
 
-		SafeDeleteArray(s_pVertices);
-		s_pVertices = new ImDrawVert[m_VertexCount]();
-
-		g_Renderer->CreateVertexBuffer(s_imResource.VertexBuffer, m_VertexCount * sizeof(ImDrawVert),
-			D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
+		m_Resource.VertexBuffer.Reset();
+		m_Resource.VertexBuffer.CreateAsVertexBuffer(m_VertexCount * sizeof(ImDrawVert), D3DBuffer::eGpuReadCpuWrite, nullptr, D3DBuffer::eCpuWrite);
 	}
 
 	if (bRecreateIB)
 	{
 		m_IndexCount = pDrawData->TotalIdxCount + 10000;
 
-		s_imResource.IndexBuffer = nullBuffer;
+		SafeDeleteArray(m_pIndices);
+		m_pIndices = new ImDrawIdx[m_IndexCount]();
 
-		SafeDeleteArray(s_pIndices);
-		s_pIndices = new ImDrawIdx[m_IndexCount]();
-
-		g_Renderer->CreateIndexBuffer(s_imResource.IndexBuffer, m_IndexCount * sizeof(ImDrawIdx),
-			D3D11_USAGE_DYNAMIC, nullptr, D3D11_CPU_ACCESS_WRITE);
+		m_Resource.IndexBuffer.Reset();
+		m_Resource.IndexBuffer.CreateAsIndexBuffer(m_IndexCount * sizeof(ImDrawIdx), D3DBuffer::eGpuReadCpuWrite, nullptr, D3DBuffer::eCpuWrite);
 	}
 
 	/// Update vertices and indices
@@ -379,50 +290,13 @@ void D3DGUI_imGui::UpdateVIBuffers(bool bRecreateVB, bool bRecreateIB, const ImD
 	{
 		const ImDrawList *pDrawList = pDrawData->CmdLists[i];
 
-		memcpy(s_pVertices + totalVertices, pDrawList->VtxBuffer.Data, pDrawList->VtxBuffer.Size * sizeof(ImDrawVert));
+		memcpy(m_pVertices + totalVertices, pDrawList->VtxBuffer.Data, pDrawList->VtxBuffer.Size * sizeof(ImDrawVert));
 		totalVertices += pDrawList->VtxBuffer.Size;
 
-		memcpy(s_pIndices + totalIndices, pDrawList->IdxBuffer.Data, pDrawList->IdxBuffer.Size * sizeof(ImDrawIdx));
+		memcpy(m_pIndices + totalIndices, pDrawList->IdxBuffer.Data, pDrawList->IdxBuffer.Size * sizeof(ImDrawIdx));
 		totalIndices += pDrawList->IdxBuffer.Size;
 	}
 
-	g_Renderer->UpdateBuffer(s_imResource.VertexBuffer, s_pVertices, sizeof(ImDrawVert) * m_VertexCount);
-	g_Renderer->UpdateBuffer(s_imResource.IndexBuffer, s_pIndices, sizeof(ImDrawIdx) * m_IndexCount);
-}
-
-void D3DGUI_imGui::RestoreD3DState()
-{
-	ImGuiIO &io = ImGui::GetIO();
-	HWND hWnd = (HWND)io.ImeWindowHandle;
-	assert(hWnd);
-
-	::RECT rect;
-	::GetClientRect(hWnd, &rect);
-
-	D3D11_VIEWPORT vp{ 0 };
-	vp.Width = (float)(rect.right - rect.left);
-	vp.Height = (float)(rect.bottom - rect.top);
-	vp.MinDepth = 0.0f;
-	vp.MaxDepth = 1.0f;
-	vp.TopLeftX = vp.TopLeftY = 0.0f;
-	g_Renderer->SetViewports(&vp);
-
-	g_Renderer->SetScissorRects(&rect);
-
-	g_Renderer->SetRasterizerState(s_imResource.BackFaceCulling);
-
-	static Ref<ID3D11InputLayout> s_NullLayout;
-	static Ref<ID3D11BlendState> s_NullBlendState;
-	static Ref<ID3D11DepthStencilState> s_NullDepthStencilState;
-
-	g_Renderer->SetInputLayout(s_NullLayout);
-	g_Renderer->SetBlendState(s_NullBlendState, Vec4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
-	g_Renderer->SetDepthStencilState(s_NullDepthStencilState, 0U);
-}
-
-D3DGUI_imGui::~D3DGUI_imGui()
-{
-	SafeDeleteArray(s_pVertices);
-	SafeDeleteArray(s_pIndices);
-	ImGui::Shutdown();
+	m_Resource.VertexBuffer.Update(m_pVertices, sizeof(ImDrawVert) * m_VertexCount);
+	m_Resource.IndexBuffer.Update(m_pIndices, sizeof(ImDrawIdx) * m_IndexCount);
 }

@@ -3,6 +3,7 @@
 #include "Timer.h"
 #include "Camera.h"
 #include "D3DEngine.h"
+#include "D3DGUI_imGui.h"
 
 #include <d3d11.h>
 
@@ -16,32 +17,26 @@ LRESULT D3DApp::MsgProc(HWND hWnd, uint32_t msg, WPARAM wParam, LPARAM lParam)
 {
 	assert(m_pTimer);
 
-	//if (m_GUI.WinProc(hWnd, msg, wParam, lParam))
-	//{
-	//	return 1LL;
-	//}
+	if (s_GUI && s_GUI->WinProc(hWnd, msg, wParam, lParam))
+	{
+		return 1LL;
+	}
 
 	HandleWindowMessage(msg, wParam, lParam);
 
-	//if (!m_GUI.IsFocus())
-	//{
-	//	HandleInput(msg, wParam, lParam);
-	//}
+	if (!s_GUI || !s_GUI->IsFocus())
+	{
+		HandleInput(msg, wParam, lParam);
+	}
 
 	return ::DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
 void D3DApp::ResizeWindow(uint32_t width, uint32_t height)
 {
-	uint32_t dstWidth = std::max<uint32_t>(width, 32U);
-	uint32_t dstHeight = std::max<uint32_t>(height, 32U);
-
 	if (s_Renderer)
 	{
-		m_Width = dstWidth;
-		m_Height = dstHeight;
-
-		s_Renderer->Resize(dstWidth, dstHeight);
+		s_Renderer->Resize(width, height);
 	}
 
 	m_Camera->SetProjParams(DirectX::XM_PIDIV4, (float)width / height, 1.0f, 1000.0f);
@@ -76,12 +71,14 @@ void D3DApp::InitRenderer()
 	if (nullptr == s_Renderer)
 	{
 		s_Renderer = &D3DEngine::Instance();
-
 		assert(s_Renderer);
-
 		s_Renderer->Initialize(m_hWnd, m_Width, m_Height, m_bWindowed);
 
-		///m_GUI.Init(m_hWnd);
+		s_GUI = &D3DGUI_imGui::Instance();
+		assert(s_GUI);
+		s_GUI->Initialize(m_hWnd);
+
+		m_Camera->SetProjParams(DirectX::XM_PIDIV4, (float)m_Width / m_Height, 1.0f, 1000.0f);
 	}
 }
 
@@ -93,11 +90,11 @@ void D3DApp::Frame()
 
 	s_Renderer->ClearRenderSurfaces();
 
-	///m_GUI.RenderBegin();
+	s_GUI->RenderBegin();
 
 	RenderScene();
 
-	///m_GUI.RenderEnd();
+	s_GUI->RenderEnd();
 
 	s_Renderer->Flush();
 }
@@ -106,7 +103,7 @@ void D3DApp::RenderToWindow()
 {
 	if (!m_bInited)
 	{
-		PreInit();
+		Initialize();
 		m_bInited = true;
 	}
 
@@ -116,4 +113,6 @@ void D3DApp::RenderToWindow()
 D3DApp::~D3DApp()
 {
 	SafeDelete(m_Camera);
+
+	D3DGUI_imGui::Destroy(s_GUI);
 }

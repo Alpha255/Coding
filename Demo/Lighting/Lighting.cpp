@@ -1,8 +1,5 @@
-#include "LightingBasic.h"
-#include "D3DGraphic.h"
+#include "Lighting.h"
 #include "Camera.h"
-
-extern D3DGraphic* g_Renderer;
 
 struct D3DResource
 {
@@ -19,8 +16,6 @@ struct D3DResource
 
 	Ref<ID3D11VertexShader> VertexShader[AppLightingBasic::eShadingModeCount];
 	Ref<ID3D11PixelShader> PixelShader[AppLightingBasic::eShadingModeCount];
-
-	Ref<ID3D11RasterizerState> Wireframe;
 };
 
 struct CBufferVS

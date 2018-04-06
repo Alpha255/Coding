@@ -20,6 +20,20 @@ public:
 		eCpuReadWrite = eCpuRead | eCpuWrite
 	};
 
+	enum eBindFlag
+	{
+		eBindAsVertexBuffer = D3D11_BIND_VERTEX_BUFFER,
+		eBindAsIndexBuffer = D3D11_BIND_INDEX_BUFFER,
+		eBindAsConstantBuffer = D3D11_BIND_CONSTANT_BUFFER,
+		eBindAsShaderResource = D3D11_BIND_SHADER_RESOURCE,
+		eBindAsStreamOutput = D3D11_BIND_STREAM_OUTPUT,
+		eBindAsRenderTarget = D3D11_BIND_RENDER_TARGET,
+		eBindAsDepthStencil, D3D11_BIND_DEPTH_STENCIL,
+		eBindAsUnorderedAccess = D3D11_BIND_UNORDERED_ACCESS,
+		eBindAsDecoder = D3D11_BIND_DECODER,
+		eBindAsVideoEncoder = D3D11_BIND_VIDEO_ENCODER
+	};
+
 	void Create(
 		uint32_t bindFlags,
 		size_t byteWidth,
@@ -37,7 +51,7 @@ public:
 		uint32_t cpuAccessFlags = 0U,
 		uint32_t bindFlags = 0U)
 	{
-		Create(D3D11_BIND_VERTEX_BUFFER | bindFlags, byteWidth, usage, pData, cpuAccessFlags);
+		Create(eBindAsVertexBuffer | bindFlags, byteWidth, usage, pData, cpuAccessFlags);
 	}
 
 	inline void CreateAsIndexBuffer(
@@ -46,7 +60,7 @@ public:
 		const void *pData,
 		uint32_t cpuAccessFlags = 0U)
 	{
-		Create(D3D11_BIND_INDEX_BUFFER, byteWidth, usage, pData, cpuAccessFlags);
+		Create(eBindAsIndexBuffer, byteWidth, usage, pData, cpuAccessFlags);
 	}
 
 	inline void CreateAsConstantBuffer(
@@ -55,7 +69,7 @@ public:
 		const void *pData,
 		uint32_t cpuAccessFlags = 0U)
 	{
-		Create(D3D11_BIND_CONSTANT_BUFFER, byteWidth, usage, pData, cpuAccessFlags);
+		Create(eBindAsConstantBuffer, byteWidth, usage, pData, cpuAccessFlags);
 	}
 
 	inline void CreateAsUnorderedAccessBuffer(
@@ -66,7 +80,7 @@ public:
 		uint32_t bindFlags = 0U)
 	{
 		assert(byteStride);
-		Create(bindFlags | D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS, byteWidth, usage, nullptr, 0U, miscFlags, byteStride, 0U);
+		Create(bindFlags | eBindAsShaderResource | eBindAsUnorderedAccess, byteWidth, usage, nullptr, 0U, miscFlags, byteStride, 0U);
 	}
 
 	void Update(const void *pData, size_t size);

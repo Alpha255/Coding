@@ -31,6 +31,7 @@ public:
 
 	virtual void InitRenderer() = 0;
 
+	void UpdateWindow();
 	void Startup(const wchar_t *pTitle, uint32_t width = 800U, uint32_t height = 600U, bool bWindowed = true, uint32_t windowStyle = 0U);
 	void Running();
 	void ShutDown() {}
@@ -47,4 +48,5 @@ protected:
 	class Timer* m_pTimer = nullptr;
 private:
 	bool m_bActive = false;
+	bool m_bNeedResize = false;
 };
