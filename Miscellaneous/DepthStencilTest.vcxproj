@@ -19,9 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{1024D658-EED3-4A8C-BBFF-E794750E64F4}</ProjectGuid>
+    <ProjectGuid>{4678F679-FFB0-4568-A58B-523EAA12FE1E}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Lighting</RootNamespace>
+    <RootNamespace>DepthStencilTest</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -146,11 +146,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Demo\Lighting\Lighting.cpp" />
-    <ClCompile Include="..\Demo\Lighting\Main.cpp" />
+    <ClCompile Include="..\Demo\DepthStencilTest\DepthStencilTest.cpp" />
+    <ClCompile Include="..\Demo\DepthStencilTest\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Demo\Lighting\Lighting.h" />
+    <ClInclude Include="..\Demo\DepthStencilTest\DepthStencilTest.h" />
     <ClInclude Include="..\System\resource.h" />
   </ItemGroup>
   <ItemGroup>

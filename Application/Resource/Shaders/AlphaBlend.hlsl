@@ -17,7 +17,7 @@ struct VSOutput
     float2 UV : TEXCOORD;
 };
 
-Texture2D TexFloor;
+Texture2D DiffuseTex;
 SamplerState LinearSampler;
 
 VSOutput VSMain(VSInput vsInput)
@@ -32,5 +32,5 @@ VSOutput VSMain(VSInput vsInput)
 
 float4 PSMain(VSOutput psInput) : SV_Target
 {
-    return TexFloor.Sample(LinearSampler, psInput.UV);
+    return DiffuseTex.Sample(LinearSampler, psInput.UV);
 }

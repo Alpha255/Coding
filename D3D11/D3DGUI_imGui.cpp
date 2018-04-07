@@ -47,7 +47,7 @@ void D3DGUI_imGui::Initialize(::HWND hWnd)
 	m_Resource.ConstantBufferVS.CreateAsConstantBuffer(sizeof(Matrix), D3DBuffer::eGpuReadCpuWrite, nullptr);
 
 	m_Resource.ClrWriteBlend.Create(false, false, 0U, true, D3DState::eSrcAlpha, D3DState::eInvSrcAlpha, D3DState::eAdd, 
-		D3DState::eInvSrcAlpha, D3DState::eZero, D3DState::eAdd, D3DState::eAll);
+		D3DState::eInvSrcAlpha, D3DState::eZero, D3DState::eAdd, D3DState::eColorAll);
 
 	unsigned char *pPixels = nullptr;
 	int32_t width = 0, height = 0;

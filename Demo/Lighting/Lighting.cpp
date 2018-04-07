@@ -133,20 +133,20 @@ void AppLighting::RenderScene()
 	uint32_t indexCount = (eFlat == m_ShadingMode) ? m_FlatSphere.IndexCount : m_Sphere.IndexCount;
 	D3DEngine::Instance().DrawIndexed(indexCount, 0U, 0, eTriangleList);
 
-	Vec3 lightPos(-s_CBufferVS.Light.Direction.x, -s_CBufferVS.Light.Direction.y, -s_CBufferVS.Light.Direction.z);
-	Light::DrawLight(lightPos, Light::eDirectional, *m_Camera);
+	///Vec3 lightPos(-s_CBufferVS.Light.Direction.x, -s_CBufferVS.Light.Direction.y, -s_CBufferVS.Light.Direction.z);
+	///Light::DrawLight(lightPos, Light::eDirectional, *m_Camera);
 
-	if (m_bDrawNormal)
-	{
-		if (eFlat == m_ShadingMode)
-		{
-			m_FlatSphere.DrawNormal(*m_Camera);
-		}
-		else
-		{
-			m_Sphere.DrawNormal(*m_Camera);
-		}
-	}
+	///if (m_bDrawNormal)
+	///{
+	///	if (eFlat == m_ShadingMode)
+	///	{
+	///		m_FlatSphere.DrawNormal(*m_Camera);
+	///	}
+	///	else
+	///	{
+	///		m_Sphere.DrawNormal(*m_Camera);
+	///	}
+	///}
 
 	ImGui::Combo("ShadingType", (int32_t*)&m_ShadingMode, "Flat\0Gouraud\0Phong\0BlinnPhong");
 	ImGui::Checkbox("Wireframe", &m_bWireframe);

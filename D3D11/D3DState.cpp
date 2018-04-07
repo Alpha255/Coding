@@ -48,6 +48,8 @@ void D3DDepthStencilState::Create(
 	desc.DepthWriteMask = (D3D11_DEPTH_WRITE_MASK)depthWriteMask;
 	desc.DepthFunc = (D3D11_COMPARISON_FUNC)compFunc;
 	desc.StencilEnable = bStencilEnable;
+	desc.StencilReadMask = stencilReadMask;
+	desc.StencilWriteMask = stencilWriteMask;
 	desc.FrontFace.StencilFailOp = (D3D11_STENCIL_OP)stencilFailOpFrontFace;
 	desc.FrontFace.StencilDepthFailOp = (D3D11_STENCIL_OP)stencilDepthFailOpFrontFace;
 	desc.FrontFace.StencilPassOp = (D3D11_STENCIL_OP)stencilPassOpFrontFace;
@@ -74,7 +76,7 @@ void D3DBlendState::Create(
 	uint32_t srcAlpha,
 	uint32_t dstAlpha,
 	uint32_t alphaOp,
-	uint8_t writeMask)
+	uint8_t renderTargetWriteMask)
 {
 	assert(!IsValid() && surfaceIndex < 8U);
 
@@ -90,7 +92,7 @@ void D3DBlendState::Create(
 	desc.RenderTarget[surfaceIndex].DestBlendAlpha = (D3D11_BLEND)dstAlpha;
 	desc.RenderTarget[surfaceIndex].BlendOpAlpha = (D3D11_BLEND_OP)alphaOp;
 
-	desc.RenderTarget[surfaceIndex].RenderTargetWriteMask = writeMask;
+	desc.RenderTarget[surfaceIndex].RenderTargetWriteMask = renderTargetWriteMask;
 
 	ID3D11BlendState *pBlendState = nullptr;
 	HRCheck(D3DEngine::Instance().GetDevice()->CreateBlendState(&desc, &pBlendState));
@@ -98,15 +100,15 @@ void D3DBlendState::Create(
 	MakeObject(pBlendState);
 }
 
-void D3DRasterizerState::Create(uint32_t fillMode, uint32_t cullMode, bool cw, bool depthClip, bool bScissor)
+void D3DRasterizerState::Create(uint32_t fillMode, uint32_t cullMode, bool bFrontCCW, bool bDepthClip, bool bScissor)
 {
 	assert(!IsValid());
 
 	D3D11_RASTERIZER_DESC desc = {};
 	desc.FillMode = (D3D11_FILL_MODE)fillMode;
 	desc.CullMode = (D3D11_CULL_MODE)cullMode;
-	desc.FrontCounterClockwise = cw;
-	desc.DepthClipEnable = depthClip;
+	desc.FrontCounterClockwise = bFrontCCW;
+	desc.DepthClipEnable = bDepthClip;
 	desc.MultisampleEnable = false;
 	desc.ScissorEnable = bScissor;
 	desc.SlopeScaledDepthBias = 0.0f;
@@ -128,6 +130,7 @@ D3DRasterizerState D3DStaticState::Wireframe;
 D3DRasterizerState D3DStaticState::Solid;
 D3DRasterizerState D3DStaticState::WireframeNoneCulling;
 D3DRasterizerState D3DStaticState::SolidNoneCulling;
+D3DRasterizerState D3DStaticState::SolidFrontCCW;
 
 D3DDepthStencilState D3DStaticState::DisableDepthStencil;
 
@@ -147,10 +150,11 @@ void D3DStaticState::Initialize()
 	LinearSampler.Create(D3DState::eLinear, D3DState::eWrap, 0.0f, D3DState::eNever, nullptr, 0.0f, FLT_MAX);
 	AnisotropicSampler.Create(D3DState::eAnisotropic, D3DState::eWrap, 0.0f, D3DState::eNever, nullptr, 0.0f, FLT_MAX);
 
-	Wireframe.Create(D3DState::eWireframe, D3DState::eBackFace, false, true, false);
-	Solid.Create(D3DState::eSolid, D3DState::eBackFace, false, true, false);
-	WireframeNoneCulling.Create(D3DState::eWireframe, D3DState::eNone, false, true, false);
-	SolidNoneCulling.Create(D3DState::eSolid, D3DState::eNone, false, true, false);
+	Wireframe.Create(D3DState::eWireframe, D3DState::eCullBackFace, false, true, false);
+	Solid.Create(D3DState::eSolid, D3DState::eCullBackFace, false, true, false);
+	WireframeNoneCulling.Create(D3DState::eWireframe, D3DState::eCullNone, false, true, false);
+	SolidNoneCulling.Create(D3DState::eSolid, D3DState::eCullNone, false, true, false);
+	SolidFrontCCW.Create(D3DState::eSolid, D3DState::eCullBackFace, true, true, false);
 
 	DisableDepthStencil.Create(
 		false, D3DState::eDepthMaskAll, D3DState::eAlways,

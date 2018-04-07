@@ -1,3 +1,8 @@
+cbuffer cbVS
+{
+    matrix WVP;
+};
+
 struct VSInput
 {
     float3 Pos : POSITION;
@@ -6,6 +11,20 @@ struct VSInput
     float2 UV : TEXCOORD;
 };
 
-void VSMain(VSInput vsInput)
+struct VSOutput
 {
+    float4 Pos : SV_POSITION;
+};
+
+VSOutput VSMain(VSInput vsInput)
+{
+    VSOutput output;
+    output.Pos = mul(float4(vsInput.Pos, 1.0f), WVP);
+
+    return output;
+}
+
+float4 PSMain(VSOutput psInput) : SV_Target
+{
+    return float4(1.0f, 1.0f, 1.0f, 1.0f);
 }

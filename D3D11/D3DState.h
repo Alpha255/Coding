@@ -29,9 +29,9 @@ public:
 
 	enum eCullMode
 	{
-		eNone = D3D11_CULL_NONE,
-		eFrontFace = D3D11_CULL_FRONT,
-		eBackFace = D3D11_CULL_BACK
+		eCullNone = D3D11_CULL_NONE,
+		eCullFrontFace = D3D11_CULL_FRONT,
+		eCullBackFace = D3D11_CULL_BACK
 	};
 
 	enum eComparisonFunc
@@ -86,17 +86,18 @@ public:
 
 	enum eBlendWriteMask : uint8_t
 	{
-		eRed = D3D11_COLOR_WRITE_ENABLE_RED,
-		eGreen = D3D11_COLOR_WRITE_ENABLE_GREEN,
-		eBlue = D3D11_COLOR_WRITE_ENABLE_BLUE,
-		eAlpha = D3D11_COLOR_WRITE_ENABLE_ALPHA,
-		eAll = D3D11_COLOR_WRITE_ENABLE_ALL
+		eColorNone = 0,
+		eColorRed = D3D11_COLOR_WRITE_ENABLE_RED,
+		eColorGreen = D3D11_COLOR_WRITE_ENABLE_GREEN,
+		eColorBlue = D3D11_COLOR_WRITE_ENABLE_BLUE,
+		eColorAlpha = D3D11_COLOR_WRITE_ENABLE_ALPHA,
+		eColorAll = D3D11_COLOR_WRITE_ENABLE_ALL
 	};
 
 	enum eDepthWriteMask
 	{
-		eDepthMaskZero = D3D11_DEPTH_WRITE_MASK_ZERO,
-		eDepthMaskAll = D3D11_DEPTH_WRITE_MASK_ALL
+		eDepthMaskZero = D3D11_DEPTH_WRITE_MASK_ZERO,  /// Turn off writes to the depth-stencil buffer.
+		eDepthMaskAll = D3D11_DEPTH_WRITE_MASK_ALL     /// Turn on writes to the depth-stencil buffer.
 	};
 
 	enum eStencilMask : uint8_t
@@ -109,12 +110,12 @@ public:
 	{
 		eStencilKeep = D3D11_STENCIL_OP_KEEP,
 		eStencilZero = D3D11_STENCIL_OP_ZERO,
-		eStencilReplace = D3D11_STENCIL_OP_REPLACE,
-		eStencilIncrSat = D3D11_STENCIL_OP_INCR_SAT,
-		eStencilDecrSat = D3D11_STENCIL_OP_DECR_SAT,
+		eStencilReplace = D3D11_STENCIL_OP_REPLACE,  /// Set the stencil data to the reference value
+		eStencilIncrSat = D3D11_STENCIL_OP_INCR_SAT, /// Increment the stencil value by 1, and clamp the result
+		eStencilDecrSat = D3D11_STENCIL_OP_DECR_SAT, /// Decrement the stencil value by 1, and clamp the result
 		eStencilInvert = D3D11_STENCIL_OP_INVERT,
-		eStencilIncr = D3D11_STENCIL_OP_INCR,
-		eStencilDecr = D3D11_STENCIL_OP_DECR
+		eStencilIncr = D3D11_STENCIL_OP_INCR,        /// Increment the stencil value by 1, and wrap the result if necessary
+		eStencilDecr = D3D11_STENCIL_OP_DECR         /// Increment the stencil value by 1, and wrap the result if necessary
 	};
 };
 
@@ -158,13 +159,13 @@ public:
 		uint32_t srcAlpha,
 		uint32_t dstAlpha,
 		uint32_t alphaOp,
-		uint8_t writeMask);
+		uint8_t renderTargetWriteMask);
 };
 
 class D3DRasterizerState : public D3DObject<ID3D11RasterizerState>, public D3DState
 {
 public:
-	void Create(uint32_t fillMode, uint32_t cullMode, bool cw, bool depthClip, bool bScissor);
+	void Create(uint32_t fillMode, uint32_t cullMode, bool bFrontCCW, bool bDepthClip, bool bScissor);
 };
 
 struct D3DStaticState
@@ -179,6 +180,7 @@ struct D3DStaticState
 	static D3DRasterizerState Solid;
 	static D3DRasterizerState WireframeNoneCulling;
 	static D3DRasterizerState SolidNoneCulling;
+	static D3DRasterizerState SolidFrontCCW;
 
 	static D3DDepthStencilState DisableDepthStencil;
 

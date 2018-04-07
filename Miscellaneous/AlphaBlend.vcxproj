@@ -19,9 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{1024D658-EED3-4A8C-BBFF-E794750E64F4}</ProjectGuid>
+    <ProjectGuid>{A55891C1-3AB0-4BBC-8DB8-68C640E980D3}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Lighting</RootNamespace>
+    <RootNamespace>AlphaBlend</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -146,14 +146,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Demo\Lighting\Lighting.cpp" />
-    <ClCompile Include="..\Demo\Lighting\Main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\Demo\Lighting\Lighting.h" />
-    <ClInclude Include="..\System\resource.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\ThirdParty\DirectXTK\DirectXTK_Desktop_2015.vcxproj">
       <Project>{e0b52ae7-e160-4d32-bf3f-910b785e5a8e}</Project>
     </ProjectReference>
@@ -168,10 +160,18 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Demo\AlphaBlend\AlphaBlend.h" />
+    <ClInclude Include="..\System\resource.h" />
+  </ItemGroup>
+  <ItemGroup>
     <ResourceCompile Include="..\System\Resource.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\Application\Resource\directx.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Demo\AlphaBlend\AlphaBlend.cpp" />
+    <ClCompile Include="..\Demo\AlphaBlend\Main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

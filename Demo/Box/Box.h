@@ -2,6 +2,7 @@
 
 #include "D3DApp.h"
 #include "D3DGeometry.h"
+#include "D3DView.h"
 
 class AppBox : public D3DApp
 {
