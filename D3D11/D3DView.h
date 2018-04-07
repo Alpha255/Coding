@@ -2,44 +2,62 @@
 
 #include "D3DObject.h"
 
-class D3DRenderTargetView : public D3DObject<ID3D11RenderTargetView>
+class D3DView
+{
+public:
+	enum eViewType
+	{
+		eUnknown,
+		eBuffer,
+		eTexture1D,
+		eTexture2D,
+		eTexture3D,
+		eTextureCube,
+		eTexture1DArray,
+		eTexture2DArray,
+		eTextureCubeArray
+	};
+};
+
+class D3DRenderTargetView : public D3DObject<ID3D11RenderTargetView>, public D3DView
 {
 public:
 	void Create(D3DResource &resource);
+	void CreateAsBuffer();
+	void CreateAsTexture(eViewType type, D3DResource &resource, uint32_t fmt, uint32_t mipSlice);
+	void CreateAsTextureArray(eViewType type, D3DResource &resource, uint32_t fmt, uint32_t mipSlice, uint32_t firstArraySlice, uint32_t arraySize);
+	void CreateAs3DTexture();
 };
 
-class D3DDepthStencilView : public D3DObject<ID3D11DepthStencilView>
+class D3DDepthStencilView : public D3DObject<ID3D11DepthStencilView>, public D3DView
 {
 public:
-	enum eFlag
+	enum eClearFlag
 	{
 		eDepthOnly = D3D11_CLEAR_DEPTH,
 		eStencilOnly = D3D11_CLEAR_STENCIL,
 		eDepthStencil = eDepthOnly | eStencilOnly
 	};
 
-	void Create(D3DResource &resource, uint32_t format, uint32_t width, uint32_t height, uint32_t dimension);
+	void Create(uint32_t fmt, uint32_t width, uint32_t height);
+	void CreateAsBuffer();
+	void CreateAsTexture(eViewType type, D3DResource &resource, uint32_t fmt, uint32_t flags, uint32_t mipSlice);
+	void CreateAsTextureArray(eViewType type, D3DResource &resource, uint32_t fmt, uint32_t flags, uint32_t mipSlice, uint32_t firstArraySlice, uint32_t arraySize);
 };
 
-class D3DShaderResourceView : public D3DObject<ID3D11ShaderResourceView>
+class D3DShaderResourceView : public D3DObject<ID3D11ShaderResourceView>, public D3DView
 {
 public:
-	void Create(D3DResource &resource, uint32_t format, uint32_t dimension, uint32_t firstElem, uint32_t numElems);
-
 	void Create(const char *pDdsName);
+
+	void CreateAsBuffer();
+	void CreateAsBufferEx();
+	void CreateAsTexture(eViewType type, D3DResource &resource, uint32_t fmt, uint32_t mostDetailedMip, uint32_t mipLevels);
+	void CreateAsTextureArray(eViewType type, D3DResource &resource, uint32_t fmt, uint32_t mostDetailedMip, uint32_t mipLevels, uint32_t firstArraySlice, uint32_t arraySize);
 };
 
-class D3DUnorderedAccessView : public D3DObject<ID3D11UnorderedAccessView>
+class D3DUnorderedAccessView : public D3DObject<ID3D11UnorderedAccessView>, public D3DView
 {
 public:
 	void Create(D3DResource &resource, uint32_t format, uint32_t dimension, uint32_t firstElem, uint32_t numElems, uint32_t flags);
-};
-
-enum eSRVDimension
-{
-	eSRVUnknown = D3D11_SRV_DIMENSION_UNKNOWN,
-	eSRVBuffer = D3D11_SRV_DIMENSION_BUFFER,
-	eSRVTexture1D = D3D11_SRV_DIMENSION_TEXTURE1D,
-	eSRVTexture2D = D3D11_SRV_DIMENSION_TEXTURE2D,
-	eSRVTexture3D = D3D11_SRV_DIMENSION_TEXTURE3D
 };

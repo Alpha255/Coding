@@ -54,8 +54,8 @@ void D3DTexture1D::CreateRandomTexture()
 		random[i].w = Math::RandF(-1.0f, 1.0f);
 	}
 
-	Create(DXGI_FORMAT_R32G32B32A32_FLOAT, size, D3D11_BIND_SHADER_RESOURCE, 1U, 1U, 0U, 0U,
-		D3D11_USAGE_IMMUTABLE, random, size * sizeof(Vec4));
+	Create(eRGBA32_Float, size, D3DBuffer::eBindAsShaderResource, 1U, 1U, 0U, 0U,
+		D3DBuffer::eGpuReadOnly, random, size * sizeof(Vec4));
 
 	///CreateShaderResourceView(rSRV, tex.Ptr(), DXGI_FORMAT_R32G32B32A32_FLOAT, D3D11_SRV_DIMENSION_TEXTURE1D);
 }

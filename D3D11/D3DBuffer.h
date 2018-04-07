@@ -34,15 +34,25 @@ public:
 		eBindAsVideoEncoder = D3D11_BIND_VIDEO_ENCODER
 	};
 
-	void Create(
-		uint32_t bindFlags,
-		size_t byteWidth,
-		uint32_t usage,
-		const void *pData,
-		uint32_t cpuAccessFlag = 0U,
-		uint32_t miscFlags = 0U,
-		uint32_t byteStride = 0U,
-		uint32_t memPitch = 0U);
+	enum eResourceMiscFlag
+	{
+		eMiscGenerateMips = D3D11_RESOURCE_MISC_GENERATE_MIPS,
+		eMiscShared = D3D11_RESOURCE_MISC_SHARED,
+		eMiscCubemap = D3D11_RESOURCE_MISC_TEXTURECUBE,
+		eMiscDrawIndirectArgs = D3D11_RESOURCE_MISC_DRAWINDIRECT_ARGS,
+		eMiscAllowRawViews = D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS,
+		eMiscBufferStructured = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED,
+		eMiscClamp = D3D11_RESOURCE_MISC_RESOURCE_CLAMP,
+		eMiscSharedKeyedMutex = D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX,
+		eMiscGDICompatible = D3D11_RESOURCE_MISC_GDI_COMPATIBLE,
+		eMiscSharedNTHandle = D3D11_RESOURCE_MISC_SHARED_NTHANDLE,
+		eMiscRestrictedContent = D3D11_RESOURCE_MISC_RESTRICTED_CONTENT,
+		eMiscRestrictSharedResource = D3D11_RESOURCE_MISC_RESTRICT_SHARED_RESOURCE,
+		eMiscRestrictSharedResourceDriver = D3D11_RESOURCE_MISC_RESTRICT_SHARED_RESOURCE_DRIVER,
+		eMiscGuarded = D3D11_RESOURCE_MISC_GUARDED,
+		eMiscTilePool = D3D11_RESOURCE_MISC_TILE_POOL,
+		eMiscTiled = D3D11_RESOURCE_MISC_TILED
+	};
 
 	inline void CreateAsVertexBuffer(
 		size_t byteWidth,
@@ -83,6 +93,16 @@ public:
 	void Update(const void *pData, size_t size);
 
 protected:
+	void Create(
+		uint32_t bindFlags,
+		size_t byteWidth,
+		uint32_t usage,
+		const void *pData,
+		uint32_t cpuAccessFlag = 0U,
+		uint32_t miscFlags = 0U,
+		uint32_t byteStride = 0U,
+		uint32_t memPitch = 0U);
+
 	inline uint32_t GetCpuAccessFlag(uint32_t usage) const 
 	{
 		switch (usage)

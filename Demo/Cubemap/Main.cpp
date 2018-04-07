@@ -2,13 +2,13 @@
 
 INT WINAPI wWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpCmdLine*/, int /*nShow*/)
 {
-	ApplicationCubemap Cubemap;
+	AppCubemap cubemap;
 
-	Cubemap.Startup(L"Cubemap");
+	cubemap.Startup(L"Cubemap");
 
-	Cubemap.Running();
+	cubemap.Running();
 
-	Cubemap.ShutDown();
+	cubemap.ShutDown();
 
 	return 0;
 }

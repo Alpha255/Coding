@@ -70,8 +70,7 @@ void D3DEngine::RecreateRenderTargetDepthStencil(uint32_t width, uint32_t height
 	surface.MakeObject(pTexture2D);
 	m_RenderTargetView.Create(surface);
 
-	D3DResource empty;
-	m_DepthStencilView.Create(empty, DXGI_FORMAT_D24_UNORM_S8_UINT, width, height, D3D11_DSV_DIMENSION_TEXTURE2D);
+	m_DepthStencilView.Create(eD24_UNorm_S8_UInt, width, height);
 
 	SetRenderTargetView(m_RenderTargetView);
 
