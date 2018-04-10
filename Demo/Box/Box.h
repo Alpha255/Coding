@@ -13,11 +13,23 @@ public:
 	virtual void Initialize() override;
 	virtual void RenderScene() override;
 protected:
+	enum eSpecialEffect
+	{
+		eNone,
+		eInversion,
+		eGrayscale,
+		eSharpen,
+		eBlur,
+		eEdgeDetection,
+		eEffectCount
+	};
 private:
 	Geometry::Mesh m_BoxMesh;
 
 	D3DVertexShader m_VertexShader;
-	D3DPixelShader m_PixelShader;
+	D3DPixelShader m_PixelShader[eEffectCount];
 	D3DBuffer m_CBufferVS;
 	D3DShaderResourceView m_DiffuseTex;
+
+	int32_t m_Effect = eNone;
 };
