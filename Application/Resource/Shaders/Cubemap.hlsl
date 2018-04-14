@@ -9,15 +9,14 @@ cbuffer cbVS
 
 cbuffer cbPS
 {
-    float3 EyePos;
-    uint EnableReflection;
+    float4 EyePos;
 
     DirectionalLight DirLight;
     Material Mat;
 };
 
-Texture2D DiffuseTex;
-TextureCube CubemapTex;
+Texture2D DiffuseTex : register(t0);
+TextureCube CubemapTex : register(t1);
 
 SamplerState LinearSampler;
 
@@ -56,7 +55,7 @@ float4 PSMain(VSOutput input) : SV_Target
 {
     input.NormalW = normalize(input.NormalW);
 
-    float3 toEye = EyePos - input.PosW;
+    float3 toEye = EyePos.xyz - input.PosW;
 
     float disToEye = length(toEye);
 
@@ -86,13 +85,10 @@ float4 PSMain(VSOutput input) : SV_Target
 
     litClr = texClr * (ambient + diffuse) + spec;
 
-    if (EnableReflection == 1)
-    {
-        float3 reflectionVector = reflect(-toEye, input.NormalW);
-        float4 reflectionColor = CubemapTex.Sample(LinearSampler, reflectionVector);
+    float3 reflectionVector = reflect(-toEye, input.NormalW);
+    float4 reflectionColor = CubemapTex.Sample(LinearSampler, reflectionVector);
 
-        litClr += Mat.Reflection * reflectionColor;
-    }
+    litClr += Mat.Reflection * reflectionColor;
 
     litClr.a = Mat.Diffuse.a * texClr.a;
 

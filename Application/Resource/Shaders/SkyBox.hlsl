@@ -4,13 +4,7 @@ cbuffer cbVS
 };
 
 TextureCube CubeMapTex;
-
-SamplerState Sampler
-{
-    Filter = MIN_MAG_MIP_LINEAR;
-    AddressU = Wrap;
-    AddressV = Wrap;
-};
+SamplerState LinearSampler;
 
 struct VSInput
 {
@@ -26,13 +20,12 @@ struct VSOutput
     float3 PosL : POSITION;
 };
 
-VSOutput VS_Main(VSInput input)
+VSOutput VSMain(VSInput input)
 {
     VSOutput output;
 	/// Set z = w so that z/w = 1 (i.e., skybox always on far plane).
 	/// This means that the skybox will always fail the depth test against the other models in the scene. 
 	/// That way the skybox will only take up the background left between the models and everything else will be infront of it,
-	/// http://ogldev.atspace.co.uk/www/tutorial25/tutorial25.html
     output.PosH = mul(float4(input.Pos, 1.0f), WVP).xyww;
 
 	/// Use local vertex position as cubemap lookup vector.
@@ -41,7 +34,7 @@ VSOutput VS_Main(VSInput input)
     return output;
 }
 
-float4 PS_Main(VSOutput input) : SV_Target
+float4 PSMain(VSOutput input) : SV_Target
 {
-    return CubeMapTex.Sample(Sampler, input.PosL);
+    return CubeMapTex.Sample(LinearSampler, input.PosL);
 }

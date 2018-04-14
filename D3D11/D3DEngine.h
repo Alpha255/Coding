@@ -47,6 +47,12 @@ public:
 		m_IMContext->ClearDepthStencilView(depthStencil.Get(), clearFlag, depth, stencil);
 	}
 
+	inline void ResetRenderSurfaces()
+	{
+		SetRenderTargetView(m_RenderTargetView, 0U);
+		SetDepthStencilView(m_DepthStencilView);
+	}
+
 	inline void ClearRenderSurfaces()
 	{
 		ClearRenderTargetView(m_RenderTargetView);

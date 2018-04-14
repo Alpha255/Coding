@@ -49,7 +49,7 @@ struct ConstantBufferPS
 		EyePos = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
 		Light.Ambient = Vec4(0.2f, 0.2f, 0.2f, 1.0f);
-		Light.Diffuse = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		Light.Diffuse = Vec4(0.4f, 0.4f, 0.4f, 1.0f);
 		Light.Specular = Vec4(0.5f, 0.5f, 0.5f, 1.0f);
 		Light.Direction = Vec4(0.5f, -0.5f, 0.5f, 0.0f);
 
@@ -150,8 +150,8 @@ void AppLighting::RenderScene()
 
 	ImGui::Combo("ShadingType", (int32_t*)&m_ShadingMode, "Flat\0Gouraud\0Phong\0BlinnPhong");
 	ImGui::Checkbox("Wireframe", &m_bWireframe);
-	ImGui::Checkbox("DrawNormal", &m_bDrawNormal);
+	///ImGui::Checkbox("DrawNormal", &m_bDrawNormal);
 	ImGui::SliderFloat("SpecularFactor", &s_CBufferPS.Mat.Specular.w, 1.0f, 32.0f);
-	ImGui::ColorEdit4("LightColorVS", (float*)&s_CBufferVS.Light.Diffuse);
-	ImGui::ColorEdit4("LightColorPS", (float*)&s_CBufferPS.Light.Diffuse);
+	///ImGui::ColorEdit4("LightColorVS", (float*)&s_CBufferVS.Light.Diffuse);
+	///ImGui::ColorEdit4("LightColorPS", (float*)&s_CBufferPS.Light.Diffuse);
 }
