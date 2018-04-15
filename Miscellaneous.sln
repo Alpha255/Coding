@@ -35,33 +35,16 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Box", "Miscellaneous\Box.vc
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{7E3259D7-2974-4D19-9C8B-9FA8D4948146}"
 	ProjectSection(SolutionItems) = preProject
-		Application\Resource\Shaders\AdaptiveTessellation.hlsl = Application\Resource\Shaders\AdaptiveTessellation.hlsl
 		Application\Resource\Shaders\AlphaBlend.hlsl = Application\Resource\Shaders\AlphaBlend.hlsl
 		Application\Resource\Shaders\Box.hlsl = Application\Resource\Shaders\Box.hlsl
 		Application\Resource\Shaders\CommonLighting.hlsli = Application\Resource\Shaders\CommonLighting.hlsli
 		Application\Resource\Shaders\Cubemap.hlsl = Application\Resource\Shaders\Cubemap.hlsl
 		Application\Resource\Shaders\DepthStencilTest.hlsl = Application\Resource\Shaders\DepthStencilTest.hlsl
-		Application\Resource\Shaders\DisplacementMap.hlsl = Application\Resource\Shaders\DisplacementMap.hlsl
-		Application\Resource\Shaders\DrawLight.hlsl = Application\Resource\Shaders\DrawLight.hlsl
-		Application\Resource\Shaders\Fxaa.hlsl = Application\Resource\Shaders\Fxaa.hlsl
+		Application\Resource\Shaders\GammaCorrection.hlsl = Application\Resource\Shaders\GammaCorrection.hlsl
 		Application\Resource\Shaders\imGUI.hlsl = Application\Resource\Shaders\imGUI.hlsl
 		Application\Resource\Shaders\Lighting.hlsl = Application\Resource\Shaders\Lighting.hlsl
-		Application\Resource\Shaders\Mapping.hlsl = Application\Resource\Shaders\Mapping.hlsl
 		Application\Resource\Shaders\Mesh.hlsl = Application\Resource\Shaders\Mesh.hlsl
-		Application\Resource\Shaders\MeshNormal.hlsl = Application\Resource\Shaders\MeshNormal.hlsl
-		Application\Resource\Shaders\ParticleFire.hlsl = Application\Resource\Shaders\ParticleFire.hlsl
-		Application\Resource\Shaders\ParticleRain.hlsl = Application\Resource\Shaders\ParticleRain.hlsl
-		Application\Resource\Shaders\Quad.hlsl = Application\Resource\Shaders\Quad.hlsl
-		Application\Resource\Shaders\Scanner.hlsl = Application\Resource\Shaders\Scanner.hlsl
-		Application\Resource\Shaders\ShadowMap.hlsl = Application\Resource\Shaders\ShadowMap.hlsl
 		Application\Resource\Shaders\SkyBox.hlsl = Application\Resource\Shaders\SkyBox.hlsl
-		Application\Resource\Shaders\SkyDome.hlsl = Application\Resource\Shaders\SkyDome.hlsl
-		Application\Resource\Shaders\Tessellator_Common.hlsli = Application\Resource\Shaders\Tessellator_Common.hlsli
-		Application\Resource\Shaders\Tessellator_EdgeFactor.hlsl = Application\Resource\Shaders\Tessellator_EdgeFactor.hlsl
-		Application\Resource\Shaders\Tessellator_NumVI.hlsl = Application\Resource\Shaders\Tessellator_NumVI.hlsl
-		Application\Resource\Shaders\Tessellator_ScatterID.hlsl = Application\Resource\Shaders\Tessellator_ScatterID.hlsl
-		Application\Resource\Shaders\Tessellator_TessIndex.hlsl = Application\Resource\Shaders\Tessellator_TessIndex.hlsl
-		Application\Resource\Shaders\Tessellator_TessVertex.hlsl = Application\Resource\Shaders\Tessellator_TessVertex.hlsl
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lighting", "Miscellaneous\Lighting.vcxproj", "{1024D658-EED3-4A8C-BBFF-E794750E64F4}"
@@ -71,6 +54,10 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DepthStencilTest", "Miscellaneous\DepthStencilTest.vcxproj", "{4678F679-FFB0-4568-A58B-523EAA12FE1E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Cubemap", "Miscellaneous\Cubemap.vcxproj", "{1AEE8BA0-177F-4E0D-9983-EB385AFAEECC}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ParallaxMapping", "Miscellaneous\ParallaxMapping.vcxproj", "{414D026D-1325-469F-B0DA-FE59BA1A4407}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GammaCorrection", "Miscellaneous\GammaCorrection.vcxproj", "{0519B3C8-AE1F-45DF-AEB2-899A9B5CE233}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -192,6 +179,22 @@ Global
 		{1AEE8BA0-177F-4E0D-9983-EB385AFAEECC}.Release|x64.Build.0 = Release|x64
 		{1AEE8BA0-177F-4E0D-9983-EB385AFAEECC}.Release|x86.ActiveCfg = Release|Win32
 		{1AEE8BA0-177F-4E0D-9983-EB385AFAEECC}.Release|x86.Build.0 = Release|Win32
+		{414D026D-1325-469F-B0DA-FE59BA1A4407}.Debug|x64.ActiveCfg = Debug|x64
+		{414D026D-1325-469F-B0DA-FE59BA1A4407}.Debug|x64.Build.0 = Debug|x64
+		{414D026D-1325-469F-B0DA-FE59BA1A4407}.Debug|x86.ActiveCfg = Debug|Win32
+		{414D026D-1325-469F-B0DA-FE59BA1A4407}.Debug|x86.Build.0 = Debug|Win32
+		{414D026D-1325-469F-B0DA-FE59BA1A4407}.Release|x64.ActiveCfg = Release|x64
+		{414D026D-1325-469F-B0DA-FE59BA1A4407}.Release|x64.Build.0 = Release|x64
+		{414D026D-1325-469F-B0DA-FE59BA1A4407}.Release|x86.ActiveCfg = Release|Win32
+		{414D026D-1325-469F-B0DA-FE59BA1A4407}.Release|x86.Build.0 = Release|Win32
+		{0519B3C8-AE1F-45DF-AEB2-899A9B5CE233}.Debug|x64.ActiveCfg = Debug|x64
+		{0519B3C8-AE1F-45DF-AEB2-899A9B5CE233}.Debug|x64.Build.0 = Debug|x64
+		{0519B3C8-AE1F-45DF-AEB2-899A9B5CE233}.Debug|x86.ActiveCfg = Debug|Win32
+		{0519B3C8-AE1F-45DF-AEB2-899A9B5CE233}.Debug|x86.Build.0 = Debug|Win32
+		{0519B3C8-AE1F-45DF-AEB2-899A9B5CE233}.Release|x64.ActiveCfg = Release|x64
+		{0519B3C8-AE1F-45DF-AEB2-899A9B5CE233}.Release|x64.Build.0 = Release|x64
+		{0519B3C8-AE1F-45DF-AEB2-899A9B5CE233}.Release|x86.ActiveCfg = Release|Win32
+		{0519B3C8-AE1F-45DF-AEB2-899A9B5CE233}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -211,5 +214,7 @@ Global
 		{A55891C1-3AB0-4BBC-8DB8-68C640E980D3} = {8A14800A-8442-4CBA-AECB-4E3D586913F7}
 		{4678F679-FFB0-4568-A58B-523EAA12FE1E} = {8A14800A-8442-4CBA-AECB-4E3D586913F7}
 		{1AEE8BA0-177F-4E0D-9983-EB385AFAEECC} = {8A14800A-8442-4CBA-AECB-4E3D586913F7}
+		{414D026D-1325-469F-B0DA-FE59BA1A4407} = {8A14800A-8442-4CBA-AECB-4E3D586913F7}
+		{0519B3C8-AE1F-45DF-AEB2-899A9B5CE233} = {8A14800A-8442-4CBA-AECB-4E3D586913F7}
 	EndGlobalSection
 EndGlobal
