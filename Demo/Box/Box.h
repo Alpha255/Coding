@@ -24,6 +24,7 @@ protected:
 		eEffectCount
 	};
 private:
+#if 0 
 	Geometry::Mesh m_BoxMesh;
 
 	D3DVertexShader m_VertexShader;
@@ -31,5 +32,18 @@ private:
 	D3DBuffer m_CBufferVS;
 	D3DShaderResourceView m_DiffuseTex;
 
-	int32_t m_Effect = eNone;
+	uint32_t m_Effect = eNone;
+#endif
+	Geometry::Mesh m_Mesh;
+
+	D3DVertexShader m_VertexShader;
+	D3DPixelShader m_PixelShader;
+
+	D3DBuffer m_CBufferVS;
+	D3DBuffer m_CBufferPS;
+
+	D3DShaderResourceView m_DiffuseTexMiddle;
+	D3DShaderResourceView m_DiffuseTexPoor;
+
+	int32_t m_TexIndex = 0U;
 };

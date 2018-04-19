@@ -11,8 +11,8 @@ struct VSInput
     float2 UV : TEXCOORD;
 };
 
-Texture2D DiffuseMap;
-SamplerState LinearSampler;
+///Texture2D DiffuseMap;
+///SamplerState LinearSampler;
 
 struct VSOutput
 {
@@ -31,6 +31,6 @@ VSOutput VSMain(VSInput vsInput)
 
 float4 PSMain(VSOutput psInput) : SV_Target
 {
-    ///return float4(1.0f, 1.0f, 1.0f, 1.0f);
-    return DiffuseMap.Sample(LinearSampler, psInput.UV);
+    return float4(1.0f, 1.0f, 1.0f, 1.0f);
+    ///return DiffuseMap.Sample(LinearSampler, psInput.UV);
 }

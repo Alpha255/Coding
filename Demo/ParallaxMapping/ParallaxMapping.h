@@ -28,6 +28,7 @@ private:
 	D3DPixelShader m_PixelShader[eMappingTypeCount];
 
 	D3DBuffer m_CBufferVS;
+	D3DBuffer m_CBufferPS;
 
 	D3DShaderResourceView m_DiffuseMap;
 	D3DShaderResourceView m_NormalMap;
