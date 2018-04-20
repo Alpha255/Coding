@@ -46,18 +46,16 @@ struct ConstantBufferPS
 }; 
 
 Material g_MatFloor;
-Material g_MatBox;
 
 void AppGammaCorrection::Initialize()
 {
 	m_FloorMesh.CreateAsQuad(20.0f);
-	m_BoxMesh.CreateAsCube(1.0f);
 
 	m_VertexShader.Create("GammaCorrection.hlsl", "VSMain");
 	m_PixelShader.Create("GammaCorrection.hlsl", "PSMain");
 
 	m_DiffuseTexFloor.Create("wood.dds");
-	m_DiffuseTexBox.Create("WoodCrate01.dds");
+	m_DiffuseTexFloorGamma.Create("woodGamma.dds");
 
 	m_CBufferVS.CreateAsConstantBuffer(sizeof(ConstantBufferVS), D3DBuffer::eGpuReadCpuWrite, nullptr);
 	m_CBufferPS.CreateAsConstantBuffer(sizeof(ConstantBufferPS), D3DBuffer::eGpuReadCpuWrite, nullptr);
@@ -67,12 +65,6 @@ void AppGammaCorrection::Initialize()
 	g_MatFloor.Diffuse = Vec4(0.48f, 0.77f, 0.46f, 1.0f);
 	g_MatFloor.Specular = Vec4(0.2f, 0.2f, 0.2f, 16.0f);
 	g_MatFloor.Reflection = {};
-
-	g_MatBox.VertexColor = {};
-	g_MatBox.Ambient = Vec4(0.137f, 0.42f, 0.556f, 1.0f);
-	g_MatBox.Diffuse = Vec4(0.137f, 0.42f, 0.556f, 1.0f);
-	g_MatBox.Specular = Vec4(0.8f, 0.8f, 0.8f, 96.0f);
-	g_MatBox.Reflection = {};
 }
 
 void AppGammaCorrection::RenderScene()
@@ -101,25 +93,16 @@ void AppGammaCorrection::RenderScene()
 	D3DEngine::Instance().SetInputLayout(m_FloorMesh.VertexLayout);
 	D3DEngine::Instance().SetVertexBuffer(m_FloorMesh.VertexBuffer, sizeof(Geometry::Vertex), 0U, 0U);
 	D3DEngine::Instance().SetIndexBuffer(m_FloorMesh.IndexBuffer, eR32_UInt, 0U);
-	D3DEngine::Instance().SetShaderResourceView(m_DiffuseTexFloor, 0U, D3DShader::ePixelShader);
+	if (m_bGammaCorrection)
+	{
+		D3DEngine::Instance().SetShaderResourceView(m_DiffuseTexFloorGamma, 0U, D3DShader::ePixelShader);
+	}
+	else
+	{
+		D3DEngine::Instance().SetShaderResourceView(m_DiffuseTexFloor, 0U, D3DShader::ePixelShader);
+	}
 	D3DEngine::Instance().SetRasterizerState(D3DStaticState::SolidNoneCulling);
 	D3DEngine::Instance().DrawIndexed(m_FloorMesh.IndexCount, 0U, 0, eTriangleList);
-
-	/// Draw Box
-	Matrix translation = Matrix::Translation(0.0f, 0.0f, -0.51f);
-	Matrix world = m_Camera->GetWorldMatrix() * translation;
-	CBufferVS.World = Matrix::Transpose(world);
-	CBufferVS.WorldInverse = Matrix::InverseTranspose(world);
-	CBufferVS.WVP = Matrix::Transpose(world * m_Camera->GetViewMatrix() * m_Camera->GetProjMatrix());
-	m_CBufferVS.Update(&CBufferVS, sizeof(ConstantBufferVS));
-	CBufferPS.Mat = g_MatBox;
-	m_CBufferPS.Update(&CBufferPS, sizeof(ConstantBufferPS));
-	D3DEngine::Instance().SetInputLayout(m_BoxMesh.VertexLayout);
-	D3DEngine::Instance().SetVertexBuffer(m_BoxMesh.VertexBuffer, sizeof(Geometry::Vertex), 0U, 0U);
-	D3DEngine::Instance().SetIndexBuffer(m_BoxMesh.IndexBuffer, eR32_UInt, 0U);
-	D3DEngine::Instance().SetShaderResourceView(m_DiffuseTexBox, 0U, D3DShader::ePixelShader);
-	D3DEngine::Instance().SetRasterizerState(D3DStaticState::Solid);
-	D3DEngine::Instance().DrawIndexed(m_BoxMesh.IndexCount, 0U, 0, eTriangleList);
 
 	ImGui::Checkbox("GammaCorrection", &m_bGammaCorrection);
 }

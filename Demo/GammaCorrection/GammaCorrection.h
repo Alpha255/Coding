@@ -15,7 +15,6 @@ public:
 protected:
 private:
 	Geometry::Mesh m_FloorMesh;
-	Geometry::Mesh m_BoxMesh;
 
 	D3DVertexShader m_VertexShader;
 	D3DPixelShader m_PixelShader;
@@ -24,7 +23,7 @@ private:
 	D3DBuffer m_CBufferPS;
 
 	D3DShaderResourceView m_DiffuseTexFloor;
-	D3DShaderResourceView m_DiffuseTexBox;
+	D3DShaderResourceView m_DiffuseTexFloorGamma;
 
 	bool m_bGammaCorrection = false;
 };
