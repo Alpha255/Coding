@@ -4,6 +4,8 @@
 #include "D3DGeometry.h"
 #include "D3DView.h"
 
+///#define ColorMask
+
 class AppBox : public D3DApp
 {
 public:
@@ -24,7 +26,7 @@ protected:
 		eEffectCount
 	};
 private:
-#if 0 
+#if !defined (ColorMask)
 	Geometry::Mesh m_BoxMesh;
 
 	D3DVertexShader m_VertexShader;
@@ -32,8 +34,8 @@ private:
 	D3DBuffer m_CBufferVS;
 	D3DShaderResourceView m_DiffuseTex;
 
-	uint32_t m_Effect = eNone;
-#endif
+	int32_t m_Effect = eNone;
+#else
 	Geometry::Mesh m_Mesh;
 
 	D3DVertexShader m_VertexShader;
@@ -46,4 +48,5 @@ private:
 	D3DShaderResourceView m_DiffuseTexPoor;
 
 	int32_t m_TexIndex = 0U;
+#endif
 };

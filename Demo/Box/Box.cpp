@@ -13,7 +13,7 @@ struct ConstantBufferPS
 
 void AppBox::Initialize()
 {
-#if 0
+#if !defined (ColorMask)
 	m_BoxMesh.CreateAsCube(1.0f);
 	m_DiffuseTex.Create("WoodCrate01.dds");
 
@@ -26,7 +26,7 @@ void AppBox::Initialize()
 	m_PixelShader[eEdgeDetection].Create("Box.hlsl", "PSMain_EdgeDetection");
 
 	m_CBufferVS.CreateAsConstantBuffer(sizeof(Matrix), D3DBuffer::eGpuReadCpuWrite, nullptr);
-#endif
+#else
 	m_Mesh.CreateAsQuad(3.0f);
 	m_DiffuseTexMiddle.Create("CR_C_F_SlaveLabourer_Bottom.dds");
 	m_DiffuseTexPoor.Create("CR_C_M_Poor_Top.dds");
@@ -36,13 +36,14 @@ void AppBox::Initialize()
 
 	m_CBufferVS.CreateAsConstantBuffer(sizeof(Matrix), D3DBuffer::eGpuReadCpuWrite, nullptr);
 	m_CBufferPS.CreateAsConstantBuffer(sizeof(ConstantBufferPS), D3DBuffer::eGpuReadCpuWrite, nullptr);
+#endif
 
 	m_Camera->SetViewRadius(5.0f);
 }
 
 void AppBox::RenderScene()
 {
-#if 0
+#if !defined (ColorMask)
 	D3DEngine::Instance().SetInputLayout(m_BoxMesh.VertexLayout);
 	D3DEngine::Instance().SetVertexShader(m_VertexShader);
 	D3DEngine::Instance().SetPixelShader(m_PixelShader[m_Effect]);
@@ -60,8 +61,7 @@ void AppBox::RenderScene()
 	D3DEngine::Instance().DrawIndexed(m_BoxMesh.IndexCount, 0U, 0, eTriangleList);
 
 	ImGui::Combo("SpecialEffect", &m_Effect, "None\0Inversion\0Grayscale\0Sharpen\0Blur\0EdgeDetection");
-#endif
-
+#else
 	D3DEngine::Instance().SetInputLayout(m_Mesh.VertexLayout);
 	D3DEngine::Instance().SetVertexShader(m_VertexShader);
 	D3DEngine::Instance().SetPixelShader(m_PixelShader);
@@ -95,4 +95,5 @@ void AppBox::RenderScene()
 	ImGui::SliderFloat3("GreyMask80", (float *)&CBufferPS.ColorMaskGrey80, 0.0f, 1.0f);
 	ImGui::SliderFloat3("GreyMask150", (float *)&CBufferPS.ColorMaskGrey150, 0.0f, 1.0f);
 	ImGui::Combo("TextureType", &m_TexIndex, "Middle\0Poor");
+#endif
 }
