@@ -32,17 +32,18 @@ struct ConstantBufferPS
 		DirLight.Ambient = Vec4(0.2f, 0.2f, 0.2f, 1.0f);
 		DirLight.Diffuse = Vec4(0.7f, 0.7f, 0.6f, 1.0f);
 		DirLight.Specular = Vec4(0.8f, 0.8f, 0.7f, 1.0f);
-		DirLight.Direction = Vec4(0.7f, 0.0f, -0.7f, 0.0f);
+		DirLight.Direction = Vec4(0.0f, 0.0f, 1.0f, 0.0f);
 	}
 };
 
 void AppParallaxMapping::Initialize()
 {
-	m_CylinderMesh.CreateAsCylinder(5.0f, 5.0f, 0.05f, 30U, 5U);
+	m_QuadMesh.CreateAsQuad(8.0f);
 
-	m_DiffuseMap.Create("wall_diffuse.dds");
-	m_NormalMap.Create("wall_normal.dds");
-	m_HeightMap.Create("wall_height.dds");
+	m_DiffuseMap.Create("StoneFloor_Diffuse.dds");
+	m_NormalMap.Create("StoneFloor_Normal.dds");
+	m_HeightMap.Create("StoneFloor_Heightmap.dds");
+	m_SpecularMap.Create("StoneFloor_Specular.dds");
 
 	m_CBufferVS.CreateAsConstantBuffer(sizeof(ConstantBufferVS), D3DBuffer::eGpuReadCpuWrite, nullptr);
 	m_CBufferPS.CreateAsConstantBuffer(sizeof(ConstantBufferPS), D3DBuffer::eGpuReadCpuWrite, nullptr);
@@ -56,15 +57,15 @@ void AppParallaxMapping::RenderScene()
 	D3DEngine::Instance().SetVertexShader(m_VertexShader[m_MappingType]);
 	D3DEngine::Instance().SetPixelShader(m_PixelShader[m_MappingType]);
 
-	D3DEngine::Instance().SetInputLayout(m_CylinderMesh.VertexLayout);
-	D3DEngine::Instance().SetVertexBuffer(m_CylinderMesh.VertexBuffer, sizeof(Geometry::Vertex), 0U, 0U);
-	D3DEngine::Instance().SetIndexBuffer(m_CylinderMesh.IndexBuffer, eR32_UInt, 0U);
+	D3DEngine::Instance().SetInputLayout(m_QuadMesh.VertexLayout);
+	D3DEngine::Instance().SetVertexBuffer(m_QuadMesh.VertexBuffer, sizeof(Geometry::Vertex), 0U, 0U);
+	D3DEngine::Instance().SetIndexBuffer(m_QuadMesh.IndexBuffer, eR32_UInt, 0U);
 
 	ConstantBufferVS CBufferVS;
 	CBufferVS.World = Matrix::Transpose(m_Camera->GetWorldMatrix());
 	CBufferVS.WorldInverse = Matrix::InverseTranspose(m_Camera->GetWorldMatrix());
 	CBufferVS.WVP = Matrix::Transpose(m_Camera->GetWVPMatrix());
-	CBufferVS.UVTransform = Matrix::Transpose(Matrix::Scaling(0.01f));
+	CBufferVS.UVTransform = Matrix::Transpose(Matrix::Scaling(1.0f));
 	m_CBufferVS.Update(&CBufferVS, sizeof(ConstantBufferVS));
 	D3DEngine::Instance().SetConstantBuffer(m_CBufferVS, 0U, D3DShader::eVertexShader);
 
@@ -76,13 +77,10 @@ void AppParallaxMapping::RenderScene()
 	D3DEngine::Instance().SetSamplerState(D3DStaticState::LinearSampler, 0U, D3DShader::ePixelShader);
 	D3DEngine::Instance().SetShaderResourceView(m_DiffuseMap, 0U, D3DShader::ePixelShader);
 	D3DEngine::Instance().SetShaderResourceView(m_NormalMap, 1U, D3DShader::ePixelShader);
+	D3DEngine::Instance().SetShaderResourceView(m_SpecularMap, 2U, D3DShader::ePixelShader);
 
-	if (m_bWireframe)
-	{
-		D3DEngine::Instance().SetRasterizerState(D3DStaticState::Wireframe);
-	}
-	D3DEngine::Instance().DrawIndexed(m_CylinderMesh.IndexCount, 0U, 0, eTriangleList);
+	D3DEngine::Instance().SetRasterizerState(D3DStaticState::SolidNoneCulling);
+	D3DEngine::Instance().DrawIndexed(m_QuadMesh.IndexCount, 0U, 0, eTriangleList);
 
-	ImGui::Checkbox("Wireframe", &m_bWireframe);
 	ImGui::SliderFloat3("Position", (float*)&CBufferPS.DirLight.Direction, -10.0f, 10.0f);
 }

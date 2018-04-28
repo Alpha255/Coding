@@ -26,6 +26,7 @@ struct VSInput
 
 Texture2D DiffuseMap;
 Texture2D NormalMap;
+Texture2D SpecularMap;
 SamplerState LinearSampler;
 
 struct VSOutput
@@ -57,8 +58,9 @@ float4 PSMain(VSOutput psInput) : SV_Target
     clip(texClr.a - 0.1f);
 
     float4 ambient, diffuse, specular;
-
-	ComputeDirectionalLight(Mat, DirLight, psInput.NormalW, toEye, ambient, diffuse, specular);
+	Material matCopy = Mat;
+	matCopy.Specular = SpecularMap.Sample(LinearSampler, psInput.UV);
+	ComputeDirectionalLight(matCopy, DirLight, psInput.NormalW, toEye, ambient, diffuse, specular);
 
     float4 litClr = texClr * (ambient + diffuse + specular);
 	litClr.a = Mat.Diffuse.a * texClr.a;

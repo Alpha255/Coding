@@ -22,7 +22,7 @@ protected:
 	};
 
 private:
-	Geometry::Mesh m_CylinderMesh;
+	Geometry::Mesh m_QuadMesh;
 
 	D3DVertexShader m_VertexShader[eMappingTypeCount];
 	D3DPixelShader m_PixelShader[eMappingTypeCount];
@@ -33,7 +33,7 @@ private:
 	D3DShaderResourceView m_DiffuseMap;
 	D3DShaderResourceView m_NormalMap;
 	D3DShaderResourceView m_HeightMap;
+	D3DShaderResourceView m_SpecularMap;
 
 	uint32_t m_MappingType = eNormalMapping;
-	bool m_bWireframe = false;
 };
