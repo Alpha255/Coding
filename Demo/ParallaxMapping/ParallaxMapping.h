@@ -15,6 +15,7 @@ public:
 protected:
 	enum eMappingType
 	{
+		eNone,
 		eNormalMapping,
 		eParallaxOcclusionMapping,
 		eDisplacementMapping,
@@ -35,5 +36,5 @@ private:
 	D3DShaderResourceView m_HeightMap;
 	D3DShaderResourceView m_SpecularMap;
 
-	uint32_t m_MappingType = eNormalMapping;
+	int32_t m_MappingType = eNone;
 };

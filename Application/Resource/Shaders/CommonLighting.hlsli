@@ -98,7 +98,7 @@ void ComputePointLight(in Material i_Mat,
 
 /// http://developer.download.nvidia.com/CgTutorial/cg_tutorial_chapter08.html
 /// http://blog.csdn.net/candycat1992/article/details/41605257
-float3 NormalSampleToWorldSpace(float3 normalMap, float3 unitNormalW, float3 tangentW)
+float3 UnpackNormal(float3 normalMap, float3 unitNormalW, float3 tangentW)
 {
 	/// Uncompress each component from [0,1] to [-1,1].
     float3 normalT = 2.0f * normalMap - 1.0f;
