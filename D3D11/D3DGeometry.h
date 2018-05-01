@@ -51,6 +51,11 @@ public:
 
 	void DrawNormal(const Camera &cam);
 
+	inline bool IsCreated() const
+	{
+		return m_Created;
+	}
+
 	D3DInputLayout VertexLayout;
 	D3DBuffer VertexBuffer;
 	D3DBuffer IndexBuffer;

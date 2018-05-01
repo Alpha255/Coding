@@ -5,6 +5,7 @@
 #include "D3DShader.h"
 #include "D3DBuffer.h"
 #include "D3DState.h"
+#include "D3DGeometry.h"
 
 class D3DEngine : public NoneCopyable
 {
@@ -73,6 +74,15 @@ public:
 	inline void SetFullScreen(bool bFullScreen)
 	{
 		m_SwapChain.SetFullScreen(bFullScreen);
+	}
+
+	inline void BindMesh(const Geometry::Mesh &mesh)
+	{
+		assert(m_Inited && mesh.IsCreated());
+
+		SetInputLayout(mesh.VertexLayout);
+		SetVertexBuffer(mesh.VertexBuffer, sizeof(Geometry::Vertex), 0U, 0U);
+		SetIndexBuffer(mesh.IndexBuffer, eR32_UInt, 0U);
 	}
 
 	void Initialize(HWND hWnd, uint32_t width, uint32_t height, bool bWindowed);

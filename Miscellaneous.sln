@@ -45,6 +45,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{7E32
 		Application\Resource\Shaders\Lighting.hlsl = Application\Resource\Shaders\Lighting.hlsl
 		Application\Resource\Shaders\Mesh.hlsl = Application\Resource\Shaders\Mesh.hlsl
 		Application\Resource\Shaders\ParallaxMapping.hlsl = Application\Resource\Shaders\ParallaxMapping.hlsl
+		Application\Resource\Shaders\Shadow.hlsl = Application\Resource\Shaders\Shadow.hlsl
 		Application\Resource\Shaders\SkyBox.hlsl = Application\Resource\Shaders\SkyBox.hlsl
 	EndProjectSection
 EndProject
@@ -61,6 +62,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GammaCorrection", "Miscellaneous\GammaCorrection.vcxproj", "{0519B3C8-AE1F-45DF-AEB2-899A9B5CE233}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WIP", "WIP", "{1D4CB345-BCD9-47E1-B87F-3F6872E9E7D0}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shadow", "Miscellaneous\Shadow.vcxproj", "{64312928-98C2-46BE-8CB2-63CD022B96A9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -198,6 +201,14 @@ Global
 		{0519B3C8-AE1F-45DF-AEB2-899A9B5CE233}.Release|x64.Build.0 = Release|x64
 		{0519B3C8-AE1F-45DF-AEB2-899A9B5CE233}.Release|x86.ActiveCfg = Release|Win32
 		{0519B3C8-AE1F-45DF-AEB2-899A9B5CE233}.Release|x86.Build.0 = Release|Win32
+		{64312928-98C2-46BE-8CB2-63CD022B96A9}.Debug|x64.ActiveCfg = Debug|x64
+		{64312928-98C2-46BE-8CB2-63CD022B96A9}.Debug|x64.Build.0 = Debug|x64
+		{64312928-98C2-46BE-8CB2-63CD022B96A9}.Debug|x86.ActiveCfg = Debug|Win32
+		{64312928-98C2-46BE-8CB2-63CD022B96A9}.Debug|x86.Build.0 = Debug|Win32
+		{64312928-98C2-46BE-8CB2-63CD022B96A9}.Release|x64.ActiveCfg = Release|x64
+		{64312928-98C2-46BE-8CB2-63CD022B96A9}.Release|x64.Build.0 = Release|x64
+		{64312928-98C2-46BE-8CB2-63CD022B96A9}.Release|x86.ActiveCfg = Release|Win32
+		{64312928-98C2-46BE-8CB2-63CD022B96A9}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -219,5 +230,6 @@ Global
 		{1AEE8BA0-177F-4E0D-9983-EB385AFAEECC} = {8A14800A-8442-4CBA-AECB-4E3D586913F7}
 		{414D026D-1325-469F-B0DA-FE59BA1A4407} = {1D4CB345-BCD9-47E1-B87F-3F6872E9E7D0}
 		{0519B3C8-AE1F-45DF-AEB2-899A9B5CE233} = {8A14800A-8442-4CBA-AECB-4E3D586913F7}
+		{64312928-98C2-46BE-8CB2-63CD022B96A9} = {1D4CB345-BCD9-47E1-B87F-3F6872E9E7D0}
 	EndGlobalSection
 EndGlobal
