@@ -48,6 +48,7 @@ public:
 	void CreateAsCylinder(float bottomRadius, float topRadius, float height, uint32_t slice, uint32_t stack);
 	void CreateAsGrid(float width, float depth, uint32_t m, uint32_t n);
 	void CreateAsQuad(float length);
+	void CreateAsQuad(float left, float top, float width, float height);
 
 	void DrawNormal(const Camera &cam);
 

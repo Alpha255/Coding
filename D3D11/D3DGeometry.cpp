@@ -615,6 +615,49 @@ void Mesh::CreateAsQuad(float length)
 	CreateRenderResource();
 }
 
+void Mesh::CreateAsQuad(float left, float top, float width, float height)
+{
+	assert(!m_Created);
+
+	m_Vertices.resize(4U);
+	m_Indices.resize(6U);
+
+	/// Position coordinates specified in NDC space.
+	m_Vertices[0] = Vertex(
+		left, top - height, 0.0f,
+		0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f,
+		0.0f, 1.0f);
+
+	m_Vertices[1] = Vertex(
+		left, top, 0.0f,
+		0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f);
+
+	m_Vertices[2] = Vertex(
+		left + width, top, 0.0f,
+		0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f);
+
+	m_Vertices[3] = Vertex(
+		left + width, top - height, 0.0f,
+		0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f,
+		1.0f, 1.0f);
+
+	m_Indices[0] = 0;
+	m_Indices[1] = 1;
+	m_Indices[2] = 2;
+
+	m_Indices[3] = 0;
+	m_Indices[4] = 2;
+	m_Indices[5] = 3;
+
+	CreateRenderResource();
+}
+
 void ObjMesh::Create(const char *pFileName)
 {
 	assert(pFileName);
