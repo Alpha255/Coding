@@ -89,7 +89,7 @@ protected:
 
 	void CreateVertexData(
 		const std::vector<Vec3> &srcVertices,
-		const std::vector<ObjIndex> &objIndices,
+		const std::vector<std::vector<ObjIndex>> &indexCollector,
 		const std::vector<Vec3> &normals,
 		const std::vector<Vec2> &uvs);
 };

@@ -91,15 +91,15 @@ void Mesh::SubDivide()
 		m_Indices.push_back(i * 6 + 0);
 		m_Indices.push_back(i * 6 + 3);
 		m_Indices.push_back(i * 6 + 5);
-		
+
 		m_Indices.push_back(i * 6 + 3);
 		m_Indices.push_back(i * 6 + 4);
 		m_Indices.push_back(i * 6 + 5);
-		
+
 		m_Indices.push_back(i * 6 + 5);
 		m_Indices.push_back(i * 6 + 4);
 		m_Indices.push_back(i * 6 + 2);
-		
+
 		m_Indices.push_back(i * 6 + 3);
 		m_Indices.push_back(i * 6 + 1);
 		m_Indices.push_back(i * 6 + 4);
@@ -292,7 +292,7 @@ void Mesh::CreateAsSphere(float radius, uint32_t slice, uint32_t stack)
 			m_Indices.push_back(baseIndex + i * ringVertexCount + j);
 			m_Indices.push_back(baseIndex + i * ringVertexCount + j + 1);
 			m_Indices.push_back(baseIndex + (i + 1) * ringVertexCount + j);
-			
+
 			m_Indices.push_back(baseIndex + (i + 1) * ringVertexCount + j);
 			m_Indices.push_back(baseIndex + i * ringVertexCount + j + 1);
 			m_Indices.push_back(baseIndex + (i + 1) * ringVertexCount + j + 1);
@@ -503,7 +503,7 @@ void Mesh::CreateAsCylinder(float bottomRadius, float topRadius, float height, u
 			m_Indices.push_back(i * ringVertexCount + j);
 			m_Indices.push_back((i + 1) * ringVertexCount + j);
 			m_Indices.push_back((i + 1) * ringVertexCount + j + 1);
-			
+
 			m_Indices.push_back(i * ringVertexCount + j);
 			m_Indices.push_back((i + 1) * ringVertexCount + j + 1);
 			m_Indices.push_back(i * ringVertexCount + j + 1);
@@ -544,10 +544,10 @@ void Mesh::CreateAsGrid(float width, float depth, uint32_t m, uint32_t n)
 			m_Vertices[i * n + j].Position = Vec3(x, 0.0f, z);
 			m_Vertices[i * n + j].Normal = Vec3(0.0f, 1.0f, 0.0f);
 			m_Vertices[i * n + j].Tangent = Vec3(1.0f, 0.0f, 0.0f);
-			
+
 			m_Vertices[i * n + j].UV.x = j * du;
 			m_Vertices[i * n + j].UV.y = i * dv;
-		}		 
+		}
 	}
 
 	/// Create the indices
@@ -561,7 +561,7 @@ void Mesh::CreateAsGrid(float width, float depth, uint32_t m, uint32_t n)
 			m_Indices[k] = i * n + j;
 			m_Indices[k + 1] = i * n + j + 1;
 			m_Indices[k + 2] = (i + 1) * n + j;
-			
+
 			m_Indices[k + 3] = (i + 1) * n + j;
 			m_Indices[k + 4] = i * n + j + 1;
 			m_Indices[k + 5] = (i + 1) * n + j + 1;
@@ -610,7 +610,7 @@ void Mesh::CreateAsQuad(float length)
 	m_Indices[0] = 0;
 	m_Indices[1] = 1;
 	m_Indices[2] = 2;
-	
+
 	m_Indices[3] = 0;
 	m_Indices[4] = 2;
 	m_Indices[5] = 3;
@@ -674,7 +674,7 @@ void ObjMesh::Create(const char *pFileName)
 	///{
 	///	assert(!"Failed to load file mask!!!");
 	///}
-	
+
 	///CMeshO cm;
 	///int result = vcg::tri::io::ImporterOBJ<CMeshO>::Open(cm, meshFilePath.c_str(), oi);
 	///if (result != vcg::tri::io::ImporterOBJ<CMeshO>::E_NOERROR)
@@ -690,6 +690,7 @@ void ObjMesh::Create(const char *pFileName)
 		char line[MAX_PATH] = { 0 };
 		std::vector<Vec3> vertices;
 		std::vector<ObjIndex> indices;
+		std::vector<std::vector<ObjIndex>> indexColloctor;
 		std::vector<Vec3> normals;
 		std::vector<Vec2> uvs;
 
@@ -725,19 +726,19 @@ void ObjMesh::Create(const char *pFileName)
 				/// f 1/1    i/t
 				/// f 1//1   i/n
 				/// f 1/1/1  i/t/n
-				ObjIndex index[4];
+				ObjIndex index;
 				const char *pStrBeg = &line[1];
-				
+
 				std::stringstream ss(pStrBeg);
-				uint32_t m = 0U;
+				indices.clear();
 				while (!ss.eof())
 				{
-					ss >> index[m].i;
+					ss >> index.i;
 					const char *pStr = pStrBeg + ss.tellg();
 
 					if (' ' == *pStr)
 					{
-						++m;
+						indices.push_back(index);
 						continue;
 					}
 					else if ('/' == *pStr)
@@ -747,21 +748,22 @@ void ObjMesh::Create(const char *pFileName)
 						if ('/' == *pStr)
 						{
 							ss.get();
-							ss >> index[m].n;
+							ss >> index.n;
 						}
 						else
 						{
-							ss >> index[m].t;
+							ss >> index.t;
 							pStr = pStrBeg + ss.tellg();
 							if (' ' == *pStr)
 							{
-								++m;
+								indices.push_back(index);
 								continue;
 							}
 							else if ('/' == *pStr)
 							{
 								ss.get();
-								ss >> index[m].n;
+								ss >> index.n;
+								indices.push_back(index);
 							}
 							else
 							{
@@ -773,17 +775,15 @@ void ObjMesh::Create(const char *pFileName)
 					{
 						assert(!"Invalid obj file!!");
 					}
-
-					++m;
 				}
 
-				indices.insert(indices.end(), &index[0], &index[0] + 4);
+				indexColloctor.push_back(indices);
 			}
 		}
 
 		meshFile.close();
 
-		CreateVertexData(vertices, indices, normals, uvs);
+		CreateVertexData(vertices, indexColloctor, normals, uvs);
 
 		CreateRenderResource();
 	}
@@ -794,69 +794,99 @@ void ObjMesh::Create(const char *pFileName)
 }
 
 void ObjMesh::CreateVertexData(
-	const std::vector<Vec3> &srcVertices, 
-	const std::vector<ObjIndex> &objIndices, 
-	const std::vector<Vec3> &normals, 
+	const std::vector<Vec3> &srcVertices,
+	const std::vector<std::vector<ObjIndex>> &indexCollector,
+	const std::vector<Vec3> &normals,
 	const std::vector<Vec2> &uvs)
 {
-	for (uint32_t i = 0U; i < objIndices.size(); i += 4)
+	/*
+	*  A face polygon composed of more than three vertices is triangulated
+	*  according to the following schema:
+	*                      v5
+	*                     /  \
+	*                    /    \
+	*                   /      \
+	*                  v1------v4
+	*                  |\      /
+	*                  | \    /
+	*                  |  \  /
+	*                 v2---v3
+	*
+	*  As shown above, the 5 vertices polygon (v1,v2,v3,v4,v5)
+	*  has been split into the triangles (v1,v2,v3), (v1,v3,v4) e (v1,v4,v5).
+	*  This way vertex v1 becomes the common vertex of all newly generated
+	*  triangles, and this may lead to the creation of very thin triangles.
+	*/
+	for (uint32_t i = 0U; i < indexCollector.size(); ++i)
 	{
-		/*
-		*  A face polygon composed of more than three vertices is triangulated
-		*  according to the following schema:
-		*                      v5
-		*                     /  \
-		*                    /    \
-		*                   /      \
-		*                  v1------v4
-		*                  |\      /
-		*                  | \    /
-		*                  |  \  /
-		*                 v2---v3
-		*
-		*  As shown above, the 5 vertices polygon (v1,v2,v3,v4,v5)
-		*  has been split into the triangles (v1,v2,v3), (v1,v3,v4) e (v1,v4,v5).
-		*  This way vertex v1 becomes the common vertex of all newly generated
-		*  triangles, and this may lead to the creation of very thin triangles.
-		*/
-		/// v0 v1 v2
-		for (uint32_t j = i; j < i + 3U; ++j)
-		{
-			const ObjIndex &face = objIndices.at(j);
+		assert(indexCollector[i].size() >= 3U);
 
+		for (uint32_t j = 0U; j < indexCollector[i].size(); ++j)
+		{
+			const ObjIndex &face = indexCollector[i][j];
 			assert(face.i >= 0 && face.n >= 0U && face.t >= 0U);
 
-			m_Indices.push_back((uint32_t)m_Vertices.size());
+			if (j < 3U)
+			{
+				/// v0, v1, v2
+				m_Indices.push_back((uint32_t)m_Vertices.size());
+			}
+			else
+			{
+				uint32_t vertexCount = (uint32_t)m_Vertices.size();
+
+				m_Indices.push_back(vertexCount - j);
+				m_Indices.push_back(vertexCount - 1U);
+				m_Indices.push_back(vertexCount);
+			}
 
 			Vertex v;
 			v.Position = srcVertices.at(face.i - 1U);
-			///v.Position.x *= -1.0f;
 			v.Normal = face.n > 0U ? normals.at(face.n - 1U) : Vec3(0.0f, 0.0f, 0.0f);
 			v.UV = face.t > 0 ? uvs.at(face.t - 1U) : Vec2(0.0f, 0.0f);
 			m_Vertices.push_back(v);
-		}
-
-		/// v3
-		if (objIndices.at(i + 3U).i > 0U)  /// Quad ?
-		{
-			const ObjIndex &face = objIndices.at(i + 3U);
-
-			assert(face.i >= 0 && face.n >= 0U && face.t >= 0U);
-
-			Vertex v;
-			v.Position = srcVertices.at(face.i - 1U);
-			///v.Position.x *= -1.0f;
-			v.Normal = face.n > 0U ? normals.at(face.n - 1U) : Vec3(0.0f, 0.0f, 0.0f);
-			v.UV = face.t > 0 ? uvs.at(face.t - 1U) : Vec2(0.0f, 0.0f);
-			m_Vertices.push_back(v);
-
-			uint32_t vertexCount = (uint32_t)m_Vertices.size();
-
-			m_Indices.push_back(vertexCount - 4U);
-			m_Indices.push_back(vertexCount - 2U);
-			m_Indices.push_back(vertexCount - 1U);
 		}
 	}
+	//for (uint32_t i = 0U; i < objIndices.size(); i += 4)
+	//{
+	//	/// v0 v1 v2
+	//	for (uint32_t j = i; j < i + 3U; ++j)
+	//	{
+	//		const ObjIndex &face = objIndices.at(j);
+
+	//		assert(face.i >= 0 && face.n >= 0U && face.t >= 0U);
+
+	//		m_Indices.push_back((uint32_t)m_Vertices.size());
+
+	//		Vertex v;
+	//		v.Position = srcVertices.at(face.i - 1U);
+	//		///v.Position.x *= -1.0f;
+	//		v.Normal = face.n > 0U ? normals.at(face.n - 1U) : Vec3(0.0f, 0.0f, 0.0f);
+	//		v.UV = face.t > 0 ? uvs.at(face.t - 1U) : Vec2(0.0f, 0.0f);
+	//		m_Vertices.push_back(v);
+	//	}
+
+	//	/// v3
+	//	if (objIndices.at(i + 3U).i > 0U)  /// Quad ?
+	//	{
+	//		const ObjIndex &face = objIndices.at(i + 3U);
+
+	//		assert(face.i >= 0 && face.n >= 0U && face.t >= 0U);
+
+	//		Vertex v;
+	//		v.Position = srcVertices.at(face.i - 1U);
+	//		///v.Position.x *= -1.0f;
+	//		v.Normal = face.n > 0U ? normals.at(face.n - 1U) : Vec3(0.0f, 0.0f, 0.0f);
+	//		v.UV = face.t > 0 ? uvs.at(face.t - 1U) : Vec2(0.0f, 0.0f);
+	//		m_Vertices.push_back(v);
+
+	//		uint32_t vertexCount = (uint32_t)m_Vertices.size();
+
+	//		m_Indices.push_back(vertexCount - 4U);
+	//		m_Indices.push_back(vertexCount - 2U);
+	//		m_Indices.push_back(vertexCount - 1U);
+	//	}
+	//}
 }
 
 NamespaceEnd(Geometry)
