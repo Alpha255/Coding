@@ -5,10 +5,10 @@
 
 void AppLightingScene::Initialize()
 {
-	m_HouseTexDiffuse.Create("housediffuse.dds");
+	m_HouseTexDiffuse.Create("Medieval_House_Diff.dds");
 	m_HouseTexNormal.Create("Medieval_House_Nor.dds");
 	m_HouseTexSpecular.Create("Medieval_House_Spec.dds");
-	m_House.Create("house_01.obj");
+	m_House.Create("Medieval_House.obj");
 
 	m_VertexShader.Create("LightingScene.hlsl", "VSMain");
 	m_PixelShader.Create("LightingScene.hlsl", "PSMain");
