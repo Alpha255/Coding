@@ -7,3 +7,6 @@
 [submodule "ThirdParty/google"]
 	path = ThirdParty/google
 	url = https://github.com/google/googletest.git
+[submodule "ThirdParty/vcglib"]
+	path = ThirdParty/vcglib
+	url = https://github.com/cnr-isti-vclab/vcglib.git
