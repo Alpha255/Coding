@@ -79,11 +79,12 @@ struct ObjMesh : public Mesh
 public:
 	void Create(const char *pFileName);
 protected:
+	///void TokenizeNextLine(std::ifstream &fs, std::vector<std::string> &tokens);
 	struct ObjIndex
 	{
-		uint32_t i = 0U;
-		uint32_t t = 0U;
-		uint32_t n = 0U;
+		int32_t i = 0U;
+		int32_t t = 0U;
+		int32_t n = 0U;
 	};
 
 	void CreateVertexData(

@@ -6,6 +6,9 @@
 #include <fstream>
 #include <sstream>
 
+///#include <vcglib/apps/sample/trimesh_QT_shared/mesh.h>
+///#include <vcglib/wrap/io_trimesh/import_obj.h>
+
 NamespaceBegin(Geometry)
 
 void Mesh::CreateRenderResource()
@@ -664,6 +667,23 @@ void ObjMesh::Create(const char *pFileName)
 
 	std::string meshFilePath = System::ResourceFilePath(pFileName, System::eObjMesh);
 
+	///vcg::tri::io::ImporterOBJ<CMeshO>::Info oi;
+	///oi.cb = nullptr;
+	///bool maskLoaded = vcg::tri::io::ImporterOBJ<CMeshO>::LoadMask(meshFilePath.c_str(), oi);
+	///if (!maskLoaded)
+	///{
+	///	assert(!"Failed to load file mask!!!");
+	///}
+	
+	///CMeshO cm;
+	///int result = vcg::tri::io::ImporterOBJ<CMeshO>::Open(cm, meshFilePath.c_str(), oi);
+	///if (result != vcg::tri::io::ImporterOBJ<CMeshO>::E_NOERROR)
+	///{
+	///	const char *pErrMsg = vcg::tri::io::ImporterOBJ<CMeshO>::ErrorMsg(result);
+	///	OutputDebugStringA(pErrMsg);
+	///	assert(!"Failed to load obj file!!!");
+	///}
+
 	std::ifstream meshFile(meshFilePath.c_str(), std::ios::in);
 	if (meshFile.good())
 	{
@@ -697,7 +717,7 @@ void ObjMesh::Create(const char *pFileName)
 				meshFile >> vt.x >> vt.y;
 				uvs.push_back(vt);
 			}
-			else if (0 == strcmp(line, "f"))  		/// Read indices
+			else if (0 == strcmp(line, "f"))  		/// Read faces
 			{
 				meshFile.getline(line, MAX_PATH);
 
@@ -781,47 +801,56 @@ void ObjMesh::CreateVertexData(
 {
 	for (size_t i = 0U; i < objIndices.size(); i += 4)
 	{
+		/*
+		*  A face polygon composed of more than three vertices is triangulated
+		*  according to the following schema:
+		*                      v5
+		*                     /  \
+		*                    /    \
+		*                   /      \
+		*                  v1------v4
+		*                  |\      /
+		*                  | \    /
+		*                  |  \  /
+		*                 v2---v3
+		*
+		*  As shown above, the 5 vertices polygon (v1,v2,v3,v4,v5)
+		*  has been split into the triangles (v1,v2,v3), (v1,v3,v4) e (v1,v4,v5).
+		*  This way vertex v1 becomes the common vertex of all newly generated
+		*  triangles, and this may lead to the creation of very thin triangles.
+		*/
+		/// v0 v1 v2
 		for (size_t j = i; j < i + 3U; ++j)
 		{
 			const ObjIndex &face = objIndices.at(j);
 
+			assert(face.i >= 0 && face.n >= 0U && face.t >= 0U);
+
 			Vertex v;
 			v.Position = srcVertices.at(face.i - 1U);
 			v.Normal = face.n > 0U ? normals.at(face.n - 1U) : Vec3(0.0f, 0.0f, 0.0f);
-			v.UV = face.t > 0U ? uvs.at(face.t - 1U) : Vec2(0.0f, 0.0f);
-
+			v.UV = face.t > 0 ? uvs.at(face.t - 1U) : Vec2(0.0f, 0.0f);
 			m_Vertices.push_back(v);
+
 			m_Indices.push_back(face.i - 1U);
 		}
 
+		/// v3
 		if (objIndices.at(i + 3U).i > 0U)  /// Quad ?
 		{
+			const ObjIndex &face = objIndices.at(i + 3U);
+
+			assert(face.i >= 0 && face.n >= 0U && face.t >= 0U);
+
 			Vertex v;
-
-			size_t i0 = i + 2U;
-			const ObjIndex &face0 = objIndices.at(i0);
-			v.Position = srcVertices.at(face0.i - 1U);
-			v.Normal = face0.n > 0U ? normals.at(face0.n - 1U) : Vec3(0.0f, 0.0f, 0.0f);
-			v.UV = face0.t > 0U ? uvs.at(face0.t - 1U) : Vec2(0.0f, 0.0f);
+			v.Position = srcVertices.at(face.i - 1U);
+			v.Normal = face.n > 0U ? normals.at(face.n - 1U) : Vec3(0.0f, 0.0f, 0.0f);
+			v.UV = face.t > 0 ? uvs.at(face.t - 1U) : Vec2(0.0f, 0.0f);
 			m_Vertices.push_back(v);
-			m_Indices.push_back(face0.i - 1U);
 
-			size_t i1 = i + 3U;
-			const ObjIndex &face1 = objIndices.at(i1);
-			v.Position = srcVertices.at(face1.i - 1U);
-			v.Normal = face1.n > 0U ? normals.at(face1.n - 1U) : Vec3(0.0f, 0.0f, 0.0f);
-			v.UV = face1.t > 0U ? uvs.at(face1.t - 1U) : Vec2(0.0f, 0.0f);
-			m_Vertices.push_back(v);
-			m_Indices.push_back(face1.i - 1U);
-
-			size_t i2 = i;
-			const ObjIndex &face2 = objIndices.at(i2);
-			v.Position = srcVertices.at(face2.i - 1U);
-			v.Normal = face2.n > 0U ? normals.at(face2.n - 1U) : Vec3(0.0f, 0.0f, 0.0f);
-			v.UV = face2.t > 0U ? uvs.at(face2.t - 1U) : Vec2(0.0f, 0.0f);
-
-			m_Vertices.push_back(v);
-			m_Indices.push_back(face2.i - 1U);
+			m_Indices.push_back(objIndices.at(i).i - 1U);
+			m_Indices.push_back(objIndices.at(i + 2).i - 1U);
+			m_Indices.push_back(objIndices.at(i + 3).i - 1U);
 		}
 	}
 }

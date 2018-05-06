@@ -8,7 +8,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)System\;$(SolutionDir)D3D11\;$(SolutionDir)ThirdParty\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)System\;$(SolutionDir)D3D11\;$(SolutionDir)ThirdParty\;$(SolutionDir)ThirdParty\vcglib\</AdditionalIncludeDirectories>
       <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Link>
