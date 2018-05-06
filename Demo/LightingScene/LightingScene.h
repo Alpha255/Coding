@@ -25,4 +25,6 @@ private:
 
 	D3DBuffer m_CBufferVS;
 	D3DBuffer m_CBufferPS;
+
+	bool m_Wireframe = false;
 };

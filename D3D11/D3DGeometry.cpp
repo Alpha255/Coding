@@ -799,7 +799,7 @@ void ObjMesh::CreateVertexData(
 	const std::vector<Vec3> &normals, 
 	const std::vector<Vec2> &uvs)
 {
-	for (size_t i = 0U; i < objIndices.size(); i += 4)
+	for (uint32_t i = 0U; i < objIndices.size(); i += 4)
 	{
 		/*
 		*  A face polygon composed of more than three vertices is triangulated
@@ -820,19 +820,20 @@ void ObjMesh::CreateVertexData(
 		*  triangles, and this may lead to the creation of very thin triangles.
 		*/
 		/// v0 v1 v2
-		for (size_t j = i; j < i + 3U; ++j)
+		for (uint32_t j = i; j < i + 3U; ++j)
 		{
 			const ObjIndex &face = objIndices.at(j);
 
 			assert(face.i >= 0 && face.n >= 0U && face.t >= 0U);
 
+			m_Indices.push_back((uint32_t)m_Vertices.size());
+
 			Vertex v;
 			v.Position = srcVertices.at(face.i - 1U);
+			///v.Position.x *= -1.0f;
 			v.Normal = face.n > 0U ? normals.at(face.n - 1U) : Vec3(0.0f, 0.0f, 0.0f);
 			v.UV = face.t > 0 ? uvs.at(face.t - 1U) : Vec2(0.0f, 0.0f);
 			m_Vertices.push_back(v);
-
-			m_Indices.push_back(face.i - 1U);
 		}
 
 		/// v3
@@ -844,13 +845,16 @@ void ObjMesh::CreateVertexData(
 
 			Vertex v;
 			v.Position = srcVertices.at(face.i - 1U);
+			///v.Position.x *= -1.0f;
 			v.Normal = face.n > 0U ? normals.at(face.n - 1U) : Vec3(0.0f, 0.0f, 0.0f);
 			v.UV = face.t > 0 ? uvs.at(face.t - 1U) : Vec2(0.0f, 0.0f);
 			m_Vertices.push_back(v);
 
-			m_Indices.push_back(objIndices.at(i).i - 1U);
-			m_Indices.push_back(objIndices.at(i + 2).i - 1U);
-			m_Indices.push_back(objIndices.at(i + 3).i - 1U);
+			uint32_t vertexCount = (uint32_t)m_Vertices.size();
+
+			m_Indices.push_back(vertexCount - 4U);
+			m_Indices.push_back(vertexCount - 2U);
+			m_Indices.push_back(vertexCount - 1U);
 		}
 	}
 }

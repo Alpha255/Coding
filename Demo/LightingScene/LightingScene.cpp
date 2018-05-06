@@ -1,6 +1,7 @@
 #include "LightingScene.h"
 #include "D3DEngine.h"
 #include "Camera.h"
+#include "D3DGUI_imGui.h"
 
 void AppLightingScene::Initialize()
 {
@@ -33,5 +34,12 @@ void AppLightingScene::RenderScene()
 	D3DEngine::Instance().SetShaderResourceView(m_HouseTexSpecular, 2U, D3DShader::ePixelShader);
 	D3DEngine::Instance().SetSamplerState(D3DStaticState::LinearSampler, 0U, D3DShader::ePixelShader);
 
+	if (m_Wireframe)
+	{
+		D3DEngine::Instance().SetRasterizerState(D3DStaticState::Wireframe);
+	}
+
 	D3DEngine::Instance().DrawIndexed(m_House.IndexCount, 0U, 0, eTriangleList);
+
+	ImGui::Checkbox("Wireframe", &m_Wireframe);
 }
