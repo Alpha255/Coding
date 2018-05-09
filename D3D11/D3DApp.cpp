@@ -39,7 +39,7 @@ void D3DApp::ResizeWindow(uint32_t width, uint32_t height)
 		s_Renderer->Resize(width, height);
 	}
 
-	m_Camera->SetProjParams(DirectX::XM_PIDIV4, (float)width / height, 1.0f, 1000.0f);
+	m_Camera->SetProjParams(DirectX::XM_PIDIV4, (float)width / height, 1.0f, 3000.0f);
 }
 
 void D3DApp::MouseWheel(WPARAM wParam)
@@ -78,7 +78,7 @@ void D3DApp::InitRenderer()
 		assert(s_GUI);
 		s_GUI->Initialize(m_hWnd);
 
-		m_Camera->SetProjParams(DirectX::XM_PIDIV4, (float)m_Width / m_Height, 1.0f, 1000.0f);
+		m_Camera->SetProjParams(DirectX::XM_PIDIV4, (float)m_Width / m_Height, 1.0f, 3000.0f);
 	}
 }
 
