@@ -28,7 +28,7 @@ public:
 		eBindAsShaderResource = D3D11_BIND_SHADER_RESOURCE,
 		eBindAsStreamOutput = D3D11_BIND_STREAM_OUTPUT,
 		eBindAsRenderTarget = D3D11_BIND_RENDER_TARGET,
-		eBindAsDepthStencil, D3D11_BIND_DEPTH_STENCIL,
+		eBindAsDepthStencil = D3D11_BIND_DEPTH_STENCIL,
 		eBindAsUnorderedAccess = D3D11_BIND_UNORDERED_ACCESS,
 		eBindAsDecoder = D3D11_BIND_DECODER,
 		eBindAsVideoEncoder = D3D11_BIND_VIDEO_ENCODER

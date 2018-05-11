@@ -31,8 +31,7 @@ private:
 	D3DVertexShader m_VertexShaderDepth;
 	D3DPixelShader m_PixelShaderDepth;
 	D3DShaderResourceView m_DepthTexture;
-	D3DDepthStencilView m_DepthDSV;
-	D3DRenderTargetView m_DepthSurface;
+	D3DDepthStencilView m_DepthSurface;
 	D3DViewport m_ViewportDepth;
 
 	D3DVertexShader m_VertexShaderQuad;

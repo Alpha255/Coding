@@ -20,16 +20,16 @@ void AppShadow::Initialize()
 	m_DiffuseTexFloor.Create("wood.dds");
 	m_DiffuseTexBox.Create("WoodCrate01.dds");
 
+	const uint32_t DepthTexSize = 1024U;
 	D3DTexture2D depthTexture;
-	depthTexture.Create(eRGBA8_UNorm, 1024U, 1024U, D3DBuffer::eBindAsRenderTarget | D3DBuffer::eBindAsShaderResource);
-	m_DepthTexture.CreateAsTexture(D3DView::eTexture2D, depthTexture, eRGBA8_UNorm, 0U, 1U);
-	m_DepthSurface.CreateAsTexture(D3DView::eTexture2D, depthTexture, eRGBA8_UNorm, 0U);
-	m_DepthDSV.Create(eD32_Float, 1024U, 1024U);
+	depthTexture.Create(eR32_Typeless, DepthTexSize, DepthTexSize, D3DBuffer::eBindAsShaderResource | D3DBuffer::eBindAsDepthStencil);
+	m_DepthTexture.CreateAsTexture(D3DView::eTexture2D, depthTexture, eR32_Float, 0U, 1U);
+	m_DepthSurface.CreateAsTexture(D3DView::eTexture2D, depthTexture, eD32_Float, 0U, 0U);
 
 	m_CBufferVS.CreateAsConstantBuffer(sizeof(Matrix), D3DBuffer::eGpuReadCpuWrite, nullptr);
 
 	m_Viewport = { 0.0f, 0.0f, (float)m_Width, (float)m_Height, 0.0f, 1.0f };
-	m_ViewportDepth = { 0.0f, 0.0f, (float)1024U, (float)1024U, 0.0f, 1.0f };
+	m_ViewportDepth = { 0.0f, 0.0f, (float)DepthTexSize, (float)DepthTexSize, 0.0f, 1.0f };
 
 	m_Camera->SetViewRadius(15.0f);
 	m_Camera->Move(0, 200);
@@ -80,11 +80,11 @@ void AppShadow::DrawQuad()
 
 void AppShadow::RenderScene()
 {
+	D3DRenderTargetView EmptyRTV;
 	D3DEngine::Instance().SetViewport(m_ViewportDepth);
-	D3DEngine::Instance().ClearDepthStencilView(m_DepthDSV, D3DDepthStencilView::eDepthStencil, 1.0f, 0U);
-	D3DEngine::Instance().ClearRenderTargetView(m_DepthSurface, reinterpret_cast<const float*>(&Color::Silver));
-	D3DEngine::Instance().SetRenderTargetView(m_DepthSurface, 0U);
-	D3DEngine::Instance().SetDepthStencilView(m_DepthDSV);
+	D3DEngine::Instance().ClearDepthStencilView(m_DepthSurface, D3DDepthStencilView::eDepthStencil, 1.0f, 0U);
+	D3DEngine::Instance().SetRenderTargetView(EmptyRTV, 0U);
+	D3DEngine::Instance().SetDepthStencilView(m_DepthSurface);
 	D3DEngine::Instance().SetVertexShader(m_VertexShaderDepth);
 	D3DEngine::Instance().SetPixelShader(m_PixelShaderDepth);
 	DrawClutter();

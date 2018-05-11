@@ -31,7 +31,6 @@ VSOutput VSMain_Depth(VSInput vsInput)
 
 void PSMain_Depth(VSOutput psInput)
 {
-    ///return DiffuseMap.Sample(LinearSampler, psInput.UV);
 }
 
 VSOutput VSMain(VSInput vsInput)
