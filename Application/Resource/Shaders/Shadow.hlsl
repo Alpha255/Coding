@@ -1,6 +1,17 @@
+#include "CommonLighting.hlsli"
+
 cbuffer cbVS
 {
+    matrix World;
+    matrix WorldInverse;
     matrix WVP;
+};
+
+cbuffer cbPS
+{
+    float4 EyePos;
+    Material Mat;
+    PointLight Light;
 };
 
 struct VSInput
@@ -16,14 +27,16 @@ SamplerState LinearSampler;
 
 struct VSOutput
 {
-    float4 Pos : SV_POSITION;
+    float4 PosL : SV_POSITION;
+    float3 PosW : POSITION;
+    float3 NormalW : NORMAL;
     float2 UV : TEXCOORD;
 };
 
 VSOutput VSMain_Depth(VSInput vsInput)
 {
 	VSOutput output;
-    output.Pos = mul(float4(vsInput.Pos, 1.0f), WVP);
+    output.PosL = mul(float4(vsInput.Pos, 1.0f), WVP);
     output.UV = vsInput.UV;
 
     return output;
@@ -36,7 +49,9 @@ void PSMain_Depth(VSOutput psInput)
 VSOutput VSMain(VSInput vsInput)
 {
     VSOutput output;
-    output.Pos = mul(float4(vsInput.Pos, 1.0f), WVP);
+    output.PosL = mul(float4(vsInput.Pos, 1.0f), WVP);
+    output.PosW = mul(float4(vsInput.Pos, 1.0f), World).xyz;
+    output.NormalW = mul(vsInput.Normal, (float3x3) WorldInverse);
     output.UV = vsInput.UV;
 
     return output;
@@ -44,13 +59,24 @@ VSOutput VSMain(VSInput vsInput)
 
 float4 PSMain(VSOutput psInput) : SV_Target
 {
-    return DiffuseMap.Sample(LinearSampler, psInput.UV);
+    float3 normal = normalize(psInput.NormalW);
+
+    Material matCopy = Mat;
+    matCopy.Diffuse = DiffuseMap.Sample(LinearSampler, psInput.UV);
+
+    float4 ambient, diffuse, specular;
+    ComputePointLight(matCopy, Light, normal, psInput.PosW, EyePos.xyz, ambient, diffuse, specular);
+
+    float4 Color = ambient + diffuse + specular;
+    Color.w = Mat.Diffuse.w;
+
+    return Color;
 }
 
 VSOutput VSMain_Quad(VSInput vsInput)
 {
     VSOutput output;
-    output.Pos = float4(vsInput.Pos, 1.0f);
+    output.PosL = float4(vsInput.Pos, 1.0f);
     output.UV = vsInput.UV;
 
     return output;
