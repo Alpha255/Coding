@@ -24,24 +24,24 @@ struct ConstantBufferPS
 	{
 		PointLights[0].Ambient = Vec4(0.1f, 0.1f, 0.1f, 1.0f);
 		PointLights[0].Diffuse = Vec4(0.25f, 0.25f, 0.25f, 1.0f);
-		PointLights[0].Specular = Vec4(0.7f, 0.7f, 0.7f, 1.0f);
-		PointLights[0].Position = Vec3(-3.0f, 0.0f, -1.0f);
-		PointLights[0].Range = 10.0f;
-		PointLights[0].Attenuation = Vec4(0.0f, 0.1f, 0.0f, 0.0f);
+		PointLights[0].Specular = Vec4(0.0f, 0.0f, 0.0f, 0.0f);
+		PointLights[0].Position = Vec3(-3.0f, 0.0f, -0.5f);
+		PointLights[0].Range = 1.5f;
+		PointLights[0].Attenuation = Vec4(0.0f, 0.0f, 0.0f, 0.0f);
 
 		PointLights[1].Ambient = Vec4(0.1f, 0.1f, 0.1f, 1.0f);
 		PointLights[1].Diffuse = Vec4(0.5f, 0.5f, 0.5f, 1.0f);
-		PointLights[1].Specular = Vec4(0.7f, 0.7f, 0.7f, 1.0f);
-		PointLights[1].Position = Vec3(0.0f, 0.0f, -1.0f);
-		PointLights[1].Range = 10.0f;
-		PointLights[1].Attenuation = Vec4(0.0f, 0.1f, 0.0f, 0.0f);
+		PointLights[1].Specular = Vec4(0.0f, 0.0f, 0.0f, 0.0f);
+		PointLights[1].Position = Vec3(0.0f, 0.0f, -0.5f);
+		PointLights[1].Range = 1.5f;
+		PointLights[1].Attenuation = Vec4(0.0f, 0.0f, 0.0f, 0.0f);
 
 		PointLights[2].Ambient = Vec4(0.1f, 0.1f, 0.1f, 1.0f);
 		PointLights[2].Diffuse = Vec4(0.75f, 0.75f, 0.75f, 1.0f);
-		PointLights[2].Specular = Vec4(0.7f, 0.7f, 0.7f, 1.0f);
-		PointLights[2].Position = Vec3(3.0f, 0.0f, -1.0f);
-		PointLights[2].Range = 10.0f;
-		PointLights[2].Attenuation = Vec4(0.0f, 0.1f, 0.0f, 0.0f);
+		PointLights[2].Specular = Vec4(0.0f, 0.0f, 0.0f, 0.0f);
+		PointLights[2].Position = Vec3(3.0f, 0.0f, -0.5f);
+		PointLights[2].Range = 1.5f;
+		PointLights[2].Attenuation = Vec4(0.0f, 0.0f, 0.0f, 0.0f);
 	}
 }; 
 
@@ -60,15 +60,17 @@ void AppGammaCorrection::Initialize()
 	m_CBufferVS.CreateAsConstantBuffer(sizeof(ConstantBufferVS), D3DBuffer::eGpuReadCpuWrite, nullptr);
 	m_CBufferPS.CreateAsConstantBuffer(sizeof(ConstantBufferPS), D3DBuffer::eGpuReadCpuWrite, nullptr);
 
-	g_MatFloor.VertexColor = {};
-	g_MatFloor.Ambient = Vec4(0.48f, 0.77f, 0.46f, 1.0f);
-	g_MatFloor.Diffuse = Vec4(0.48f, 0.77f, 0.46f, 1.0f);
-	g_MatFloor.Specular = Vec4(0.2f, 0.2f, 0.2f, 16.0f);
+	g_MatFloor.Ambient = Vec4(0.1f, 0.1f, 0.1f, 1.0f);
+	g_MatFloor.Diffuse = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	g_MatFloor.Specular = Vec4(0.0f, 0.0f, 0.0f, 64.0f);
 	g_MatFloor.Reflection = {};
 }
 
 void AppGammaCorrection::RenderScene()
 {
+	ConstantBufferVS CBufferVS;
+	static ConstantBufferPS CBufferPS;
+
 	D3DEngine::Instance().SetVertexShader(m_VertexShader);
 	D3DEngine::Instance().SetPixelShader(m_PixelShader);
 
@@ -77,22 +79,20 @@ void AppGammaCorrection::RenderScene()
 
 	D3DEngine::Instance().SetSamplerState(D3DStaticState::LinearSampler, 0U, D3DShader::ePixelShader);
 
-	ConstantBufferVS CBufferVS;
-	ConstantBufferPS CBufferPS;
-
 	/// Draw Floor
 	CBufferVS.World = Matrix::Transpose(m_Camera->GetWorldMatrix());
 	CBufferVS.WorldInverse = Matrix::InverseTranspose(m_Camera->GetWorldMatrix());
 	CBufferVS.WVP = Matrix::Transpose(m_Camera->GetWVPMatrix());
 	m_CBufferVS.Update(&CBufferVS, sizeof(ConstantBufferVS));
+
 	CBufferPS.EnableGammaCorrection = m_bGammaCorrection ? 1U : 0U;
 	Vec4 eyePos = m_Camera->GetEyePos();
 	CBufferPS.EyePos = { eyePos.x, eyePos.y, eyePos.z };
 	CBufferPS.Mat = g_MatFloor;
 	m_CBufferPS.Update(&CBufferPS, sizeof(ConstantBufferPS));
-	D3DEngine::Instance().SetInputLayout(m_FloorMesh.VertexLayout);
-	D3DEngine::Instance().SetVertexBuffer(m_FloorMesh.VertexBuffer, sizeof(Geometry::Vertex), 0U, 0U);
-	D3DEngine::Instance().SetIndexBuffer(m_FloorMesh.IndexBuffer, eR32_UInt, 0U);
+
+	D3DEngine::Instance().BindMesh(m_FloorMesh);
+
 	if (m_bGammaCorrection)
 	{
 		D3DEngine::Instance().SetShaderResourceView(m_DiffuseTexFloorGamma, 0U, D3DShader::ePixelShader);
@@ -103,6 +103,11 @@ void AppGammaCorrection::RenderScene()
 	}
 	D3DEngine::Instance().SetRasterizerState(D3DStaticState::SolidNoneCulling);
 	D3DEngine::Instance().DrawIndexed(m_FloorMesh.IndexCount, 0U, 0, eTriangleList);
+
+	for (uint32_t i = 0U; i < 3U; ++i)
+	{
+		Light::DebugDisplay(CBufferPS.PointLights[i].Position, Light::ePoint, *m_Camera);
+	}
 
 	ImGui::Checkbox("GammaCorrection", &m_bGammaCorrection);
 }

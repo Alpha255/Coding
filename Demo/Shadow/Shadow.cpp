@@ -26,10 +26,10 @@ struct ConstantBufferPS
 		Mat.Reflection = Vec4(0.0f, 0.0f, 0.0f, 0.0f);
 
 		Light.Ambient = Vec4(0.1f, 0.1f, 0.1f, 1.0f);
-		Light.Diffuse = Vec4(0.3f, 0.3f, 0.3f, 1.0f);
+		Light.Diffuse = Vec4(0.5f, 0.5f, 0.5f, 1.0f);
 		Light.Specular = Vec4(0.5f, 0.5f, 0.5f, 1.0f);
-		Light.Position = Vec3(2.5f, 0.0f, 1.0f);
-		Light.Range = 10.0f;
+		Light.Position = Vec3(2.5f, 0.0f, -2.5f);
+		Light.Range = 100.0f;
 		Light.Attenuation = Vec4(0.1f, 0.1f, 0.1f, 1.0f);
 	}
 };
@@ -42,7 +42,6 @@ void AppShadow::Initialize()
 	m_FloorMesh.CreateAsQuad(10.0f);
 	m_BoxMesh.CreateAsCube(1.0f);
 	m_QuadMesh.CreateAsQuad(0.3f, 0.9f, 0.5f, 0.4f);
-	m_BulbMesh.Create("Lightbulb.obj");
 
 	m_VertexShader.Create("Shadow.hlsl", "VSMain");
 	m_PixelShader.Create("Shadow.hlsl", "PSMain");
@@ -50,8 +49,6 @@ void AppShadow::Initialize()
 	m_PixelShaderDepth.Create("Shadow.hlsl", "PSMain_Depth");
 	m_VertexShaderQuad.Create("Shadow.hlsl", "VSMain_Quad");
 	m_PixelShaderQuad.Create("Shadow.hlsl", "PSMain_Quad");
-	m_VertexShaderBulb.Create("Mesh.hlsl", "VSMain");
-	m_PixelShaderBulb.Create("Mesh.hlsl", "PSMain");
 
 	m_DiffuseTexFloor.Create("wood.dds");
 	m_DiffuseTexBox.Create("WoodCrate01.dds");
@@ -64,7 +61,6 @@ void AppShadow::Initialize()
 
 	m_CBufferVS.CreateAsConstantBuffer(sizeof(ConstantBufferVS), D3DBuffer::eGpuReadCpuWrite, nullptr);
 	m_CBufferPS.CreateAsConstantBuffer(sizeof(ConstantBufferPS), D3DBuffer::eGpuReadCpuWrite, nullptr);
-	m_CBufferVSBulb.CreateAsConstantBuffer(sizeof(Matrix), D3DBuffer::eGpuReadCpuWrite, nullptr);
 
 	m_Viewport = { 0.0f, 0.0f, (float)m_Width, (float)m_Height, 0.0f, 1.0f };
 	m_ViewportDepth = { 0.0f, 0.0f, (float)DepthTexSize, (float)DepthTexSize, 0.0f, 1.0f };
@@ -125,23 +121,6 @@ void AppShadow::DrawQuad()
 	D3DEngine::Instance().DrawIndexed(m_QuadMesh.IndexCount, 0U, 0, eTriangleList);
 }
 
-void AppShadow::DrawBulb(const Vec3 &pos)
-{
-	D3DEngine::Instance().SetVertexShader(m_VertexShaderBulb);
-	D3DEngine::Instance().SetPixelShader(m_PixelShaderBulb);
-
-	D3DEngine::Instance().BindMesh(m_BulbMesh);
-
-	Matrix translation = Matrix::Translation(pos.x, pos.y, pos.z);
-	Matrix scale = Matrix::Scaling(0.1f);
-	Matrix rotate = Matrix::RotationAxis(1.0f, 0.0f, 0.0f, -90.0f);
-	Matrix wvp = Matrix::Transpose(m_Camera->GetWorldMatrix() * rotate * scale * translation * m_Camera->GetViewMatrix() * m_Camera->GetProjMatrix());
-	m_CBufferVSBulb.Update(&wvp, sizeof(Matrix));
-	D3DEngine::Instance().SetConstantBuffer(m_CBufferVSBulb, 0U, D3DShader::eVertexShader);
-
-	D3DEngine::Instance().DrawIndexed(m_BulbMesh.IndexCount, 0U, 0, eTriangleList);
-}
-
 void AppShadow::RenderScene()
 {
 	D3DRenderTargetView EmptyRTV;
@@ -158,9 +137,10 @@ void AppShadow::RenderScene()
 	D3DEngine::Instance().ClearRenderSurfaces();
 	D3DEngine::Instance().SetVertexShader(m_VertexShader);
 	D3DEngine::Instance().SetPixelShader(m_PixelShader);
+	D3DEngine::Instance().SetShaderResourceView(m_DepthTexture, 1U, D3DShader::ePixelShader);
 	DrawClutter();
 
-	DrawBulb(CBufferPS.Light.Position);
+	Light::DebugDisplay(CBufferPS.Light.Position, Light::ePoint, *m_Camera);
 
 	DrawQuad();
 

@@ -23,6 +23,7 @@ struct VSInput
 };
 
 Texture2D DiffuseMap;
+Texture2D DepthMap;
 SamplerState LinearSampler;
 
 struct VSOutput
@@ -46,6 +47,17 @@ void PSMain_Depth(VSOutput psInput)
 {
 }
 
+float Shadow_Base(float4 vertexPos, float depth)
+{
+    float3 projPos = vertexPos.xyz / vertexPos.z;
+
+    projPos = projPos * 0.5f + 0.5f;
+
+    float shadow = projPos.z > depth ? 1.0f : 0.0f;
+
+    return shadow;
+}
+
 VSOutput VSMain(VSInput vsInput)
 {
     VSOutput output;
@@ -64,10 +76,13 @@ float4 PSMain(VSOutput psInput) : SV_Target
     Material matCopy = Mat;
     matCopy.Diffuse = DiffuseMap.Sample(LinearSampler, psInput.UV);
 
+    float depthValue = DepthMap.Sample(LinearSampler, psInput.UV).r;
+
     float4 ambient, diffuse, specular;
     ComputePointLight(matCopy, Light, normal, psInput.PosW, EyePos.xyz, ambient, diffuse, specular);
 
     float4 Color = ambient + diffuse + specular;
+    ///float4 Color = ambient + (1.0f - Shadow_Base(psInput.PosL, depthValue)) * (diffuse + specular);
     Color.w = Mat.Diffuse.w;
 
     return Color;
@@ -84,6 +99,6 @@ VSOutput VSMain_Quad(VSInput vsInput)
 
 float4 PSMain_Quad(VSOutput psInput) : SV_Target
 {
-    float depthValue = DiffuseMap.Sample(LinearSampler, psInput.UV).r;
+    float depthValue = DepthMap.Sample(LinearSampler, psInput.UV).r;
 	return float4(depthValue, depthValue, depthValue, 1.0f);
 }

@@ -45,20 +45,20 @@ float3 BlinnPhongLighting(float3 i_Normal, float3 i_VertexPos, float3 i_EyePos, 
     
 	/// specular
     float3 viewDir = normalize(i_EyePos - i_VertexPos);
-    float spec = 0.0;
     float3 halfwayDir = normalize(lightDir + viewDir);
-    spec = pow(max(dot(i_Normal, halfwayDir), 0.0), 64.0);
+    float spec = pow(max(dot(i_Normal, halfwayDir), 0.0), Mat.Specular.w);
     float3 specular = spec * i_Light.Diffuse.xyz;
    
 	 /// simple attenuation
-    float max_distance = 1.5;
     float distance = length(i_Light.Position - i_VertexPos);
-    float attenuation = 1.0 / distance * distance;
+    float attenuation = 1.0 / distance;
     
     diffuse *= attenuation;
     specular *= attenuation;
+
+    float3 ambient = i_Light.Ambient * Mat.Ambient;
     
-    return diffuse + specular;
+    return ambient + diffuse + specular;
 }
 
 VSOutput VSMain(VSInput vsInput)
@@ -72,61 +72,26 @@ VSOutput VSMain(VSInput vsInput)
     return output;
 }
 
-//float4 PSMain(VSOutput psInput) : SV_Target
-//{
-//    float3 normal = normalize(psInput.NormalW);
-
-//    float4 textureClr = DiffuseMap.Sample(LinearSampler, psInput.UV);
-//    clip(textureClr.a - 0.1f);
-
-//    float4 ambient = float4(0.0f, 0.0f, 0.0f, 0.0f);
-//    float4 diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
-//    float4 specular = float4(0.0f, 0.0f, 0.0f, 0.0f);
-
-//    [unroll]	
-//    for (int i = 0; i < 3; ++i)
-//    {
-//        float4 a, d, s;
-//        ComputePointLight(Mat, PointLights[i], normal, psInput.PosW, EyePos, a, d, s);
-
-//        ambient += a;
-//        diffuse += d;
-//        specular += s;
-//    }
-
-//    float4 color = textureClr * (ambient + diffuse + specular);
-
-//    if (1 == EnableGammaCorrection)
-//    {
-//        color = pow(color, 1.0f / 2.2f);
-//    }
-
-//    color.a = Mat.Diffuse.a * textureClr.a;
-//    return color;
-//}
-
 float4 PSMain(VSOutput psInput) : SV_Target
 {
+    float4 textureClr = DiffuseMap.Sample(LinearSampler, psInput.UV);
     float3 normal = normalize(psInput.NormalW);
 
-    float4 textureClr = DiffuseMap.Sample(LinearSampler, psInput.UV);
-
-    float4 ambient = float4(0.1f, 0.1f, 0.1f, 1.0f);
-    float3 lightingClr = float3(0.0f, 0.0f, 0.0f);
+    float3 lightClr = float3(0.0f, 0.0f, 0.0f);
 	[unroll]
-    for (int i = 0; i < 3; ++i)
+    for (uint i = 0; i < 3; ++i)
     {
-        lightingClr += BlinnPhongLighting(normal, psInput.PosW, EyePos, PointLights[i]);
+        lightClr += BlinnPhongLighting(normal, psInput.PosW, EyePos, PointLights[i]);
     }
 
-    float4 color = textureClr * (float4(lightingClr, 0.0f) + ambient);
-
-    if (1 == EnableGammaCorrection)
+    float4 color = textureClr * float4(lightClr, 1.0f);
+    
+	if (1 == EnableGammaCorrection)
     {
         color = pow(color, 1.0f / 2.2f);
-        ///color = pow(color, float4(1.0f / 2.2f, 1.0f / 2.2f, 1.0f / 2.2f, 0.0f));
     }
 
-    color.a = Mat.Diffuse.a * textureClr.a;
+    color.w = Mat.Diffuse.w;
+
     return color;
 }

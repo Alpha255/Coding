@@ -82,10 +82,10 @@ float4 PSMain_NormalMapping(VSOutput psInput) : SV_Target
     clip(texClr.a - 0.1f);
 
     float4 specularTex = SpecularMap.Sample(LinearSampler, psInput.UV);
-    float4 spec = specularTex.g;
+    ///float4 spec = specularTex.g;
 
     Material matCopy = Mat;
-    matCopy.Specular = spec;
+    matCopy.Specular = specularTex;
 
     float3 bumpNormal = UnpackNormal(normalTex, psInput.NormalW, psInput.TangentW);
 

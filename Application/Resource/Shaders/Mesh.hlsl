@@ -31,6 +31,6 @@ VSOutput VSMain(VSInput vsInput)
 
 float4 PSMain(VSOutput psInput) : SV_Target
 {
-    return float4(1.0f, 1.0f, 1.0f, 1.0f);
+    return float4(0.84f, 0.84f, 0.84f, 1.0f);
     ///return DiffuseMap.Sample(LinearSampler, psInput.UV);
 }

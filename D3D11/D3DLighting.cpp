@@ -3,51 +3,46 @@
 #include "Camera.h"
 
 Geometry::ObjMesh Light::s_PointLightMesh;
-Geometry::ObjMesh Light::s_DirLightMesh;
-Geometry::ObjMesh Light::s_SpotLightMesh;
 
-D3DVertexShader Light::VertexShader;
-D3DPixelShader Light::PixelShader;
-D3DBuffer Light::CBufferVS;
+D3DVertexShader Light::s_VertexShader;
+D3DPixelShader Light::s_PixelShader;
+D3DBuffer Light::s_CBufferVS;
 
-bool Light::Inited = false;
+bool Light::s_Inited = false;
 
 void Light::Initialize()
 {
-	if (Inited)
+	if (s_Inited)
 	{
 		return;
 	}
 
-	s_PointLightMesh.Create("PointLight.obj");
-	///s_DirLightMesh.Create("");
-	///s_SpotLightMesh.Create("");
+	s_PointLightMesh.Create("Lightbulb.obj");
 
-	VertexShader.Create("DrawLight.hlsl", "VSMain");
-	PixelShader.Create("DrawLight.hlsl", "PSMain");
+	s_VertexShader.Create("Mesh.hlsl", "VSMain");
+	s_PixelShader.Create("Mesh.hlsl", "PSMain");
 
-	CBufferVS.CreateAsConstantBuffer(sizeof(Matrix), D3DBuffer::eGpuReadCpuWrite, nullptr);
+	s_CBufferVS.CreateAsConstantBuffer(sizeof(Matrix), D3DBuffer::eGpuReadCpuWrite, nullptr);
 
-	Inited = true;
+	s_Inited = true;
 }
 
-void Light::DrawLight(const Vec3 &position, const eLightType type, const Camera &cam)
+void Light::DebugDisplay(const Vec3 &position, const eLightType type, const Camera &cam)
 {
 	Initialize();
 
-	D3DEngine::Instance().SetInputLayout(s_PointLightMesh.VertexLayout);
-	D3DEngine::Instance().SetVertexShader(VertexShader);
-	D3DEngine::Instance().SetPixelShader(PixelShader);
+	D3DEngine::Instance().SetVertexShader(s_VertexShader);
+	D3DEngine::Instance().SetPixelShader(s_PixelShader);
 
-	D3DEngine::Instance().SetVertexBuffer(s_PointLightMesh.VertexBuffer, sizeof(Geometry::Vertex), 0U);
-	D3DEngine::Instance().SetIndexBuffer(s_PointLightMesh.IndexBuffer, eR32_UInt, 0U);
+	D3DEngine::Instance().BindMesh(s_PointLightMesh);
 
 	Matrix world = cam.GetWorldMatrix();
-	Matrix scale = Matrix::Scaling(0.001f);
+	Matrix scale = Matrix::Scaling(0.1f);
 	Matrix translation = Matrix::Translation(position.x, position.y, position.z);
-	Matrix wvp = Matrix::Transpose(world * scale * translation * cam.GetViewMatrix() * cam.GetProjMatrix());
-	CBufferVS.Update(&wvp, sizeof(Matrix));
-	D3DEngine::Instance().SetConstantBuffer(CBufferVS, 0U, D3DShader::eVertexShader);
+	Matrix rotate = Matrix::RotationAxis(1.0f, 0.0f, 0.0f, -90.0f);
+	Matrix wvp = Matrix::Transpose(world * rotate * scale * translation * cam.GetViewMatrix() * cam.GetProjMatrix());
+	s_CBufferVS.Update(&wvp, sizeof(Matrix));
+	D3DEngine::Instance().SetConstantBuffer(s_CBufferVS, 0U, D3DShader::eVertexShader);
 
 	D3DEngine::Instance().DrawIndexed(s_PointLightMesh.IndexCount, 0U, 0, eTriangleList);
 }

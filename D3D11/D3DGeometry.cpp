@@ -585,25 +585,25 @@ void Mesh::CreateAsQuad(float length)
 	/// Position coordinates specified in NDC space.
 	m_Vertices[0] = Vertex(
 		-halfLen, -halfLen, 0.0f,
-		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, -1.0f,
 		1.0f, 0.0f, 0.0f,
 		0.0f, 1.0f);
 
 	m_Vertices[1] = Vertex(
 		-halfLen, +halfLen, 0.0f,
-		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, -1.0f,
 		1.0f, 0.0f, 0.0f,
 		0.0f, 0.0f);
 
 	m_Vertices[2] = Vertex(
 		+halfLen, +halfLen, 0.0f,
-		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, -1.0f,
 		1.0f, 0.0f, 0.0f,
 		1.0f, 0.0f);
 
 	m_Vertices[3] = Vertex(
 		+halfLen, -halfLen, 0.0f,
-		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, -1.0f,
 		1.0f, 0.0f, 0.0f,
 		1.0f, 1.0f);
 

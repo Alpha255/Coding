@@ -14,18 +14,16 @@ public:
 		eLightTypeCount
 	};
 
-	static void DrawLight(const Vec3 &position, const eLightType type, const class Camera &cam);
+	static void DebugDisplay(const Vec3 &position, const eLightType type, const class Camera &cam);
 
 protected:
 	static Geometry::ObjMesh s_PointLightMesh;
-	static Geometry::ObjMesh s_DirLightMesh;
-	static Geometry::ObjMesh s_SpotLightMesh;
 
-	static D3DVertexShader VertexShader;
-	static D3DPixelShader PixelShader;
-	static D3DBuffer CBufferVS;
+	static D3DVertexShader s_VertexShader;
+	static D3DPixelShader s_PixelShader;
+	static D3DBuffer s_CBufferVS;
 
-	static bool Inited;
+	static bool s_Inited;
 
 	static void Initialize();
 };
