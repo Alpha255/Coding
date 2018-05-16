@@ -749,6 +749,7 @@ void ObjMesh::Create(const char *pFileName)
 						{
 							ss.get();
 							ss >> index.n;
+							indices.push_back(index);
 						}
 						else
 						{

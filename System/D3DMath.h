@@ -184,6 +184,11 @@ public:
 		return Vec4(left.x * f, left.y * f, left.z * f, left.w * f);
 	}
 
+	inline friend Vec4 operator*(const Vec4 &left, const Vec4 &right)
+	{
+		return Vec4(left.x * right.x, left.y * right.y, left.z * right.z, left.w * right.w);
+	}
+
 	inline static Vec4 Cross(const Vec4 &v0, const Vec4 &v1, const Vec4 &v2)
 	{
 		DirectX::XMVECTOR xv0 = DirectX::XMLoadFloat4(&v0);
