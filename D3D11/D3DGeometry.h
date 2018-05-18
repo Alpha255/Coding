@@ -49,6 +49,7 @@ public:
 	void CreateAsGrid(float width, float depth, uint32_t m, uint32_t n);
 	void CreateAsQuad(float length);
 	void CreateAsQuad(float left, float top, float width, float height);
+	void SaveAsObjFile(const char *pObjFileName);
 
 	void DrawNormal(const Camera &cam);
 
@@ -78,14 +79,15 @@ struct ObjMesh : public Mesh
 {
 public:
 	void Create(const char *pFileName);
-protected:
-	///void TokenizeNextLine(std::ifstream &fs, std::vector<std::string> &tokens);
+
 	struct ObjIndex
 	{
 		int32_t i = 0U;
 		int32_t t = 0U;
 		int32_t n = 0U;
 	};
+protected:
+	///void TokenizeNextLine(std::ifstream &fs, std::vector<std::string> &tokens);
 
 	void CreateVertexData(
 		const std::vector<Vec3> &srcVertices,

@@ -74,7 +74,7 @@ public:
 	inline void CreateAsConstantBuffer(
 		size_t byteWidth,
 		uint32_t usage,
-		const void *pData)
+		const void *pData = nullptr)
 	{
 		Create(eBindAsConstantBuffer, byteWidth, usage, pData, GetCpuAccessFlag(usage));
 	}

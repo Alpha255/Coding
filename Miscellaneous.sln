@@ -42,6 +42,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{7E32
 		Application\Resource\Shaders\DepthStencilTest.hlsl = Application\Resource\Shaders\DepthStencilTest.hlsl
 		Application\Resource\Shaders\ForwardLighting.hlsl = Application\Resource\Shaders\ForwardLighting.hlsl
 		Application\Resource\Shaders\GammaCorrection.hlsl = Application\Resource\Shaders\GammaCorrection.hlsl
+		Application\Resource\Shaders\HDRLighting.hlsl = Application\Resource\Shaders\HDRLighting.hlsl
 		Application\Resource\Shaders\imGUI.hlsl = Application\Resource\Shaders\imGUI.hlsl
 		Application\Resource\Shaders\Lighting.hlsl = Application\Resource\Shaders\Lighting.hlsl
 		Application\Resource\Shaders\LightingScene.hlsl = Application\Resource\Shaders\LightingScene.hlsl
@@ -72,6 +73,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HLSL CookBook", "HLSL CookBook", "{B65ED699-918C-4F73-8758-C99FE15CD4FC}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ForwardLighting", "Miscellaneous\ForwardLighting.vcxproj", "{8AD77C36-BD92-494D-8F37-431F5C039DF9}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HDRLighting", "Miscellaneous\HDRLighting.vcxproj", "{CC4716FA-841F-4333-875F-64901E3C3AD6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -233,6 +236,14 @@ Global
 		{8AD77C36-BD92-494D-8F37-431F5C039DF9}.Release|x64.Build.0 = Release|x64
 		{8AD77C36-BD92-494D-8F37-431F5C039DF9}.Release|x86.ActiveCfg = Release|Win32
 		{8AD77C36-BD92-494D-8F37-431F5C039DF9}.Release|x86.Build.0 = Release|Win32
+		{CC4716FA-841F-4333-875F-64901E3C3AD6}.Debug|x64.ActiveCfg = Debug|x64
+		{CC4716FA-841F-4333-875F-64901E3C3AD6}.Debug|x64.Build.0 = Debug|x64
+		{CC4716FA-841F-4333-875F-64901E3C3AD6}.Debug|x86.ActiveCfg = Debug|Win32
+		{CC4716FA-841F-4333-875F-64901E3C3AD6}.Debug|x86.Build.0 = Debug|Win32
+		{CC4716FA-841F-4333-875F-64901E3C3AD6}.Release|x64.ActiveCfg = Release|x64
+		{CC4716FA-841F-4333-875F-64901E3C3AD6}.Release|x64.Build.0 = Release|x64
+		{CC4716FA-841F-4333-875F-64901E3C3AD6}.Release|x86.ActiveCfg = Release|Win32
+		{CC4716FA-841F-4333-875F-64901E3C3AD6}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -257,5 +268,6 @@ Global
 		{64312928-98C2-46BE-8CB2-63CD022B96A9} = {1D4CB345-BCD9-47E1-B87F-3F6872E9E7D0}
 		{002621C9-4093-4C61-BFC6-668164DB2173} = {1D4CB345-BCD9-47E1-B87F-3F6872E9E7D0}
 		{8AD77C36-BD92-494D-8F37-431F5C039DF9} = {B65ED699-918C-4F73-8758-C99FE15CD4FC}
+		{CC4716FA-841F-4333-875F-64901E3C3AD6} = {1D4CB345-BCD9-47E1-B87F-3F6872E9E7D0}
 	EndGlobalSection
 EndGlobal
