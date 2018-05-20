@@ -85,6 +85,8 @@ public:
 		SetIndexBuffer(mesh.IndexBuffer, eR32_UInt, 0U);
 	}
 
+	void DrawSDKMesh(const Geometry::SDKMesh &sdkMesh, uint32_t meshIndex = 0U);
+
 	void Initialize(HWND hWnd, uint32_t width, uint32_t height, bool bWindowed);
 
 	void Resize(uint32_t width, uint32_t height);

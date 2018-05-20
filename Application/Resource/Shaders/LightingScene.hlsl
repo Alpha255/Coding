@@ -1,6 +1,16 @@
+#include "CommonLighting.hlsli"
+
 cbuffer cbVS
 {
+    matrix World;
+    matrix WorldInverse;
     matrix WVP;
+};
+
+cbuffer cbPS
+{
+    float4 EyePos;
+    PointLight Light;
 };
 
 struct VSInput
@@ -18,14 +28,19 @@ SamplerState LinearSampler;
 
 struct VSOutput
 {
-    float4 Pos : SV_POSITION;
+    float4 PosH : SV_POSITION;
+    float3 PosW : POSITION;
+    float3 NormalW : NORMAL;
+    float3 TangentW : TANGENT;
     float2 UV : TEXCOORD;
 };
 
 VSOutput VSMain(VSInput vsInput)
 {
     VSOutput output;
-    output.Pos = mul(float4(vsInput.Pos, 1.0f), WVP);
+    output.PosH = mul(float4(vsInput.Pos, 1.0f), WVP);
+    output.PosW = mul(float4(vsInput.Pos, 1.0f), World).xyz;
+    output.NormalW = mul(vsInput.Normal, (float3x3)WorldInverse);
     output.UV = vsInput.UV;
 
     return output;
@@ -33,6 +48,18 @@ VSOutput VSMain(VSInput vsInput)
 
 float4 PSMain(VSOutput psInput) : SV_Target
 {
-    ///return float4(1.0f, 1.0f, 0.0f, 1.0f);
-    return DiffuseMap.Sample(LinearSampler, psInput.UV);
+    Material material;
+    material.Ambient = float4(0.1f, 0.1f, 0.1f, 1.0f);
+    material.Diffuse = DiffuseMap.Sample(LinearSampler, psInput.UV);
+    material.Specular = SpecularMap.Sample(LinearSampler, psInput.UV);
+
+    float3 texNormal = NormalMap.Sample(LinearSampler, psInput.UV);
+    float3 normal = UnpackNormal(texNormal, psInput.NormalW, psInput.TangentW);
+
+    float4 ambient, diffuse, specular;
+    ComputePointLight(material, Light, normalize(texNormal), psInput.PosW, EyePos.xyz, ambient, diffuse, specular);
+
+    float4 Color = ambient + diffuse /* + specular*/;
+
+    return float4(Color.rgb, 1.0f);
 }

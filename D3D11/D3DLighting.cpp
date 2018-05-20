@@ -27,7 +27,7 @@ void Light::Initialize()
 	s_Inited = true;
 }
 
-void Light::DebugDisplay(const Vec3 &position, const eLightType type, const Camera &cam)
+void Light::DebugDisplay(const Vec3 &position, const eLightType type, const Camera &cam, const float scale)
 {
 	Initialize();
 
@@ -37,10 +37,10 @@ void Light::DebugDisplay(const Vec3 &position, const eLightType type, const Came
 	D3DEngine::Instance().BindMesh(s_PointLightMesh);
 
 	Matrix world = cam.GetWorldMatrix();
-	Matrix scale = Matrix::Scaling(0.1f);
+	Matrix scaling = Matrix::Scaling(scale);
 	Matrix translation = Matrix::Translation(position.x, position.y, position.z);
 	Matrix rotate = Matrix::RotationAxis(1.0f, 0.0f, 0.0f, -90.0f);
-	Matrix wvp = Matrix::Transpose(world * rotate * scale * translation * cam.GetViewMatrix() * cam.GetProjMatrix());
+	Matrix wvp = Matrix::Transpose(world * rotate * scaling * translation * cam.GetViewMatrix() * cam.GetProjMatrix());
 	s_CBufferVS.Update(&wvp, sizeof(Matrix));
 	D3DEngine::Instance().SetConstantBuffer(s_CBufferVS, 0U, D3DShader::eVertexShader);
 

@@ -3,8 +3,10 @@
 #include "D3DMath.h"
 #include "D3DBuffer.h"
 #include "D3DShader.h"
+#include <SDKmesh.h>
 
 class Camera;
+class D3DEngine;
 
 NamespaceBegin(Geometry)
 
@@ -94,6 +96,18 @@ protected:
 		const std::vector<std::vector<ObjIndex>> &indexCollector,
 		const std::vector<Vec3> &normals,
 		const std::vector<Vec2> &uvs);
+
+	void ComputeTangent();
+};
+
+struct SDKMesh : public CDXUTSDKMesh
+{
+public:
+	void Create(const char *pMeshName);
+
+	D3DInputLayout VertexLayout;
+
+	friend D3DEngine;
 };
 
 NamespaceEnd(Geometry)

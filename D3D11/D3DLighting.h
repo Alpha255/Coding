@@ -14,7 +14,7 @@ public:
 		eLightTypeCount
 	};
 
-	static void DebugDisplay(const Vec3 &position, const eLightType type, const class Camera &cam);
+	static void DebugDisplay(const Vec3 &position, const eLightType type, const class Camera &cam, const float scale = 0.1f);
 
 protected:
 	static Geometry::ObjMesh s_PointLightMesh;

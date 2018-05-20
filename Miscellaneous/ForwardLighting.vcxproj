@@ -157,6 +157,12 @@
     <ProjectReference Include="..\ThirdParty\DirectXTK\DirectXTK_Desktop_2015.vcxproj">
       <Project>{e0b52ae7-e160-4d32-bf3f-910b785e5a8e}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\ThirdParty\DXUT\Core\DXUT_2015.vcxproj">
+      <Project>{85344b7f-5aa0-4e12-a065-d1333d11f6ca}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\ThirdParty\DXUT\Optional\DXUTOpt_2015.vcxproj">
+      <Project>{61b333c2-c4f7-4cc1-a9bf-83f6d95588eb}</Project>
+    </ProjectReference>
     <ProjectReference Include="D3D11.vcxproj">
       <Project>{dd9fa08b-7ce1-4151-8456-2e3217505704}</Project>
     </ProjectReference>

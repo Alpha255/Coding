@@ -10,3 +10,6 @@
 [submodule "ThirdParty/vcglib"]
 	path = ThirdParty/vcglib
 	url = https://github.com/cnr-isti-vclab/vcglib.git
+[submodule "ThirdParty/DXUT"]
+	path = ThirdParty/DXUT
+	url = https://github.com/Microsoft/DXUT.git

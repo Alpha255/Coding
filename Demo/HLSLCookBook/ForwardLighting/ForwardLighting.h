@@ -15,18 +15,25 @@ public:
 protected:
 	inline Vec4 GammaToLinear(const Vec4 &color)
 	{
+		/// Approximation
 		return color * color;
 	}
 private:
 	enum eLightingType
 	{
-		eHemisphericAmbient
+		eHemisphericAmbient,
+		eDirectional,
+		ePoint,
+		eSpot,
+		eCount
 	};
 
 	Geometry::ObjMesh m_StanfordBunny;
+	Geometry::Mesh m_Floor;
+	///Geometry::SDKMesh m_StanfordBunnyMesh;
 
 	D3DVertexShader m_VertexShader;
-	D3DPixelShader m_PixelShader;
+	D3DPixelShader m_PixelShader[eCount];
 	D3DBuffer m_CBufferVS;
 	D3DBuffer m_CBufferPS;
 

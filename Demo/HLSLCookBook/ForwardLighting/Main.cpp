@@ -4,7 +4,7 @@ int32_t WINAPI wWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LP
 {
 	AppForwardLighting forwardLighting;
 
-	forwardLighting.Startup(L"ForwardLighting");
+	forwardLighting.Startup(L"ForwardLighting", 1024U, 768U);
 
 	forwardLighting.Running();
 

@@ -808,6 +808,8 @@ void ObjMesh::Create(const char *pFileName)
 
 		CreateVertexData(vertices, indexColloctor, normals, uvs);
 
+		ComputeTangent();
+
 		CreateRenderResource();
 	}
 	else
@@ -870,46 +872,57 @@ void ObjMesh::CreateVertexData(
 			m_Vertices.push_back(v);
 		}
 	}
-	//for (uint32_t i = 0U; i < objIndices.size(); i += 4)
-	//{
-	//	/// v0 v1 v2
-	//	for (uint32_t j = i; j < i + 3U; ++j)
-	//	{
-	//		const ObjIndex &face = objIndices.at(j);
-
-	//		assert(face.i >= 0 && face.n >= 0U && face.t >= 0U);
-
-	//		m_Indices.push_back((uint32_t)m_Vertices.size());
-
-	//		Vertex v;
-	//		v.Position = srcVertices.at(face.i - 1U);
-	//		///v.Position.x *= -1.0f;
-	//		v.Normal = face.n > 0U ? normals.at(face.n - 1U) : Vec3(0.0f, 0.0f, 0.0f);
-	//		v.UV = face.t > 0 ? uvs.at(face.t - 1U) : Vec2(0.0f, 0.0f);
-	//		m_Vertices.push_back(v);
-	//	}
-
-	//	/// v3
-	//	if (objIndices.at(i + 3U).i > 0U)  /// Quad ?
-	//	{
-	//		const ObjIndex &face = objIndices.at(i + 3U);
-
-	//		assert(face.i >= 0 && face.n >= 0U && face.t >= 0U);
-
-	//		Vertex v;
-	//		v.Position = srcVertices.at(face.i - 1U);
-	//		///v.Position.x *= -1.0f;
-	//		v.Normal = face.n > 0U ? normals.at(face.n - 1U) : Vec3(0.0f, 0.0f, 0.0f);
-	//		v.UV = face.t > 0 ? uvs.at(face.t - 1U) : Vec2(0.0f, 0.0f);
-	//		m_Vertices.push_back(v);
-
-	//		uint32_t vertexCount = (uint32_t)m_Vertices.size();
-
-	//		m_Indices.push_back(vertexCount - 4U);
-	//		m_Indices.push_back(vertexCount - 2U);
-	//		m_Indices.push_back(vertexCount - 1U);
-	//	}
-	//}
 }
+
+void ObjMesh::ComputeTangent()
+{
+	for (uint32_t i = 0U; i < m_Indices.size() / 3U; i += 3U)
+	{
+		Vec3 p1 = m_Vertices[m_Indices[i + 0U]].Position;
+		Vec3 p2 = m_Vertices[m_Indices[i + 1U]].Position;
+		Vec3 p3 = m_Vertices[m_Indices[i + 2U]].Position;
+
+		Vec2 uv1 = m_Vertices[m_Indices[i + 0U]].UV;
+		Vec2 uv2 = m_Vertices[m_Indices[i + 1U]].UV;
+		Vec2 uv3 = m_Vertices[m_Indices[i + 2U]].UV;
+
+		Vec3 edge1 = p2 - p1;
+		Vec3 edge2 = p3 - p1;
+
+		Vec2 deltaUV1 = uv2 - uv1;
+		Vec2 deltaUV2 = uv3 - uv1;
+
+		float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+		Vec3 tangent;
+		tangent.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+		tangent.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+		tangent.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+
+		m_Vertices[m_Indices[i + 0U]].Tangent = tangent;
+		m_Vertices[m_Indices[i + 1U]].Tangent = tangent;
+		m_Vertices[m_Indices[i + 2U]].Tangent = tangent;
+	}
+}
+
+///void SDKMesh::Create(const char *pMeshName)
+///{
+///	assert(pMeshName && System::IsStrEndwith(pMeshName, "sdkmesh"));
+///
+///	std::string meshFilePath = System::ResourceFilePath(pMeshName, System::eSDKMesh);
+///	std::wstring wMeshFilePath(meshFilePath.begin(), meshFilePath.end());
+///
+///	const D3D11_INPUT_ELEMENT_DESC layout[] =
+///	{
+///		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,  0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+///		{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+///		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+///	};
+///
+///	D3DVertexShader vertexShader;
+///	vertexShader.Create("SDKMesh.hlsl", "VSMain");
+///	VertexLayout.Create(vertexShader.GetBlob(), layout, 3U);
+///
+///	HRCheck(CDXUTSDKMesh::CreateFromFile(D3DEngine::Instance().GetDevice().Get(), wMeshFilePath.c_str()));
+///}
 
 NamespaceEnd(Geometry)
