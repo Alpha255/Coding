@@ -59,7 +59,7 @@ float4 PSMain(VSOutput psInput) : SV_Target
     float4 ambient, diffuse, specular;
     ComputePointLight(material, Light, normalize(texNormal), psInput.PosW, EyePos.xyz, ambient, diffuse, specular);
 
-    float4 Color = ambient + diffuse /* + specular*/;
+    float4 Color = ambient + diffuse  + specular;
 
     return float4(Color.rgb, 1.0f);
 }

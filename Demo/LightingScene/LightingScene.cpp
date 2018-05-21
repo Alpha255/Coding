@@ -19,9 +19,10 @@ struct ConstantBufferPS
 	ConstantBufferPS()
 	{
 		Light.Ambient = Vec4(0.1f, 0.1f, 0.1f, 1.0f);
-		Light.Diffuse = Vec4(0.5f, 0.5f, 0.5f, 1.0f);
+		Light.Diffuse = Vec4(0.7f, 0.7f, 0.5f, 1.0f);
 		Light.Specular = Vec4(0.7f, 0.7f, 0.7f, 64.0f);
-		Light.Range = 300.0f;
+		Light.Attenuation = Vec4(0.25f, 0.0f, 0.0f, 0.0f);
+		Light.Range = 500.0f;
 	}
 };
 
@@ -55,7 +56,6 @@ void AppLightingScene::RenderScene()
 {
 	ConstantBufferVS CBufferVS;
 	ConstantBufferPS CBufferPS;
-	static Vec3 pos(-39.0f, 125.0f, -150.0f);
 
 	D3DEngine::Instance().SetVertexShader(m_VertexShader);
 	D3DEngine::Instance().SetPixelShader(m_PixelShader);
@@ -65,7 +65,7 @@ void AppLightingScene::RenderScene()
 	D3DEngine::Instance().SetSamplerState(D3DStaticState::LinearSampler, 0U, D3DShader::ePixelShader);
 
 	CBufferPS.EyePos = m_Camera->GetEyePos();
-	CBufferPS.Light.Position = pos;
+	CBufferPS.Light.Position = Vec3(-39.0f, 140.0f, -154.0f);
 	m_CBufferPS.Update(&CBufferPS, sizeof(ConstantBufferPS));
 
 	if (m_Wireframe)
@@ -110,8 +110,8 @@ void AppLightingScene::RenderScene()
 	D3DEngine::Instance().SetShaderResourceView(m_GroundTexSpecular, 2U, D3DShader::ePixelShader);
 	D3DEngine::Instance().DrawIndexed(m_Ground.IndexCount, 0U, 0, eTriangleList);
 
-	Light::DebugDisplay(pos, Light::ePoint, *m_Camera, 10.0f);
+	///Light::DebugDisplay(pos, Light::ePoint, *m_Camera, 5.0f);
 
 	ImGui::Checkbox("Wireframe", &m_Wireframe);
-	ImGui::SliderFloat3("LightPos", (float *)&pos, -300.0f, 300.0f);
+	///ImGui::SliderFloat3("LightPos", (float *)&pos, -300.0f, 300.0f);
 }

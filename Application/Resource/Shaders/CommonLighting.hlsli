@@ -76,9 +76,10 @@ void ComputePointLight(in Material i_Mat,
 
     float3 lightDir = i_Light.Position - i_VertexPos;
     float distance = length(lightDir);
+	float scale = 1.0f;
     if (distance > i_Light.Range)
     {
-        return;
+		scale = (distance - i_Light.Range) / distance;
     }
 
     lightDir = normalize(lightDir);
@@ -94,6 +95,9 @@ void ComputePointLight(in Material i_Mat,
     float attenuation = 1.0f / dot(i_Light.Attenuation.xyz, float3(1.0f, distance, distance * distance));
     o_Diffuse *= attenuation;
     o_Specular *= attenuation;
+
+	o_Diffuse *= scale;
+	o_Specular *= scale;
 }
 
 /// http://developer.download.nvidia.com/CgTutorial/cg_tutorial_chapter08.html
