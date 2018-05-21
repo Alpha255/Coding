@@ -40,7 +40,7 @@ void Light::DebugDisplay(const Vec3 &position, const eLightType type, const Came
 	Matrix scaling = Matrix::Scaling(scale);
 	Matrix translation = Matrix::Translation(position.x, position.y, position.z);
 	Matrix rotate = Matrix::RotationAxis(1.0f, 0.0f, 0.0f, -90.0f);
-	Matrix wvp = Matrix::Transpose(world * rotate * scaling * translation * cam.GetViewMatrix() * cam.GetProjMatrix());
+	Matrix wvp = Matrix::Transpose(world * scaling * rotate * translation * cam.GetViewMatrix() * cam.GetProjMatrix());
 	s_CBufferVS.Update(&wvp, sizeof(Matrix));
 	D3DEngine::Instance().SetConstantBuffer(s_CBufferVS, 0U, D3DShader::eVertexShader);
 

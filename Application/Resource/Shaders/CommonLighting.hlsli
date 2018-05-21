@@ -75,29 +75,28 @@ void ComputePointLight(in Material i_Mat,
     o_Specular = float4(0.0f, 0.0f, 0.0f, 0.0f);
 
     float3 lightDir = i_Light.Position - i_VertexPos;
-    float distance = length(lightDir);
-	float scale = 1.0f;
-    if (distance > i_Light.Range)
-    {
-		scale = (distance - i_Light.Range) / distance;
-    }
+    float distance = sqrt(sqrt(length(lightDir)));
+	///float scale = 1.0f;
+    //if (distance > i_Light.Range)
+    //{
+    //    return;
+    //}
 
     lightDir = normalize(lightDir);
     float3 viewDir = normalize(i_EyePos - i_VertexPos);
     float3 halfWay = normalize(lightDir + viewDir);
 
-    o_Ambient = i_Light.Ambient * i_Mat.Ambient;
+    o_Ambient = i_Light.Ambient * i_Mat.Diffuse;
     o_Diffuse = i_Light.Diffuse * i_Mat.Diffuse * max(dot(lightDir, i_Normal), 0.0f);
 
     float specFactor = pow(max(dot(halfWay, i_Normal), 0.0f), i_Mat.Specular.w);
     o_Specular = specFactor * i_Mat.Specular * i_Light.Specular;
 
     float attenuation = 1.0f / dot(i_Light.Attenuation.xyz, float3(1.0f, distance, distance * distance));
+    ///float attenuation = 1.0 / (i_Light.Attenuation.x + i_Light.Attenuation.y * distance + i_Light.Attenuation.z * (distance * distance));
+    o_Ambient *= attenuation;
     o_Diffuse *= attenuation;
     o_Specular *= attenuation;
-
-	o_Diffuse *= scale;
-	o_Specular *= scale;
 }
 
 /// http://developer.download.nvidia.com/CgTutorial/cg_tutorial_chapter08.html

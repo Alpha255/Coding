@@ -40,10 +40,10 @@ void AppParallaxMapping::Initialize()
 {
 	m_QuadMesh.CreateAsQuad(8.0f);
 
-	m_DiffuseMap.Create("bricks2.dds");
-	m_NormalMap.Create("bricks2_normal.dds");
+	m_DiffuseMap.Create("StoneFloor_Diffuse.dds");
+	m_NormalMap.Create("StoneFloor_Normal.dds");
 	m_HeightMap.Create("StoneFloor_Heightmap.dds");
-	m_SpecularMap.Create("bricks2_disp.dds");
+	m_SpecularMap.Create("StoneFloor_Specular.dds");
 
 	m_CBufferVS.CreateAsConstantBuffer(sizeof(ConstantBufferVS), D3DBuffer::eGpuReadCpuWrite, nullptr);
 	m_CBufferPS.CreateAsConstantBuffer(sizeof(ConstantBufferPS), D3DBuffer::eGpuReadCpuWrite, nullptr);

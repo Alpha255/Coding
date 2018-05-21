@@ -18,11 +18,12 @@ struct ConstantBufferPS
 
 	ConstantBufferPS()
 	{
-		Light.Ambient = Vec4(0.1f, 0.1f, 0.1f, 1.0f);
-		Light.Diffuse = Vec4(0.7f, 0.7f, 0.5f, 1.0f);
-		Light.Specular = Vec4(0.7f, 0.7f, 0.7f, 64.0f);
-		Light.Attenuation = Vec4(0.25f, 0.0f, 0.0f, 0.0f);
-		Light.Range = 500.0f;
+		Light.Ambient = Vec4(0.2f, 0.2f, 0.2f, 1.0f);
+		Light.Diffuse = Vec4(0.7f, 0.7f, 0.7f, 1.0f);
+		Light.Specular = Vec4(1.0f, 1.0f, 1.0f, 64.0f);
+		Light.Attenuation = Vec4(1.0f, 0.09f, 0.032f, 0.0f);
+		Light.Position = Vec3(-39.0f, 140.0f, -154.0f);
+		Light.Range = 300.0f;
 	}
 };
 
@@ -46,7 +47,7 @@ void AppLightingScene::Initialize()
 	m_VertexShader.Create("LightingScene.hlsl", "VSMain");
 	m_PixelShader.Create("LightingScene.hlsl", "PSMain");
 
-	m_CBufferVS.CreateAsConstantBuffer(sizeof(ConstantBufferVS), D3DBuffer::eGpuReadCpuWrite, nullptr);
+	m_CBufferVS.CreateAsConstantBuffer(sizeof(ConstantBufferVS), D3DBuffer::eGpuReadCpuWrite);
 	m_CBufferPS.CreateAsConstantBuffer(sizeof(ConstantBufferPS), D3DBuffer::eGpuReadCpuWrite);
 
 	m_Camera->SetViewRadius(700.0f);
@@ -55,7 +56,7 @@ void AppLightingScene::Initialize()
 void AppLightingScene::RenderScene()
 {
 	ConstantBufferVS CBufferVS;
-	ConstantBufferPS CBufferPS;
+	static ConstantBufferPS CBufferPS;
 
 	D3DEngine::Instance().SetVertexShader(m_VertexShader);
 	D3DEngine::Instance().SetPixelShader(m_PixelShader);
@@ -65,7 +66,7 @@ void AppLightingScene::RenderScene()
 	D3DEngine::Instance().SetSamplerState(D3DStaticState::LinearSampler, 0U, D3DShader::ePixelShader);
 
 	CBufferPS.EyePos = m_Camera->GetEyePos();
-	CBufferPS.Light.Position = Vec3(-39.0f, 140.0f, -154.0f);
+	///CBufferPS.Light.Position = Vec3(-39.0f, 140.0f, -154.0f);
 	m_CBufferPS.Update(&CBufferPS, sizeof(ConstantBufferPS));
 
 	if (m_Wireframe)
@@ -73,20 +74,20 @@ void AppLightingScene::RenderScene()
 		D3DEngine::Instance().SetRasterizerState(D3DStaticState::Wireframe);
 	}
 
-	CBufferVS.World = Matrix::Transpose(m_Camera->GetWorldMatrix());
-	CBufferVS.WorldInverse = Matrix::InverseTranspose(m_Camera->GetWorldMatrix());
-	CBufferVS.WVP = Matrix::Transpose(m_Camera->GetWVPMatrix());
-	m_CBufferVS.Update(&CBufferVS, sizeof(ConstantBufferVS));
-	D3DEngine::Instance().BindMesh(m_House);
-	D3DEngine::Instance().SetShaderResourceView(m_HouseTexDiffuse, 0U, D3DShader::ePixelShader);
-	D3DEngine::Instance().SetShaderResourceView(m_HouseTexNormal, 1U, D3DShader::ePixelShader);
-	D3DEngine::Instance().SetShaderResourceView(m_HouseTexSpecular, 2U, D3DShader::ePixelShader);
-	D3DEngine::Instance().DrawIndexed(m_House.IndexCount, 0U, 0, eTriangleList);
+	///CBufferVS.World = Matrix::Transpose(m_Camera->GetWorldMatrix());
+	///CBufferVS.WorldInverse = Matrix::InverseTranspose(m_Camera->GetWorldMatrix());
+	///CBufferVS.WVP = Matrix::Transpose(m_Camera->GetWVPMatrix());
+	///m_CBufferVS.Update(&CBufferVS, sizeof(ConstantBufferVS));
+	///D3DEngine::Instance().BindMesh(m_House);
+	///D3DEngine::Instance().SetShaderResourceView(m_HouseTexDiffuse, 0U, D3DShader::ePixelShader);
+	///D3DEngine::Instance().SetShaderResourceView(m_HouseTexNormal, 1U, D3DShader::ePixelShader);
+	///D3DEngine::Instance().SetShaderResourceView(m_HouseTexSpecular, 2U, D3DShader::ePixelShader);
+	///D3DEngine::Instance().DrawIndexed(m_House.IndexCount, 0U, 0, eTriangleList);
 
 	Matrix scale = Matrix::Scaling(70.0f);
 	Matrix translation = Matrix::Translation(-39.0f, 125.0f, -150.0f);
 	Matrix rotate = Matrix::RotationAxis(0.0f, 1.0f, 0.0f, -170.0f);
-	Matrix world = m_Camera->GetWorldMatrix() * scale * rotate * translation;
+	Matrix world = m_Camera->GetWorldMatrix() * scale /** rotate */* translation;
 	CBufferVS.World = Matrix::Transpose(world);
 	CBufferVS.WorldInverse = Matrix::InverseTranspose(world);
 	CBufferVS.WVP = Matrix::Transpose(world * m_Camera->GetViewMatrix() * m_Camera->GetProjMatrix());
@@ -99,7 +100,7 @@ void AppLightingScene::RenderScene()
 
 	///translation = Matrix::Translation(-39.0f, 125.0f, -150.0f);
 	rotate = Matrix::RotationAxis(1.0f, 0.0f, 0.0f, 90.0f);
-	world = m_Camera->GetWorldMatrix() * rotate;
+	world = m_Camera->GetWorldMatrix()/* * rotate*/;
 	CBufferVS.World = Matrix::Transpose(world);
 	CBufferVS.WorldInverse = Matrix::InverseTranspose(world);
 	CBufferVS.WVP = Matrix::Transpose(world * m_Camera->GetViewMatrix() * m_Camera->GetProjMatrix());
@@ -110,8 +111,8 @@ void AppLightingScene::RenderScene()
 	D3DEngine::Instance().SetShaderResourceView(m_GroundTexSpecular, 2U, D3DShader::ePixelShader);
 	D3DEngine::Instance().DrawIndexed(m_Ground.IndexCount, 0U, 0, eTriangleList);
 
-	///Light::DebugDisplay(pos, Light::ePoint, *m_Camera, 5.0f);
+	Light::DebugDisplay(CBufferPS.Light.Position, Light::ePoint, *m_Camera, 5.0f);
 
 	ImGui::Checkbox("Wireframe", &m_Wireframe);
-	///ImGui::SliderFloat3("LightPos", (float *)&pos, -300.0f, 300.0f);
+	ImGui::SliderFloat3("LightPos", (float *)&CBufferPS.Light.Position, -1000.0f, 1000.0f);
 }

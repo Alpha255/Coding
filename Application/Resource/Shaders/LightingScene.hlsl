@@ -41,6 +41,7 @@ VSOutput VSMain(VSInput vsInput)
     output.PosH = mul(float4(vsInput.Pos, 1.0f), WVP);
     output.PosW = mul(float4(vsInput.Pos, 1.0f), World).xyz;
     output.NormalW = mul(vsInput.Normal, (float3x3)WorldInverse);
+    output.TangentW = mul(vsInput.Tangent, (float3x3)World);
     output.UV = vsInput.UV;
 
     return output;
@@ -49,7 +50,7 @@ VSOutput VSMain(VSInput vsInput)
 float4 PSMain(VSOutput psInput) : SV_Target
 {
     Material material;
-    material.Ambient = float4(0.1f, 0.1f, 0.1f, 1.0f);
+    ///material.Ambient = float4(0.1f, 0.1f, 0.1f, 1.0f);
     material.Diffuse = DiffuseMap.Sample(LinearSampler, psInput.UV);
     material.Specular = SpecularMap.Sample(LinearSampler, psInput.UV);
 
@@ -57,7 +58,7 @@ float4 PSMain(VSOutput psInput) : SV_Target
     float3 normal = UnpackNormal(texNormal, psInput.NormalW, psInput.TangentW);
 
     float4 ambient, diffuse, specular;
-    ComputePointLight(material, Light, normalize(texNormal), psInput.PosW, EyePos.xyz, ambient, diffuse, specular);
+    ComputePointLight(material, Light, normalize(normal), psInput.PosW, EyePos.xyz, ambient, diffuse, specular);
 
     float4 Color = ambient + diffuse  + specular;
 

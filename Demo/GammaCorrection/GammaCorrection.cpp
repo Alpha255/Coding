@@ -69,7 +69,7 @@ void AppGammaCorrection::Initialize()
 void AppGammaCorrection::RenderScene()
 {
 	ConstantBufferVS CBufferVS;
-	static ConstantBufferPS CBufferPS;
+	ConstantBufferPS CBufferPS;
 
 	D3DEngine::Instance().SetVertexShader(m_VertexShader);
 	D3DEngine::Instance().SetPixelShader(m_PixelShader);
