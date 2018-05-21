@@ -2,6 +2,7 @@
 
 #include "D3DMath.h"
 #include "D3DGeometry.h"
+#include "D3DView.h"
 
 struct Light
 {
@@ -71,4 +72,21 @@ struct Material
 	Vec4 Diffuse = {};
 	Vec4 Specular = {};
 	Vec4 Reflection = {};
+};
+
+class Material_1
+{
+public:
+	struct RawMaterial
+	{
+		Vec4 Ambient = {};
+		Vec4 Diffuse = {};
+		Vec4 Specular = {};
+	};
+protected:
+private:
+	RawMaterial m_RawMaterial;
+	D3DShaderResourceView m_DiffuseMap;
+	D3DShaderResourceView m_NormalMap;
+	D3DShaderResourceView m_SpecularMap;
 };
