@@ -136,13 +136,14 @@ struct ConstantBufferPS
 
 	ConstantBufferPS()
 	{
-		Light.Position = Vec3(0.0f, 0.0f, 0.0f);
-		Light.Range = 5.0f;
+		Light.Position = Vec3(0.0f, 0.0f, -2.0f);
+		Light.Range = 8.0f;
 
 		Light.Ambient = Vec4(0.2f, 0.2f, 0.2f, 1.0f);
 		Light.Diffuse = Vec4(0.7f, 0.7f, 0.7f, 1.0f);
 
 		Light.Specular = Vec3(1.0f, 1.0f, 1.0f);
+		Light.SpecularIntensity = 64.0f;
 
 		Light.Attenuation = Vec4(0.1f, 0.1f, 0.1f, 1.0f);
 	}
@@ -160,8 +161,8 @@ void AppLightingScene::Initialize()
 
 	m_WallMat.Set(Material_1::eAmbient, Vec4(0.2f, 0.2f, 0.2f, 1.0f));
 	m_WallMat.Set(Material_1::eDiffuse, "bricks2.dds");
-	m_WallMat.Set(Material_1::eSpecular, "bricks2_normal.dds");
-	m_WallMat.Set(Material_1::eNormal, "bricks2_disp.dds");
+	m_WallMat.Set(Material_1::eSpecular, "bricks2_disp.dds");
+	m_WallMat.Set(Material_1::eNormal, "bricks2_normal.dds");
 }
 
 void AppLightingScene::RenderScene()
@@ -175,7 +176,7 @@ void AppLightingScene::RenderScene()
 	CBufferVS.WVP = Matrix::Transpose(m_Camera->GetWVPMatrix());
 	m_CBufferVS.Update(&CBufferVS, sizeof(ConstantBufferVS));
 
-	ConstantBufferPS CBufferPS;
+	static ConstantBufferPS CBufferPS;
 	CBufferPS.MaterialIn = m_WallMat.RawValue;
 	CBufferPS.EyePos = m_Camera->GetEyePos();
 	m_CBufferPS.Update(&CBufferPS, sizeof(ConstantBufferPS));
@@ -185,5 +186,10 @@ void AppLightingScene::RenderScene()
 	D3DEngine::Instance().SetVertexShader(m_VertexShader);
 	D3DEngine::Instance().SetPixelShader(m_PixelShader);
 	D3DEngine::Instance().DrawIndexed(m_Wall.IndexCount, 0U, 0, eTriangleList);
+
+	Light::DebugDisplay(CBufferPS.Light.Position, Light::ePoint, *m_Camera);
+
+	ImGui::SliderFloat3("LightPos", (float *)&CBufferPS.Light.Position, -10.0f, 10.0f);
+	ImGui::SliderFloat("Specular", &CBufferPS.Light.SpecularIntensity, 16.0f, 64.0f);
 }
 #endif

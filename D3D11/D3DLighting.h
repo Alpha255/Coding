@@ -101,20 +101,44 @@ struct Material_1
 
 	struct RawMaterial
 	{
-		Vec4 Property[ePropertyCount] = {};
-		uint32_t UsingRaw[ePropertyCount] = {};
+		//Vec4 Property[ePropertyCount] = {};
+		//uint32_t UsingRaw[ePropertyCount] = {};
+		Vec4 Ambient = {};
+
+		Vec3 Diffuse = {};
+		uint32_t UsingRawDiffuse = 0U; 
+
+		Vec3 Specular = {};
+		uint32_t UsingRawSpecular = 0U;
+
+		Vec3 Normal = {};
+		uint32_t UsingRawNormal = 0U;
 	};
 
 	inline void Set(eProperty target, const Vec4 &value)
 	{
-		assert(target < ePropertyCount && target != eNormal && RawValue.UsingRaw[target] == 0U);
-		RawValue.Property[target] = value;
-		RawValue.UsingRaw[target] = 1U;
+		assert(target < ePropertyCount && target != eNormal/* && RawValue.UsingRaw[target] == 0U*/);
+		if (eAmbient == target)
+		{
+			memcpy(&RawValue.Ambient, &value, sizeof(Vec3));
+		}
+		else if (eDiffuse == target)
+		{
+			memcpy(&RawValue.Diffuse, &value, sizeof(Vec3));
+			RawValue.UsingRawDiffuse = 1U;
+		}
+		else if (eSpecular == target)
+		{
+			memcpy(&RawValue.Specular, &value, sizeof(Vec3));
+			RawValue.UsingRawSpecular = 1U;
+		}
+		//RawValue.Property[target] = value;
+		//RawValue.UsingRaw[target] = 1U;
 	}
 
 	inline void Set(eProperty target, const char *pTextureName)
 	{
-		assert(target < ePropertyCount && target != eAmbient && RawValue.UsingRaw[target] == 0U && !Textures[target - 1U].IsValid());
+		assert(target < ePropertyCount && target != eAmbient /*&& RawValue.UsingRaw[target] == 0U*/ && !Textures[target - 1U].IsValid());
 		Textures[target - 1U].Create(pTextureName);
 	}
 

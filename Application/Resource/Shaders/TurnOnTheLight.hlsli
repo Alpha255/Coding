@@ -15,11 +15,15 @@ struct VSOutput
 struct Material
 {
 	float4 Ambient;
-	float4 Diffuse;
-	float4 Specular;
-	float4 Normal;
 	
-	uint UsingRaw[4];	
+	float3 Diffuse;
+    uint UsingRawDiffuse;
+
+	float3 Specular;
+    uint UsingRawSpecular;
+	
+	float3 Normal;
+    uint UsingRawNormal;
 };
 
 struct PointLight
@@ -56,32 +60,32 @@ float3 UnpackNormal(float3 normalMap, float3 unitNormalW, float3 tangentW)
 
 Material ApplyMaterial(in Material materialIn, in VSOutput psInput)
 {
-	Material materialOut = materialIn;
+    Material materialOut = materialIn;
 
-	if (0 == materialIn.UsingRaw[1])
-	{
-		materialOut.Diffuse = DiffuseMap.Sample(Sampler, psInput.UV);
-	}
-	if (0 == materialIn.UsingRaw[2])
-	{
-		materialOut.Specular = SpecularMap.Sample(Sampler, psInput.UV);
-	}
-	if (0 == materialIn.UsingRaw[3])
-	{
-		float3 normalMap = NormalMap.Sample(Sampler, psInput.UV).rgb;
-		materialOut.Normal.xyz = normalize(UnpackNormal(normalMap, normalize(psInput.NormalW), normalize(psInput.TangentW)));
-	}
-	else
-	{
-		materialOut.Normal.xyz = normalize(psInput.NormalW);
-	}
+    if (0 == materialIn.UsingRawDiffuse)
+    {
+        materialOut.Diffuse = DiffuseMap.Sample(Sampler, psInput.UV);
+    }
+    if (0 == materialIn.UsingRawSpecular)
+    {
+        materialOut.Specular = SpecularMap.Sample(Sampler, psInput.UV);
+    }
+    if (0 == materialIn.UsingRawNormal)
+    {
+        float3 normalMap = NormalMap.Sample(Sampler, psInput.UV).rgb;
+        materialOut.Normal.xyz = normalize(UnpackNormal(normalMap, normalize(psInput.NormalW), normalize(psInput.TangentW)));
+    }
+    else
+    {
+        materialOut.Normal.xyz = normalize(psInput.NormalW);
+    }
 
-	return materialOut;
+    return materialOut;
 }
 
-float3 PointLighting(in PointLight light, in VSOutput psInput, in float3 eyePos, in Material materialIn)
+float3 PointLighting(in PointLight light, in VSOutput psInput, in float3 eyePos, in Material material)
 {
-	Material materialOut = ApplyMaterial(materialIn, psInput);
+    Material finalMaterial = ApplyMaterial(material, psInput);
 
     float3 ToLight = light.Position - psInput.PosW;
     float3 ToEye = eyePos - psInput.PosW;
@@ -89,21 +93,22 @@ float3 PointLighting(in PointLight light, in VSOutput psInput, in float3 eyePos,
    
 	// Phong diffuse
     ToLight /= DistToLight; // Normalize
-    float NDotL = saturate(dot(ToLight, materialOut.Normal.xyz));
+    float NDotL = saturate(dot(ToLight, finalMaterial.Normal.xyz));
     float3 finalColor = light.Diffuse.rgb * NDotL;
    
 	// Blinn specular
     ToEye = normalize(ToEye);
     float3 HalfWay = normalize(ToEye + ToLight);
-    float NDotH = saturate(dot(HalfWay, materialOut.Normal.xyz));
-    finalColor += light.Diffuse.rgb * pow(NDotH, light.SpecularIntensity) * materialOut.Specular.rgb;
+    float NDotH = saturate(dot(HalfWay, finalMaterial.Normal.xyz));
+    finalColor += light.Diffuse.rgb * pow(NDotH, light.SpecularIntensity) * finalMaterial.Specular.rgb;
    
 	// Attenuation
-    float DistToLightNorm = 1.0 - saturate(DistToLight * light.Range);
-    float Attn = DistToLightNorm * DistToLightNorm;
-    finalColor *= materialOut.Diffuse.rgb * Attn;
+    ///float DistToLightNorm = 1.0 - saturate(DistToLight * light.Range);
+    ///float Attn = DistToLightNorm * DistToLightNorm;
+    float Attn = 1.0f - DistToLight / light.Range;
+    finalColor *= finalMaterial.Diffuse.rgb * Attn;
 
-	float3 ambient = light.Ambient.rgb * materialOut.Ambient.rgb;
+    float3 ambient = light.Ambient.rgb * finalMaterial.Ambient.rgb;
 	finalColor += ambient;
    
     return finalColor;
