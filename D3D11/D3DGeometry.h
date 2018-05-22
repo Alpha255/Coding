@@ -7,6 +7,7 @@
 
 class Camera;
 class D3DEngine;
+struct Material_1;
 
 NamespaceBegin(Geometry)
 
@@ -55,6 +56,8 @@ public:
 
 	void DrawNormal(const Camera &cam);
 
+	void Bind(const Material_1 &material);
+
 	inline bool IsCreated() const
 	{
 		return m_Created;
@@ -73,6 +76,8 @@ protected:
 
 	void SubDivide();
 	void MakeCylinderTopBottomCap(bool bTop, float bottomRadius, float topRadius, float height, uint32_t slice);
+
+	void ApplyMaterial(const Material_1 &material);
 private:
 	bool m_Created = false;
 };

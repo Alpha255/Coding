@@ -41,6 +41,20 @@ struct PointLight : public Light
 	Vec4 Attenuation = {};
 };
 
+struct PointLight_1 : public Light
+{
+	Vec3 Position = {};
+	float Range = 10.0f;
+
+	Vec4 Ambient = {};
+	Vec4 Diffuse = {};
+
+	Vec3 Specular = {};
+	float SpecularIntensity = 32.0f;
+
+	Vec4 Attenuation = {};
+};
+
 struct DirectionalLight : public Light
 {
 	Vec4 Ambient = {};
@@ -74,19 +88,36 @@ struct Material
 	Vec4 Reflection = {};
 };
 
-class Material_1
+struct Material_1
 {
-public:
+	enum eProperty
+	{
+		eAmbient,
+		eDiffuse,
+		eSpecular,
+		eNormal,
+		ePropertyCount
+	};
+
 	struct RawMaterial
 	{
-		Vec4 Ambient = {};
-		Vec4 Diffuse = {};
-		Vec4 Specular = {};
+		Vec4 Property[ePropertyCount] = {};
+		uint32_t UsingRaw[ePropertyCount] = {};
 	};
-protected:
-private:
-	RawMaterial m_RawMaterial;
-	D3DShaderResourceView m_DiffuseMap;
-	D3DShaderResourceView m_NormalMap;
-	D3DShaderResourceView m_SpecularMap;
+
+	inline void Set(eProperty target, const Vec4 &value)
+	{
+		assert(target < ePropertyCount && target != eNormal && RawValue.UsingRaw[target] == 0U);
+		RawValue.Property[target] = value;
+		RawValue.UsingRaw[target] = 1U;
+	}
+
+	inline void Set(eProperty target, const char *pTextureName)
+	{
+		assert(target < ePropertyCount && target != eAmbient && RawValue.UsingRaw[target] == 0U && !Textures[target - 1U].IsValid());
+		Textures[target - 1U].Create(pTextureName);
+	}
+
+	RawMaterial RawValue;
+	D3DShaderResourceView Textures[ePropertyCount - 1U];
 };

@@ -4,6 +4,7 @@
 #include "D3DGUI_imGui.h"
 #include "D3DLighting.h"
 
+#if 0
 struct ConstantBufferVS
 {
 	Matrix World;
@@ -116,3 +117,73 @@ void AppLightingScene::RenderScene()
 	ImGui::Checkbox("Wireframe", &m_Wireframe);
 	ImGui::SliderFloat3("LightPos", (float *)&CBufferPS.Light.Position, -1000.0f, 1000.0f);
 }
+
+#else
+struct ConstantBufferVS
+{
+	Matrix World;
+	Matrix WorldInverse;
+	Matrix WVP;
+};
+
+struct ConstantBufferPS
+{
+	Vec4 EyePos;
+
+	PointLight_1 Light;
+
+	Material_1::RawMaterial MaterialIn;
+
+	ConstantBufferPS()
+	{
+		Light.Position = Vec3(0.0f, 0.0f, 0.0f);
+		Light.Range = 5.0f;
+
+		Light.Ambient = Vec4(0.2f, 0.2f, 0.2f, 1.0f);
+		Light.Diffuse = Vec4(0.7f, 0.7f, 0.7f, 1.0f);
+
+		Light.Specular = Vec3(1.0f, 1.0f, 1.0f);
+
+		Light.Attenuation = Vec4(0.1f, 0.1f, 0.1f, 1.0f);
+	}
+};
+
+void AppLightingScene::Initialize()
+{
+	m_VertexShader.Create("LightingScene.hlsl", "VSMain");
+	m_PixelShader.Create("LightingScene.hlsl", "PSMain");
+
+	m_Wall.CreateAsQuad(10.0f);
+
+	m_CBufferVS.CreateAsConstantBuffer(sizeof(ConstantBufferVS), D3DBuffer::eGpuReadCpuWrite);
+	m_CBufferPS.CreateAsConstantBuffer(sizeof(ConstantBufferPS), D3DBuffer::eGpuReadCpuWrite);
+
+	m_WallMat.Set(Material_1::eAmbient, Vec4(0.2f, 0.2f, 0.2f, 1.0f));
+	m_WallMat.Set(Material_1::eDiffuse, "bricks2.dds");
+	m_WallMat.Set(Material_1::eSpecular, "bricks2_normal.dds");
+	m_WallMat.Set(Material_1::eNormal, "bricks2_disp.dds");
+}
+
+void AppLightingScene::RenderScene()
+{
+	D3DEngine::Instance().SetConstantBuffer(m_CBufferVS, 0U, D3DShader::eVertexShader);
+	D3DEngine::Instance().SetConstantBuffer(m_CBufferPS, 0U, D3DShader::ePixelShader);
+
+	ConstantBufferVS CBufferVS;
+	CBufferVS.World = Matrix::Transpose(m_Camera->GetWorldMatrix());
+	CBufferVS.WorldInverse = Matrix::Transpose(m_Camera->GetWorldMatrix());
+	CBufferVS.WVP = Matrix::Transpose(m_Camera->GetWVPMatrix());
+	m_CBufferVS.Update(&CBufferVS, sizeof(ConstantBufferVS));
+
+	ConstantBufferPS CBufferPS;
+	CBufferPS.MaterialIn = m_WallMat.RawValue;
+	CBufferPS.EyePos = m_Camera->GetEyePos();
+	m_CBufferPS.Update(&CBufferPS, sizeof(ConstantBufferPS));
+
+	m_Wall.Bind(m_WallMat);
+
+	D3DEngine::Instance().SetVertexShader(m_VertexShader);
+	D3DEngine::Instance().SetPixelShader(m_PixelShader);
+	D3DEngine::Instance().DrawIndexed(m_Wall.IndexCount, 0U, 0, eTriangleList);
+}
+#endif

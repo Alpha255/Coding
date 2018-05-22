@@ -1,5 +1,6 @@
 #include "D3DGeometry.h"
 #include "D3DEngine.h"
+#include "D3DLighting.h"
 #include "Camera.h"
 #include "System.h"
 
@@ -681,6 +682,26 @@ void Mesh::SaveAsObjFile(const char *pObjFileName)
 			/// Output UVs
 		}
 	}
+}
+
+void Mesh::ApplyMaterial(const Material_1 &material)
+{
+	for (uint32_t i = 1U; i < Material_1::ePropertyCount; ++i)
+	{
+		if (0U == material.RawValue.UsingRaw[i])
+		{
+			D3DEngine::Instance().SetShaderResourceView(material.Textures[i - 1U], i - 1U, D3DShader::ePixelShader);
+		}
+	}
+}
+
+void Mesh::Bind(const Material_1 &material)
+{
+	ApplyMaterial(material);
+
+	D3DEngine::Instance().SetInputLayout(VertexLayout);
+	D3DEngine::Instance().SetVertexBuffer(VertexBuffer, sizeof(Vertex), 0U, 0U);
+	D3DEngine::Instance().SetIndexBuffer(IndexBuffer, eR32_UInt, 0U);
 }
 
 void ObjMesh::Create(const char *pFileName)

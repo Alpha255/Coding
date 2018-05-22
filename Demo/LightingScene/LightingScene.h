@@ -3,6 +3,7 @@
 #include "D3DApp.h"
 #include "D3DGeometry.h"
 #include "D3DView.h"
+#include "D3DLighting.h"
 
 class AppLightingScene : public D3DApp
 {
@@ -14,6 +15,7 @@ public:
 	virtual void RenderScene() override;
 protected:
 private:
+#if 0
 	Geometry::ObjMesh m_House;
 	Geometry::ObjMesh m_Lamp;
 
@@ -38,4 +40,15 @@ private:
 	D3DBuffer m_CBufferPS;
 
 	bool m_Wireframe = false;
+#else
+	Geometry::Mesh m_Wall;
+
+	Material_1 m_WallMat;
+
+	D3DVertexShader m_VertexShader;
+	D3DPixelShader m_PixelShader;
+
+	D3DBuffer m_CBufferVS;
+	D3DBuffer m_CBufferPS;
+#endif
 };
