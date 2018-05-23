@@ -3,6 +3,7 @@
 #include "Camera.h"
 #include "D3DApp.h"
 #include "D3DSkyBox.h"
+#include "D3DLighting.h"
 
 class AppCubemap : public D3DApp
 {
@@ -35,6 +36,9 @@ private:
 
 	D3DRenderTargetView m_CubemapRTV[6];
 	D3DDepthStencilView m_CubemapDSV;
+
+	Material m_MatrialCube;
+	Material m_MatrialSphere;
 
 	D3DViewport m_Viewport;
 	D3DViewport m_CubemapViewport;

@@ -2,7 +2,6 @@
 #include "D3DEngine.h"
 #include "Camera.h"
 #include "D3DGUI_imGui.h"
-#include "D3DLighting.h"
 
 #if 0
 struct ConstantBufferVS
@@ -130,22 +129,14 @@ struct ConstantBufferPS
 {
 	Vec4 EyePos;
 
-	PointLight_1 Light;
+	PointLight Light;
 
-	Material_1::RawMaterial MaterialIn;
+	Material::RawMaterial MaterialIn;
 
 	ConstantBufferPS()
 	{
-		Light.Position = Vec3(0.0f, 0.0f, -2.0f);
 		Light.Range = 8.0f;
-
-		Light.Ambient = Vec4(0.2f, 0.2f, 0.2f, 1.0f);
-		Light.Diffuse = Vec4(0.7f, 0.7f, 0.7f, 1.0f);
-
-		Light.Specular = Vec3(1.0f, 1.0f, 1.0f);
 		Light.SpecularIntensity = 64.0f;
-
-		Light.Attenuation = Vec4(0.1f, 0.1f, 0.1f, 1.0f);
 	}
 };
 
@@ -159,10 +150,9 @@ void AppLightingScene::Initialize()
 	m_CBufferVS.CreateAsConstantBuffer(sizeof(ConstantBufferVS), D3DBuffer::eGpuReadCpuWrite);
 	m_CBufferPS.CreateAsConstantBuffer(sizeof(ConstantBufferPS), D3DBuffer::eGpuReadCpuWrite);
 
-	m_WallMat.Set(Material_1::eAmbient, Vec4(0.2f, 0.2f, 0.2f, 1.0f));
-	m_WallMat.Set(Material_1::eDiffuse, "bricks2.dds");
-	m_WallMat.Set(Material_1::eSpecular, "bricks2_disp.dds");
-	m_WallMat.Set(Material_1::eNormal, "bricks2_normal.dds");
+	m_WallMat.Set(Material::eDiffuse, "bricks2.dds");
+	m_WallMat.Set(Material::eSpecular, "bricks2_disp.dds");
+	m_WallMat.Set(Material::eNormal, "bricks2_normal.dds");
 }
 
 void AppLightingScene::RenderScene()

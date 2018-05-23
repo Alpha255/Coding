@@ -17,21 +17,13 @@ struct ConstantBufferVS
 
 struct ConstantBufferPS
 {
+	Vec4 EyePos;
+
 	DirectionalLight DirLight;
 	Material Mat;
 
-	Vec4 EyePos;
-
 	ConstantBufferPS()
 	{
-		Mat.Ambient = Vec4(0.1f, 0.1f, 0.1f, 0.0f);
-		Mat.Diffuse = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		Mat.Specular = Vec4(0.5f, 0.5f, 0.5f, 30.0f);
-		Mat.Reflection = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
-
-		DirLight.Ambient = Vec4(0.2f, 0.2f, 0.2f, 1.0f);
-		DirLight.Diffuse = Vec4(0.7f, 0.7f, 0.6f, 1.0f);
-		DirLight.Specular = Vec4(0.8f, 0.8f, 0.7f, 1.0f);
 		DirLight.Direction = Vec4(0.7f, 0.0f, -3.0f, 0.0f);
 	}
 };
@@ -87,6 +79,6 @@ void AppParallaxMapping::RenderScene()
 	D3DEngine::Instance().SetRasterizerState(D3DStaticState::SolidNoneCulling);
 	D3DEngine::Instance().DrawIndexed(m_QuadMesh.IndexCount, 0U, 0, eTriangleList);
 
-	ImGui::SliderFloat3("LightPosition", (float*)&CBufferPS.DirLight.Direction, -10.0f, 10.0f);
+	ImGui::SliderFloat3("LightDirection", (float*)&CBufferPS.DirLight.Direction, -10.0f, 10.0f);
 	ImGui::Combo("MappingType", &m_MappingType, "None\0NormalMapping");
 }

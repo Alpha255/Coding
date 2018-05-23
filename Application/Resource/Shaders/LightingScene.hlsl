@@ -39,6 +39,7 @@ VSOutput VSMain(VSInput vsInput)
 float4 PSMain(VSOutput psInput) : SV_Target
 {
     float3 lightingClr = PointLighting(Light, psInput, EyePos.xyz, MatIn);
+	lightingClr += Light.Ambient.rgb;
 
 	return float4(lightingClr, 1.0f);
 }

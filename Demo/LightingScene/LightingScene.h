@@ -43,7 +43,7 @@ private:
 #else
 	Geometry::Mesh m_Wall;
 
-	Material_1 m_WallMat;
+	Material m_WallMat;
 
 	D3DVertexShader m_VertexShader;
 	D3DPixelShader m_PixelShader;

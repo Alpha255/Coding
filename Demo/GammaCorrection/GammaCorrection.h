@@ -3,6 +3,7 @@
 #include "D3DApp.h"
 #include "D3DGeometry.h"
 #include "D3DView.h"
+#include "D3DLighting.h"
 
 class AppGammaCorrection : public D3DApp
 {
@@ -21,9 +22,8 @@ private:
 	
 	D3DBuffer m_CBufferVS;
 	D3DBuffer m_CBufferPS;
-
-	D3DShaderResourceView m_DiffuseTexFloor;
-	D3DShaderResourceView m_DiffuseTexFloorGamma;
+	
+	Material m_FloorMaterial;
 
 	bool m_bGammaCorrection = false;
 };

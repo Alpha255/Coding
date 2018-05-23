@@ -10,6 +10,8 @@
     <ClCompile>
       <AdditionalIncludeDirectories>$(SolutionDir)System\;$(SolutionDir)D3D11\;$(SolutionDir)ThirdParty\;$(SolutionDir)ThirdParty\vcglib\;$(SolutionDir)ThirdParty\DXUT\Optional\</AdditionalIncludeDirectories>
       <WarningLevel>Level4</WarningLevel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;windowscodecs.lib;Usp10.lib;Comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>

@@ -15,20 +15,16 @@ struct ConstantBufferPS
 {
 	Vec4 EyePos;
 
-	DirectionalLight DirLight;
-	Material Mat;
+	DirectionalLight Light;
+	Material::RawMaterial Mat;
 
 	ConstantBufferPS()
 	{
-		DirLight.Ambient = Vec4(0.2f, 0.2f, 0.2f, 1.0f);
-		DirLight.Diffuse = Vec4(0.5f, 0.5f, 0.5f, 1.0f);
-		DirLight.Specular = Vec4(0.5f, 0.5f, 0.5f, 1.0f);
-		DirLight.Direction = Vec4(0.57735f, -0.57735f, 0.57735f, 0.0f);
+		Light.Diffuse = Vec4(0.5f, 0.5f, 0.5f, 1.0f);
+		Light.Specular = Vec3(0.5f, 0.5f, 0.5f);
+		Light.Direction = Vec4(0.57735f, -0.57735f, 0.57735f, 0.0f);
 	}
 };
-
-Material g_MatrialCube;
-Material g_MatrialSphere;
 
 void AppCubemap::InitCubemapCameras(float cx, float cy, float cz)
 {
@@ -95,15 +91,12 @@ void AppCubemap::Initialize()
 	m_Viewport = { 0.0f, 0.0f, (float)m_Width, (float)m_Height, 0.0f, 1.0f };
 	m_CubemapViewport = { 0.0f, 0.0f, (float)CubemapSize, (float)CubemapSize, 0.0f, 1.0f };
 	
-	g_MatrialCube.Ambient = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	g_MatrialCube.Diffuse = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	g_MatrialCube.Specular = Vec4(0.8f, 0.8f, 0.8f, 16.0f);
-	g_MatrialCube.Reflection = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	m_MatrialCube.Set(Material::eDiffuse, "WoodCrate01.dds");
+	m_MatrialCube.Set(Material::eSpecular, Vec4(0.8f, 0.8f, 0.8f, 1.0f));
 
-	g_MatrialSphere.Ambient = Vec4(0.2f, 0.2f, 0.2f, 1.0f);
-	g_MatrialSphere.Diffuse = Vec4(0.2f, 0.2f, 0.2f, 1.0f);
-	g_MatrialSphere.Specular = Vec4(0.8f, 0.8f, 0.8f, 16.0f);
-	g_MatrialSphere.Reflection = Vec4(0.8f, 0.8f, 0.8f, 1.0f);
+	m_MatrialSphere.Set(Material::eDiffuse, "stone.dds");
+	m_MatrialSphere.Set(Material::eSpecular, Vec4(0.8f, 0.8f, 0.8f, 16.0f));
+	m_MatrialSphere.Set(Material::eReflection, Vec4(0.8f, 0.8f, 0.8f, 1.0f));
 
 	m_Camera->Translation(0.0f, 2.0f, -15.0f);
 }
@@ -113,33 +106,26 @@ void AppCubemap::DrawClutter(const Camera &cam, bool isGenCubemap)
 	ConstantBufferVS CBufferVS;
 	ConstantBufferPS CBufferPS;
 
-	Matrix world, translation;
-
 	D3DEngine::Instance().SetVertexShader(m_VertexShader);
 	D3DEngine::Instance().SetPixelShader(m_PixelShader);
 
 	D3DEngine::Instance().SetConstantBuffer(m_CBufferVS, 0U, D3DShader::eVertexShader);
 	D3DEngine::Instance().SetConstantBuffer(m_CBufferPS, 0U, D3DShader::ePixelShader);
 
-	D3DEngine::Instance().SetSamplerState(D3DStaticState::LinearSampler, 0U, D3DShader::ePixelShader);
-
 	/// Draw Cube
-	translation = Matrix::Translation(0.0f, -2.0f, 10.0f);
-	world = cam.GetWorldMatrix() * translation;
+	Matrix translation = Matrix::Translation(0.0f, -2.0f, 10.0f);
+	Matrix world = cam.GetWorldMatrix() * translation;
 	CBufferVS.World = Matrix::Transpose(world);
 	CBufferVS.WorldInverse = Matrix::Inverse(world);
 	CBufferVS.WVP = Matrix::Transpose(world * cam.GetViewMatrix() * cam.GetProjMatrix());
 	m_CBufferVS.Update(&CBufferVS, sizeof(ConstantBufferVS));
 
 	CBufferPS.EyePos = cam.GetEyePos();
-	CBufferPS.Mat = g_MatrialCube;
+	CBufferPS.Mat = m_MatrialCube.RawValue;
 	m_CBufferPS.Update(&CBufferPS, sizeof(ConstantBufferPS));
 
 	D3DShaderResourceView NoneSRV;
-	D3DEngine::Instance().SetInputLayout(m_CubeMesh.VertexLayout);
-	D3DEngine::Instance().SetVertexBuffer(m_CubeMesh.VertexBuffer, sizeof(Geometry::Vertex), 0U, 0U);
-	D3DEngine::Instance().SetIndexBuffer(m_CubeMesh.IndexBuffer, eR32_UInt, 0U);
-	D3DEngine::Instance().SetShaderResourceView(m_DiffuseTexCube, 0U, D3DShader::ePixelShader);
+	m_CubeMesh.Bind(m_MatrialCube);
 	D3DEngine::Instance().SetShaderResourceView(NoneSRV, 1U, D3DShader::ePixelShader);
 	D3DEngine::Instance().DrawIndexed(m_CubeMesh.IndexCount, 0U, 0, eTriangleList);
 
@@ -153,14 +139,11 @@ void AppCubemap::DrawClutter(const Camera &cam, bool isGenCubemap)
 		CBufferVS.WVP = Matrix::Transpose(world * cam.GetViewMatrix() * cam.GetProjMatrix());
 		m_CBufferVS.Update(&CBufferVS, sizeof(ConstantBufferVS));
 
-		CBufferPS.Mat = g_MatrialSphere;
+		CBufferPS.Mat = m_MatrialSphere.RawValue;
 		m_CBufferPS.Update(&CBufferPS, sizeof(ConstantBufferPS));
 
-		D3DEngine::Instance().SetInputLayout(m_SphereMesh.VertexLayout);
-		D3DEngine::Instance().SetVertexBuffer(m_SphereMesh.VertexBuffer, sizeof(Geometry::Vertex), 0U, 0U);
-		D3DEngine::Instance().SetIndexBuffer(m_SphereMesh.IndexBuffer, eR32_UInt, 0U);
-		D3DEngine::Instance().SetShaderResourceView(m_DiffuseTexSphere, 0U, D3DShader::ePixelShader);
-		D3DEngine::Instance().SetShaderResourceView(m_CubeMap, 1U, D3DShader::ePixelShader);
+		m_SphereMesh.Bind(m_MatrialSphere);
+		D3DEngine::Instance().SetShaderResourceView(m_CubeMap, 3U, D3DShader::ePixelShader);
 		D3DEngine::Instance().DrawIndexed(m_SphereMesh.IndexCount, 0U, 0, eTriangleList);
 	}
 

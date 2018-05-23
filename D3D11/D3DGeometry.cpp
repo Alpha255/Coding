@@ -684,25 +684,17 @@ void Mesh::SaveAsObjFile(const char *pObjFileName)
 	}
 }
 
-void Mesh::ApplyMaterial(const Material_1 &material)
+void Mesh::ApplyMaterial(const Material &material)
 {
-	if (0U == material.RawValue.UsingRawDiffuse)
+	for (uint32_t i = 0U; i < Material::ePropertyCount; ++i)
 	{
-		D3DEngine::Instance().SetShaderResourceView(material.Textures[Material_1::eDiffuse - 1], Material_1::eDiffuse - 1U, D3DShader::ePixelShader);
-	}
-	if (0U == material.RawValue.UsingRawSpecular)
-	{
-		D3DEngine::Instance().SetShaderResourceView(material.Textures[Material_1::eSpecular - 1], Material_1::eSpecular - 1U, D3DShader::ePixelShader);
-	}
-	if (0U == material.RawValue.UsingRawNormal)
-	{
-		D3DEngine::Instance().SetShaderResourceView(material.Textures[Material_1::eNormal - 1], Material_1::eNormal - 1U, D3DShader::ePixelShader);
+		D3DEngine::Instance().SetShaderResourceView(material.Textures[i], i, D3DShader::ePixelShader);
 	}
 
 	D3DEngine::Instance().SetSamplerState(D3DStaticState::LinearSampler, 0U, D3DShader::ePixelShader);
 }
 
-void Mesh::Bind(const Material_1 &material)
+void Mesh::Bind(const Material &material)
 {
 	ApplyMaterial(material);
 
