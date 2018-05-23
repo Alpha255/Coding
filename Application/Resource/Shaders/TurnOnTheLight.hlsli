@@ -21,7 +21,7 @@ struct Material
 	float3 Normal;
     uint UsingRawNormal;
 
-	float4 Reflection;
+    float4 Reflection;
 };
 
 struct PointLight
@@ -125,7 +125,7 @@ float3 DirectionalLighting(DirectionalLight light, in VSOutput psInput, in float
 	Material finalMaterial = ApplyMaterial(material, psInput);
 
 	/// Phong diffuse
-	float3 ToLight = -light.Direction.xyz;
+    float3 ToLight = normalize(-light.Direction.xyz);
     float NDotL = saturate(dot(ToLight, finalMaterial.Normal.xyz));
     float3 finalColor = light.Diffuse.rgb * NDotL;
    

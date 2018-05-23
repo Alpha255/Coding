@@ -18,15 +18,12 @@ struct ConstantBufferPS
 
 	Vec4 EyePos;
 
-	Material Mat;
+	Material::RawMaterial RawMat;
 	DirectionalLight DirLight;
 	PointLight PLight[3];
 
 	ConstantBufferPS()
 	{
-		Mat.Diffuse = Vec4(0.85f, 0.8f, 0.5f, 1.0f);
-		Mat.Specular = Vec4(0.25f, 0.25f, 0.25f, 250.0f);
-
 		DirLight.Direction = Vec4(1.0, -1.0f, 1.0f, 0.0f);
 		DirLight.Diffuse = Vec4(0.85f, 0.8f, 0.5f, 1.0f);
 		DirLight.Diffuse = DirLight.Diffuse * DirLight.Diffuse;
@@ -42,11 +39,6 @@ struct ConstantBufferPS
 		PLight[0].Range = 50.0f;
 		PLight[1].Range = 50.0f;
 		PLight[2].Range = 50.0f;
-
-		float att = 1.0f / 50.0f;
-		PLight[0].Attenuation = Vec4(att, att, att, 0.0f);
-		PLight[1].Attenuation = Vec4(att, att, att, 0.0f);
-		PLight[2].Attenuation = Vec4(att, att, att, 0.0f);
 	}
 };
 
@@ -67,8 +59,11 @@ void AppForwardLighting::Initialize()
 	m_PixelShader[ePoint].Create("ForwardLighting.hlsl", "PSMain_Point");
 	m_PixelShader[eSpot].Create("ForwardLighting.hlsl", "PSMain_Spot");
 
-	m_CBufferVS.CreateAsConstantBuffer(sizeof(ConstantBufferVS), D3DBuffer::eGpuReadCpuWrite, nullptr);
-	m_CBufferPS.CreateAsConstantBuffer(sizeof(ConstantBufferPS), D3DBuffer::eGpuReadCpuWrite, nullptr);
+	m_CBufferVS.CreateAsConstantBuffer(sizeof(ConstantBufferVS), D3DBuffer::eGpuReadCpuWrite);
+	m_CBufferPS.CreateAsConstantBuffer(sizeof(ConstantBufferPS), D3DBuffer::eGpuReadCpuWrite);
+
+	m_BunnyMaterial.Set(Material::eDiffuse, Vec4(0.85f, 0.8f, 0.5f, 1.0f));
+	m_BunnyMaterial.Set(Material::eSpecular, Vec4(0.25f, 0.25f, 0.25f, 1.0f));
 
 	m_Camera->SetViewRadius(10.0f);
 	m_Camera->Move(0, -100);
@@ -89,6 +84,7 @@ void AppForwardLighting::RenderScene()
 	g_CBufferPS.AmbientLowerClr = GammaToLinear(g_AmbientLowerClr);
 	g_CBufferPS.AmbientRange = GammaToLinear(g_AmbientUpperClr) - GammaToLinear(g_AmbientLowerClr);
 	g_CBufferPS.EyePos = m_Camera->GetEyePos();
+	g_CBufferPS.RawMat = m_BunnyMaterial.RawValue;
 	m_CBufferPS.Update(&g_CBufferPS, sizeof(ConstantBufferPS));
 	D3DEngine::Instance().SetConstantBuffer(m_CBufferPS, 0U, D3DShader::ePixelShader);
 
@@ -99,7 +95,7 @@ void AppForwardLighting::RenderScene()
 	g_CBufferVS.World = Matrix::Transpose(world);
 	g_CBufferVS.WorldInverse = Matrix::InverseTranspose(world);
 	m_CBufferVS.Update(&g_CBufferVS, sizeof(ConstantBufferVS));
-	D3DEngine::Instance().BindMesh(m_StanfordBunny);
+	m_StanfordBunny.Bind(&m_BunnyMaterial);
 	D3DEngine::Instance().DrawIndexed(m_StanfordBunny.IndexCount, 0U, 0, eTriangleList);
 
 	world = m_Camera->GetWorldMatrix() * Matrix::RotationAxis(1.0f, 0.0f, 0.0f, 90.0f) * Matrix::Translation(0.0f, -0.5f, 0.0f);
@@ -107,7 +103,7 @@ void AppForwardLighting::RenderScene()
 	g_CBufferVS.World = Matrix::Transpose(world);
 	g_CBufferVS.WorldInverse = Matrix::InverseTranspose(world);
 	m_CBufferVS.Update(&g_CBufferVS, sizeof(ConstantBufferVS));
-	D3DEngine::Instance().BindMesh(m_Floor);
+	m_Floor.Bind();
 	D3DEngine::Instance().DrawIndexed(m_Floor.IndexCount, 0U, 0, eTriangleList);
 
 	///D3DEngine::Instance().DrawSDKMesh(m_StanfordBunnyMesh);

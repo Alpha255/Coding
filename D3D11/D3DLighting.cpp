@@ -34,7 +34,7 @@ void Light::DebugDisplay(const Vec3 &position, const eLightType type, const Came
 	D3DEngine::Instance().SetVertexShader(s_VertexShader);
 	D3DEngine::Instance().SetPixelShader(s_PixelShader);
 
-	D3DEngine::Instance().BindMesh(s_PointLightMesh);
+	s_PointLightMesh.Bind();
 
 	Matrix world = cam.GetWorldMatrix();
 	Matrix scaling = Matrix::Scaling(scale);

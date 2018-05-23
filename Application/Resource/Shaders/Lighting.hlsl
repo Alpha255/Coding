@@ -1,6 +1,6 @@
 #include "TurnOnTheLight.hlsli"
 
-cbuffer ConstantBufferVS
+cbuffer cbVS
 {
 	matrix World;
 	matrix WorldInverse;
@@ -11,7 +11,7 @@ cbuffer ConstantBufferVS
 	Material Mat;
 };
 
-cbuffer ConstantBufferPS
+cbuffer cbPS
 {	
 	float4 EyePosPS;
     DirectionalLight DirLightPS;
@@ -49,14 +49,14 @@ float3 DirectiaonalLighting_Flat(in DirectionalLight light, in float3 vertexNorm
 float3 DirectionalLighting_Phong(DirectionalLight light, in float3 vertexPos, in float3 vertexNormal, in float3 eyePos, in Material material)
 {
 	/// Phong diffuse
-	float3 ToLight = -light.Direction.xyz;
+    float3 ToLight = normalize(-light.Direction.xyz);
     float NDotL = saturate(dot(ToLight, vertexNormal));
     float3 finalColor = light.Diffuse.rgb * NDotL;
    
 	/// Phong specular
-	float3 reflection = reflect(ToLight, vertexNormal);
+	float3 reflection = reflect(-ToLight, vertexNormal);
     float3 ToEye = normalize(eyePos - vertexPos);
-    finalColor += light.Diffuse.rgb * pow(saturate(dot(reflection, ToEye)), DirLight.SpecularIntensity) * material.Specular.rgb;
+    finalColor += light.Diffuse.rgb * pow(saturate(dot(reflection, ToEye)), light.SpecularIntensity) * material.Specular.rgb;
 
 	finalColor *= material.Diffuse.rgb;
 
@@ -92,7 +92,7 @@ VSOutputFlatGouraud VSMainGouraud(VSInput vsInput)
     vsOutput.Pos = mul(float4(vsInput.Pos, 1.0f), WVP);
 
 	float3 posW = mul(vsInput.Pos, (float3x3)World);
-	float3 normal = mul(vsInput.Normal, (float3x3)World);
+	float3 normal = mul(vsInput.Normal, (float3x3)WorldInverse);
 
 	float3 lightingColor = DirectionalLighting_Phong(DirLight, posW, normalize(normal), EyePos.xyz, Mat);
 
@@ -128,21 +128,9 @@ VSOutputPhong VSMainPhong(VSInput vsInput)
 
 float4 PSMainPhong(VSOutputPhong psInput) : SV_Target
 {
-	float3 normal = normalize(psInput.NormalW);
+    float3 lightingColor = DirectionalLighting_Phong(DirLightPS, psInput.PosW, normalize(psInput.NormalW), EyePosPS.xyz, MatPS);
 
-    float3 lightDir = normalize(-DirLightPS.Direction.xyz);
-
-    float4 diffuse = DirLightPS.Diffuse * MatPS.Diffuse * max(dot(lightDir, normal), 0.0f);
-
-	float3 viewDir = normalize(EyePosPS.xyz - psInput.PosW);
-    float3 reflection = reflect(-lightDir, normal);
-    float specFactor = pow(max(dot(reflection, viewDir), 0.0f), DirLightPS.SpecularIntensity);
-	float3 specular = DirLightPS.Specular * MatPS.Specular.rgb * specFactor;
-
-	float4 Color = DirLightPS.Ambient + diffuse + float4(specular, 0.0f);
-	Color.w = MatPS.Diffuse.w;
-
-	return Color;
+    return float4(lightingColor, 1.0f);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -163,7 +151,7 @@ float4 PSMainBlinnPhong(VSOutput psInput) : SV_Target
 {
 	float3 lightingColor = DirectionalLighting(DirLightPS, psInput, EyePosPS.xyz, MatPS);
 
-	lightingColor += DirLightPS.Ambient;
+	lightingColor += DirLightPS.Ambient.xyz;
 
 	return float4(lightingColor, 1.0f);
 }

@@ -16,7 +16,7 @@ void AppHDRLighting::Initialize()
 
 void AppHDRLighting::RenderScene()
 {
-	D3DEngine::Instance().BindMesh(m_Room);
+	m_Room.Bind();
 
 	D3DEngine::Instance().SetVertexShader(m_VertexShader);
 	D3DEngine::Instance().SetPixelShader(m_PixelShader);

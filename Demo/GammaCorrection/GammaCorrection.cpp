@@ -71,7 +71,7 @@ void AppGammaCorrection::RenderScene()
 	CBufferPS.Mat = m_FloorMaterial.RawValue;
 	m_CBufferPS.Update(&CBufferPS, sizeof(ConstantBufferPS));
 
-	m_FloorMesh.Bind(m_FloorMaterial);
+	m_FloorMesh.Bind(&m_FloorMaterial);
 
 	///if (m_bGammaCorrection)
 	///{

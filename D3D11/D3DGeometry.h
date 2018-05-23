@@ -56,7 +56,7 @@ public:
 
 	void DrawNormal(const Camera &cam);
 
-	void Bind(const Material &material);
+	void Bind(const Material *pMaterial = nullptr);
 
 	inline bool IsCreated() const
 	{
@@ -77,7 +77,7 @@ protected:
 	void SubDivide();
 	void MakeCylinderTopBottomCap(bool bTop, float bottomRadius, float topRadius, float height, uint32_t slice);
 
-	void ApplyMaterial(const Material &material);
+	void ApplyMaterial(const Material *pMaterial);
 private:
 	bool m_Created = false;
 };

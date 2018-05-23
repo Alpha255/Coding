@@ -3,6 +3,7 @@
 #include "D3DApp.h"
 #include "D3DGeometry.h"
 #include "D3DView.h"
+#include "D3DLighting.h"
 
 class AppForwardLighting : public D3DApp
 {
@@ -36,6 +37,8 @@ private:
 	D3DPixelShader m_PixelShader[eCount];
 	D3DBuffer m_CBufferVS;
 	D3DBuffer m_CBufferPS;
+
+	Material m_BunnyMaterial;
 
 	int32_t m_LightingType = eHemisphericAmbient;
 	bool m_Wireframe = false;

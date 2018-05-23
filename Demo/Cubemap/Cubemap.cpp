@@ -125,7 +125,7 @@ void AppCubemap::DrawClutter(const Camera &cam, bool isGenCubemap)
 	m_CBufferPS.Update(&CBufferPS, sizeof(ConstantBufferPS));
 
 	D3DShaderResourceView NoneSRV;
-	m_CubeMesh.Bind(m_MatrialCube);
+	m_CubeMesh.Bind(&m_MatrialCube);
 	D3DEngine::Instance().SetShaderResourceView(NoneSRV, 1U, D3DShader::ePixelShader);
 	D3DEngine::Instance().DrawIndexed(m_CubeMesh.IndexCount, 0U, 0, eTriangleList);
 
@@ -142,7 +142,7 @@ void AppCubemap::DrawClutter(const Camera &cam, bool isGenCubemap)
 		CBufferPS.Mat = m_MatrialSphere.RawValue;
 		m_CBufferPS.Update(&CBufferPS, sizeof(ConstantBufferPS));
 
-		m_SphereMesh.Bind(m_MatrialSphere);
+		m_SphereMesh.Bind(&m_MatrialSphere);
 		D3DEngine::Instance().SetShaderResourceView(m_CubeMap, 3U, D3DShader::ePixelShader);
 		D3DEngine::Instance().DrawIndexed(m_SphereMesh.IndexCount, 0U, 0, eTriangleList);
 	}

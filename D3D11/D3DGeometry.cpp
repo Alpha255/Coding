@@ -684,19 +684,24 @@ void Mesh::SaveAsObjFile(const char *pObjFileName)
 	}
 }
 
-void Mesh::ApplyMaterial(const Material &material)
+void Mesh::ApplyMaterial(const Material *pMaterial)
 {
+	if (nullptr == pMaterial)
+	{
+		return;
+	}
+
 	for (uint32_t i = 0U; i < Material::ePropertyCount; ++i)
 	{
-		D3DEngine::Instance().SetShaderResourceView(material.Textures[i], i, D3DShader::ePixelShader);
+		D3DEngine::Instance().SetShaderResourceView(pMaterial->Textures[i], i, D3DShader::ePixelShader);
 	}
 
 	D3DEngine::Instance().SetSamplerState(D3DStaticState::LinearSampler, 0U, D3DShader::ePixelShader);
 }
 
-void Mesh::Bind(const Material &material)
+void Mesh::Bind(const Material *pMaterial)
 {
-	ApplyMaterial(material);
+	ApplyMaterial(pMaterial);
 
 	D3DEngine::Instance().SetInputLayout(VertexLayout);
 	D3DEngine::Instance().SetVertexBuffer(VertexBuffer, sizeof(Vertex), 0U, 0U);

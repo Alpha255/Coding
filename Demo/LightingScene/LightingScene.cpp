@@ -171,7 +171,7 @@ void AppLightingScene::RenderScene()
 	CBufferPS.EyePos = m_Camera->GetEyePos();
 	m_CBufferPS.Update(&CBufferPS, sizeof(ConstantBufferPS));
 
-	m_Wall.Bind(m_WallMat);
+	m_Wall.Bind(&m_WallMat);
 
 	D3DEngine::Instance().SetVertexShader(m_VertexShader);
 	D3DEngine::Instance().SetPixelShader(m_PixelShader);

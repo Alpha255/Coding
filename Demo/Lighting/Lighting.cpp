@@ -46,8 +46,8 @@ void AppLighting::Initialize()
 	m_FlatSphere.CreateAsFlatGeoSphere(0.5f, 2U);
 	m_Sphere.CreateAsGeoSphere(0.5f, 2U);
 
-	m_CBufferVS.CreateAsConstantBuffer(sizeof(ConstantBufferVS), D3DBuffer::eGpuReadCpuWrite, nullptr);
-	m_CBufferPS.CreateAsConstantBuffer(sizeof(ConstantBufferPS), D3DBuffer::eGpuReadCpuWrite, nullptr);
+	m_CBufferVS.CreateAsConstantBuffer(sizeof(ConstantBufferVS), D3DBuffer::eGpuReadCpuWrite);
+	m_CBufferPS.CreateAsConstantBuffer(sizeof(ConstantBufferPS), D3DBuffer::eGpuReadCpuWrite);
 
 	const char *pEntry[eShadingModeCount] = 
 	{
@@ -80,11 +80,11 @@ void AppLighting::RenderScene()
 
 	if (eFlat == m_ShadingMode)
 	{
-		m_FlatSphere.Bind(m_SphereMaterial);
+		m_FlatSphere.Bind(&m_SphereMaterial);
 	}
 	else
 	{
-		m_Sphere.Bind(m_SphereMaterial);
+		m_Sphere.Bind(&m_SphereMaterial);
 	}
 
 	D3DEngine::Instance().SetVertexShader(m_VertexShader[m_ShadingMode]);
@@ -99,15 +99,12 @@ void AppLighting::RenderScene()
 	CBufferVS.Mat = m_SphereMaterial.RawValue;
 	m_CBufferVS.Update(&CBufferVS, sizeof(ConstantBufferVS));
 	D3DEngine::Instance().SetConstantBuffer(m_CBufferVS, 0U, D3DShader::eVertexShader);
-
+	
 	ConstantBufferPS CBufferPS;
-	if (m_ShadingMode > eGouraud)
-	{
-		CBufferPS.EyePos = m_Camera->GetEyePos();
-		CBufferPS.Mat = m_SphereMaterial.RawValue;
-		m_CBufferPS.Update(&CBufferPS, sizeof(ConstantBufferPS));
-		D3DEngine::Instance().SetConstantBuffer(m_CBufferPS, 0U, D3DShader::ePixelShader);
-	}
+	CBufferPS.EyePos = m_Camera->GetEyePos();
+	CBufferPS.Mat = m_SphereMaterial.RawValue;
+	m_CBufferPS.Update(&CBufferPS, sizeof(ConstantBufferPS));
+	D3DEngine::Instance().SetConstantBuffer(m_CBufferPS, 0U, D3DShader::ePixelShader);
 
 	uint32_t indexCount = (eFlat == m_ShadingMode) ? m_FlatSphere.IndexCount : m_Sphere.IndexCount;
 	D3DEngine::Instance().DrawIndexed(indexCount, 0U, 0, eTriangleList);
