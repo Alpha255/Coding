@@ -693,7 +693,10 @@ void Mesh::ApplyMaterial(const Material *pMaterial)
 
 	for (uint32_t i = 0U; i < Material::eReflection; ++i)
 	{
-		D3DEngine::Instance().SetShaderResourceView(pMaterial->Textures[i], i, D3DShader::ePixelShader);
+		if (pMaterial->Textures[i].IsValid())
+		{
+			D3DEngine::Instance().SetShaderResourceView(pMaterial->Textures[i], i, D3DShader::ePixelShader);
+		}
 	}
 
 	D3DEngine::Instance().SetSamplerState(D3DStaticState::LinearSampler, 0U, D3DShader::ePixelShader);

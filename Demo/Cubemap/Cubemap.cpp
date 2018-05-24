@@ -126,7 +126,7 @@ void AppCubemap::DrawClutter(const Camera &cam, bool isGenCubemap)
 
 	D3DShaderResourceView NoneSRV;
 	m_CubeMesh.Bind(&m_MatrialCube);
-	D3DEngine::Instance().SetShaderResourceView(NoneSRV, 0U, D3DShader::ePixelShader);
+	D3DEngine::Instance().SetShaderResourceView(NoneSRV, 1U, D3DShader::ePixelShader);
 	D3DEngine::Instance().DrawIndexed(m_CubeMesh.IndexCount, 0U, 0, eTriangleList);
 
 	/// Draw Sphere

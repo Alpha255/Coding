@@ -132,7 +132,7 @@ void AppShadow::RenderScene()
 	D3DEngine::Instance().ClearRenderSurfaces();
 	D3DEngine::Instance().SetVertexShader(m_VertexShaders[eDrawMain]);
 	D3DEngine::Instance().SetPixelShader(m_PixelShaders[eDrawMain]);
-	D3DEngine::Instance().SetShaderResourceView(m_DepthTexture, 3U, D3DShader::ePixelShader);
+	D3DEngine::Instance().SetShaderResourceView(m_DepthTexture, 1U, D3DShader::ePixelShader);
 	DrawClutter();
 
 	DrawQuad();
