@@ -1,4 +1,4 @@
-#include "CommonLighting.hlsli"
+#include "TurnOnTheLight.hlsli"
 
 cbuffer cbVS
 {
@@ -10,10 +10,9 @@ cbuffer cbVS
 
 cbuffer cbPS
 {
+	float4 EyePos;
 	DirectionalLight DirLight;
 	Material Mat;
-
-	float4 EyePos;
 };
 
 struct VSInput
@@ -21,20 +20,6 @@ struct VSInput
     float3 Pos : POSITION;
     float3 Normal : NORMAL;
     float3 Tangent : TANGENT;
-    float2 UV : TEXCOORD;
-};
-
-Texture2D DiffuseMap;
-Texture2D NormalMap;
-Texture2D SpecularMap;
-SamplerState LinearSampler;
-
-struct VSOutput
-{
-    float4 PosH : SV_POSITION;
-	float3 PosW : POSITION;
-	float3 NormalW : NORMAL; 
-    float3 TangentW : TANGENT;
     float2 UV : TEXCOORD;
 };
 
@@ -50,50 +35,9 @@ VSOutput VSMain(VSInput vsInput)
     return output;
 }
 
-float4 PSMain(VSOutput psInput) : SV_Target
-{
-    float3 normal = normalize(psInput.NormalW);
-	float3 toEye = normalize(EyePos.xyz - psInput.PosW);
-
-    float4 texClr = DiffuseMap.Sample(LinearSampler, psInput.UV);
-    clip(texClr.a - 0.1f);
-
-	float4 specularTex = SpecularMap.Sample(LinearSampler, psInput.UV);
-    float4 spec = specularTex.g;
-
-    Material matCopy = Mat;
-    matCopy.Specular = spec;
-
-    float4 ambient, diffuse, specular;
-    ComputeDirectionalLight(matCopy, DirLight, normal, toEye, ambient, diffuse, specular);
-
-    float4 litClr = texClr * (ambient + diffuse) + specular;
-	litClr.a = Mat.Diffuse.a * texClr.a;
-
-    return litClr;
-}
-
 float4 PSMain_NormalMapping(VSOutput psInput) : SV_Target
 {
-    float3 normalTex = normalize(NormalMap.Sample(LinearSampler, psInput.UV).rgb);
-    float3 toEye = normalize(EyePos.xyz - psInput.PosW);
+	float3 lightingColor = DirectionalLighting(DirLight, psInput, EyePos.xyz, Mat);
 
-    float4 texClr = DiffuseMap.Sample(LinearSampler, psInput.UV);
-    clip(texClr.a - 0.1f);
-
-    float4 specularTex = SpecularMap.Sample(LinearSampler, psInput.UV);
-    ///float4 spec = specularTex.g;
-
-    Material matCopy = Mat;
-    matCopy.Specular = specularTex;
-
-    float3 bumpNormal = UnpackNormal(normalTex, psInput.NormalW, psInput.TangentW);
-
-    float4 ambient, diffuse, specular;
-    ComputeDirectionalLight(matCopy, DirLight, bumpNormal, toEye, ambient, diffuse, specular);
-
-    float4 litClr = texClr * (ambient + diffuse) + specular;
-    litClr.a = Mat.Diffuse.a * texClr.a;
-
-    return litClr;
+	return float4(lightingColor, 1.0f);
 }

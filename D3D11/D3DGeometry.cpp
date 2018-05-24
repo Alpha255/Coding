@@ -691,7 +691,7 @@ void Mesh::ApplyMaterial(const Material *pMaterial)
 		return;
 	}
 
-	for (uint32_t i = 0U; i < Material::ePropertyCount; ++i)
+	for (uint32_t i = 0U; i < Material::eReflection; ++i)
 	{
 		D3DEngine::Instance().SetShaderResourceView(pMaterial->Textures[i], i, D3DShader::ePixelShader);
 	}

@@ -1,4 +1,4 @@
-#include "CommonLighting.hlsli"
+#include "TurnOnTheLight.hlsli"
 
 cbuffer cbVS
 {
@@ -10,7 +10,7 @@ cbuffer cbVS
 cbuffer cbPS
 {
     float4 EyePos;
-    Material Mat;
+    Material RawMat;
     PointLight Light;
 };
 
@@ -22,22 +22,12 @@ struct VSInput
     float2 UV : TEXCOORD;
 };
 
-Texture2D DiffuseMap;
 Texture2D DepthMap;
-SamplerState LinearSampler;
-
-struct VSOutput
-{
-    float4 PosL : SV_POSITION;
-    float3 PosW : POSITION;
-    float3 NormalW : NORMAL;
-    float2 UV : TEXCOORD;
-};
 
 VSOutput VSMain_Depth(VSInput vsInput)
 {
 	VSOutput output;
-    output.PosL = mul(float4(vsInput.Pos, 1.0f), WVP);
+    output.PosH = mul(float4(vsInput.Pos, 1.0f), WVP);
     output.UV = vsInput.UV;
 
     return output;
@@ -61,9 +51,10 @@ float Shadow_Base(float4 vertexPos, float depth)
 VSOutput VSMain(VSInput vsInput)
 {
     VSOutput output;
-    output.PosL = mul(float4(vsInput.Pos, 1.0f), WVP);
+    output.PosH = mul(float4(vsInput.Pos, 1.0f), WVP);
     output.PosW = mul(float4(vsInput.Pos, 1.0f), World).xyz;
-    output.NormalW = mul(vsInput.Normal, (float3x3) WorldInverse);
+	output.TangentW = mul(vsInput.Tangent, (float3x3)World);
+    output.NormalW = mul(vsInput.Normal, (float3x3)WorldInverse);
     output.UV = vsInput.UV;
 
     return output;
@@ -71,27 +62,16 @@ VSOutput VSMain(VSInput vsInput)
 
 float4 PSMain(VSOutput psInput) : SV_Target
 {
-    float3 normal = normalize(psInput.NormalW);
-
-    Material matCopy = Mat;
-    matCopy.Diffuse = DiffuseMap.Sample(LinearSampler, psInput.UV);
-
-    float depthValue = DepthMap.Sample(LinearSampler, psInput.UV).r;
-
-    float4 ambient, diffuse, specular;
-    ComputePointLight(matCopy, Light, normal, psInput.PosW, EyePos.xyz, ambient, diffuse, specular);
-
-    float4 Color = ambient + diffuse + specular;
+	float3 lightingColor = PointLighting(Light, psInput, EyePos.xyz, RawMat);
     ///float4 Color = ambient + (1.0f - Shadow_Base(psInput.PosL, depthValue)) * (diffuse + specular);
-    Color.w = Mat.Diffuse.w;
 
-    return Color;
+    return float4(lightingColor, 1.0f);
 }
 
 VSOutput VSMain_Quad(VSInput vsInput)
 {
     VSOutput output;
-    output.PosL = float4(vsInput.Pos, 1.0f);
+    output.PosH = float4(vsInput.Pos, 1.0f);
     output.UV = vsInput.UV;
 
     return output;
@@ -99,6 +79,6 @@ VSOutput VSMain_Quad(VSInput vsInput)
 
 float4 PSMain_Quad(VSOutput psInput) : SV_Target
 {
-    float depthValue = DepthMap.Sample(LinearSampler, psInput.UV).r;
+    float depthValue = DepthMap.Sample(Sampler, psInput.UV).r;
 	return float4(depthValue, depthValue, depthValue, 1.0f);
 }

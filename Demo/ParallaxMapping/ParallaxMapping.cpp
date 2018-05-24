@@ -20,43 +20,43 @@ struct ConstantBufferPS
 	Vec4 EyePos;
 
 	DirectionalLight DirLight;
-	Material Mat;
+	Material::RawMaterial RawMat;
 
 	ConstantBufferPS()
 	{
-		DirLight.Direction = Vec4(0.7f, 0.0f, -3.0f, 0.0f);
+		DirLight.Direction = Vec4(1.0f, 1.0f, 5.0f, 0.0f);
+		DirLight.SpecularIntensity = 64.0f;
 	}
 };
 
 void AppParallaxMapping::Initialize()
 {
-	m_QuadMesh.CreateAsQuad(8.0f);
+	m_Floor.CreateAsQuad(8.0f);
 
-	m_DiffuseMap.Create("StoneFloor_Diffuse.dds");
-	m_NormalMap.Create("StoneFloor_Normal.dds");
 	m_HeightMap.Create("StoneFloor_Heightmap.dds");
-	m_SpecularMap.Create("StoneFloor_Specular.dds");
 
-	m_CBufferVS.CreateAsConstantBuffer(sizeof(ConstantBufferVS), D3DBuffer::eGpuReadCpuWrite, nullptr);
-	m_CBufferPS.CreateAsConstantBuffer(sizeof(ConstantBufferPS), D3DBuffer::eGpuReadCpuWrite, nullptr);
+	m_FloorMaterial.Set(Material::eDiffuse, "StoneFloor_Diffuse.dds");
+	m_FloorMaterial.Set(Material::eSpecular, "StoneFloor_Specular.dds");
+	m_FloorMaterial.Set(Material::eNormal, "StoneFloor_Normal.dds");
 
-	for (uint32_t i = eNone; i <= eParallaxOcclusionMapping; ++i)
-	{
-		m_VertexShader[i].Create("ParallaxMapping.hlsl", "VSMain");
-	}
+	//m_FloorMaterial.Set(Material::eDiffuse, "bricks2.dds");
+	//m_FloorMaterial.Set(Material::eSpecular, "bricks2_disp.dds");
+	//m_FloorMaterial.Set(Material::eNormal, "bricks2_normal.dds");
 
-	m_PixelShader[eNone].Create("ParallaxMapping.hlsl", "PSMain");
+	m_CBufferVS.CreateAsConstantBuffer(sizeof(ConstantBufferVS), D3DBuffer::eGpuReadCpuWrite);
+	m_CBufferPS.CreateAsConstantBuffer(sizeof(ConstantBufferPS), D3DBuffer::eGpuReadCpuWrite);
+
+	m_VertexShader.Create("ParallaxMapping.hlsl", "VSMain");
+
 	m_PixelShader[eNormalMapping].Create("ParallaxMapping.hlsl", "PSMain_NormalMapping");
 }
 
 void AppParallaxMapping::RenderScene()
 {
-	D3DEngine::Instance().SetVertexShader(m_VertexShader[m_MappingType]);
+	D3DEngine::Instance().SetVertexShader(m_VertexShader);
 	D3DEngine::Instance().SetPixelShader(m_PixelShader[m_MappingType]);
 
-	D3DEngine::Instance().SetInputLayout(m_QuadMesh.VertexLayout);
-	D3DEngine::Instance().SetVertexBuffer(m_QuadMesh.VertexBuffer, sizeof(Geometry::Vertex), 0U, 0U);
-	D3DEngine::Instance().SetIndexBuffer(m_QuadMesh.IndexBuffer, eR32_UInt, 0U);
+	m_Floor.Bind(&m_FloorMaterial);
 
 	ConstantBufferVS CBufferVS;
 	CBufferVS.World = Matrix::Transpose(m_Camera->GetWorldMatrix());
@@ -66,19 +66,17 @@ void AppParallaxMapping::RenderScene()
 	m_CBufferVS.Update(&CBufferVS, sizeof(ConstantBufferVS));
 	D3DEngine::Instance().SetConstantBuffer(m_CBufferVS, 0U, D3DShader::eVertexShader);
 
-	static ConstantBufferPS CBufferPS;
+	ConstantBufferPS CBufferPS;
 	CBufferPS.EyePos = m_Camera->GetEyePos();
+	CBufferPS.RawMat = m_FloorMaterial.RawValue;
 	m_CBufferPS.Update(&CBufferPS, sizeof(ConstantBufferPS));
 	D3DEngine::Instance().SetConstantBuffer(m_CBufferPS, 0U, D3DShader::ePixelShader);
 
-	D3DEngine::Instance().SetSamplerState(D3DStaticState::LinearSampler, 0U, D3DShader::ePixelShader);
-	D3DEngine::Instance().SetShaderResourceView(m_DiffuseMap, 0U, D3DShader::ePixelShader);
-	D3DEngine::Instance().SetShaderResourceView(m_NormalMap, 1U, D3DShader::ePixelShader);
-	D3DEngine::Instance().SetShaderResourceView(m_SpecularMap, 2U, D3DShader::ePixelShader);
+	///D3DEngine::Instance().SetRasterizerState(D3DStaticState::SolidNoneCulling);
+	D3DEngine::Instance().DrawIndexed(m_Floor.IndexCount, 0U, 0, eTriangleList);
 
-	D3DEngine::Instance().SetRasterizerState(D3DStaticState::SolidNoneCulling);
-	D3DEngine::Instance().DrawIndexed(m_QuadMesh.IndexCount, 0U, 0, eTriangleList);
+	Vec3 pos(-CBufferPS.DirLight.Direction.x, -CBufferPS.DirLight.Direction.y, -CBufferPS.DirLight.Direction.z);
+	///Light::DebugDisplay(pos, Light::ePoint, *m_Camera);
 
-	ImGui::SliderFloat3("LightDirection", (float*)&CBufferPS.DirLight.Direction, -10.0f, 10.0f);
-	ImGui::Combo("MappingType", &m_MappingType, "None\0NormalMapping");
+	ImGui::Combo("MappingType", &m_MappingType, "NormalMapping");
 }

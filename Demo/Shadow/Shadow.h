@@ -3,6 +3,7 @@
 #include "D3DApp.h"
 #include "D3DGeometry.h"
 #include "D3DView.h"
+#include "D3DLighting.h"
 
 class AppShadow : public D3DApp
 {
@@ -17,24 +18,30 @@ protected:
 	void DrawClutter();
 	void DrawQuad();
 private:
+	enum eShaderType
+	{
+		eDrawMain,
+		eDrawDepth,
+		eDrawQuad,
+		eShaderCount
+	};
+
 	Geometry::Mesh m_FloorMesh;
 	Geometry::Mesh m_BoxMesh;
 	Geometry::Mesh m_QuadMesh;
 
-	D3DVertexShader m_VertexShader;
-	D3DPixelShader m_PixelShader;
 	D3DBuffer m_CBufferVS;
 	D3DBuffer m_CBufferPS;
-	D3DShaderResourceView m_DiffuseTexFloor;
-	D3DShaderResourceView m_DiffuseTexBox;
-	D3DViewport m_Viewport;
 
-	D3DVertexShader m_VertexShaderDepth;
-	D3DPixelShader m_PixelShaderDepth;
 	D3DShaderResourceView m_DepthTexture;
+	
 	D3DDepthStencilView m_DepthSurface;
-	D3DViewport m_ViewportDepth;
 
-	D3DVertexShader m_VertexShaderQuad;
-	D3DPixelShader m_PixelShaderQuad;
+	Material m_FloorMaterial;
+	Material m_BoxMaterial;
+
+	D3DVertexShader m_VertexShaders[eShaderCount];
+	D3DPixelShader m_PixelShaders[eShaderCount];
+
+	D3DViewport m_Viewports[eDrawQuad];
 };

@@ -3,6 +3,7 @@
 #include "D3DApp.h"
 #include "D3DGeometry.h"
 #include "D3DView.h"
+#include "D3DLighting.h"
 
 class AppParallaxMapping : public D3DApp
 {
@@ -15,7 +16,6 @@ public:
 protected:
 	enum eMappingType
 	{
-		eNone,
 		eNormalMapping,
 		eParallaxOcclusionMapping,
 		eDisplacementMapping,
@@ -23,18 +23,17 @@ protected:
 	};
 
 private:
-	Geometry::Mesh m_QuadMesh;
+	Geometry::Mesh m_Floor;
 
-	D3DVertexShader m_VertexShader[eMappingTypeCount];
+	D3DVertexShader m_VertexShader;
 	D3DPixelShader m_PixelShader[eMappingTypeCount];
 
 	D3DBuffer m_CBufferVS;
 	D3DBuffer m_CBufferPS;
 
-	D3DShaderResourceView m_DiffuseMap;
-	D3DShaderResourceView m_NormalMap;
-	D3DShaderResourceView m_HeightMap;
-	D3DShaderResourceView m_SpecularMap;
+	Material m_FloorMaterial;
 
-	int32_t m_MappingType = eNone;
+	D3DShaderResourceView m_HeightMap;
+
+	int32_t m_MappingType = eNormalMapping;
 };

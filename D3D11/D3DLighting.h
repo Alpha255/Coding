@@ -75,8 +75,7 @@ struct Material
 		eDiffuse,
 		eSpecular,
 		eNormal,
-		eReflection,
-		ePropertyCount
+		eReflection
 	};
 
 	struct RawMaterial
@@ -92,7 +91,7 @@ struct Material
 
 	inline void Set(eProperty target, const Vec4 &value)
 	{
-		assert(target < ePropertyCount);
+		assert(target <= eReflection);
 		if (eDiffuse == target)
 		{
 			RawValue.Diffuse = value;
@@ -109,11 +108,11 @@ struct Material
 
 	inline void Set(eProperty target, const char *pTextureName)
 	{
-		assert(target < ePropertyCount);
+		assert(target < eReflection);
 		Textures[target].Create(pTextureName);
 		RawValue.UsingRawNormal = (target == eNormal ? 0U : 1U);
 	}
 
 	RawMaterial RawValue;
-	D3DShaderResourceView Textures[ePropertyCount];
+	D3DShaderResourceView Textures[eReflection];
 };
