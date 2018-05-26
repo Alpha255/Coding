@@ -12,10 +12,12 @@ cbuffer cbPS
     float4 EyePos;
 
     DirectionalLight DirLight;
-    Material Mat;
+    Material RawMat;
 };
 
-TextureCube CubemapTex : register(t1);
+Texture2D DiffuseMap;
+TextureCube CubeMap;
+SamplerState LinearSampler;
 
 struct VSInput
 {
@@ -24,6 +26,15 @@ struct VSInput
     float3 Tangent : TANGENT;
     float2 UV : TEXCOORD;
 };
+
+Material ApplyMaterial(in Material materialIn, in VSOutput psInput)
+{
+    Material materialOut = materialIn;
+    materialOut.Diffuse = DiffuseMap.Sample(LinearSampler, psInput.UV);
+    materialOut.Normal = float4(normalize(psInput.NormalW), 0.0f);
+
+    return materialOut;
+}
 
 VSOutput VSMain(VSInput vsInput)
 {
@@ -39,13 +50,14 @@ VSOutput VSMain(VSInput vsInput)
 
 float4 PSMain(VSOutput psInput) : SV_Target
 {
-    float3 lightingColor = DirectionalLighting(DirLight, psInput, EyePos.xyz, Mat);
+    Material material = ApplyMaterial(RawMat, psInput);
+    float3 lightingColor = DirectionalLighting(DirLight, psInput, EyePos.xyz, material);
 	lightingColor += DirLight.Ambient.rgb;
 
     float3 reflectionVector = reflect(-EyePos.xyz, psInput.NormalW);
-    float4 reflectionColor = CubemapTex.Sample(Sampler, reflectionVector);
+    float4 reflectionColor = CubeMap.Sample(LinearSampler, reflectionVector);
 
-    lightingColor += Mat.Reflection * reflectionColor;
+    lightingColor += material.Reflection * reflectionColor;
 
     return float4(lightingColor, 1.0f);
 }

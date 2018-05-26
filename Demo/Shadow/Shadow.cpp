@@ -58,7 +58,7 @@ void AppShadow::Initialize()
 	m_Camera->Move(0, 200);
 }
 
-void AppShadow::DrawClutter()
+void AppShadow::DrawClutter(bool bDepthOnly)
 {
 	ConstantBufferVS CBufferVS;
 	ConstantBufferPS CBufferPS;
@@ -76,6 +76,15 @@ void AppShadow::DrawClutter()
 	m_CBufferVS.Update(&CBufferVS, sizeof(ConstantBufferVS));
 
 	m_FloorMesh.Bind(&m_FloorMaterial);
+	if (!bDepthOnly)
+	{
+		D3DEngine::Instance().SetShaderResourceView(m_DepthTexture, 1U, D3DShader::ePixelShader);
+	}
+	else
+	{
+		D3DShaderResourceView EmptySRV;
+		D3DEngine::Instance().SetShaderResourceView(EmptySRV, 1U, D3DShader::ePixelShader);
+	}
 	D3DEngine::Instance().DrawIndexed(m_FloorMesh.IndexCount, 0U, 0, eTriangleList);
 
 	Matrix world = m_Camera->GetWorldMatrix() * Matrix::Translation(0.0f, 0.0f, -0.5f);
@@ -125,15 +134,15 @@ void AppShadow::RenderScene()
 	D3DEngine::Instance().SetDepthStencilView(m_DepthSurface);
 	D3DEngine::Instance().SetVertexShader(m_VertexShaders[eDrawDepth]);
 	D3DEngine::Instance().SetPixelShader(m_PixelShaders[eDrawDepth]);
-	DrawClutter();
+	DrawClutter(true);
 
 	D3DEngine::Instance().SetViewport(m_Viewports[eDrawMain]);
 	D3DEngine::Instance().ResetRenderSurfaces();
 	D3DEngine::Instance().ClearRenderSurfaces();
+	D3DEngine::Instance().ForceCommitState();
 	D3DEngine::Instance().SetVertexShader(m_VertexShaders[eDrawMain]);
 	D3DEngine::Instance().SetPixelShader(m_PixelShaders[eDrawMain]);
-	D3DEngine::Instance().SetShaderResourceView(m_DepthTexture, 1U, D3DShader::ePixelShader);
-	DrawClutter();
+	DrawClutter(false);
 
 	DrawQuad();
 }

@@ -1,5 +1,9 @@
 #include "TurnOnTheLight.hlsli"
 
+Texture2D DiffuseMap;
+Texture2D DepthMap;
+SamplerState Sampler;
+
 cbuffer cbVS
 {
     matrix World;
@@ -22,7 +26,16 @@ struct VSInput
     float2 UV : TEXCOORD;
 };
 
-Texture2D DepthMap;
+Material ApplyMaterial(in Material materialIn, in VSOutput psInput)
+{
+    Material materialOut = materialIn;
+
+    materialOut.Diffuse = DiffuseMap.Sample(Sampler, psInput.UV);
+
+    materialOut.Normal = float4(normalize(psInput.NormalW), 0.0f);
+
+    return materialOut;
+}
 
 VSOutput VSMain_Depth(VSInput vsInput)
 {
@@ -62,7 +75,8 @@ VSOutput VSMain(VSInput vsInput)
 
 float4 PSMain(VSOutput psInput) : SV_Target
 {
-	float3 lightingColor = PointLighting(Light, psInput, EyePos.xyz, RawMat);
+    Material material = ApplyMaterial(RawMat, psInput);
+    float3 lightingColor = PointLighting(Light, psInput, EyePos.xyz, material);
     ///float4 Color = ambient + (1.0f - Shadow_Base(psInput.PosL, depthValue)) * (diffuse + specular);
 
     return float4(lightingColor, 1.0f);

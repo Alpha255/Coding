@@ -15,7 +15,7 @@ public:
 	virtual void RenderScene() override;
 	virtual void ResizeWindow(uint32_t width, uint32_t height) override;
 protected:
-	void DrawClutter();
+	void DrawClutter(bool bDepthOnly);
 	void DrawQuad();
 private:
 	enum eShaderType

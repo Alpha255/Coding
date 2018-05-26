@@ -24,6 +24,18 @@ struct VSInput
     float2 UV : TEXCOORD;
 };
 
+Texture2D DiffuseMap;
+SamplerState LinearSampler;
+
+Material ApplyMaterial(in Material materialIn, in VSOutput psInput)
+{
+    Material materialOut = materialIn;
+    materialOut.Diffuse = DiffuseMap.Sample(LinearSampler, psInput.UV);
+	materialOut.Normal = float4(normalize(psInput.NormalW), 0.0f);
+
+    return materialOut;
+}
+
 VSOutput VSMain(VSInput vsInput)
 {
     VSOutput output;
@@ -40,9 +52,10 @@ float4 PSMain(VSOutput psInput) : SV_Target
 {
 	float3 lightingColor = float3(0.0f, 0.0f, 0.0f);
 
+    Material material = ApplyMaterial(RawMaterial, psInput);
 	for (uint i = 0; i < 3; ++i)
 	{
-		lightingColor += PointLighting(Lights[i], psInput, EyePos.xyz, RawMaterial);	
+        lightingColor += PointLighting(Lights[i], psInput, EyePos.xyz, material);
     }
 
 	lightingColor += Lights[0].Ambient.rgb;

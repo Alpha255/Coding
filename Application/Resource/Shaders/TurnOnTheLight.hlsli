@@ -1,8 +1,3 @@
-Texture2D DiffuseMap;
-Texture2D SpecularMap;
-Texture2D NormalMap;
-SamplerState Sampler;
-
 struct VSOutput
 {
     float4 PosH : SV_POSITION;
@@ -18,8 +13,7 @@ struct Material
 
 	float4 Specular;
 	
-	float3 Normal;
-    uint UsingRawNormal;
+	float4 Normal;
 
     float4 Reflection;
 };
@@ -68,76 +62,64 @@ float3 UnpackNormal(float3 normalMap, float3 unitNormalW, float3 tangentW)
     return bumpedNormalW;
 }
 
-Material ApplyMaterial(in Material materialIn, in VSOutput psInput)
-{
-    Material materialOut;
+///Material ApplyMaterial(in Material materialIn, in VSOutput psInput)
+///{
+///    Material materialOut = materialIn;
+///	   materialOut.Diffuse = DiffuseMap.Sample(Sampler, psInput.UV);
+///	   materialOut.Specular = SpecularMap.Sample(Sampler, psInput.UV);
 
-	float4 texDiffuse = DiffuseMap.Sample(Sampler, psInput.UV);
-	materialOut.Diffuse = materialIn.Diffuse + texDiffuse;
+///	   materialOut.Normal = float4(normalize(psInput.NormalW), 0.0f);
 
-	float4 texSpecular = SpecularMap.Sample(Sampler, psInput.UV);
-	materialOut.Specular = materialIn.Specular + texSpecular;
+///	   float3 normalMap = NormalMap.Sample(Sampler, psInput.UV).rgb;
+///    materialOut.Normal.xyz = normalize(UnpackNormal(normalMap, normalize(psInput.NormalW), normalize(psInput.TangentW)));
+///    materialOut.Normal.w = 0.0f;
 
-    if (materialIn.UsingRawNormal)
-    {
-		materialOut.Normal = normalize(psInput.NormalW);
-    }
-    else
-    {
-		float3 normalMap = NormalMap.Sample(Sampler, psInput.UV).rgb;
-        materialOut.Normal = normalize(UnpackNormal(normalMap, normalize(psInput.NormalW), normalize(psInput.TangentW)));
-    }
-
-    return materialOut;
-}
+///    return materialOut;
+///}
 
 float3 PointLighting(in PointLight light, in VSOutput psInput, in float3 eyePos, in Material material)
 {
-    Material finalMaterial = ApplyMaterial(material, psInput);
-
     float3 ToLight = light.Position - psInput.PosW;
     float3 ToEye = eyePos - psInput.PosW;
     float DistToLight = length(ToLight);
    
 	/// Phong diffuse
     ToLight /= DistToLight; // Normalize
-    float NDotL = saturate(dot(ToLight, finalMaterial.Normal.xyz));
-    float3 finalColor = light.Diffuse.rgb * NDotL;
+    float NDotL = saturate(dot(ToLight, material.Normal.xyz));
+    float3 lightingColor = light.Diffuse.rgb * NDotL;
    
 	/// Blinn specular
     ToEye = normalize(ToEye);
     float3 HalfWay = normalize(ToEye + ToLight);
-    float NDotH = saturate(dot(HalfWay, finalMaterial.Normal.xyz));
-    finalColor += light.Diffuse.rgb * pow(NDotH, light.SpecularIntensity) * finalMaterial.Specular.rgb;
+    float NDotH = saturate(dot(HalfWay, material.Normal.xyz));
+    lightingColor += light.Diffuse.rgb * pow(NDotH, light.SpecularIntensity) * material.Specular.rgb;
    
 	/// Attenuation
     ///float DistToLightNorm = 1.0 - saturate(DistToLight * light.Range);
     ///float Attn = DistToLightNorm * DistToLightNorm;
 	float Attn = 1.0f / dot(light.Attenuation.xyz, float3(1.0f, DistToLight, DistToLight * DistToLight));
     ///float Attn = 1.0f - DistToLight / light.Range;
-    finalColor *= finalMaterial.Diffuse.rgb * Attn;
+    lightingColor *= material.Diffuse.rgb * Attn;
    
-    return finalColor;
+    return lightingColor;
 }
 
 float3 DirectionalLighting(DirectionalLight light, in VSOutput psInput, in float3 eyePos, in Material material)
 {
-	Material finalMaterial = ApplyMaterial(material, psInput);
-
 	/// Phong diffuse
     float3 ToLight = normalize(-light.Direction.xyz);
-    float NDotL = saturate(dot(ToLight, finalMaterial.Normal.xyz));
-    float3 finalColor = light.Diffuse.rgb * NDotL;
+    float NDotL = saturate(dot(ToLight, material.Normal.xyz));
+    float3 lightingColor = light.Diffuse.rgb * NDotL;
    
 	/// Blinn specular
     float3 ToEye = normalize(eyePos - psInput.PosW);
     float3 HalfWay = normalize(ToEye + ToLight);
-    float NDotH = saturate(dot(HalfWay, finalMaterial.Normal.xyz));
-    finalColor += light.Diffuse.rgb * pow(NDotH, light.SpecularIntensity) * finalMaterial.Specular.rgb;
+    float NDotH = saturate(dot(HalfWay, material.Normal.xyz));
+    lightingColor += light.Diffuse.rgb * pow(NDotH, light.SpecularIntensity) * material.Specular.rgb;
 
-	finalColor *= finalMaterial.Diffuse.rgb;
+    lightingColor *= material.Diffuse.rgb;
 
-	return finalColor;
+    return lightingColor;
 }
 
 float3 SpotLighting()

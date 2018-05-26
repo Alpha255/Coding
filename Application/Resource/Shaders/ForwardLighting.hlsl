@@ -14,7 +14,7 @@ cbuffer cbPS
 
     float4 EyePos;
 
-    Material Mat;
+    Material RawMat;
     DirectionalLight DirLight;
     PointLight PLight[3];
 }
@@ -50,7 +50,9 @@ float4 PSMain_Directional(VSOutput psInput) : SV_Target
 {
     float3 ambientClr = HemisphericAmbientLighting(normalize(psInput.NormalW), float3(1.0f, 1.0f, 1.0f), AmbientLowerClr.rgb, AmbientRange.xyz);
 
-    float3 directionalClr = DirectionalLighting(DirLight, psInput, EyePos.xyz, Mat);
+    Material material = RawMat;
+    material.Normal = float4(normalize(psInput.NormalW), 0.0f);
+    float3 directionalClr = DirectionalLighting(DirLight, psInput, EyePos.xyz, material);
 
     float3 result = ambientClr + directionalClr;
 
@@ -61,10 +63,13 @@ float4 PSMain_Point(VSOutput psInput) : SV_Target
 {
     float3 finalClr = float3(0.0f, 0.0f, 0.0f);
 
+    Material material = RawMat;
+    material.Normal = float4(normalize(psInput.NormalW), 0.0f);
+
 	[unroll]
     for (uint i = 0; i < 3; ++i)
     {
-        finalClr += PointLighting(PLight[i], psInput, EyePos.xyz, Mat);
+        finalClr += PointLighting(PLight[i], psInput, EyePos.xyz, material);
     }
 
     return float4(finalClr, 1.0f);

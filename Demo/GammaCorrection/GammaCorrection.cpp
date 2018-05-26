@@ -40,8 +40,7 @@ void AppGammaCorrection::Initialize()
 
 	m_VertexShader.Create("GammaCorrection.hlsl", "VSMain");
 	m_PixelShader.Create("GammaCorrection.hlsl", "PSMain");
-
-	///m_DiffuseTexFloor.Create("wood.dds");
+	
 	///m_DiffuseTexFloorGamma.Create("woodGamma.dds");
 
 	m_CBufferVS.CreateAsConstantBuffer(sizeof(ConstantBufferVS), D3DBuffer::eGpuReadCpuWrite, nullptr);

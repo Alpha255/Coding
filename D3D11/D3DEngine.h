@@ -76,6 +76,11 @@ public:
 		m_SwapChain.SetFullScreen(bFullScreen);
 	}
 
+	inline void ForceCommitState()
+	{
+		m_Pipeline.CommitState(m_IMContext);
+	}
+
 	///void DrawSDKMesh(const Geometry::SDKMesh &sdkMesh, uint32_t meshIndex = 0U);
 
 	void Initialize(HWND hWnd, uint32_t width, uint32_t height, bool bWindowed);

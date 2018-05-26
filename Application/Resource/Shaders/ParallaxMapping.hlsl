@@ -12,7 +12,7 @@ cbuffer cbPS
 {
 	float4 EyePos;
 	DirectionalLight DirLight;
-	Material Mat;
+	Material RawMat;
 };
 
 struct VSInput
@@ -22,6 +22,24 @@ struct VSInput
     float3 Tangent : TANGENT;
     float2 UV : TEXCOORD;
 };
+
+Texture2D DiffuseMap;
+Texture2D SpecularMap;
+Texture2D NormalMap;
+SamplerState LinearSampler;
+
+Material ApplyMaterial(in Material materialIn, in VSOutput psInput)
+{
+    Material materialOut = materialIn;
+    materialOut.Diffuse = DiffuseMap.Sample(LinearSampler, psInput.UV);
+    materialOut.Specular = SpecularMap.Sample(LinearSampler, psInput.UV);
+
+    float3 normalMap = NormalMap.Sample(LinearSampler, psInput.UV).rgb;
+    materialOut.Normal.xyz = normalize(UnpackNormal(normalMap, normalize(psInput.NormalW), normalize(psInput.TangentW)));
+    materialOut.Normal.w = 0.0f;
+
+    return materialOut;
+}
 
 VSOutput VSMain(VSInput vsInput)
 {
@@ -37,7 +55,8 @@ VSOutput VSMain(VSInput vsInput)
 
 float4 PSMain_NormalMapping(VSOutput psInput) : SV_Target
 {
-	float3 lightingColor = DirectionalLighting(DirLight, psInput, EyePos.xyz, Mat);
+    Material material = ApplyMaterial(RawMat, psInput);
+    float3 lightingColor = DirectionalLighting(DirLight, psInput, EyePos.xyz, material);
 
 	return float4(lightingColor, 1.0f);
 }

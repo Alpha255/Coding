@@ -691,7 +691,7 @@ void Mesh::ApplyMaterial(const Material *pMaterial)
 		return;
 	}
 
-	for (uint32_t i = 0U; i < Material::eReflection; ++i)
+	for (uint32_t i = 0U; i < Material::ePropertyCount; ++i)
 	{
 		if (pMaterial->Textures[i].IsValid())
 		{
