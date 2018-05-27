@@ -3,7 +3,9 @@
 #include "D3DMath.h"
 #include "D3DBuffer.h"
 #include "D3DShader.h"
-#include <SDKmesh.h>
+
+#include <DirectXTK/Inc/Model.h>
+#include <DirectXTK/Inc/CommonStates.h>
 
 class Camera;
 class D3DEngine;
@@ -105,14 +107,18 @@ protected:
 	void ComputeTangent();
 };
 
-struct SDKMesh : public CDXUTSDKMesh
+struct SDKMesh
 {
 public:
 	void Create(const char *pMeshName);
 
-	D3DInputLayout VertexLayout;
+	void Draw(const Camera &cam, const Transform &transform, bool bWireframe = false);
+protected:
+private:
+	std::unique_ptr<DirectX::Model> m_Model;
+	std::unique_ptr<DirectX::CommonStates> m_States;
 
-	friend D3DEngine;
+	bool m_Created = false;
 };
 
 NamespaceEnd(Geometry)

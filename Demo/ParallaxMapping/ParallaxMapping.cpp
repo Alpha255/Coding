@@ -17,7 +17,8 @@ struct ConstantBufferVS
 
 struct ConstantBufferPS
 {
-	Vec4 EyePos;
+	Vec3 EyePos;
+	float HeightScale = 0.001f;
 
 	DirectionalLight DirLight;
 	Material::RawMaterial RawMat;
@@ -39,16 +40,13 @@ void AppParallaxMapping::Initialize()
 	m_FloorMaterial.Set(Material::eSpecular, "StoneFloor_Specular.dds");
 	m_FloorMaterial.Set(Material::eNormal, "StoneFloor_Normal.dds");
 
-	//m_FloorMaterial.Set(Material::eDiffuse, "bricks2.dds");
-	//m_FloorMaterial.Set(Material::eSpecular, "bricks2_disp.dds");
-	//m_FloorMaterial.Set(Material::eNormal, "bricks2_normal.dds");
-
 	m_CBufferVS.CreateAsConstantBuffer(sizeof(ConstantBufferVS), D3DBuffer::eGpuReadCpuWrite);
 	m_CBufferPS.CreateAsConstantBuffer(sizeof(ConstantBufferPS), D3DBuffer::eGpuReadCpuWrite);
 
 	m_VertexShader.Create("ParallaxMapping.hlsl", "VSMain");
 
 	m_PixelShader[eNormalMapping].Create("ParallaxMapping.hlsl", "PSMain_NormalMapping");
+	m_PixelShader[eParallaxOcclusionMapping].Create("ParallaxMapping.hlsl", "PSMain_ParallaxOcclusionMapping");
 }
 
 void AppParallaxMapping::RenderScene()
@@ -58,6 +56,8 @@ void AppParallaxMapping::RenderScene()
 
 	m_Floor.Bind(&m_FloorMaterial);
 
+	D3DEngine::Instance().SetShaderResourceView(m_HeightMap, 3U, D3DShader::ePixelShader);
+
 	ConstantBufferVS CBufferVS;
 	CBufferVS.World = Matrix::Transpose(m_Camera->GetWorldMatrix());
 	CBufferVS.WorldInverse = Matrix::InverseTranspose(m_Camera->GetWorldMatrix());
@@ -66,8 +66,8 @@ void AppParallaxMapping::RenderScene()
 	m_CBufferVS.Update(&CBufferVS, sizeof(ConstantBufferVS));
 	D3DEngine::Instance().SetConstantBuffer(m_CBufferVS, 0U, D3DShader::eVertexShader);
 
-	ConstantBufferPS CBufferPS;
-	CBufferPS.EyePos = m_Camera->GetEyePos();
+	static ConstantBufferPS CBufferPS;
+	CBufferPS.EyePos = Vec3(m_Camera->GetEyePos().x, m_Camera->GetEyePos().y, m_Camera->GetEyePos().z);
 	CBufferPS.RawMat = m_FloorMaterial.RawValue;
 	m_CBufferPS.Update(&CBufferPS, sizeof(ConstantBufferPS));
 	D3DEngine::Instance().SetConstantBuffer(m_CBufferPS, 0U, D3DShader::ePixelShader);
@@ -78,5 +78,9 @@ void AppParallaxMapping::RenderScene()
 	Vec3 pos(-CBufferPS.DirLight.Direction.x, -CBufferPS.DirLight.Direction.y, -CBufferPS.DirLight.Direction.z);
 	///Light::DebugDisplay(pos, Light::ePoint, *m_Camera);
 
-	ImGui::Combo("MappingType", &m_MappingType, "NormalMapping");
+	if (eParallaxOcclusionMapping == m_MappingType)
+	{
+		ImGui::SliderFloat("HeightScale", &CBufferPS.HeightScale, 0.0f, 0.1f);
+	}
+	ImGui::Combo("MappingType", &m_MappingType, "NormalMapping\0ParallaxOcclusionMapping");
 }

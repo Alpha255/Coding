@@ -51,7 +51,7 @@ void AppForwardLighting::Initialize()
 {
 	m_StanfordBunny.Create("bun_zipper_res2.obj");
 	m_Floor.CreateAsQuad(10.0f);
-	///m_StanfordBunnyMesh.Create("bunny.sdkmesh");
+	m_StanfordBunnyMesh.Create("bunny.sdkmesh");
 
 	m_VertexShader.Create("ForwardLighting.hlsl", "VSMain");
 	m_PixelShader[eHemisphericAmbient].Create("ForwardLighting.hlsl", "PSMain_HemisphericAmbient");
@@ -106,7 +106,8 @@ void AppForwardLighting::RenderScene()
 	m_Floor.Bind();
 	D3DEngine::Instance().DrawIndexed(m_Floor.IndexCount, 0U, 0, eTriangleList);
 
-	///D3DEngine::Instance().DrawSDKMesh(m_StanfordBunnyMesh);
+	///Transform trans;
+	///m_StanfordBunnyMesh.Draw(*m_Camera, trans, true);
 
 	ImGui::Checkbox("Wireframe", &m_Wireframe);
 	ImGui::SliderFloat3("AmbientLowerClr", (float *)&g_AmbientLowerClr, 0.0f, 1.0f);

@@ -20,8 +20,7 @@ struct ConstantBufferPS
 
 	ConstantBufferPS()
 	{
-		Light.Position = Vec3(2.5f, 0.0f, -2.5f);
-		Light.Range = 20.0f;
+		Light.Position = Vec3(-2.5f, 0.0f, -3.0f);
 	}
 };
 
@@ -145,6 +144,10 @@ void AppShadow::RenderScene()
 	DrawClutter(false);
 
 	DrawQuad();
+
+	///Light::DebugDisplay(CBufferPS.Light.Position, Light::ePoint, *m_Camera);
+
+	///ImGui::SliderFloat3("LightPos", (float *)&CBufferPS.Light.Position, -10.0f, 10.0f);
 }
 
 void AppShadow::ResizeWindow(uint32_t width, uint32_t height)

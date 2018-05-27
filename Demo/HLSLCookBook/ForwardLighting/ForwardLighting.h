@@ -31,7 +31,7 @@ private:
 
 	Geometry::ObjMesh m_StanfordBunny;
 	Geometry::Mesh m_Floor;
-	///Geometry::SDKMesh m_StanfordBunnyMesh;
+	Geometry::SDKMesh m_StanfordBunnyMesh;
 
 	D3DVertexShader m_VertexShader;
 	D3DPixelShader m_PixelShader[eCount];

@@ -2,7 +2,7 @@
 
 Texture2D DiffuseMap;
 Texture2D DepthMap;
-SamplerState Sampler;
+SamplerState LinearSampler;
 
 cbuffer cbVS
 {
@@ -30,7 +30,7 @@ Material ApplyMaterial(in Material materialIn, in VSOutput psInput)
 {
     Material materialOut = materialIn;
 
-    materialOut.Diffuse = DiffuseMap.Sample(Sampler, psInput.UV);
+    materialOut.Diffuse = DiffuseMap.Sample(LinearSampler, psInput.UV);
 
     materialOut.Normal = float4(normalize(psInput.NormalW), 0.0f);
 
@@ -77,9 +77,9 @@ float4 PSMain(VSOutput psInput) : SV_Target
 {
     Material material = ApplyMaterial(RawMat, psInput);
     float3 lightingColor = PointLighting(Light, psInput, EyePos.xyz, material);
-    ///float4 Color = ambient + (1.0f - Shadow_Base(psInput.PosL, depthValue)) * (diffuse + specular);
+    float3 finalColor = Light.Ambient.rgb + (1.0f - Shadow_Base(psInput.PosH, DepthMap.Sample(LinearSampler, psInput.UV).r)) * lightingColor;
 
-    return float4(lightingColor, 1.0f);
+    return float4(finalColor, 1.0f);
 }
 
 VSOutput VSMain_Quad(VSInput vsInput)
@@ -93,6 +93,6 @@ VSOutput VSMain_Quad(VSInput vsInput)
 
 float4 PSMain_Quad(VSOutput psInput) : SV_Target
 {
-    float depthValue = DepthMap.Sample(Sampler, psInput.UV).r;
+    float depthValue = DepthMap.Sample(LinearSampler, psInput.UV).r;
 	return float4(depthValue, depthValue, depthValue, 1.0f);
 }

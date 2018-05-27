@@ -334,6 +334,13 @@ public:
 		return *(static_cast<Matrix*>(&result));
 	}
 
+	inline static Matrix OrthographicLH(float width, float height, float nearPlane, float farPlane)
+	{
+		DirectX::XMMATRIX result = DirectX::XMMatrixOrthographicLH(width, height, nearPlane, farPlane);
+
+		return *(static_cast<Matrix*>(&result));
+	}
+
 	inline static Matrix Translation(float x, float y, float z)
 	{
 		DirectX::XMMATRIX result = DirectX::XMMatrixTranslation(x, y, z);
@@ -414,6 +421,41 @@ public:
 
 		return *(static_cast<Matrix*>(&result));
 	}
+};
+
+class Transform
+{
+public:
+	Transform() = default;
+	~Transform() = default;
+
+	inline void Translate(float x, float y, float z)
+	{
+		m_Translation = Matrix::Translation(x, y, z);
+	}
+
+	inline void Rotate(float x, float y, float z, float angle)
+	{
+		m_Rotation = Matrix::RotationAxis(x, y, z, angle);
+	}
+
+	inline void Scale(float f)
+	{
+		m_Scale = Matrix::Scaling(f);
+	}
+
+	inline Matrix Get() const
+	{
+		Matrix world;
+		world.Identity();
+		world = world * m_Rotation * m_Scale * m_Translation;
+		return world;
+	}
+protected:
+private:
+	Matrix m_Translation;
+	Matrix m_Rotation;
+	Matrix m_Scale;
 };
 
 NamespaceBegin(Math)

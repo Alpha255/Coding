@@ -10,7 +10,9 @@ cbuffer cbVS
 
 cbuffer cbPS
 {
-	float4 EyePos;
+	float3 EyePos;
+    float HeightScale;
+
 	DirectionalLight DirLight;
 	Material RawMat;
 };
@@ -26,6 +28,7 @@ struct VSInput
 Texture2D DiffuseMap;
 Texture2D SpecularMap;
 Texture2D NormalMap;
+Texture2D HeightMap;
 SamplerState LinearSampler;
 
 Material ApplyMaterial(in Material materialIn, in VSOutput psInput)
@@ -59,4 +62,24 @@ float4 PSMain_NormalMapping(VSOutput psInput) : SV_Target
     float3 lightingColor = DirectionalLighting(DirLight, psInput, EyePos.xyz, material);
 
 	return float4(lightingColor, 1.0f);
+}
+
+float2 ParallaxOcclusionMapping(float3 vertexPos, float2 vertexUV, float heightScale)
+{
+    float heightValue = HeightMap.Sample(LinearSampler, vertexUV).r;
+    float2 vertexXY = vertexPos.xy / vertexPos.z;
+    float2 uv = vertexUV + heightScale * heightValue * vertexXY;
+
+    return uv;
+}
+
+float4 PSMain_ParallaxOcclusionMapping(VSOutput psInput) : SV_Target
+{
+    VSOutput input = psInput;
+    input.UV = ParallaxOcclusionMapping(psInput.PosW, psInput.UV, 0.01f);
+    Material material = ApplyMaterial(RawMat, input);
+	
+    float3 lightingColor = DirectionalLighting(DirLight, psInput, EyePos.xyz, material);
+
+    return float4(lightingColor, 1.0f);
 }

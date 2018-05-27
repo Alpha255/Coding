@@ -35,9 +35,8 @@
     <ClCompile Include="..\D3D11\D3DGraphic.cpp">
       <Filter>Obsolete</Filter>
     </ClCompile>
-    <ClCompile Include="..\D3D11\D3DObjMesh.cpp">
-      <Filter>Obsolete</Filter>
-    </ClCompile>
+    <ClCompile Include="..\D3D11\D3DObjMesh.cpp" />
+    <ClCompile Include="..\D3D11\D3DSDKMesh.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\D3D11\D3DGeometry.h" />

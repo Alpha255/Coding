@@ -3,134 +3,213 @@
 #include "Camera.h"
 #include "System.h"
 
+#include <fstream>
 #include <sstream>
 
 NamespaceBegin(Geometry)
 
-void ObjMesh::TokenizeNextLine(std::ifstream &fs, std::vector<std::string> &tokens)
-{
-	if (fs.eof())
-	{
-		return;
-	}
-
-	std::string line;
-	do
-	{
-		std::getline(fs, line);
-		/// We have to manage backspace terminated lines, joining them together before parsing them
-		if (!line.empty() && line.back() == 13)
-		{
-			line.pop_back();
-		}
-
-		while (!line.empty() && line.back() == '\\')
-		{
-			std::string tmp;
-			std::getline(fs, tmp);
-			if (tmp.back() == 13)
-			{
-				line.pop_back();
-			}
-
-			line.pop_back();
-			line.append(tmp);
-		}
-
-		/// Handle vertex color here
-	} while ((line.length() == 0 || line[0] == '#') && !fs.eof()); /// Skip comments and empty lines
-
-	if (line.length() == 0 || line[0] == '#')
-	{
-		return;
-	}
-
-	size_t from = 0;
-	size_t to = 0;
-	size_t length = line.size();
-
-	tokens.clear();
-	do
-	{
-		while (from != length && (line[from] == ' ' || line[from] == '\t' || line[from] == '\r'))
-		{
-			++from;
-		}
-
-		if (from != length)
-		{
-			to = from + 1;
-			while (to != length && line[to] != ' ' && line[to] != '\t' && line[to] != '\r')
-			{
-				++to;
-			}
-
-			tokens.push_back(line.substr(from, to - from).c_str());
-			from = to;
-		}
-	} while (from < length);
-}
-
 void ObjMesh::Create(const char *pFileName)
 {
-	assert(pFileName && System::IsStrEndwith(pFileName, ".obj"));
+	assert(pFileName);
 
-	std::string filePath = System::ResourceFilePath(pFileName, System::eObjMesh);
-	std::ifstream fileStream(filePath.c_str(), std::ios::in);
+	std::string meshFilePath = System::ResourceFilePath(pFileName, System::eObjMesh);
 
-	assert(fileStream.good());
-
-	std::vector<std::string> tokens;
-	std::string header;
-	std::vector<Vec3> vertices;
-	std::vector<Vec3> normals;
-	std::vector<Vec2> uvs;
-
-	while (!fileStream.eof())
+	std::ifstream meshFile(meshFilePath.c_str(), std::ios::in);
+	if (meshFile.good())
 	{
-		TokenizeNextLine(fileStream, tokens);
+		char line[MAX_PATH] = { 0 };
+		std::vector<Vec3> vertices;
+		std::vector<ObjIndex> indices;
+		std::vector<std::vector<ObjIndex>> indexColloctor;
+		std::vector<Vec3> normals;
+		std::vector<Vec2> uvs;
 
-		size_t numTokens = tokens.size();
-		if (0U == numTokens)
+		while (meshFile >> line)
 		{
-			continue;
+			if (0 == strcmp(line, "#"))
+			{
+				meshFile.getline(line, MAX_PATH);
+			}
+			else if (0 == strcmp(line, "v"))   		/// Read vertices
+			{
+				Vec3 v;
+				meshFile >> v.x >> v.y >> v.z;
+				vertices.push_back(v);
+			}
+			else if (0 == strcmp(line, "vn"))       /// Read normals
+			{
+				Vec3 vn;
+				meshFile >> vn.x >> vn.y >> vn.z;
+				normals.push_back(vn);
+			}
+			else if (0 == strcmp(line, "vt"))   	/// Read uvs
+			{
+				Vec2 vt;
+				meshFile >> vt.x >> vt.y;
+				uvs.push_back(vt);
+			}
+			else if (0 == strcmp(line, "f"))  		/// Read faces
+			{
+				meshFile.getline(line, MAX_PATH);
+
+				/// f 1      i
+				/// f 1/1    i/t
+				/// f 1//1   i/n
+				/// f 1/1/1  i/t/n
+				ObjIndex index;
+				const char *pStrBeg = &line[1];
+
+				std::stringstream ss(pStrBeg);
+				indices.clear();
+				while (!ss.eof())
+				{
+					ss >> index.i;
+					const char *pStr = pStrBeg + ss.tellg();
+
+					if (' ' == *pStr)
+					{
+						indices.push_back(index);
+						continue;
+					}
+					else if ('/' == *pStr)
+					{
+						ss.get();
+						pStr = pStrBeg + ss.tellg();
+						if ('/' == *pStr)
+						{
+							ss.get();
+							ss >> index.n;
+							indices.push_back(index);
+						}
+						else
+						{
+							ss >> index.t;
+							pStr = pStrBeg + ss.tellg();
+							if (' ' == *pStr)
+							{
+								indices.push_back(index);
+								continue;
+							}
+							else if ('/' == *pStr)
+							{
+								ss.get();
+								ss >> index.n;
+								indices.push_back(index);
+							}
+							else
+							{
+								assert(!"Invalid obj file!!");
+							}
+						}
+					}
+					else
+					{
+						assert(!"Invalid obj file!!");
+					}
+				}
+
+				indexColloctor.push_back(indices);
+			}
 		}
 
-		header.clear();
-		header = tokens[0];
+		meshFile.close();
 
-		if ("v" == header) 		  /// Vertex
+		CreateVertexData(vertices, indexColloctor, normals, uvs);
+
+		ComputeTangent();
+
+		CreateRenderResource();
+	}
+	else
+	{
+		assert(0);
+	}
+}
+
+void ObjMesh::CreateVertexData(
+	const std::vector<Vec3> &srcVertices,
+	const std::vector<std::vector<ObjIndex>> &indexCollector,
+	const std::vector<Vec3> &normals,
+	const std::vector<Vec2> &uvs)
+{
+	/*
+	*  A face polygon composed of more than three vertices is triangulated
+	*  according to the following schema:
+	*                      v5
+	*                     /  \
+	*                    /    \
+	*                   /      \
+	*                  v1------v4
+	*                  |\      /
+	*                  | \    /
+	*                  |  \  /
+	*                 v2---v3
+	*
+	*  As shown above, the 5 vertices polygon (v1,v2,v3,v4,v5)
+	*  has been split into the triangles (v1,v2,v3), (v1,v3,v4) e (v1,v4,v5).
+	*  This way vertex v1 becomes the common vertex of all newly generated
+	*  triangles, and this may lead to the creation of very thin triangles.
+	*/
+	for (uint32_t i = 0U; i < indexCollector.size(); ++i)
+	{
+		assert(indexCollector[i].size() >= 3U);
+
+		for (uint32_t j = 0U; j < indexCollector[i].size(); ++j)
 		{
-			assert(numTokens >= 4U);
-			vertices.push_back(Vec3((float)atof(tokens[1].c_str()), (float)atof(tokens[2].c_str()), (float)atof(tokens[3].c_str())));
-			/// Handle vertex color here
-		}
-		else if ("vt" == header)  /// UV
-		{
-			assert(numTokens >= 3U);
-			uvs.push_back(Vec2((float)atof(tokens[1].c_str()), (float)atof(tokens[2].c_str())));
-		}
-		else if ("vn" == header)  /// Normal
-		{
-			assert(numTokens == 4U);
-			normals.push_back(Vec3((float)atof(tokens[1].c_str()), (float)atof(tokens[2].c_str()), (float)atof(tokens[3].c_str())));
-		}
-		else if ("l" == header)  /// Edge
-		{
-			assert(numTokens >= 3U);
-		}
-		else if ("f" == header || "q" == header)  /// Face
-		{
-		}
-		else if ("mtllib" == header && numTokens > 1U)  /// Material library
-		{
-		}
-		else if ("usemtl" == header && numTokens > 1U)  /// Material usage
-		{
+			const ObjIndex &face = indexCollector[i][j];
+			assert(face.i >= 0 && face.n >= 0U && face.t >= 0U);
+
+			if (j < 3U)
+			{
+				/// v0, v1, v2
+				m_Indices.push_back((uint32_t)m_Vertices.size());
+			}
+			else
+			{
+				uint32_t vertexCount = (uint32_t)m_Vertices.size();
+
+				m_Indices.push_back(vertexCount - j);
+				m_Indices.push_back(vertexCount - 1U);
+				m_Indices.push_back(vertexCount);
+			}
+
+			Vertex v;
+			v.Position = srcVertices.at(face.i - 1U);
+			v.Normal = face.n > 0U ? normals.at(face.n - 1U) : Vec3(0.0f, 0.0f, 0.0f);
+			v.UV = face.t > 0 ? uvs.at(face.t - 1U) : Vec2(0.0f, 0.0f);
+			m_Vertices.push_back(v);
 		}
 	}
+}
 
-	fileStream.close();
+void ObjMesh::ComputeTangent()
+{
+	///for (uint32_t i = 0U; i < m_Indices.size() / 3U; i += 3U)
+	///{
+	///	Vec3 p1 = m_Vertices[m_Indices[i + 0U]].Position;
+	///	Vec3 p2 = m_Vertices[m_Indices[i + 1U]].Position;
+	///	Vec3 p3 = m_Vertices[m_Indices[i + 2U]].Position;
+	
+	///	Vec2 uv1 = m_Vertices[m_Indices[i + 0U]].UV;
+	///	Vec2 uv2 = m_Vertices[m_Indices[i + 1U]].UV;
+	///	Vec2 uv3 = m_Vertices[m_Indices[i + 2U]].UV;
+	
+	///	Vec3 edge1 = p2 - p1;
+	///	Vec3 edge2 = p3 - p1;
+	
+	///	Vec2 deltaUV1 = uv2 - uv1;
+	///	Vec2 deltaUV2 = uv3 - uv1;
+	
+	///	float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+	///	Vec3 tangent;
+	///	tangent.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+	///	tangent.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+	///	tangent.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+	
+	///	m_Vertices[m_Indices[i + 0U]].Tangent = tangent;
+	///	m_Vertices[m_Indices[i + 1U]].Tangent = tangent;
+	///	m_Vertices[m_Indices[i + 2U]].Tangent = tangent;
+	///}
 }
 
 NamespaceEnd(Geometry)
