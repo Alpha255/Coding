@@ -85,7 +85,7 @@ float4 PSMain_Point(VSOutput psInput) : SV_Target
 
 float4 PSMain_Spot(VSOutput psInput) : SV_Target
 {
-    float3 ambientClr = HemisphericAmbientLighting(normalize(psInput.NormalW), float3(1.0f, 1.0f, 1.0f), AmbientLowerClr.rgb, AmbientRange.xyz);
+    ///float3 ambientClr = HemisphericAmbientLighting(normalize(psInput.NormalW), float3(1.0f, 1.0f, 1.0f), AmbientLowerClr.rgb, AmbientRange.xyz);
 
     float3 finalClr = float3(0.0f, 0.0f, 0.0f);
 
@@ -98,7 +98,7 @@ float4 PSMain_Spot(VSOutput psInput) : SV_Target
         finalClr += SpotLighting(SLights[i], psInput, EyePos.xyz, material);
     }
 
-    finalClr += ambientClr;
+    ///finalClr += ambientClr;
 
     finalClr = GammaCorrection(finalClr);
     return float4(finalClr, 1.0f);

@@ -49,9 +49,9 @@ struct ConstantBufferPS
 		SLights[1].Diffuse = Vec4(0.0f, 1.0f, 0.0f, 1.0f);
 		SLights[2].Diffuse = Vec4(0.0f, 0.0f, 1.0f, 1.0f);
 
-		SLights[0].LookAt = Vec3(0.0f, 150.0f, 0.0f);
-		SLights[1].LookAt = Vec3(0.0f, 150.0f, 0.0f);
-		SLights[2].LookAt = Vec3(0.0f, 150.0f, 0.0f);
+		SLights[0].LookAt = Vec3(0.0f, 10.0f, 0.0f);
+		SLights[1].LookAt = Vec3(0.0f, 10.0f, 0.0f);
+		SLights[2].LookAt = Vec3(0.0f, 10.0f, 0.0f);
 	}
 };
 

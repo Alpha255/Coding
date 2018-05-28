@@ -161,7 +161,7 @@ float3 SpotLighting(in SpotLight light, in VSOutput psInput, in float3 eyePos, i
 
 	/// Cone attenuation
     const float PI = 3.14159f;
-    float cosAngle = dot(normalize(light.LookAt - light.Position), ToLight);
+    float cosAngle = dot(normalize(light.Position - light.LookAt), ToLight);
     float coneAttOuter = cos(PI * light.SpotCosOuterCone / 180.0f);
     float coneAttInner = 1.0f / cos(PI * light.SpotCosInnerCone / 180.0f);
     float coneAtt = saturate((cosAngle - coneAttOuter) * coneAttInner);
