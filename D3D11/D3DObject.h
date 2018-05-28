@@ -36,13 +36,13 @@ public:
 		}
 	}
 
-	inline void operator=(const D3DObject &other)
-	{
-		if (m_Object != other.m_Object)
-		{
-			m_Object = other.m_Object;
-		}
-	}
+	///inline void operator=(const D3DObject &other)
+	///{
+	///	if (m_Object != other.m_Object)
+	///	{
+	///		m_Object = other.m_Object;
+	///	}
+	///}
 
 	inline T * const operator->() const
 	{

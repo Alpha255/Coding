@@ -71,6 +71,7 @@ void AppForwardLighting::Initialize()
 
 void AppForwardLighting::RenderScene()
 {
+#if 0
 	if (m_Wireframe)
 	{
 		D3DEngine::Instance().SetRasterizerState(D3DStaticState::Wireframe);
@@ -105,13 +106,32 @@ void AppForwardLighting::RenderScene()
 	m_CBufferVS.Update(&g_CBufferVS, sizeof(ConstantBufferVS));
 	m_Floor.Bind();
 	D3DEngine::Instance().DrawIndexed(m_Floor.IndexCount, 0U, 0, eTriangleList);
+#else
+	D3DEngine::Instance().SetVertexShader(m_VertexShader);
+	D3DEngine::Instance().SetPixelShader(m_PixelShader[m_LightingType]);
 
-	///Transform trans;
-	///m_StanfordBunnyMesh.Draw(*m_Camera, trans, true);
+	D3DEngine::Instance().SetConstantBuffer(m_CBufferPS, 0U, D3DShader::ePixelShader);
+	D3DEngine::Instance().SetConstantBuffer(m_CBufferVS, 0U, D3DShader::eVertexShader);
+
+	Matrix world = m_Camera->GetWorldMatrix();
+	g_CBufferVS.WVP = Matrix::Transpose(world * m_Camera->GetViewMatrix() * m_Camera->GetProjMatrix());
+	g_CBufferVS.World = Matrix::Transpose(world);
+	g_CBufferVS.WorldInverse = Matrix::InverseTranspose(world);
+	m_CBufferVS.Update(&g_CBufferVS, sizeof(ConstantBufferVS));
+
+	g_CBufferPS.AmbientLowerClr = GammaToLinear(g_AmbientLowerClr);
+	g_CBufferPS.AmbientRange = GammaToLinear(g_AmbientUpperClr) - GammaToLinear(g_AmbientLowerClr);
+	g_CBufferPS.EyePos = m_Camera->GetEyePos();
+	g_CBufferPS.RawMat = m_BunnyMaterial.RawValue;
+	m_CBufferPS.Update(&g_CBufferPS, sizeof(ConstantBufferPS));
+
+	Transform trans;
+	m_StanfordBunnyMesh.Draw(*m_Camera, trans, true);
 
 	ImGui::Checkbox("Wireframe", &m_Wireframe);
 	ImGui::SliderFloat3("AmbientLowerClr", (float *)&g_AmbientLowerClr, 0.0f, 1.0f);
 	ImGui::SliderFloat3("AmbientUpperClr", (float *)&g_AmbientUpperClr, 0.0f, 1.0f);
 	ImGui::SliderFloat3("DirtionalClr", (float *)&g_CBufferPS.DirLight.Diffuse, 0.0f, 1.0f);
 	ImGui::Combo("LightingType", &m_LightingType, "HemisphericAmbient\0DirectionalLight\0PointLight");
+#endif
 }
