@@ -60,6 +60,8 @@ public:
 
 	void Bind(const Material *pMaterial = nullptr);
 
+	void Draw(const Material *pMaterial = nullptr, uint32_t startIndex = 0U, int32_t vertexOffset = 0);
+
 	inline bool IsCreated() const
 	{
 		return m_Created;
@@ -112,7 +114,7 @@ struct SDKMesh
 public:
 	void Create(const char *pMeshName);
 
-	void Draw(const Camera &cam, const Transform &transform, bool bWireframe = false);
+	void Draw(bool bAlphaParts);
 protected:
 private:
 	std::unique_ptr<DirectX::Model> m_Model;

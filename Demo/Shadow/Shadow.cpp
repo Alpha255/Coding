@@ -115,13 +115,12 @@ void AppShadow::DrawClutter(bool bDepthOnly)
 
 void AppShadow::DrawQuad()
 {
-	m_QuadMesh.Bind();
-
 	D3DEngine::Instance().SetVertexShader(m_VertexShaders[eDrawQuad]);
 	D3DEngine::Instance().SetPixelShader(m_PixelShaders[eDrawQuad]);
 
 	D3DEngine::Instance().SetShaderResourceView(m_DepthTexture, 0U, D3DShader::ePixelShader);
-	D3DEngine::Instance().DrawIndexed(m_QuadMesh.IndexCount, 0U, 0, eTriangleList);
+
+	m_QuadMesh.Draw();
 }
 
 void AppShadow::RenderScene()

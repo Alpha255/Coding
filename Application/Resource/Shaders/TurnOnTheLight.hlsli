@@ -44,6 +44,24 @@ struct DirectionalLight
 	float SpecularIntensity;
 };
 
+struct SpotLight
+{
+    float3 Position;
+    float Range;
+
+    float3 LookAt;
+    float SpotCosOuterCone;
+
+    float3 Attenuation;
+    float SpotCosInnerCone;
+
+    float4 Ambient;
+    float4 Diffuse;
+
+    float3 Specular;
+    float SpecularIntensity;
+};
+
 float3 UnpackNormal(float3 normalMap, float3 unitNormalW, float3 tangentW)
 {
 	/// Uncompress each component from [0,1] to [-1,1].
@@ -95,16 +113,18 @@ float3 PointLighting(in PointLight light, in VSOutput psInput, in float3 eyePos,
     lightingColor += light.Diffuse.rgb * pow(NDotH, light.SpecularIntensity) * material.Specular.rgb;
    
 	/// Attenuation
-    ///float DistToLightNorm = 1.0 - saturate(DistToLight * light.Range);
-    ///float Attn = DistToLightNorm * DistToLightNorm;
+#if 1
+    float DistToLightNorm = 1.0 - saturate(DistToLight * 1.0f / light.Range);
+    float Attn = DistToLightNorm * DistToLightNorm;
+#else
 	float Attn = 1.0f / dot(light.Attenuation.xyz, float3(1.0f, DistToLight, DistToLight * DistToLight));
-    ///float Attn = 1.0f - DistToLight / light.Range;
+#endif
     lightingColor *= material.Diffuse.rgb * Attn;
    
     return lightingColor;
 }
 
-float3 DirectionalLighting(DirectionalLight light, in VSOutput psInput, in float3 eyePos, in Material material)
+float3 DirectionalLighting(in DirectionalLight light, in VSOutput psInput, in float3 eyePos, in Material material)
 {
 	/// Phong diffuse
     float3 ToLight = normalize(-light.Direction.xyz);
@@ -122,9 +142,41 @@ float3 DirectionalLighting(DirectionalLight light, in VSOutput psInput, in float
     return lightingColor;
 }
 
-float3 SpotLighting()
+float3 SpotLighting(in SpotLight light, in VSOutput psInput, in float3 eyePos, in Material material)
 {
+    float3 ToLight = light.Position - psInput.PosW;
+    float3 ToEye = eyePos - psInput.PosW;
+    float DistToLight = length(ToLight);
+   
+	/// Phong diffuse
+    ToLight /= DistToLight; /// Normalize
+    float NDotL = saturate(dot(ToLight, material.Normal.xyz));
+    float3 lightingColor = light.Diffuse.rgb * NDotL;
+   
+	/// Blinn specular
+    ToEye = normalize(ToEye);
+    float3 HalfWay = normalize(ToEye + ToLight);
+    float NDotH = saturate(dot(HalfWay, material.Normal.xyz));
+    lightingColor += light.Diffuse.rgb * pow(NDotH, light.SpecularIntensity) * material.Specular.rgb;
 
+	/// Cone attenuation
+    const float PI = 3.14159f;
+    float cosAngle = dot(normalize(light.LookAt - light.Position), ToLight);
+    float coneAttOuter = cos(PI * light.SpotCosOuterCone / 180.0f);
+    float coneAttInner = 1.0f / cos(PI * light.SpotCosInnerCone / 180.0f);
+    float coneAtt = saturate((cosAngle - coneAttOuter) * coneAttInner);
+    coneAtt *= coneAtt;
+   
+	/// Attenuation
+#if 1
+    float DistToLightNorm = 1.0 - saturate(DistToLight * 1.0f / light.Range);
+    float Attn = DistToLightNorm * DistToLightNorm;
+#else
+	float Attn = 1.0f / dot(light.Attenuation.xyz, float3(1.0f, DistToLight, DistToLight * DistToLight));
+#endif
+    lightingColor *= material.Diffuse.rgb * Attn * coneAtt;
+   
+    return lightingColor;
 }
 
 float3 HemisphericAmbientLighting(in float3 vertexNormal, in float3 diffuseColor, in float3 ambientColorLower, in float3 ambientRange)

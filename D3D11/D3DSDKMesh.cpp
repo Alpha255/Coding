@@ -32,64 +32,53 @@ void SDKMesh::Create(const char *pFileName)
 	m_Created = true;
 }
 
-void SDKMesh::Draw(const Camera &cam, const Transform &transform, bool bWireframe)
+void SDKMesh::Draw(bool bAlphaParts)
 {
-	Matrix world = cam.GetWorldMatrix();
-	world *= transform.Get();
-
-	Matrix view = cam.GetViewMatrix();
-	Matrix proj = cam.GetProjMatrix();
-
-	///m_Model->Draw(D3DEngine::Instance().GetIMContext().Get(), *m_States, world, view, proj, bWireframe);
+	assert(m_Created);
 
 	/// Draw opaque parts
 	for (auto it = m_Model->meshes.cbegin(); it != m_Model->meshes.cend(); ++it)
 	{
 		auto mesh = it->get();
-		assert(mesh != 0);
+		assert(mesh);
 
 		for (auto it = mesh->meshParts.cbegin(); it != mesh->meshParts.cend(); ++it)
 		{
 			auto part = (*it).get();
-			assert(part != 0);
+			assert(part);
 
-			if (part->isAlpha)
+			if (part->isAlpha != bAlphaParts)
 			{
 				/// Skip alpha parts when drawing opaque or skip opaque parts if drawing alpha
 				continue;
 			}
 			
-			D3DInputLayout *vertexLayout = new D3DInputLayout;
-			vertexLayout->MakeObject(part->inputLayout.Get());
+			ID3D11InputLayout *pLayout = nullptr;
+			HRCheck(part->inputLayout.CopyTo(&pLayout));
+			D3DInputLayout vertexLayout;
+			vertexLayout.MakeObject(pLayout);
 
-			D3DVertexBuffer *vertexBuffer = new D3DVertexBuffer;
-			vertexBuffer->Buffer.MakeObject(part->vertexBuffer.Get());
-			vertexBuffer->Stride = part->vertexStride;
-			vertexBuffer->Offset = 0U;
+			ID3D11Buffer *pVB = nullptr;
+			HRCheck(part->vertexBuffer.CopyTo(&pVB));
+			D3DVertexBuffer vertexBuffer;
+			vertexBuffer.Buffer.MakeObject(pVB);
+			vertexBuffer.Stride = part->vertexStride;
+			vertexBuffer.Offset = 0U;
 
-			D3DIndexBuffer *indexBuffer = new D3DIndexBuffer;
-			indexBuffer->Buffer.MakeObject(part->indexBuffer.Get());
-			indexBuffer->Format = part->indexFormat;
-			indexBuffer->Offset = 0U;
+			ID3D11Buffer *pIB = nullptr;
+			HRCheck(part->indexBuffer.CopyTo(&pIB));
+			D3DIndexBuffer indexBuffer;
+			indexBuffer.Buffer.MakeObject(pIB);
+			indexBuffer.Format = part->indexFormat;
+			indexBuffer.Offset = 0U;
 
-			D3DEngine::Instance().SetInputLayout(*vertexLayout);
-			D3DEngine::Instance().SetVertexBuffer(vertexBuffer->Buffer, vertexBuffer->Stride, vertexBuffer->Offset);
-			D3DEngine::Instance().SetIndexBuffer(indexBuffer->Buffer, indexBuffer->Format, indexBuffer->Offset);
+			D3DEngine::Instance().SetInputLayout(vertexLayout);
+			D3DEngine::Instance().SetVertexBuffer(vertexBuffer.Buffer, vertexBuffer.Stride, vertexBuffer.Offset);
+			D3DEngine::Instance().SetIndexBuffer(indexBuffer.Buffer, indexBuffer.Format, indexBuffer.Offset);
 
 			D3DEngine::Instance().DrawIndexed(part->indexCount, part->startIndex, part->vertexOffset, part->primitiveType);
 		}
 	}
-
-	/// Draw alpha parts
-	///for (auto it = meshes.cbegin(); it != meshes.cend(); ++it)
-	///{
-	///	auto mesh = it->get();
-	///	assert(mesh != 0);
-	
-	///	mesh->PrepareForRendering(deviceContext, states, true, wireframe);
-	
-	///	mesh->Draw(deviceContext, world, view, projection, true, setCustomState);
-	///}
 }
 
 NamespaceEnd(Geometry)

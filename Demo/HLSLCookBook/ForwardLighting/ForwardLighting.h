@@ -29,8 +29,6 @@ private:
 		eCount
 	};
 
-	Geometry::ObjMesh m_StanfordBunny;
-	Geometry::Mesh m_Floor;
 	Geometry::SDKMesh m_StanfordBunnyMesh;
 
 	D3DVertexShader m_VertexShader;

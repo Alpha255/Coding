@@ -709,4 +709,11 @@ void Mesh::Bind(const Material *pMaterial)
 	D3DEngine::Instance().SetIndexBuffer(IndexBuffer, eR32_UInt, 0U);
 }
 
+void Mesh::Draw(const Material *pMaterial, uint32_t startIndex, int32_t vertexOffset)
+{
+	Bind(pMaterial);
+
+	D3DEngine::Instance().DrawIndexed(IndexCount, startIndex, vertexOffset, eTriangleList);
+}
+
 NamespaceEnd(Geometry)

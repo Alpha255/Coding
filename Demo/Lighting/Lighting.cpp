@@ -76,17 +76,6 @@ void AppLighting::Initialize()
 
 void AppLighting::RenderScene()
 {
-	D3DEngine::Instance().SetInputLayout(m_Sphere.VertexLayout);
-
-	if (eFlat == m_ShadingMode)
-	{
-		m_FlatSphere.Bind(&m_SphereMaterial);
-	}
-	else
-	{
-		m_Sphere.Bind(&m_SphereMaterial);
-	}
-
 	D3DEngine::Instance().SetVertexShader(m_VertexShader[m_ShadingMode]);
 	D3DEngine::Instance().SetPixelShader(m_PixelShader[m_ShadingMode]);
 
@@ -106,8 +95,14 @@ void AppLighting::RenderScene()
 	m_CBufferPS.Update(&CBufferPS, sizeof(ConstantBufferPS));
 	D3DEngine::Instance().SetConstantBuffer(m_CBufferPS, 0U, D3DShader::ePixelShader);
 
-	uint32_t indexCount = (eFlat == m_ShadingMode) ? m_FlatSphere.IndexCount : m_Sphere.IndexCount;
-	D3DEngine::Instance().DrawIndexed(indexCount, 0U, 0, eTriangleList);
+	if (eFlat == m_ShadingMode)
+	{
+		m_FlatSphere.Draw(&m_SphereMaterial);
+	}
+	else
+	{
+		m_Sphere.Draw(&m_SphereMaterial);
+	}
 
 	ImGui::Combo("ShadingType", (int32_t*)&m_ShadingMode, "Flat\0Gouraud\0Phong\0BlinnPhong");
 }

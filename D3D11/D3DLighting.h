@@ -55,17 +55,20 @@ struct DirectionalLight : public Light
 
 struct SpotLight : public Light
 {
-	Vec4 Ambient = {};
-	Vec4 Diffuse = {};
-	Vec4 Specular = {};
-
 	Vec3 Position = {};
-	float Range = 0.0f;
+	float Range = 60.0f;
 
-	Vec3 Direction = {};
-	float Spot = 0.0f;
+	Vec3 LookAt = {};
+	float SpotCosOuterCone = 65.0f;
 
-	Vec4 Attenuation = {};
+	Vec3 Attenuation = { 1.0f, 0.045f, 0.0075f };
+	float SpotCosInnerCone = 55.0f;
+
+	Vec4 Ambient = { 0.05f, 0.05f, 0.05f, 1.0f };
+	Vec4 Diffuse = {};
+
+	Vec3 Specular = { 1.0f, 1.0f, 1.0f };
+	float SpecularIntensity = 250.0f;
 };
 
 struct Material

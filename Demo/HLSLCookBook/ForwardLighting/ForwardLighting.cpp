@@ -20,7 +20,8 @@ struct ConstantBufferPS
 
 	Material::RawMaterial RawMat;
 	DirectionalLight DirLight;
-	PointLight PLight[3];
+	PointLight PLights[3];
+	SpotLight SLights[3];
 
 	ConstantBufferPS()
 	{
@@ -28,17 +29,29 @@ struct ConstantBufferPS
 		DirLight.Diffuse = Vec4(0.85f, 0.8f, 0.5f, 1.0f);
 		DirLight.Diffuse = DirLight.Diffuse * DirLight.Diffuse;
 
-		PLight[0].Position = Vec3(25.0f, 13.0f, 14.4f);
-		PLight[1].Position = Vec3(-25.0f, 13.0f, 14.4f);
-		PLight[2].Position = Vec3(0.0f, 13.0f, -28.9f);
+		PLights[0].Position = Vec3(25.0f, 13.0f, 14.4f);
+		PLights[1].Position = Vec3(-25.0f, 13.0f, 14.4f);
+		PLights[2].Position = Vec3(0.0f, 13.0f, -28.9f);
+			  
+		PLights[0].Diffuse = Vec4(1.0f, 0.0f, 0.0f, 1.0f);
+		PLights[1].Diffuse = Vec4(0.0f, 1.0f, 0.0f, 1.0f);
+		PLights[2].Diffuse = Vec4(0.0f, 0.0f, 1.0f, 1.0f);
+			  
+		PLights[0].Range = 50.0f;
+		PLights[1].Range = 50.0f;
+		PLights[2].Range = 50.0f;
 
-		PLight[0].Diffuse = Vec4(1.0f, 0.0f, 0.0f, 1.0f);
-		PLight[1].Diffuse = Vec4(0.0f, 1.0f, 0.0f, 1.0f);
-		PLight[2].Diffuse = Vec4(0.0f, 0.0f, 1.0f, 1.0f);
+		SLights[0].Position = Vec3(25.0f, 13.0f, 14.4f);
+		SLights[1].Position = Vec3(-25.0f, 13.0f, 14.4f);
+		SLights[2].Position = Vec3(0.0f, 13.0f, -28.9f);
 
-		PLight[0].Range = 50.0f;
-		PLight[1].Range = 50.0f;
-		PLight[2].Range = 50.0f;
+		SLights[0].Diffuse = Vec4(1.0f, 0.0f, 0.0f, 1.0f);
+		SLights[1].Diffuse = Vec4(0.0f, 1.0f, 0.0f, 1.0f);
+		SLights[2].Diffuse = Vec4(0.0f, 0.0f, 1.0f, 1.0f);
+
+		SLights[0].LookAt = Vec3(0.0f, 150.0f, 0.0f);
+		SLights[1].LookAt = Vec3(0.0f, 150.0f, 0.0f);
+		SLights[2].LookAt = Vec3(0.0f, 150.0f, 0.0f);
 	}
 };
 
@@ -49,8 +62,6 @@ ConstantBufferVS g_CBufferVS;
 
 void AppForwardLighting::Initialize()
 {
-	m_StanfordBunny.Create("bun_zipper_res2.obj");
-	m_Floor.CreateAsQuad(10.0f);
 	m_StanfordBunnyMesh.Create("bunny.sdkmesh");
 
 	m_VertexShader.Create("ForwardLighting.hlsl", "VSMain");
@@ -65,48 +76,17 @@ void AppForwardLighting::Initialize()
 	m_BunnyMaterial.Set(Material::eDiffuse, Vec4(0.85f, 0.8f, 0.5f, 1.0f));
 	m_BunnyMaterial.Set(Material::eSpecular, Vec4(0.25f, 0.25f, 0.25f, 1.0f));
 
-	m_Camera->SetViewRadius(10.0f);
+	m_Camera->SetViewRadius(100.0f);
 	m_Camera->Move(0, -100);
 }
 
 void AppForwardLighting::RenderScene()
 {
-#if 0
 	if (m_Wireframe)
 	{
 		D3DEngine::Instance().SetRasterizerState(D3DStaticState::Wireframe);
 	}
 
-	D3DEngine::Instance().SetVertexShader(m_VertexShader);
-	D3DEngine::Instance().SetPixelShader(m_PixelShader[m_LightingType]);
-
-	/// The higher the material's specular exponent is, the smaller the light spread is
-	/// DownColor * (1-a) + UpColor * a = DownColor + a * (UpColor - DownColor)
-	g_CBufferPS.AmbientLowerClr = GammaToLinear(g_AmbientLowerClr);
-	g_CBufferPS.AmbientRange = GammaToLinear(g_AmbientUpperClr) - GammaToLinear(g_AmbientLowerClr);
-	g_CBufferPS.EyePos = m_Camera->GetEyePos();
-	g_CBufferPS.RawMat = m_BunnyMaterial.RawValue;
-	m_CBufferPS.Update(&g_CBufferPS, sizeof(ConstantBufferPS));
-	D3DEngine::Instance().SetConstantBuffer(m_CBufferPS, 0U, D3DShader::ePixelShader);
-
-	D3DEngine::Instance().SetConstantBuffer(m_CBufferVS, 0U, D3DShader::eVertexShader);
-
-	Matrix world = m_Camera->GetWorldMatrix() * Matrix::Scaling(15.0f) * Matrix::Translation(0.0f, -1.0f, 0.0f);
-	g_CBufferVS.WVP = Matrix::Transpose(world * m_Camera->GetViewMatrix() * m_Camera->GetProjMatrix());
-	g_CBufferVS.World = Matrix::Transpose(world);
-	g_CBufferVS.WorldInverse = Matrix::InverseTranspose(world);
-	m_CBufferVS.Update(&g_CBufferVS, sizeof(ConstantBufferVS));
-	m_StanfordBunny.Bind(&m_BunnyMaterial);
-	D3DEngine::Instance().DrawIndexed(m_StanfordBunny.IndexCount, 0U, 0, eTriangleList);
-
-	world = m_Camera->GetWorldMatrix() * Matrix::RotationAxis(1.0f, 0.0f, 0.0f, 90.0f) * Matrix::Translation(0.0f, -0.5f, 0.0f);
-	g_CBufferVS.WVP = Matrix::Transpose(world * m_Camera->GetViewMatrix() * m_Camera->GetProjMatrix());
-	g_CBufferVS.World = Matrix::Transpose(world);
-	g_CBufferVS.WorldInverse = Matrix::InverseTranspose(world);
-	m_CBufferVS.Update(&g_CBufferVS, sizeof(ConstantBufferVS));
-	m_Floor.Bind();
-	D3DEngine::Instance().DrawIndexed(m_Floor.IndexCount, 0U, 0, eTriangleList);
-#else
 	D3DEngine::Instance().SetVertexShader(m_VertexShader);
 	D3DEngine::Instance().SetPixelShader(m_PixelShader[m_LightingType]);
 
@@ -125,13 +105,19 @@ void AppForwardLighting::RenderScene()
 	g_CBufferPS.RawMat = m_BunnyMaterial.RawValue;
 	m_CBufferPS.Update(&g_CBufferPS, sizeof(ConstantBufferPS));
 
-	Transform trans;
-	m_StanfordBunnyMesh.Draw(*m_Camera, trans, true);
+	m_StanfordBunnyMesh.Draw(false);
 
 	ImGui::Checkbox("Wireframe", &m_Wireframe);
 	ImGui::SliderFloat3("AmbientLowerClr", (float *)&g_AmbientLowerClr, 0.0f, 1.0f);
 	ImGui::SliderFloat3("AmbientUpperClr", (float *)&g_AmbientUpperClr, 0.0f, 1.0f);
-	ImGui::SliderFloat3("DirtionalClr", (float *)&g_CBufferPS.DirLight.Diffuse, 0.0f, 1.0f);
-	ImGui::Combo("LightingType", &m_LightingType, "HemisphericAmbient\0DirectionalLight\0PointLight");
-#endif
+	if (eDirectional == m_LightingType)
+	{
+		ImGui::SliderFloat3("DirtionalClr", (float *)&g_CBufferPS.DirLight.Diffuse, 0.0f, 1.0f);
+	}
+	if (eSpot == m_LightingType)
+	{
+		ImGui::SliderFloat("SpotLookAtY", &g_CBufferPS.SLights[0].LookAt.y, 0.0f, 200.0f);
+		ImGui::SliderFloat3("SpotPos0", (float *)&g_CBufferPS.SLights[0].Position, -100.0f, 100.0f);
+	}
+	ImGui::Combo("LightingType", &m_LightingType, "HemisphericAmbient\0DirectionalLight\0PointLight\0Spot");
 }

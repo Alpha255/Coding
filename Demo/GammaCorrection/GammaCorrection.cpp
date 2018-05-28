@@ -60,6 +60,8 @@ void AppGammaCorrection::RenderScene()
 	D3DEngine::Instance().SetConstantBuffer(m_CBufferVS, 0U, D3DShader::eVertexShader);
 	D3DEngine::Instance().SetConstantBuffer(m_CBufferPS, 0U, D3DShader::ePixelShader);
 
+	D3DEngine::Instance().SetRasterizerState(D3DStaticState::SolidNoneCulling);
+
 	/// Draw Floor
 	CBufferVS.World = Matrix::Transpose(m_Camera->GetWorldMatrix());
 	CBufferVS.WorldInverse = Matrix::InverseTranspose(m_Camera->GetWorldMatrix());
@@ -70,7 +72,7 @@ void AppGammaCorrection::RenderScene()
 	CBufferPS.Mat = m_FloorMaterial.RawValue;
 	m_CBufferPS.Update(&CBufferPS, sizeof(ConstantBufferPS));
 
-	m_FloorMesh.Bind(&m_FloorMaterial);
+	m_FloorMesh.Draw(&m_FloorMaterial);
 
 	///if (m_bGammaCorrection)
 	///{
@@ -80,8 +82,6 @@ void AppGammaCorrection::RenderScene()
 	///{
 	///	D3DEngine::Instance().SetShaderResourceView(m_DiffuseTexFloor, 0U, D3DShader::ePixelShader);
 	///}
-	D3DEngine::Instance().SetRasterizerState(D3DStaticState::SolidNoneCulling);
-	D3DEngine::Instance().DrawIndexed(m_FloorMesh.IndexCount, 0U, 0, eTriangleList);
 
 	for (uint32_t i = 0U; i < 3U; ++i)
 	{

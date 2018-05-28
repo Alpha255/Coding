@@ -73,7 +73,7 @@ public:
 	{
 		if (pObject)
 		{
-			m_Object.reset(pObject, std::function<void(T *)>([](T *pObject){ SafeRelease(pObject) }));
+			m_Object.reset(pObject, std::function<void(T * &)>([](T * &pObject){ SafeRelease(pObject) }));
 		}
 	}
 protected:

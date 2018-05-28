@@ -16,8 +16,6 @@ void AppHDRLighting::Initialize()
 
 void AppHDRLighting::RenderScene()
 {
-	m_Room.Bind();
-
 	D3DEngine::Instance().SetVertexShader(m_VertexShader);
 	D3DEngine::Instance().SetPixelShader(m_PixelShader);
 	D3DEngine::Instance().SetConstantBuffer(m_CBufferVS, 0U, D3DShader::eVertexShader);
@@ -29,5 +27,5 @@ void AppHDRLighting::RenderScene()
 	D3DEngine::Instance().SetShaderResourceView(m_DiffuseTex, 0U, D3DShader::ePixelShader);
 	D3DEngine::Instance().SetSamplerState(D3DStaticState::LinearSampler, 0U, D3DShader::ePixelShader);
 
-	D3DEngine::Instance().DrawIndexed(m_Room.IndexCount, 0U, 0, eTriangleList);
+	m_Room.Draw();
 }

@@ -55,7 +55,6 @@ void AppParallaxMapping::RenderScene()
 	D3DEngine::Instance().SetPixelShader(m_PixelShader[m_MappingType]);
 
 	m_Floor.Bind(&m_FloorMaterial);
-
 	D3DEngine::Instance().SetShaderResourceView(m_HeightMap, 3U, D3DShader::ePixelShader);
 
 	ConstantBufferVS CBufferVS;
@@ -75,7 +74,7 @@ void AppParallaxMapping::RenderScene()
 	///D3DEngine::Instance().SetRasterizerState(D3DStaticState::SolidNoneCulling);
 	D3DEngine::Instance().DrawIndexed(m_Floor.IndexCount, 0U, 0, eTriangleList);
 
-	Vec3 pos(-CBufferPS.DirLight.Direction.x, -CBufferPS.DirLight.Direction.y, -CBufferPS.DirLight.Direction.z);
+	///Vec3 pos(-CBufferPS.DirLight.Direction.x, -CBufferPS.DirLight.Direction.y, -CBufferPS.DirLight.Direction.z);
 	///Light::DebugDisplay(pos, Light::ePoint, *m_Camera);
 
 	if (eParallaxOcclusionMapping == m_MappingType)
