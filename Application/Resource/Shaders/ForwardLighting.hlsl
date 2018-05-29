@@ -44,8 +44,8 @@ float4 PSMain_HemisphericAmbient(VSOutput psInput) : SV_Target
 {
     float3 ambientClr = HemisphericAmbientLighting(normalize(psInput.NormalW), float3(1.0f, 1.0f, 1.0f), AmbientLowerClr.rgb, AmbientRange.xyz);
 
-    float3 finalClr = GammaCorrection(ambientClr);
-    return float4(finalClr, 1.0f);
+    ambientClr = GammaCorrection(ambientClr);
+    return float4(ambientClr, 1.0f);
 }
 
 float4 PSMain_Directional(VSOutput psInput) : SV_Target
@@ -56,17 +56,17 @@ float4 PSMain_Directional(VSOutput psInput) : SV_Target
     material.Normal = float4(normalize(psInput.NormalW), 0.0f);
     float3 directionalClr = DirectionalLighting(DirLight, psInput, EyePos.xyz, material);
 
-    float3 result = ambientClr + directionalClr;
+    directionalClr += ambientClr;
 
-    float3 finalClr = GammaCorrection(result);
-    return float4(finalClr, 1.0f);
+    directionalClr = GammaCorrection(directionalClr);
+    return float4(directionalClr, 1.0f);
 }
 
 float4 PSMain_Point(VSOutput psInput) : SV_Target
 {
-	///float3 ambientClr = HemisphericAmbientLighting(normalize(psInput.NormalW), float3(1.0f, 1.0f, 1.0f), AmbientLowerClr.rgb, AmbientRange.xyz);
+	float3 ambientClr = HemisphericAmbientLighting(normalize(psInput.NormalW), float3(1.0f, 1.0f, 1.0f), AmbientLowerClr.rgb, AmbientRange.xyz);
 
-    float3 finalClr = float3(0.0f, 0.0f, 0.0f);
+    float3 pointClr = float3(0.0f, 0.0f, 0.0f);
 
     Material material = RawMat;
     material.Normal = float4(normalize(psInput.NormalW), 0.0f);
@@ -74,20 +74,20 @@ float4 PSMain_Point(VSOutput psInput) : SV_Target
 	[unroll]
     for (uint i = 0; i < 3; ++i)
     {
-        finalClr += PointLighting(PLights[i], psInput, EyePos.xyz, material);
+        pointClr += PointLighting(PLights[i], psInput, EyePos.xyz, material);
     }
 
-    ///finalClr += ambientClr;
+    pointClr += ambientClr;
 
-    finalClr = GammaCorrection(finalClr);
-    return float4(finalClr, 1.0f);
+    pointClr = GammaCorrection(pointClr);
+    return float4(pointClr, 1.0f);
 }
 
 float4 PSMain_Spot(VSOutput psInput) : SV_Target
 {
-    ///float3 ambientClr = HemisphericAmbientLighting(normalize(psInput.NormalW), float3(1.0f, 1.0f, 1.0f), AmbientLowerClr.rgb, AmbientRange.xyz);
+    float3 ambientClr = HemisphericAmbientLighting(normalize(psInput.NormalW), float3(1.0f, 1.0f, 1.0f), AmbientLowerClr.rgb, AmbientRange.xyz);
 
-    float3 finalClr = float3(0.0f, 0.0f, 0.0f);
+    float3 spotClr = float3(0.0f, 0.0f, 0.0f);
 
     Material material = RawMat;
     material.Normal = float4(normalize(psInput.NormalW), 0.0f);
@@ -95,11 +95,11 @@ float4 PSMain_Spot(VSOutput psInput) : SV_Target
    	[unroll]
     for (uint i = 0; i < 3; ++i)
     {
-        finalClr += SpotLighting(SLights[i], psInput, EyePos.xyz, material);
+        spotClr += SpotLighting(SLights[i], psInput, EyePos.xyz, material);
     }
 
-    ///finalClr += ambientClr;
+    spotClr += ambientClr;
 
-    finalClr = GammaCorrection(finalClr);
-    return float4(finalClr, 1.0f);
+    spotClr = GammaCorrection(spotClr);
+    return float4(spotClr, 1.0f);
 }

@@ -108,16 +108,19 @@ void AppForwardLighting::RenderScene()
 	m_StanfordBunnyMesh.Draw(false);
 
 	ImGui::Checkbox("Wireframe", &m_Wireframe);
-	ImGui::SliderFloat3("AmbientLowerClr", (float *)&g_AmbientLowerClr, 0.0f, 1.0f);
-	ImGui::SliderFloat3("AmbientUpperClr", (float *)&g_AmbientUpperClr, 0.0f, 1.0f);
+	if (eHemisphericAmbient == m_LightingType)
+	{
+		g_AmbientLowerClr = Vec4(0.1f, 0.5f, 0.1f, 1.0f);
+		g_AmbientUpperClr = Vec4(0.1f, 0.2f, 0.5f, 1.0f);
+	}
+	else
+	{
+		g_AmbientLowerClr = Vec4(0.1f, 0.2f, 0.1f, 1.0f);
+		g_AmbientUpperClr = Vec4(0.1f, 0.2f, 0.2f, 1.0f);
+	}
 	if (eDirectional == m_LightingType)
 	{
 		ImGui::SliderFloat3("DirtionalClr", (float *)&g_CBufferPS.DirLight.Diffuse, 0.0f, 1.0f);
-	}
-	if (eSpot == m_LightingType)
-	{
-		ImGui::SliderFloat("SpotLookAtY", &g_CBufferPS.SLights[0].LookAt.y, 0.0f, 200.0f);
-		ImGui::SliderFloat3("SpotPos0", (float *)&g_CBufferPS.SLights[0].Position, -100.0f, 100.0f);
 	}
 	ImGui::Combo("LightingType", &m_LightingType, "HemisphericAmbient\0DirectionalLight\0PointLight\0Spot");
 }
