@@ -129,6 +129,7 @@ float3 PointLighting(in PointLight light, in VSOutput psInput, in float3 eyePos,
    
 	/// Attenuation
 #if 1
+    /// Since the GPU handles multiplication better than division, we store the Range value as 1 / Range
     float DistToLightNorm = 1.0 - saturate(DistToLight * (1.0f / light.Range));
     float Attn = DistToLightNorm * DistToLightNorm;
 #else
@@ -159,6 +160,7 @@ float3 DirectionalLighting(in DirectionalLight light, in VSOutput psInput, in fl
 
 float3 SpotLighting(in SpotLight light, in VSOutput psInput, in float3 eyePos, in Material material)
 {
+    /// When picking the inner and outer cone angles, always make sure that the outer angle is bigger than the outer to inner angle
     float3 ToLight = light.Position - psInput.PosW;
     float3 ToEye = eyePos - psInput.PosW;
     float DistToLight = length(ToLight);
@@ -175,6 +177,7 @@ float3 SpotLighting(in SpotLight light, in VSOutput psInput, in float3 eyePos, i
     lightingColor += light.Diffuse.rgb * pow(NDotH, light.SpecularIntensity) * material.Specular.rgb;
 
 	/// Cone attenuation
+    /// Calculating the cosine values over and over for every lit pixel in the pixel shader is bad for performance
     const float PI = 3.14159f;
     float cosAngle = dot(normalize(light.Position - light.LookAt), ToLight);
     float coneAttOuter = cos(PI * light.SpotCosOuterCone / 180.0f);
