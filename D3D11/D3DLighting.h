@@ -71,6 +71,21 @@ struct SpotLight : public Light
 	float SpecularIntensity = 250.0f;
 };
 
+struct CapsultLight : public Light
+{
+	Vec3 Position = {};
+	float Range = 20.0f;
+
+	Vec3 Direction = {};
+	float Length = 85.0f;
+
+	Vec4 Ambient = { 0.05f, 0.05f, 0.05f, 1.0f };
+	Vec4 Diffuse = {};
+
+	Vec3 Specular = { 1.0f, 1.0f, 1.0f };
+	float SpecularIntensity = 250.0f;
+};
+
 struct Material
 {
 	enum eProperty

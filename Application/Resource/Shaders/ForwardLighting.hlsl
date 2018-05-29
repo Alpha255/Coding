@@ -18,6 +18,7 @@ cbuffer cbPS
     DirectionalLight DirLight;
     PointLight PLights[3];
     SpotLight SLights[3];
+	CapsuleLight CLights[3];
 }
 
 struct VSInput
@@ -102,4 +103,25 @@ float4 PSMain_Spot(VSOutput psInput) : SV_Target
 
     spotClr = GammaCorrection(spotClr);
     return float4(spotClr, 1.0f);
+}
+
+float4 PSMain_Capsule(VSOutput psInput) : SV_Target
+{
+    float3 ambientClr = HemisphericAmbientLighting(normalize(psInput.NormalW), float3(1.0f, 1.0f, 1.0f), AmbientLowerClr.rgb, AmbientRange.xyz);
+
+    float3 capsuleClr = float3(0.0f, 0.0f, 0.0f);
+
+    Material material = RawMat;
+    material.Normal = float4(normalize(psInput.NormalW), 0.0f);
+
+   	[unroll]
+    for (uint i = 0; i < 3; ++i)
+    {
+        capsuleClr += CapsultLighting(CLights[i], psInput, EyePos.xyz, material);
+    }
+
+    capsuleClr += ambientClr;
+
+    capsuleClr = GammaCorrection(capsuleClr);
+    return float4(capsuleClr, 1.0f);
 }

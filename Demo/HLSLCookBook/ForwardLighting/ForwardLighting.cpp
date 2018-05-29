@@ -22,6 +22,7 @@ struct ConstantBufferPS
 	DirectionalLight DirLight;
 	PointLight PLights[3];
 	SpotLight SLights[3];
+	CapsultLight CLights[3];
 
 	ConstantBufferPS()
 	{
@@ -52,6 +53,18 @@ struct ConstantBufferPS
 		SLights[0].LookAt = Vec3(0.0f, 10.0f, 0.0f);
 		SLights[1].LookAt = Vec3(0.0f, 10.0f, 0.0f);
 		SLights[2].LookAt = Vec3(0.0f, 10.0f, 0.0f);
+
+		CLights[0].Position = Vec3(25.0f, 13.0f, 14.4f);
+		CLights[1].Position = Vec3(-25.0f, 13.0f, 14.4f);
+		CLights[2].Position = Vec3(0.0f, 13.0f, -28.9f);
+		
+		CLights[0].Diffuse = Vec4(1.0f, 0.0f, 0.0f, 1.0f);
+		CLights[1].Diffuse = Vec4(0.0f, 1.0f, 0.0f, 1.0f);
+		CLights[2].Diffuse = Vec4(0.0f, 0.0f, 1.0f, 1.0f);
+
+		CLights[0].Direction = CLights[2].Position - CLights[1].Position;
+		CLights[1].Direction = CLights[0].Position - CLights[2].Position;
+		CLights[2].Direction = CLights[1].Position - CLights[0].Position;
 	}
 };
 
@@ -69,6 +82,7 @@ void AppForwardLighting::Initialize()
 	m_PixelShader[eDirectional].Create("ForwardLighting.hlsl", "PSMain_Directional");
 	m_PixelShader[ePoint].Create("ForwardLighting.hlsl", "PSMain_Point");
 	m_PixelShader[eSpot].Create("ForwardLighting.hlsl", "PSMain_Spot");
+	m_PixelShader[eCapsule].Create("ForwardLighting.hlsl", "PSMain_Capsule");
 
 	m_CBufferVS.CreateAsConstantBuffer(sizeof(ConstantBufferVS), D3DBuffer::eGpuReadCpuWrite);
 	m_CBufferPS.CreateAsConstantBuffer(sizeof(ConstantBufferPS), D3DBuffer::eGpuReadCpuWrite);
@@ -122,5 +136,17 @@ void AppForwardLighting::RenderScene()
 	{
 		ImGui::SliderFloat3("DirtionalClr", (float *)&g_CBufferPS.DirLight.Diffuse, 0.0f, 1.0f);
 	}
-	ImGui::Combo("LightingType", &m_LightingType, "HemisphericAmbient\0DirectionalLight\0PointLight\0Spot");
+	if (eCapsule == m_LightingType)
+	{
+		static float s_CLightLength = 85.0f;
+		static float s_CLightRange = 20.0f;
+		ImGui::SliderFloat("CapsuleLightRange", &s_CLightRange, 10.0f, 50.0f);
+		ImGui::SliderFloat("CapsuleLightLength", &s_CLightLength, 10.0f, 100.0f);
+		for (uint32_t i = 0U; i < 3U; ++i)
+		{
+			g_CBufferPS.CLights[i].Length = s_CLightLength;
+			g_CBufferPS.CLights[i].Range = s_CLightRange;
+		}
+	}
+	ImGui::Combo("LightingType", &m_LightingType, "HemisphericAmbient\0DirectionalLight\0PointLight\0Spot\0Capsule");
 }

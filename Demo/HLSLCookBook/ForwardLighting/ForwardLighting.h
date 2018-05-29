@@ -26,6 +26,7 @@ private:
 		eDirectional,
 		ePoint,
 		eSpot,
+		eCapsule,
 		eCount
 	};
 

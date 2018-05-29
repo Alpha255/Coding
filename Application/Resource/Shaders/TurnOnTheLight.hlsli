@@ -62,6 +62,21 @@ struct SpotLight
     float SpecularIntensity;
 };
 
+struct CapsuleLight
+{
+	float3 Position;
+	float Range;
+
+	float3 Direction;
+	float Length;
+
+	float4 Ambient;
+	float4 Diffuse;
+
+	float3 Specular;
+	float SpecularIntensity;
+};
+
 float3 UnpackNormal(float3 normalMap, float3 unitNormalW, float3 tangentW)
 {
 	/// Uncompress each component from [0,1] to [-1,1].
@@ -114,7 +129,7 @@ float3 PointLighting(in PointLight light, in VSOutput psInput, in float3 eyePos,
    
 	/// Attenuation
 #if 1
-    float DistToLightNorm = 1.0 - saturate(DistToLight * 1.0f / light.Range);
+    float DistToLightNorm = 1.0 - saturate(DistToLight * (1.0f / light.Range));
     float Attn = DistToLightNorm * DistToLightNorm;
 #else
 	float Attn = 1.0f / dot(light.Attenuation.xyz, float3(1.0f, DistToLight, DistToLight * DistToLight));
@@ -169,7 +184,7 @@ float3 SpotLighting(in SpotLight light, in VSOutput psInput, in float3 eyePos, i
    
 	/// Attenuation
 #if 1
-    float DistToLightNorm = 1.0 - saturate(DistToLight * 1.0f / light.Range);
+    float DistToLightNorm = 1.0 - saturate(DistToLight * (1.0f / light.Range));
     float Attn = DistToLightNorm * DistToLightNorm;
 #else
 	float Attn = 1.0f / dot(light.Attenuation.xyz, float3(1.0f, DistToLight, DistToLight * DistToLight));
@@ -177,6 +192,43 @@ float3 SpotLighting(in SpotLight light, in VSOutput psInput, in float3 eyePos, i
     lightingColor *= material.Diffuse.rgb * Attn * coneAtt;
    
     return lightingColor;
+}
+
+float3 CapsultLighting(in CapsuleLight light, in VSOutput psInput, in float3 eyePos, in Material material)
+{
+	float3 ToEye = eyePos - psInput.PosW;
+	float3 lightDir = normalize(light.Direction);
+	float3 lightPos = light.Position - 0.5f * light.Length * lightDir;
+
+	/// Find the shortest distance between the pixel and capsules segment
+	float3 ToCapsultStart = psInput.PosW - lightPos;
+	float DistOnLine = dot(ToCapsultStart, lightDir) / light.Length;
+	DistOnLine = saturate(DistOnLine) * light.Length;
+	float3 PointOnLine = lightPos + lightDir * DistOnLine;
+	float3 ToLight = PointOnLine - psInput.PosW;
+	float DistToLight = length(ToLight);
+
+	/// Phong diffuse
+	ToLight /= DistToLight; /// Normalize
+	float NDotL = saturate(dot(ToLight, material.Normal.xyz));
+	float3 lightingColor = material.Diffuse.rgb * NDotL;
+
+	/// Blinn specular
+	ToEye = normalize(ToEye);
+	float3 HalfWay = normalize(ToEye + ToLight);
+	float NDotH = saturate(dot(HalfWay, material.Normal.xyz));
+	lightingColor += pow(NDotH, light.SpecularIntensity) * material.Specular.rgb;
+
+	/// Attenuation
+#if 1
+	float DistToLightNorm = 1.0f - saturate(DistToLight * (1.0f / light.Range));
+	float Attn = DistToLightNorm * DistToLightNorm;
+#else
+#endif
+
+	lightingColor *= light.Diffuse.rgb * Attn;
+
+	return lightingColor;
 }
 
 float3 HemisphericAmbientLighting(in float3 vertexNormal, in float3 diffuseColor, in float3 ambientColorLower, in float3 ambientRange)
