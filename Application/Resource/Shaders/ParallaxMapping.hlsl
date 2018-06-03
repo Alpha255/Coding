@@ -73,6 +73,20 @@ float2 ParallaxOcclusionMapping(float3 vertexPos, float2 vertexUV, float heightS
     return uv;
 }
 
+float2 ParallaxMappingWithOffsetLimit(VSOutput psInput, float3 viewDirT, float2 vertexUV, float heightScale)
+{
+    const float s_HeightBias = 0.01f;
+
+    float heightMapValue = HeightMap.Sample(LinearSampler, vertexUV).r;
+
+    float height = heightMapValue * heightScale + s_HeightBias;
+    height /= viewDirT.z;
+
+    float2 uv = vertexUV + viewDirT.xy * height;
+
+    return uv;
+}
+
 float4 PSMain_ParallaxOcclusionMapping(VSOutput psInput) : SV_Target
 {
     VSOutput input = psInput;
@@ -80,6 +94,28 @@ float4 PSMain_ParallaxOcclusionMapping(VSOutput psInput) : SV_Target
     Material material = ApplyMaterial(RawMat, input);
 	
     float3 lightingColor = DirectionalLighting(DirLight, psInput, EyePos.xyz, material);
+
+    return float4(lightingColor, 1.0f);
+}
+
+float4 PSMain_ParallaxMappingWithOffsetLimit(VSOutput psInput) : SV_Target
+{
+    VSOutput input = psInput;
+
+    float3 N = psInput.NormalW;
+    float3 T = normalize(psInput.TangentW - dot(psInput.TangentW, N) * N);
+    float3 B = cross(N, T);
+    float3x3 TBN = float3x3(T, B, N);
+    float3 viewDirT = normalize(mul(TBN, EyePos - psInput.PosW));
+    float3 lightDirT = normalize(mul(-DirLight.Direction.xyz, TBN));
+
+    input.UV = ParallaxMappingWithOffsetLimit(psInput, viewDirT, psInput.UV, HeightScale);
+
+    Material material = ApplyMaterial(RawMat, input);
+	
+    DirectionalLight dirLight = DirLight;
+    dirLight.Direction = float4(lightDirT, 1.0f);
+    float3 lightingColor = DirectionalLighting(dirLight, psInput, viewDirT, material);
 
     return float4(lightingColor, 1.0f);
 }

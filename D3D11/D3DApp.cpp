@@ -82,6 +82,24 @@ void D3DApp::InitRenderer()
 	}
 }
 
+void D3DApp::UpdateFPS()
+{
+	static uint32_t s_FrameNumber = 0U;
+	static float s_LastUpdateTime = 0.0f;
+
+	float totalTime = m_pTimer->TotalTime();
+	s_FrameNumber++;
+
+	float elapseTime = totalTime - s_LastUpdateTime;
+	if (elapseTime > 1.0f)
+	{
+		m_FPS = s_FrameNumber / elapseTime;
+
+		s_LastUpdateTime = totalTime;
+		s_FrameNumber = 0U;
+	}
+}
+
 void D3DApp::Frame()
 {
 	m_Camera->Update();
@@ -97,6 +115,8 @@ void D3DApp::Frame()
 	s_GUI->RenderEnd();
 
 	s_Renderer->Flush();
+
+	UpdateFPS();
 }
 
 void D3DApp::RenderToWindow()

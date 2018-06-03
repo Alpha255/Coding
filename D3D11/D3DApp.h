@@ -28,7 +28,11 @@ protected:
 	class D3DEngine *s_Renderer = nullptr;
 	class D3DGUI_imGui *s_GUI = nullptr;
 
+	float m_FPS = 0.0f;
+
 	typedef D3DApp Base;
+
+	void UpdateFPS();
 private:
 	int32_t m_MouseWheelDelta = 0;
 

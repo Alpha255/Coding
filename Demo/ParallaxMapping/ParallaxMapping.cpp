@@ -18,7 +18,7 @@ struct ConstantBufferVS
 struct ConstantBufferPS
 {
 	Vec3 EyePos;
-	float HeightScale = 0.001f;
+	float HeightScale = 0.01f;
 
 	DirectionalLight DirLight;
 	Material::RawMaterial RawMat;
@@ -46,6 +46,7 @@ void AppParallaxMapping::Initialize()
 	m_VertexShader.Create("ParallaxMapping.hlsl", "VSMain");
 
 	m_PixelShader[eNormalMapping].Create("ParallaxMapping.hlsl", "PSMain_NormalMapping");
+	m_PixelShader[eParallaxMappingWithOffsetLimit].Create("ParallaxMapping.hlsl", "PSMain_ParallaxMappingWithOffsetLimit");
 	m_PixelShader[eParallaxOcclusionMapping].Create("ParallaxMapping.hlsl", "PSMain_ParallaxOcclusionMapping");
 }
 
@@ -77,9 +78,14 @@ void AppParallaxMapping::RenderScene()
 	///Vec3 pos(-CBufferPS.DirLight.Direction.x, -CBufferPS.DirLight.Direction.y, -CBufferPS.DirLight.Direction.z);
 	///Light::DebugDisplay(pos, Light::ePoint, *m_Camera);
 
-	if (eParallaxOcclusionMapping == m_MappingType)
+	if (m_MappingType > eNormalMapping)
 	{
 		ImGui::SliderFloat("HeightScale", &CBufferPS.HeightScale, 0.0f, 0.1f);
 	}
-	ImGui::Combo("MappingType", &m_MappingType, "NormalMapping\0ParallaxOcclusionMapping");
+
+	D3DEngine::Instance().SetVSync(m_VSync);
+
+	ImGui::Text("%.2f FPS", m_FPS);
+	ImGui::Combo("MappingType", &m_MappingType, "NormalMapping\0ParallaxMappingWithOffsetLimit");
+	ImGui::Checkbox("VSync", &m_VSync);
 }

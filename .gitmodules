@@ -13,3 +13,6 @@
 [submodule "ThirdParty/DXUT"]
 	path = ThirdParty/DXUT
 	url = https://github.com/Microsoft/DXUT.git
+[submodule "ThirdParty/freetype"]
+	path = ThirdParty/freetype
+	url = https://github.com/ubawurinna/freetype-windows-binaries.git

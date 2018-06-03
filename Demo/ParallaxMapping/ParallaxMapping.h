@@ -17,6 +17,7 @@ protected:
 	enum eMappingType
 	{
 		eNormalMapping,
+		eParallaxMappingWithOffsetLimit,
 		eParallaxOcclusionMapping,
 		eDisplacementMapping,
 		eMappingTypeCount
@@ -34,6 +35,8 @@ private:
 	Material m_FloorMaterial;
 
 	D3DShaderResourceView m_HeightMap;
+
+	bool m_VSync = false;
 
 	int32_t m_MappingType = eNormalMapping;
 };
