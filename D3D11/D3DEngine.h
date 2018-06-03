@@ -117,6 +117,8 @@ public:
 	void DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, uint32_t primitive);
 	void DrawInstanced();
 	void DrawAuto();
+
+	void DrawTextInPos(const char *pTextContent, const char *pFontName = "consola", uint32_t left = 10U, uint32_t top = 10U, uint32_t fontSize = 10U);
 protected:
 	enum eResourceLimits
 	{

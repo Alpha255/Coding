@@ -629,6 +629,13 @@ void D3DEngine::DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t of
 	m_IMContext->DrawIndexed(indexCount, startIndex, offset);
 }
 
+void D3DEngine::DrawTextInPos(const char *pTextContent, const char *pFontName, uint32_t left, uint32_t top, uint32_t fontSize)
+{
+	assert(pTextContent);
+
+
+}
+
 ///void D3DEngine::DrawSDKMesh(const Geometry::SDKMesh &sdkMesh, uint32_t meshIndex)
 ///{
 ///	assert(sdkMesh.IsLoaded());
