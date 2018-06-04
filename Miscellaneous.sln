@@ -39,6 +39,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{7E32
 		Application\Resource\Shaders\Box.hlsl = Application\Resource\Shaders\Box.hlsl
 		Application\Resource\Shaders\Cubemap.hlsl = Application\Resource\Shaders\Cubemap.hlsl
 		Application\Resource\Shaders\DepthStencilTest.hlsl = Application\Resource\Shaders\DepthStencilTest.hlsl
+		Application\Resource\Shaders\Font.hlsl = Application\Resource\Shaders\Font.hlsl
 		Application\Resource\Shaders\ForwardLighting.hlsl = Application\Resource\Shaders\ForwardLighting.hlsl
 		Application\Resource\Shaders\GammaCorrection.hlsl = Application\Resource\Shaders\GammaCorrection.hlsl
 		Application\Resource\Shaders\HDRLighting.hlsl = Application\Resource\Shaders\HDRLighting.hlsl
@@ -68,7 +69,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WIP_Shadow", "Miscellaneous
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WIP_LightingScene", "Miscellaneous\LightingScene.vcxproj", "{002621C9-4093-4C61-BFC6-668164DB2173}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WIP_ForwardLighting", "Miscellaneous\ForwardLighting.vcxproj", "{8AD77C36-BD92-494D-8F37-431F5C039DF9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ForwardLighting", "Miscellaneous\ForwardLighting.vcxproj", "{8AD77C36-BD92-494D-8F37-431F5C039DF9}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WIP_HDRLighting", "Miscellaneous\HDRLighting.vcxproj", "{CC4716FA-841F-4333-875F-64901E3C3AD6}"
 EndProject

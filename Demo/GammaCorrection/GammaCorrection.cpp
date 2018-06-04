@@ -22,15 +22,12 @@ struct ConstantBufferPS
 	{
 		Lights[0].Diffuse = Vec4(0.25f, 0.25f, 0.25f, 1.0f);
 		Lights[0].Position = Vec3(-3.0f, 0.0f, -0.5f);
-		Lights[0].Range = 1.5f;
 
 		Lights[1].Diffuse = Vec4(0.5f, 0.5f, 0.5f, 1.0f);
 		Lights[1].Position = Vec3(0.0f, 0.0f, -0.5f);
-		Lights[1].Range = 1.5f;
 
 		Lights[2].Diffuse = Vec4(0.75f, 0.75f, 0.75f, 1.0f);
 		Lights[2].Position = Vec3(3.0f, 0.0f, -0.5f);
-		Lights[2].Range = 1.5f;
 	}
 }; 
 

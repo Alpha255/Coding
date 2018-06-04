@@ -4,7 +4,7 @@ struct VSOutput
     float3 PosW : POSITION;
     float3 NormalW : NORMAL;
     float3 TangentW : TANGENT;
-    float2 UV : TEXCOORD;
+    float2 UV : TEXCOORD0;
 };
 
 struct Material

@@ -81,8 +81,6 @@ public:
 		m_Pipeline.CommitState(m_IMContext);
 	}
 
-	///void DrawSDKMesh(const Geometry::SDKMesh &sdkMesh, uint32_t meshIndex = 0U);
-
 	void Initialize(HWND hWnd, uint32_t width, uint32_t height, bool bWindowed);
 
 	void Resize(uint32_t width, uint32_t height);
@@ -118,7 +116,7 @@ public:
 	void DrawInstanced();
 	void DrawAuto();
 
-	void DrawTextInPos(const char *pTextContent, const char *pFontName = "consola", uint32_t left = 10U, uint32_t top = 10U, uint32_t fontSize = 10U);
+	void DrawTextInPos(const char *pTextContent, uint32_t left = 10U, uint32_t top = 10U, uint32_t fontSize = 1U);
 protected:
 	enum eResourceLimits
 	{

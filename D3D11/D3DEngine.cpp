@@ -1,4 +1,5 @@
 #include "D3DEngine.h"
+#include "D3DFontFreeType.h"
 
 std::unique_ptr<D3DEngine, std::function<void(D3DEngine *)>> D3DEngine::s_Instance;
 
@@ -49,6 +50,8 @@ void D3DEngine::Initialize(HWND hWnd, uint32_t width, uint32_t height, bool bWin
 			RecreateRenderTargetDepthStencil(width, height);
 
 			D3DStaticState::Initialize();
+
+			///D3DFontFreeType::Instance().Initialize(width, height);
 
 			m_Inited = true;
 
@@ -103,6 +106,8 @@ void D3DEngine::Resize(uint32_t width, uint32_t height)
 
 	D3DViewport viewport(0.0f, 0.0f, (float)width, (float)height);
 	SetViewport(viewport);
+
+	///D3DFontFreeType::Instance().Resize(width, height);
 }
 
 void D3DEngine::SetRenderTargetView(const D3DRenderTargetView &renderTarget, uint32_t slot)
@@ -629,86 +634,11 @@ void D3DEngine::DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t of
 	m_IMContext->DrawIndexed(indexCount, startIndex, offset);
 }
 
-void D3DEngine::DrawTextInPos(const char *pTextContent, const char *pFontName, uint32_t left, uint32_t top, uint32_t fontSize)
+#if 0
+void D3DEngine::DrawTextInPos(const char *pTextContent, uint32_t left, uint32_t top, uint32_t fontSize)
 {
 	assert(pTextContent);
 
-
+	D3DFontFreeType::Instance().RenderText(pTextContent, left, top, fontSize);
 }
-
-///void D3DEngine::DrawSDKMesh(const Geometry::SDKMesh &sdkMesh, uint32_t meshIndex)
-///{
-///	assert(sdkMesh.IsLoaded());
-///
-///	if (!sdkMesh.m_pStaticMeshData || !sdkMesh.m_pFrameArray)
-///		return;
-///
-///	if (sdkMesh.m_pFrameArray[meshIndex].Mesh != INVALID_MESH)
-///	{
-///		if (0 < sdkMesh.GetOutstandingBufferResources())
-///			return;
-///
-///		auto pMesh = &sdkMesh.m_pMeshArray[sdkMesh.m_pFrameArray[meshIndex].Mesh];
-///
-///		uint32_t Strides[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT];
-///		uint32_t Offsets[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT];
-///		ID3D11Buffer *pVB[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT];
-///
-///		if (pMesh->NumVertexBuffers > D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT)
-///			return;
-///
-///		for (UINT64 i = 0; i < pMesh->NumVertexBuffers; i++)
-///		{
-///			pVB[i] = sdkMesh.m_pVertexBufferArray[pMesh->VertexBuffers[i]].pVB11;
-///			Strides[i] = (uint32_t)sdkMesh.m_pVertexBufferArray[pMesh->VertexBuffers[i]].StrideBytes;
-///			Offsets[i] = 0;
-///		}
-///
-///		auto pIB = sdkMesh.m_pIndexBufferArray[pMesh->IndexBuffer].pIB11;
-///		DXGI_FORMAT ibFormat = DXGI_FORMAT_R16_UINT;
-///		switch (sdkMesh.m_pIndexBufferArray[pMesh->IndexBuffer].IndexType)
-///		{
-///		case IT_16BIT:
-///			ibFormat = DXGI_FORMAT_R16_UINT;
-///			break;
-///		case IT_32BIT:
-///			ibFormat = DXGI_FORMAT_R32_UINT;
-///			break;
-///		};
-///
-///		m_IMContext->IASetVertexBuffers(0, pMesh->NumVertexBuffers, pVB, Strides, Offsets);
-///		m_IMContext->IASetIndexBuffer(pIB, ibFormat, 0);
-///
-///		SDKMESH_SUBSET* pSubset = nullptr;
-///		D3D11_PRIMITIVE_TOPOLOGY PrimType;
-///
-///		for (uint32_t subset = 0; subset < pMesh->NumSubsets; subset++)
-///		{
-///			pSubset = &sdkMesh.m_pSubsetArray[pMesh->pSubsets[subset]];
-///			PrimType = sdkMesh.GetPrimitiveType11((SDKMESH_PRIMITIVE_TYPE)pSubset->PrimitiveType);
-///			m_IMContext->IASetPrimitiveTopology(PrimType);
-///
-///			uint32_t IndexCount = (uint32_t)pSubset->IndexCount;
-///			uint32_t IndexStart = (uint32_t)pSubset->IndexStart;
-///			uint32_t VertexStart = (uint32_t)pSubset->VertexStart;
-///
-///			SetInputLayout(sdkMesh.VertexLayout);
-///
-///			m_Pipeline.CommitState(m_IMContext);
-///
-///			m_IMContext->DrawIndexed(IndexCount, IndexStart, VertexStart);
-///		}
-///	}
-///
-///	// Render our children
-///	if (sdkMesh.m_pFrameArray[meshIndex].ChildFrame != INVALID_FRAME)
-///	{
-///		DrawSDKMesh(sdkMesh, sdkMesh.m_pFrameArray[meshIndex].ChildFrame);
-///	}
-///
-///	// Render our siblings
-///	if (sdkMesh.m_pFrameArray[meshIndex].SiblingFrame != INVALID_FRAME)
-///	{
-///		DrawSDKMesh(sdkMesh, sdkMesh.m_pFrameArray[meshIndex].SiblingFrame);
-///	}
-///}
+#endif

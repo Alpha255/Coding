@@ -93,6 +93,8 @@ void AppParallaxMapping::RenderScene()
 
 	D3DEngine::Instance().SetVSync(m_VSync);
 
+	///D3DEngine::Instance().DrawTextInPos("RenderTextTest", 0U, 0U, 1U);
+
 	ImGui::Text("%.2f FPS", m_FPS);
 	ImGui::Combo("MappingType", &m_MappingType, "NormalMapping\0ParallaxOcclusionMappingInACL");
 	ImGui::Checkbox("VSync", &m_VSync);

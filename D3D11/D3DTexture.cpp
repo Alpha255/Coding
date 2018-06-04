@@ -90,7 +90,7 @@ void D3DTexture2D::Create(
 
 	D3D11_SUBRESOURCE_DATA subResData = {};
 	subResData.pSysMem = pData;
-	subResData.SysMemPitch = memPitch;
+	subResData.SysMemPitch = memPitch;  /// The distance (in bytes) from the beginning of one line of a texture to the next line. System-memory pitch is used only for 2D and 3D texture data as it is has no meaning for the other resource types.
 	subResData.SysMemSlicePitch = 0U; 	/// System-memory-slice pitch is only used for 3D texture data as it has no meaning for the other resource types
 
 	ID3D11Texture2D *pTexture2D = nullptr;
