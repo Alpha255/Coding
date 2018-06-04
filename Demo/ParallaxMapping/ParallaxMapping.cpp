@@ -13,6 +13,9 @@ struct ConstantBufferVS
 	Matrix WorldInverse;
 	Matrix WVP;
 	Matrix UVTransform;
+
+	Vec4 EyePos;
+	Vec4 LightDir;
 };
 
 struct ConstantBufferPS
@@ -25,6 +28,7 @@ struct ConstantBufferPS
 
 	ConstantBufferPS()
 	{
+		DirLight.Diffuse = Vec4(1.0f, 1.0f, 1.0f, 0.0f);
 		DirLight.Direction = Vec4(1.0f, 1.0f, 5.0f, 0.0f);
 		DirLight.SpecularIntensity = 64.0f;
 	}
@@ -46,8 +50,9 @@ void AppParallaxMapping::Initialize()
 	m_VertexShader.Create("ParallaxMapping.hlsl", "VSMain");
 
 	m_PixelShader[eNormalMapping].Create("ParallaxMapping.hlsl", "PSMain_NormalMapping");
-	m_PixelShader[eParallaxMappingWithOffsetLimit].Create("ParallaxMapping.hlsl", "PSMain_ParallaxMappingWithOffsetLimit");
-	m_PixelShader[eParallaxOcclusionMapping].Create("ParallaxMapping.hlsl", "PSMain_ParallaxOcclusionMapping");
+	m_PixelShader[eParallaxOcclusionMappingInACL].Create("ParallaxMapping.hlsl", "PSMain_ParallaxOcclusionMappingInACL");
+	///m_PixelShader[eParallaxMappingWithOffsetLimit].Create("ParallaxMapping.hlsl", "PSMain_ParallaxMappingWithOffsetLimit");
+	///m_PixelShader[eParallaxOcclusionMapping].Create("ParallaxMapping.hlsl", "PSMain_ParallaxOcclusionMapping");
 }
 
 void AppParallaxMapping::RenderScene()
@@ -58,25 +63,28 @@ void AppParallaxMapping::RenderScene()
 	m_Floor.Bind(&m_FloorMaterial);
 	D3DEngine::Instance().SetShaderResourceView(m_HeightMap, 3U, D3DShader::ePixelShader);
 
+	static ConstantBufferPS CBufferPS;
+	Vec4 eyePos = m_Camera->GetEyePos();
+	CBufferPS.EyePos = Vec3(eyePos.x, eyePos.y, eyePos.z);
+	CBufferPS.RawMat = m_FloorMaterial.RawValue;
+	m_CBufferPS.Update(&CBufferPS, sizeof(ConstantBufferPS));
+	D3DEngine::Instance().SetConstantBuffer(m_CBufferPS, 0U, D3DShader::ePixelShader);
+
 	ConstantBufferVS CBufferVS;
 	CBufferVS.World = Matrix::Transpose(m_Camera->GetWorldMatrix());
 	CBufferVS.WorldInverse = Matrix::InverseTranspose(m_Camera->GetWorldMatrix());
 	CBufferVS.WVP = Matrix::Transpose(m_Camera->GetWVPMatrix());
 	CBufferVS.UVTransform = Matrix::Transpose(Matrix::Scaling(1.0f));
+	CBufferVS.EyePos = eyePos;
+	CBufferVS.LightDir = CBufferPS.DirLight.Direction;
 	m_CBufferVS.Update(&CBufferVS, sizeof(ConstantBufferVS));
 	D3DEngine::Instance().SetConstantBuffer(m_CBufferVS, 0U, D3DShader::eVertexShader);
 
-	static ConstantBufferPS CBufferPS;
-	CBufferPS.EyePos = Vec3(m_Camera->GetEyePos().x, m_Camera->GetEyePos().y, m_Camera->GetEyePos().z);
-	CBufferPS.RawMat = m_FloorMaterial.RawValue;
-	m_CBufferPS.Update(&CBufferPS, sizeof(ConstantBufferPS));
-	D3DEngine::Instance().SetConstantBuffer(m_CBufferPS, 0U, D3DShader::ePixelShader);
-
-	///D3DEngine::Instance().SetRasterizerState(D3DStaticState::SolidNoneCulling);
+	D3DEngine::Instance().SetRasterizerState(D3DStaticState::SolidNoneCulling);
 	D3DEngine::Instance().DrawIndexed(m_Floor.IndexCount, 0U, 0, eTriangleList);
 
-	///Vec3 pos(-CBufferPS.DirLight.Direction.x, -CBufferPS.DirLight.Direction.y, -CBufferPS.DirLight.Direction.z);
-	///Light::DebugDisplay(pos, Light::ePoint, *m_Camera);
+	Vec3 pos(-CBufferPS.DirLight.Direction.x, -CBufferPS.DirLight.Direction.y, -CBufferPS.DirLight.Direction.z);
+	Light::DebugDisplay(pos, Light::ePoint, *m_Camera);
 
 	if (m_MappingType > eNormalMapping)
 	{
@@ -86,6 +94,7 @@ void AppParallaxMapping::RenderScene()
 	D3DEngine::Instance().SetVSync(m_VSync);
 
 	ImGui::Text("%.2f FPS", m_FPS);
-	ImGui::Combo("MappingType", &m_MappingType, "NormalMapping\0ParallaxMappingWithOffsetLimit");
+	ImGui::Combo("MappingType", &m_MappingType, "NormalMapping\0ParallaxOcclusionMappingInACL");
 	ImGui::Checkbox("VSync", &m_VSync);
+	ImGui::SliderFloat3("LightDir", (float *)&CBufferPS.DirLight.Direction, -10.0f, 10.0f);
 }

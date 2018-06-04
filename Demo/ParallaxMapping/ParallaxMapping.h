@@ -17,6 +17,7 @@ protected:
 	enum eMappingType
 	{
 		eNormalMapping,
+		eParallaxOcclusionMappingInACL,
 		eParallaxMappingWithOffsetLimit,
 		eParallaxOcclusionMapping,
 		eDisplacementMapping,
