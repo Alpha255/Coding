@@ -37,7 +37,7 @@ struct VSOutput_POM
 };
 
 Texture2D DiffuseMap;
-Texture2D SpecularMap;
+///Texture2D SpecularMap;
 Texture2D NormalMap;
 Texture2D HeightMap;
 SamplerState LinearSampler;
@@ -46,13 +46,31 @@ Material ApplyMaterial(in Material materialIn, in VSOutput psInput)
 {
     Material materialOut = materialIn;
     materialOut.Diffuse = DiffuseMap.Sample(LinearSampler, psInput.UV);
-    materialOut.Specular = SpecularMap.Sample(LinearSampler, psInput.UV);
+    ///materialOut.Specular = SpecularMap.Sample(LinearSampler, psInput.UV);
+    materialOut.Specular = RawMat.Specular;
 
+    ///materialOut.Normal = normalize(NormalMap.Sample(LinearSampler, psInput.UV) * 2.0f - 1.0f);
     float3 normalMap = NormalMap.Sample(LinearSampler, psInput.UV).rgb;
     materialOut.Normal.xyz = normalize(UnpackNormal(normalMap, normalize(psInput.NormalW), normalize(psInput.TangentW)));
     materialOut.Normal.w = 0.0f;
 
     return materialOut;
+}
+
+float3 DirectionalLightingPOM(in DirectionalLight light, in VSOutput psInput, in float3 viewDirT, in Material material)
+{
+	/// Phong diffuse
+    float3 LightT = normalize(light.Direction).xyz;
+    float3 lightingColor = saturate(dot(LightT, material.Normal.xyz)) * light.Diffuse.rgb;
+   
+	/// Blinn specular
+    float3 HalfWay = normalize(viewDirT + LightT);
+    float NDotH = saturate(dot(HalfWay, material.Normal.xyz));
+    lightingColor += light.Diffuse.rgb * pow(NDotH, light.SpecularIntensity) * material.Specular.rgb;
+
+    lightingColor *= material.Diffuse.rgb;
+
+    return lightingColor;
 }
 
 float GetMipLevel(float2 uv)
@@ -80,8 +98,8 @@ VSOutput_POM VSMain(VSInput vsInput)
     float3 B = normalize(cross(N, T));
     float3x3 TBN = float3x3(T, B, N);
 
-	output.LightDirectionT = normalize(mul(LightDir.xyz, TBN));
-    output.ViewDirectionT = normalize(mul(TBN, EyePosVS.xyz - output.VSOut.PosW));
+	output.LightDirectionT = mul(LightDir.xyz - output.VSOut.PosW, TBN);
+    output.ViewDirectionT = mul(TBN, EyePosVS.xyz - output.VSOut.PosW);
 
     return output;
 }
@@ -91,7 +109,7 @@ float2 ParallaxOcclusionMappingInACL(float2 srcUV, float3 viewDirT, float height
 {
 	float2 result = srcUV;
 
-	float3 tangentViewDir = -(normalize(float3(viewDirT.x, - viewDirT.y, viewDirT.z)));
+	float3 tangentViewDir = -(normalize(float3(viewDirT.x, -viewDirT.y, viewDirT.z)));
 	float lowestMipLevel = GetMipLevel(srcUV);
 
 	const float stepSize = 1.0f / 1024.0f;
@@ -160,39 +178,101 @@ float2 ParallaxOcclusionMappingInACL(float2 srcUV, float3 viewDirT, float height
 	return result;
 }
 
-//float2 ParallaxMappingWithOffsetLimit(VSOutput_POM psInput, float3 viewDirT, float2 vertexUV, float heightScale)
-//{
-//    const float s_HeightBias = 0.01f;
+float2 ParallaxMappingLearningOpenGL(float2 srcUV, float3 viewDirT, float heightScale)
+{
+    const float minLayers = 8.0f;
+    const float maxLayers = 32.0f;
+    float numLayers = lerp(maxLayers, minLayers, abs(dot(float3(0.0f, 0.0f, 1.0f), viewDirT)));
+    float layerDepth = 1.0f / numLayers;
 
-//    float heightMapValue = HeightMap.Sample(LinearSampler, vertexUV).r;
+    float curLayerDepth = 0.0f;
+    float2 deltaUV = (viewDirT.xy / viewDirT.z * heightScale) / numLayers;
 
-//    float height = heightMapValue * heightScale + s_HeightBias;
-//    height /= viewDirT.z;
+    float2 curUV = srcUV;
+    float curHeightValue = HeightMap.Sample(LinearSampler, curUV).r;	
 
-//    float2 uv = vertexUV + viewDirT.xy * height;
+	[loop]
+    while (curLayerDepth < curHeightValue)
+    {
+        curUV -= deltaUV;
+        curHeightValue = HeightMap.Sample(LinearSampler, curUV).r;
+        curLayerDepth += layerDepth;
+    }
 
-//    return uv;
-//}
+    float2 prevUV = curUV + deltaUV;
+
+    float afterDepth = curHeightValue - curLayerDepth;
+    float beforeDepth = HeightMap.Sample(LinearSampler, prevUV).r - curLayerDepth + layerDepth;
+    float weight = afterDepth / (afterDepth - beforeDepth);
+
+    float2 resultUV = prevUV * weight + curUV * (1.0f - weight);
+
+    return resultUV;
+}
+
+float2 ParallaxMappingWithOffsetLimit(float2 srcUV, float3 viewDirT, float heightScale)
+{
+    const float s_HeightBias = 0.01f;
+
+    float heightMapValue = HeightMap.Sample(LinearSampler, srcUV).r;
+
+    float height = heightMapValue * heightScale + s_HeightBias;
+    height /= viewDirT.z;
+
+    float2 uv = srcUV + viewDirT.xy * height;
+
+    return uv;
+}
 
 float4 PSMain_NormalMapping(VSOutput_POM psInput) : SV_Target
 {
     Material material = ApplyMaterial(RawMat, psInput.VSOut);
     float3 lightingColor = DirectionalLighting(DirLight, psInput.VSOut, EyePosPS.xyz, material);
 
+    lightingColor += DirLight.Ambient.xyz;
+
 	return float4(lightingColor, 1.0f);
+}
+
+float4 PSMain_POMLearningOpenGL(VSOutput_POM psInput) : SV_Target
+{
+    VSOutput vsOut = psInput.VSOut;
+    vsOut.UV = ParallaxMappingLearningOpenGL(psInput.VSOut.UV, normalize(psInput.ViewDirectionT), HeightScale);
+    Material material = ApplyMaterial(RawMat, vsOut);
+
+    DirectionalLight dirLight = DirLight;
+    dirLight.Direction = float4(psInput.LightDirectionT, 0.0f);
+    float3 lightingColor = DirectionalLightingPOM(dirLight, psInput.VSOut, psInput.ViewDirectionT, material);
+
+    lightingColor += DirLight.Ambient.xyz;
+
+    return float4(lightingColor, 1.0f);
 }
 
 float4 PSMain_ParallaxOcclusionMappingInACL(VSOutput_POM psInput) : SV_Target
 {
-    VSOutput input = psInput.VSOut;
-    input.UV = ParallaxOcclusionMappingInACL(psInput.VSOut.UV, psInput.ViewDirectionT, HeightScale);
+    VSOutput vsOut = psInput.VSOut;
+    vsOut.UV = ParallaxOcclusionMappingInACL(psInput.VSOut.UV, normalize(psInput.ViewDirectionT), HeightScale);
+    Material material = ApplyMaterial(RawMat, vsOut);
 
-    Material material = ApplyMaterial(RawMat, input);
+	DirectionalLight dirLight = DirLight;
+	dirLight.Direction = float4(normalize(psInput.LightDirectionT), 0.0f);
+    float3 lightingColor = DirectionalLightingPOM(dirLight, psInput.VSOut, psInput.ViewDirectionT, material);
 
-	///DirectionalLight dirLight = DirLight;
-	///dirLight.Direction = float4(normalize(psInput.LightDirectionT), 0.0f);
-    ///float3 lightingColor = DirectionalLighting(dirLight, psInput.VSOut, psInput.ViewDirectionT, material);
-	float3 lightingColor = DirectionalLighting(DirLight, psInput.VSOut, EyePosPS, material);
+    return float4(lightingColor, 1.0f);
+}
+
+float4 PSMain_ParallaxMappingWithOffsetLimit(VSOutput_POM psInput) : SV_Target
+{
+    VSOutput vsOut = psInput.VSOut;
+    vsOut.UV = ParallaxMappingWithOffsetLimit(psInput.VSOut.UV, normalize(psInput.ViewDirectionT), HeightScale);
+    Material material = ApplyMaterial(RawMat, vsOut);
+
+    DirectionalLight dirLight = DirLight;
+    dirLight.Direction = float4(psInput.LightDirectionT, 0.0f);
+    float3 lightingColor = DirectionalLightingPOM(dirLight, psInput.VSOut, psInput.ViewDirectionT, material);
+
+    lightingColor += DirLight.Ambient.xyz;
 
     return float4(lightingColor, 1.0f);
 }
@@ -204,28 +284,6 @@ float4 PSMain_ParallaxOcclusionMappingInACL(VSOutput_POM psInput) : SV_Target
 //    Material material = ApplyMaterial(RawMat, input);
 	
 //    float3 lightingColor = DirectionalLighting(DirLight, psInput.VSOut, EyePosPS.xyz, material);
-
-//    return float4(lightingColor, 1.0f);
-//}
-
-//float4 PSMain_ParallaxMappingWithOffsetLimit(VSOutput_POM psInput) : SV_Target
-//{
-//    VSOutput input = psInput;
-
-//    float3 N = psInput.VSOut.NormalW;
-//    float3 T = normalize(psInput.VSOut.TangentW - dot(psInput.VSOut.TangentW, N) * N);
-//    float3 B = cross(N, T);
-//    float3x3 TBN = float3x3(T, B, N);
-//    float3 viewDirT = normalize(mul(TBN, EyePosPS - psInput.VSOut.PosW));
-//    float3 lightDirT = normalize(mul(-DirLight.Direction.xyz, TBN));
-
-//    input.UV = ParallaxMappingWithOffsetLimit(psInput, viewDirT, psInput.VSOut.UV, HeightScale);
-
-//    Material material = ApplyMaterial(RawMat, input);
-	
-//    DirectionalLight dirLight = DirLight;
-//    dirLight.Direction = float4(lightDirT, 1.0f);
-//    float3 lightingColor = DirectionalLighting(dirLight, psInput.VSOut, viewDirT, material);
 
 //    return float4(lightingColor, 1.0f);
 //}

@@ -17,6 +17,7 @@ protected:
 	enum eMappingType
 	{
 		eNormalMapping,
+		ePOMLearningOpenGL,
 		eParallaxOcclusionMappingInACL,
 		eParallaxMappingWithOffsetLimit,
 		eParallaxOcclusionMapping,
