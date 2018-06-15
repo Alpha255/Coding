@@ -55,7 +55,7 @@ float4 PSMain_Directional(VSOutput psInput) : SV_Target
 
     Material material = RawMat;
     material.Normal = float4(normalize(psInput.NormalW), 0.0f);
-    float3 directionalClr = DirectionalLighting(DirLight, psInput, EyePos.xyz, material);
+    float3 directionalClr = DirectionalLighting(DirLight, psInput.PosW, EyePos.xyz, material);
 
     directionalClr += ambientClr;
 
@@ -75,7 +75,7 @@ float4 PSMain_Point(VSOutput psInput) : SV_Target
 	[unroll]
     for (uint i = 0; i < 3; ++i)
     {
-        pointClr += PointLighting(PLights[i], psInput, EyePos.xyz, material);
+        pointClr += PointLighting(PLights[i], psInput.PosW, EyePos.xyz, material);
     }
 
     pointClr += ambientClr;
@@ -96,7 +96,7 @@ float4 PSMain_Spot(VSOutput psInput) : SV_Target
    	[unroll]
     for (uint i = 0; i < 3; ++i)
     {
-        spotClr += SpotLighting(SLights[i], psInput, EyePos.xyz, material);
+        spotClr += SpotLighting(SLights[i], psInput.PosW, EyePos.xyz, material);
     }
 
     spotClr += ambientClr;
@@ -117,7 +117,7 @@ float4 PSMain_Capsule(VSOutput psInput) : SV_Target
    	[unroll]
     for (uint i = 0; i < 3; ++i)
     {
-        capsuleClr += CapsultLighting(CLights[i], psInput, EyePos.xyz, material);
+        capsuleClr += CapsultLighting(CLights[i], psInput.PosW, EyePos.xyz, material);
     }
 
     capsuleClr += ambientClr;

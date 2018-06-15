@@ -110,10 +110,10 @@ float3 UnpackNormal(float3 normalMap, float3 unitNormalW, float3 tangentW)
 ///    return materialOut;
 ///}
 
-float3 PointLighting(in PointLight light, in VSOutput psInput, in float3 eyePos, in Material material)
+float3 PointLighting(in PointLight light, in float3 vertexPosW, in float3 eyePos, in Material material)
 {
-    float3 ToLight = light.Position - psInput.PosW;
-    float3 ToEye = eyePos - psInput.PosW;
+    float3 ToLight = light.Position - vertexPosW;
+    float3 ToEye = eyePos - vertexPosW;
     float DistToLight = length(ToLight);
    
 	/// Phong diffuse
@@ -140,7 +140,7 @@ float3 PointLighting(in PointLight light, in VSOutput psInput, in float3 eyePos,
     return lightingColor;
 }
 
-float3 DirectionalLighting(in DirectionalLight light, in VSOutput psInput, in float3 eyePos, in Material material)
+float3 DirectionalLighting(in DirectionalLight light, in float3 vertexPosW, in float3 eyePos, in Material material)
 {
 	/// Phong diffuse
     float3 ToLight = normalize(-light.Direction.xyz);
@@ -148,7 +148,7 @@ float3 DirectionalLighting(in DirectionalLight light, in VSOutput psInput, in fl
     float3 lightingColor = light.Diffuse.rgb * NDotL;
    
 	/// Blinn specular
-    float3 ToEye = normalize(eyePos - psInput.PosW);
+    float3 ToEye = normalize(eyePos - vertexPosW);
     float3 HalfWay = normalize(ToEye + ToLight);
     float NDotH = saturate(dot(HalfWay, material.Normal.xyz));
     lightingColor += light.Diffuse.rgb * pow(NDotH, light.SpecularIntensity) * material.Specular.rgb;
@@ -158,11 +158,11 @@ float3 DirectionalLighting(in DirectionalLight light, in VSOutput psInput, in fl
     return lightingColor;
 }
 
-float3 SpotLighting(in SpotLight light, in VSOutput psInput, in float3 eyePos, in Material material)
+float3 SpotLighting(in SpotLight light, in float3 vertexPosW, in float3 eyePos, in Material material)
 {
     /// When picking the inner and outer cone angles, always make sure that the outer angle is bigger than the outer to inner angle
-    float3 ToLight = light.Position - psInput.PosW;
-    float3 ToEye = eyePos - psInput.PosW;
+    float3 ToLight = light.Position - vertexPosW;
+    float3 ToEye = eyePos - vertexPosW;
     float DistToLight = length(ToLight);
    
 	/// Phong diffuse
@@ -197,18 +197,18 @@ float3 SpotLighting(in SpotLight light, in VSOutput psInput, in float3 eyePos, i
     return lightingColor;
 }
 
-float3 CapsultLighting(in CapsuleLight light, in VSOutput psInput, in float3 eyePos, in Material material)
+float3 CapsultLighting(in CapsuleLight light, in float3 vertexPosW, in float3 eyePos, in Material material)
 {
-	float3 ToEye = eyePos - psInput.PosW;
+	float3 ToEye = eyePos - vertexPosW;
 	float3 lightDir = normalize(light.Direction);
 	float3 lightPos = light.Position - 0.5f * light.Length * lightDir;
 
 	/// Find the shortest distance between the pixel and capsules segment
-	float3 ToCapsultStart = psInput.PosW - lightPos;
+	float3 ToCapsultStart = vertexPosW - lightPos;
 	float DistOnLine = dot(ToCapsultStart, lightDir) / light.Length;
 	DistOnLine = saturate(DistOnLine) * light.Length;
 	float3 PointOnLine = lightPos + lightDir * DistOnLine;
-	float3 ToLight = PointOnLine - psInput.PosW;
+	float3 ToLight = PointOnLine - vertexPosW;
 	float DistToLight = length(ToLight);
 
 	/// Phong diffuse

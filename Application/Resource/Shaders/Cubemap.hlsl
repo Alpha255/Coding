@@ -51,7 +51,7 @@ VSOutput VSMain(VSInput vsInput)
 float4 PSMain(VSOutput psInput) : SV_Target
 {
     Material material = ApplyMaterial(RawMat, psInput);
-    float3 lightingColor = DirectionalLighting(DirLight, psInput, EyePos.xyz, material);
+    float3 lightingColor = DirectionalLighting(DirLight, psInput.PosW, EyePos.xyz, material);
 	lightingColor += DirLight.Ambient.rgb;
 
     float3 reflectionVector = reflect(-EyePos.xyz, psInput.NormalW);

@@ -55,7 +55,7 @@ float4 PSMain(VSOutput psInput) : SV_Target
     Material material = ApplyMaterial(RawMaterial, psInput);
 	for (uint i = 0; i < 3; ++i)
 	{
-        lightingColor += PointLighting(Lights[i], psInput, EyePos.xyz, material);
+        lightingColor += PointLighting(Lights[i], psInput.PosW, EyePos.xyz, material);
     }
 
 	lightingColor += Lights[0].Ambient.rgb;

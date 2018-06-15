@@ -98,8 +98,8 @@ VSOutput_POM VSMain(VSInput vsInput)
     float3 B = normalize(cross(N, T));
     float3x3 TBN = float3x3(T, B, N);
 
-	output.LightDirectionT = mul(LightDir.xyz - output.VSOut.PosW, TBN);
-    output.ViewDirectionT = mul(TBN, EyePosVS.xyz - output.VSOut.PosW);
+	output.LightDirectionT = mul(LightDir.xyz, TBN);
+    output.ViewDirectionT = -mul(TBN, EyePosVS.xyz - output.VSOut.PosW);
 
     return output;
 }
@@ -195,7 +195,8 @@ float2 ParallaxMappingLearningOpenGL(float2 srcUV, float3 viewDirT, float height
     while (curLayerDepth < curHeightValue)
     {
         curUV -= deltaUV;
-        curHeightValue = HeightMap.Sample(LinearSampler, curUV).r;
+        ///curHeightValue = HeightMap.Sample(LinearSampler, curUV).r;
+		curHeightValue = HeightMap.SampleGrad(LinearSampler, curUV, ddx(srcUV), ddy(srcUV)).r;
         curLayerDepth += layerDepth;
     }
 
@@ -219,7 +220,7 @@ float2 ParallaxMappingWithOffsetLimit(float2 srcUV, float3 viewDirT, float heigh
     float height = heightMapValue * heightScale + s_HeightBias;
     height /= viewDirT.z;
 
-    float2 uv = srcUV + viewDirT.xy * height;
+    float2 uv = srcUV - viewDirT.xy * height;
 
     return uv;
 }
@@ -227,7 +228,7 @@ float2 ParallaxMappingWithOffsetLimit(float2 srcUV, float3 viewDirT, float heigh
 float4 PSMain_NormalMapping(VSOutput_POM psInput) : SV_Target
 {
     Material material = ApplyMaterial(RawMat, psInput.VSOut);
-    float3 lightingColor = DirectionalLighting(DirLight, psInput.VSOut, EyePosPS.xyz, material);
+    float3 lightingColor = DirectionalLighting(DirLight, psInput.VSOut.PosW, EyePosPS.xyz, material);
 
     lightingColor += DirLight.Ambient.xyz;
 

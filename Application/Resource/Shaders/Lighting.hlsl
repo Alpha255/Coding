@@ -152,7 +152,7 @@ float4 PSMainBlinnPhong(VSOutput psInput) : SV_Target
     Material material = MatPS;
     material.Normal = float4(normalize(psInput.NormalW), 1.0f);
 
-    float3 lightingColor = DirectionalLighting(DirLightPS, psInput, EyePosPS.xyz, material);
+    float3 lightingColor = DirectionalLighting(DirLightPS, psInput.PosW, EyePosPS.xyz, material);
 
 	lightingColor += DirLightPS.Ambient.xyz;
 
