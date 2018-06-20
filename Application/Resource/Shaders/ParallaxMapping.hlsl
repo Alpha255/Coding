@@ -34,6 +34,7 @@ struct VSOutput_POM
 
 	float3 LightDirectionT : TEXCOORD1;
 	float3 ViewDirectionT : TEXCOORD2;
+	float2 ParallaxOffsetT : TEXCOORD3;
 };
 
 Texture2D DiffuseMap;
@@ -101,6 +102,19 @@ VSOutput_POM VSMain(VSInput vsInput)
 	output.LightDirectionT = mul(LightDir.xyz, TBN);
     output.ViewDirectionT = -mul(TBN, EyePosVS.xyz - output.VSOut.PosW);
 
+	/// Compute the ray direction for intersecting the height field profile with 
+    /// current view ray. 
+
+	/// Compute initial parallax displacement direction:
+	float2 vParallaxDir = -normalize(output.ViewDirectionT.xy);
+
+	/// The length of this vector determines the furthest amount of displacement:
+	float fLength = length(output.ViewDirectionT);
+	float fParallaxLength = sqrt(fLength * fLength - output.ViewDirectionT.z * output.ViewDirectionT.z) / output.ViewDirectionT.z;
+
+	/// Compute the actual reverse parallax displacement vector:
+	output.ParallaxOffsetT = vParallaxDir * fParallaxLength;
+
     return output;
 }
 
@@ -109,11 +123,11 @@ float2 ParallaxOcclusionMappingInACL(float2 srcUV, float3 viewDirT, float height
 {
 	float2 result = srcUV;
 
-	float3 tangentViewDir = -(normalize(float3(viewDirT.x, -viewDirT.y, viewDirT.z)));
+	///float3 tangentViewDir = (normalize(float3(viewDirT.x, -viewDirT.y, viewDirT.z)));
 	float lowestMipLevel = GetMipLevel(srcUV);
 
 	const float stepSize = 1.0f / 1024.0f;
-	float3 tangentEyeVector = tangentViewDir * float3(stepSize, stepSize, stepSize / (heightScale / (1.0f + 100.0f * lowestMipLevel))); 
+	float3 tangentEyeVector = viewDirT * float3(stepSize, stepSize, stepSize / (heightScale / (10.0f + 100.0f * lowestMipLevel))); 
 
 	float height = 0.99f;
 	int numIter = 0;
@@ -124,8 +138,8 @@ float2 ParallaxOcclusionMappingInACL(float2 srcUV, float3 viewDirT, float height
 		numIter += 1;
 
 		float4 texCoords[2];
-		texCoords[0] = result.xyxy + float4(1.0f, 1.0f, 2.0f, 2.0f) * tangentEyeVector.xyxy;
-		texCoords[1] = result.xyxy + float4(3.0f, 3.0f, 4.0f, 4.0f) * tangentEyeVector.xyxy;
+		texCoords[0] = result.xyxy - float4(1.0f, 1.0f, 2.0f, 2.0f) * tangentEyeVector.xyxy;
+		texCoords[1] = result.xyxy - float4(3.0f, 3.0f, 4.0f, 4.0f) * tangentEyeVector.xyxy;
 
 		float4 compareVal = height.xxxx + float4(1.0f, 2.0f, 3.0f, 4.0f) * tangentEyeVector.zzzz;
 
@@ -211,6 +225,147 @@ float2 ParallaxMappingLearningOpenGL(float2 srcUV, float3 viewDirT, float height
     return resultUV;
 }
 
+float2 ParallaxOcclusionMapping(float2 srcUV, float3 viewDirT, float3 viewDirW, float3 normalW, float2 parallaxOffsetT, float heightScale)
+{
+    /// Adaptive in-shader level-of-detail system implementation. Compute the 
+    /// current mip level explicitly in the pixel shader and use this information 
+    /// to transition between different levels of detail from the full effect to 
+    /// simple bump mapping. See the above paper for more discussion of the approach
+    /// and its benefits.
+    
+    /// Compute all 4 derivatives in x and y in a single instruction to optimize:
+    float2 dxSize = ddx(srcUV);
+    float2 dySize = ddy(srcUV);
+
+	/// Find min of change in u and v across quad: compute du and dv magnitude across quad
+	float2 dTexCoords = dxSize * dxSize + dySize * dySize;
+
+	/// Standard mipmapping uses max here
+	float fMinTexCoordDelta = max(dTexCoords.x, dTexCoords.y);
+
+	/// Compute the current mip level  (* 0.5 is effectively computing a square root before )
+	float fMipLevel = max(0.5f * log2(fMinTexCoordDelta), 0.0f);
+
+	/// Start the current sample located at the input texture coordinate, which would correspond
+    /// to computing a bump mapping result:
+	float2 texSample = srcUV;
+
+	/// Multiplier for visualizing the level of detail (see notes for 'nLODThreshold' variable
+    /// for how that is done visually)
+	///float4 cLodColoring = float4(1.0f, 1.0f, 3.0f, 1.0f);
+
+	const float s_LodThreshold = 3.0f;
+	if (fMipLevel <= s_LodThreshold)
+	{
+	    ///===============================================//
+        /// Parallax occlusion mapping offset computation //
+        ///===============================================//
+	    
+        /// Utilize dynamic flow control to change the number of samples per ray 
+        /// depending on the viewing angle for the surface. Oblique angles require 
+        /// smaller step sizes to achieve more accurate precision for computing displacement.
+        /// We express the sampling rate as a linear function of the angle between 
+        /// the geometric normal and the view direction ray:
+		const int s_MaxSamples = 50;
+		const int s_MinSamples = 8;
+		int nNumSteps = (int)lerp(s_MaxSamples, s_MinSamples, dot(viewDirW, normalW));
+
+        /// Intersect the view ray with the height field profile along the direction of
+        /// the parallax offset ray (computed in the vertex shader. Note that the code is
+        /// designed specifically to take advantage of the dynamic flow control constructs
+        /// in HLSL and is very sensitive to specific syntax. When converting to other examples,
+        /// if still want to use dynamic flow control in the resulting assembly shader,
+        /// care must be applied.
+        /// 
+        /// In the below steps we approximate the height field profile as piecewise linear
+        /// curve. We find the pair of endpoints between which the intersection between the 
+        /// height field profile and the view ray is found and then compute line segment
+        /// intersection for the view ray and the line segment formed by the two endpoints.
+        /// This intersection is the displacement offset from the original texture coordinate.
+        /// See the above paper for more details about the process and derivation.
+        ///
+
+		float fCurHeight = 0.0f;
+		float fStepSize = 1.0f / (float)nNumSteps;
+		float fPrevHeight = 0.0f;
+		float fNextHeight = 0.0f;
+
+		int nStepIndex = 0;
+		bool bCondition = true;
+
+		float2 vTexOffsetPerStep = fStepSize * parallaxOffsetT * heightScale;
+		float2 vTexCurrentOffset = srcUV;
+		float fCurrentBound = 1.0f;
+		float fParallaxAmount = 0.0f;
+
+		float2 pt1 = 0.0f;
+		float2 pt2 = 0.0f;
+
+		///float2 texOffset2 = 0.0f;
+
+		while (nStepIndex < nNumSteps)
+		{
+			vTexCurrentOffset -= vTexOffsetPerStep;
+
+			/// Sample height map which in this case is stored in the alpha channel of the normal map:
+			fCurHeight = HeightMap.SampleGrad(LinearSampler, vTexCurrentOffset, dxSize, dySize).r;
+
+			fCurrentBound -= fStepSize;
+
+			if (fCurHeight > fCurrentBound)
+			{
+				pt1 = float2(fCurrentBound, fCurHeight);
+				pt2 = float2(fCurrentBound + fStepSize, fPrevHeight);
+
+				///texOffset2 = vTexCurrentOffset - vTexOffsetPerStep;
+
+				nStepIndex = nNumSteps + 1;
+				fPrevHeight = fCurHeight;
+			}
+			else
+			{
+				nStepIndex++;
+				fPrevHeight = fCurHeight;
+			}
+		}
+
+		float fDelta2 = pt2.x - pt2.y;
+		float fDelta1 = pt1.x - pt1.y;
+
+		float fDenominator = fDelta2 - fDelta1;
+		if (fDenominator == 0.0f)
+		{
+			fParallaxAmount = 0.0f;
+		}
+		else
+		{
+			fParallaxAmount = (pt1.x * fDelta2 - pt2.x * fDelta1) / fDenominator;
+		}
+
+		float2 vParallaxOffset = parallaxOffsetT * heightScale * (1.0f - fParallaxAmount);
+
+		/// The computed texture offset for the displaced point on the pseudo-extruded surface:
+		float2 texSampleBase = srcUV - vParallaxOffset;
+		texSample = texSampleBase;
+
+		/// Lerp to bump mapping only if we are in between, transition section:
+		///cLodColoring = float4(1.0f, 1.0f, 1.0f, 1.0f);
+
+		if (fMipLevel > (s_LodThreshold - 1.0f))
+		{
+			/// Lerp based on the fractional part:
+			float fMipLevelInt;
+			float fMidLevelFrac = modf(fMipLevel, fMipLevelInt);
+
+			/// Lerp the texture coordinate from parallax occlusion mapped coordinate to bump mapping
+            /// smoothly based on the current mip level:
+			texSample = lerp(texSampleBase, srcUV, fMidLevelFrac);
+		}
+	}
+
+	return texSample;
+}
+
 float2 ParallaxMappingWithOffsetLimit(float2 srcUV, float3 viewDirT, float heightScale)
 {
     const float s_HeightBias = 0.01f;
@@ -278,13 +433,22 @@ float4 PSMain_ParallaxMappingWithOffsetLimit(VSOutput_POM psInput) : SV_Target
     return float4(lightingColor, 1.0f);
 }
 
-//float4 PSMain_ParallaxOcclusionMapping(VSOutput_POM psInput) : SV_Target
-//{
-//    VSOutput input = psInput;
-//    input.UV = ParallaxOcclusionMapping(psInput.VSOut.PosW, psInput.VSOut.UV, 0.01f);
-//    Material material = ApplyMaterial(RawMat, input);
-	
-//    float3 lightingColor = DirectionalLighting(DirLight, psInput.VSOut, EyePosPS.xyz, material);
+float4 PSMain_ParallaxOcclusionMapping(VSOutput_POM psInput) : SV_Target
+{
+    VSOutput input = psInput.VSOut;
+    input.UV = ParallaxOcclusionMapping(
+		psInput.VSOut.UV, 
+		normalize(psInput.ViewDirectionT), 
+		normalize(EyePosPS - psInput.VSOut.PosW), 
+		normalize(psInput.VSOut.NormalW), 
+		psInput.ParallaxOffsetT, 
+		HeightScale);
 
-//    return float4(lightingColor, 1.0f);
-//}
+    Material material = ApplyMaterial(RawMat, input);
+
+    DirectionalLight dirLight = DirLight;
+    dirLight.Direction = float4(psInput.LightDirectionT, 0.0f);	
+    float3 lightingColor = DirectionalLightingPOM(dirLight, psInput.VSOut, psInput.ViewDirectionT, material);
+
+    return float4(lightingColor, 1.0f);
+}

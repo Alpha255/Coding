@@ -47,9 +47,9 @@ void AppParallaxMapping::Initialize()
 	m_FloorMaterial.Set(Material::eDiffuse, "bricks2.dds");
 	m_FloorMaterial.Set(Material::eSpecular, Vec4(1.0f, 1.0f, 1.0f, 0.0f));
 	m_FloorMaterial.Set(Material::eNormal, "bricks2_normal.dds");
-	//m_FloorMaterial.Set(Material::eDiffuse, "StoneFloor_Diffuse.dds");
-	//m_FloorMaterial.Set(Material::eSpecular, "StoneFloor_Specular.dds");
-	//m_FloorMaterial.Set(Material::eNormal, "StoneFloor_Normal.dds");
+	///m_FloorMaterial.Set(Material::eDiffuse, "StoneFloor_Diffuse.dds");
+	///m_FloorMaterial.Set(Material::eSpecular, "StoneFloor_Specular.dds");
+	///m_FloorMaterial.Set(Material::eNormal, "StoneFloor_Normal.dds");
 
 	m_CBufferVS.CreateAsConstantBuffer(sizeof(ConstantBufferVS), D3DBuffer::eGpuReadCpuWrite);
 	m_CBufferPS.CreateAsConstantBuffer(sizeof(ConstantBufferPS), D3DBuffer::eGpuReadCpuWrite);
@@ -60,7 +60,7 @@ void AppParallaxMapping::Initialize()
 	m_PixelShader[ePOMLearningOpenGL].Create("ParallaxMapping.hlsl", "PSMain_POMLearningOpenGL");
 	m_PixelShader[eParallaxOcclusionMappingInACL].Create("ParallaxMapping.hlsl", "PSMain_ParallaxOcclusionMappingInACL");
 	m_PixelShader[eParallaxMappingWithOffsetLimit].Create("ParallaxMapping.hlsl", "PSMain_ParallaxMappingWithOffsetLimit");
-	///m_PixelShader[eParallaxOcclusionMapping].Create("ParallaxMapping.hlsl", "PSMain_ParallaxOcclusionMapping");
+	m_PixelShader[eParallaxOcclusionMapping].Create("ParallaxMapping.hlsl", "PSMain_ParallaxOcclusionMapping");
 }
 
 void AppParallaxMapping::RenderScene()
@@ -94,7 +94,7 @@ void AppParallaxMapping::RenderScene()
 
 	if (m_MappingType > eNormalMapping)
 	{
-		ImGui::SliderFloat("HeightScale", &g_CBufferPS.HeightScale, 0.0f, 0.1f);
+		ImGui::SliderFloat("HeightScale", &g_CBufferPS.HeightScale, 0.0f, 0.2f);
 	}
 
 	D3DEngine::Instance().SetVSync(m_VSync);
@@ -102,7 +102,7 @@ void AppParallaxMapping::RenderScene()
 	///D3DEngine::Instance().DrawTextInPos("RenderTextTest", 0U, 0U, 1U);
 
 	ImGui::Text("%.2f FPS", m_FPS);
-	ImGui::Combo("MappingType", &m_MappingType, "NormalMapping\0POMLearningOpenGL\0ParallaxOcclusionMappingInACL\0ParallaxMappingWithOffsetLimit");
+	ImGui::Combo("MappingType", &m_MappingType, "NormalMapping\0POMLearningOpenGL\0ParallaxOcclusionMappingInACL\0ParallaxMappingWithOffsetLimit\0ParallaxOcclusionMapping");
 	ImGui::Checkbox("VSync", &m_VSync);
 	///ImGui::SliderFloat3("LightDir", (float *)&g_CBufferPS.DirLight.Direction, -10.0f, 10.0f);
 }
