@@ -47,6 +47,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{7E32
 		Application\Resource\Shaders\Lighting.hlsl = Application\Resource\Shaders\Lighting.hlsl
 		Application\Resource\Shaders\LightingScene.hlsl = Application\Resource\Shaders\LightingScene.hlsl
 		Application\Resource\Shaders\Mesh.hlsl = Application\Resource\Shaders\Mesh.hlsl
+		Application\Resource\Shaders\MultithreadedRendering.hlsl = Application\Resource\Shaders\MultithreadedRendering.hlsl
 		Application\Resource\Shaders\ParallaxMapping.hlsl = Application\Resource\Shaders\ParallaxMapping.hlsl
 		Application\Resource\Shaders\Shadow.hlsl = Application\Resource\Shaders\Shadow.hlsl
 		Application\Resource\Shaders\SkyBox.hlsl = Application\Resource\Shaders\SkyBox.hlsl
@@ -61,7 +62,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DepthStencilTest", "Miscell
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Cubemap", "Miscellaneous\Cubemap.vcxproj", "{1AEE8BA0-177F-4E0D-9983-EB385AFAEECC}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WIP_ParallaxMapping", "Miscellaneous\ParallaxMapping.vcxproj", "{414D026D-1325-469F-B0DA-FE59BA1A4407}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ParallaxMapping", "Miscellaneous\ParallaxMapping.vcxproj", "{414D026D-1325-469F-B0DA-FE59BA1A4407}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GammaCorrection", "Miscellaneous\GammaCorrection.vcxproj", "{0519B3C8-AE1F-45DF-AEB2-899A9B5CE233}"
 EndProject
@@ -74,6 +75,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WIP_HDRLighting", "Miscellaneous\HDRLighting.vcxproj", "{CC4716FA-841F-4333-875F-64901E3C3AD6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TurnOnTheLight", "TurnOnTheLight", "{EFE29E72-DA45-4E86-89AA-EB189F7D69F0}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MultithreadedRendering", "Miscellaneous\MultithreadedRendering.vcxproj", "{2F847EA8-F3D0-415E-BA0F-0173FEC8D19C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -325,6 +328,18 @@ Global
 		{CC4716FA-841F-4333-875F-64901E3C3AD6}.Release|x64.Build.0 = Release|x64
 		{CC4716FA-841F-4333-875F-64901E3C3AD6}.Release|x86.ActiveCfg = Release|Win32
 		{CC4716FA-841F-4333-875F-64901E3C3AD6}.Release|x86.Build.0 = Release|Win32
+		{2F847EA8-F3D0-415E-BA0F-0173FEC8D19C}.Debug|x64.ActiveCfg = Debug|x64
+		{2F847EA8-F3D0-415E-BA0F-0173FEC8D19C}.Debug|x64.Build.0 = Debug|x64
+		{2F847EA8-F3D0-415E-BA0F-0173FEC8D19C}.Debug|x86.ActiveCfg = Debug|Win32
+		{2F847EA8-F3D0-415E-BA0F-0173FEC8D19C}.Debug|x86.Build.0 = Debug|Win32
+		{2F847EA8-F3D0-415E-BA0F-0173FEC8D19C}.Profile|x64.ActiveCfg = Release|x64
+		{2F847EA8-F3D0-415E-BA0F-0173FEC8D19C}.Profile|x64.Build.0 = Release|x64
+		{2F847EA8-F3D0-415E-BA0F-0173FEC8D19C}.Profile|x86.ActiveCfg = Release|Win32
+		{2F847EA8-F3D0-415E-BA0F-0173FEC8D19C}.Profile|x86.Build.0 = Release|Win32
+		{2F847EA8-F3D0-415E-BA0F-0173FEC8D19C}.Release|x64.ActiveCfg = Release|x64
+		{2F847EA8-F3D0-415E-BA0F-0173FEC8D19C}.Release|x64.Build.0 = Release|x64
+		{2F847EA8-F3D0-415E-BA0F-0173FEC8D19C}.Release|x86.ActiveCfg = Release|Win32
+		{2F847EA8-F3D0-415E-BA0F-0173FEC8D19C}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -351,5 +366,6 @@ Global
 		{8AD77C36-BD92-494D-8F37-431F5C039DF9} = {EFE29E72-DA45-4E86-89AA-EB189F7D69F0}
 		{CC4716FA-841F-4333-875F-64901E3C3AD6} = {EFE29E72-DA45-4E86-89AA-EB189F7D69F0}
 		{EFE29E72-DA45-4E86-89AA-EB189F7D69F0} = {8A14800A-8442-4CBA-AECB-4E3D586913F7}
+		{2F847EA8-F3D0-415E-BA0F-0173FEC8D19C} = {EFE29E72-DA45-4E86-89AA-EB189F7D69F0}
 	EndGlobalSection
 EndGlobal

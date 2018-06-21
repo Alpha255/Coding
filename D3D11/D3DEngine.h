@@ -111,6 +111,13 @@ public:
 	void SetViewport(const D3DViewport &viewport, uint32_t slot = 0U);
 	void SetScissorRect(const D3DRect &rect, uint32_t slot = 0U);
 
+	void SetContext(const D3DContext &context)
+	{
+		assert(context.IsValid());
+
+		m_ContextInUse = (m_ContextInUse == context ? m_ContextInUse : context);
+	}
+
 	void Draw(uint32_t vertexCount, uint32_t startVertex, uint32_t primitive);
 	void DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, uint32_t primitive);
 	void DrawInstanced();
@@ -227,6 +234,7 @@ private:
 
 	D3DDevice m_Device;
 	D3DContext m_IMContext;
+	D3DContext m_ContextInUse;
 	D3DSwapChain m_SwapChain;
 	D3DRenderTargetView m_RenderTargetView;
 	D3DDepthStencilView m_DepthStencilView;

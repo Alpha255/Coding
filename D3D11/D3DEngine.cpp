@@ -51,6 +51,8 @@ void D3DEngine::Initialize(HWND hWnd, uint32_t width, uint32_t height, bool bWin
 
 			D3DStaticState::Initialize();
 
+			SetContext(m_IMContext);
+
 			///D3DFontFreeType::Instance().Initialize(width, height);
 
 			m_Inited = true;
@@ -616,9 +618,9 @@ void D3DEngine::Draw(uint32_t vertexCount, uint32_t startVertex, uint32_t primit
 		m_Pipeline.DirtyFlags[eDPrimitiveTopology] = true;
 	}
 
-	m_Pipeline.CommitState(m_IMContext);
+	m_Pipeline.CommitState(m_ContextInUse);
 
-	m_IMContext->Draw(vertexCount, startVertex);
+	m_ContextInUse->Draw(vertexCount, startVertex);
 }
 
 void D3DEngine::DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, uint32_t primitive)
@@ -629,9 +631,9 @@ void D3DEngine::DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t of
 		m_Pipeline.DirtyFlags[eDPrimitiveTopology] = true;
 	}
 
-	m_Pipeline.CommitState(m_IMContext);
+	m_Pipeline.CommitState(m_ContextInUse);
 
-	m_IMContext->DrawIndexed(indexCount, startIndex, offset);
+	m_ContextInUse->DrawIndexed(indexCount, startIndex, offset);
 }
 
 #if 0
