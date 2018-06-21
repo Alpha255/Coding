@@ -21,6 +21,7 @@ struct ConstantBufferPS
 	ConstantBufferPS()
 	{
 		Light.Position = Vec3(-2.5f, 0.0f, -3.0f);
+		Light.Range = 50.0f;
 	}
 };
 

@@ -12,10 +12,16 @@ struct ConstantBufferVS
 	Matrix World;
 	Matrix WorldInverse;
 	Matrix WVP;
+	Matrix VP;
 	Matrix UVTransform;
 
 	Vec4 EyePos;
 	Vec4 LightDir;
+
+	float MinTessFactor = 1.0f;
+	float MaxTessFactor = 5.0f;
+	float MinTessDistance = 1.0f;
+	float MaxTessDistance = 25.0f;
 };
 
 struct ConstantBufferPS
@@ -55,17 +61,22 @@ void AppParallaxMapping::Initialize()
 	m_CBufferPS.CreateAsConstantBuffer(sizeof(ConstantBufferPS), D3DBuffer::eGpuReadCpuWrite);
 
 	m_VertexShader.Create("ParallaxMapping.hlsl", "VSMain");
+	m_VSDisplacementMapping.Create("ParallaxMapping.hlsl", "VSMain_DisplacementMapping");
+
+	m_HullShader.Create("ParallaxMapping.hlsl", "HSMain");
+	m_DomainShader.Create("ParallaxMapping.hlsl", "DSMain");
 
 	m_PixelShader[eNormalMapping].Create("ParallaxMapping.hlsl", "PSMain_NormalMapping");
 	m_PixelShader[ePOMLearningOpenGL].Create("ParallaxMapping.hlsl", "PSMain_POMLearningOpenGL");
 	m_PixelShader[eParallaxOcclusionMappingInACL].Create("ParallaxMapping.hlsl", "PSMain_ParallaxOcclusionMappingInACL");
 	m_PixelShader[eParallaxMappingWithOffsetLimit].Create("ParallaxMapping.hlsl", "PSMain_ParallaxMappingWithOffsetLimit");
 	m_PixelShader[eParallaxOcclusionMapping].Create("ParallaxMapping.hlsl", "PSMain_ParallaxOcclusionMapping");
+	m_PixelShader[eDisplacementMapping].Create("ParallaxMapping.hlsl", "PSMain_DisplacementMapping");
 }
 
 void AppParallaxMapping::RenderScene()
 {
-	D3DEngine::Instance().SetVertexShader(m_VertexShader);
+	D3DEngine::Instance().SetVSync(m_VSync);
 	D3DEngine::Instance().SetPixelShader(m_PixelShader[m_MappingType]);
 
 	m_Floor.Bind(&m_FloorMaterial);
@@ -81,28 +92,66 @@ void AppParallaxMapping::RenderScene()
 	g_CBufferVS.World = Matrix::Transpose(m_Camera->GetWorldMatrix());
 	g_CBufferVS.WorldInverse = Matrix::InverseTranspose(m_Camera->GetWorldMatrix());
 	g_CBufferVS.WVP = Matrix::Transpose(m_Camera->GetWVPMatrix());
+	g_CBufferVS.VP = Matrix::Transpose(m_Camera->GetViewMatrix() * m_Camera->GetProjMatrix());
 	g_CBufferVS.UVTransform = Matrix::Transpose(Matrix::Scaling(1.0f));
 	g_CBufferVS.LightDir = g_CBufferPS.DirLight.Direction;
 	m_CBufferVS.Update(&g_CBufferVS, sizeof(ConstantBufferVS));
 	D3DEngine::Instance().SetConstantBuffer(m_CBufferVS, 0U, D3DShader::eVertexShader);
 
-	D3DEngine::Instance().SetRasterizerState(D3DStaticState::SolidNoneCulling);
-	D3DEngine::Instance().DrawIndexed(m_Floor.IndexCount, 0U, 0, eTriangleList);
+	ePrimitiveTopology ePT = eTriangleList;
+	if (eDisplacementMapping == m_MappingType)
+	{
+		ePT = eControlPointPatchList3;
+		D3DEngine::Instance().SetVertexShader(m_VSDisplacementMapping);
+
+		D3DEngine::Instance().SetHullShader(m_HullShader);
+		D3DEngine::Instance().SetDomainShader(m_DomainShader);
+
+		D3DEngine::Instance().SetConstantBuffer(m_CBufferVS, 0U, D3DShader::eDomainShader);
+		D3DEngine::Instance().SetSamplerState(D3DStaticState::LinearSampler, 0U, D3DShader::eDomainShader);
+		D3DEngine::Instance().SetShaderResourceView(m_HeightMap, 0U, D3DShader::eDomainShader);
+	}
+	else
+	{
+		ePT = eTriangleList;
+		D3DEngine::Instance().SetVertexShader(m_VertexShader);
+	}
+
+	if (m_Wireframe)
+	{
+		D3DEngine::Instance().SetRasterizerState(D3DStaticState::WireframeNoneCulling);
+	}
+	else
+	{
+		D3DEngine::Instance().SetRasterizerState(D3DStaticState::SolidNoneCulling);
+	}
+
+	D3DEngine::Instance().DrawIndexed(m_Floor.IndexCount, 0U, 0, ePT);
 
 	///Vec3 pos(-g_CBufferPS.DirLight.Direction.x, -g_CBufferPS.DirLight.Direction.y, -g_CBufferPS.DirLight.Direction.z);
 	///Light::DebugDisplay(pos, Light::ePoint, *m_Camera);
+
+	static D3DHullShader EmptyHullShader;
+	static D3DDomainShader EmptyDomainShader;
+	D3DEngine::Instance().SetHullShader(EmptyHullShader);
+	D3DEngine::Instance().SetDomainShader(EmptyDomainShader);
 
 	if (m_MappingType > eNormalMapping)
 	{
 		ImGui::SliderFloat("HeightScale", &g_CBufferPS.HeightScale, 0.0f, 0.2f);
 	}
 
-	D3DEngine::Instance().SetVSync(m_VSync);
-
 	///D3DEngine::Instance().DrawTextInPos("RenderTextTest", 0U, 0U, 1U);
 
 	ImGui::Text("%.2f FPS", m_FPS);
-	ImGui::Combo("MappingType", &m_MappingType, "NormalMapping\0POMLearningOpenGL\0ParallaxOcclusionMappingInACL\0ParallaxMappingWithOffsetLimit\0ParallaxOcclusionMapping");
+	ImGui::Combo("MappingType", &m_MappingType, 
+		"NormalMapping\0"
+		"POMLearningOpenGL\0"
+		"ParallaxOcclusionMappingInACL\0"
+		"ParallaxMappingWithOffsetLimit\0"
+		"ParallaxOcclusionMapping\0"
+		"DisplacementMapping");
 	ImGui::Checkbox("VSync", &m_VSync);
+	ImGui::Checkbox("Wireframe", &m_Wireframe);
 	///ImGui::SliderFloat3("LightDir", (float *)&g_CBufferPS.DirLight.Direction, -10.0f, 10.0f);
 }

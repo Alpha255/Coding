@@ -29,7 +29,11 @@ private:
 	Geometry::Mesh m_Floor;
 
 	D3DVertexShader m_VertexShader;
+	D3DVertexShader m_VSDisplacementMapping;
 	D3DPixelShader m_PixelShader[eMappingTypeCount];
+
+	D3DHullShader m_HullShader;
+	D3DDomainShader m_DomainShader;
 
 	D3DBuffer m_CBufferVS;
 	D3DBuffer m_CBufferPS;
@@ -39,6 +43,7 @@ private:
 	D3DShaderResourceView m_HeightMap;
 
 	bool m_VSync = false;
+	bool m_Wireframe = false;
 
 	int32_t m_MappingType = eNormalMapping;
 };

@@ -5,10 +5,16 @@ cbuffer cbVS
 	matrix World;
 	matrix WorldInverse;
     matrix WVP;
+	matrix VP;
 	matrix UVTransform;
 
 	float4 EyePosVS;
 	float4 LightDir;
+
+	float MinTessFactor;
+	float MaxTessFactor;
+	float MinTessDistance;
+	float MaxTessDistance;
 };
 
 cbuffer cbPS
@@ -35,6 +41,38 @@ struct VSOutput_POM
 	float3 LightDirectionT : TEXCOORD1;
 	float3 ViewDirectionT : TEXCOORD2;
 	float2 ParallaxOffsetT : TEXCOORD3;
+};
+
+struct VSOutput_DisplacementMapping
+{
+	float3 PosW : POSITION;
+    float3 NormalW : NORMAL;
+    float3 TangentW : TANGENT;
+    float2 UV : TEXCOORD;
+    float TessFactor : TESS;
+};
+
+struct TessPatch
+{
+	float EdgeFactor[3] : SV_TessFactor;
+	float InsideFactor : SV_InsideTessFactor;	
+};
+
+struct HSOutput
+{
+	float3 Pos : POSITION;
+    float3 Normal : NORMAL;
+    float3 Tangent : TANGENT;
+    float2 UV : TEXCOORD;
+};
+
+struct DSOutput
+{
+	float4 PosH : SV_POSITION;
+    float3 PosW : POSITION;
+    float3 Normal : NORMAL;
+    float3 Tangent : TANGENT;
+    float2 UV : TEXCOORD;	
 };
 
 Texture2D DiffuseMap;
@@ -114,6 +152,76 @@ VSOutput_POM VSMain(VSInput vsInput)
 
 	/// Compute the actual reverse parallax displacement vector:
 	output.ParallaxOffsetT = vParallaxDir * fParallaxLength;
+
+    return output;
+}
+
+VSOutput_DisplacementMapping VSMain_DisplacementMapping(VSInput input)
+{
+	VSOutput_DisplacementMapping output;
+	output.PosW = mul(float4(input.Pos, 1.0f), World).xyz;
+    output.NormalW = mul(input.Normal, (float3x3)WorldInverse);
+    output.TangentW = mul(input.Tangent, (float3x3)World);
+    output.UV = mul(float4(input.UV, 0.0f, 1.0f), UVTransform).xy;
+
+	float length = distance(output.PosW, EyePosVS.xyz);
+
+	float tess = saturate((MinTessDistance - length) / (MinTessDistance - MaxTessDistance));
+
+	output.TessFactor = MinTessFactor + tess * (MaxTessFactor - MinTessFactor);
+
+	return output;
+}
+
+TessPatch PatchFunction(InputPatch<VSOutput_DisplacementMapping, 3> patch_In, uint patchID : SV_PrimitiveID)
+{
+    TessPatch patch_out;
+
+    patch_out.EdgeFactor[0] = 0.5f * (patch_In[1].TessFactor + patch_In[2].TessFactor);
+    patch_out.EdgeFactor[1] = 0.5f * (patch_In[2].TessFactor + patch_In[0].TessFactor);
+    patch_out.EdgeFactor[2] = 0.5f * (patch_In[0].TessFactor + patch_In[1].TessFactor);
+    patch_out.InsideFactor = patch_out.EdgeFactor[0];
+
+    return patch_out;
+}
+
+[domain("tri")]
+[partitioning("fractional_odd")]
+[outputtopology("triangle_cw")]
+[outputcontrolpoints(3)]
+[patchconstantfunc("PatchFunction")]
+HSOutput HSMain(InputPatch<VSOutput_DisplacementMapping, 3> patch_In, uint controlPointID : SV_OutputControlPointID, uint patchID : SV_PrimitiveID)
+{
+	HSOutput output;
+
+    output.Pos = patch_In[controlPointID].PosW;
+    output.Normal = patch_In[controlPointID].NormalW;
+    output.Tangent = patch_In[controlPointID].TangentW;
+    output.UV = patch_In[controlPointID].UV;
+	
+    return output;
+}
+
+[domain("tri")]
+DSOutput DSMain(TessPatch tessPatch, float3 bary : SV_DomainLocation, const OutputPatch<HSOutput, 3> triangles)
+{
+	DSOutput output;
+
+	output.PosW = bary.x * triangles[0].Pos + bary.y * triangles[1].Pos + bary.z * triangles[2].Pos;
+    output.Normal = bary.x * triangles[0].Normal + bary.y * triangles[1].Normal + bary.z * triangles[2].Normal;
+    output.Tangent = bary.x * triangles[0].Tangent + bary.y * triangles[1].Tangent + bary.z * triangles[2].Tangent;
+    output.UV = bary.x * triangles[0].UV + bary.y * triangles[1].UV + bary.z * triangles[2].UV;
+
+    output.Normal = normalize(output.Normal);
+
+    const float mipInterval = 20.0f;
+    float mipLevel = clamp((distance(output.PosW, EyePosVS.xyz) - mipInterval) / mipInterval, 0.0f, 6.0f);
+
+    float h = HeightMap.SampleLevel(LinearSampler, output.UV, mipLevel).r;
+
+    output.PosW += (HeightScale * (h - 1.0f)) * output.Normal;
+
+    output.PosH = mul(float4(output.PosW, 1.0f), VP);
 
     return output;
 }
@@ -451,4 +559,20 @@ float4 PSMain_ParallaxOcclusionMapping(VSOutput_POM psInput) : SV_Target
     float3 lightingColor = DirectionalLightingPOM(dirLight, psInput.VSOut, psInput.ViewDirectionT, material);
 
     return float4(lightingColor, 1.0f);
+}
+
+float4 PSMain_DisplacementMapping(DSOutput psInput) : SV_Target
+{
+	VSOutput vsOut;
+	vsOut.PosH = psInput.PosH;
+	vsOut.PosW = psInput.PosW;
+	vsOut.NormalW = psInput.Normal;
+	vsOut.TangentW = psInput.Tangent;
+	vsOut.UV = psInput.UV;
+    Material material = ApplyMaterial(RawMat, vsOut);
+    float3 lightingColor = DirectionalLighting(DirLight, psInput.PosW, EyePosPS.xyz, material);
+
+    lightingColor += DirLight.Ambient.xyz;
+
+	return float4(lightingColor, 1.0f);
 }
