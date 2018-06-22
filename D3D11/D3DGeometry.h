@@ -114,8 +114,10 @@ struct SDKMesh
 public:
 	void Create(const char *pMeshName);
 
-	void Draw(bool bAlphaParts);
+	void Draw(bool bAlphaParts, bool bDisableMaterial = false);
 protected:
+	void SetupVertexIndex(const DirectX::ModelMeshPart *pModelPart);
+	void SetupMaterial(const DirectX::ModelMeshPart *pModelPart, bool bDisableMaterial);
 private:
 	std::unique_ptr<DirectX::Model> m_Model;
 	std::unique_ptr<DirectX::CommonStates> m_States;

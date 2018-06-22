@@ -119,7 +119,7 @@ void AppForwardLighting::RenderScene()
 	g_CBufferPS.RawMat = m_BunnyMaterial.RawValue;
 	m_CBufferPS.Update(&g_CBufferPS, sizeof(ConstantBufferPS));
 
-	m_StanfordBunnyMesh.Draw(false);
+	m_StanfordBunnyMesh.Draw(false, true);
 
 	ImGui::Checkbox("Wireframe", &m_Wireframe);
 	if (eHemisphericAmbient == m_LightingType)
