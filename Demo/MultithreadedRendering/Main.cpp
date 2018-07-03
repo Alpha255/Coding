@@ -5,7 +5,7 @@ int32_t WINAPI wWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LP
 {
 	AppMultithreadedRendering MultithreadedRendering;
 
-	MultithreadedRendering.Startup(L"MultithreadedRendering");
+	MultithreadedRendering.Startup(L"MultithreadedRendering", 1280U, 720U);
 
 	MultithreadedRendering.Running();
 
