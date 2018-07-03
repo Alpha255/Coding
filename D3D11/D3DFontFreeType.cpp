@@ -73,7 +73,7 @@ void D3DFontFreeType::Initialize(uint32_t width, uint32_t height)
 		{ "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 8, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
-	m_VertexLayout.Create(m_VertexShader.GetBlob(), layout, 2U);
+	m_VertexLayout.Create(m_VertexShader.GetBlob(), layout, _countof(layout));
 
 	m_CBufferVS.CreateAsConstantBuffer(sizeof(Matrix), D3DBuffer::eGpuReadCpuWrite);
 	Matrix ortho = Matrix::OrthographicLH((float)width, (float)height, 0.0f, 1.0f);

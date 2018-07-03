@@ -112,17 +112,127 @@ protected:
 struct SDKMesh
 {
 public:
-	void Create(const char *pMeshName);
+	void Create(const char *pMeshName, bool bLoadVertexLayout = true);
+	void CreateFromFile(const char *pMeshName);
 
 	void Draw(bool bAlphaParts, bool bDisableMaterial = false);
+
+	inline void SetInputLayout(const D3DInputLayout &layout)
+	{
+		m_VertexLayout = layout;
+	}
 protected:
+	enum eFileInfo
+	{
+		eSDKMeshFileVersion = 101U,
+		eSDKMeshMaxVertexElements = 32U,
+		eSDKMeshIndexType_16Bit = 0U,
+		eSDKMeshIndexType_32Bit = 1U,
+		eSDKMeshMaxMeshName = 100U,
+		eSDKMeshMaxVertexStreams = 16U,
+	};
+
+	struct SDKMeshVertexElement
+	{
+		uint16_t Stream;     // Stream index
+		uint16_t Offset;     // Offset in the stream in bytes
+		uint8_t  Type;       // Data type
+		uint8_t  Method;     // Processing method
+		uint8_t  Usage;      // Semantics
+		uint8_t  UsageIndex; // Semantic index
+	};
+
+	struct SDKMeshHeader
+	{
+		/// Basic Info and sizes
+		uint32_t Version;
+		uint8_t  IsBigEndian;
+		uint64_t HeaderSize;
+		uint64_t NonBufferDataSize;
+		uint64_t BufferDataSize;
+
+		/// Stats
+		uint32_t NumVertexBuffers;
+		uint32_t NumIndexBuffers;
+		uint32_t NumMeshes;
+		uint32_t NumTotalSubsets;
+		uint32_t NumFrames;
+		uint32_t NumMaterials;
+
+		/// Offsets to Data
+		uint64_t VertexStreamHeadersOffset;
+		uint64_t IndexStreamHeadersOffset;
+		uint64_t MeshDataOffset;
+		uint64_t SubsetDataOffset;
+		uint64_t FrameDataOffset;
+		uint64_t MaterialDataOffset;
+	};
+
+	struct SDKMeshVertexBufferHeader
+	{
+		uint64_t NumVertices;
+		uint64_t SizeBytes;
+		uint64_t StrideBytes;
+		SDKMeshVertexElement Decl[eSDKMeshMaxVertexElements];
+		union
+		{
+			uint64_t DataOffset;
+		};
+	};
+
+	struct SDKMeshIndexBufferHeader
+	{
+		uint64_t NumIndices;
+		uint64_t SizeBytes;
+		uint32_t IndexType;
+		union
+		{
+			uint64_t DataOffset;
+		};
+	};
+
+	struct SDKMeshMesh
+	{
+		char Name[eSDKMeshMaxMeshName];
+		uint8_t NumVertexBuffers;
+		uint32_t VertexBuffers[eSDKMeshMaxVertexStreams];
+		uint32_t IndexBuffer;
+		uint32_t NumSubsets;
+		uint32_t NumFrameInfluences; //aka bones
+
+		Vec3 BoundingBoxCenter;
+		Vec3 BoundingBoxExtents;
+
+		union
+		{
+			uint64_t SubsetOffset;
+			int32_t *Subsets;
+		};
+		union
+		{
+			uint64_t FrameInfluenceOffset;
+			uint32_t *FrameInfluences;
+		};
+	};
+
 	void SetupVertexIndex(const DirectX::ModelMeshPart *pModelPart);
 	void SetupMaterial(const DirectX::ModelMeshPart *pModelPart, bool bDisableMaterial);
+
+	SDKMeshHeader LoadHeader(const uint8_t *pData, size_t dataSize);
+	void LoadVertexBuffers(const uint8_t *pData, size_t dataSize, const SDKMeshHeader &header);
+	void LoadIndexBuffers(const uint8_t *pData, size_t dataSize, const SDKMeshHeader &header);
+	void LoadMeshs(const uint8_t *pData, size_t dataSize, const SDKMeshHeader &header);
 private:
 	std::unique_ptr<DirectX::Model> m_Model;
 	std::unique_ptr<DirectX::CommonStates> m_States;
 
+	std::vector<D3DBuffer> m_VertexBuffers;
+	std::vector<D3DBuffer> m_IndexBuffers;
+
+	D3DInputLayout m_VertexLayout;
+
 	bool m_Created = false;
+	bool m_ExtVertexLayout = false;
 };
 
 NamespaceEnd(Geometry)

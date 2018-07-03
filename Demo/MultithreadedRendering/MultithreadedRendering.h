@@ -50,5 +50,7 @@ private:
 	D3DPixelShader m_PixelShader;
 	D3DBuffer m_CBufferVS;
 
+	D3DInputLayout m_Layout;
+
 	Geometry::SDKMesh m_SquidRoom;
 };

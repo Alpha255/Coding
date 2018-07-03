@@ -41,7 +41,7 @@ void D3DGUI_imGui::Initialize(::HWND hWnd)
 	};
 
 	m_Resource.VertexShader.Create("imGUI.hlsl", "VS_Main");
-	m_Resource.VertexLayout.Create(m_Resource.VertexShader.GetBlob(), layout, 3U);
+	m_Resource.VertexLayout.Create(m_Resource.VertexShader.GetBlob(), layout, _countof(layout));
 	m_Resource.PixelShader.Create("imGUI.hlsl", "PS_Main");
 
 	m_Resource.ConstantBufferVS.CreateAsConstantBuffer(sizeof(Matrix), D3DBuffer::eGpuReadCpuWrite, nullptr);

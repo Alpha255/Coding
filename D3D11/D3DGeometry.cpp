@@ -23,7 +23,7 @@ void Mesh::CreateRenderResource()
 
 	D3DVertexShader vertexShader;
 	vertexShader.Create("Mesh.hlsl", "VSMain");
-	VertexLayout.Create(vertexShader.GetBlob(), layout, 4U);
+	VertexLayout.Create(vertexShader.GetBlob(), layout, _countof(layout));
 
 	VertexBuffer.CreateAsVertexBuffer(sizeof(Vertex) * m_Vertices.size(), D3DBuffer::eGpuReadOnly, m_Vertices.data());
 	IndexBuffer.CreateAsIndexBuffer(sizeof(uint32_t) * m_Indices.size(), D3DBuffer::eGpuReadOnly, m_Indices.data());
