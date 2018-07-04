@@ -3,6 +3,7 @@
 #include "D3DApp.h"
 #include "D3DGeometry.h"
 #include "D3DView.h"
+#include "D3DState.h"
 
 class AppMultithreadedRendering : public D3DApp
 {
@@ -27,6 +28,20 @@ protected:
 		eNumShadows = 1U,
 		eNumMirrors = 4U,
 		eNumScenes = 1U + eNumShadows + eNumMirrors
+	};
+
+	struct StaticParams
+	{
+		D3DDepthStencilState DepthStencilState;
+		uint8_t StencilRef = 0U;
+
+		D3DRasterizerState RasterizerState;
+
+		D3DDepthStencilView DepthStencilView;
+		D3DViewport Viewport;
+
+		Vec4 TintColor = {};
+		Vec4 MirrorPlane = {};
 	};
 
 	inline bool IsDeferredPerSceneMode()
@@ -62,6 +77,12 @@ protected:
 	void InitShadowResource();
 	void InitMirrorResource();
 	void InitWorkerThreads();
+
+	void SetupScene();
+	void DrawScene();
+	void DrawSceneDirectly(const D3DContext &ctxInUse);
+	void DrawShadow(uint32_t iShadow, const D3DContext &ctxInUse);
+	void DrawMirror(uint32_t iMirror, const D3DContext &ctxInUse);
 private:
 	eRenderingMode m_RenderingMode = eSingleThread_IMContext;
 
@@ -76,8 +97,18 @@ private:
 	D3DCommandList m_SceneCmdList[eNumScenes];
 
 	D3DShaderResourceView m_ShadowSRV[eNumShadows];
-	D3DDepthStencilView m_ShadowDSV[eNumShadows];
-	D3DViewport m_ShadowViewport[eNumShadows];
+
+	D3DDepthStencilState m_NoStencil;
+	D3DDepthStencilState m_DepthTestStencilOverwrite;
+	D3DDepthStencilState m_DepthOverwriteStencilTest;
+	D3DDepthStencilState m_DepthWriteStencilTest;
+	D3DDepthStencilState m_DepthOverwriteStencilClear;
+
+	D3DBuffer m_VertexBufferMirror;
+
+	StaticParams m_StaticParamsDirectly;
+	StaticParams m_StaticParamsShadows[eNumShadows];
+	StaticParams m_StaticParamsMirrors[eNumMirrors];
 
 	Geometry::SDKMesh m_SquidRoom;
 };

@@ -128,6 +128,8 @@ D3DSamplerState D3DStaticState::AnisotropicSampler;
 
 D3DRasterizerState D3DStaticState::Wireframe;
 D3DRasterizerState D3DStaticState::Solid;
+D3DRasterizerState D3DStaticState::WireframeFrontFaceCulling;
+D3DRasterizerState D3DStaticState::SolidFrontFaceCulling;
 D3DRasterizerState D3DStaticState::WireframeNoneCulling;
 D3DRasterizerState D3DStaticState::SolidNoneCulling;
 D3DRasterizerState D3DStaticState::SolidFrontCCW;
@@ -152,7 +154,9 @@ void D3DStaticState::Initialize()
 
 	Wireframe.Create(D3DState::eWireframe, D3DState::eCullBackFace, false, true, false);
 	Solid.Create(D3DState::eSolid, D3DState::eCullBackFace, false, true, false);
-	WireframeNoneCulling.Create(D3DState::eWireframe, D3DState::eCullNone, false, true, false);
+	WireframeFrontFaceCulling.Create(D3DState::eWireframe, D3DState::eCullFrontFace, false, true, false);
+	SolidFrontFaceCulling.Create(D3DState::eSolid, D3DState::eCullFrontFace, false, false, false);
+	WireframeNoneCulling.Create(D3DState::eWireframe, D3DState::eCullNone, false, false, false);
 	SolidNoneCulling.Create(D3DState::eSolid, D3DState::eCullNone, false, true, false);
 	SolidFrontCCW.Create(D3DState::eSolid, D3DState::eCullBackFace, true, true, false);
 

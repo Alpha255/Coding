@@ -178,6 +178,8 @@ struct D3DStaticState
 
 	static D3DRasterizerState Wireframe;
 	static D3DRasterizerState Solid;
+	static D3DRasterizerState WireframeFrontFaceCulling;
+	static D3DRasterizerState SolidFrontFaceCulling;
 	static D3DRasterizerState WireframeNoneCulling;
 	static D3DRasterizerState SolidNoneCulling;
 	static D3DRasterizerState SolidFrontCCW;
