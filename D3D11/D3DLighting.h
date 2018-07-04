@@ -108,10 +108,10 @@ struct Material
 		RawValue.Porperties[target] = value;
 	}
 
-	inline void Set(eProperty target, const char *pTextureName)
+	inline void Set(eProperty target, const char *pTextureName, bool bFromCurDir = false)
 	{
 		assert(target < ePropertyCount);
-		Textures[target].Create(pTextureName);
+		Textures[target].Create(pTextureName, bFromCurDir);
 	}
 
 	RawMaterial RawValue;

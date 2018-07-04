@@ -53,7 +53,8 @@ void AppMultithreadedRendering::InitWorkerThreads()
 
 void AppMultithreadedRendering::Initialize()
 {
-	m_SquidRoom.Create("SquidRoom\\SquidRoom.sdkmesh", false);
+	///m_SquidRoom.Create("SquidRoom\\SquidRoom.sdkmesh", false);
+	m_SquidRoom.CreateEx("SquidRoom\\SquidRoom.sdkmesh");
 
 	m_VertexShader.Create("MultithreadedRendering.hlsl", "VSMain");
 	m_PixelShader.Create("MultithreadedRendering.hlsl", "PSMain");
@@ -145,7 +146,8 @@ void AppMultithreadedRendering::RenderScene()
 	g_CBufferVS.WorldInverse = Matrix::InverseTranspose(world);
 	m_CBufferVS.Update(&g_CBufferVS, sizeof(ConstantBufferVS));
 
-	m_SquidRoom.Draw(false);
+	///m_SquidRoom.Draw(false);
+	m_SquidRoom.DrawEx(false);
 
 	ImGui::Text("%.2f FPS", m_FPS);
 }

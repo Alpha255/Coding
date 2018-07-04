@@ -48,7 +48,7 @@ public:
 class D3DShaderResourceView : public D3DObject<ID3D11ShaderResourceView>, public D3DView
 {
 public:
-	void Create(const char *pDdsName);
+	void Create(const char *pDdsName, bool bFromCurDir = false);
 
 	void CreateAsBuffer();
 	void CreateAsBufferEx();

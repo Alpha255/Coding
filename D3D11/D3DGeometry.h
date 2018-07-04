@@ -109,27 +109,49 @@ protected:
 	void ComputeTangent();
 };
 
-struct SDKMesh
+struct SDKMesh : public Mesh
 {
 public:
 	void Create(const char *pMeshName, bool bLoadVertexLayout = true);
-	void CreateFromFile(const char *pMeshName);
+	void CreateEx(const char *pMeshName, bool ccw = false, bool alpha = false);
 
 	void Draw(bool bAlphaParts, bool bDisableMaterial = false);
+	void DrawEx(bool bAlphaParts, bool bDisableMaterial = false);
 
 	inline void SetInputLayout(const D3DInputLayout &layout)
 	{
 		m_VertexLayout = layout;
 	}
 protected:
-	enum eFileInfo
+	enum eSDKMeshFileInfo
 	{
-		eSDKMeshFileVersion = 101U,
-		eSDKMeshMaxVertexElements = 32U,
-		eSDKMeshIndexType_16Bit = 0U,
-		eSDKMeshIndexType_32Bit = 1U,
-		eSDKMeshMaxMeshName = 100U,
-		eSDKMeshMaxVertexStreams = 16U,
+		eFileVersion = 101U,
+		eMaxVertexElements = 32U,
+		eMaxMeshName = 100U,
+		eMaxSubsetName = 100U,
+		eMaxMaterialName = 100U,
+		eMaxMaterialPath = 260U, 
+		eMaxTextureName = 260U,
+		eMaxVertexStreams = 16U,
+	};
+
+	enum eSDKMeshIndexType
+	{
+		eIndexType_16Bit = 0U,
+		eIndexType_32Bit = 1U,
+	};
+
+	enum eSDKMeshPrimitiveType
+	{
+		eTriangle_List = 0,
+		eTriangle_Strip,
+		eLine_List,
+		eLine_Strip,
+		ePoint_List,
+		eTriangle_List_Adj,
+		eTriangle_Strip_Adj,
+		eLine_List_Adj,
+		eLine_Strip_Adj
 	};
 
 	struct SDKMeshVertexElement
@@ -173,7 +195,7 @@ protected:
 		uint64_t NumVertices;
 		uint64_t SizeBytes;
 		uint64_t StrideBytes;
-		SDKMeshVertexElement Decl[eSDKMeshMaxVertexElements];
+		SDKMeshVertexElement Decl[eMaxVertexElements];
 		union
 		{
 			uint64_t DataOffset;
@@ -193,9 +215,9 @@ protected:
 
 	struct SDKMeshMesh
 	{
-		char Name[eSDKMeshMaxMeshName];
+		char Name[eMaxMeshName];
 		uint8_t NumVertexBuffers;
-		uint32_t VertexBuffers[eSDKMeshMaxVertexStreams];
+		uint32_t VertexBuffers[eMaxVertexStreams];
 		uint32_t IndexBuffer;
 		uint32_t NumSubsets;
 		uint32_t NumFrameInfluences; //aka bones
@@ -215,13 +237,97 @@ protected:
 		};
 	};
 
+	struct SDKMeshSubset
+	{
+		char Name[eMaxSubsetName];
+		uint32_t MaterialID;
+		uint32_t PrimitiveType;
+		uint64_t IndexStart;
+		uint64_t IndexCount;
+		uint64_t VertexStart;
+		uint64_t VertexCount;
+	};
+
+	struct ModelMesh
+	{
+		struct MeshPart
+		{
+			uint32_t  IndexCount;
+			uint32_t  StartIndex;
+			uint32_t  VertexOffset;
+			uint32_t  VertexStride;
+			ePrimitiveTopology PrimitiveType;
+			uint32_t IndexFormat;
+			D3DBuffer IndexBuffer;
+			D3DBuffer VertexBuffer;
+			bool IsAlpha;
+
+			Material *Mt = nullptr;
+
+			~MeshPart();
+		};
+
+		DirectX::BoundingBox MeshBoundingBox;
+
+		bool CCW;
+		bool Alpha;
+
+		std::vector<std::unique_ptr<MeshPart>> MeshParts;
+	};
+
+	struct SDKMeshMaterial
+	{
+		char    Name[eMaxMaterialName];
+
+		/// Use MaterialInstancePath
+		char    MaterialInstancePath[eMaxMaterialPath];
+
+		/// Or fall back to d3d8-type materials
+		char    DiffuseTexture[eMaxTextureName];
+		char    NormalTexture[eMaxTextureName];
+		char    SpecularTexture[eMaxTextureName];
+
+		Vec4 Diffuse;
+		Vec4 Ambient;
+		Vec4 Specular;
+		Vec4 Emissive;
+		float Power;
+
+		union
+		{
+			uint64_t Force64_1;			/// Force the union to 64bits
+		};
+		union
+		{
+			uint64_t Force64_2;			/// Force the union to 64bits
+		};
+		union
+		{
+			uint64_t Force64_3;			/// Force the union to 64bits
+		};
+
+		union
+		{
+			uint64_t Force64_4;			/// Force the union to 64bits
+		};
+		union
+		{
+			uint64_t Force64_5;		    /// Force the union to 64bits
+		};
+		union
+		{
+			uint64_t Force64_6;			/// Force the union to 64bits
+		};
+	};
+
 	void SetupVertexIndex(const DirectX::ModelMeshPart *pModelPart);
 	void SetupMaterial(const DirectX::ModelMeshPart *pModelPart, bool bDisableMaterial);
 
 	SDKMeshHeader LoadHeader(const uint8_t *pData, size_t dataSize);
 	void LoadVertexBuffers(const uint8_t *pData, size_t dataSize, const SDKMeshHeader &header);
 	void LoadIndexBuffers(const uint8_t *pData, size_t dataSize, const SDKMeshHeader &header);
-	void LoadMeshs(const uint8_t *pData, size_t dataSize, const SDKMeshHeader &header);
+	void LoadMeshs(const uint8_t *pData, size_t dataSize, const SDKMeshHeader &header, bool ccw, bool alpha);
+	bool LoadMaterial(const SDKMeshMaterial &sdkmt, Material &mt);
 private:
 	std::unique_ptr<DirectX::Model> m_Model;
 	std::unique_ptr<DirectX::CommonStates> m_States;
@@ -230,6 +336,8 @@ private:
 	std::vector<D3DBuffer> m_IndexBuffers;
 
 	D3DInputLayout m_VertexLayout;
+
+	std::vector<std::shared_ptr<ModelMesh>> m_Meshs;
 
 	bool m_Created = false;
 	bool m_ExtVertexLayout = false;

@@ -1,6 +1,7 @@
 #include "D3DGeometry.h"
 #include "D3DObject.h"
 #include "D3DEngine.h"
+#include "D3DLighting.h"
 #include "Camera.h"
 #include "System.h"
 
@@ -21,7 +22,7 @@ SDKMesh::SDKMeshHeader SDKMesh::LoadHeader(const uint8_t *pData, size_t dataSize
 		+ header.NumIndexBuffers * sizeof(SDKMeshIndexBufferHeader);
 	assert(header.HeaderSize == headerSize && dataSize >= headerSize);
 
-	assert(header.Version == eSDKMeshFileVersion);
+	assert(header.Version == eFileVersion);
 
 	assert(!header.IsBigEndian);
 
@@ -76,7 +77,7 @@ void SDKMesh::LoadIndexBuffers(const uint8_t *pData, size_t dataSize, const SDKM
 
 		assert(dataSize >= ih.DataOffset && dataSize >= (ih.DataOffset + ih.SizeBytes));
 
-		assert(ih.IndexType == eSDKMeshIndexType_16Bit || ih.IndexType == eSDKMeshIndexType_32Bit);
+		assert(ih.IndexType == eIndexType_16Bit || ih.IndexType == eIndexType_32Bit);
 
 		auto indices = reinterpret_cast<const uint8_t*>(pBufferData + (ih.DataOffset - bufferDataOffset));
 
@@ -84,12 +85,67 @@ void SDKMesh::LoadIndexBuffers(const uint8_t *pData, size_t dataSize, const SDKM
 	}
 }
 
-void SDKMesh::LoadMeshs(const uint8_t *pData, size_t dataSize, const SDKMeshHeader &header)
+bool SDKMesh::LoadMaterial(const SDKMeshMaterial &sdkmt, Material &mt)
 {
-	assert(!"Not DONE!");
-	assert(dataSize >= header.MeshDataOffset && dataSize >= (header.MeshDataOffset + header.NumMeshes * sizeof(SDKMeshMesh)));
+	float alpha = 1.0f;
+	if (sdkmt.Ambient.x == 0 && sdkmt.Ambient.y == 0 && sdkmt.Ambient.z == 0 && sdkmt.Ambient.w == 0
+		&& sdkmt.Diffuse.x == 0 && sdkmt.Diffuse.y == 0 && sdkmt.Diffuse.z == 0 && sdkmt.Diffuse.w == 0)
+	{
+		/// SDKMESH material color block is uninitalized; assume defaults
+		mt.Set(Material::eDiffuse, Vec4(1.0f, 1.0f, 1.0f, 0.0f));
+		alpha = 1.f;
+	}
+	else
+	{
+		mt.Set(Material::eDiffuse, sdkmt.Diffuse);
+		/// info.ambientColor = XMFLOAT3(mh.Ambient.x, mh.Ambient.y, mh.Ambient.z);
+		/// info.emissiveColor = XMFLOAT3(mh.Emissive.x, mh.Emissive.y, mh.Emissive.z);
 
+		if (sdkmt.Diffuse.w != 1.f && sdkmt.Diffuse.w != 0.f)
+		{
+			alpha = sdkmt.Diffuse.w;
+		}
+		else
+		{
+			alpha = 1.f;
+		}
+
+		if (sdkmt.Power)
+		{
+			mt.Set(Material::eSpecular, Vec4(sdkmt.Specular.x, sdkmt.Specular.y, sdkmt.Specular.z, sdkmt.Power));
+		}
+	}
+
+	if (strlen(sdkmt.DiffuseTexture) > 0U)
+	{
+		mt.Set(Material::eDiffuse, sdkmt.DiffuseTexture, true);
+	}
+	if (strlen(sdkmt.SpecularTexture) > 0U)
+	{
+		mt.Set(Material::eSpecular, sdkmt.SpecularTexture, true);
+	}
+	if (strlen(sdkmt.NormalTexture) > 0U)
+	{
+		mt.Set(Material::eNormal, sdkmt.NormalTexture, true);
+	}
+
+	return alpha < 1.0f;
+}
+
+void SDKMesh::LoadMeshs(const uint8_t *pData, size_t dataSize, const SDKMeshHeader &header, bool ccw, bool alpha)
+{
+	assert(dataSize >= header.MeshDataOffset && dataSize >= (header.MeshDataOffset + header.NumMeshes * sizeof(SDKMeshMesh)));
 	auto meshArray = reinterpret_cast<const SDKMeshMesh *>(pData + header.MeshDataOffset);
+
+	assert(dataSize >= header.SubsetDataOffset && dataSize >= (header.SubsetDataOffset + header.NumTotalSubsets * sizeof(SDKMeshSubset)));
+	auto subsetArray = reinterpret_cast<const SDKMeshSubset *>(pData + header.SubsetDataOffset);
+
+	assert(dataSize >= header.MaterialDataOffset && dataSize >= (header.MaterialDataOffset + header.NumMaterials * sizeof(SDKMeshMaterial)));
+	auto materialArray = reinterpret_cast<const SDKMeshMaterial *>(pData + header.MaterialDataOffset);
+
+	auto vbArray = reinterpret_cast<const SDKMeshVertexBufferHeader *>(pData + header.VertexStreamHeadersOffset);
+	auto ibArray = reinterpret_cast<const SDKMeshIndexBufferHeader *>(pData + header.IndexStreamHeadersOffset);
+
 	for (uint32_t i = 0U; i < header.NumMeshes; ++i)
 	{
 		auto& mh = meshArray[i];
@@ -104,10 +160,59 @@ void SDKMesh::LoadMeshs(const uint8_t *pData, size_t dataSize, const SDKMeshHead
 		{
 			assert(dataSize >= mh.FrameInfluenceOffset && dataSize >= (mh.FrameInfluenceOffset + mh.NumFrameInfluences * sizeof(uint32_t)));
 		}
+
+		auto mesh = std::make_shared<ModelMesh>();
+		mesh->CCW = ccw;
+		mesh->Alpha = alpha;
+		mesh->MeshBoundingBox.Center = mh.BoundingBoxCenter;
+		mesh->MeshBoundingBox.Extents = mh.BoundingBoxExtents;
+
+		mesh->MeshParts.reserve(mh.NumSubsets);
+		ePrimitiveTopology ptType;
+		for (uint32_t j = 0U; j < mh.NumSubsets; ++j)
+		{
+			auto sIndex = subsets[j];
+			
+			assert(sIndex < header.NumTotalSubsets);
+
+			auto &subset = subsetArray[sIndex];
+
+			switch (subset.PrimitiveType)
+			{
+			case eTriangle_List:      ptType = eTriangleList;     break;
+			case eTriangle_Strip:     ptType = eTriangleStrip;    break;
+			case eLine_List:          ptType = eLineList;         break;
+			case eLine_Strip:         ptType = eLineStrip;        break;
+			case ePoint_List:         ptType = ePointList;        break;
+			case eTriangle_List_Adj:  ptType = eTriangleListAdj;  break;
+			case eTriangle_Strip_Adj: ptType = eTriangleStripAdj; break;
+			case eLine_List_Adj:      ptType = eLineListAdj;      break;
+			case eLine_Strip_Adj:     ptType = eLineStripAdj;     break;
+			default:                  assert(0);                  break;
+			}
+
+			assert(subset.MaterialID < header.NumMaterials);
+
+			auto meshPart = new ModelMesh::MeshPart();
+			meshPart->Mt = new Material();
+			meshPart->IsAlpha = LoadMaterial(materialArray[subset.MaterialID], *meshPart->Mt);
+			meshPart->IndexCount = static_cast<uint32_t>(subset.IndexCount);
+			meshPart->StartIndex = static_cast<uint32_t>(subset.IndexStart);
+			meshPart->VertexOffset = static_cast<uint32_t>(subset.VertexStart);
+			meshPart->VertexStride = static_cast<uint32_t>(vbArray[mh.VertexBuffers[0]].StrideBytes);
+			meshPart->IndexFormat = (ibArray[mh.IndexBuffer].IndexType == eIndexType_32Bit) ? eR32_UInt : eR16_UInt;
+			meshPart->PrimitiveType = ptType;
+			meshPart->IndexBuffer = m_IndexBuffers[mh.IndexBuffer];
+			meshPart->VertexBuffer = m_VertexBuffers[mh.VertexBuffers[0]];
+
+			mesh->MeshParts.emplace_back(meshPart);
+		}
+
+		m_Meshs.emplace_back(mesh);
 	}
 }
 
-void SDKMesh::CreateFromFile(const char *pFileName)
+void SDKMesh::CreateEx(const char *pFileName, bool ccw, bool alpha)
 {
 	assert(!m_Created && pFileName && System::IsStrEndwith(pFileName, ".sdkmesh"));
 
@@ -135,7 +240,7 @@ void SDKMesh::CreateFromFile(const char *pFileName)
 	SDKMeshHeader header = LoadHeader(pData.get(), fileSize);
 	LoadVertexBuffers(pData.get(), fileSize, header);
 	LoadIndexBuffers(pData.get(), fileSize, header);
-	LoadMeshs(pData.get(), fileSize, header);
+	LoadMeshs(pData.get(), fileSize, header, ccw, alpha);
 
 	::SetCurrentDirectoryA(oldWorkingDir);
 
@@ -232,6 +337,12 @@ void SDKMesh::Draw(bool bAlphaParts, bool bDisableMaterial)
 {
 	assert(m_Created);
 
+	if (m_ExtVertexLayout)
+	{
+		assert(m_VertexLayout.IsValid());
+		D3DEngine::Instance().SetInputLayout(m_VertexLayout);
+	}
+
 	/// Draw opaque parts
 	for (auto it = m_Model->meshes.cbegin(); it != m_Model->meshes.cend(); ++it)
 	{
@@ -249,13 +360,6 @@ void SDKMesh::Draw(bool bAlphaParts, bool bDisableMaterial)
 				continue;
 			}
 
-			if (m_ExtVertexLayout)
-			{
-				assert(m_VertexLayout.IsValid());
-
-				D3DEngine::Instance().SetInputLayout(m_VertexLayout);
-			}
-
 			SetupVertexIndex(part);
 
 			SetupMaterial(part, bDisableMaterial);
@@ -263,6 +367,45 @@ void SDKMesh::Draw(bool bAlphaParts, bool bDisableMaterial)
 			D3DEngine::Instance().DrawIndexed(part->indexCount, part->startIndex, part->vertexOffset, part->primitiveType);
 		}
 	}
+}
+
+void SDKMesh::DrawEx(bool bAlphaParts, bool bDisableMaterial)
+{
+	assert(m_Created);
+
+	assert(m_VertexLayout.IsValid());
+	D3DEngine::Instance().SetInputLayout(m_VertexLayout);
+
+	/// Draw opaque parts
+	for (auto it = m_Meshs.cbegin(); it != m_Meshs.cend(); ++it)
+	{
+		auto mesh = it->get();
+		assert(mesh);
+
+		for (auto it = mesh->MeshParts.cbegin(); it != mesh->MeshParts.cend(); ++it)
+		{
+			auto part = (*it).get();
+			assert(part);
+
+			if (part->IsAlpha != bAlphaParts)
+			{
+				/// Skip alpha parts when drawing opaque or skip opaque parts if drawing alpha
+				continue;
+			}
+
+			D3DEngine::Instance().SetVertexBuffer(part->VertexBuffer, part->VertexStride, 0U);
+			D3DEngine::Instance().SetIndexBuffer(part->IndexBuffer, part->IndexFormat, 0U);
+
+			ApplyMaterial(bDisableMaterial ? nullptr : part->Mt);
+
+			D3DEngine::Instance().DrawIndexed(part->IndexCount, part->StartIndex, part->VertexOffset, part->PrimitiveType);
+		}
+	}
+}
+
+SDKMesh::ModelMesh::MeshPart::~MeshPart()
+{
+	SafeDelete(Mt);
 }
 
 NamespaceEnd(Geometry)
