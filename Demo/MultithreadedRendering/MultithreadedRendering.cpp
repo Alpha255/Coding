@@ -85,7 +85,19 @@ void AppMultithreadedRendering::InitMirrorResource()
 	MirrorNormals[3] = Vec3(-5.22129E-08f, -0.076279957f, 0.99708644f);
 
 	Vec2 MirrorResolution[eNumMirrors];
-	MirrorResolution[0].x = 320.0f;
+	MirrorResolution[0].x = MirrorResolution[1].x = MirrorResolution[2].x = MirrorResolution[3].x = 320.0f;
+	MirrorResolution[0].y = (MirrorResolution[0].x * MirrorSize[0].y / MirrorSize[0].x);
+	MirrorResolution[1].y = (MirrorResolution[1].x * MirrorSize[1].y / MirrorSize[1].x);
+	MirrorResolution[2].y = (MirrorResolution[2].x * MirrorSize[2].y / MirrorSize[2].x);
+	MirrorResolution[3].y = (MirrorResolution[3].x * MirrorSize[3].y / MirrorSize[3].x);
+
+	Vec3 MirrorCorners[eNumMirrors];
+	MirrorCorners[0] = Vec3(-1.0f, -1.0f, 0.0f);
+	MirrorCorners[1] = Vec3(1.0f, -1.0f, 0.0f);
+	MirrorCorners[2] = Vec3(-1.0f, 1.0f, 0.0f);
+	MirrorCorners[3] = Vec3(1.0f, 1.0f, 0.0f);
+
+	m_VertexBufferMirror.CreateAsVertexBuffer(sizeof(MirrorRect), D3DBuffer::eGpuReadCpuWrite, nullptr);
 
 	for (uint32_t i = 0U; i < eNumMirrors; ++i)
 	{
@@ -93,6 +105,15 @@ void AppMultithreadedRendering::InitMirrorResource()
 		m_StaticParamsMirrors[i].StencilRef = 0x01;
 		m_StaticParamsMirrors[i].RasterizerState = D3DStaticState::Solid;
 		m_StaticParamsMirrors[i].TintColor = Vec4(0.3f, 0.5f, 1.0f, 1.0f);
+		m_StaticParamsMirrors[i].MirrorPlane = Math::GetPlaneFromPointNormal(MirrorCenters[i], MirrorNormals[i]);
+
+		for (uint32_t j = 0U; j < eNumMirrors; ++j)
+		{
+			m_MirrorRect[i][j].Position = Vec3(0.5f * MirrorSize[i].x * MirrorCorners[j].x, 0.5f * MirrorSize[i].y * MirrorCorners[j].y, MirrorCorners[j].z);
+			m_MirrorRect[i][j].Normal = Vec3(0.0f, 0.0f, 0.0f);
+			m_MirrorRect[i][j].Texcoord = Vec2(0.0f, 0.0f);
+			m_MirrorRect[i][j].Tangent = Vec3(0.0f, 0.0f, 0.0f);
+		}
 	}
 }
 
@@ -174,6 +195,55 @@ void AppMultithreadedRendering::PerSceneRenderTask(uint32_t taskID)
 void AppMultithreadedRendering::PerChunkRenderTask()
 {
 
+}
+
+void AppMultithreadedRendering::SetupScene(const D3DContext &ctxInUse, const StaticParams &params)
+{
+	D3DEngine::Instance().SetContext(ctxInUse);
+
+	bool bShadow = params.DepthStencilView.IsValid();
+
+	if (bShadow)
+	{
+		D3DShaderResourceView EmptySRV;
+		D3DEngine::Instance().SetShaderResourceView(EmptySRV, 0U, D3DShader::ePixelShader);
+		D3DEngine::Instance().SetShaderResourceView(EmptySRV, 1U, D3DShader::ePixelShader);
+
+		D3DEngine::Instance().SetViewport(params.Viewport, 0U);
+
+		D3DRenderTargetView EmptyRTV;
+		D3DEngine::Instance().SetRenderTargetView(EmptyRTV, 0U);
+		D3DEngine::Instance().SetDepthStencilView(params.DepthStencilView);
+	}
+	else
+	{
+		for (uint32_t i = 0U; i < eNumShadows; ++i)
+		{
+			D3DEngine::Instance().SetShaderResourceView(m_ShadowSRV[i], i, D3DShader::ePixelShader);
+		}
+	}
+
+	D3DEngine::Instance().SetDepthStencilState(params.DepthStencilState, params.StencilRef);
+	D3DEngine::Instance().SetRasterizerState(params.RasterizerState);
+
+	D3DEngine::Instance().SetVertexShader(m_VertexShader);
+	///D3DEngine::Instance().SetInputLayout(m_Layout);
+
+	/// Set Constant Buffer VS
+
+	if (bShadow)
+	{
+		D3DPixelShader EmptyPS;
+		D3DEngine::Instance().SetPixelShader(EmptyPS);
+	}
+	else
+	{
+		D3DEngine::Instance().SetPixelShader(m_PixelShader);
+
+		D3DEngine::Instance().SetSamplerState(D3DStaticState::LinearSampler, 0U, D3DShader::ePixelShader);
+
+		/// Set Constant Buffer PS
+	}
 }
 
 void AppMultithreadedRendering::DrawScene()

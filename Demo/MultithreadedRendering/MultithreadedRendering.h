@@ -44,6 +44,15 @@ protected:
 		Vec4 MirrorPlane = {};
 	};
 
+	struct MirrorVertex
+	{
+		Vec3 Position;
+		Vec3 Normal;
+		Vec2 Texcoord;
+		Vec3 Tangent;
+	};
+	typedef MirrorVertex MirrorRect[4];
+
 	inline bool IsDeferredPerSceneMode()
 	{
 		return eSingleThread_DefContext_PerScene == m_RenderingMode ||
@@ -78,7 +87,7 @@ protected:
 	void InitMirrorResource();
 	void InitWorkerThreads();
 
-	void SetupScene();
+	void SetupScene(const D3DContext &ctxInUse, const StaticParams &params);
 	void DrawScene();
 	void DrawSceneDirectly(const D3DContext &ctxInUse);
 	void DrawShadow(uint32_t iShadow, const D3DContext &ctxInUse);
@@ -109,6 +118,8 @@ private:
 	StaticParams m_StaticParamsDirectly;
 	StaticParams m_StaticParamsShadows[eNumShadows];
 	StaticParams m_StaticParamsMirrors[eNumMirrors];
+
+	MirrorRect m_MirrorRect[eNumMirrors];
 
 	Geometry::SDKMesh m_SquidRoom;
 };

@@ -502,62 +502,75 @@ inline float AngleFromXY(float x, float y)
 
 	return theta;
 }
-//
-//class Waves
-//{
-//public:
-//	Waves() 
-//		: m_Row(0U)
-//		, m_Column(0U)
-//		, m_VertexNum(0U)
-//		, m_TriangleNum(0U)
-//		, m_TimeStep(0.0f)
-//		, m_SpatialStep(0.0f)
-//		, m_K1(0.0f)
-//		, m_K2(0.0f)
-//		, m_K3(0.0f)
-//		, m_pCurSolution(nullptr)
-//		, m_pPrevSolution(nullptr)
-//		, m_pNormals(nullptr)
-//	{
-//	}
-//	~Waves() 
-//	{
-//		SafeDeleteArray(m_pPrevSolution);
-//		SafeDeleteArray(m_pCurSolution);
-//		SafeDeleteArray(m_pNormals);
-//	}
-//
-//	inline uint32_t Row() const { return m_Row; }
-//	inline uint32_t Column() const { return m_Column; }
-//	inline uint32_t VertexCount() const { return m_VertexNum; }
-//	inline uint32_t TriangleCount() const { return m_TriangleNum; }
-//	inline const Vec3& operator[](int i) const { return m_pCurSolution[i]; }
-//	inline const Vec3& Normal(int index) const { return m_pNormals[index]; }
-//	inline float Width() const { return m_Column * m_SpatialStep; }
-//	inline float Depth() const { return m_Row * m_SpatialStep; }
-//
-//	void Create(uint32_t row, uint32_t col, float spatialStep, float timeStep, float speed, float damping);
-//	void Update(float fElapsed);
-//	void Disturb(uint32_t i, uint32_t j, float magnitude);
-//protected:
-//private:
-//	uint32_t m_Row;
-//	uint32_t m_Column;
-//	uint32_t m_VertexNum;
-//	uint32_t m_TriangleNum;
-//
-//	float m_TimeStep;
-//	float m_SpatialStep;
-//
-//	float m_K1;
-//	float m_K2;
-//	float m_K3;
-//
-//	Vec3* m_pPrevSolution;
-//	Vec3* m_pCurSolution;
-//	Vec3* m_pNormals;
-//};
+
+inline Vec4 GetPlaneFromPointNormal(const Vec3 &point, const Vec3 &normal)
+{
+	DirectX::XMVECTOR pointVec = DirectX::XMVectorSet(point.x, point.y, point.z, 0.0f);
+	DirectX::XMVECTOR normalVec = DirectX::XMVectorSet(normal.x, normal.y, normal.z, 0.0f);
+
+	DirectX::XMVECTOR plane = DirectX::XMPlaneFromPointNormal(pointVec, normalVec);
+
+	Vec4 result;
+	DirectX::XMStoreFloat4(&result, plane);
+
+	return result;
+}
+///
+///class Waves
+///{
+///public:
+///	Waves() 
+///		: m_Row(0U)
+///		, m_Column(0U)
+///		, m_VertexNum(0U)
+///		, m_TriangleNum(0U)
+///		, m_TimeStep(0.0f)
+///		, m_SpatialStep(0.0f)
+///		, m_K1(0.0f)
+///		, m_K2(0.0f)
+///		, m_K3(0.0f)
+///		, m_pCurSolution(nullptr)
+///		, m_pPrevSolution(nullptr)
+///		, m_pNormals(nullptr)
+///	{
+///	}
+///	~Waves() 
+///	{
+///		SafeDeleteArray(m_pPrevSolution);
+///		SafeDeleteArray(m_pCurSolution);
+///		SafeDeleteArray(m_pNormals);
+///	}
+///
+///	inline uint32_t Row() const { return m_Row; }
+///	inline uint32_t Column() const { return m_Column; }
+///	inline uint32_t VertexCount() const { return m_VertexNum; }
+///	inline uint32_t TriangleCount() const { return m_TriangleNum; }
+///	inline const Vec3& operator[](int i) const { return m_pCurSolution[i]; }
+///	inline const Vec3& Normal(int index) const { return m_pNormals[index]; }
+///	inline float Width() const { return m_Column * m_SpatialStep; }
+///	inline float Depth() const { return m_Row * m_SpatialStep; }
+///
+///	void Create(uint32_t row, uint32_t col, float spatialStep, float timeStep, float speed, float damping);
+///	void Update(float fElapsed);
+///	void Disturb(uint32_t i, uint32_t j, float magnitude);
+///protected:
+///private:
+///	uint32_t m_Row;
+///	uint32_t m_Column;
+///	uint32_t m_VertexNum;
+///	uint32_t m_TriangleNum;
+///
+///	float m_TimeStep;
+///	float m_SpatialStep;
+///
+///	float m_K1;
+///	float m_K2;
+///	float m_K3;
+///
+///	Vec3* m_pPrevSolution;
+///	Vec3* m_pCurSolution;
+///	Vec3* m_pNormals;
+///};
 NamespaceEnd(Math)
 
 NamespaceBegin(Color)
