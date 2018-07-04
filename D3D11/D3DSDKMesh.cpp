@@ -267,7 +267,7 @@ void SDKMesh::Create(const char *pFileName, bool bLoadVertexLayout)
 	std::string curWorkdingDir(filePath.begin(), filePath.begin() + pos);
 	::SetCurrentDirectoryA(curWorkdingDir.c_str());
 
-	m_Model = DirectX::Model::CreateFromSDKMESH(pDevice, wfilePath.c_str(), effect, false, false, bLoadVertexLayout);
+	m_Model = DirectX::Model::CreateFromSDKMESH(pDevice, wfilePath.c_str(), effect, false, false/*, bLoadVertexLayout*/);
 
 	::SetCurrentDirectoryA(oldWorkingDir);
 
@@ -314,23 +314,23 @@ void SDKMesh::SetupMaterial(const DirectX::ModelMeshPart *pModelPart, bool bDisa
 
 	assert(pModelPart);
 
-	DirectX::IEffect *pEffect = pModelPart->effect.get();
-	if (pEffect)
-	{
-		std::vector<ID3D11ShaderResourceView *> textures = pEffect->GetTextures();
-		for (uint32_t i = 0U; i < textures.size(); ++i)
-		{
-			D3DShaderResourceView texture;
-			texture.MakeObject(textures[i]);
-
-			D3DEngine::Instance().SetShaderResourceView(texture, i, D3DShader::ePixelShader);
-		}
-
-		if (textures.size() > 0)
-		{
-			D3DEngine::Instance().SetSamplerState(D3DStaticState::LinearSampler, 0U, D3DShader::ePixelShader);
-		}
-	}
+	///DirectX::IEffect *pEffect = pModelPart->effect.get();
+	///if (pEffect)
+	///{
+	///	std::vector<ID3D11ShaderResourceView *> textures = pEffect->GetTextures();
+	///	for (uint32_t i = 0U; i < textures.size(); ++i)
+	///	{
+	///		D3DShaderResourceView texture;
+	///		texture.MakeObject(textures[i]);
+	
+	///		D3DEngine::Instance().SetShaderResourceView(texture, i, D3DShader::ePixelShader);
+	///	}
+	
+	///	if (textures.size() > 0)
+	///	{
+	///		D3DEngine::Instance().SetSamplerState(D3DStaticState::LinearSampler, 0U, D3DShader::ePixelShader);
+	///	}
+	///}
 }
 
 void SDKMesh::Draw(bool bAlphaParts, bool bDisableMaterial)
