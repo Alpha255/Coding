@@ -515,6 +515,18 @@ inline Vec4 GetPlaneFromPointNormal(const Vec3 &point, const Vec3 &normal)
 
 	return result;
 }
+
+inline float PlaneDotCoord(const Vec4 &plane, const Vec4 &coord)
+{
+	DirectX::XMVECTOR planeVec = DirectX::XMVectorSet(plane.x, plane.y, plane.z, plane.w);
+	DirectX::XMVECTOR coordVec = DirectX::XMVectorSet(coord.x, coord.y, coord.z, coord.w);
+	DirectX::XMVECTOR dot = DirectX::XMPlaneDotCoord(planeVec, coordVec);
+
+	float result;
+	DirectX::XMStoreFloat(&result, dot);
+
+	return result;
+}
 ///
 ///class Waves
 ///{

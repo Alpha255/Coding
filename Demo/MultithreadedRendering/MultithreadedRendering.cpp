@@ -16,16 +16,6 @@ struct LightParams
 	Vec4 Direction;
 	Vec4 Color;
 	Vec4 Falloff;
-
-	float FOV;
-	float Aspect;
-	float NearPlane;
-	float FarPlane;
-
-	float FalloffDistEnd;
-	float FalloffDistRange;
-	float FalloffCosAngleEnd;
-	float FalloffCosAngleRange;
 };
 
 struct ConstantBufferVS
@@ -37,18 +27,35 @@ struct ConstantBufferVS
 
 struct ConstantBufferPS
 {
-	Vec4 EyePos;
+	Vec4 TintColor = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
-	PointLight Lights[4];
-
+	Vec4 AmbientColor = Vec4(0.04f * 0.760f, 0.04f * 0.793f, 0.04f * 0.822f, 1.0f);
 	LightParams LightParams[4];
+
+	Matrix CalcLightMatrix(uint32_t iLight, float fov, float aspect, float nearPlane, float farPlane)
+	{
+		const float SceneRadius = 600.0f;
+
+		const Vec4 &LightDir = LightParams[iLight].Direction;
+		const Vec4 &LightPos = LightParams[iLight].Position;
+		const Vec3 Up = Vec3(0.0f, 1.0f, 0.0f);
+
+		Vec4 lookAt = LightPos + LightDir * SceneRadius;
+
+		Matrix view = Matrix::LookAtLH(Vec3(LightPos.x, LightPos.y, LightPos.z), Vec3(lookAt.x, lookAt.y, lookAt.z), Up);
+		Matrix proj = Matrix::PerspectiveFovLH(fov, aspect, nearPlane, farPlane);
+
+		return view * proj;
+	}
 
 	ConstantBufferPS()
 	{
 		const float SceneRadius = 600.0f;
 		const Vec4 SceneCenter = Vec4(0.0f, 350.0f, 0.0f, 1.0f);
+		const float FOV[4] = { Math::XM_PI / 4.0f , 65.0f * (Math::XM_PI / 180.0f), 65.0f * (Math::XM_PI / 180.0f), 65.0f * (Math::XM_PI / 180.0f) };
 
-		LightParams[0].Color = Vec4(3.0f * 0.160f, 3.0f * 0.341f, 3.0f * 1.000f, 1.0f);
+		///LightParams[0].Color = Vec4(3.0f * 0.160f, 3.0f * 0.341f, 3.0f * 1.000f, 1.0f);
+		LightParams[0].Color = Vec4(1.0f, 0.8f, 1.0f, 1.0f);
 		LightParams[0].Direction = Vec4(-0.67f, -0.71f, +0.21f, 0.0);
 		LightParams[0].Position = SceneCenter - LightParams[0].Direction * SceneRadius;
 		
@@ -64,57 +71,11 @@ struct ConstantBufferPS
 		LightParams[3].Direction = Vec4(0.00f, -1.00f, 0.00f, 0.0f);
 		LightParams[3].Position = Vec4(0.0f, 400.0f, 250.0f, 1.0f);
 
-		LightParams[0].FOV = Math::XM_PI / 4.0f;
-		LightParams[1].FOV = LightParams[2].FOV = LightParams[3].FOV = 65.0f * (Math::XM_PI / 180.0f);
-
 		for (uint32_t i = 0U; i < 4U; ++i)
 		{
-			LightParams[i].Aspect = 1.0f;
-			LightParams[i].NearPlane = 100.0f;
-			LightParams[i].FarPlane = 2.0f * SceneRadius;
-
-			LightParams[i].FalloffDistEnd = LightParams[i].FarPlane;
-			LightParams[i].FalloffDistRange = 100.0f;
-
-			LightParams[i].FalloffCosAngleEnd = cosf(LightParams[i].FOV / 2.0f);
-			LightParams[i].FalloffCosAngleRange = 0.1f;
+			LightParams[i].WVP = Matrix::Transpose(CalcLightMatrix(i, FOV[i], 1.0f, 100.0f, 2.0f * SceneRadius));
+			LightParams[i].Falloff = Vec4(2.0f * SceneRadius, 100.0f, cosf(FOV[i] / 2.0f), 0.1f);
 		}
-
-		Lights[0].Ambient = Vec4(0.04f * 0.760f, 0.04f * 0.793f, 0.04f * 0.822f, 1.000);
-		Lights[0].Diffuse = Vec4(3.0f * 0.160f, 3.0f * 0.341f, 3.0f * 1.000f, 1.000f);
-		Lights[0].Position = Vec3(0.0f, 350.0f, 0.0f) - Vec3(-0.67f, -0.71f, +0.21f) * SceneRadius;
-
-		Lights[1].Diffuse = Vec4(0.4f * 0.895f, 0.4f * 0.634f, 0.4f * 0.626f, 1.0f);
-		Lights[1].Position = Vec3(0.0f, 400.0f, -250.0f);
-
-		Lights[2].Diffuse = Vec4(0.5f * 0.388f, 0.5f * 0.641f, 0.5f * 0.401f, 1.0f);
-		Lights[2].Position = Vec3(0.0f, 400.0f, 0.0f);
-
-		Lights[3].Diffuse = Vec4(0.4f * 1.000f, 0.4f * 0.837f, 0.4f * 0.848f, 1.0f);
-		Lights[3].Position = Vec3(0.0f, 400.0f, 250.0f);
-
-		Lights[0].Range = 
-		Lights[1].Range = 
-		Lights[2].Range = 
-		Lights[3].Range = 3000.0f;
-	}
-
-	Matrix CalcLightMatrix(uint32_t iLight)
-	{
-		const float SceneRadius = 600.0f;
-
-		const Vec4 &LightDir = LightParams[iLight].Direction;
-		const Vec4 &LightPos = LightParams[iLight].Position;
-		const Vec4 Up = Vec4(0.0f, 1.0f, 0.0f, 0.0f);
-
-		Vec4 lookAt = LightPos + LightDir * SceneRadius;
-
-		Matrix view = *(Matrix *)&Math::XMMatrixLookAtLH(Math::XMLoadFloat4(&LightPos), 
-			Math::XMLoadFloat4(&lookAt), Math::XMLoadFloat4(&Up));
-		Matrix proj = *(Matrix *)&Math::XMMatrixPerspectiveFovLH(LightParams[iLight].FOV, 
-			LightParams[iLight].Aspect, LightParams[iLight].NearPlane, LightParams[iLight].FarPlane);
-
-		return view * proj;
 	}
 };
 
@@ -202,6 +163,9 @@ void AppMultithreadedRendering::InitMirrorResource()
 	MirrorCorners[2] = Vec3(-1.0f, 1.0f, 0.0f);
 	MirrorCorners[3] = Vec3(1.0f, 1.0f, 0.0f);
 
+	Vec3 MirrorPointAt[eNumMirrors];
+	const Vec3 Up(0.0f, 1.0f, 0.0f);
+
 	m_VertexBufferMirror.CreateAsVertexBuffer(sizeof(MirrorRect), D3DBuffer::eGpuReadCpuWrite, nullptr);
 
 	for (uint32_t i = 0U; i < eNumMirrors; ++i)
@@ -211,6 +175,9 @@ void AppMultithreadedRendering::InitMirrorResource()
 		m_StaticParamsMirrors[i].RasterizerState = D3DStaticState::Solid;
 		m_StaticParamsMirrors[i].TintColor = Vec4(0.3f, 0.5f, 1.0f, 1.0f);
 		m_StaticParamsMirrors[i].MirrorPlane = Math::GetPlaneFromPointNormal(MirrorCenters[i], MirrorNormals[i]);
+
+		MirrorPointAt[i] = MirrorNormals[i] + MirrorCenters[i];
+		m_MirrorWorld[i] = Matrix::Transpose(Matrix::LookAtLH(MirrorPointAt[i], MirrorCenters[i], Up));
 
 		for (uint32_t j = 0U; j < eNumMirrors; ++j)
 		{
@@ -370,6 +337,21 @@ void AppMultithreadedRendering::DrawShadow(uint32_t iShadow, const D3DContext &c
 void AppMultithreadedRendering::DrawMirror(uint32_t iMirror, const D3DContext &ctxInUse)
 {
 	D3DEngine::Instance().SetContext(ctxInUse);
+
+	Vec4 eyePos = m_Camera->GetEyePos();
+	Matrix wvp = m_Camera->GetWVPMatrix();
+
+	/// Test for back-facing mirror (from whichever pov we are using)
+	const Vec4 &plane = m_StaticParamsMirrors[iMirror].MirrorPlane;
+	if (Math::PlaneDotCoord(plane, eyePos) < 0.0f)
+	{
+		return;
+	}
+
+	Matrix reflectMatrix = Matrix::Reflect(plane.x, plane.y, plane.z);
+
+	/// Set up the mirror local-to-world matrix
+
 }
 
 void AppMultithreadedRendering::RenderScene()
@@ -408,16 +390,28 @@ void AppMultithreadedRendering::RenderScene()
 	g_CBufferVS.WorldInverse = Matrix::InverseTranspose(world);
 	m_CBufferVS.Update(&g_CBufferVS, sizeof(ConstantBufferVS));
 
-	g_CBufferPS.EyePos = m_Camera->GetEyePos();
 	m_CBufferPS.Update(&g_CBufferPS, sizeof(ConstantBufferPS));
 
 	///m_SquidRoom.Draw(false);
 	m_SquidRoom.DrawEx(false);
 
-	for (uint32_t i = 0U; i < 4U; ++i)
-	{
-		Light::DebugDisplay(g_CBufferPS.Lights[i].Position, Light::ePoint, *m_Camera, 10.0f);
-	}
-
 	ImGui::Text("%.2f FPS", m_FPS);
+}
+
+void AppMultithreadedRendering::Update(float deltaTime, float totalTime)
+{
+	Vec4 Down(0.0f, -1.0f, 0.0f, 0.0f);
+	totalTime += deltaTime;
+
+	float fCycle1X = 0.0f;
+	float fCycle1Z = 0.20f * sinf(2.0f * (totalTime + 0.0f * Math::XM_PI));
+	g_CBufferPS.LightParams[1].Direction = Down + Vec4(fCycle1X, 0.0f, fCycle1Z, 0.0f);
+
+	float fCycle2X = 0.10f * cosf(1.6f * (totalTime + 0.3f * Math::XM_PI));
+	float fCycle2Z = 0.10f * sinf(1.6f * (totalTime + 0.0f * Math::XM_PI));
+	g_CBufferPS.LightParams[2].Direction = Down + Vec4(fCycle2X, 0.0f, fCycle2Z, 0.0f);
+
+	float fCycle3X = 0.30f * cosf(2.4f * (totalTime + 0.3f * Math::XM_PI));
+	float fCycle3Z = 0.0f;
+	g_CBufferPS.LightParams[3].Direction = Down + Vec4(fCycle3X, 0.0f, fCycle3Z, 0.0f);
 }

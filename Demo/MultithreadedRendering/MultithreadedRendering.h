@@ -13,6 +13,7 @@ public:
 
 	virtual void Initialize() override;
 	virtual void RenderScene() override;
+	virtual void Update(float deltaTime, float totalTime) override;
 protected:
 	enum eRenderingMode
 	{
@@ -121,6 +122,7 @@ private:
 	StaticParams m_StaticParamsMirrors[eNumMirrors];
 
 	MirrorRect m_MirrorRect[eNumMirrors];
+	Matrix m_MirrorWorld[eNumMirrors];
 
 	Geometry::SDKMesh m_SquidRoom;
 };
