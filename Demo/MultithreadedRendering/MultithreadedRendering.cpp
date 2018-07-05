@@ -4,8 +4,29 @@
 #include "D3DEngine.h"
 #include "D3DGUI_imGui.h"
 #include "D3DTexture.h"
+#include "D3DLighting.h"
 
 #include <thread>
+
+struct LightParams
+{
+	Matrix WVP;
+
+	Vec4 Position;
+	Vec4 Direction;
+	Vec4 Color;
+	Vec4 Falloff;
+
+	float FOV;
+	float Aspect;
+	float NearPlane;
+	float FarPlane;
+
+	float FalloffDistEnd;
+	float FalloffDistRange;
+	float FalloffCosAngleEnd;
+	float FalloffCosAngleRange;
+};
 
 struct ConstantBufferVS
 {
@@ -14,7 +35,91 @@ struct ConstantBufferVS
 	Matrix WorldInverse;
 };
 
+struct ConstantBufferPS
+{
+	Vec4 EyePos;
+
+	PointLight Lights[4];
+
+	LightParams LightParams[4];
+
+	ConstantBufferPS()
+	{
+		const float SceneRadius = 600.0f;
+		const Vec4 SceneCenter = Vec4(0.0f, 350.0f, 0.0f, 1.0f);
+
+		LightParams[0].Color = Vec4(3.0f * 0.160f, 3.0f * 0.341f, 3.0f * 1.000f, 1.0f);
+		LightParams[0].Direction = Vec4(-0.67f, -0.71f, +0.21f, 0.0);
+		LightParams[0].Position = SceneCenter - LightParams[0].Direction * SceneRadius;
+		
+		LightParams[1].Color = Vec4(0.4f * 0.895f, 0.4f * 0.634f, 0.4f * 0.626f, 1.0f);
+		LightParams[1].Direction = Vec4(0.00f, -1.00f, 0.00f, 0.0f);
+		LightParams[1].Position = Vec4(0.0f, 400.0f, -250.0f, 1.0f);
+		
+		LightParams[2].Color = Vec4(0.5f * 0.388f, 0.5f * 0.641f, 0.5f * 0.401f, 1.0f);
+		LightParams[2].Direction = Vec4(0.00f, -1.00f, 0.00f, 0.0f);
+		LightParams[2].Position = Vec4(0.0f, 400.0f, 0.0f, 1.0f);
+		
+		LightParams[3].Color = Vec4(0.4f * 1.000f, 0.4f * 0.837f, 0.4f * 0.848f, 1.0f);
+		LightParams[3].Direction = Vec4(0.00f, -1.00f, 0.00f, 0.0f);
+		LightParams[3].Position = Vec4(0.0f, 400.0f, 250.0f, 1.0f);
+
+		LightParams[0].FOV = Math::XM_PI / 4.0f;
+		LightParams[1].FOV = LightParams[2].FOV = LightParams[3].FOV = 65.0f * (Math::XM_PI / 180.0f);
+
+		for (uint32_t i = 0U; i < 4U; ++i)
+		{
+			LightParams[i].Aspect = 1.0f;
+			LightParams[i].NearPlane = 100.0f;
+			LightParams[i].FarPlane = 2.0f * SceneRadius;
+
+			LightParams[i].FalloffDistEnd = LightParams[i].FarPlane;
+			LightParams[i].FalloffDistRange = 100.0f;
+
+			LightParams[i].FalloffCosAngleEnd = cosf(LightParams[i].FOV / 2.0f);
+			LightParams[i].FalloffCosAngleRange = 0.1f;
+		}
+
+		Lights[0].Ambient = Vec4(0.04f * 0.760f, 0.04f * 0.793f, 0.04f * 0.822f, 1.000);
+		Lights[0].Diffuse = Vec4(3.0f * 0.160f, 3.0f * 0.341f, 3.0f * 1.000f, 1.000f);
+		Lights[0].Position = Vec3(0.0f, 350.0f, 0.0f) - Vec3(-0.67f, -0.71f, +0.21f) * SceneRadius;
+
+		Lights[1].Diffuse = Vec4(0.4f * 0.895f, 0.4f * 0.634f, 0.4f * 0.626f, 1.0f);
+		Lights[1].Position = Vec3(0.0f, 400.0f, -250.0f);
+
+		Lights[2].Diffuse = Vec4(0.5f * 0.388f, 0.5f * 0.641f, 0.5f * 0.401f, 1.0f);
+		Lights[2].Position = Vec3(0.0f, 400.0f, 0.0f);
+
+		Lights[3].Diffuse = Vec4(0.4f * 1.000f, 0.4f * 0.837f, 0.4f * 0.848f, 1.0f);
+		Lights[3].Position = Vec3(0.0f, 400.0f, 250.0f);
+
+		Lights[0].Range = 
+		Lights[1].Range = 
+		Lights[2].Range = 
+		Lights[3].Range = 3000.0f;
+	}
+
+	Matrix CalcLightMatrix(uint32_t iLight)
+	{
+		const float SceneRadius = 600.0f;
+
+		const Vec4 &LightDir = LightParams[iLight].Direction;
+		const Vec4 &LightPos = LightParams[iLight].Position;
+		const Vec4 Up = Vec4(0.0f, 1.0f, 0.0f, 0.0f);
+
+		Vec4 lookAt = LightPos + LightDir * SceneRadius;
+
+		Matrix view = *(Matrix *)&Math::XMMatrixLookAtLH(Math::XMLoadFloat4(&LightPos), 
+			Math::XMLoadFloat4(&lookAt), Math::XMLoadFloat4(&Up));
+		Matrix proj = *(Matrix *)&Math::XMMatrixPerspectiveFovLH(LightParams[iLight].FOV, 
+			LightParams[iLight].Aspect, LightParams[iLight].NearPlane, LightParams[iLight].FarPlane);
+
+		return view * proj;
+	}
+};
+
 ConstantBufferVS g_CBufferVS;
+ConstantBufferPS g_CBufferPS;
 
 void AppMultithreadedRendering::InitShadowResource()
 {
@@ -154,6 +259,7 @@ void AppMultithreadedRendering::Initialize()
 	m_SquidRoom.SetInputLayout(m_Layout);
 
 	m_CBufferVS.CreateAsConstantBuffer(sizeof(ConstantBufferVS), D3DBuffer::eGpuReadCpuWrite);
+	m_CBufferPS.CreateAsConstantBuffer(sizeof(ConstantBufferPS), D3DBuffer::eGpuReadCpuWrite);
 
 	m_Camera->SetViewRadius(400.0f);
 
@@ -294,6 +400,7 @@ void AppMultithreadedRendering::RenderScene()
 	D3DEngine::Instance().SetPixelShader(m_PixelShader);
 
 	D3DEngine::Instance().SetConstantBuffer(m_CBufferVS, 0U, D3DShader::eVertexShader);
+	D3DEngine::Instance().SetConstantBuffer(m_CBufferPS, 0U, D3DShader::ePixelShader);
 
 	Matrix world = m_Camera->GetWorldMatrix();
 	g_CBufferVS.WVP = Matrix::Transpose(world * m_Camera->GetViewMatrix() * m_Camera->GetProjMatrix());
@@ -301,8 +408,16 @@ void AppMultithreadedRendering::RenderScene()
 	g_CBufferVS.WorldInverse = Matrix::InverseTranspose(world);
 	m_CBufferVS.Update(&g_CBufferVS, sizeof(ConstantBufferVS));
 
+	g_CBufferPS.EyePos = m_Camera->GetEyePos();
+	m_CBufferPS.Update(&g_CBufferPS, sizeof(ConstantBufferPS));
+
 	///m_SquidRoom.Draw(false);
 	m_SquidRoom.DrawEx(false);
+
+	for (uint32_t i = 0U; i < 4U; ++i)
+	{
+		Light::DebugDisplay(g_CBufferPS.Lights[i].Position, Light::ePoint, *m_Camera, 10.0f);
+	}
 
 	ImGui::Text("%.2f FPS", m_FPS);
 }

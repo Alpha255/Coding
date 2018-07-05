@@ -7,6 +7,13 @@ cbuffer cbVS
     matrix WorldInverse;
 }
 
+cbuffer cbPS
+{
+	float4 EyePos;
+	
+	PointLight Lights[4];
+};
+
 struct VSInput
 {
     float4 Pos : POSITION;
@@ -16,6 +23,7 @@ struct VSInput
 };
 
 Texture2D DiffuseTex;
+Texture2D NormalTex;
 SamplerState LinearSampler;
 
 VSOutput VSMain(VSInput vsInput)
@@ -32,6 +40,21 @@ VSOutput VSMain(VSInput vsInput)
 
 float4 PSMain(VSOutput psInput) : SV_Target
 {
-	///return float4(1.0f, 1.0f, 1.0f, 0.0f);
-	return DiffuseTex.Sample(LinearSampler, psInput.UV);
+	float4 normalMap = NormalTex.Sample(LinearSampler, psInput.UV);
+
+	Material RawMat;
+	RawMat.Diffuse = DiffuseTex.Sample(LinearSampler, psInput.UV);
+	RawMat.Specular = float4(1.0f, 1.0f, 1.0f, 1.0f);
+	RawMat.Normal = float4(UnpackNormal(normalMap.xyz, normalize(psInput.NormalW), psInput.TangentW), 0.0f);
+
+	float3 lightingClr = float3(0.0f, 0.0f, 0.0f);
+
+	[unroll]
+	for (uint i = 0; i < 4; ++i)
+	{
+		lightingClr += PointLighting(Lights[i], psInput.PosW, EyePos.xyz, RawMat);
+	}
+
+	///return RawMat.Normal;
+	return float4(lightingClr, 0.0f) + Lights[0].Ambient;
 }

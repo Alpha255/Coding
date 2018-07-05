@@ -98,6 +98,7 @@ private:
 	D3DVertexShader m_VertexShader;
 	D3DPixelShader m_PixelShader;
 	D3DBuffer m_CBufferVS;
+	D3DBuffer m_CBufferPS;
 
 	D3DInputLayout m_Layout;
 	D3DInputLayout m_LayoutMirror;
