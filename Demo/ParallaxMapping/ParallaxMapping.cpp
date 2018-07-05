@@ -76,7 +76,6 @@ void AppParallaxMapping::Initialize()
 
 void AppParallaxMapping::RenderScene()
 {
-	D3DEngine::Instance().SetVSync(m_VSync);
 	D3DEngine::Instance().SetPixelShader(m_PixelShader[m_MappingType]);
 
 	m_Floor.Bind(&m_FloorMaterial);
@@ -151,7 +150,6 @@ void AppParallaxMapping::RenderScene()
 		"ParallaxMappingWithOffsetLimit\0"
 		"ParallaxOcclusionMapping\0"
 		"DisplacementMapping");
-	ImGui::Checkbox("VSync", &m_VSync);
 	ImGui::Checkbox("Wireframe", &m_Wireframe);
 	///ImGui::SliderFloat3("LightDir", (float *)&g_CBufferPS.DirLight.Direction, -10.0f, 10.0f);
 }

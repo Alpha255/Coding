@@ -30,6 +30,9 @@ protected:
 
 	float m_FPS = 0.0f;
 
+	bool m_bVSync = false;
+	bool m_bFullScreen = false;
+
 	typedef D3DApp Base;
 
 	void UpdateFPS();

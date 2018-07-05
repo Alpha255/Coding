@@ -42,7 +42,6 @@ private:
 
 	D3DShaderResourceView m_HeightMap;
 
-	bool m_VSync = false;
 	bool m_Wireframe = false;
 
 	int32_t m_MappingType = eNormalMapping;
