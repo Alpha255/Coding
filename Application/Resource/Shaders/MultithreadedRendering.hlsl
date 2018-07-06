@@ -12,10 +12,10 @@ struct LightParams
 
 cbuffer cbVS
 {
-    matrix WVP;
     matrix World;
-    matrix WorldInverse;
-}
+	matrix WorldInverse;
+    matrix VP;
+};
 
 cbuffer cbPS
 {
@@ -62,7 +62,8 @@ float4 LightingColor(uint iLight, float3 vertexPos, float3 vertexNormal)
 VSOutput VSMain(VSInput vsInput)
 {
     VSOutput output;
-    output.PosH = mul(vsInput.Pos, WVP);
+	matrix wvp = mul(World, VP);
+	output.PosH = mul(vsInput.Pos, wvp);
     output.PosW = mul(vsInput.Pos, World).xyz;
     output.NormalW = mul(vsInput.Normal, (float3x3)WorldInverse);
     output.TangentW = mul(vsInput.Tangent, (float3x3)World);

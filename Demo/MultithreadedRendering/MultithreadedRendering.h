@@ -88,9 +88,9 @@ protected:
 	void InitMirrorResource();
 	void InitWorkerThreads();
 
-	void SetupScene(const D3DContext &ctxInUse, const StaticParams &params);
-	void DrawScene();
-	void DrawSceneDirectly(const D3DContext &ctxInUse);
+	void SetupScene(const StaticParams &params, const Matrix &vp);
+	void SetupMirror(uint32_t iMirror, const Matrix &vp);
+	void DrawScene(const StaticParams &params, const Matrix &vp);
 	void DrawShadow(uint32_t iShadow, const D3DContext &ctxInUse);
 	void DrawMirror(uint32_t iMirror, const D3DContext &ctxInUse);
 private:
@@ -105,6 +105,7 @@ private:
 	D3DInputLayout m_LayoutMirror;
 
 	D3DContext m_SceneDefContexts[eNumScenes];
+	D3DContext m_IMContext;
 	D3DCommandList m_SceneCmdList[eNumScenes];
 
 	D3DShaderResourceView m_ShadowSRV[eNumShadows];
