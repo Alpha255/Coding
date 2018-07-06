@@ -222,7 +222,7 @@ public:
 	///}
 };
 
-class Matrix : public DirectX::XMMATRIX
+class Matrix : public DirectX::XMFLOAT4X4A
 {
 public:
 	inline Matrix()
@@ -234,7 +234,7 @@ public:
 		float m10, float m11, float m12, float m13,
 		float m20, float m21, float m22, float m23,
 		float m30, float m31, float m32, float m33)
-		: DirectX::XMMATRIX(
+		: DirectX::XMFLOAT4X4A(
 			m00, m01, m02, m03,
 			m10, m11, m12, m13,
 			m20, m21, m22, m23,
@@ -243,36 +243,44 @@ public:
 	}
 
 	inline Matrix(const float* pArray)
-		: DirectX::XMMATRIX(pArray)
+		: DirectX::XMFLOAT4X4A(pArray)
 	{
 	}
 
 	inline void Transpose()
 	{
-		DirectX::XMMATRIX result = DirectX::XMMatrixTranspose(*this);
-
-		memcpy(this, &result, sizeof(DirectX::XMMATRIX));
+		DirectX::XMMATRIX target = DirectX::XMLoadFloat4x4A(this);
+		DirectX::XMMATRIX result = DirectX::XMMatrixTranspose(target);
+		DirectX::XMStoreFloat4x4A(this, result);
 	}
 
 	inline static Matrix Transpose(const Matrix &other)
 	{
-		DirectX::XMMATRIX result = DirectX::XMMatrixTranspose(other);
-		
-		return *(static_cast<Matrix*>(&result));
+		DirectX::XMMATRIX target = DirectX::XMLoadFloat4x4A(&other);
+		DirectX::XMMATRIX result = DirectX::XMMatrixTranspose(target);
+
+		Matrix returnValue;
+		DirectX::XMStoreFloat4x4A(&returnValue, result);
+
+		return returnValue;
 	}
 
 	inline void Inverse()
 	{
-		DirectX::XMMATRIX result = DirectX::XMMatrixInverse(nullptr, *this);
-
-		memcpy(this, &result, sizeof(DirectX::XMMATRIX));
+		DirectX::XMMATRIX target = DirectX::XMLoadFloat4x4A(this);
+		DirectX::XMMATRIX result = DirectX::XMMatrixInverse(nullptr, target);
+		DirectX::XMStoreFloat4x4A(this, result);
 	}
 
 	inline static Matrix Inverse(const Matrix &other)
 	{
-		DirectX::XMMATRIX result = DirectX::XMMatrixInverse(nullptr, other);
+		DirectX::XMMATRIX target = DirectX::XMLoadFloat4x4A(&other);
+		DirectX::XMMATRIX result = DirectX::XMMatrixInverse(nullptr, target);
+		
+		Matrix returnValue;
+		DirectX::XMStoreFloat4x4A(&returnValue, result);
 
-		return *(static_cast<Matrix*>(&result));
+		return returnValue;
 	}
 
 	inline void InverseTranspose()
@@ -280,12 +288,15 @@ public:
 		/// Inverse-transpose is just applied to normals.  So zero out 
 		/// translation row so that it doesn't get into our inverse-transpose
 		/// calculation--we don't want the inverse-transpose of the translation.
-		Matrix temp = *this;
-		temp.r[3] = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+		_41 = 0.0f;
+		_42 = 0.0f;
+		_43 = 0.0f;
+		_44 = 1.0f;
 
-		DirectX::XMVECTOR det = DirectX::XMMatrixDeterminant(temp);
-		DirectX::XMMATRIX result = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(&det, *this));
-		memcpy(this, &result, sizeof(DirectX::XMMATRIX));
+		DirectX::XMMATRIX target = DirectX::XMLoadFloat4x4A(this);
+		DirectX::XMVECTOR det = DirectX::XMMatrixDeterminant(target);
+		DirectX::XMMATRIX result = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(&det, target));
+		DirectX::XMStoreFloat4x4A(this, result);
 	}
 
 	inline static Matrix InverseTranspose(const Matrix &other)
@@ -293,27 +304,36 @@ public:
 		/// Inverse-transpose is just applied to normals.  So zero out 
 		/// translation row so that it doesn't get into our inverse-transpose
 		/// calculation--we don't want the inverse-transpose of the translation.
-		Matrix temp = other;
-		temp.r[3] = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+		Matrix copy = other;
+		copy._41 = 0.0f;
+		copy._42 = 0.0f;
+		copy._43 = 0.0f;
+		copy._44 = 1.0f;
 
-		DirectX::XMVECTOR det = DirectX::XMMatrixDeterminant(temp);
-		DirectX::XMMATRIX result = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(&det, other));
+		DirectX::XMMATRIX target = DirectX::XMLoadFloat4x4A(&copy);
+		DirectX::XMVECTOR det = DirectX::XMMatrixDeterminant(target);
+		DirectX::XMMATRIX result = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(&det, target));
+		
+		Matrix returnValue;
+		DirectX::XMStoreFloat4x4A(&returnValue, result);
 
-		return *(static_cast<Matrix*>(&result));
+		return returnValue;
 	}
 
 	inline void Identity()
 	{
 		DirectX::XMMATRIX I = DirectX::XMMatrixIdentity();
-
-		memcpy(this, &I, sizeof(Matrix));
+		DirectX::XMStoreFloat4x4A(this, I);
 	}
 
 	inline static Matrix IdentityMatrix()
 	{
 		DirectX::XMMATRIX I = DirectX::XMMatrixIdentity();
 
-		return *(static_cast<Matrix*>(&I));
+		Matrix returnValue;
+		DirectX::XMStoreFloat4x4A(&returnValue, I);
+
+		return returnValue;
 	}
 
 	inline static Matrix LookAtLH(const Vec3 &eyePos, const Vec3 &lookAt, const Vec3 &upDir)
@@ -324,42 +344,60 @@ public:
 
 		DirectX::XMMATRIX result = DirectX::XMMatrixLookAtLH(eye, look, up);
 
-		return *(static_cast<Matrix*>(&result));
+		Matrix returnValue;
+		DirectX::XMStoreFloat4x4A(&returnValue, result);
+
+		return returnValue;
 	}
 
 	inline static Matrix PerspectiveFovLH(float fov, float aspect, float nearPlane, float farPlane)
 	{
 		DirectX::XMMATRIX result = DirectX::XMMatrixPerspectiveFovLH(fov, aspect, nearPlane, farPlane);
 		
-		return *(static_cast<Matrix*>(&result));
+		Matrix returnValue;
+		DirectX::XMStoreFloat4x4A(&returnValue, result);
+
+		return returnValue;
 	}
 
 	inline static Matrix OrthographicLH(float width, float height, float nearPlane, float farPlane)
 	{
 		DirectX::XMMATRIX result = DirectX::XMMatrixOrthographicLH(width, height, nearPlane, farPlane);
 
-		return *(static_cast<Matrix*>(&result));
+		Matrix returnValue;
+		DirectX::XMStoreFloat4x4A(&returnValue, result);
+
+		return returnValue;
 	}
 
 	inline static Matrix Translation(float x, float y, float z)
 	{
 		DirectX::XMMATRIX result = DirectX::XMMatrixTranslation(x, y, z);
 
-		return *(static_cast<Matrix*>(&result));
+		Matrix returnValue;
+		DirectX::XMStoreFloat4x4A(&returnValue, result);
+
+		return returnValue;
 	}
 
 	inline static Matrix Scaling(float x, float y, float z)
 	{
 		DirectX::XMMATRIX result = DirectX::XMMatrixScaling(x, y, z);
 
-		return *(static_cast<Matrix*>(&result));
+		Matrix returnValue;
+		DirectX::XMStoreFloat4x4A(&returnValue, result);
+
+		return returnValue;
 	}
 
 	inline static Matrix Scaling(float f)
 	{
 		DirectX::XMMATRIX result = DirectX::XMMatrixScaling(f, f, f);
 
-		return *(static_cast<Matrix*>(&result));
+		Matrix returnValue;
+		DirectX::XMStoreFloat4x4A(&returnValue, result);
+
+		return returnValue;
 	}
 
 	inline static Matrix RotationAxis(float x, float y, float z, float angle)
@@ -368,7 +406,10 @@ public:
 
 		DirectX::XMMATRIX result = DirectX::XMMatrixRotationAxis(axis, angle * DirectX::XM_PI / 180.0f);
 
-		return *(static_cast<Matrix*>(&result));
+		Matrix returnValue;
+		DirectX::XMStoreFloat4x4A(&returnValue, result);
+
+		return returnValue;
 	}
 
 	inline static Matrix Reflect(float x, float y, float z)
@@ -377,7 +418,20 @@ public:
 
 		DirectX::XMMATRIX result = DirectX::XMMatrixReflect(plane);
 
-		return *(static_cast<Matrix*>(&result));
+		Matrix returnValue;
+		DirectX::XMStoreFloat4x4A(&returnValue, result);
+
+		return returnValue;
+	}
+
+	inline static Matrix Reflect(const Vec4 &plane)
+	{
+		DirectX::XMMATRIX result = DirectX::XMMatrixReflect(DirectX::XMLoadFloat4(&plane));
+
+		Matrix returnValue;
+		DirectX::XMStoreFloat4x4A(&returnValue, result);
+
+		return returnValue;
 	}
 
 	inline static Matrix Shadow(float px, float py, float pz, float lx, float ly, float lz)
@@ -387,7 +441,10 @@ public:
 
 		DirectX::XMMATRIX result = DirectX::XMMatrixShadow(p, lit);
 
-		return *(static_cast<Matrix*>(&result));
+		Matrix returnValue;
+		DirectX::XMStoreFloat4x4A(&returnValue, result);
+
+		return returnValue;
 	}
 
 	inline static Matrix Shadow(const Vec4 &plane, const Vec4 &litDir)
@@ -397,29 +454,30 @@ public:
 
 		DirectX::XMMATRIX result = DirectX::XMMatrixShadow(p, lit);
 
-		return *(static_cast<Matrix*>(&result));
+		Matrix returnValue;
+		DirectX::XMStoreFloat4x4A(&returnValue, result);
+
+		return returnValue;
 	}
 
 	inline void operator*=(const Matrix &right)
 	{
-		DirectX::XMMATRIX lMatrix, rMatrix;
-		memcpy(&lMatrix, this, sizeof(DirectX::XMMATRIX));
-		memcpy(&rMatrix, &right, sizeof(DirectX::XMMATRIX));
-
+		DirectX::XMMATRIX lMatrix = DirectX::XMLoadFloat4x4A(this);
+		DirectX::XMMATRIX rMatrix = DirectX::XMLoadFloat4x4A(&right);
 		DirectX::XMMATRIX result = lMatrix * rMatrix;
-
-		memcpy(this, &result, sizeof(DirectX::XMMATRIX));
+		DirectX::XMStoreFloat4x4A(this, result);
 	}
 
 	inline friend Matrix operator*(const Matrix &left, const Matrix &right)
 	{
-		DirectX::XMMATRIX lMatrix, rMatrix;
-		memcpy(&lMatrix, &left, sizeof(DirectX::XMMATRIX));
-		memcpy(&rMatrix, &right, sizeof(DirectX::XMMATRIX));
-
+		DirectX::XMMATRIX lMatrix = DirectX::XMLoadFloat4x4A(&left);
+		DirectX::XMMATRIX rMatrix = DirectX::XMLoadFloat4x4A(&right);
 		DirectX::XMMATRIX result = lMatrix * rMatrix;
+		
+		Matrix returnValue;
+		DirectX::XMStoreFloat4x4A(&returnValue, result);
 
-		return *(static_cast<Matrix*>(&result));
+		return returnValue;
 	}
 };
 
