@@ -10,7 +10,7 @@
 
 struct LightParams
 {
-	Matrix WVP;
+	Matrix VP;
 
 	Vec4 Position;
 	Vec4 Direction;
@@ -73,7 +73,7 @@ struct ConstantBufferPS
 
 		for (uint32_t i = 0U; i < 4U; ++i)
 		{
-			LightParams[i].WVP = Matrix::Transpose(CalcLightMatrix(i, FOV[i], 1.0f, 100.0f, 2.0f * SceneRadius));
+			LightParams[i].VP = Matrix::Transpose(CalcLightMatrix(i, FOV[i], 1.0f, 100.0f, 2.0f * SceneRadius));
 			LightParams[i].Falloff = Vec4(2.0f * SceneRadius, 100.0f, cosf(FOV[i] / 2.0f), 0.1f);
 		}
 	}
@@ -175,6 +175,7 @@ void AppMultithreadedRendering::InitMirrorResource()
 		m_StaticParamsMirrors[i].RasterizerState = D3DStaticState::SolidFrontFaceCulling;
 		m_StaticParamsMirrors[i].TintColor = Vec4(0.3f, 0.5f, 1.0f, 1.0f);
 		m_StaticParamsMirrors[i].MirrorPlane = Math::GetPlaneFromPointNormal(MirrorCenters[i], MirrorNormals[i]);
+		m_StaticParamsDirectly.Viewport = { 0.0f, 0.0f, (float)m_Width, (float)m_Height };
 
 		MirrorPointAt[i] = MirrorNormals[i] + MirrorCenters[i];
 		m_MirrorWorld[i] = Matrix::Transpose(Matrix::LookAtLH(MirrorPointAt[i], MirrorCenters[i], Up));
@@ -244,6 +245,7 @@ void AppMultithreadedRendering::Initialize()
 	m_StaticParamsDirectly.DepthStencilState = m_NoStencil;
 	m_StaticParamsDirectly.RasterizerState = D3DStaticState::Solid;
 	m_StaticParamsDirectly.TintColor = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	m_StaticParamsDirectly.Viewport = { 0.0f, 0.0f, (float)m_Width, (float)m_Height };
 
 	m_IMContext = D3DEngine::Instance().GetIMContext();
 
@@ -281,13 +283,13 @@ void AppMultithreadedRendering::SetupScene(const StaticParams &params, const Mat
 {
 	bool bShadow = params.DepthStencilView.IsValid();
 
+	D3DEngine::Instance().SetViewport(params.Viewport, 0U);
+
 	if (bShadow)
 	{
 		D3DShaderResourceView EmptySRV;
 		D3DEngine::Instance().SetShaderResourceView(EmptySRV, 0U, D3DShader::ePixelShader);
 		D3DEngine::Instance().SetShaderResourceView(EmptySRV, 1U, D3DShader::ePixelShader);
-
-		D3DEngine::Instance().SetViewport(params.Viewport, 0U);
 
 		D3DRenderTargetView EmptyRTV;
 		D3DEngine::Instance().SetRenderTargetView(EmptyRTV, 0U);
@@ -297,7 +299,7 @@ void AppMultithreadedRendering::SetupScene(const StaticParams &params, const Mat
 	{
 		for (uint32_t i = 0U; i < eNumShadows; ++i)
 		{
-			D3DEngine::Instance().SetShaderResourceView(m_ShadowSRV[i], i, D3DShader::ePixelShader);
+			D3DEngine::Instance().SetShaderResourceView(m_ShadowSRV[i], 2, D3DShader::ePixelShader);
 		}
 	}
 
@@ -360,6 +362,8 @@ void AppMultithreadedRendering::DrawScene(const StaticParams &params, const Matr
 void AppMultithreadedRendering::DrawShadow(uint32_t iShadow, const D3DContext &ctxInUse)
 {
 	D3DEngine::Instance().SetContext(ctxInUse);
+
+	DrawScene(m_StaticParamsShadows[iShadow], g_CBufferPS.LightParams[iShadow].VP);
 }
 
 void AppMultithreadedRendering::DrawMirror(uint32_t iMirror, const D3DContext &ctxInUse)
@@ -414,6 +418,11 @@ void AppMultithreadedRendering::RenderScene()
 	}
 	else
 	{
+		for (uint32_t i = 0U; i < eNumShadows; ++i)
+		{
+			DrawShadow(i, m_IMContext);
+		}
+
 		for (uint32_t i = 0U; i < eNumMirrors; ++i)
 		{
 			DrawMirror(i, m_IMContext);
@@ -451,4 +460,18 @@ void AppMultithreadedRendering::Update(float deltaTime, float totalTime)
 	float fCycle3X = 0.30f * cosf(2.4f * (totalTime + 0.3f * Math::XM_PI));
 	float fCycle3Z = 0.0f;
 	g_CBufferPS.LightParams[3].Direction = Down + Vec4(fCycle3X, 0.0f, fCycle3Z, 0.0f);
+}
+
+void AppMultithreadedRendering::ResizeWindow(uint32_t width, uint32_t height)
+{
+	Base::ResizeWindow(width, height);
+
+	m_StaticParamsDirectly.Viewport.Width = (float)width;
+	m_StaticParamsDirectly.Viewport.Height = (float)height;
+
+	for (uint32_t i = 0U; i < eNumMirrors; ++i)
+	{
+		m_StaticParamsMirrors[i].Viewport.Width = (float)width;
+		m_StaticParamsMirrors[i].Viewport.Height = (float)height;
+	}
 }
