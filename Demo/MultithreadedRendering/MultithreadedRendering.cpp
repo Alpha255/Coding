@@ -73,7 +73,7 @@ struct ConstantBufferPS
 
 		for (uint32_t i = 0U; i < 4U; ++i)
 		{
-			LightParams[i].VP = Matrix::Transpose(CalcLightMatrix(i, FOV[i], 1.0f, 100.0f, 2.0f * SceneRadius));
+			LightParams[i].VP = CalcLightMatrix(i, FOV[i], 1.0f, 100.0f, 2.0f * SceneRadius);
 			LightParams[i].Falloff = Vec4(2.0f * SceneRadius, 100.0f, cosf(FOV[i] / 2.0f), 0.1f);
 		}
 	}
@@ -170,12 +170,12 @@ void AppMultithreadedRendering::InitMirrorResource()
 
 	for (uint32_t i = 0U; i < eNumMirrors; ++i)
 	{
-		m_StaticParamsMirrors[i].DepthStencilState = m_DepthOverwriteStencilTest;
+		m_StaticParamsMirrors[i].DepthStencilState = m_DepthWriteStencilTest;
 		m_StaticParamsMirrors[i].StencilRef = 0x01;
 		m_StaticParamsMirrors[i].RasterizerState = D3DStaticState::SolidFrontFaceCulling;
 		m_StaticParamsMirrors[i].TintColor = Vec4(0.3f, 0.5f, 1.0f, 1.0f);
 		m_StaticParamsMirrors[i].MirrorPlane = Math::GetPlaneFromPointNormal(MirrorCenters[i], MirrorNormals[i]);
-		m_StaticParamsDirectly.Viewport = { 0.0f, 0.0f, (float)m_Width, (float)m_Height };
+		m_StaticParamsMirrors[i].Viewport = { 0.0f, 0.0f, (float)m_Width, (float)m_Height };
 
 		MirrorPointAt[i] = MirrorNormals[i] + MirrorCenters[i];
 		m_MirrorWorld[i] = Matrix::Transpose(Matrix::LookAtLH(MirrorPointAt[i], MirrorCenters[i], Up));
@@ -294,13 +294,16 @@ void AppMultithreadedRendering::SetupScene(const StaticParams &params, const Mat
 		D3DRenderTargetView EmptyRTV;
 		D3DEngine::Instance().SetRenderTargetView(EmptyRTV, 0U);
 		D3DEngine::Instance().SetDepthStencilView(params.DepthStencilView);
+
+		D3DDepthStencilView dsv = params.DepthStencilView;
+		D3DEngine::Instance().ClearDepthStencilView(dsv, D3DDepthStencilView::eDepthStencil, 1.0f, 0U);
 	}
 	else
 	{
-		for (uint32_t i = 0U; i < eNumShadows; ++i)
-		{
-			D3DEngine::Instance().SetShaderResourceView(m_ShadowSRV[i], 2, D3DShader::ePixelShader);
-		}
+		//for (uint32_t i = 0U; i < eNumShadows; ++i)
+		//{
+		//	D3DEngine::Instance().SetShaderResourceView(m_ShadowSRV[i], 2, D3DShader::ePixelShader);
+		//}
 	}
 
 	D3DEngine::Instance().SetDepthStencilState(params.DepthStencilState, params.StencilRef);
@@ -338,7 +341,7 @@ void AppMultithreadedRendering::SetupMirror(uint32_t iMirror, const Matrix &vp)
 	D3DPixelShader EmptyPixelShader;
 
 	D3DEngine::Instance().ResetRenderSurfaces();
-	D3DEngine::Instance().SetRasterizerState(D3DStaticState::SolidFrontFaceCulling);
+	D3DEngine::Instance().SetRasterizerState(D3DStaticState::SolidFrontCCW);
 
 	D3DEngine::Instance().SetInputLayout(m_LayoutMirror);
 	D3DEngine::Instance().SetVertexBuffer(m_VertexBufferMirror, sizeof(MirrorVertex), 0U, 0U);
@@ -388,13 +391,13 @@ void AppMultithreadedRendering::DrawMirror(uint32_t iMirror, const D3DContext &c
 	D3DEngine::Instance().Draw(4U, 0U, eTriangleStrip);
 
 	/// Set up the transform matrices to alway output depth equal to the far plane (z = w of output)
-	g_CBufferVS.VP._31 = vp._14;
-	g_CBufferVS.VP._32 = vp._24;
-	g_CBufferVS.VP._33 = vp._34;
-	g_CBufferVS.VP._34 = vp._44;
-	m_CBufferVS.Update(&g_CBufferVS, sizeof(ConstantBufferVS));
-	D3DEngine::Instance().SetDepthStencilState(m_DepthWriteStencilTest, 0x01);
-	D3DEngine::Instance().Draw(4U, 0U, eTriangleStrip);
+	//g_CBufferVS.VP._31 = vp._14;
+	//g_CBufferVS.VP._32 = vp._24;
+	//g_CBufferVS.VP._33 = vp._34;
+	//g_CBufferVS.VP._34 = vp._44;
+	//m_CBufferVS.Update(&g_CBufferVS, sizeof(ConstantBufferVS));
+	//D3DEngine::Instance().SetDepthStencilState(m_DepthOverwriteStencilTest, 0x01);
+	//D3DEngine::Instance().Draw(4U, 0U, eTriangleStrip);
 
 	/// Draw the mirrored world into the stencilled area
 	Matrix reflectMatrix = Matrix::Reflect(plane);
@@ -418,18 +421,18 @@ void AppMultithreadedRendering::RenderScene()
 	}
 	else
 	{
-		for (uint32_t i = 0U; i < eNumShadows; ++i)
-		{
-			DrawShadow(i, m_IMContext);
-		}
+		//for (uint32_t i = 0U; i < eNumShadows; ++i)
+		//{
+		//	DrawShadow(i, m_IMContext);
+		//}
 
 		for (uint32_t i = 0U; i < eNumMirrors; ++i)
 		{
 			DrawMirror(i, m_IMContext);
 		}
 
-		Matrix vp = m_Camera->GetViewMatrix() * m_Camera->GetProjMatrix();
-		DrawScene(m_StaticParamsDirectly, vp);
+		//Matrix vp = m_Camera->GetViewMatrix() * m_Camera->GetProjMatrix();
+		//DrawScene(m_StaticParamsDirectly, vp);
 	}
 
 	if (IsDeferredPerSceneMode())
