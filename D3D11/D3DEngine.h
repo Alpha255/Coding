@@ -96,7 +96,7 @@ public:
 	void SetSamplerState(const D3DSamplerState &samplerState, uint32_t slot, D3DShader::eShaderType targetShader);
 	void SetRasterizerState(const D3DRasterizerState &rasterizerState);
 	void SetDepthStencilState(const D3DDepthStencilState &depthStencilState, uint32_t stencilRef);
-	void SetBlendState(const D3DBlendState &blendState, const float *pFactor = nullptr, uint32_t mask = 0xFFFFFFFF);
+	void SetBlendState(const D3DBlendState &blendState, Vec4 blendFactor = Vec4(0.0f, 0.0f, 0.0f, 0.0f), uint32_t mask = 0xFFFFFFFF);
 
 	void SetInputLayout(const D3DInputLayout &inputLayout);
 	void SetVertexShader(const D3DVertexShader &vertexShader);
@@ -200,7 +200,7 @@ protected:
 		uint32_t                 PrimitiveTopology = UINT32_MAX;
 		uint32_t                 StencilRef = 0U;
 		uint32_t                 BlendMask = 0U;
-		float                    BlendFactor[4] = {};
+		Vec4                     BlendFactor;
 		bool                     DirtyFlags[eDirtyFlagCount] = {};
 
 		std::vector<ID3D11Buffer *> VertexBufferCache;

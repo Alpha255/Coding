@@ -169,6 +169,16 @@ public:
 		w *= f;
 	}
 
+	inline bool operator==(const Vec4 &right)
+	{
+		return x == right.x && y == right.y && z == right.z && w == right.w;
+	}
+
+	inline bool operator!=(const Vec4 &right)
+	{
+		return x != right.x || y != right.y || z != right.z || w != right.w;
+	}
+
 	inline friend Vec4 operator+(const Vec4 &left, const Vec4 &right)
 	{
 		return Vec4(left.x + right.x, left.y + right.y, left.z + right.z, left.w + right.w);

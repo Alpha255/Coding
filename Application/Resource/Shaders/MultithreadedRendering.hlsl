@@ -23,7 +23,7 @@ cbuffer cbVS
 {
     matrix World;
 	matrix WorldInverse;
-    matrix VP;
+    matrix WVP;
 };
 
 cbuffer cbPS
@@ -114,8 +114,7 @@ float4 LightingColor(uint iLight, float3 vertexPos, float3 vertexNormal)
 VSOut VSMain(VSInput vsInput)
 {
     VSOut output;
-	matrix wvp = mul(World, VP);
-	output.PosH = mul(vsInput.Pos, wvp);
+	output.PosH = mul(vsInput.Pos, WVP);
     output.PosW = mul(vsInput.Pos, World);
     output.NormalW = mul(vsInput.Normal, (float3x3)WorldInverse);
     output.TangentW = mul(vsInput.Tangent, (float3x3)World);

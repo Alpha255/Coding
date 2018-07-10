@@ -235,17 +235,12 @@ void D3DEngine::SetDepthStencilState(const D3DDepthStencilState &depthStencilSta
 	}
 }
 
-void D3DEngine::SetBlendState(const D3DBlendState &blendState, const float *pFactor, uint32_t mask)
+void D3DEngine::SetBlendState(const D3DBlendState &blendState, Vec4 blendfactor, uint32_t mask)
 {
-	if (m_Pipeline.BlendState != blendState)
+	if (m_Pipeline.BlendState != blendState || m_Pipeline.BlendFactor != blendfactor || m_Pipeline.BlendMask != mask)
 	{
 		m_Pipeline.BlendMask = mask;
-		
-		if (pFactor)
-		{
-			memcpy(&m_Pipeline.BlendFactor, pFactor, sizeof(float) * 4);
-		}
-
+		m_Pipeline.BlendFactor = blendfactor;
 		m_Pipeline.BlendState = blendState;
 
 		m_Pipeline.DirtyFlags[eDBlendState] = true;
@@ -483,7 +478,7 @@ void D3DEngine::D3DPipeline::CommitState(const D3DContext &IMContext)
 	/// Output Merge
 	if (DirtyFlags[eDBlendState])
 	{
-		IMContext->OMSetBlendState(BlendState.Get(), BlendFactor, BlendMask);
+		IMContext->OMSetBlendState(BlendState.Get(), (float *)&BlendFactor, BlendMask);
 		DirtyFlags[eDBlendState] = false;
 	}
 
