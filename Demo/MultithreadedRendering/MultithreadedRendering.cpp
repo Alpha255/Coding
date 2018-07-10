@@ -27,6 +27,7 @@ struct ConstantBufferVS
 
 struct ConstantBufferPS
 {
+	Vec4 MirrorPlane;
 	Vec4 TintColor = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
 	Vec4 AmbientColor = Vec4(0.04f * 0.760f, 0.04f * 0.793f, 0.04f * 0.822f, 1.0f);
@@ -331,6 +332,7 @@ void AppMultithreadedRendering::SetupScene(const StaticParams &params, const Mat
 
 		/// Set Constant Buffer PS
 		D3DEngine::Instance().SetConstantBuffer(m_CBufferPS, 0U, D3DShader::ePixelShader);
+		g_CBufferPS.MirrorPlane = params.MirrorPlane;
 		m_CBufferPS.Update(&g_CBufferPS, sizeof(ConstantBufferPS));
 	}
 }

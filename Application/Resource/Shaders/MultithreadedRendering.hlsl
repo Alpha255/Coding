@@ -28,6 +28,7 @@ cbuffer cbVS
 
 cbuffer cbPS
 {
+    float4 MirrorPlane;
 	float4 TintColor;
 
     float4 AmbientColor;
@@ -137,6 +138,10 @@ VSOut VSMain(VSInput vsInput)
 
 float4 PSMain(VSOut psInput) : SV_Target
 {
+	/// Manual clip test, so that objects which are behind the mirror 
+    /// don't show up in the mirror.
+    clip(1.0f - (dot(MirrorPlane.xyz, psInput.PosW.xyz) + MirrorPlane.w));
+
 	float4 normalMap = NormalMap.Sample(LinearSampler, psInput.UV);
 	float4 diffuse = DiffuseMap.Sample(LinearSampler, psInput.UV);
 	float3 normal = UnpackNormal(normalMap.xyz, normalize(psInput.NormalW), psInput.TangentW);
