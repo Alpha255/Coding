@@ -111,8 +111,20 @@ float4 LightingColor(uint iLight, float3 vertexPos, float3 vertexNormal)
 //    return dot(bilinearWeights, shadowTest);
 //}
 
+// We aliased signed vectors as a unsigned format. 
+// Need to recover signed values.  The values 1.0 and 2.0
+// are slightly inaccurate here.
+float3 R10G10B10A2_UNORM_TO_R32G32B32_FLOAT(in float3 vVec)
+{
+    vVec *= 2.0f;
+    return vVec >= 1.0f ? ( vVec - 2.0f ) : vVec;
+}
+
 VSOut VSMain(VSInput vsInput)
 {
+	vsInput.Normal = R10G10B10A2_UNORM_TO_R32G32B32_FLOAT(vsInput.Normal);
+	vsInput.Tangent = R10G10B10A2_UNORM_TO_R32G32B32_FLOAT(vsInput.Tangent);
+
     VSOut output;
 	output.PosH = mul(vsInput.Pos, WVP);
     output.PosW = mul(vsInput.Pos, World);
