@@ -148,18 +148,20 @@ float4 PSMain(VSOut psInput) : SV_Target
 	float4 diffuse = DiffuseMap.Sample(LinearSampler, psInput.UV);
 	float3 normal = UnpackNormal(normalMap.xyz, normalize(psInput.NormalW), psInput.TangentW);
 
-	float3 lightingClr = float3(0.0f, 0.0f, 0.0f);
+    float4 result = AmbientColor;
 
 	[unroll]
 	for (uint i = 0; i < 4; ++i)
 	{
-        lightingClr += LightingColor(i, psInput.PosW.xyz, normalize(normal));
+        float4 lightingClr = LightingColor(i, psInput.PosW.xyz, normalize(normal));
 
-        ///if (i == 0 && any(lightingClr) > 0.0f)
-        ///{
-        ///    lightingClr *= CalcUnshadowedAmountPCF2x2(i, psInput.PosW);
-        ///}
+        if (i == 0 && any(lightingClr) > 0.0f)
+        {
+            lightingClr *= CalcUnshadowedAmountPCF2x2(i, psInput.PosW);
+        }
+
+        result += lightingClr;
     }
 
-    return diffuse * TintColor * float4(lightingClr, 0.0f) + AmbientColor;
+    return diffuse * TintColor * result;
 }

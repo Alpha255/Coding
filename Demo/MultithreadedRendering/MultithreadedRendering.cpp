@@ -8,6 +8,8 @@
 
 #include <thread>
 
+Matrix g_LightVP[4];
+
 struct LightParams
 {
 	Matrix VP;
@@ -74,7 +76,7 @@ struct ConstantBufferPS
 
 		for (uint32_t i = 0U; i < 4U; ++i)
 		{
-			LightParams[i].VP = CalcLightMatrix(i, FOV[i], 1.0f, 100.0f, 2.0f * SceneRadius);
+			g_LightVP[i] = CalcLightMatrix(i, FOV[i], 1.0f, 100.0f, 2.0f * SceneRadius);
 			LightParams[i].Falloff = Vec4(2.0f * SceneRadius, 100.0f, cosf(FOV[i] / 2.0f), 0.1f);
 		}
 	}
@@ -306,6 +308,12 @@ void AppMultithreadedRendering::SetupScene(const StaticParams &params, const Mat
 		D3DEngine::Instance().SetRenderTargetView(EmptyRTV, 0U);
 		D3DEngine::Instance().SetDepthStencilView(params.DepthStencilView);
 
+		D3DShaderResourceView EmptySRV;
+		for (uint32_t i = 0U; i < eNumShadows; ++i)
+		{
+			D3DEngine::Instance().SetShaderResourceView(EmptySRV, 2, D3DShader::ePixelShader);
+		}
+
 		D3DDepthStencilView dsv = params.DepthStencilView;
 		D3DEngine::Instance().ClearDepthStencilView(dsv, D3DDepthStencilView::eDepthStencil, 1.0f, 0U);
 	}
@@ -315,10 +323,17 @@ void AppMultithreadedRendering::SetupScene(const StaticParams &params, const Mat
 
 		/// Set Constant Buffer PS
 		D3DEngine::Instance().SetConstantBuffer(m_CBufferPS, 0U, D3DShader::ePixelShader);
+		for (uint32_t i = 0U; i < 4U; ++i)
+		{
+			g_CBufferPS.LightParams[i].VP = Matrix::Transpose(g_LightVP[i]);
+		}
 		g_CBufferPS.MirrorPlane = params.MirrorPlane;
 		m_CBufferPS.Update(&g_CBufferPS, sizeof(ConstantBufferPS));
 
-		///D3DEngine::Instance().SetShaderResourceView(m_ShadowSRV[0], 2, D3DShader::ePixelShader);
+		for (uint32_t i = 0U; i < eNumShadows; ++i)
+		{
+			D3DEngine::Instance().SetShaderResourceView(m_ShadowSRV[i], 2, D3DShader::ePixelShader);
+		}
 
 		D3DEngine::Instance().SetSamplerState(D3DStaticState::LinearSampler, 0U, D3DShader::ePixelShader);
 	}
@@ -353,7 +368,7 @@ void AppMultithreadedRendering::DrawShadow(uint32_t iShadow, const D3DContext &c
 {
 	D3DEngine::Instance().SetContext(ctxInUse);
 
-	DrawScene(m_StaticParamsShadows[iShadow], m_Camera->GetWorldMatrix(), g_CBufferPS.LightParams[iShadow].VP);
+	DrawScene(m_StaticParamsShadows[iShadow], m_Camera->GetWorldMatrix(), g_LightVP[iShadow]);
 }
 
 void AppMultithreadedRendering::DrawMirror(uint32_t iMirror, const D3DContext &ctxInUse)
