@@ -689,11 +689,13 @@ void Mesh::ApplyMaterial(const Material *pMaterial)
 		return;
 	}
 
+	uint32_t slot = 0U;
 	for (uint32_t i = 0U; i < Material::ePropertyCount; ++i)
 	{
 		if (pMaterial->Textures[i].IsValid())
 		{
-			D3DEngine::Instance().SetShaderResourceView(pMaterial->Textures[i], i, D3DShader::ePixelShader);
+			D3DEngine::Instance().SetShaderResourceView(pMaterial->Textures[i], slot, D3DShader::ePixelShader);
+			++slot;
 		}
 	}
 

@@ -79,7 +79,7 @@ void AppParallaxMapping::RenderScene()
 	D3DEngine::Instance().SetPixelShader(m_PixelShader[m_MappingType]);
 
 	m_Floor.Bind(&m_FloorMaterial);
-	D3DEngine::Instance().SetShaderResourceView(m_HeightMap, 3U, D3DShader::ePixelShader);
+	D3DEngine::Instance().SetShaderResourceView(m_HeightMap, 2U, D3DShader::ePixelShader);
 
 	Vec4 eyePos = m_Camera->GetEyePos();
 	g_CBufferPS.EyePos = Vec3(eyePos.x, eyePos.y, eyePos.z);

@@ -132,7 +132,7 @@ protected:
 		eMaxSamplers = D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT,
 		eMaxConstantBuffers = D3D11_COMMONSHADER_CONSTANT_BUFFER_HW_SLOT_COUNT,
 		eMaxRenderTargetViews = D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT,
-		eMaxShaderResourceView = D3D11_COMMONSHADER_INPUT_RESOURCE_REGISTER_COUNT,
+		eMaxShaderResourceView = D3D11_COMMONSHADER_INPUT_RESOURCE_REGISTER_COUNT / 4U,  /// Don't need so many
 		eMaxUnorderedAccessViews = D3D11_PS_CS_UAV_REGISTER_COUNT,  /// D3D11_1_UAV_SLOT_COUNT
 		eMaxVertexStream = 1  /// Custom
 	};
@@ -200,6 +200,7 @@ protected:
 		uint32_t                 PrimitiveTopology = UINT32_MAX;
 		uint32_t                 StencilRef = 0U;
 		uint32_t                 BlendMask = 0U;
+		uint32_t                 TexturesInUse[D3DShader::eShaderTypeCount] = {};
 		Vec4                     BlendFactor;
 		bool                     DirtyFlags[eDirtyFlagCount] = {};
 
@@ -209,7 +210,7 @@ protected:
 
 		std::vector<ID3D11RenderTargetView *> RenderTargetViewCache;
 		std::vector<ID3D11UnorderedAccessView *> UnorderedAccessViewCache;
-		std::array<std::vector<ID3D11ShaderResourceView *>, D3DShader::eShaderTypeCount> ShaderResourceViewCache;
+		std::array<std::array<ID3D11ShaderResourceView *, eMaxShaderResourceView>, D3DShader::eShaderTypeCount> ShaderResourceViewCache;
 
 		std::array<std::vector<ID3D11Buffer *>, D3DShader::eShaderTypeCount> ConstantBufferCache;
 		std::array<std::vector<ID3D11SamplerState *>, D3DShader::eShaderTypeCount> SamplerStateCache;

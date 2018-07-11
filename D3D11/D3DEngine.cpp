@@ -145,7 +145,8 @@ void D3DEngine::SetShaderResourceView(const D3DShaderResourceView &shaderResourc
 	{
 		m_Pipeline.ShaderResourceViews[targetShader][slot] = shaderResourceView;
 
-		m_Pipeline.ShaderResourceViewCache[targetShader].push_back(shaderResourceView.Get());
+		m_Pipeline.ShaderResourceViewCache[targetShader][slot] = shaderResourceView.Get();
+		++m_Pipeline.TexturesInUse[targetShader];
 
 		m_Pipeline.DirtyFlags[eDShaderResourceView] = true;
 	}
@@ -568,20 +569,17 @@ void D3DEngine::D3DPipeline::BindShaderResourceViews(const D3DContext &IMContext
 
 	for (uint32_t i = 0U; i < D3DShader::eShaderTypeCount; ++i)
 	{
-		std::vector<ID3D11ShaderResourceView *> &shaderResourceViews = ShaderResourceViewCache[i];
-		if (!shaderResourceViews.empty())
+		if (TexturesInUse[i] > 0U)
 		{
 			switch ((D3DShader::eShaderType)i)
 			{
-			case D3DShader::eVertexShader:   IMContext->VSSetShaderResources(0U, (uint32_t)shaderResourceViews.size(), shaderResourceViews.data()); break;
-			case D3DShader::eHullShader:     IMContext->HSSetShaderResources(0U, (uint32_t)shaderResourceViews.size(), shaderResourceViews.data()); break;
-			case D3DShader::eDomainShader:   IMContext->DSSetShaderResources(0U, (uint32_t)shaderResourceViews.size(), shaderResourceViews.data()); break;
-			case D3DShader::eGeometryShader: IMContext->GSSetShaderResources(0U, (uint32_t)shaderResourceViews.size(), shaderResourceViews.data()); break;
-			case D3DShader::ePixelShader:    IMContext->PSSetShaderResources(0U, (uint32_t)shaderResourceViews.size(), shaderResourceViews.data()); break;
-			case D3DShader::eComputeShader:  IMContext->CSSetShaderResources(0U, (uint32_t)shaderResourceViews.size(), shaderResourceViews.data()); break;
+			case D3DShader::eVertexShader:   IMContext->VSSetShaderResources(0U, TexturesInUse[i], ShaderResourceViewCache[i].data()); TexturesInUse[i] = 0U; break;
+			case D3DShader::eHullShader:     IMContext->HSSetShaderResources(0U, TexturesInUse[i], ShaderResourceViewCache[i].data()); TexturesInUse[i] = 0U; break;
+			case D3DShader::eDomainShader:   IMContext->DSSetShaderResources(0U, TexturesInUse[i], ShaderResourceViewCache[i].data()); TexturesInUse[i] = 0U; break;
+			case D3DShader::eGeometryShader: IMContext->GSSetShaderResources(0U, TexturesInUse[i], ShaderResourceViewCache[i].data()); TexturesInUse[i] = 0U; break;
+			case D3DShader::ePixelShader:    IMContext->PSSetShaderResources(0U, TexturesInUse[i], ShaderResourceViewCache[i].data()); TexturesInUse[i] = 0U; break;
+			case D3DShader::eComputeShader:  IMContext->CSSetShaderResources(0U, TexturesInUse[i], ShaderResourceViewCache[i].data()); TexturesInUse[i] = 0U; break;
 			}
-
-			shaderResourceViews.clear();
 		}
 	}
 
