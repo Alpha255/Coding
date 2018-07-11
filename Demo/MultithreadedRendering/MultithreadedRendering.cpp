@@ -22,7 +22,7 @@ struct ConstantBufferVS
 {
 	Matrix World;
 	Matrix WorldInverse;
-	Matrix WVP;
+	Matrix VP;
 };
 
 struct ConstantBufferPS
@@ -98,10 +98,12 @@ void AppMultithreadedRendering::InitShadowResource()
 		m_ShadowSRV[i].CreateAsTexture(D3DView::eTexture2D, shadowMap, eR32_Float, 0U, 1U);
 
 		m_StaticParamsShadows[i].DepthStencilState = m_NoStencil;
+		m_StaticParamsShadows[i].StencilRef = 0U;
 		m_StaticParamsShadows[i].RasterizerState = D3DStaticState::Solid;
 		m_StaticParamsShadows[i].Viewport = { 0.0f, 0.0f, (float)ShadowMapSize, (float)ShadowMapSize };
 		m_StaticParamsShadows[i].DepthStencilView.CreateAsTexture(D3DView::eTexture2D, shadowMap, eD32_Float, 0U, 0U);
 		m_StaticParamsShadows[i].TintColor = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		m_StaticParamsShadows[i].MirrorPlane = Vec4(0.0f, 0.0f, 0.0f, 0.0f);
 	}
 }
 
@@ -282,15 +284,23 @@ void AppMultithreadedRendering::PerChunkRenderTask()
 
 void AppMultithreadedRendering::SetupScene(const StaticParams &params, const Matrix &world, const Matrix &vp)
 {
-	bool bShadow = params.DepthStencilView.IsValid();
-
+	D3DEngine::Instance().SetVertexShader(m_VertexShader);
 	D3DEngine::Instance().SetViewport(params.Viewport, 0U);
 
+	D3DEngine::Instance().SetDepthStencilState(params.DepthStencilState, params.StencilRef);
+	D3DEngine::Instance().SetRasterizerState(params.RasterizerState);
+
+	D3DEngine::Instance().SetConstantBuffer(m_CBufferVS, 0U, D3DShader::eVertexShader);
+	g_CBufferVS.World = Matrix::Transpose(world);
+	g_CBufferVS.WorldInverse = Matrix::InverseTranspose(world);
+	g_CBufferVS.VP = Matrix::Transpose(vp);
+	m_CBufferVS.Update(&g_CBufferVS, sizeof(ConstantBufferVS));
+
+	bool bShadow = params.DepthStencilView.IsValid();
 	if (bShadow)
 	{
-		D3DShaderResourceView EmptySRV;
-		D3DEngine::Instance().SetShaderResourceView(EmptySRV, 0U, D3DShader::ePixelShader);
-		D3DEngine::Instance().SetShaderResourceView(EmptySRV, 1U, D3DShader::ePixelShader);
+		D3DPixelShader EmptyPS;
+		D3DEngine::Instance().SetPixelShader(EmptyPS);
 
 		D3DRenderTargetView EmptyRTV;
 		D3DEngine::Instance().SetRenderTargetView(EmptyRTV, 0U);
@@ -301,39 +311,16 @@ void AppMultithreadedRendering::SetupScene(const StaticParams &params, const Mat
 	}
 	else
 	{
-		///for (uint32_t i = 0U; i < eNumShadows; ++i)
-		///{
-		///	D3DEngine::Instance().SetShaderResourceView(m_ShadowSRV[i], 2, D3DShader::ePixelShader);
-		///}
-	}
-
-	D3DEngine::Instance().SetDepthStencilState(params.DepthStencilState, params.StencilRef);
-	D3DEngine::Instance().SetRasterizerState(params.RasterizerState);
-
-	D3DEngine::Instance().SetVertexShader(m_VertexShader);
-
-	/// Set Constant Buffer VS
-	D3DEngine::Instance().SetConstantBuffer(m_CBufferVS, 0U, D3DShader::eVertexShader);
-	g_CBufferVS.World = Matrix::Transpose(world);
-	g_CBufferVS.WorldInverse = Matrix::InverseTranspose(world);
-	g_CBufferVS.WVP = Matrix::Transpose(world * vp);
-	m_CBufferVS.Update(&g_CBufferVS, sizeof(ConstantBufferVS));
-
-	if (bShadow)
-	{
-		D3DPixelShader EmptyPS;
-		D3DEngine::Instance().SetPixelShader(EmptyPS);
-	}
-	else
-	{
 		D3DEngine::Instance().SetPixelShader(m_PixelShader);
-
-		D3DEngine::Instance().SetSamplerState(D3DStaticState::LinearSampler, 0U, D3DShader::ePixelShader);
 
 		/// Set Constant Buffer PS
 		D3DEngine::Instance().SetConstantBuffer(m_CBufferPS, 0U, D3DShader::ePixelShader);
 		g_CBufferPS.MirrorPlane = params.MirrorPlane;
 		m_CBufferPS.Update(&g_CBufferPS, sizeof(ConstantBufferPS));
+
+		///D3DEngine::Instance().SetShaderResourceView(m_ShadowSRV[0], 2, D3DShader::ePixelShader);
+
+		D3DEngine::Instance().SetSamplerState(D3DStaticState::LinearSampler, 0U, D3DShader::ePixelShader);
 	}
 }
 
@@ -351,7 +338,7 @@ void AppMultithreadedRendering::SetupMirror(uint32_t iMirror)
 
 	g_CBufferVS.World = Matrix::Transpose(m_MirrorWorld[iMirror]);
 	g_CBufferVS.WorldInverse = Matrix::InverseTranspose(m_MirrorWorld[iMirror]);
-	g_CBufferVS.WVP = Matrix::Transpose(m_MirrorWorld[iMirror] * m_Camera->GetViewMatrix() * m_Camera->GetProjMatrix());
+	g_CBufferVS.VP = Matrix::Transpose(m_Camera->GetViewMatrix() * m_Camera->GetProjMatrix());
 	m_CBufferVS.Update(&g_CBufferVS, sizeof(ConstantBufferVS));
 }
 
@@ -371,14 +358,15 @@ void AppMultithreadedRendering::DrawShadow(uint32_t iShadow, const D3DContext &c
 
 void AppMultithreadedRendering::DrawMirror(uint32_t iMirror, const D3DContext &ctxInUse)
 {
-	D3DEngine::Instance().SetContext(ctxInUse);
-
 	/// Test for back-facing mirror (from whichever pov we are using)
 	const Vec4 &plane = m_StaticParamsMirrors[iMirror].MirrorPlane;
 	if (Math::PlaneDotCoord(plane, m_Camera->GetEyePos()) < 0.0f)
 	{
 		return;
 	}
+
+	D3DEngine::Instance().SetContext(ctxInUse);
+	D3DEngine::Instance().SetViewport(m_StaticParamsMirrors[iMirror].Viewport, 0U);
 
 	m_VertexBufferMirror.Update(m_MirrorRect[iMirror], sizeof(MirrorRect));
 
@@ -388,17 +376,18 @@ void AppMultithreadedRendering::DrawMirror(uint32_t iMirror, const D3DContext &c
 	D3DEngine::Instance().Draw(4U, 0U, eTriangleStrip);
 
 	/// Set up the transform matrices to alway output depth equal to the far plane (z = w of output)
-	///g_CBufferVS.VP._31 = vp._14;
-	///g_CBufferVS.VP._32 = vp._24;
-	///g_CBufferVS.VP._33 = vp._34;
-	///g_CBufferVS.VP._34 = vp._44;
-	///m_CBufferVS.Update(&g_CBufferVS, sizeof(ConstantBufferVS));
-	///D3DEngine::Instance().SetDepthStencilState(m_DepthOverwriteStencilTest, 0x01U);
-	///D3DEngine::Instance().Draw(4U, 0U, eTriangleStrip);
+	Matrix vp = m_Camera->GetViewMatrix() * m_Camera->GetProjMatrix();
+	g_CBufferVS.VP._31 = vp._14;
+	g_CBufferVS.VP._32 = vp._24;
+	g_CBufferVS.VP._33 = vp._34;
+	g_CBufferVS.VP._34 = vp._44;
+	m_CBufferVS.Update(&g_CBufferVS, sizeof(ConstantBufferVS));
+	D3DEngine::Instance().SetDepthStencilState(m_DepthOverwriteStencilTest, 0x01U);
+	D3DEngine::Instance().Draw(4U, 0U, eTriangleStrip);
 
 	/// Draw the mirrored world into the stencilled area
 	Matrix reflect = Matrix::Reflect(plane);
-	DrawScene(m_StaticParamsMirrors[iMirror], m_Camera->GetWorldMatrix() * reflect, m_Camera->GetViewMatrix() * m_Camera->GetProjMatrix());
+	DrawScene(m_StaticParamsMirrors[iMirror], m_Camera->GetWorldMatrix(), reflect * vp);
 
 	SetupMirror(iMirror);
 	D3DEngine::Instance().SetDepthStencilState(m_DepthOverwriteStencilClear, 0x01U);
@@ -417,14 +406,12 @@ void AppMultithreadedRendering::RenderScene()
 	}
 	else
 	{
-		///for (uint32_t i = 0U; i < eNumShadows; ++i)
-		///{
-		///	DrawShadow(i, m_IMContext);
-		///}
+		for (uint32_t i = 0U; i < eNumShadows; ++i)
+		{
+			DrawShadow(i, m_IMContext);
+		}
 
-		///D3DEngine::Instance().ResetRenderSurfaces();
-		///D3DEngine::Instance().ClearRenderSurfaces();
-
+		D3DEngine::Instance().ResetRenderSurfaces();
 		for (uint32_t i = 0U; i < eNumMirrors; ++i)
 		{
 			DrawMirror(i, m_IMContext);

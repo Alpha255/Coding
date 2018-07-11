@@ -23,7 +23,7 @@ cbuffer cbVS
 {
     matrix World;
 	matrix WorldInverse;
-    matrix WVP;
+    matrix VP;
 };
 
 cbuffer cbPS
@@ -45,7 +45,7 @@ struct VSInput
 
 Texture2D DiffuseMap;
 Texture2D NormalMap;
-///Texture2D ShadowMap;
+Texture2D ShadowMap;
 SamplerState LinearSampler;
 
 float4 LightingColor(uint iLight, float3 vertexPos, float3 vertexNormal)
@@ -73,44 +73,44 @@ float4 LightingColor(uint iLight, float3 vertexPos, float3 vertexNormal)
 ///--------------------------------------------------------------------------------------
 /// Test how much pixel is in shadow, using 2x2 percentage-closer filtering
 ///--------------------------------------------------------------------------------------
-//float4 CalcUnshadowedAmountPCF2x2(int iShadow, float4 vertexPos)
-//{
-//    const float shadowDepthBias = 0.0005f;
-//    const float shadowMapDims = 2048.0f;
+float4 CalcUnshadowedAmountPCF2x2(int iShadow, float4 vertexPos)
+{
+    const float shadowDepthBias = 0.0005f;
+    const float shadowMapDims = 2048.0f;
 
-//	/// Compute pixel position in light space
-//    float4 vertexInLightSpace = mul(vertexPos, Lights[iShadow].VP);
-//    vertexInLightSpace.xyz /= vertexInLightSpace.w;
+	/// Compute pixel position in light space
+    float4 vertexInLightSpace = mul(vertexPos, Lights[iShadow].VP);
+    vertexInLightSpace.xyz /= vertexInLightSpace.w;
 
-//	/// Translate from surface coords to texture coords 
-//	/// Could fold these into the matrix
-//    float2 shadowTexCoord = 0.5f * vertexInLightSpace + 0.5f;
-//    shadowTexCoord.y = 1.0f - shadowTexCoord.y;
+	/// Translate from surface coords to texture coords 
+	/// Could fold these into the matrix
+    float2 shadowTexCoord = 0.5f * vertexInLightSpace + 0.5f;
+    shadowTexCoord.y = 1.0f - shadowTexCoord.y;
 
-//	/// Depth bias to avoid pixel self-shadowing
-//    float lightSpaceDepth = vertexInLightSpace.z - shadowDepthBias;
+	/// Depth bias to avoid pixel self-shadowing
+    float lightSpaceDepth = vertexInLightSpace.z - shadowDepthBias;
 
-//	/// Find sub-pixel weights
-//    float2 vShadowMapDims = float2(shadowMapDims, shadowMapDims);
-//    float4 subPixelCoord;
-//    subPixelCoord.xy = frac(vShadowMapDims * shadowTexCoord);
-//    subPixelCoord.zw = 1.0f - subPixelCoord.xy;
+	/// Find sub-pixel weights
+    float2 vShadowMapDims = float2(shadowMapDims, shadowMapDims);
+    float4 subPixelCoord;
+    subPixelCoord.xy = frac(vShadowMapDims * shadowTexCoord);
+    subPixelCoord.zw = 1.0f - subPixelCoord;
 
-//    float4 bilinearWeights = subPixelCoord.zxzx * subPixelCoord.wwyy;
+    float4 bilinearWeights = subPixelCoord.zxzx * subPixelCoord.wwyy;
 
-//	/// 2x2 percentage closer filtering
-//    float2 texelUnits = 1.0f / vShadowMapDims;
-//    float4 shadowDepth;
-//    shadowDepth.x = ShadowMap.Sample(LinearSampler, shadowTexCoord);
-//    shadowDepth.y = ShadowMap.Sample(LinearSampler, shadowTexCoord + float2(texelUnits.x, 0.0f));
-//    shadowDepth.z = ShadowMap.Sample(LinearSampler, shadowTexCoord + float2(0.0f, texelUnits.y));
-//    shadowDepth.w = ShadowMap.Sample(LinearSampler, shadowTexCoord + texelUnits);
+	/// 2x2 percentage closer filtering
+    float2 texelUnits = 1.0f / vShadowMapDims;
+    float4 shadowDepth;
+    shadowDepth.x = ShadowMap.Sample(LinearSampler, shadowTexCoord);
+    shadowDepth.y = ShadowMap.Sample(LinearSampler, shadowTexCoord + float2(texelUnits.x, 0.0f));
+    shadowDepth.z = ShadowMap.Sample(LinearSampler, shadowTexCoord + float2(0.0f, texelUnits.y));
+    shadowDepth.w = ShadowMap.Sample(LinearSampler, shadowTexCoord + texelUnits);
 
-//	/// What weighted fraction of the 4 samples are nearer to the light than this pixel?
-//    float4 shadowTest = (shadowDepth >= lightSpaceDepth) ? 1.0f : 0.0f;
+	/// What weighted fraction of the 4 samples are nearer to the light than this pixel?
+    float4 shadowTest = (shadowDepth >= lightSpaceDepth) ? 1.0f : 0.0f;
 
-//    return dot(bilinearWeights, shadowTest);
-//}
+    return dot(bilinearWeights, shadowTest);
+}
 
 // We aliased signed vectors as a unsigned format. 
 // Need to recover signed values.  The values 1.0 and 2.0
@@ -126,8 +126,10 @@ VSOut VSMain(VSInput vsInput)
 	vsInput.Normal = R10G10B10A2_UNORM_TO_R32G32B32_FLOAT(vsInput.Normal);
 	vsInput.Tangent = R10G10B10A2_UNORM_TO_R32G32B32_FLOAT(vsInput.Tangent);
 
+	matrix wvp = mul(World, VP);
+
     VSOut output;
-	output.PosH = mul(vsInput.Pos, WVP);
+	output.PosH = mul(vsInput.Pos, wvp);
     output.PosW = mul(vsInput.Pos, World);
     output.NormalW = mul(vsInput.Normal, (float3x3)WorldInverse);
     output.TangentW = mul(vsInput.Tangent, (float3x3)World);
@@ -140,7 +142,7 @@ float4 PSMain(VSOut psInput) : SV_Target
 {
 	/// Manual clip test, so that objects which are behind the mirror 
     /// don't show up in the mirror.
-    clip(1.0f - (dot(MirrorPlane.xyz, psInput.PosW.xyz) + MirrorPlane.w));
+    clip(dot(MirrorPlane.xyz, psInput.PosW.xyz) + MirrorPlane.w);
 
 	float4 normalMap = NormalMap.Sample(LinearSampler, psInput.UV);
 	float4 diffuse = DiffuseMap.Sample(LinearSampler, psInput.UV);
@@ -153,10 +155,10 @@ float4 PSMain(VSOut psInput) : SV_Target
 	{
         lightingClr += LightingColor(i, psInput.PosW.xyz, normalize(normal));
 
-        //if (i == 0 && any(lightingClr) > 0.0f)
-        //{
-        //    lightingClr *= CalcUnshadowedAmountPCF2x2(0, psInput.PosW);
-        //}
+        ///if (i == 0 && any(lightingClr) > 0.0f)
+        ///{
+        ///    lightingClr *= CalcUnshadowedAmountPCF2x2(i, psInput.PosW);
+        ///}
     }
 
     return diffuse * TintColor * float4(lightingClr, 0.0f) + AmbientColor;
