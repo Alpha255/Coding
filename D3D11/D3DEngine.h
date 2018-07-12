@@ -132,7 +132,7 @@ protected:
 		eMaxSamplers = D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT,
 		eMaxConstantBuffers = D3D11_COMMONSHADER_CONSTANT_BUFFER_HW_SLOT_COUNT,
 		eMaxRenderTargetViews = D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT,
-		eMaxShaderResourceView = D3D11_COMMONSHADER_INPUT_RESOURCE_REGISTER_COUNT / 4U,  /// Don't need so many
+		eMaxShaderResourceView = D3D11_COMMONSHADER_INPUT_RESOURCE_REGISTER_COUNT / 16U,  /// Don't need so many
 		eMaxUnorderedAccessViews = D3D11_PS_CS_UAV_REGISTER_COUNT,  /// D3D11_1_UAV_SLOT_COUNT
 		eMaxVertexStream = 1  /// Custom
 	};

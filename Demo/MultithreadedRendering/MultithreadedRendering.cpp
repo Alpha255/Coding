@@ -292,6 +292,8 @@ void AppMultithreadedRendering::SetupScene(const StaticParams &params, const Mat
 	D3DEngine::Instance().SetDepthStencilState(params.DepthStencilState, params.StencilRef);
 	D3DEngine::Instance().SetRasterizerState(params.RasterizerState);
 
+	D3DEngine::Instance().SetSamplerState(D3DStaticState::PointClampSampler, 1U, D3DShader::ePixelShader);
+
 	D3DEngine::Instance().SetConstantBuffer(m_CBufferVS, 0U, D3DShader::eVertexShader);
 	g_CBufferVS.World = Matrix::Transpose(world);
 	g_CBufferVS.WorldInverse = Matrix::InverseTranspose(world);
@@ -334,8 +336,6 @@ void AppMultithreadedRendering::SetupScene(const StaticParams &params, const Mat
 		{
 			D3DEngine::Instance().SetShaderResourceView(m_ShadowSRV[i], 2, D3DShader::ePixelShader);
 		}
-
-		D3DEngine::Instance().SetSamplerState(D3DStaticState::LinearSampler, 0U, D3DShader::ePixelShader);
 	}
 }
 
@@ -427,6 +427,7 @@ void AppMultithreadedRendering::RenderScene()
 		}
 
 		D3DEngine::Instance().ResetRenderSurfaces();
+		D3DEngine::Instance().ForceCommitState();
 		for (uint32_t i = 0U; i < eNumMirrors; ++i)
 		{
 			DrawMirror(i, m_IMContext);

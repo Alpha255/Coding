@@ -173,13 +173,12 @@ struct D3DStaticState
 	static void Initialize();
 
 	static D3DSamplerState PointSampler;
+	static D3DSamplerState PointClampSampler;
 	static D3DSamplerState LinearSampler;
 	static D3DSamplerState AnisotropicSampler;
 
 	static D3DRasterizerState Wireframe;
 	static D3DRasterizerState Solid;
-	static D3DRasterizerState WireframeFrontFaceCulling;
-	static D3DRasterizerState SolidFrontFaceCulling;
 	static D3DRasterizerState WireframeNoneCulling;
 	static D3DRasterizerState SolidNoneCulling;
 	static D3DRasterizerState SolidFrontCCW;

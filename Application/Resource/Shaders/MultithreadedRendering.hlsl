@@ -46,6 +46,7 @@ struct VSInput
 Texture2D DiffuseMap;
 Texture2D NormalMap;
 Texture2D ShadowMap;
+SamplerState PointClampSampler;
 SamplerState LinearSampler;
 
 float4 LightingColor(uint iLight, float3 vertexPos, float3 vertexNormal)
@@ -101,10 +102,10 @@ float4 CalcUnshadowedAmountPCF2x2(int iShadow, float4 vertexPos)
 	/// 2x2 percentage closer filtering
     float2 texelUnits = 1.0f / vShadowMapDims;
     float4 shadowDepth;
-    shadowDepth.x = ShadowMap.Sample(LinearSampler, shadowTexCoord);
-    shadowDepth.y = ShadowMap.Sample(LinearSampler, shadowTexCoord + float2(texelUnits.x, 0.0f));
-    shadowDepth.z = ShadowMap.Sample(LinearSampler, shadowTexCoord + float2(0.0f, texelUnits.y));
-    shadowDepth.w = ShadowMap.Sample(LinearSampler, shadowTexCoord + texelUnits);
+    shadowDepth.x = ShadowMap.Sample(PointClampSampler, shadowTexCoord);
+    shadowDepth.y = ShadowMap.Sample(PointClampSampler, shadowTexCoord + float2(texelUnits.x, 0.0f));
+    shadowDepth.z = ShadowMap.Sample(PointClampSampler, shadowTexCoord + float2(0.0f, texelUnits.y));
+    shadowDepth.w = ShadowMap.Sample(PointClampSampler, shadowTexCoord + texelUnits);
 
 	/// What weighted fraction of the 4 samples are nearer to the light than this pixel?
     float4 shadowTest = (shadowDepth >= lightSpaceDepth) ? 1.0f : 0.0f;
