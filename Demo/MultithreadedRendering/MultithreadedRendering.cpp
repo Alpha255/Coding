@@ -261,22 +261,32 @@ void AppMultithreadedRendering::Initialize()
 
 void AppMultithreadedRendering::PerSceneRenderTask(uint32_t taskID)
 {
-	if (false)
-	{
-		m_SceneDefContexts[taskID]->ClearState();
-	}
-
 	D3DEngine::Instance().SetContext(m_SceneDefContexts[taskID]);
 
-	/// RenderShadow
+	while (true)
+	{
+		///if (false)
+		///{
+		///	m_SceneDefContexts[taskID]->ClearState();
+		///}
 
-	/// RenderMirror
+		if (taskID < eNumShadows)
+		{
+			DrawShadow(taskID);
+		}
+		else if (taskID < eNumShadows + eNumMirrors)
+		{
+			DrawMirror(taskID);
+		}
+		else
+		{
+			DrawScene(m_StaticParamsDirectly, m_Camera->GetWorldMatrix(), m_Camera->GetViewMatrix() * m_Camera->GetProjMatrix());
+		}
 
-	/// RenderSceneDirect
-
-	ID3D11CommandList *pCmdList = nullptr;
-	m_SceneDefContexts[taskID]->FinishCommandList(true, &pCmdList);
-	m_SceneCmdList[taskID].MakeObject(pCmdList);
+		ID3D11CommandList *pCmdList = nullptr;
+		m_SceneDefContexts[taskID]->FinishCommandList(true, &pCmdList);
+		m_SceneCmdList[taskID].MakeObject(pCmdList);
+	}
 }
 
 void AppMultithreadedRendering::PerChunkRenderTask()
@@ -364,14 +374,12 @@ void AppMultithreadedRendering::DrawScene(const StaticParams &params, const Matr
 	m_SquidRoom.DrawEx(false);
 }
 
-void AppMultithreadedRendering::DrawShadow(uint32_t iShadow, const D3DContext &ctxInUse)
+void AppMultithreadedRendering::DrawShadow(uint32_t iShadow)
 {
-	D3DEngine::Instance().SetContext(ctxInUse);
-
 	DrawScene(m_StaticParamsShadows[iShadow], m_Camera->GetWorldMatrix(), g_LightVP[iShadow]);
 }
 
-void AppMultithreadedRendering::DrawMirror(uint32_t iMirror, const D3DContext &ctxInUse)
+void AppMultithreadedRendering::DrawMirror(uint32_t iMirror)
 {
 	/// Test for back-facing mirror (from whichever pov we are using)
 	const Vec4 &plane = m_StaticParamsMirrors[iMirror].MirrorPlane;
@@ -380,7 +388,6 @@ void AppMultithreadedRendering::DrawMirror(uint32_t iMirror, const D3DContext &c
 		return;
 	}
 
-	D3DEngine::Instance().SetContext(ctxInUse);
 	D3DEngine::Instance().SetViewport(m_StaticParamsMirrors[iMirror].Viewport, 0U);
 
 	m_VertexBufferMirror.Update(m_MirrorRect[iMirror], sizeof(MirrorRect));
@@ -411,41 +418,38 @@ void AppMultithreadedRendering::DrawMirror(uint32_t iMirror, const D3DContext &c
 
 void AppMultithreadedRendering::RenderScene()
 {
-	if (IsMultithreadedPerSceneMode())
+	if (eST == m_RenderingMode)
 	{
+		D3DEngine::Instance().SetContext(m_IMContext);
 
-	}
-	else if (IsDeferredPerSceneMode())
-	{
-
-	}
-	else
-	{
 		for (uint32_t i = 0U; i < eNumShadows; ++i)
 		{
-			DrawShadow(i, m_IMContext);
+			DrawShadow(i);
 		}
 
 		D3DEngine::Instance().ResetRenderSurfaces();
 		D3DEngine::Instance().ForceCommitState();
 		for (uint32_t i = 0U; i < eNumMirrors; ++i)
 		{
-			DrawMirror(i, m_IMContext);
+			DrawMirror(i);
 		}
 
 		DrawScene(m_StaticParamsDirectly, m_Camera->GetWorldMatrix(), m_Camera->GetViewMatrix() * m_Camera->GetProjMatrix());
 	}
-
-	if (IsDeferredPerSceneMode())
+	else if (eMT_PerScene == m_RenderingMode)
 	{
+		for (uint32_t i = 0U; i < eNumScenes; ++i)
+		{
 
+		}
 	}
-	else
+	else if (eMT_PerChunk == m_RenderingMode)
 	{
 
 	}
 
 	ImGui::Text("%.2f FPS", m_FPS);
+	ImGui::Combo("RenderingMode", &m_RenderingMode, "SingleThread\0MultithreadedPerScene\0MultithreadedPerChunk");
 }
 
 void AppMultithreadedRendering::Update(float deltaTime, float totalTime)

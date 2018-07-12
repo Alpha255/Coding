@@ -18,11 +18,9 @@ public:
 protected:
 	enum eRenderingMode
 	{
-		eSingleThread_IMContext,             /// Traditional rendering, one thread, immediate device context
-		eSingleThread_DefContext_PerScene,   /// One thread, multiple deferred device contexts, one per scene 
-		eSingleThread_DefContext_PerChunk,   /// One thread, multiple deferred device contexts, one per physical processor
-		eMultiThread_DefContext_PerScene,    /// Multiple threads, one per scene, each with one deferred device context 
-		eMultiThread_DefContext_PerChunk,    /// Multiple threads, one per physical processor, each with one deferred device context
+		eST,             /// Traditional rendering, one thread, immediate device context
+		eMT_PerScene,    /// Multiple threads, one per scene, each with one deferred device context 
+		eMT_PerChunk,    /// Multiple threads, one per physical processor, each with one deferred device context
 	};
 
 	enum eConstants
@@ -55,33 +53,6 @@ protected:
 	};
 	typedef MirrorVertex MirrorRect[4];
 
-	inline bool IsDeferredPerSceneMode()
-	{
-		return eSingleThread_DefContext_PerScene == m_RenderingMode ||
-			eMultiThread_DefContext_PerScene == m_RenderingMode;
-	}
-
-	inline bool IsMultithreadedPerSceneMode()
-	{
-		return eMultiThread_DefContext_PerScene == m_RenderingMode;
-	}
-
-	inline bool IsDeferredPerChunkMode()
-	{
-		return eSingleThread_DefContext_PerChunk == m_RenderingMode ||
-			eMultiThread_DefContext_PerChunk == m_RenderingMode;
-	}
-
-	inline bool IsMultithreadedDeferredPerChunkMode()
-	{
-		return eMultiThread_DefContext_PerChunk == m_RenderingMode;
-	}
-
-	inline bool IsDeferredMode()
-	{
-		return IsDeferredPerSceneMode() || IsDeferredPerChunkMode();
-	}
-
 	void PerSceneRenderTask(uint32_t taskID);
 	void PerChunkRenderTask();
 
@@ -93,10 +64,10 @@ protected:
 	void SetupMirror(uint32_t iMirror);
 
 	void DrawScene(const StaticParams &params, const Matrix &world, const Matrix &vp);
-	void DrawShadow(uint32_t iShadow, const D3DContext &ctxInUse);
-	void DrawMirror(uint32_t iMirror, const D3DContext &ctxInUse);
+	void DrawShadow(uint32_t iShadow);
+	void DrawMirror(uint32_t iMirror);
 private:
-	eRenderingMode m_RenderingMode = eSingleThread_IMContext;
+	int32_t m_RenderingMode = eST;
 
 	D3DVertexShader m_VertexShader;
 	D3DPixelShader m_PixelShader;
