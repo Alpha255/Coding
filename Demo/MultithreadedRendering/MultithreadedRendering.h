@@ -4,6 +4,7 @@
 #include "D3DGeometry.h"
 #include "D3DView.h"
 #include "D3DState.h"
+#include "D3DContext.h"
 
 class AppMultithreadedRendering : public D3DApp
 {
@@ -77,8 +78,6 @@ private:
 	D3DInputLayout m_Layout;
 	D3DInputLayout m_LayoutMirror;
 
-	D3DContext m_SceneDefContexts[eNumScenes];
-	D3DContext m_IMContext;
 	D3DCommandList m_SceneCmdList[eNumScenes];
 
 	D3DShaderResourceView m_ShadowSRV[eNumShadows];

@@ -1,6 +1,8 @@
 #include "D3DEngine.h"
 #include "D3DFontFreeType.h"
 
+#include <thread>
+
 std::unique_ptr<D3DEngine, std::function<void(D3DEngine *)>> D3DEngine::s_Instance;
 
 void D3DEngine::Initialize(HWND hWnd, uint32_t width, uint32_t height, bool bWindowed)
@@ -26,6 +28,9 @@ void D3DEngine::Initialize(HWND hWnd, uint32_t width, uint32_t height, bool bWin
 		D3D_FEATURE_LEVEL_10_0 
 	};
 
+	const uint32_t maxContexts = std::thread::hardware_concurrency() + 1U;
+	m_ContextsInUse.resize(maxContexts);
+
 	ID3D11Device *pDevice = nullptr;
 	ID3D11DeviceContext *pContext = nullptr;
 	for (size_t index = 0; index < driverTypes.size(); ++index)
@@ -43,15 +48,13 @@ void D3DEngine::Initialize(HWND hWnd, uint32_t width, uint32_t height, bool bWin
 			&pContext)))
 		{
 			m_Device.MakeObject(pDevice);
-			m_IMContext.MakeObject(pContext);
+			m_ContextsInUse[0].MakeObject(pContext);
 
 			m_SwapChain.Create(hWnd, width, height, bWindowed);
 
 			RecreateRenderTargetDepthStencil(width, height);
 
 			D3DStaticState::Initialize();
-
-			SetContext(m_IMContext);
 
 			///D3DFontFreeType::Instance().Initialize(width, height);
 
@@ -94,10 +97,10 @@ void D3DEngine::Resize(uint32_t width, uint32_t height)
 		return;
 	}
 
-	for (uint32_t i = 0U; i < eMaxRenderTargetViews; ++i)
-	{
-		m_Pipeline.RenderTargetViews[i].Reset();
-	}
+	///for (uint32_t i = 0U; i < D3DContext::eMaxRenderTargetViews; ++i)
+	///{
+		///m_ContextsInUse[ctxIndex].State.RenderTargetViews[i].Reset();
+	///}
 
 	m_RenderTargetView.Reset();
 	m_DepthStencilView.Reset();
@@ -112,524 +115,328 @@ void D3DEngine::Resize(uint32_t width, uint32_t height)
 	///D3DFontFreeType::Instance().Resize(width, height);
 }
 
-void D3DEngine::SetRenderTargetView(const D3DRenderTargetView &renderTarget, uint32_t slot)
+void D3DEngine::CreateDeferredContexts(uint32_t count)
 {
-	assert(slot < eMaxRenderTargetViews);
+	assert(count <= m_ContextsInUse.size() - 1U);
 
-	if (m_Pipeline.RenderTargetViews[slot] != renderTarget)
+	for (uint32_t i = 1U; i <= count; ++i)
 	{
-		m_Pipeline.RenderTargetViews[slot] = renderTarget;
+		assert(!m_ContextsInUse[i].IsValid());
 
-		///m_Pipeline.RenderTargetViewCache.push_back(renderTarget.Get());
-		m_Pipeline.RenderTargetViewCache.assign(1U, renderTarget.Get());
-
-		m_Pipeline.DirtyFlags[eDRenderTargetView] = true;
+		ID3D11DeviceContext *pContext = nullptr;
+		HRCheck(D3DEngine::Instance().GetDevice().Get()->CreateDeferredContext(0U, &pContext));
+		m_ContextsInUse[i].MakeObject(pContext);
 	}
 }
 
-void D3DEngine::SetDepthStencilView(const D3DDepthStencilView &depthStencilView)
+void D3DEngine::SetRenderTargetView(const D3DRenderTargetView &renderTarget, uint32_t slot, uint32_t ctxIndex)
 {
-	if (m_Pipeline.DepthStencilView != depthStencilView)
-	{
-		m_Pipeline.DepthStencilView = depthStencilView;
+	assert(slot < D3DContext::eMaxRenderTargetViews && m_ContextsInUse[ctxIndex].IsValid());
 
-		m_Pipeline.DirtyFlags[eDDepthStencilView] = true;
+	if (renderTarget != m_ContextsInUse[ctxIndex].State.RenderTargetViews[slot])
+	{
+		m_ContextsInUse[ctxIndex].State.RenderTargetViews[slot] = renderTarget.Get();
+
+		m_ContextsInUse[ctxIndex].State.RenderTargetsInUse |= (1U << slot);
+
+		m_ContextsInUse[ctxIndex].State.SetDirty(D3DContext::eDRenderTargetView, true);
 	}
 }
 
-void D3DEngine::SetShaderResourceView(const D3DShaderResourceView &shaderResourceView, uint32_t slot, D3DShader::eShaderType targetShader)
+void D3DEngine::SetDepthStencilView(const D3DDepthStencilView &depthStencilView, uint32_t ctxIndex)
 {
-	assert(slot < eMaxShaderResourceView && targetShader < D3DShader::eShaderTypeCount);
+	assert(m_ContextsInUse[ctxIndex].IsValid());
 
-	if (m_Pipeline.ShaderResourceViews[targetShader][slot] != shaderResourceView)
+	if (depthStencilView != m_ContextsInUse[ctxIndex].State.DepthStencilView)
 	{
-		m_Pipeline.ShaderResourceViews[targetShader][slot] = shaderResourceView;
+		m_ContextsInUse[ctxIndex].State.DepthStencilView = depthStencilView.Get();
 
-		m_Pipeline.ShaderResourceViewCache[targetShader][slot] = shaderResourceView.Get();
-		++m_Pipeline.TexturesInUse[targetShader];
-
-		m_Pipeline.DirtyFlags[eDShaderResourceView] = true;
+		m_ContextsInUse[ctxIndex].State.SetDirty(D3DContext::eDDepthStencilView, true);
 	}
 }
 
-void D3DEngine::SetUnorderedAccessView(const D3DUnorderedAccessView &unorderedAccessView, uint32_t slot, D3DShader::eShaderType targetShader)
+void D3DEngine::SetShaderResourceView(const D3DShaderResourceView &shaderResourceView, uint32_t slot, D3DShader::eShaderType targetShader, uint32_t ctxIndex)
 {
-	assert(slot < eMaxUnorderedAccessViews && targetShader == D3DShader::eComputeShader);
+	assert(slot < D3DContext::eMaxShaderResourceView && targetShader < D3DShader::eShaderTypeCount && m_ContextsInUse[ctxIndex].IsValid());
+
+	if (shaderResourceView != m_ContextsInUse[ctxIndex].State.ShaderResourceViews[targetShader][slot])
+	{
+		m_ContextsInUse[ctxIndex].State.ShaderResourceViews[targetShader][slot] = shaderResourceView.Get();
+
+		m_ContextsInUse[ctxIndex].State.ShaderResourceViewsInUse[targetShader] |= (1U << slot);
+
+		m_ContextsInUse[ctxIndex].State.SetDirty(D3DContext::eDShaderResourceView, true);
+	}
+}
+
+void D3DEngine::SetUnorderedAccessView(const D3DUnorderedAccessView &unorderedAccessView, uint32_t slot, uint32_t ctxIndex)
+{
+	assert(slot < D3DContext::eMaxUnorderedAccessViews && m_ContextsInUse[ctxIndex].IsValid());
 	
-	if (m_Pipeline.UnorderedAccessViews[slot] != unorderedAccessView)
+	if (unorderedAccessView != m_ContextsInUse[ctxIndex].State.UnorderedAccessViews[slot])
 	{
-		m_Pipeline.UnorderedAccessViews[slot] = unorderedAccessView;
+		m_ContextsInUse[ctxIndex].State.UnorderedAccessViews[slot] = unorderedAccessView.Get();
 
-		m_Pipeline.UnorderedAccessViewCache.push_back(unorderedAccessView.Get());
+		m_ContextsInUse[ctxIndex].State.UnorderedAccessViewsInUse |= (1U << slot);
 
-		m_Pipeline.DirtyFlags[eDUnorderedAccessView] = true;
+		m_ContextsInUse[ctxIndex].State.SetDirty(D3DContext::eDUnorderedAccessView, true);
 	}
 }
 
-void D3DEngine::SetVertexBuffer(const D3DBuffer &vertexBuffer, uint32_t stride, uint32_t offset, uint32_t slot)
+void D3DEngine::SetVertexBuffer(const D3DBuffer &vertexBuffer, uint32_t stride, uint32_t offset, uint32_t slot, uint32_t ctxIndex)
 {
-	assert(slot < eMaxVertexStream);
+	assert(slot < D3DContext::eMaxVertexStream && m_ContextsInUse[ctxIndex].IsValid());
 
-	if (m_Pipeline.VertexBuffers[slot].Stride != stride ||
-		m_Pipeline.VertexBuffers[slot].Offset != offset ||
-		m_Pipeline.VertexBuffers[slot].Buffer != vertexBuffer)
+	if (stride != m_ContextsInUse[ctxIndex].State.VertexStrides[slot] ||
+		offset != m_ContextsInUse[ctxIndex].State.VertexOffsets[slot] ||
+		vertexBuffer != m_ContextsInUse[ctxIndex].State.VertexBuffers[slot])
 	{
-		m_Pipeline.VertexBuffers[slot].Stride = stride;
-		m_Pipeline.VertexBuffers[slot].Offset = offset;
-		m_Pipeline.VertexBuffers[slot].Buffer = vertexBuffer;
+		m_ContextsInUse[ctxIndex].State.VertexStrides[slot] = stride;
+		m_ContextsInUse[ctxIndex].State.VertexOffsets[slot] = offset;
+		m_ContextsInUse[ctxIndex].State.VertexBuffers[slot] = vertexBuffer.Get();
 
-		m_Pipeline.VertexBufferCache.push_back(vertexBuffer.Get());
-		m_Pipeline.VertexStrideCache.push_back(stride);
-		m_Pipeline.VertexOffsetCache.push_back(offset);
+		m_ContextsInUse[ctxIndex].State.VertexBuffersInUse |= (1U << slot);
 
-		m_Pipeline.DirtyFlags[eDVertexBuffer] = true;
+		m_ContextsInUse[ctxIndex].State.SetDirty(D3DContext::eDVertexBuffer, true);
 	}
 }
 
-void D3DEngine::SetIndexBuffer(const D3DBuffer &indexBuffer, uint32_t fmt, uint32_t offset)
+void D3DEngine::SetIndexBuffer(const D3DBuffer &indexBuffer, uint32_t fmt, uint32_t offset, uint32_t ctxIndex)
 {
-	if (m_Pipeline.IndexBuffer.Format != fmt ||
-		m_Pipeline.IndexBuffer.Offset != offset ||
-		m_Pipeline.IndexBuffer.Buffer != indexBuffer)
+	if (fmt != m_ContextsInUse[ctxIndex].State.IndexFormat ||
+		offset != m_ContextsInUse[ctxIndex].State.IndexOffset ||
+		indexBuffer != m_ContextsInUse[ctxIndex].State.IndexBuffer)
 	{
-		m_Pipeline.IndexBuffer.Format = fmt;
-		m_Pipeline.IndexBuffer.Offset = offset;
-		m_Pipeline.IndexBuffer.Buffer = indexBuffer;
+		m_ContextsInUse[ctxIndex].State.IndexFormat = fmt;
+		m_ContextsInUse[ctxIndex].State.IndexOffset = offset;
+		m_ContextsInUse[ctxIndex].State.IndexBuffer = indexBuffer.Get();
 
-		m_Pipeline.DirtyFlags[eDIndexBuffer] = true;
+		m_ContextsInUse[ctxIndex].State.SetDirty(D3DContext::eDIndexBuffer, true);
 	}
 }
 
-void D3DEngine::SetSamplerState(const D3DSamplerState &samplerState, uint32_t slot, D3DShader::eShaderType targetShader)
+void D3DEngine::SetSamplerState(const D3DSamplerState &samplerState, uint32_t slot, D3DShader::eShaderType targetShader, uint32_t ctxIndex)
 {
-	assert(slot < eMaxSamplers && targetShader < D3DShader::eShaderTypeCount);
+	assert(slot < D3DContext::eMaxSamplers && targetShader < D3DShader::eShaderTypeCount && m_ContextsInUse[ctxIndex].IsValid());
 
-	if (m_Pipeline.SamplerStates[targetShader][slot] != samplerState)
+	if (samplerState != m_ContextsInUse[ctxIndex].State.SamplerStates[targetShader][slot])
 	{
-		m_Pipeline.SamplerStates[targetShader][slot] = samplerState;
+		m_ContextsInUse[ctxIndex].State.SamplerStates[targetShader][slot] = samplerState.Get();
 
-		m_Pipeline.SamplerStateCache[targetShader].push_back(samplerState.Get());
+		m_ContextsInUse[ctxIndex].State.SamplersInUse[targetShader] |= (1U << slot);
 
-		m_Pipeline.DirtyFlags[eDSamplerState] = true;
+		m_ContextsInUse[ctxIndex].State.SetDirty(D3DContext::eDSamplerState, true);
 	}
 }
 
-void D3DEngine::SetRasterizerState(const D3DRasterizerState &rasterizerState)
+void D3DEngine::SetRasterizerState(const D3DRasterizerState &rasterizerState, uint32_t ctxIndex)
 {
-	if (m_Pipeline.RasterizerState != rasterizerState)
-	{
-		m_Pipeline.RasterizerState = rasterizerState;
+	assert(m_ContextsInUse[ctxIndex].IsValid());
 
-		m_Pipeline.DirtyFlags[eDRasterizerState] = true;
+	if (rasterizerState != m_ContextsInUse[ctxIndex].State.RasterizerState)
+	{
+		m_ContextsInUse[ctxIndex].State.RasterizerState = rasterizerState.Get();
+
+		m_ContextsInUse[ctxIndex].State.SetDirty(D3DContext::eDRasterizerState, true);
 	}
 }
 
-void D3DEngine::SetDepthStencilState(const D3DDepthStencilState &depthStencilState, uint32_t stencilRef)
+void D3DEngine::SetDepthStencilState(const D3DDepthStencilState &depthStencilState, uint32_t stencilRef, uint32_t ctxIndex)
 {
-	if (m_Pipeline.StencilRef != stencilRef ||
-		m_Pipeline.DepthStencilState != depthStencilState)
-	{
-		m_Pipeline.StencilRef = stencilRef;
-		m_Pipeline.DepthStencilState = depthStencilState;
+	assert(m_ContextsInUse[ctxIndex].IsValid());
 
-		m_Pipeline.DirtyFlags[eDDepthStencilState] = true;
+	if (stencilRef != m_ContextsInUse[ctxIndex].State.StencilRef || 
+		depthStencilState != m_ContextsInUse[ctxIndex].State.DepthStencilState)
+	{
+		m_ContextsInUse[ctxIndex].State.StencilRef = stencilRef;
+		m_ContextsInUse[ctxIndex].State.DepthStencilState = depthStencilState.Get();
+
+		m_ContextsInUse[ctxIndex].State.SetDirty(D3DContext::eDDepthStencilState, true);
 	}
 }
 
-void D3DEngine::SetBlendState(const D3DBlendState &blendState, Vec4 blendfactor, uint32_t mask)
+void D3DEngine::SetBlendState(const D3DBlendState &blendState, Vec4 blendfactor, uint32_t mask, uint32_t ctxIndex)
 {
-	if (m_Pipeline.BlendState != blendState || m_Pipeline.BlendFactor != blendfactor || m_Pipeline.BlendMask != mask)
-	{
-		m_Pipeline.BlendMask = mask;
-		m_Pipeline.BlendFactor = blendfactor;
-		m_Pipeline.BlendState = blendState;
+	assert(m_ContextsInUse[ctxIndex].IsValid());
 
-		m_Pipeline.DirtyFlags[eDBlendState] = true;
+	if (mask != m_ContextsInUse[ctxIndex].State.BlendMask ||
+		blendfactor != m_ContextsInUse[ctxIndex].State.BlendFactor ||
+		blendState != m_ContextsInUse[ctxIndex].State.BlendState)
+	{
+		m_ContextsInUse[ctxIndex].State.BlendMask = mask;
+		m_ContextsInUse[ctxIndex].State.BlendFactor = blendfactor;
+		m_ContextsInUse[ctxIndex].State.BlendState = blendState.Get();
+
+		m_ContextsInUse[ctxIndex].State.SetDirty(D3DContext::eDBlendState, true);
 	}
 }
 
-void D3DEngine::SetInputLayout(const D3DInputLayout &inputLayout)
+void D3DEngine::SetInputLayout(const D3DInputLayout &inputLayout, uint32_t ctxIndex)
 {
-	if (m_Pipeline.InputLayout != inputLayout)
-	{
-		m_Pipeline.InputLayout = inputLayout;
+	assert(m_ContextsInUse[ctxIndex].IsValid());
 
-		m_Pipeline.DirtyFlags[eDInputLayout] = true;
+	if (inputLayout != m_ContextsInUse[ctxIndex].State.InputLayout)
+	{
+		m_ContextsInUse[ctxIndex].State.InputLayout = inputLayout.Get();
+
+		m_ContextsInUse[ctxIndex].State.SetDirty(D3DContext::eDInputLayout, true);
 	}
 }
 
-void D3DEngine::SetVertexShader(const D3DVertexShader &vertexShader)
+void D3DEngine::SetVertexShader(const D3DVertexShader &vertexShader, uint32_t ctxIndex)
 {
-	if (m_Pipeline.VertexShader != vertexShader)
-	{
-		m_Pipeline.VertexShader = vertexShader;
+	assert(m_ContextsInUse[ctxIndex].IsValid());
 
-		m_Pipeline.DirtyFlags[eDVertexShader] = true;
+	if (vertexShader != m_ContextsInUse[ctxIndex].State.VertexShader)
+	{
+		m_ContextsInUse[ctxIndex].State.VertexShader = vertexShader.Get();
+
+		m_ContextsInUse[ctxIndex].State.SetDirty(D3DContext::eDVertexShader, true);
 	}
 }
 
-void D3DEngine::SetHullShader(const D3DHullShader &hullShader)
+void D3DEngine::SetHullShader(const D3DHullShader &hullShader, uint32_t ctxIndex)
 {
-	if (m_Pipeline.HullShader != hullShader)
-	{
-		m_Pipeline.HullShader = hullShader;
+	assert(m_ContextsInUse[ctxIndex].IsValid());
 
-		m_Pipeline.DirtyFlags[eDHullShader] = true;
+	if (hullShader != m_ContextsInUse[ctxIndex].State.HullShader)
+	{
+		m_ContextsInUse[ctxIndex].State.HullShader = hullShader.Get();
+
+		m_ContextsInUse[ctxIndex].State.SetDirty(D3DContext::eDHullShader, true);
 	}
 }
 
-void D3DEngine::SetDomainShader(const D3DDomainShader &domainShader)
+void D3DEngine::SetDomainShader(const D3DDomainShader &domainShader, uint32_t ctxIndex)
 {
-	if (m_Pipeline.DomainShader != domainShader)
-	{
-		m_Pipeline.DomainShader = domainShader;
+	assert(m_ContextsInUse[ctxIndex].IsValid());
 
-		m_Pipeline.DirtyFlags[eDDomainShader] = true;
+	if (domainShader != m_ContextsInUse[ctxIndex].State.DomainShader)
+	{
+		m_ContextsInUse[ctxIndex].State.DomainShader = domainShader.Get();
+
+		m_ContextsInUse[ctxIndex].State.SetDirty(D3DContext::eDDomainShader, true);
 	}
 }
 
-void D3DEngine::SetPixelShader(const D3DPixelShader &pixelShader)
+void D3DEngine::SetPixelShader(const D3DPixelShader &pixelShader, uint32_t ctxIndex)
 {
-	if (m_Pipeline.PixelShader != pixelShader)
-	{
-		m_Pipeline.PixelShader = pixelShader;
+	assert(m_ContextsInUse[ctxIndex].IsValid());
 
-		m_Pipeline.DirtyFlags[eDPixelShader] = true;
+	if (pixelShader != m_ContextsInUse[ctxIndex].State.PixelShader)
+	{
+		m_ContextsInUse[ctxIndex].State.PixelShader = pixelShader.Get();
+
+		m_ContextsInUse[ctxIndex].State.SetDirty(D3DContext::eDPixelShader, true);
 	}
 }
 
-void D3DEngine::SetGeometryShader(const D3DGeometryShader &geometryShader)
+void D3DEngine::SetGeometryShader(const D3DGeometryShader &geometryShader, uint32_t ctxIndex)
 {
-	if (m_Pipeline.GeometryShader != geometryShader)
-	{
-		m_Pipeline.GeometryShader = geometryShader;
+	assert(m_ContextsInUse[ctxIndex].IsValid());
 
-		m_Pipeline.DirtyFlags[eDGeometryShader] = true;
+	if (geometryShader != m_ContextsInUse[ctxIndex].State.GeometryShader)
+	{
+		m_ContextsInUse[ctxIndex].State.GeometryShader = geometryShader.Get();
+
+		m_ContextsInUse[ctxIndex].State.SetDirty(D3DContext::eDGeometryShader, true);
 	}
 }
 
-void D3DEngine::SetComputeShader(const D3DComputeShader &computeShader)
+void D3DEngine::SetComputeShader(const D3DComputeShader &computeShader, uint32_t ctxIndex)
 {
-	if (m_Pipeline.ComputeShader != computeShader)
-	{
-		m_Pipeline.ComputeShader = computeShader;
+	assert(m_ContextsInUse[ctxIndex].IsValid());
 
-		m_Pipeline.DirtyFlags[eDComputeShader] = true;
+	if (computeShader != m_ContextsInUse[ctxIndex].State.ComputeShader)
+	{
+		m_ContextsInUse[ctxIndex].State.ComputeShader = computeShader.Get();
+
+		m_ContextsInUse[ctxIndex].State.SetDirty(D3DContext::eDComputeShader, true);
 	}
 }
 
-void D3DEngine::SetConstantBuffer(const D3DBuffer &constantBuffer, uint32_t slot, D3DShader::eShaderType targetShader)
+void D3DEngine::SetConstantBuffer(const D3DBuffer &constantBuffer, uint32_t slot, D3DShader::eShaderType targetShader, uint32_t ctxIndex)
 {
-	assert(slot < eMaxConstantBuffers && targetShader < D3DShader::eShaderTypeCount);
+	assert(slot < D3DContext::eMaxConstantBuffers && targetShader < D3DShader::eShaderTypeCount && m_ContextsInUse[ctxIndex].IsValid());
 
-	if (m_Pipeline.ConstantBuffers[targetShader][slot] != constantBuffer)
+	if (constantBuffer != m_ContextsInUse[ctxIndex].State.ConstantBuffers[targetShader][slot])
 	{
-		m_Pipeline.ConstantBuffers[targetShader][slot] = constantBuffer;
+		m_ContextsInUse[ctxIndex].State.ConstantBuffers[targetShader][slot] = constantBuffer.Get();
 
-		m_Pipeline.ConstantBufferCache[targetShader].push_back(constantBuffer.Get());
+		m_ContextsInUse[ctxIndex].State.ConstantBuffersInUse[targetShader] |= (1U << slot);
 
-		m_Pipeline.DirtyFlags[eDConstantBuffer] = true;
+		m_ContextsInUse[ctxIndex].State.SetDirty(D3DContext::eDConstantBuffer, true);
 	}
 }
 
-void D3DEngine::SetViewport(const D3DViewport &viewport, uint32_t slot)
+void D3DEngine::SetViewport(const D3DViewport &viewport, uint32_t slot, uint32_t ctxIndex)
 {
-	assert(slot < eMaxViewports);
+	assert(slot < D3DContext::eMaxViewports && m_ContextsInUse[ctxIndex].IsValid());
 
-	if (m_Pipeline.Viewports[slot] != viewport)
+	if (m_ContextsInUse[ctxIndex].State.Viewports[slot] != viewport)
 	{
-		m_Pipeline.Viewports[slot] = viewport;
+		m_ContextsInUse[ctxIndex].State.Viewports[slot] = viewport;
 
-		m_Pipeline.ViewportCache.push_back(viewport);
+		m_ContextsInUse[ctxIndex].State.ViewportsInUse |= (1U << slot);
 
-		m_Pipeline.DirtyFlags[eDViewport] = true;
+		m_ContextsInUse[ctxIndex].State.SetDirty(D3DContext::eDViewport, true);
 	}
 }
 
-void D3DEngine::SetScissorRect(const D3DRect &rect, uint32_t slot)
+void D3DEngine::SetScissorRect(const D3DRect &rect, uint32_t slot, uint32_t ctxIndex)
 {
-	assert(slot < eMaxScissorRects);
+	assert(slot < D3DContext::eMaxScissorRects && m_ContextsInUse[ctxIndex].IsValid());
 
-	if (m_Pipeline.ScissorRects[slot] != rect)
+	if (m_ContextsInUse[ctxIndex].State.ScissorRects[slot] != rect)
 	{
-		m_Pipeline.ScissorRects[slot] = rect;
+		m_ContextsInUse[ctxIndex].State.ScissorRects[slot] = rect;
 
-		m_Pipeline.ScissorRectCache.push_back(rect);
+		m_ContextsInUse[ctxIndex].State.ScissorRectsInUse |= (1U << slot);
 
-		m_Pipeline.DirtyFlags[eDScissorRect] = true;
+		m_ContextsInUse[ctxIndex].State.SetDirty(D3DContext::eDScissorRect, true);
 	}
 }
 
-void D3DEngine::D3DPipeline::CommitState(const D3DContext &IMContext)
+void D3DEngine::Draw(uint32_t vertexCount, uint32_t startVertex, uint32_t primitive, bool bClearState, uint32_t ctxIndex)
 {
-	if (!IMContext.IsValid())
+	assert(m_ContextsInUse[ctxIndex].IsValid());
+
+	if (m_ContextsInUse[ctxIndex].State.PrimitiveTopology != primitive)
 	{
-		return;
+		m_ContextsInUse[ctxIndex].State.PrimitiveTopology = primitive;
+
+		m_ContextsInUse[ctxIndex].State.SetDirty(D3DContext::eDPrimitiveTopology, true);
 	}
 
-	/// Input Assembler
-	if (DirtyFlags[eDInputLayout])
+	m_ContextsInUse[ctxIndex].CommitState();
+
+	m_ContextsInUse[ctxIndex]->Draw(vertexCount, startVertex);
+
+	if (bClearState)
 	{
-		IMContext->IASetInputLayout(InputLayout.Get());
-		DirtyFlags[eDInputLayout] = false;
-	}
-
-	if (DirtyFlags[eDVertexBuffer])
-	{
-		assert(!VertexBufferCache.empty());
-
-		IMContext->IASetVertexBuffers(0U, (uint32_t)VertexBufferCache.size(), VertexBufferCache.data(), VertexStrideCache.data(), VertexOffsetCache.data());
-
-		VertexBufferCache.clear();
-		VertexStrideCache.clear();
-		VertexOffsetCache.clear();
-
-		DirtyFlags[eDVertexBuffer] = false;
-	}
-
-	if (DirtyFlags[eDIndexBuffer])
-	{
-		IMContext->IASetIndexBuffer(IndexBuffer.Buffer.Get(), (DXGI_FORMAT)IndexBuffer.Format, IndexBuffer.Offset);
-		DirtyFlags[eDIndexBuffer] = false;
-	}
-
-	if (DirtyFlags[eDPrimitiveTopology])
-	{
-		IMContext->IASetPrimitiveTopology((D3D11_PRIMITIVE_TOPOLOGY)PrimitiveTopology);
-		DirtyFlags[eDPrimitiveTopology] = false;
-	}
-
-	BindConstantBuffers(IMContext);
-
-	BindSamplerStates(IMContext);
-
-	BindShaderResourceViews(IMContext);
-
-	BindUnorderedAccessViews(IMContext);
-
-	/// VS->HS->DS->GS
-	if (DirtyFlags[eDVertexShader])
-	{
-		assert(VertexShader.IsValid());
-		IMContext->VSSetShader(VertexShader.Get(), nullptr, 0U);
-		DirtyFlags[eDVertexShader] = false;
-	}
-
-	if (DirtyFlags[eDHullShader])
-	{
-		IMContext->HSSetShader(HullShader.Get(), nullptr, 0U);
-		DirtyFlags[eDHullShader] = false;
-	}
-
-	if (DirtyFlags[eDDomainShader])
-	{
-		IMContext->DSSetShader(DomainShader.Get(), nullptr, 0U);
-		DirtyFlags[eDDomainShader] = false;
-	}
-
-	if (DirtyFlags[eDGeometryShader])
-	{
-		IMContext->GSSetShader(GeometryShader.Get(), nullptr, 0U);
-		DirtyFlags[eDGeometryShader] = false;
-	}
-
-	/// Rasterizer
-	if (DirtyFlags[eDRasterizerState])
-	{
-		IMContext->RSSetState(RasterizerState.Get());
-		DirtyFlags[eDRasterizerState] = false;
-	}
-
-	if (DirtyFlags[eDViewport])
-	{
-		assert(!ViewportCache.empty());
-
-		IMContext->RSSetViewports((uint32_t)ViewportCache.size(), ViewportCache.data());
-
-		ViewportCache.clear();
-
-		DirtyFlags[eDViewport] = false;
-	}
-
-	if (DirtyFlags[eDScissorRect])
-	{
-		if (!ScissorRectCache.empty())
-		{
-			IMContext->RSSetScissorRects((uint32_t)ScissorRectCache.size(), ScissorRectCache.data());
-
-			ScissorRectCache.clear();
-		}
-
-		DirtyFlags[eDScissorRect] = false;
-	}
-
-	/// Pixel Shader
-	if (DirtyFlags[eDPixelShader])
-	{
-		IMContext->PSSetShader(PixelShader.Get(), nullptr, 0U);
-		DirtyFlags[eDPixelShader] = false;
-	}
-
-	if (DirtyFlags[eDComputeShader])
-	{
-		IMContext->CSSetShader(ComputeShader.Get(), nullptr, 0U);
-		DirtyFlags[eDComputeShader] = false;
-	}
-
-	/// Output Merge
-	if (DirtyFlags[eDBlendState])
-	{
-		IMContext->OMSetBlendState(BlendState.Get(), (float *)&BlendFactor, BlendMask);
-		DirtyFlags[eDBlendState] = false;
-	}
-
-	if (DirtyFlags[eDDepthStencilState])
-	{
-		IMContext->OMSetDepthStencilState(DepthStencilState.Get(), StencilRef);
-		DirtyFlags[eDDepthStencilState] = false;
-	}
-
-	if (DirtyFlags[eDRenderTargetView] || DirtyFlags[eDDepthStencilView])
-	{
-		assert(!RenderTargetViewCache.empty());
-
-		IMContext->OMSetRenderTargets((uint32_t)RenderTargetViewCache.size(), RenderTargetViewCache.data(), DepthStencilView.Get());
-
-		///RenderTargetViewCache.clear();
-
-		///DirtyFlags[eDRenderTargetView] = false;
-		DirtyFlags[eDDepthStencilView] = false;
+		m_ContextsInUse[ctxIndex].State.ResetState();
 	}
 }
 
-void D3DEngine::D3DPipeline::BindConstantBuffers(const D3DContext &IMContext)
+void D3DEngine::DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, uint32_t primitive, bool bClearState, uint32_t ctxIndex)
 {
-	if (!DirtyFlags[eDConstantBuffer])
+	assert(m_ContextsInUse[ctxIndex].IsValid());
+
+	if (m_ContextsInUse[ctxIndex].State.PrimitiveTopology != primitive)
 	{
-		return;
+		m_ContextsInUse[ctxIndex].State.PrimitiveTopology = primitive;
+
+		m_ContextsInUse[ctxIndex].State.SetDirty(D3DContext::eDPrimitiveTopology, true);
 	}
 
-	for (uint32_t i = 0U; i < D3DShader::eShaderTypeCount; ++i)
+	m_ContextsInUse[ctxIndex].CommitState();
+
+	m_ContextsInUse[ctxIndex]->DrawIndexed(indexCount, startIndex, offset);
+
+	if (bClearState)
 	{
-		std::vector<ID3D11Buffer *> &constantBuffers = ConstantBufferCache[i];
-		if (!constantBuffers.empty())
-		{
-			switch ((D3DShader::eShaderType)i)
-			{
-			case D3DShader::eVertexShader:   IMContext->VSSetConstantBuffers(0U, (uint32_t)constantBuffers.size(), constantBuffers.data()); break;
-			case D3DShader::eHullShader:     IMContext->HSSetConstantBuffers(0U, (uint32_t)constantBuffers.size(), constantBuffers.data()); break;
-			case D3DShader::eDomainShader:   IMContext->DSSetConstantBuffers(0U, (uint32_t)constantBuffers.size(), constantBuffers.data()); break;
-			case D3DShader::eGeometryShader: IMContext->GSSetConstantBuffers(0U, (uint32_t)constantBuffers.size(), constantBuffers.data()); break;
-			case D3DShader::ePixelShader:    IMContext->PSSetConstantBuffers(0U, (uint32_t)constantBuffers.size(), constantBuffers.data()); break;
-			case D3DShader::eComputeShader:  IMContext->CSSetConstantBuffers(0U, (uint32_t)constantBuffers.size(), constantBuffers.data()); break;
-			}
-
-			constantBuffers.clear();
-		}
+		m_ContextsInUse[ctxIndex].State.ResetState();
 	}
-
-	DirtyFlags[eDConstantBuffer] = false;
-}
-
-void D3DEngine::D3DPipeline::BindSamplerStates(const D3DContext &IMContext)
-{
-	if (!DirtyFlags[eDSamplerState])
-	{
-		return;
-	}
-
-	for (uint32_t i = 0U; i < D3DShader::eShaderTypeCount; ++i)
-	{
-		std::vector<ID3D11SamplerState *> &samplerStates = SamplerStateCache[i];
-		if (!samplerStates.empty())
-		{
-			switch ((D3DShader::eShaderType)i)
-			{
-			case D3DShader::eVertexShader:   IMContext->VSSetSamplers(0U, (uint32_t)samplerStates.size(), samplerStates.data()); break;
-			case D3DShader::eHullShader:     IMContext->HSSetSamplers(0U, (uint32_t)samplerStates.size(), samplerStates.data()); break;
-			case D3DShader::eDomainShader:   IMContext->DSSetSamplers(0U, (uint32_t)samplerStates.size(), samplerStates.data()); break;
-			case D3DShader::eGeometryShader: IMContext->GSSetSamplers(0U, (uint32_t)samplerStates.size(), samplerStates.data()); break;
-			case D3DShader::ePixelShader:    IMContext->PSSetSamplers(0U, (uint32_t)samplerStates.size(), samplerStates.data()); break;
-			case D3DShader::eComputeShader:  IMContext->CSSetSamplers(0U, (uint32_t)samplerStates.size(), samplerStates.data()); break;
-			}
-
-			samplerStates.clear();
-		}
-	}
-
-	DirtyFlags[eDSamplerState] = false;
-}
-
-void D3DEngine::D3DPipeline::BindShaderResourceViews(const D3DContext &IMContext)
-{
-	if (!DirtyFlags[eDShaderResourceView])
-	{
-		return;
-	}
-
-	for (uint32_t i = 0U; i < D3DShader::eShaderTypeCount; ++i)
-	{
-		if (TexturesInUse[i] > 0U)
-		{
-			switch ((D3DShader::eShaderType)i)
-			{
-			case D3DShader::eVertexShader:   IMContext->VSSetShaderResources(0U, eMaxShaderResourceView, ShaderResourceViewCache[i].data()); break;
-			case D3DShader::eHullShader:     IMContext->HSSetShaderResources(0U, eMaxShaderResourceView, ShaderResourceViewCache[i].data()); break;
-			case D3DShader::eDomainShader:   IMContext->DSSetShaderResources(0U, eMaxShaderResourceView, ShaderResourceViewCache[i].data()); break;
-			case D3DShader::eGeometryShader: IMContext->GSSetShaderResources(0U, eMaxShaderResourceView, ShaderResourceViewCache[i].data()); break;
-			case D3DShader::ePixelShader:    IMContext->PSSetShaderResources(0U, eMaxShaderResourceView, ShaderResourceViewCache[i].data()); break;
-			case D3DShader::eComputeShader:  IMContext->CSSetShaderResources(0U, eMaxShaderResourceView, ShaderResourceViewCache[i].data()); break;
-			}
-
-			TexturesInUse[i] = 0U;
-			///ShaderResourceViewCache[i].fill(nullptr);
-		}
-	}
-
-	DirtyFlags[eDShaderResourceView] = false;
-}
-
-void D3DEngine::D3DPipeline::BindUnorderedAccessViews(const D3DContext &IMContext)
-{
-	if (!DirtyFlags[eDUnorderedAccessView])
-	{
-		return;
-	}
-
-	if (!UnorderedAccessViewCache.empty())
-	{
-		IMContext->CSSetUnorderedAccessViews(0U, (uint32_t)UnorderedAccessViewCache.size(), UnorderedAccessViewCache.data(), nullptr);
-
-		UnorderedAccessViewCache.clear();
-	}
-
-	DirtyFlags[eDUnorderedAccessView] = false;
-}
-
-void D3DEngine::Draw(uint32_t vertexCount, uint32_t startVertex, uint32_t primitive)
-{
-	if (m_Pipeline.PrimitiveTopology != primitive)
-	{
-		m_Pipeline.PrimitiveTopology = primitive;
-		m_Pipeline.DirtyFlags[eDPrimitiveTopology] = true;
-	}
-
-	m_Pipeline.CommitState(m_ContextInUse);
-
-	m_ContextInUse->Draw(vertexCount, startVertex);
-}
-
-void D3DEngine::DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, uint32_t primitive)
-{
-	if (m_Pipeline.PrimitiveTopology != primitive)
-	{
-		m_Pipeline.PrimitiveTopology = primitive;
-		m_Pipeline.DirtyFlags[eDPrimitiveTopology] = true;
-	}
-
-	m_Pipeline.CommitState(m_ContextInUse);
-
-	m_ContextInUse->DrawIndexed(indexCount, startIndex, offset);
 }
 
 #if 0

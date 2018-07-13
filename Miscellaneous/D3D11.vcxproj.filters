@@ -38,6 +38,7 @@
     <ClCompile Include="..\D3D11\D3DObjMesh.cpp" />
     <ClCompile Include="..\D3D11\D3DSDKMesh.cpp" />
     <ClCompile Include="..\D3D11\D3DFontFreeType.cpp" />
+    <ClCompile Include="..\D3D11\D3DContext.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\D3D11\D3DGeometry.h" />
@@ -64,5 +65,6 @@
       <Filter>Obsolete</Filter>
     </ClInclude>
     <ClInclude Include="..\D3D11\D3DFontFreeType.h" />
+    <ClInclude Include="..\D3D11\D3DContext.h" />
   </ItemGroup>
 </Project>
