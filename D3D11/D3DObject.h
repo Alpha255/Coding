@@ -69,11 +69,6 @@ public:
 		return !(*this == other);
 	}
 
-	inline bool operator!=(const T *other) const
-	{
-		return m_Object.get() != other;
-	}
-
 	inline void MakeObject(T *pObject)
 	{
 		if (pObject)
@@ -90,6 +85,14 @@ class D3DDevice : public D3DObject<ID3D11Device> {};
 class DXGIFactory : public D3DObject<IDXGIFactory> {};
 class D3DResource : public D3DObject<ID3D11Resource> {};
 class D3DCommandList : public D3DObject<ID3D11CommandList> {};
+
+class D3DContext : public D3DObject<ID3D11DeviceContext>
+{
+public:
+	void CreateAsDeferredContext();
+protected:
+private:
+};
 
 class D3DSwapChain : public D3DObject<IDXGISwapChain> 
 {
