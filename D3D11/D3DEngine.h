@@ -5,6 +5,7 @@
 #include "D3DShader.h"
 #include "D3DBuffer.h"
 #include "D3DState.h"
+#include "D3DContextState.h"
 #include "D3DGeometry.h"
 
 class D3DEngine : public NoneCopyable
@@ -51,6 +52,7 @@ public:
 	inline void ResetRenderSurfaces()
 	{
 		SetRenderTargetView(m_RenderTargetView, 0U);
+
 		SetDepthStencilView(m_DepthStencilView);
 	}
 
@@ -78,7 +80,7 @@ public:
 
 	inline void ForceCommitState()
 	{
-		m_Pipeline.CommitState(m_IMContext);
+		m_IMContextState.CommitState(m_IMContext);
 	}
 
 	void Initialize(HWND hWnd, uint32_t width, uint32_t height, bool bWindowed);
@@ -111,121 +113,14 @@ public:
 	void SetViewport(const D3DViewport &viewport, uint32_t slot = 0U);
 	void SetScissorRect(const D3DRect &rect, uint32_t slot = 0U);
 
-	void SetContext(const D3DContext &context)
-	{
-		assert(context.IsValid());
-
-		m_ContextInUse = (m_ContextInUse == context ? m_ContextInUse : context);
-	}
-
 	void Draw(uint32_t vertexCount, uint32_t startVertex, uint32_t primitive);
 	void DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, uint32_t primitive);
 	void DrawInstanced();
 	void DrawAuto();
 
 	void DrawTextInPos(const char *pTextContent, uint32_t left = 10U, uint32_t top = 10U, uint32_t fontSize = 1U);
+
 protected:
-	enum eResourceLimits
-	{
-		eMaxViewports = D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE,
-		eMaxScissorRects = eMaxViewports,
-		eMaxSamplers = D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT,
-		eMaxConstantBuffers = D3D11_COMMONSHADER_CONSTANT_BUFFER_HW_SLOT_COUNT,
-		eMaxRenderTargetViews = D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT,
-		eMaxShaderResourceView = D3D11_COMMONSHADER_INPUT_RESOURCE_REGISTER_COUNT / 16U,  /// Don't need so many
-		eMaxUnorderedAccessViews = D3D11_PS_CS_UAV_REGISTER_COUNT,  /// D3D11_1_UAV_SLOT_COUNT
-		eMaxVertexStream = 1  /// Custom
-	};
-
-	enum eDirtyFlag
-	{
-		eDInputLayout,
-		eDVertexBuffer,
-		eDIndexBuffer,
-		eDConstantBuffer,
-		
-		eDVertexShader,
-		eDHullShader,
-		eDDomainShader,
-		eDPixelShader,
-		eDGeometryShader,
-		eDComputeShader,
-		
-		eDRasterizerState,
-		eDSamplerState,
-		eDBlendState,
-		eDDepthStencilState,
-		
-		eDRenderTargetView,
-		eDDepthStencilView,
-		eDShaderResourceView,
-		eDUnorderedAccessView,
-		
-		eDScissorRect,
-		eDViewport,
-
-		eDPrimitiveTopology,
-
-		eDirtyFlagCount
-	};
-
-	struct D3DPipeline
-	{
-	public:
-		D3DInputLayout           InputLayout;
-		D3DVertexBuffer          VertexBuffers[eMaxVertexStream];
-		D3DIndexBuffer           IndexBuffer;
-		D3DBuffer                ConstantBuffers[D3DShader::eShaderTypeCount][eMaxConstantBuffers];
-
-		D3DVertexShader          VertexShader;
-		D3DHullShader            HullShader;
-		D3DDomainShader          DomainShader;
-		D3DPixelShader           PixelShader;
-		D3DGeometryShader        GeometryShader;
-		D3DComputeShader         ComputeShader;
-
-		D3DRasterizerState       RasterizerState;
-		D3DSamplerState          SamplerStates[D3DShader::eShaderTypeCount][eMaxSamplers];
-		D3DBlendState            BlendState;
-		D3DDepthStencilState     DepthStencilState;
-
-		D3DRenderTargetView      RenderTargetViews[eMaxRenderTargetViews];
-		D3DDepthStencilView      DepthStencilView;
-		D3DShaderResourceView    ShaderResourceViews[D3DShader::eShaderTypeCount][eMaxShaderResourceView];
-		D3DUnorderedAccessView   UnorderedAccessViews[eMaxUnorderedAccessViews];
-
-		D3DViewport              Viewports[eMaxViewports];
-		D3DRect                  ScissorRects[eMaxScissorRects];
-
-		uint32_t                 PrimitiveTopology = UINT32_MAX;
-		uint32_t                 StencilRef = 0U;
-		uint32_t                 BlendMask = 0U;
-		uint32_t                 TexturesInUse[D3DShader::eShaderTypeCount] = {};
-		Vec4                     BlendFactor;
-		bool                     DirtyFlags[eDirtyFlagCount] = {};
-
-		std::vector<ID3D11Buffer *> VertexBufferCache;
-		std::vector<uint32_t> VertexStrideCache;
-		std::vector<uint32_t> VertexOffsetCache;
-
-		std::vector<ID3D11RenderTargetView *> RenderTargetViewCache;
-		std::vector<ID3D11UnorderedAccessView *> UnorderedAccessViewCache;
-		std::array<std::array<ID3D11ShaderResourceView *, eMaxShaderResourceView>, D3DShader::eShaderTypeCount> ShaderResourceViewCache;
-
-		std::array<std::vector<ID3D11Buffer *>, D3DShader::eShaderTypeCount> ConstantBufferCache;
-		std::array<std::vector<ID3D11SamplerState *>, D3DShader::eShaderTypeCount> SamplerStateCache;
-
-		std::vector<D3DViewport> ViewportCache;
-		std::vector<D3DRect> ScissorRectCache;
-
-		void CommitState(const D3DContext &IMContext);
-	protected:
-		void BindConstantBuffers(const D3DContext &IMContext);
-		void BindSamplerStates(const D3DContext &IMContext);
-		void BindShaderResourceViews(const D3DContext &IMContext);
-		void BindUnorderedAccessViews(const D3DContext &IMContext);
-	};
-
 	D3DEngine() = default;
 	~D3DEngine() = default;
 
@@ -235,12 +130,11 @@ private:
 
 	D3DDevice m_Device;
 	D3DContext m_IMContext;
-	D3DContext m_ContextInUse;
 	D3DSwapChain m_SwapChain;
 	D3DRenderTargetView m_RenderTargetView;
 	D3DDepthStencilView m_DepthStencilView;
 
-	D3DPipeline m_Pipeline;
+	D3DContextState m_IMContextState;
 
 	bool m_Inited = false;
 };

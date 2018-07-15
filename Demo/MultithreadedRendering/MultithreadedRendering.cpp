@@ -252,8 +252,6 @@ void AppMultithreadedRendering::Initialize()
 	m_StaticParamsDirectly.TintColor = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	m_StaticParamsDirectly.Viewport = { 0.0f, 0.0f, (float)m_Width, (float)m_Height };
 
-	m_IMContext = D3DEngine::Instance().GetIMContext();
-
 	InitShadowResource();
 
 	InitMirrorResource();
@@ -261,8 +259,6 @@ void AppMultithreadedRendering::Initialize()
 
 void AppMultithreadedRendering::PerSceneRenderTask(uint32_t taskID)
 {
-	D3DEngine::Instance().SetContext(m_SceneDefContexts[taskID]);
-
 	while (true)
 	{
 		///if (false)
@@ -420,8 +416,6 @@ void AppMultithreadedRendering::RenderScene()
 {
 	if (eST == m_RenderingMode)
 	{
-		D3DEngine::Instance().SetContext(m_IMContext);
-
 		for (uint32_t i = 0U; i < eNumShadows; ++i)
 		{
 			DrawShadow(i);

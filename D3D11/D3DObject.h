@@ -25,6 +25,7 @@ public:
 		if (m_Object)
 		{
 			m_Object.reset();
+			m_Object = nullptr;
 		}
 	}
 
@@ -35,14 +36,6 @@ public:
 			m_Object = other.m_Object;
 		}
 	}
-
-	///inline void operator=(const D3DObject &other)
-	///{
-	///	if (m_Object != other.m_Object)
-	///	{
-	///		m_Object = other.m_Object;
-	///	}
-	///}
 
 	inline T * const operator->() const
 	{
@@ -64,9 +57,19 @@ public:
 		return false;
 	}
 
+	inline bool operator==(const T *other) const
+	{
+		return (void*)m_Object.get() == (void*)other;
+	}
+
 	inline bool operator!=(const D3DObject &other) const
 	{
 		return !(*this == other);
+	}
+
+	inline bool operator!=(const T *other) const
+	{
+		return (void*)m_Object.get() != (void*)other;
 	}
 
 	inline void MakeObject(T *pObject)

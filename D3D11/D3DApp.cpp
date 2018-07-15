@@ -106,7 +106,11 @@ void D3DApp::Frame()
 
 	Update(m_pTimer->DeltaTime(), m_pTimer->TotalTime());
 
+	s_Renderer->ResetRenderSurfaces();
+
 	s_Renderer->ClearRenderSurfaces();
+
+	s_Renderer->SetViewport(D3DViewport(0.0f, 0.0f, (float)m_Width, (float)m_Height));
 
 	s_GUI->RenderBegin();
 

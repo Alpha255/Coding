@@ -78,7 +78,6 @@ private:
 	D3DInputLayout m_LayoutMirror;
 
 	D3DContext m_SceneDefContexts[eNumScenes];
-	D3DContext m_IMContext;
 	D3DCommandList m_SceneCmdList[eNumScenes];
 
 	D3DShaderResourceView m_ShadowSRV[eNumShadows];
