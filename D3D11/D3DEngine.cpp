@@ -51,6 +51,8 @@ void D3DEngine::Initialize(HWND hWnd, uint32_t width, uint32_t height, bool bWin
 
 			D3DStaticState::Initialize();
 
+			m_ContextsMap.emplace(std::make_pair(std::this_thread::get_id(), m_IMContext));
+
 			///D3DFontFreeType::Instance().Initialize(width, height);
 
 			m_Inited = true;
@@ -93,6 +95,15 @@ void D3DEngine::Resize(uint32_t width, uint32_t height)
 	RecreateRenderTargetDepthStencil(width, height);
 
 	///D3DFontFreeType::Instance().Resize(width, height);
+}
+
+void D3DEngine::RegisterRenderThread(std::thread::id workerThreadID)
+{
+	uint32_t workerThreadsLimit = std::thread::hardware_concurrency();
+	assert(m_ContextsMap.size() < workerThreadsLimit);
+
+	m_ContextsMap.emplace(std::make_pair(workerThreadID, D3DContext()));
+	m_ContextsMap[workerThreadID].CreateAsDeferredContext();
 }
 
 void D3DEngine::SetRenderTargetView(const D3DRenderTargetView &renderTarget, uint32_t slot)

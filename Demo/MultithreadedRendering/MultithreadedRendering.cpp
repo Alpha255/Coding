@@ -204,9 +204,7 @@ void AppMultithreadedRendering::InitWorkerThreads()
 {
 	for (uint32_t i = 0U; i < eNumScenes; ++i)
 	{
-		std::thread renderTask(&AppMultithreadedRendering::PerSceneRenderTask, this, i);
-
-		renderTask.join();
+		m_RenderThreads[i].Start(std::thread(&AppMultithreadedRendering::PerSceneRenderTask, this, i));
 	}
 }
 
@@ -255,6 +253,8 @@ void AppMultithreadedRendering::Initialize()
 	InitShadowResource();
 
 	InitMirrorResource();
+
+	InitWorkerThreads();
 }
 
 void AppMultithreadedRendering::PerSceneRenderTask(uint32_t taskID)
@@ -278,10 +278,6 @@ void AppMultithreadedRendering::PerSceneRenderTask(uint32_t taskID)
 		{
 			DrawScene(m_StaticParamsDirectly, m_Camera->GetWorldMatrix(), m_Camera->GetViewMatrix() * m_Camera->GetProjMatrix());
 		}
-
-		ID3D11CommandList *pCmdList = nullptr;
-		m_SceneDefContexts[taskID]->FinishCommandList(true, &pCmdList);
-		m_SceneCmdList[taskID].MakeObject(pCmdList);
 	}
 }
 

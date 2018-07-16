@@ -4,6 +4,7 @@
 #include "D3DGeometry.h"
 #include "D3DView.h"
 #include "D3DState.h"
+#include "D3DRenderThread.h"
 
 class AppMultithreadedRendering : public D3DApp
 {
@@ -77,9 +78,6 @@ private:
 	D3DInputLayout m_Layout;
 	D3DInputLayout m_LayoutMirror;
 
-	D3DContext m_SceneDefContexts[eNumScenes];
-	D3DCommandList m_SceneCmdList[eNumScenes];
-
 	D3DShaderResourceView m_ShadowSRV[eNumShadows];
 
 	D3DDepthStencilState m_NoStencil;
@@ -96,6 +94,8 @@ private:
 
 	MirrorRect m_MirrorRect[eNumMirrors];
 	Matrix m_MirrorWorld[eNumMirrors];
+
+	D3DRenderThread m_RenderThreads[eNumScenes];
 
 	Geometry::SDKMesh m_SquidRoom;
 };

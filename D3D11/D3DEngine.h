@@ -8,6 +8,9 @@
 #include "D3DContextState.h"
 #include "D3DGeometry.h"
 
+#include <unordered_map>
+#include <thread>
+
 class D3DEngine : public NoneCopyable
 {
 public:
@@ -82,6 +85,8 @@ public:
 
 	void Resize(uint32_t width, uint32_t height);
 
+	void RegisterRenderThread(std::thread::id workerThreadID);
+
 	void SetRenderTargetView(const D3DRenderTargetView &renderTarget, uint32_t slot = 0U);
 	void SetDepthStencilView(const D3DDepthStencilView &depthStencilView);
 	void SetShaderResourceView(const D3DShaderResourceView &shaderResourceView, uint32_t slot, D3DShader::eShaderType targetShader);
@@ -128,6 +133,8 @@ private:
 	D3DSwapChain m_SwapChain;
 	D3DRenderTargetView m_RenderTargetView;
 	D3DDepthStencilView m_DepthStencilView;
+
+	std::unordered_map<std::thread::id, D3DContext> m_ContextsMap;
 
 	D3DContextState m_IMContextState;
 
