@@ -17,14 +17,14 @@ LRESULT D3DApp::MsgProc(HWND hWnd, uint32_t msg, WPARAM wParam, LPARAM lParam)
 {
 	assert(m_pTimer);
 
-	if (s_GUI && s_GUI->WinProc(hWnd, msg, wParam, lParam))
+	if (m_bRenderedInited && D3DGUI_imGui::Instance().WinProc(hWnd, msg, wParam, lParam))
 	{
 		return 1LL;
 	}
 
 	HandleWindowMessage(msg, wParam, lParam);
 
-	if (!s_GUI || !s_GUI->IsFocus())
+	if (!m_bRenderedInited || !D3DGUI_imGui::Instance().IsFocus())
 	{
 		HandleInput(msg, wParam, lParam);
 	}
@@ -34,9 +34,9 @@ LRESULT D3DApp::MsgProc(HWND hWnd, uint32_t msg, WPARAM wParam, LPARAM lParam)
 
 void D3DApp::ResizeWindow(uint32_t width, uint32_t height)
 {
-	if (s_Renderer)
+	if (m_bRenderedInited)
 	{
-		s_Renderer->Resize(width, height);
+		D3DEngine::Instance().Resize(width, height);
 	}
 
 	m_Camera->SetProjParams(DirectX::XM_PIDIV4, (float)width / height, 1.0f, 3000.0f);
@@ -68,17 +68,15 @@ void D3DApp::MouseMove(WPARAM wParam, int32_t x, int32_t y)
 
 void D3DApp::InitRenderer()
 {
-	if (nullptr == s_Renderer)
+	if (!m_bRenderedInited)
 	{
-		s_Renderer = &D3DEngine::Instance();
-		assert(s_Renderer);
-		s_Renderer->Initialize(m_hWnd, m_Width, m_Height, m_bWindowed);
+		D3DEngine::Instance().Initialize(m_hWnd, m_Width, m_Height, m_bWindowed);
 
-		s_GUI = &D3DGUI_imGui::Instance();
-		assert(s_GUI);
-		s_GUI->Initialize(m_hWnd);
+		D3DGUI_imGui::Instance().Initialize(m_hWnd);
 
 		m_Camera->SetProjParams(DirectX::XM_PIDIV4, (float)m_Width / m_Height, 1.0f, 3000.0f);
+
+		m_bRenderedInited = true;
 	}
 }
 
@@ -106,29 +104,23 @@ void D3DApp::Frame()
 
 	Update(m_pTimer->DeltaTime(), m_pTimer->TotalTime());
 
-	s_Renderer->ResetRenderSurfaces();
-
-	s_Renderer->ClearRenderSurfaces();
-
-	s_Renderer->SetViewport(D3DViewport(0.0f, 0.0f, (float)m_Width, (float)m_Height));
-
-	s_GUI->RenderBegin();
+	D3DGUI_imGui::Instance().RenderBegin();
 
 	RenderScene();
 
-	s_GUI->RenderEnd();
+	D3DGUI_imGui::Instance().RenderEnd();
 
-	s_Renderer->Flush();
+	D3DEngine::Instance().Flush();
 
 	UpdateFPS();
 }
 
 void D3DApp::RenderToWindow()
 {
-	if (!m_bInited)
+	if (!m_bSceneInited)
 	{
 		Initialize();
-		m_bInited = true;
+		m_bSceneInited = true;
 	}
 
 	Frame();
@@ -138,5 +130,5 @@ D3DApp::~D3DApp()
 {
 	SafeDelete(m_Camera);
 
-	D3DGUI_imGui::Destroy(s_GUI);
+	D3DGUI_imGui::Destroy();
 }

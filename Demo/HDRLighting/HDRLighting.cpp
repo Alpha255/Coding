@@ -16,6 +16,9 @@ void AppHDRLighting::Initialize()
 
 void AppHDRLighting::RenderScene()
 {
+	D3DEngine::Instance().ResetDefaultRenderSurfaces();
+	D3DEngine::Instance().SetViewport(D3DViewport(0.0f, 0.0f, (float)m_Width, (float)m_Height));
+
 	D3DEngine::Instance().SetVertexShader(m_VertexShader);
 	D3DEngine::Instance().SetPixelShader(m_PixelShader);
 	D3DEngine::Instance().SetConstantBuffer(m_CBufferVS, 0U, D3DShader::eVertexShader);

@@ -13,7 +13,6 @@ public:
 
 	virtual void Initialize() override;
 	virtual void RenderScene() override;
-	virtual void ResizeWindow(uint32_t width, uint32_t height) override;
 protected:
 	void InitCubemapCameras(float cx, float cy, float cz);
 
@@ -40,7 +39,6 @@ private:
 	Material m_MatrialCube;
 	Material m_MatrialSphere;
 
-	D3DViewport m_Viewport;
 	D3DViewport m_CubemapViewport;
 	Camera m_CubemapCamera[6];
 };

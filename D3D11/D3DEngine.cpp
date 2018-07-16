@@ -88,14 +88,6 @@ void D3DEngine::Resize(uint32_t width, uint32_t height)
 
 	m_DepthStencilView.Reset();
 
-	//for each(auto rtv in m_IMContextState.RenderTargetViews)
-	//{
-	//	if (rtv)
-	//	{
-	//		rtv->Release();
-	//	}
-	//}
-
 	m_SwapChain.Resize(width, height);
 
 	RecreateRenderTargetDepthStencil(width, height);

@@ -25,8 +25,6 @@ public:
 	void Frame();
 protected:
 	class Camera* m_Camera = nullptr;
-	class D3DEngine *s_Renderer = nullptr;
-	class D3DGUI_imGui *s_GUI = nullptr;
 
 	float m_FPS = 0.0f;
 
@@ -39,5 +37,6 @@ protected:
 private:
 	int32_t m_MouseWheelDelta = 0;
 
-	bool m_bInited = false;
+	bool m_bRenderedInited = false;
+	bool m_bSceneInited = false;
 };

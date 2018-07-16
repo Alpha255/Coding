@@ -21,15 +21,9 @@ public:
 		return *s_Instance;
 	}
 
-	static void Destroy(D3DGUI_imGui *pGUI)
+	static void Destroy()
 	{
-		if (pGUI)
-		{
-			ImGui::Shutdown();
-
-			SafeDeleteArray(pGUI->m_pVertices);
-			SafeDeleteArray(pGUI->m_pIndices);
-		}
+		ImGui::Shutdown();
 	}
 
 	void Initialize(::HWND hWnd);
@@ -85,8 +79,8 @@ private:
 	int32_t m_VertexCount = 0;
 	int32_t m_IndexCount = 0;
 
-	ImDrawVert *m_pVertices = nullptr;
-	ImDrawIdx *m_pIndices = nullptr;
+	std::shared_ptr<ImDrawVert> m_Vertices;
+	std::shared_ptr<ImDrawIdx> m_Indices;
 
 	RenderResource m_Resource;
 

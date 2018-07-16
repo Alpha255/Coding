@@ -88,7 +88,6 @@ void AppCubemap::Initialize()
 
 	m_CubemapDSV.Create(eD32_Float, CubemapSize, CubemapSize);
 
-	m_Viewport = { 0.0f, 0.0f, (float)m_Width, (float)m_Height, 0.0f, 1.0f };
 	m_CubemapViewport = { 0.0f, 0.0f, (float)CubemapSize, (float)CubemapSize, 0.0f, 1.0f };
 	
 	m_MatrialCube.Set(Material::eDiffuse, "WoodCrate01.dds");
@@ -167,18 +166,9 @@ void AppCubemap::RenderScene()
 	}
 
 	/// Draw Scene
-	D3DEngine::Instance().ResetRenderSurfaces();
-	D3DEngine::Instance().ClearRenderSurfaces();
-	D3DEngine::Instance().SetViewport(m_Viewport, 0U);
+	D3DEngine::Instance().ResetDefaultRenderSurfaces();
+	D3DEngine::Instance().SetViewport(D3DViewport(0.0f, 0.0f, (float)m_Width, (float)m_Height));
 	DrawClutter(*m_Camera, false);
 
 	m_SkyBox.Draw(*m_Camera);
-}
-
-void AppCubemap::ResizeWindow(uint32_t width, uint32_t height)
-{
-	Base::ResizeWindow(width, height);
-
-	m_Viewport.Width = (float)m_Width;
-	m_Viewport.Height = (float)m_Height;
 }

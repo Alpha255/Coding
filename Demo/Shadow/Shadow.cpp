@@ -51,8 +51,7 @@ void AppShadow::Initialize()
 	m_CBufferVS.CreateAsConstantBuffer(sizeof(ConstantBufferVS), D3DBuffer::eGpuReadCpuWrite, nullptr);
 	m_CBufferPS.CreateAsConstantBuffer(sizeof(ConstantBufferPS), D3DBuffer::eGpuReadCpuWrite, nullptr);
 
-	m_Viewports[eDrawMain] = { 0.0f, 0.0f, (float)m_Width, (float)m_Height, 0.0f, 1.0f };
-	m_Viewports[eDrawDepth] = { 0.0f, 0.0f, (float)DepthTexSize, (float)DepthTexSize, 0.0f, 1.0f };
+	m_ViewportsDepth = { 0.0f, 0.0f, (float)DepthTexSize, (float)DepthTexSize, 0.0f, 1.0f };
 
 	m_Camera->SetViewRadius(15.0f);
 	m_Camera->Move(0, 200);
@@ -127,7 +126,7 @@ void AppShadow::DrawQuad()
 void AppShadow::RenderScene()
 {
 	D3DRenderTargetView EmptyRTV;
-	D3DEngine::Instance().SetViewport(m_Viewports[eDrawDepth]);
+	D3DEngine::Instance().SetViewport(m_ViewportsDepth);
 	D3DEngine::Instance().ClearDepthStencilView(m_DepthSurface, D3DDepthStencilView::eDepthStencil, 1.0f, 0U);
 	D3DEngine::Instance().SetRenderTargetView(EmptyRTV, 0U);
 	D3DEngine::Instance().SetDepthStencilView(m_DepthSurface);
@@ -135,9 +134,8 @@ void AppShadow::RenderScene()
 	D3DEngine::Instance().SetPixelShader(m_PixelShaders[eDrawDepth]);
 	DrawClutter(true);
 
-	D3DEngine::Instance().SetViewport(m_Viewports[eDrawMain]);
-	D3DEngine::Instance().ResetRenderSurfaces();
-	D3DEngine::Instance().ClearRenderSurfaces();
+	D3DEngine::Instance().ResetDefaultRenderSurfaces();
+	D3DEngine::Instance().SetViewport(D3DViewport(0.0f, 0.0f, (float)m_Width, (float)m_Height));
 	D3DEngine::Instance().ForceCommitState();
 	D3DEngine::Instance().SetVertexShader(m_VertexShaders[eDrawMain]);
 	D3DEngine::Instance().SetPixelShader(m_PixelShaders[eDrawMain]);
@@ -148,12 +146,4 @@ void AppShadow::RenderScene()
 	///Light::DebugDisplay(CBufferPS.Light.Position, Light::ePoint, *m_Camera);
 
 	///ImGui::SliderFloat3("LightPos", (float *)&CBufferPS.Light.Position, -10.0f, 10.0f);
-}
-
-void AppShadow::ResizeWindow(uint32_t width, uint32_t height)
-{
-	Base::ResizeWindow(width, height);
-
-	m_Viewports[eDrawMain].Width = (float)m_Width;
-	m_Viewports[eDrawMain].Height = (float)m_Height;
 }

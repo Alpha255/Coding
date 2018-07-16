@@ -39,6 +39,7 @@
     <ClCompile Include="..\D3D11\D3DSDKMesh.cpp" />
     <ClCompile Include="..\D3D11\D3DFontFreeType.cpp" />
     <ClCompile Include="..\D3D11\D3DContextState.cpp" />
+    <ClCompile Include="..\D3D11\D3DRenderThread.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\D3D11\D3DGeometry.h" />
@@ -66,5 +67,6 @@
     </ClInclude>
     <ClInclude Include="..\D3D11\D3DFontFreeType.h" />
     <ClInclude Include="..\D3D11\D3DContextState.h" />
+    <ClInclude Include="..\D3D11\D3DRenderThread.h" />
   </ItemGroup>
 </Project>

@@ -96,6 +96,9 @@ void AppForwardLighting::Initialize()
 
 void AppForwardLighting::RenderScene()
 {
+	D3DEngine::Instance().ResetDefaultRenderSurfaces();
+	D3DEngine::Instance().SetViewport(D3DViewport(0.0f, 0.0f, (float)m_Width, (float)m_Height));
+
 	if (m_Wireframe)
 	{
 		D3DEngine::Instance().SetRasterizerState(D3DStaticState::Wireframe);

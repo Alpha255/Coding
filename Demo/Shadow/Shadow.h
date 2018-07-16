@@ -13,7 +13,6 @@ public:
 
 	virtual void Initialize() override;
 	virtual void RenderScene() override;
-	virtual void ResizeWindow(uint32_t width, uint32_t height) override;
 protected:
 	void DrawClutter(bool bDepthOnly);
 	void DrawQuad();
@@ -43,5 +42,5 @@ private:
 	D3DVertexShader m_VertexShaders[eShaderCount];
 	D3DPixelShader m_PixelShaders[eShaderCount];
 
-	D3DViewport m_Viewports[eDrawQuad];
+	D3DViewport m_ViewportsDepth;
 };

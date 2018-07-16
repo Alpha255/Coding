@@ -266,8 +266,7 @@ void D3DGUI_imGui::UpdateDrawData(bool bRecreateVB, bool bRecreateIB, const ImDr
 	{
 		m_VertexCount = pDrawData->TotalVtxCount + 5000;
 		
-		SafeDeleteArray(m_pVertices);
-		m_pVertices = new ImDrawVert[m_VertexCount]();
+		m_Vertices.reset(new ImDrawVert[m_VertexCount]());
 
 		m_Resource.VertexBuffer.Reset();
 		m_Resource.VertexBuffer.CreateAsVertexBuffer(m_VertexCount * sizeof(ImDrawVert), D3DBuffer::eGpuReadCpuWrite, nullptr);
@@ -277,8 +276,7 @@ void D3DGUI_imGui::UpdateDrawData(bool bRecreateVB, bool bRecreateIB, const ImDr
 	{
 		m_IndexCount = pDrawData->TotalIdxCount + 10000;
 
-		SafeDeleteArray(m_pIndices);
-		m_pIndices = new ImDrawIdx[m_IndexCount]();
+		m_Indices.reset(new ImDrawIdx[m_IndexCount]());
 
 		m_Resource.IndexBuffer.Reset();
 		m_Resource.IndexBuffer.CreateAsIndexBuffer(m_IndexCount * sizeof(ImDrawIdx), D3DBuffer::eGpuReadCpuWrite, nullptr);
@@ -289,13 +287,13 @@ void D3DGUI_imGui::UpdateDrawData(bool bRecreateVB, bool bRecreateIB, const ImDr
 	{
 		const ImDrawList *pDrawList = pDrawData->CmdLists[i];
 
-		memcpy(m_pVertices + totalVertices, pDrawList->VtxBuffer.Data, pDrawList->VtxBuffer.Size * sizeof(ImDrawVert));
+		memcpy(m_Vertices.get() + totalVertices, pDrawList->VtxBuffer.Data, pDrawList->VtxBuffer.Size * sizeof(ImDrawVert));
 		totalVertices += pDrawList->VtxBuffer.Size;
 
-		memcpy(m_pIndices + totalIndices, pDrawList->IdxBuffer.Data, pDrawList->IdxBuffer.Size * sizeof(ImDrawIdx));
+		memcpy(m_Indices.get() + totalIndices, pDrawList->IdxBuffer.Data, pDrawList->IdxBuffer.Size * sizeof(ImDrawIdx));
 		totalIndices += pDrawList->IdxBuffer.Size;
 	}
 
-	m_Resource.VertexBuffer.Update(m_pVertices, sizeof(ImDrawVert) * m_VertexCount);
-	m_Resource.IndexBuffer.Update(m_pIndices, sizeof(ImDrawIdx) * m_IndexCount);
+	m_Resource.VertexBuffer.Update(m_Vertices.get(), sizeof(ImDrawVert) * m_VertexCount);
+	m_Resource.IndexBuffer.Update(m_Indices.get(), sizeof(ImDrawIdx) * m_IndexCount);
 }
