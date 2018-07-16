@@ -1,4 +1,4 @@
-#include "D3DContextState.h"
+#include "D3DContext.h"
 
 void D3DContextState::CommitState(D3DContext &ctx)
 {

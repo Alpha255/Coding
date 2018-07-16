@@ -1,7 +1,7 @@
 #pragma once
 
-#include "D3DShader.h"
 #include "D3DMath.h"
+#include "D3DShader.h"
 
 struct D3DContextState
 {	
@@ -67,20 +67,20 @@ public:
 		DirtyFlag = bDirty ? (DirtyFlag | ((uint64_t)1 << (flag + index))) : (DirtyFlag & ~((uint64_t)1 << (flag + index)));
 	}
 
-	void CommitState(D3DContext &ctx);
+	void CommitState(class D3DContext &ctx);
 
 	inline void ClearState()
 	{
 		memset(this, 0, sizeof(D3DContextState));
 	}
 
-	friend class D3DEngine;
+	friend class D3DContext;
 
 protected:
-	void BindConstantBuffers(D3DContext &ctx);
-	void BindSamplerStates(D3DContext &ctx);
-	void BindShaderResourceViews(D3DContext &ctx);
-	void BindUnorderedAccessViews(D3DContext &ctx);
+	void BindConstantBuffers(class D3DContext &ctx);
+	void BindSamplerStates(class D3DContext &ctx);
+	void BindShaderResourceViews(class D3DContext &ctx);
+	void BindUnorderedAccessViews(class D3DContext &ctx);
 
 	template<typename T> inline uint32_t GetCount(T counter)
 	{

@@ -6,7 +6,8 @@
 #include "D3DTexture.h"
 #include "D3DLighting.h"
 
-#include <thread>
+#include <mutex>
+#include <condition_variable>
 
 Matrix g_LightVP[4];
 
@@ -200,9 +201,12 @@ void AppMultithreadedRendering::InitMirrorResource()
 	}
 }
 
+std::condition_variable g_Notifyer;
+std::mutex g_Mutex[AppMultithreadedRendering::eNumScenes];
+bool g_TaskStart[AppMultithreadedRendering::eNumScenes] = {};
 void AppMultithreadedRendering::InitWorkerThreads()
 {
-	for (uint32_t i = 0U; i < eNumScenes; ++i)
+	for (uint32_t i = 0U; i < 1U; ++i)
 	{
 		m_RenderThreads[i].Start(std::thread(&AppMultithreadedRendering::PerSceneRenderTask, this, i));
 	}
@@ -261,10 +265,8 @@ void AppMultithreadedRendering::PerSceneRenderTask(uint32_t taskID)
 {
 	while (true)
 	{
-		///if (false)
-		///{
-		///	m_SceneDefContexts[taskID]->ClearState();
-		///}
+		std::unique_lock<std::mutex> lock(g_Mutex[taskID]);
+		g_Notifyer.wait(lock, [taskID] { return g_TaskStart[taskID]; });
 
 		if (taskID < eNumShadows)
 		{
@@ -278,6 +280,11 @@ void AppMultithreadedRendering::PerSceneRenderTask(uint32_t taskID)
 		{
 			DrawScene(m_StaticParamsDirectly, m_Camera->GetWorldMatrix(), m_Camera->GetViewMatrix() * m_Camera->GetProjMatrix());
 		}
+
+		g_TaskStart[taskID] = false;
+
+		lock.unlock();
+		g_Notifyer.notify_one();
 	}
 }
 
@@ -429,9 +436,18 @@ void AppMultithreadedRendering::RenderScene()
 	}
 	else if (eMT_PerScene == m_RenderingMode)
 	{
-		for (uint32_t i = 0U; i < eNumScenes; ++i)
+		for (uint32_t i = 0U; i < 1U; ++i)
 		{
+			std::lock_guard<std::mutex> lock(g_Mutex[i]);
+			g_TaskStart[i] = true;
+		}
+		g_Notifyer.notify_all();
 
+		for (uint32_t i = 0U; i < 1U; ++i)
+		{
+			std::unique_lock<std::mutex> lock(g_Mutex[i]);
+			g_Notifyer.wait(lock, [i] { return !g_TaskStart[i]; });
+			lock.unlock();
 		}
 	}
 	else if (eMT_PerChunk == m_RenderingMode)

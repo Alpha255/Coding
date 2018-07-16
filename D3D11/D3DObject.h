@@ -89,14 +89,6 @@ class DXGIFactory : public D3DObject<IDXGIFactory> {};
 class D3DResource : public D3DObject<ID3D11Resource> {};
 class D3DCommandList : public D3DObject<ID3D11CommandList> {};
 
-class D3DContext : public D3DObject<ID3D11DeviceContext>
-{
-public:
-	void CreateAsDeferredContext();
-protected:
-private:
-};
-
 class D3DSwapChain : public D3DObject<IDXGISwapChain> 
 {
 public:

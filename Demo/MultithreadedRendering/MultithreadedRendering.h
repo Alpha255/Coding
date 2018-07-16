@@ -16,7 +16,7 @@ public:
 	virtual void RenderScene() override;
 	virtual void Update(float deltaTime, float totalTime) override;
 	virtual void ResizeWindow(uint32_t width, uint32_t height) override;
-protected:
+
 	enum eRenderingMode
 	{
 		eST,             /// Traditional rendering, one thread, immediate device context
@@ -30,7 +30,7 @@ protected:
 		eNumMirrors = 4U,
 		eNumScenes = 1U + eNumShadows + eNumMirrors
 	};
-
+protected:
 	struct StaticParams
 	{
 		D3DDepthStencilState DepthStencilState;
