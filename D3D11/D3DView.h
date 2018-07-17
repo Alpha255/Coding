@@ -17,6 +17,13 @@ public:
 		eTexture2DArray,
 		eTextureCubeArray
 	};
+
+	enum eDepthStencilViewFlags
+	{
+		eReadonlyDepth = D3D11_DSV_READ_ONLY_DEPTH,
+		eReadonlyStencil = D3D11_DSV_READ_ONLY_STENCIL,
+		eReadonlyDepthStencil = eReadonlyDepth | eReadonlyStencil
+	};
 };
 
 class D3DRenderTargetView : public D3DObject<ID3D11RenderTargetView>, public D3DView

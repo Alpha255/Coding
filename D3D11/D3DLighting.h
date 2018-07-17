@@ -12,6 +12,7 @@ public:
 		ePoint,
 		eDirectional,
 		eSpot,
+		eCapsule,
 		eLightTypeCount
 	};
 
@@ -71,7 +72,7 @@ struct SpotLight : public Light
 	float SpecularIntensity = 250.0f;
 };
 
-struct CapsultLight : public Light
+struct CapsuleLight : public Light
 {
 	Vec3 Position = {};
 	float Range = 20.0f;

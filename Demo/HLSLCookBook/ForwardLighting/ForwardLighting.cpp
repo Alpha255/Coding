@@ -22,7 +22,7 @@ struct ConstantBufferPS
 	DirectionalLight DirLight;
 	PointLight PLights[3];
 	SpotLight SLights[3];
-	CapsultLight CLights[3];
+	CapsuleLight CLights[3];
 
 	ConstantBufferPS()
 	{
