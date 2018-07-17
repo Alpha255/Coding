@@ -14,13 +14,12 @@ public:
 	virtual void Initialize() override;
 	virtual void RenderScene() override;
 protected:
-	void DrawClutter(bool bDepthOnly);
+	void DrawClutter(bool bDepthOnly, const Matrix &vp);
 	void DrawQuad();
 private:
 	enum eShaderType
 	{
 		eDrawMain,
-		eDrawDepth,
 		eDrawQuad,
 		eShaderCount
 	};

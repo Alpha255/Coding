@@ -206,10 +206,10 @@ std::mutex g_Mutex[AppMultithreadedRendering::eNumScenes];
 bool g_TaskStart[AppMultithreadedRendering::eNumScenes] = {};
 void AppMultithreadedRendering::InitWorkerThreads()
 {
-	for (uint32_t i = 0U; i < 1U; ++i)
-	{
-		m_RenderThreads[i].Start(std::thread(&AppMultithreadedRendering::PerSceneRenderTask, this, i));
-	}
+	//for (uint32_t i = 0U; i < 1U; ++i)
+	//{
+	//	m_RenderThreads[i].Start(std::thread(&AppMultithreadedRendering::PerSceneRenderTask, this, i));
+	//}
 }
 
 void AppMultithreadedRendering::Initialize()

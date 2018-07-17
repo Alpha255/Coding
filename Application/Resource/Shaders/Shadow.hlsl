@@ -16,6 +16,8 @@ cbuffer cbPS
     float4 EyePos;
     Material RawMat;
     PointLight Light;
+
+	matrix LightSpaceVP;
 };
 
 struct VSInput
@@ -26,46 +28,47 @@ struct VSInput
     float2 UV : TEXCOORD;
 };
 
-Material ApplyMaterial(in Material materialIn, in VSOutput psInput)
+struct VSOut
+{
+    float4 PosH : SV_POSITION;
+    float4 PosW : POSITION;
+    float3 NormalW : NORMAL;
+    float3 TangentW : TANGENT;
+    float2 UV : TEXCOORD0;
+};
+
+Material ApplyMaterial(in Material materialIn, in VSOut psInput)
 {
     Material materialOut = materialIn;
 
-    materialOut.Diffuse = DiffuseMap.Sample(LinearSampler, psInput.UV);
+    materialOut.Diffuse = float4(1.0, 1.0f, 1.0f, 1.0f);
 
     materialOut.Normal = float4(normalize(psInput.NormalW), 0.0f);
 
     return materialOut;
 }
 
-VSOutput VSMain_Depth(VSInput vsInput)
+float Shadow_Base(float4 vertexPos)
 {
-	VSOutput output;
-    output.PosH = mul(float4(vsInput.Pos, 1.0f), WVP);
-    output.UV = vsInput.UV;
+	float4 vertexPosInLightSpace = mul(vertexPos, LightSpaceVP);
 
-    return output;
-}
+    float3 projPosUV = vertexPosInLightSpace.xyz / vertexPosInLightSpace.w;
 
-void PSMain_Depth(VSOutput psInput)
-{
-}
+    projPosUV = projPosUV * 0.5f + 0.5f;
 
-float Shadow_Base(float4 vertexPos, float depth)
-{
-    float3 projPos = vertexPos.xyz / vertexPos.z;
+	float closetDepth = DepthMap.Sample(LinearSampler, projPosUV.xy).r;
+	float currentDepth = projPosUV.z;
 
-    projPos = projPos * 0.5f + 0.5f;
-
-    float shadow = projPos.z > depth ? 1.0f : 0.0f;
+    float shadow = currentDepth > closetDepth ? 1.0f : 0.0f;
 
     return shadow;
 }
 
-VSOutput VSMain(VSInput vsInput)
+VSOut VSMain(VSInput vsInput)
 {
-    VSOutput output;
+    VSOut output;
     output.PosH = mul(float4(vsInput.Pos, 1.0f), WVP);
-    output.PosW = mul(float4(vsInput.Pos, 1.0f), World).xyz;
+    output.PosW = mul(float4(vsInput.Pos, 1.0f), World);
 	output.TangentW = mul(vsInput.Tangent, (float3x3)World);
     output.NormalW = mul(vsInput.Normal, (float3x3)WorldInverse);
     output.UV = vsInput.UV;
@@ -73,13 +76,14 @@ VSOutput VSMain(VSInput vsInput)
     return output;
 }
 
-float4 PSMain(VSOutput psInput) : SV_Target
+float4 PSMain(VSOut psInput) : SV_Target
 {
     Material material = ApplyMaterial(RawMat, psInput);
-    float3 lightingColor = PointLighting(Light, psInput.PosW, EyePos.xyz, material);
-    float3 finalColor = Light.Ambient.rgb + (1.0f - Shadow_Base(psInput.PosH, DepthMap.Sample(LinearSampler, psInput.UV).r)) * lightingColor;
+    float4 lightingColor = float4(PointLighting(Light, psInput.PosW.xyz, EyePos.xyz, material), 1.0f);
+	float4 diffuseClr = DiffuseMap.Sample(LinearSampler, psInput.UV);
+    float4 finalColor = Light.Ambient + (1.0f - Shadow_Base(psInput.PosW) * lightingColor) * diffuseClr;
 
-    return float4(finalColor, 1.0f);
+    return finalColor;
 }
 
 VSOutput VSMain_Quad(VSInput vsInput)

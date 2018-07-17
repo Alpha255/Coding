@@ -206,8 +206,8 @@ protected:
 
 	inline D3DContext &GetThreadContext()
 	{
-		///return m_IMContext;
-		return m_ContextsMap[std::this_thread::get_id()];
+		return m_IMContext;
+		///return m_ContextsMap[std::this_thread::get_id()];
 	}
 private:
 	static std::unique_ptr<D3DEngine, std::function<void(D3DEngine *)>> s_Instance;

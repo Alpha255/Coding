@@ -18,6 +18,8 @@ struct ConstantBufferPS
 	Material::RawMaterial RawMat;
 	PointLight Light;
 
+	Matrix LightSpaceVP;
+
 	ConstantBufferPS()
 	{
 		Light.Position = Vec3(-2.5f, 0.0f, -3.0f);
@@ -25,18 +27,20 @@ struct ConstantBufferPS
 	}
 };
 
+ConstantBufferVS g_CBufferVS;
+ConstantBufferPS g_CBufferPS;
+Matrix g_LightSpaceVP;
+
 void AppShadow::Initialize()
 {
 	m_FloorMesh.CreateAsQuad(10.0f);
 	m_BoxMesh.CreateAsCube(1.0f);
-	m_QuadMesh.CreateAsQuad(0.3f, 0.9f, 0.5f, 0.4f);
+	m_QuadMesh.CreateAsQuad(0.3f, 0.9f, 0.4f, 0.5f);
 
 	m_VertexShaders[eDrawMain].Create("Shadow.hlsl", "VSMain");
-	m_VertexShaders[eDrawDepth].Create("Shadow.hlsl", "VSMain_Depth");
 	m_VertexShaders[eDrawQuad].Create("Shadow.hlsl", "VSMain_Quad");
 
 	m_PixelShaders[eDrawMain].Create("Shadow.hlsl", "PSMain");
-	m_PixelShaders[eDrawDepth].Create("Shadow.hlsl", "PSMain_Depth");
 	m_PixelShaders[eDrawQuad].Create("Shadow.hlsl", "PSMain_Quad");
 
 	m_FloorMaterial.Set(Material::eDiffuse, "wood.dds");
@@ -57,22 +61,21 @@ void AppShadow::Initialize()
 	m_Camera->Move(0, 200);
 }
 
-void AppShadow::DrawClutter(bool bDepthOnly)
+void AppShadow::DrawClutter(bool bDepthOnly, const Matrix &vp)
 {
-	ConstantBufferVS CBufferVS;
-	ConstantBufferPS CBufferPS;
-
-	CBufferPS.EyePos = m_Camera->GetEyePos();
-	CBufferPS.RawMat = m_FloorMaterial.RawValue;
-	m_CBufferPS.Update(&CBufferPS, sizeof(ConstantBufferPS));
+	g_CBufferPS.EyePos = m_Camera->GetEyePos();
+	g_CBufferPS.RawMat = m_FloorMaterial.RawValue;
+	g_CBufferPS.LightSpaceVP = Matrix::Transpose(g_LightSpaceVP);
+	m_CBufferPS.Update(&g_CBufferPS, sizeof(ConstantBufferPS));
 
 	D3DEngine::Instance().SetConstantBuffer(m_CBufferVS, 0U, D3DShader::eVertexShader);
 	D3DEngine::Instance().SetConstantBuffer(m_CBufferPS, 0U, D3DShader::ePixelShader);
 
-	CBufferVS.World = Matrix::Transpose(m_Camera->GetWorldMatrix());
-	CBufferVS.WorldInverse = Matrix::InverseTranspose(m_Camera->GetWorldMatrix());
-	CBufferVS.WVP = Matrix::Transpose(m_Camera->GetWVPMatrix());
-	m_CBufferVS.Update(&CBufferVS, sizeof(ConstantBufferVS));
+	Matrix worldCamera = m_Camera->GetWorldMatrix();
+	g_CBufferVS.World = Matrix::Transpose(worldCamera);
+	g_CBufferVS.WorldInverse = Matrix::InverseTranspose(m_Camera->GetWorldMatrix());
+	g_CBufferVS.WVP = Matrix::Transpose(worldCamera * vp);
+	m_CBufferVS.Update(&g_CBufferVS, sizeof(ConstantBufferVS));
 
 	m_FloorMesh.Bind(&m_FloorMaterial);
 	if (!bDepthOnly)
@@ -87,29 +90,29 @@ void AppShadow::DrawClutter(bool bDepthOnly)
 	D3DEngine::Instance().DrawIndexed(m_FloorMesh.IndexCount, 0U, 0, eTriangleList);
 
 	Matrix world = m_Camera->GetWorldMatrix() * Matrix::Translation(0.0f, 0.0f, -0.5f);
-	CBufferVS.World = Matrix::Transpose(world);
-	CBufferVS.WorldInverse = Matrix::InverseTranspose(world);
-	CBufferVS.WVP = Matrix::Transpose(world * m_Camera->GetViewMatrix() * m_Camera->GetProjMatrix());
-	m_CBufferVS.Update(&CBufferVS, sizeof(ConstantBufferVS));
+	g_CBufferVS.World = Matrix::Transpose(world);
+	g_CBufferVS.WorldInverse = Matrix::InverseTranspose(world);
+	g_CBufferVS.WVP = Matrix::Transpose(world * vp);
+	m_CBufferVS.Update(&g_CBufferVS, sizeof(ConstantBufferVS));
 
-	CBufferPS.RawMat = m_BoxMaterial.RawValue;
-	m_CBufferPS.Update(&CBufferPS, sizeof(ConstantBufferPS));
+	g_CBufferPS.RawMat = m_BoxMaterial.RawValue;
+	m_CBufferPS.Update(&g_CBufferPS, sizeof(ConstantBufferPS));
 
 	m_BoxMesh.Bind(&m_BoxMaterial);
 	D3DEngine::Instance().DrawIndexed(m_BoxMesh.IndexCount, 0U, 0, eTriangleList);
 
 	world = m_Camera->GetWorldMatrix() * Matrix::Translation(1.5f, 0.0f, -1.0f);
-	CBufferVS.World = Matrix::Transpose(world);
-	CBufferVS.WorldInverse = Matrix::InverseTranspose(world);
-	CBufferVS.WVP = Matrix::Transpose(world * m_Camera->GetViewMatrix() * m_Camera->GetProjMatrix());
-	m_CBufferVS.Update(&CBufferVS, sizeof(ConstantBufferVS));
+	g_CBufferVS.World = Matrix::Transpose(world);
+	g_CBufferVS.WorldInverse = Matrix::InverseTranspose(world);
+	g_CBufferVS.WVP = Matrix::Transpose(world * vp);
+	m_CBufferVS.Update(&g_CBufferVS, sizeof(ConstantBufferVS));
 	D3DEngine::Instance().DrawIndexed(m_BoxMesh.IndexCount, 0U, 0, eTriangleList);
 
 	world = m_Camera->GetWorldMatrix() * Matrix::RotationAxis(1.0f, 0.0f, 1.0f, 60.0f) * Matrix::Scaling(0.5f) * Matrix::Translation(0.0f, -2.0f, -0.4f);
-	CBufferVS.World = Matrix::Transpose(world);
-	CBufferVS.WorldInverse = Matrix::InverseTranspose(world);
-	CBufferVS.WVP = Matrix::Transpose(world * m_Camera->GetViewMatrix() * m_Camera->GetProjMatrix());
-	m_CBufferVS.Update(&CBufferVS, sizeof(ConstantBufferVS));
+	g_CBufferVS.World = Matrix::Transpose(world);
+	g_CBufferVS.WorldInverse = Matrix::InverseTranspose(world);
+	g_CBufferVS.WVP = Matrix::Transpose(world * vp);
+	m_CBufferVS.Update(&g_CBufferVS, sizeof(ConstantBufferVS));
 	D3DEngine::Instance().DrawIndexed(m_BoxMesh.IndexCount, 0U, 0, eTriangleList);
 }
 
@@ -123,27 +126,35 @@ void AppShadow::DrawQuad()
 	m_QuadMesh.Draw();
 }
 
+float g_x = 0.0f;
+
 void AppShadow::RenderScene()
 {
+	Matrix lightViewMatrix = Matrix::LookAtLH(g_CBufferPS.Light.Position, Vec3(g_x, 0.0f, 0.0f), Vec3(0.0f, 1.0f, 0.0f));
+	Matrix lightPorjMatrix = Matrix::PerspectiveFovLH(Math::XM_PIDIV2, 1.0f, 1.0f, 10.0f);
+	g_LightSpaceVP = lightViewMatrix * lightPorjMatrix;
+
 	D3DRenderTargetView EmptyRTV;
+	D3DPixelShader EmptyPS;
 	D3DEngine::Instance().SetViewport(m_ViewportsDepth);
 	D3DEngine::Instance().ClearDepthStencilView(m_DepthSurface, D3DDepthStencilView::eDepthStencil, 1.0f, 0U);
 	D3DEngine::Instance().SetRenderTargetView(EmptyRTV, 0U);
 	D3DEngine::Instance().SetDepthStencilView(m_DepthSurface);
-	D3DEngine::Instance().SetVertexShader(m_VertexShaders[eDrawDepth]);
-	D3DEngine::Instance().SetPixelShader(m_PixelShaders[eDrawDepth]);
-	DrawClutter(true);
+	D3DEngine::Instance().SetVertexShader(m_VertexShaders[eDrawMain]);
+	D3DEngine::Instance().SetPixelShader(EmptyPS);
+	DrawClutter(true, g_LightSpaceVP);
 
 	D3DEngine::Instance().ResetDefaultRenderSurfaces();
 	D3DEngine::Instance().SetViewport(D3DViewport(0.0f, 0.0f, (float)m_Width, (float)m_Height));
 	D3DEngine::Instance().ForceCommitState();
 	D3DEngine::Instance().SetVertexShader(m_VertexShaders[eDrawMain]);
 	D3DEngine::Instance().SetPixelShader(m_PixelShaders[eDrawMain]);
-	DrawClutter(false);
+	DrawClutter(false, m_Camera->GetViewMatrix() * m_Camera->GetProjMatrix());
 
 	DrawQuad();
 
-	///Light::DebugDisplay(CBufferPS.Light.Position, Light::ePoint, *m_Camera);
+	Light::DebugDisplay(g_CBufferPS.Light.Position, Light::ePoint, *m_Camera);
 
-	///ImGui::SliderFloat3("LightPos", (float *)&CBufferPS.Light.Position, -10.0f, 10.0f);
+	ImGui::SliderFloat3("LightPos", (float *)&g_CBufferPS.Light.Position, -10.0f, 10.0f);
+	ImGui::SliderFloat("x", &g_x, -10.0f, 10.0f);
 }
