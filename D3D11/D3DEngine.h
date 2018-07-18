@@ -166,9 +166,9 @@ public:
 		GetThreadContext().DrawIndexed(indexCount, startIndex, offset, primitive);
 	}
 
-	inline void ClearRenderTargetView(D3DRenderTargetView &renderTarget, const float *pColor = nullptr)
+	inline void ClearRenderTargetView(D3DRenderTargetView &renderTarget, const Vec4 &color = Color::DarkBlue)
 	{
-		GetThreadContext().ClearRenderTargetView(renderTarget, pColor);
+		GetThreadContext().ClearRenderTargetView(renderTarget, color);
 	}
 
 	inline void ClearDepthStencilView(D3DDepthStencilView &depthStencil, uint32_t clearFlag = D3DDepthStencilView::eDepthStencil, float depth = 1.0f, uint8_t stencil = 0U)
@@ -181,7 +181,7 @@ public:
 		D3DContext &ctx = GetThreadContext();
 
 		ctx.SetRenderTargetView(m_RenderTargetView, 0U);
-		ctx.ClearRenderTargetView(m_RenderTargetView);
+		ctx.ClearRenderTargetView(m_RenderTargetView, Color::DarkBlue);
 
 		ctx.SetDepthStencilView(m_DepthStencilView);
 		ctx.ClearDepthStencilView(m_DepthStencilView, D3DDepthStencilView::eDepthStencil, 1.0f, 0U);

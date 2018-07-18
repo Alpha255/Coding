@@ -14,8 +14,17 @@ public:
 
 	virtual void Initialize() override;
 	virtual void RenderScene() override;
+	virtual void ResizeWindow(uint32_t width, uint32_t height) override;
 protected:
 private:
 	D3DGeometryBuffer m_GBuffer;
 	LightController m_LightController;
+
+	D3DVertexShader m_VertexShader;
+	D3DPixelShader m_PixelShader;
+
+	D3DBuffer m_CBufferVS;
+	D3DBuffer m_CBufferPS;
+
+	Geometry::SDKMesh m_Bunny;
 };

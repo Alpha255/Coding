@@ -74,6 +74,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WIP_MultithreadedRendering"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DeferredShading", "Miscellaneous\DeferredShading.vcxproj", "{2C9D7FFA-5030-4CF8-BE72-097863287A9B}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DeferredShading", "DeferredShading", "{3E2BF552-CA94-45F0-9970-CCF85CAEC649}"
+	ProjectSection(SolutionItems) = preProject
+		Application\Resource\Shaders\DeferredShading\DeferredShading.hlsl = Application\Resource\Shaders\DeferredShading\DeferredShading.hlsl
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -337,5 +342,6 @@ Global
 		{EFE29E72-DA45-4E86-89AA-EB189F7D69F0} = {8A14800A-8442-4CBA-AECB-4E3D586913F7}
 		{2F847EA8-F3D0-415E-BA0F-0173FEC8D19C} = {EFE29E72-DA45-4E86-89AA-EB189F7D69F0}
 		{2C9D7FFA-5030-4CF8-BE72-097863287A9B} = {EFE29E72-DA45-4E86-89AA-EB189F7D69F0}
+		{3E2BF552-CA94-45F0-9970-CCF85CAEC649} = {7E3259D7-2974-4D19-9C8B-9FA8D4948146}
 	EndGlobalSection
 EndGlobal

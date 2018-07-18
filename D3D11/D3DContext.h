@@ -41,13 +41,11 @@ public:
 	void Draw(uint32_t vertexCount, uint32_t startVertex, uint32_t primitive);
 	void DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, uint32_t primitive);
 
-	inline void ClearRenderTargetView(D3DRenderTargetView &renderTarget, const float *pColor = nullptr) const
+	inline void ClearRenderTargetView(D3DRenderTargetView &renderTarget, const Vec4 &color) const
 	{
 		assert(renderTarget.IsValid() && IsValid());
 
-		pColor = (nullptr == pColor ? reinterpret_cast<const float*>(&Color::DarkBlue) : pColor);
-
-		m_Object->ClearRenderTargetView(renderTarget.Get(), pColor);
+		m_Object->ClearRenderTargetView(renderTarget.Get(), (float *)&color);
 	}
 
 	inline void ClearDepthStencilView(D3DDepthStencilView &depthStencil, uint32_t clearFlag, float depth, uint8_t stencil) const

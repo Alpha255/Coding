@@ -25,6 +25,12 @@ public:
 		case Light::eCapsule: CapsuleLighting(); break;
 		}
 	}
+
+	inline const DirectionalLight &GetDirectionalLight() const
+	{
+		assert(m_Inited);
+		return m_DirLight;
+	}
 protected:
 	void PointLighting();
 	void DirectionalLighting();
@@ -41,6 +47,8 @@ private:
 	D3DBuffer m_ConstantBufVS;
 	D3DDepthStencilState m_NoDepthWriteLessStencilMask;
 
-	Vec3 m_AmbientLowerClr;
-	Vec3 m_AmbientUpperClr;
+	Vec3 m_AmbientLowerClr = { 0.1f, 0.2f, 0.1f };
+	Vec3 m_AmbientUpperClr = { 0.1f, 0.2f, 0.2f };
+
+	bool m_Inited = false;
 };

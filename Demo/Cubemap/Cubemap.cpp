@@ -159,7 +159,7 @@ void AppCubemap::RenderScene()
 	{
 		D3DEngine::Instance().SetRenderTargetView(m_CubemapRTV[i], 0U);
 
-		D3DEngine::Instance().ClearRenderTargetView(m_CubemapRTV[i], reinterpret_cast<const float*>(&Color::Silver));
+		D3DEngine::Instance().ClearRenderTargetView(m_CubemapRTV[i], Color::Silver);
 		D3DEngine::Instance().ClearDepthStencilView(m_CubemapDSV, D3DDepthStencilView::eDepthStencil, 1.0f, 0U);
 
 		DrawClutter(m_CubemapCamera[i], true);

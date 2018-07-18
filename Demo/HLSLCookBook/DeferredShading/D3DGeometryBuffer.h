@@ -4,6 +4,7 @@
 #include "D3DView.h"
 #include "D3DBuffer.h"
 #include "D3DState.h"
+#include "D3DShader.h"
 
 class D3DGeometryBuffer
 {
@@ -20,7 +21,18 @@ public:
 	D3DGeometryBuffer() = default;
 	~D3DGeometryBuffer() = default;
 
-	void Init(uint32_t width, uint32_t height);
+	void Init(uint32_t width, uint32_t height, bool bReinit = false);
+
+	void Resize(uint32_t width, uint32_t height);
+
+	void Bind();
+
+	void UnBind();
+
+	inline void VisulizeGBuffer(bool bVisulize)
+	{
+		m_bVisulize = bVisulize;
+	}
 protected:
 private:
 	std::array<D3DShaderResourceView, eBufferTypeCount> m_ShaderResourceViews;
@@ -34,4 +46,8 @@ private:
 
 	D3DDepthStencilState m_DepthStencilState;
 	D3DBuffer m_ConstantBufUnpacked;
+
+	D3DVertexShader m_VertexShaderVisulizeGBuffer;
+	D3DPixelShader m_PixelShaderVisulizeGBuffer;
+	bool m_bVisulize = false;
 };
