@@ -135,7 +135,9 @@ void D3DContextState::CommitState(D3DContext &ctx)
 
 	if (IsDirty(eRenderTargetView) || IsDirty(eDepthStencilView))
 	{
-		ctx->OMSetRenderTargets(RenderTargetsInUse, RenderTargetViews.data(), DepthStencilView);
+		uint32_t renderTargets = GetCount<uint8_t>(RenderTargetsInUse);
+
+		ctx->OMSetRenderTargets(renderTargets, RenderTargetViews.data(), DepthStencilView);
 
 		///SetDirty(eRenderTargetView, false);
 

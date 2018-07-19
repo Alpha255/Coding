@@ -13,16 +13,16 @@ public:
 
 	void Init();
 
-	inline void TurnonTheLights(Light::eLightType lightType)
+	inline void TurnonTheLights(Light::eLightType lightType, const class D3DGeometryBuffer &GBuffer, const Vec4 &camPerspective, const Matrix &camViewMatrix)
 	{
-		assert(lightType < Light::eLightTypeCount);
+		assert(m_Inited && lightType < Light::eLightTypeCount);
 		
 		switch (lightType)
 		{
-		case Light::ePoint: PointLighting(); break;
-		case Light::eDirectional: DirectionalLighting(); break;
-		case Light::eSpot: SpotLighting(); break;
-		case Light::eCapsule: CapsuleLighting(); break;
+		case Light::ePoint: PointLighting(GBuffer, camPerspective, camViewMatrix); break;
+		case Light::eDirectional: DirectionalLighting(GBuffer, camPerspective, camViewMatrix); break;
+		case Light::eSpot: SpotLighting(GBuffer, camPerspective, camViewMatrix); break;
+		case Light::eCapsule: CapsuleLighting(GBuffer, camPerspective, camViewMatrix); break;
 		}
 	}
 
@@ -32,10 +32,22 @@ public:
 		return m_DirLight;
 	}
 protected:
-	void PointLighting();
-	void DirectionalLighting();
-	void SpotLighting();
-	void CapsuleLighting();
+	void PointLighting(const class D3DGeometryBuffer &GBuffer, const Vec4 &camPerspective, const Matrix &camViewMatrix);
+	void DirectionalLighting(const class D3DGeometryBuffer &GBuffer, const Vec4 &camPerspective, const Matrix &camViewMatrix);
+	void SpotLighting(const class D3DGeometryBuffer &GBuffer, const Vec4 &camPerspective, const Matrix &camViewMatrix);
+	void CapsuleLighting(const class D3DGeometryBuffer &GBuffer, const Vec4 &camPerspective, const Matrix &camViewMatrix);
+
+	struct ConstantBufferPS
+	{
+		Vec4 AmbientLowerClr;
+		Vec4 AmbientRange;
+
+		Vec4 PerspectiveValue;
+
+		Matrix ViewMatirxInvese;
+
+		DirectionalLight DirLight;
+	};
 private:
 	std::array<PointLight, 3U> m_PointLights;
 	DirectionalLight m_DirLight;
@@ -44,11 +56,11 @@ private:
 
 	D3DVertexShader m_VertexShader;
 	D3DPixelShader m_PixelShader;
-	D3DBuffer m_ConstantBufVS;
+	D3DBuffer m_CBufferPS;
 	D3DDepthStencilState m_NoDepthWriteLessStencilMask;
 
-	Vec3 m_AmbientLowerClr = { 0.1f, 0.2f, 0.1f };
-	Vec3 m_AmbientUpperClr = { 0.1f, 0.2f, 0.2f };
+	Vec4 m_AmbientLowerClr = { 0.1f, 0.2f, 0.1f, 1.0f };
+	Vec4 m_AmbientUpperClr = { 0.1f, 0.2f, 0.2f, 1.0f };
 
 	bool m_Inited = false;
 };

@@ -340,7 +340,6 @@ private:
 	std::vector<std::shared_ptr<ModelMesh>> m_Meshs;
 
 	bool m_Created = false;
-	bool m_ExtVertexLayout = false;
 };
 
 NamespaceEnd(Geometry)

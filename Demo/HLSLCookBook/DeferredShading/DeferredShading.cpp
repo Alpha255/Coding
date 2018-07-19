@@ -3,17 +3,6 @@
 #include "D3DEngine.h"
 #include "D3DGUI_imGui.h"
 
-struct ConstantBufferVS
-{
-	Matrix World;
-	Matrix WVP;
-};
-
-struct ConstantBufferPS
-{
-	DirectionalLight DirLight;
-};
-
 void AppDeferredShading::Initialize()
 {
 	m_Bunny.Create("bunny.sdkmesh");
@@ -30,8 +19,37 @@ void AppDeferredShading::Initialize()
 
 void AppDeferredShading::RenderScene()
 {
-    D3DEngine::Instance().ResetDefaultRenderSurfaces();
+	ConstantBufferVS CBufferVS;
+	ConstantBufferPS CBufferPS;
+
     D3DEngine::Instance().SetViewport(D3DViewport(0.0f, 0.0f, (float)m_Width, (float)m_Height));
+
+	CBufferVS.World = Matrix::Transpose(m_Camera->GetWorldMatrix());
+	CBufferVS.WVP = Matrix::Transpose(m_Camera->GetWVPMatrix());
+	m_CBufferVS.Update(&CBufferVS, sizeof(ConstantBufferVS));
+
+	CBufferPS.DirLight = m_LightController.GetDirectionalLight();
+	m_CBufferPS.Update(&CBufferPS, sizeof(ConstantBufferPS));
+
+	D3DEngine::Instance().SetVertexShader(m_VertexShader);
+	D3DEngine::Instance().SetPixelShader(m_PixelShader);
+	D3DEngine::Instance().SetConstantBuffer(m_CBufferVS, 0U, D3DShader::eVertexShader);
+	D3DEngine::Instance().SetConstantBuffer(m_CBufferPS, 0U, D3DShader::ePixelShader);
+
+	m_GBuffer.Bind();
+	m_Bunny.Draw(false);
+	m_GBuffer.UnBind();
+
+	D3DEngine::Instance().ResetDefaultRenderSurfaces();
+
+	Matrix proj = m_Camera->GetProjMatrix();
+	Vec4 perspective = Vec4(1.0f / proj._11, 1.0f / proj._22, proj._43, -proj._33);
+
+	m_LightController.TurnonTheLights(Light::eDirectional, m_GBuffer, perspective, m_Camera->GetViewMatrix());
+
+	m_GBuffer.VisulizeGBuffer(m_bVisualizeGBuffer, perspective);
+
+	ImGui::Checkbox("VisualizeGBuffer", &m_bVisualizeGBuffer);
 }
 
 void AppDeferredShading::ResizeWindow(uint32_t width, uint32_t height)

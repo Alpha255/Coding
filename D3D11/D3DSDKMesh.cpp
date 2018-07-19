@@ -247,11 +247,9 @@ void SDKMesh::CreateEx(const char *pFileName, bool ccw, bool alpha)
 	m_Created = true;
 }
 
-void SDKMesh::Create(const char *pFileName, bool bLoadVertexLayout)
+void SDKMesh::Create(const char *pFileName, bool /*bLoadVertexLayout*/)
 {
 	assert(!m_Created && pFileName && System::IsStrEndwith(pFileName, ".sdkmesh"));
-
-	m_ExtVertexLayout = !bLoadVertexLayout;
 
 	std::string filePath = System::ResourceFilePath(pFileName, System::eSDKMesh);
 	std::wstring wfilePath(filePath.begin(), filePath.end());
@@ -278,31 +276,23 @@ void SDKMesh::SetupVertexIndex(const DirectX::ModelMeshPart *pModelPart)
 {
 	assert(pModelPart);
 
-	if (!m_ExtVertexLayout)
-	{
-		ID3D11InputLayout *pLayout = nullptr;
-		HRCheck(pModelPart->inputLayout.CopyTo(&pLayout));
-		D3DInputLayout vertexLayout;
-		vertexLayout.MakeObject(pLayout);
-
-		D3DEngine::Instance().SetInputLayout(vertexLayout);
-	}
+	ID3D11InputLayout *pLayout = nullptr;
+	HRCheck(pModelPart->inputLayout.CopyTo(&pLayout));
+	D3DInputLayout vertexLayout;
+	vertexLayout.MakeObject(pLayout);
+	D3DEngine::Instance().SetInputLayout(vertexLayout);
 
 	ID3D11Buffer *pVB = nullptr;
 	HRCheck(pModelPart->vertexBuffer.CopyTo(&pVB));
-	D3DVertexBuffer vertexBuffer;
-	vertexBuffer.Buffer.MakeObject(pVB);
-	vertexBuffer.Stride = pModelPart->vertexStride;
-	vertexBuffer.Offset = 0U;
-	D3DEngine::Instance().SetVertexBuffer(vertexBuffer.Buffer, vertexBuffer.Stride, vertexBuffer.Offset);
+	D3DBuffer vertexBuffer;
+	vertexBuffer.MakeObject(pVB);
+	D3DEngine::Instance().SetVertexBuffer(vertexBuffer, pModelPart->vertexStride, 0U);
 
 	ID3D11Buffer *pIB = nullptr;
 	HRCheck(pModelPart->indexBuffer.CopyTo(&pIB));
-	D3DIndexBuffer indexBuffer;
-	indexBuffer.Buffer.MakeObject(pIB);
-	indexBuffer.Format = pModelPart->indexFormat;
-	indexBuffer.Offset = 0U;
-	D3DEngine::Instance().SetIndexBuffer(indexBuffer.Buffer, indexBuffer.Format, indexBuffer.Offset);
+	D3DBuffer indexBuffer;
+	indexBuffer.MakeObject(pIB);
+	D3DEngine::Instance().SetIndexBuffer(indexBuffer, pModelPart->indexFormat, 0U);
 }
 
 void SDKMesh::SetupMaterial(const DirectX::ModelMeshPart *pModelPart, bool bDisableMaterial)
@@ -314,34 +304,25 @@ void SDKMesh::SetupMaterial(const DirectX::ModelMeshPart *pModelPart, bool bDisa
 
 	assert(pModelPart);
 
-	///DirectX::IEffect *pEffect = pModelPart->effect.get();
-	///if (pEffect)
-	///{
-	///	std::vector<ID3D11ShaderResourceView *> textures = pEffect->GetTextures();
-	///	for (uint32_t i = 0U; i < textures.size(); ++i)
-	///	{
-	///		D3DShaderResourceView texture;
-	///		texture.MakeObject(textures[i]);
+	DirectX::IEffect *pEffect = pModelPart->effect.get();
+	if (pEffect)
+	{
+		std::vector<ID3D11ShaderResourceView *> textures = pEffect->GetTextures();
+		for (uint32_t i = 0U; i < textures.size(); ++i)
+		{
+			D3DShaderResourceView texture;
+			texture.MakeObject(textures[i]);
 	
-	///		D3DEngine::Instance().SetShaderResourceView(texture, i, D3DShader::ePixelShader);
-	///	}
-	
-	///	if (textures.size() > 0)
-	///	{
-	///		D3DEngine::Instance().SetSamplerState(D3DStaticState::LinearSampler, 0U, D3DShader::ePixelShader);
-	///	}
-	///}
+			D3DEngine::Instance().SetShaderResourceView(texture, i, D3DShader::ePixelShader);
+		}
+	}
 }
 
 void SDKMesh::Draw(bool bAlphaParts, bool bDisableMaterial)
 {
 	assert(m_Created);
 
-	if (m_ExtVertexLayout)
-	{
-		assert(m_VertexLayout.IsValid());
-		D3DEngine::Instance().SetInputLayout(m_VertexLayout);
-	}
+	D3DEngine::Instance().SetSamplerState(D3DStaticState::LinearSampler, 0U, D3DShader::ePixelShader);
 
 	/// Draw opaque parts
 	for (auto it = m_Model->meshes.cbegin(); it != m_Model->meshes.cend(); ++it)

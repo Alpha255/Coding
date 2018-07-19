@@ -5,6 +5,7 @@
 #include "D3DBuffer.h"
 #include "D3DState.h"
 #include "D3DShader.h"
+#include "D3DMath.h"
 
 class D3DGeometryBuffer
 {
@@ -29,11 +30,18 @@ public:
 
 	void UnBind();
 
-	inline void VisulizeGBuffer(bool bVisulize)
+	void VisulizeGBuffer(bool bVisulize, const Vec4 &camPerspective);
+
+	inline D3DShaderResourceView GetShaderResourceView(eBufferType type) const
 	{
-		m_bVisulize = bVisulize;
+		assert(type < eBufferTypeCount);
+		return m_ShaderResourceViews[type];
 	}
 protected:
+	struct ConstantBufferPS
+	{
+		Vec4 Perspective;
+	};
 private:
 	std::array<D3DShaderResourceView, eBufferTypeCount> m_ShaderResourceViews;
 
@@ -45,9 +53,8 @@ private:
 	D3DDepthStencilView m_SurfaceDepthStencilReadonly;
 
 	D3DDepthStencilState m_DepthStencilState;
-	D3DBuffer m_ConstantBufUnpacked;
+	D3DBuffer m_CBufferPS;
 
-	D3DVertexShader m_VertexShaderVisulizeGBuffer;
-	D3DPixelShader m_PixelShaderVisulizeGBuffer;
-	bool m_bVisulize = false;
+	D3DVertexShader m_VertexShader;
+	D3DPixelShader m_PixelShader;
 };

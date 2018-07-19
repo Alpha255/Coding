@@ -24,14 +24,21 @@ void D3DGeometryBuffer::Init(uint32_t width, uint32_t height, bool bReinit)
 	m_SurfaceSpecPower.CreateAsTexture(D3DView::eTexture2D, specPowerTex, eRGBA8_UNorm, 0U);
 	m_ShaderResourceViews[eSpecPower].CreateAsTexture(D3DView::eTexture2D, specPowerTex, eRGBA8_UNorm, 0U, 1U);
 
-	if (!bReinit)
+	if (bReinit)
 	{
-		m_DepthStencilState.Create(
-			true, D3DState::eDepthMaskAll, D3DState::eLess,
-			true, D3DState::eStencilDefaultReadMask, D3DState::eStencilDefaultWriteMask,
-			D3DState::eStencilReplace, D3DState::eStencilReplace, D3DState::eStencilReplace, D3DState::eAlways,
-			D3DState::eStencilReplace, D3DState::eStencilReplace, D3DState::eStencilReplace, D3DState::eAlways);
+		return;
 	}
+
+	m_DepthStencilState.Create(
+		true, D3DState::eDepthMaskAll, D3DState::eLess,
+		true, D3DState::eStencilDefaultReadMask, D3DState::eStencilDefaultWriteMask,
+		D3DState::eStencilReplace, D3DState::eStencilReplace, D3DState::eStencilReplace, D3DState::eAlways,
+		D3DState::eStencilReplace, D3DState::eStencilReplace, D3DState::eStencilReplace, D3DState::eAlways);
+
+	m_VertexShader.Create("DeferredShading\\VisualizeGBuffer.hlsl", "VSMain");
+	m_PixelShader.Create("DeferredShading\\VisualizeGBuffer.hlsl", "PSMain");
+
+	m_CBufferPS.CreateAsConstantBuffer(sizeof(ConstantBufferPS), D3DBuffer::eGpuReadCpuWrite);
 }
 
 void D3DGeometryBuffer::Resize(uint32_t width, uint32_t height)
@@ -76,4 +83,52 @@ void D3DGeometryBuffer::UnBind()
 	D3DEngine::Instance().SetRenderTargetView(EmptyRTV, 2U);
 
 	D3DEngine::Instance().SetDepthStencilView(m_SurfaceDepthStencilReadonly);
+
+	D3DShaderResourceView EmptySRV;
+	for (uint32_t i = 0U; i < eBufferTypeCount; ++i)
+	{
+		D3DEngine::Instance().SetShaderResourceView(EmptySRV, i, D3DShader::ePixelShader);
+	}
+
+	D3DEngine::Instance().ForceCommitState();
+}
+
+void D3DGeometryBuffer::VisulizeGBuffer(bool bVisulize, const Vec4 &camPerspective)
+{
+	if (!bVisulize)
+	{
+		return;
+	}
+
+	D3DDepthStencilView EmptyDSV;
+	D3DEngine::Instance().SetDepthStencilView(EmptyDSV);
+
+	D3DInputLayout EmptyLayout;
+	D3DBuffer EmptyVertexBuffer;
+	D3DEngine::Instance().SetInputLayout(EmptyLayout);
+	D3DEngine::Instance().SetVertexBuffer(EmptyVertexBuffer, 0U, 0U, 0U);
+
+	D3DEngine::Instance().SetVertexShader(m_VertexShader);
+	D3DEngine::Instance().SetPixelShader(m_PixelShader);
+
+	ConstantBufferPS CBufferPS;
+	CBufferPS.Perspective = camPerspective;
+	m_CBufferPS.Update(&CBufferPS, sizeof(ConstantBufferPS));
+	D3DEngine::Instance().SetConstantBuffer(m_CBufferPS, 0U, D3DShader::ePixelShader);
+
+	D3DEngine::Instance().SetSamplerState(D3DStaticState::PointSampler, 0U, D3DShader::ePixelShader);
+
+	for (uint32_t i = 0U; i < eBufferTypeCount; ++i)
+	{
+		D3DEngine::Instance().SetShaderResourceView(m_ShaderResourceViews[i], i, D3DShader::ePixelShader);
+	}
+
+	D3DEngine::Instance().Draw(16U, 0U, eTriangleStrip);
+
+	D3DShaderResourceView EmptySRV;
+	for (uint32_t i = 0U; i < eBufferTypeCount; ++i)
+	{
+		D3DEngine::Instance().SetShaderResourceView(EmptySRV, i, D3DShader::ePixelShader);
+	}
+	D3DEngine::Instance().ForceCommitState();
 }

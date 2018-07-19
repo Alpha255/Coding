@@ -76,7 +76,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DeferredShading", "Miscella
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DeferredShading", "DeferredShading", "{3E2BF552-CA94-45F0-9970-CCF85CAEC649}"
 	ProjectSection(SolutionItems) = preProject
+		Application\Resource\Shaders\DeferredShading\Common.hlsli = Application\Resource\Shaders\DeferredShading\Common.hlsli
 		Application\Resource\Shaders\DeferredShading\DeferredShading.hlsl = Application\Resource\Shaders\DeferredShading\DeferredShading.hlsl
+		Application\Resource\Shaders\DeferredShading\Lighting.hlsl = Application\Resource\Shaders\DeferredShading\Lighting.hlsl
+		Application\Resource\Shaders\DeferredShading\VisualizeGBuffer.hlsl = Application\Resource\Shaders\DeferredShading\VisualizeGBuffer.hlsl
 	EndProjectSection
 EndProject
 Global

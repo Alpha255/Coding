@@ -16,6 +16,16 @@ public:
 	virtual void RenderScene() override;
 	virtual void ResizeWindow(uint32_t width, uint32_t height) override;
 protected:
+	struct ConstantBufferVS
+	{
+		Matrix World;
+		Matrix WVP;
+	};
+
+	struct ConstantBufferPS
+	{
+		DirectionalLight DirLight;
+	};
 private:
 	D3DGeometryBuffer m_GBuffer;
 	LightController m_LightController;
@@ -27,4 +37,6 @@ private:
 	D3DBuffer m_CBufferPS;
 
 	Geometry::SDKMesh m_Bunny;
+
+	bool m_bVisualizeGBuffer = true;
 };
