@@ -13,8 +13,7 @@ void LightController::Init()
 		true, D3DState::eDepthMaskZero, D3DState::eLess,
 		true, D3DState::eStencilDefaultReadMask, D3DState::eStencilDefaultWriteMask,
 		D3DState::eStencilKeep, D3DState::eStencilKeep, D3DState::eStencilKeep, D3DState::eEqual,
-		D3DState::eStencilKeep, D3DState::eStencilKeep, D3DState::eStencilKeep, D3DState::eEqual
-	);
+		D3DState::eStencilKeep, D3DState::eStencilKeep, D3DState::eStencilKeep, D3DState::eEqual);
 
 	m_VertexShader.Create("DeferredShading\\Lighting.hlsl", "VSMain");
 	m_PixelShader.Create("DeferredShading\\Lighting.hlsl", "PSMain");

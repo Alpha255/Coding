@@ -15,6 +15,9 @@ void AppDeferredShading::Initialize()
 
 	m_CBufferVS.CreateAsConstantBuffer(sizeof(ConstantBufferVS), D3DBuffer::eGpuReadCpuWrite);
 	m_CBufferPS.CreateAsConstantBuffer(sizeof(ConstantBufferPS), D3DBuffer::eGpuReadCpuWrite);
+
+	m_Camera->SetViewRadius(100.0f);
+	m_Camera->Move(0, -100);
 }
 
 void AppDeferredShading::RenderScene()
@@ -40,7 +43,7 @@ void AppDeferredShading::RenderScene()
 	m_Bunny.Draw(false);
 	m_GBuffer.UnBind();
 
-	D3DEngine::Instance().ResetDefaultRenderSurfaces();
+	D3DEngine::Instance().ResetDefaultRenderTargetView();
 
 	Matrix proj = m_Camera->GetProjMatrix();
 	Vec4 perspective = Vec4(1.0f / proj._11, 1.0f / proj._22, proj._43, -proj._33);

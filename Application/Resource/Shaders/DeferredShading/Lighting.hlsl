@@ -90,7 +90,7 @@ VSOut VSMain(uint VertexID : SV_VertexID)
     return vsOutput;
 }
 
-float4 PSMain(VSOut psInput) : SV_TARGET0
+float4 PSMain(VSOut psInput) : SV_TARGET
 {
 	SurfaceData surface = UnpackGBuffer(psInput.Position.xy);
 

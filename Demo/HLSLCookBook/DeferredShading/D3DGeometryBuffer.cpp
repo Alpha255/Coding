@@ -72,7 +72,7 @@ void D3DGeometryBuffer::Bind()
 
 	D3DEngine::Instance().SetDepthStencilView(m_SurfaceDepthStencil);
 
-	D3DEngine::Instance().SetDepthStencilState(m_DepthStencilState, 0x01);
+	D3DEngine::Instance().SetDepthStencilState(m_DepthStencilState, 0x01U);
 }
 
 void D3DGeometryBuffer::UnBind()
@@ -95,40 +95,37 @@ void D3DGeometryBuffer::UnBind()
 
 void D3DGeometryBuffer::VisulizeGBuffer(bool bVisulize, const Vec4 &camPerspective)
 {
-	if (!bVisulize)
+	if (bVisulize)
 	{
-		return;
+		D3DDepthStencilView EmptyDSV;
+		D3DEngine::Instance().SetDepthStencilView(EmptyDSV);
+
+		D3DInputLayout EmptyLayout;
+		D3DBuffer EmptyVertexBuffer;
+		D3DEngine::Instance().SetInputLayout(EmptyLayout);
+		D3DEngine::Instance().SetVertexBuffer(EmptyVertexBuffer, 0U, 0U, 0U);
+
+		D3DEngine::Instance().SetVertexShader(m_VertexShader);
+		D3DEngine::Instance().SetPixelShader(m_PixelShader);
+
+		ConstantBufferPS CBufferPS;
+		CBufferPS.Perspective = camPerspective;
+		m_CBufferPS.Update(&CBufferPS, sizeof(ConstantBufferPS));
+		D3DEngine::Instance().SetConstantBuffer(m_CBufferPS, 0U, D3DShader::ePixelShader);
+
+		D3DEngine::Instance().SetSamplerState(D3DStaticState::PointSampler, 0U, D3DShader::ePixelShader);
+
+		for (uint32_t i = 0U; i < eBufferTypeCount; ++i)
+		{
+			D3DEngine::Instance().SetShaderResourceView(m_ShaderResourceViews[i], i, D3DShader::ePixelShader);
+		}
+
+		D3DEngine::Instance().Draw(16U, 0U, eTriangleStrip);
 	}
-
-	D3DDepthStencilView EmptyDSV;
-	D3DEngine::Instance().SetDepthStencilView(EmptyDSV);
-
-	D3DInputLayout EmptyLayout;
-	D3DBuffer EmptyVertexBuffer;
-	D3DEngine::Instance().SetInputLayout(EmptyLayout);
-	D3DEngine::Instance().SetVertexBuffer(EmptyVertexBuffer, 0U, 0U, 0U);
-
-	D3DEngine::Instance().SetVertexShader(m_VertexShader);
-	D3DEngine::Instance().SetPixelShader(m_PixelShader);
-
-	ConstantBufferPS CBufferPS;
-	CBufferPS.Perspective = camPerspective;
-	m_CBufferPS.Update(&CBufferPS, sizeof(ConstantBufferPS));
-	D3DEngine::Instance().SetConstantBuffer(m_CBufferPS, 0U, D3DShader::ePixelShader);
-
-	D3DEngine::Instance().SetSamplerState(D3DStaticState::PointSampler, 0U, D3DShader::ePixelShader);
-
-	for (uint32_t i = 0U; i < eBufferTypeCount; ++i)
-	{
-		D3DEngine::Instance().SetShaderResourceView(m_ShaderResourceViews[i], i, D3DShader::ePixelShader);
-	}
-
-	D3DEngine::Instance().Draw(16U, 0U, eTriangleStrip);
 
 	D3DShaderResourceView EmptySRV;
 	for (uint32_t i = 0U; i < eBufferTypeCount; ++i)
 	{
 		D3DEngine::Instance().SetShaderResourceView(EmptySRV, i, D3DShader::ePixelShader);
 	}
-	D3DEngine::Instance().ForceCommitState();
 }
