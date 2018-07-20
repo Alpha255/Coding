@@ -301,7 +301,8 @@ void AppMultithreadedRendering::SetupScene(const StaticParams &params, const Mat
 	D3DEngine::Instance().SetDepthStencilState(params.DepthStencilState, params.StencilRef);
 	D3DEngine::Instance().SetRasterizerState(params.RasterizerState);
 
-	D3DEngine::Instance().SetSamplerState(D3DStaticState::PointClampSampler, 1U, D3DShader::ePixelShader);
+	D3DEngine::Instance().SetSamplerState(D3DStaticState::PointClampSampler, 0U, D3DShader::ePixelShader);
+	D3DEngine::Instance().SetSamplerState(D3DStaticState::LinearSampler, 1U, D3DShader::ePixelShader);
 
 	D3DEngine::Instance().SetConstantBuffer(m_CBufferVS, 0U, D3DShader::eVertexShader);
 	g_CBufferVS.World = Matrix::Transpose(world);
