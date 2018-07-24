@@ -11,6 +11,8 @@ cbuffer CBufferPS
 	matrix ViewInverse;
 
 	DirectionalLight DirLight;
+
+	PointLight PointLights[3];
 };
 
 struct VSOut

@@ -31,7 +31,7 @@ void AppDeferredShading::RenderScene()
 	CBufferVS.WVP = Matrix::Transpose(m_Camera->GetWVPMatrix());
 	m_CBufferVS.Update(&CBufferVS, sizeof(ConstantBufferVS));
 
-	CBufferPS.DirLight = m_LightController.GetDirectionalLight();
+	CBufferPS.LightSpecular = m_LightController.GetLightSpecular((Light::eLightType)m_LightingType);
 	m_CBufferPS.Update(&CBufferPS, sizeof(ConstantBufferPS));
 
 	D3DEngine::Instance().SetVertexShader(m_VertexShader);
@@ -48,11 +48,12 @@ void AppDeferredShading::RenderScene()
 	Matrix proj = m_Camera->GetProjMatrix();
 	Vec4 perspective = Vec4(1.0f / proj._11, 1.0f / proj._22, proj._43, -proj._33);
 
-	m_LightController.TurnonTheLights(Light::eDirectional, m_GBuffer, perspective, m_Camera->GetViewMatrix());
+	m_LightController.TurnonTheLights((Light::eLightType)m_LightingType, m_GBuffer, perspective, m_Camera->GetViewMatrix());
 
 	m_GBuffer.VisulizeGBuffer(m_bVisualizeGBuffer, perspective);
 
 	ImGui::Checkbox("VisualizeGBuffer", &m_bVisualizeGBuffer);
+	ImGui::Combo("LightingType", &m_LightingType, "Point\0Directional\0Spot\0Capsule");
 }
 
 void AppDeferredShading::ResizeWindow(uint32_t width, uint32_t height)

@@ -24,7 +24,7 @@ protected:
 
 	struct ConstantBufferPS
 	{
-		DirectionalLight DirLight;
+		Vec4 LightSpecular;
 	};
 private:
 	D3DGeometryBuffer m_GBuffer;
@@ -38,5 +38,6 @@ private:
 
 	Geometry::SDKMesh m_Bunny;
 
+	int32_t m_LightingType = Light::eDirectional;
 	bool m_bVisualizeGBuffer = true;
 };

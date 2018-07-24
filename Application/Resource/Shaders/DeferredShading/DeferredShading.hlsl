@@ -8,7 +8,7 @@ cbuffer CBufferVS
 
 cbuffer CBufferPS
 {
-	DirectionalLight DirLight;	
+	float4 LightSpecular;
 };
 
 struct VSIn
@@ -57,10 +57,10 @@ GBufferOut PSMain(VSOut psInput)
 	/// Pack Geometry Buffer
 
 	/// Normalize the specular power
-	float specPowerNorm = max(0.0001f, (DirLight.SpecularIntensity - g_SpecPowerRange.x) / g_SpecPowerRange.y);
+	float specPowerNorm = max(0.0001f, (LightSpecular.w - g_SpecPowerRange.x) / g_SpecPowerRange.y);
 	
 	GBufferOut gOut;
-	gOut.ColorSpecInt = float4(diffuseClr.rgb, DirLight.Specular.r);
+	gOut.ColorSpecInt = float4(diffuseClr.rgb, LightSpecular.x);
 
 	float3 normal = normalize(psInput.Normal);
 	gOut.Normal = float4(normal * 0.5f + 0.5f, 0.0f);

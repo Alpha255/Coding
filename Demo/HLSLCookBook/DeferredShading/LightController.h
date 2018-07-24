@@ -26,11 +26,8 @@ public:
 		}
 	}
 
-	inline const DirectionalLight &GetDirectionalLight() const
-	{
-		assert(m_Inited);
-		return m_DirLight;
-	}
+	Vec4 GetLightSpecular(Light::eLightType type) const;
+
 protected:
 	void PointLighting(const class D3DGeometryBuffer &GBuffer, const Vec4 &camPerspective, const Matrix &camViewMatrix);
 	void DirectionalLighting(const class D3DGeometryBuffer &GBuffer, const Vec4 &camPerspective, const Matrix &camViewMatrix);
@@ -47,20 +44,19 @@ protected:
 		Matrix ViewMatirxInvese;
 
 		DirectionalLight DirLight;
+
+		PointLight PointLights[3];
 	};
 private:
 	std::array<PointLight, 3U> m_PointLights;
-	DirectionalLight m_DirLight;
 	SpotLight m_SpotLight;
 	std::array<CapsuleLight, 3U> m_CapsuleLights;
 
 	D3DVertexShader m_VertexShader;
-	D3DPixelShader m_PixelShader;
+	D3DPixelShader m_PixelShader[Light::eLightTypeCount];
 	D3DBuffer m_CBufferPS;
+	ConstantBufferPS m_CBufferPSLighting;
 	D3DDepthStencilState m_NoDepthWriteLessStencilMask;
-
-	Vec4 m_AmbientLowerClr = { 0.1f, 0.2f, 0.1f, 1.0f };
-	Vec4 m_AmbientUpperClr = { 0.1f, 0.2f, 0.2f, 1.0f };
 
 	bool m_Inited = false;
 };
