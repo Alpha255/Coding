@@ -18,6 +18,7 @@ void GameApplication::RenderToWindow()
 {
 	if (!m_bInited)
 	{
+		m_IconID = IDI_ICON_MARIO;
 		Engine::Instance().Init(m_hWnd, m_Width, m_Height);
 		m_bInited = true;
 	}
@@ -30,6 +31,10 @@ void GameApplication::RenderToWindow()
 void GameApplication::ResizeWindow(uint32_t width, uint32_t height)
 {
 	Engine::Instance().Resize(width, height);
+}
+
+void GameApplication::InitRenderer()
+{
 }
 
 GameApplication::~GameApplication()
