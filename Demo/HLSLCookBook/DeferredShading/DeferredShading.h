@@ -36,6 +36,8 @@ private:
 	D3DBuffer m_CBufferVS;
 	D3DBuffer m_CBufferPS;
 
+	D3DInputLayout m_Layout;
+
 	Geometry::SDKMesh m_Bunny;
 
 	int32_t m_LightingType = Light::eDirectional;

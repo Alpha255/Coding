@@ -214,8 +214,7 @@ void AppMultithreadedRendering::InitWorkerThreads()
 
 void AppMultithreadedRendering::Initialize()
 {
-	///m_SquidRoom.Create("SquidRoom\\SquidRoom.sdkmesh", false);
-	m_SquidRoom.CreateEx("SquidRoom\\SquidRoom.sdkmesh");
+	m_SquidRoom.Create("SquidRoom\\SquidRoom.sdkmesh");
 
 	m_VertexShader.Create("MultithreadedRendering.hlsl", "VSMain");
 	m_PixelShader.Create("MultithreadedRendering.hlsl", "PSMain");
@@ -371,7 +370,7 @@ void AppMultithreadedRendering::DrawScene(const StaticParams &params, const Matr
 {
 	SetupScene(params, world, vp);
 
-	m_SquidRoom.DrawEx(false);
+	m_SquidRoom.Draw(false);
 }
 
 void AppMultithreadedRendering::DrawShadow(uint32_t iShadow)

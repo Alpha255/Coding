@@ -212,7 +212,7 @@ void SDKMesh::LoadMeshs(const uint8_t *pData, size_t dataSize, const SDKMeshHead
 	}
 }
 
-void SDKMesh::CreateEx(const char *pFileName, bool ccw, bool alpha)
+void SDKMesh::Create(const char *pFileName, bool ccw, bool alpha)
 {
 	assert(!m_Created && pFileName && System::IsStrEndwith(pFileName, ".sdkmesh"));
 
@@ -247,110 +247,7 @@ void SDKMesh::CreateEx(const char *pFileName, bool ccw, bool alpha)
 	m_Created = true;
 }
 
-void SDKMesh::Create(const char *pFileName, bool /*bLoadVertexLayout*/)
-{
-	assert(!m_Created && pFileName && System::IsStrEndwith(pFileName, ".sdkmesh"));
-
-	std::string filePath = System::ResourceFilePath(pFileName, System::eSDKMesh);
-	std::wstring wfilePath(filePath.begin(), filePath.end());
-
-	ID3D11Device *pDevice = D3DEngine::Instance().GetDevice().Get();
-	DirectX::EffectFactory effect(pDevice);
-
-	m_States = std::make_unique<DirectX::CommonStates>(pDevice);
-
-	char oldWorkingDir[MAX_PATH] = {};
-	::GetCurrentDirectoryA(MAX_PATH, oldWorkingDir);
-	std::size_t pos = filePath.rfind('\\') + 1;
-	std::string curWorkdingDir(filePath.begin(), filePath.begin() + pos);
-	::SetCurrentDirectoryA(curWorkdingDir.c_str());
-
-	m_Model = DirectX::Model::CreateFromSDKMESH(pDevice, wfilePath.c_str(), effect, false, false/*, bLoadVertexLayout*/);
-
-	::SetCurrentDirectoryA(oldWorkingDir);
-
-	m_Created = true;
-}
-
-void SDKMesh::SetupVertexIndex(const DirectX::ModelMeshPart *pModelPart)
-{
-	assert(pModelPart);
-
-	ID3D11InputLayout *pLayout = nullptr;
-	HRCheck(pModelPart->inputLayout.CopyTo(&pLayout));
-	D3DInputLayout vertexLayout;
-	vertexLayout.MakeObject(pLayout);
-	D3DEngine::Instance().SetInputLayout(vertexLayout);
-
-	ID3D11Buffer *pVB = nullptr;
-	HRCheck(pModelPart->vertexBuffer.CopyTo(&pVB));
-	D3DBuffer vertexBuffer;
-	vertexBuffer.MakeObject(pVB);
-	D3DEngine::Instance().SetVertexBuffer(vertexBuffer, pModelPart->vertexStride, 0U);
-
-	ID3D11Buffer *pIB = nullptr;
-	HRCheck(pModelPart->indexBuffer.CopyTo(&pIB));
-	D3DBuffer indexBuffer;
-	indexBuffer.MakeObject(pIB);
-	D3DEngine::Instance().SetIndexBuffer(indexBuffer, pModelPart->indexFormat, 0U);
-}
-
-void SDKMesh::SetupMaterial(const DirectX::ModelMeshPart *pModelPart, bool bDisableMaterial)
-{
-	if (bDisableMaterial)
-	{
-		return;
-	}
-
-	assert(pModelPart);
-
-	DirectX::IEffect *pEffect = pModelPart->effect.get();
-	if (pEffect)
-	{
-		std::vector<ID3D11ShaderResourceView *> textures = pEffect->GetTextures();
-		for (uint32_t i = 0U; i < textures.size(); ++i)
-		{
-			D3DShaderResourceView texture;
-			texture.MakeObject(textures[i]);
-	
-			D3DEngine::Instance().SetShaderResourceView(texture, i, D3DShader::ePixelShader);
-		}
-	}
-}
-
 void SDKMesh::Draw(bool bAlphaParts, bool bDisableMaterial)
-{
-	assert(m_Created);
-
-	D3DEngine::Instance().SetSamplerState(D3DStaticState::LinearSampler, 0U, D3DShader::ePixelShader);
-
-	/// Draw opaque parts
-	for (auto it = m_Model->meshes.cbegin(); it != m_Model->meshes.cend(); ++it)
-	{
-		auto mesh = it->get();
-		assert(mesh);
-
-		for (auto it = mesh->meshParts.cbegin(); it != mesh->meshParts.cend(); ++it)
-		{
-			auto part = (*it).get();
-			assert(part);
-
-			if (part->isAlpha != bAlphaParts)
-			{
-				/// Skip alpha parts when drawing opaque or skip opaque parts if drawing alpha
-				continue;
-			}
-
-			SetupVertexIndex(part);
-
-			SetupMaterial(part, bDisableMaterial);
-
-			D3DEngine::Instance().DrawIndexed(part->indexCount, part->startIndex, part->vertexOffset, part->primitiveType);
-		}
-	}
-}
-
-void SDKMesh::DrawEx(bool bAlphaParts, bool bDisableMaterial)
 {
 	assert(m_Created);
 

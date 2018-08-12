@@ -36,6 +36,7 @@ private:
 	D3DPixelShader m_PixelShader[eCount];
 	D3DBuffer m_CBufferVS;
 	D3DBuffer m_CBufferPS;
+	D3DInputLayout m_Layout;
 
 	Material m_BunnyMaterial;
 

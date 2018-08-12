@@ -112,11 +112,9 @@ protected:
 struct SDKMesh : public Mesh
 {
 public:
-	void Create(const char *pMeshName, bool bLoadVertexLayout = true);
-	void CreateEx(const char *pMeshName, bool ccw = false, bool alpha = false);
+	void Create(const char *pMeshName, bool ccw = false, bool alpha = false);
 
 	void Draw(bool bAlphaParts, bool bDisableMaterial = false);
-	void DrawEx(bool bAlphaParts, bool bDisableMaterial = false);
 
 	inline void SetInputLayout(const D3DInputLayout &layout)
 	{
@@ -320,24 +318,19 @@ protected:
 		};
 	};
 
-	void SetupVertexIndex(const DirectX::ModelMeshPart *pModelPart);
-	void SetupMaterial(const DirectX::ModelMeshPart *pModelPart, bool bDisableMaterial);
-
 	SDKMeshHeader LoadHeader(const uint8_t *pData, size_t dataSize);
 	void LoadVertexBuffers(const uint8_t *pData, size_t dataSize, const SDKMeshHeader &header);
 	void LoadIndexBuffers(const uint8_t *pData, size_t dataSize, const SDKMeshHeader &header);
 	void LoadMeshs(const uint8_t *pData, size_t dataSize, const SDKMeshHeader &header, bool ccw, bool alpha);
 	bool LoadMaterial(const SDKMeshMaterial &sdkmt, Material &mt);
+
 private:
-	std::unique_ptr<DirectX::Model> m_Model;
-	std::unique_ptr<DirectX::CommonStates> m_States;
+	std::vector<std::shared_ptr<ModelMesh>> m_Meshs;
 
 	std::vector<D3DBuffer> m_VertexBuffers;
 	std::vector<D3DBuffer> m_IndexBuffers;
 
 	D3DInputLayout m_VertexLayout;
-
-	std::vector<std::shared_ptr<ModelMesh>> m_Meshs;
 
 	bool m_Created = false;
 };
