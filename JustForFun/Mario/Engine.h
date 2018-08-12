@@ -1,8 +1,10 @@
 #pragma once
 
 #include "Common.h"
-
-#include <vector>
+#include "Image.h"
+#include "Objects.h"
+#include "Map.h"
+#include "Renderer.h"
 
 class Engine
 {
@@ -12,18 +14,14 @@ public:
 
 	static Engine &Instance()
 	{
-		if (nullptr == s_Instance)
+		if (!s_Instance)
 		{
-			s_Instance = new Engine();
+			s_Instance = std::unique_ptr<Engine, std::function<void(Engine *)>>
+				(new Engine(), [](Engine *pEngine) { SafeDelete(pEngine) });
 			assert(s_Instance);
 		}
 
 		return *s_Instance;
-	}
-
-	static void Destory()
-	{
-		SafeDelete(s_Instance);
 	}
 
 	void Init(HWND hWnd, uint32_t width, uint32_t height);
@@ -38,11 +36,11 @@ public:
 	inline const class Image *GetImage(uint32_t index) const
 	{
 		assert(index < m_Textures.size());
-		return m_Textures.at(index);
+		return &m_Textures[index];
 	}
 protected:
 	Engine() = default;
-	~Engine();
+	~Engine() = default;
 
 	void LoadTextures();
 	void LoadMaps();
@@ -50,13 +48,12 @@ protected:
 	void DrawMap();
 	void DrawObjects();
 private:
-	static Engine *s_Instance;
+	static std::unique_ptr<Engine, std::function<void(Engine *)>> s_Instance;
 
-	class Renderer *m_Renderer = nullptr;
+	Map *m_CurrentMap = nullptr;
 
-	class Map *m_CurrentMap = nullptr;
+	std::unique_ptr<Renderer> m_Renderer;
 
-	std::vector<class Image *> m_Textures;
-	std::vector<class Object2D *> m_Objects;
-	std::vector<class Map *> m_Maps;
+	std::array<Image, Object2D::eTypeCount> m_Textures;
+	std::array<Map, Map::eMapCount> m_Maps;
 };

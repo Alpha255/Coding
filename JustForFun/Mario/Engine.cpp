@@ -5,7 +5,7 @@
 #include "Map.h"
 #include "Renderer.h"
 
-Engine *Engine::s_Instance = nullptr;
+std::unique_ptr<Engine, std::function<void(Engine *)>> Engine::s_Instance;
 
 void Engine::LoadTextures()
 {
@@ -23,49 +23,37 @@ void Engine::LoadTextures()
 		"turtle.bmp"
 	};
 
-	for (uint32_t i = 0U; i < Object2D::eTypeCount; ++i)
+	for (uint32_t i = 0U; i < m_Textures.size(); ++i)
 	{
-		Image *pImage = new Image();
-		assert(pImage);
-		pImage->Create(s_TexNames[i]);
-
-		m_Textures.push_back(pImage);
+		m_Textures[i].Create(s_TexNames[i]);
 	}
 }
 
 void Engine::LoadMaps()
 {
-	static const char *const s_MapNames[] =
+	static const char *const s_MapNames[Map::eMapCount] =
 	{
 		"level0.dat",
 		"level1.dat"
 	};
 
-	for (uint32_t i = 0U; i < ARRAYSIZE(s_MapNames); ++i)
+	for (uint32_t i = 0U; i < m_Maps.size(); ++i)
 	{
-		Map *pMap = new Map();
-		assert(pMap);
-		pMap->Create(s_MapNames[i]);
-
-		m_Maps.push_back(pMap);
+		m_Maps[i].Create(s_MapNames[i]);
 	}
 
-	m_CurrentMap = m_Maps.at(0U);
+	m_CurrentMap = &m_Maps[0];
 }
 
 void Engine::DrawMap()
 {
 	assert(m_CurrentMap);
 
-	static const uint32_t s_MapObjectW = 32U;
-	static const uint32_t s_MapObjectH = 32U;
-	static const uint32_t s_TileTypeCount = 16U;
-	static Object2D s_MapObject(Object2D::eTile);
-	static const uint32_t s_InvertImageY = (s_MapObject.GetImage()->Height() - s_MapObjectH);
+	Object2D *pMapObject = m_CurrentMap->GetMapObject();
 
-	uint32_t min = m_CurrentMap->Left() / s_MapObjectW;
+	uint32_t min = m_CurrentMap->Left() / Map::eObjectWidth;
 	uint32_t max = min + 20U;  /// WindowWidth / s_MapObjectW
-	int32_t deltaLeft = m_CurrentMap->Left() - min * s_MapObjectW;
+	int32_t deltaLeft = m_CurrentMap->Left() - min * Map::eObjectWidth;
 
 	for (uint32_t i = 0U; i < m_CurrentMap->Height(); ++i)
 	{
@@ -73,15 +61,15 @@ void Engine::DrawMap()
 
 		for (uint32_t j = min; j <= max; ++j)
 		{
-			const char mark = m_CurrentMap->StaticMark(i * m_CurrentMap->Width() + j);
+			const char mark = m_CurrentMap->GetStaticMark(i * m_CurrentMap->Width() + j);
 
 			if (mark > 0)
 			{
-				uint32_t imageX = mark % s_TileTypeCount * s_MapObjectW;
-				uint32_t imageY = mark / s_TileTypeCount * s_MapObjectH;
+				uint32_t imageX = mark % Map::eObjectCount * Map::eObjectWidth;
+				uint32_t imageY = mark / Map::eObjectCount * Map::eObjectHeight;
 
-				uint32_t width = s_MapObjectW;
-				uint32_t height = s_MapObjectH;
+				uint32_t width = Map::eObjectWidth;
+				uint32_t height = Map::eObjectHeight;
 
 				if (min == j)
 				{
@@ -89,21 +77,21 @@ void Engine::DrawMap()
 				}
 				else if (max == j)
 				{
-					width -= (s_MapObjectW - deltaLeft);
+					width -= (Map::eObjectWidth - deltaLeft);
 				}
 
-				s_MapObject.UpdateArea(i * s_MapObjectH, left, width, height, imageX, imageY + s_InvertImageY);
+				pMapObject->UpdateArea(i * Map::eObjectHeight, left, width, height, imageX, imageY + m_CurrentMap->GetInvertImageY());
 
-				m_Renderer->DrawObject(&s_MapObject);
+				m_Renderer->DrawObject(pMapObject);
 			}
 
 			if (min == j)
 			{
-				left += (s_MapObjectW - deltaLeft);
+				left += (Map::eObjectWidth - deltaLeft);
 			}
 			else
 			{
-				left += s_MapObjectW;
+				left += Map::eObjectWidth;
 			}
 		}
 	}
@@ -116,7 +104,7 @@ void Engine::DrawObjects()
 void Engine::Init(HWND hWnd, uint32_t width, uint32_t height)
 {
 	assert(!m_Renderer);
-	m_Renderer = new Renderer();
+	m_Renderer.reset(new Renderer());
 	m_Renderer->Init(hWnd, width, height);
 
 	LoadTextures();
@@ -175,27 +163,4 @@ void Engine::Resize(uint32_t width, uint32_t height)
 	{
 		m_Renderer->Resize(width, height);
 	}
-}
-
-Engine::~Engine()
-{
-	for (size_t i = 0U; i < m_Textures.size(); ++i)
-	{
-		SafeDelete(m_Textures.at(i));
-	}
-	m_Textures.clear();
-
-	for (size_t i = 0U; i < m_Objects.size(); ++i)
-	{
-		SafeDelete(m_Objects.at(i));
-	}
-	m_Objects.clear();
-
-	for (size_t i = 0U; i < m_Maps.size(); ++i)
-	{
-		SafeDelete(m_Maps.at(i));
-	}
-	m_Maps.clear();
-
-	SafeDelete(m_Renderer);
 }

@@ -14,11 +14,7 @@ public:
 	};
 
 	Image() = default;
-	~Image()
-	{
-		SafeDeleteArray(m_pData);
-		SafeDelete(m_pBitmapInfo);
-	}
+	~Image() = default;
 
 	void Create(const char *pFileName);
 
@@ -37,13 +33,12 @@ public:
 	inline const byte *Data() const
 	{
 		assert(m_pData);
-		return m_pData;
+		return m_pData.get();
 	}
 
 	inline const LPBITMAPINFO BitmapInfo() const
 	{
-		assert(m_pBitmapInfo);
-		return m_pBitmapInfo;
+		return (LPBITMAPINFO)m_BitmapInfo.get();
 	}
 protected:
 	void CreateAsBmp(const char *pFilePath);
@@ -53,6 +48,6 @@ private:
 	uint32_t m_Width = 0U;
 	uint32_t m_Height = 0U;
 
-	byte *m_pData = nullptr;
-	LPBITMAPINFO m_pBitmapInfo = nullptr;
+	std::shared_ptr<byte> m_pData = nullptr;
+	std::shared_ptr<BITMAPINFO> m_BitmapInfo = nullptr;
 };

@@ -1,16 +1,22 @@
 #pragma once
 
 #include "Common.h"
+#include "Object2D.h"
+#include "Image.h"
 
 class Map
 {
 public:
-	Map() = default;
-	~Map()
+	enum eMapAttribute
 	{
-		SafeDeleteArray(m_StaticMarks);
-		SafeDeleteArray(m_DynamicMarks);
-	}
+		eObjectWidth = 32U,
+		eObjectHeight = 32U,
+		eObjectCount = 16U,
+		eMapCount = 2U
+	};
+
+	Map() = default;
+	~Map() = default;
 
 	void Create(const char *pFileName);
 
@@ -18,7 +24,7 @@ public:
 	{
 		uint32_t index = y * m_Width + x;
 
-		m_DynamicMarks[index] = data;
+		m_DynamicMarks.get()[index] = data;
 	}
 
 	inline void HorizontalScrolling(int32_t delta)
@@ -44,11 +50,22 @@ public:
 		return m_Height;
 	}
 
-	inline char StaticMark(uint32_t index)
+	inline char GetStaticMark(uint32_t index)
 	{
 		assert(m_StaticMarks);
-		return m_StaticMarks[index];
+		return m_StaticMarks.get()[index];
 	}
+
+	inline Object2D *GetMapObject()
+	{
+		return &m_ImageObject;
+	}
+
+	inline uint32_t GetInvertImageY() const
+	{
+		return m_ImageObject.GetImage()->Height() - Map::eObjectHeight;
+	}
+
 protected:
 private:
 	uint32_t m_DarkBg = 0U;
@@ -57,6 +74,8 @@ private:
 
 	int32_t m_Left = 0U;
 
-	char *m_StaticMarks = nullptr;
-	char *m_DynamicMarks = nullptr;
+	Object2D m_ImageObject;
+
+	std::shared_ptr<char> m_StaticMarks = nullptr;
+	std::shared_ptr<char> m_DynamicMarks = nullptr;
 };

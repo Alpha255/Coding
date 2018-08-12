@@ -19,12 +19,12 @@ void Map::Create(const char *pFileName)
 	mapFile >> m_Width >> m_Height;
 	assert(m_Width && m_Height);
 	size_t size = m_Width * m_Height;
-	m_StaticMarks = new char[size]();
-	m_DynamicMarks = new char[size]();
-	assert(m_StaticMarks && m_DynamicMarks);
+	char *pStaticMarks = new char[size]();
+	char *pDynamicMarks = new char[size]();
+	assert(pStaticMarks && pDynamicMarks);
 
 	/// Static objects, such cloud, hill, etc.
-	char *pObject = m_StaticMarks;
+	char *pObject = pStaticMarks;
 	int content = 0;
 	for (uint32_t i = 0U; i < m_Height; ++i)
 	{
@@ -36,7 +36,7 @@ void Map::Create(const char *pFileName)
 	}
 
 	/// Dynamic objects, such as coin mark, brick, tube, etc.
-	pObject = m_DynamicMarks;
+	pObject = pDynamicMarks;
 	for (uint32_t i = 0U; i < m_Height; ++i)
 	{
 		for (uint32_t j = 0U; j < m_Width; ++j)
@@ -47,4 +47,8 @@ void Map::Create(const char *pFileName)
 	}
 
 	/// NPCs
+
+	m_StaticMarks.reset(pStaticMarks);
+	m_DynamicMarks.reset(pDynamicMarks);
+	m_ImageObject = Object2D(Object2D::eTile);
 }
