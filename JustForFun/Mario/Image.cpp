@@ -1,5 +1,6 @@
 ﻿#include "Image.h"
 #include "System.h"
+#include "DirectXTK/Src/DDS.h"
 
 #include <string>
 #include <fstream>
@@ -16,7 +17,8 @@ void Image::Create(const char *pFileName)
 	{
 		".bmp",
 		".png",
-		".jpg"
+		".jpg",
+		".dds"
 	};
 
 	std::string filePath = System::ResourceFilePath(pFileName, System::eTexture);
@@ -32,6 +34,10 @@ void Image::Create(const char *pFileName)
 	else if (ext == s_Ext[eJpg])
 	{
 		CreateAsJpg(filePath.c_str());
+	}
+	else if (ext == s_Ext[eDds])
+	{
+		CreateAsDds(pFileName);
 	}
 	else
 	{
@@ -89,4 +95,25 @@ void Image::CreateAsPng(const char * /*pFilePath*/)
 void Image::CreateAsJpg(const char * /*pFilePath*/)
 {
 	assert(0);
+}
+
+void Image::CreateAsDds(const char *pFileName)
+{
+	std::string filePath = System::ResourceFilePath(pFileName, System::eTexture);
+	std::ifstream fileStream(filePath, std::ios::in | std::ios::binary);
+	assert(fileStream.good());
+
+	uint32_t dwMagicNumber = 0U;
+	fileStream.read((char *)&dwMagicNumber, sizeof(uint32_t));
+	assert(dwMagicNumber == DirectX::DDS_MAGIC);
+
+	DirectX::DDS_HEADER header;
+	fileStream.read((char *)&header, sizeof(DirectX::DDS_HEADER));
+	assert(header.size == sizeof(DirectX::DDS_HEADER));
+	assert(header.ddspf.size == sizeof(DirectX::DDS_PIXELFORMAT));
+
+	m_Width = header.width;
+	m_Height = header.height;
+
+	m_ShaderResourceView.Create(pFileName);
 }

@@ -3,7 +3,7 @@
 #include "Image.h"
 #include "Objects.h"
 #include "Map.h"
-#include "Renderer.h"
+#include "D3DEngine.h"
 
 std::unique_ptr<Engine, std::function<void(Engine *)>> Engine::s_Instance;
 
@@ -11,16 +11,16 @@ void Engine::LoadTextures()
 {
 	static const char *const s_TexNames[Object2D::eTypeCount] = 
 	{
-		"brick.bmp",
-		"bullet.bmp",
-		"coin.bmp",
-		"explode.bmp",
-		"flower.bmp",
-		"mario.bmp",
-		"monster.bmp",
-		"mushroom.bmp",
-		"tile.bmp",
-		"turtle.bmp"
+		"Mario\\brick.dds",
+		"Mario\\bullet.dds",
+		"Mario\\coin.dds",
+		"Mario\\explode.dds",
+		"Mario\\flower.dds",
+		"Mario\\mario.dds",
+		"Mario\\monster.dds",
+		"Mario\\mushroom.dds",
+		"Mario\\tile.dds",
+		"Mario\\turtle.dds"
 	};
 
 	for (uint32_t i = 0U; i < m_Textures.size(); ++i)
@@ -82,7 +82,7 @@ void Engine::DrawMap()
 
 				pMapObject->UpdateArea(i * Map::eObjectHeight, left, width, height, imageX, imageY + m_CurrentMap->GetInvertImageY());
 
-				m_Renderer->DrawObject(pMapObject);
+				///m_Renderer->DrawObject(pMapObject);
 			}
 
 			if (min == j)
@@ -103,9 +103,7 @@ void Engine::DrawObjects()
 
 void Engine::Init(HWND hWnd, uint32_t width, uint32_t height)
 {
-	assert(!m_Renderer);
-	m_Renderer.reset(new Renderer());
-	m_Renderer->Init(hWnd, width, height);
+	D3DEngine::Instance().Initialize(hWnd, width, height, true);
 
 	LoadTextures();
 
@@ -145,7 +143,7 @@ void Engine::HandleInput(uint32_t msg, WPARAM wParam, LPARAM /*lParam*/)
 
 void Engine::RenderScene()
 {
-	m_Renderer->Clear();
+	///m_Renderer->Clear();
 #if 0 
 	m_Renderer->DrawObject(m_Objects.at(0));
 #endif
@@ -154,13 +152,10 @@ void Engine::RenderScene()
 	DrawMap();
 #endif
 
-	m_Renderer->Flip();
+	///m_Renderer->Flip();
 }
 
 void Engine::Resize(uint32_t width, uint32_t height)
 {
-	if (m_Renderer)
-	{
-		m_Renderer->Resize(width, height);
-	}
+	D3DEngine::Instance().Resize(width, height);
 }

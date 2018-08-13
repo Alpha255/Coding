@@ -1,10 +1,9 @@
 #pragma once
 
 #include "Common.h"
-#include "Image.h"
 #include "Objects.h"
 #include "Map.h"
-#include "Renderer.h"
+#include "Image.h"
 
 class Engine
 {
@@ -33,7 +32,7 @@ public:
 
 	void Resize(uint32_t width, uint32_t height);
 
-	inline const class Image *GetImage(uint32_t index) const
+	inline const Image *GetImage(uint32_t index) const
 	{
 		assert(index < m_Textures.size());
 		return &m_Textures[index];
@@ -51,8 +50,6 @@ private:
 	static std::unique_ptr<Engine, std::function<void(Engine *)>> s_Instance;
 
 	Map *m_CurrentMap = nullptr;
-
-	std::unique_ptr<Renderer> m_Renderer;
 
 	std::array<Image, Object2D::eTypeCount> m_Textures;
 	std::array<Map, Map::eMapCount> m_Maps;
