@@ -25,18 +25,22 @@ void Image::Create(const char *pFileName)
 
 	if (ext == s_Ext[eBmp])
 	{
+		m_ImageType = eBmp;
 		CreateAsBmp(filePath.c_str());
 	}
 	else if (ext == s_Ext[ePng])
 	{
+		m_ImageType = ePng;
 		CreateAsPng(filePath.c_str());
 	}
 	else if (ext == s_Ext[eJpg])
 	{
+		m_ImageType = eJpg;
 		CreateAsJpg(filePath.c_str());
 	}
 	else if (ext == s_Ext[eDds])
 	{
+		m_ImageType = eDds;
 		CreateAsDds(pFileName);
 	}
 	else

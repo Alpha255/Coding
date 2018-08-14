@@ -4,6 +4,7 @@
 #include "Objects.h"
 #include "Map.h"
 #include "D3DEngine.h"
+#include "GameApplication.h"
 
 std::unique_ptr<Engine, std::function<void(Engine *)>> Engine::s_Instance;
 
@@ -45,6 +46,23 @@ void Engine::LoadMaps()
 	m_CurrentMap = &m_Maps[0];
 }
 
+void Engine::InitD3DResource()
+{
+	const D3D11_INPUT_ELEMENT_DESC VertexLayout[] =
+	{
+		{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT,   0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,      0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
+	m_VertexShader.Create("Mario.hlsl", "VSMain");
+	m_PixelShader.Create("Mario.hlsl", "PSMain");
+	m_PixelShaderDark.Create("Mario.hlsl", "PSMainDark");
+	m_VertexLayout.Create(m_VertexShader.GetBlob(), VertexLayout, _countof(VertexLayout));
+
+	m_VertexBuffer.CreateAsVertexBuffer(sizeof(Vertex) * m_Vertices.size(), D3DBuffer::eGpuReadCpuWrite, nullptr);
+	m_IndexBuffer.CreateAsIndexBuffer(sizeof(uint32_t) * m_Indices.size(), D3DBuffer::eGpuReadOnly, m_Indices.data());
+}
+
 void Engine::DrawMap()
 {
 	assert(m_CurrentMap);
@@ -82,7 +100,7 @@ void Engine::DrawMap()
 
 				pMapObject->UpdateArea(i * Map::eObjectHeight, left, width, height, imageX, imageY + m_CurrentMap->GetInvertImageY());
 
-				///m_Renderer->DrawObject(pMapObject);
+				DrawObject(*pMapObject);
 			}
 
 			if (min == j)
@@ -97,6 +115,53 @@ void Engine::DrawMap()
 	}
 }
 
+void Engine::UpdateVertexBuffer(const Object2D &object)
+{
+	const Object2D::Area &area = object.GetArea();
+
+	float width = (float)area.Width / GameApplication::eWidth;
+	float height = (float)area.Height / GameApplication::eHeight;
+
+	Vec2 lefttop((float)area.Left / GameApplication::eWidth, (float)area.Top / GameApplication::eHeight);
+	lefttop *= 2.0f;
+	lefttop -= 1.0f;
+
+	m_Vertices[0].Position = Vec3(lefttop.x, lefttop.y, 0.0f);
+	m_Vertices[1].Position = Vec3(lefttop.x + width, lefttop.y, 0.0f);
+	m_Vertices[2].Position = Vec3(lefttop.x + width, lefttop.y - height, 0.0f);
+	m_Vertices[3].Position = Vec3(lefttop.x, lefttop.y - height, 0.0f);
+
+	uint32_t imageWidth = object.GetImage()->Width();
+	uint32_t imageHeight = object.GetImage()->Height();
+	float uwidth = (float)area.Width / imageWidth;
+	float uheight = (float)area.Height / imageHeight;
+
+	Vec2 ulefttop((float)area.ImageX / imageWidth, (float)area.ImageY / imageHeight);
+	m_Vertices[0].UV = Vec2(ulefttop.x, ulefttop.y - uheight);
+	m_Vertices[1].UV = Vec2(ulefttop.x + uwidth, ulefttop.y - uheight);
+	m_Vertices[2].UV = Vec2(ulefttop.x + uwidth, ulefttop.y);
+	m_Vertices[3].UV = ulefttop;
+}
+
+void Engine::DrawObject(const Object2D &object)
+{
+	UpdateVertexBuffer(object);
+
+	m_VertexBuffer.Update(m_Vertices.data(), sizeof(Vertex) * m_Vertices.size());
+
+	D3DEngine::Instance().SetVertexBuffer(m_VertexBuffer, sizeof(Vertex), 0U, 0U);
+	D3DEngine::Instance().SetIndexBuffer(m_IndexBuffer, eR32_UInt, 0U);
+	D3DEngine::Instance().SetInputLayout(m_VertexLayout);
+
+	D3DEngine::Instance().SetVertexShader(m_VertexShader);
+	D3DEngine::Instance().SetPixelShader(m_CurrentMap->IsDarkMode() ? m_PixelShaderDark : m_PixelShader);
+
+	D3DEngine::Instance().SetShaderResourceView(object.GetImage()->GetShaderResourceView(), 0U, D3DShader::ePixelShader);
+	D3DEngine::Instance().SetSamplerState(D3DStaticState::LinearSampler, 0U, D3DShader::ePixelShader);
+
+	D3DEngine::Instance().DrawIndexed((uint32_t)m_Indices.size(), 0U, 0, eTriangleList);
+}
+
 void Engine::DrawObjects()
 {
 }
@@ -104,6 +169,8 @@ void Engine::DrawObjects()
 void Engine::Init(HWND hWnd, uint32_t width, uint32_t height)
 {
 	D3DEngine::Instance().Initialize(hWnd, width, height, true);
+
+	InitD3DResource();
 
 	LoadTextures();
 
@@ -143,7 +210,8 @@ void Engine::HandleInput(uint32_t msg, WPARAM wParam, LPARAM /*lParam*/)
 
 void Engine::RenderScene()
 {
-	///m_Renderer->Clear();
+	D3DEngine::Instance().ResetDefaultRenderSurfaces(Vec4(107.0f / 255.0f, 136.0f / 255.0f, 255.0f / 255.0f, 1.0f));
+	D3DEngine::Instance().SetViewport(D3DViewport(0.0f, 0.0f, (float)640, (float)480), 0U);
 #if 0 
 	m_Renderer->DrawObject(m_Objects.at(0));
 #endif
@@ -152,7 +220,7 @@ void Engine::RenderScene()
 	DrawMap();
 #endif
 
-	///m_Renderer->Flip();
+	D3DEngine::Instance().Flush();
 }
 
 void Engine::Resize(uint32_t width, uint32_t height)

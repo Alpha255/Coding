@@ -33,6 +33,12 @@ public:
 		y -= right.y;
 	}
 
+	inline void operator-=(const float right)
+	{
+		x -= right;
+		y -= right;
+	}
+
 	inline void operator*=(const float f)
 	{
 		x *= f;

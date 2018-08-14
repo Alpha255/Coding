@@ -6,6 +6,12 @@
 class GameApplication : public IApplication
 {
 public:
+	enum eOriginalResolution
+	{
+		eWidth = 640,
+		eHeight = 480
+	};
+
 	GameApplication()
 	{
 		m_IconID = IDI_ICON_MARIO;

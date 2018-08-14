@@ -66,6 +66,11 @@ public:
 		return m_ImageObject.GetImage()->Height() - Map::eObjectHeight;
 	}
 
+	inline bool IsDarkMode() const
+	{
+		return 1U == m_DarkBg;
+	}
+
 protected:
 private:
 	uint32_t m_DarkBg = 0U;
