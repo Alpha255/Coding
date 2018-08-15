@@ -93,6 +93,13 @@ public:
 		z -= right.z;
 	}
 
+	inline void operator-=(const float right)
+	{
+		x -= right;
+		y -= right;
+		z -= right;
+	}
+
 	inline void operator*=(const float f)
 	{
 		x *= f;

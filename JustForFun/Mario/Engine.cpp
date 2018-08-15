@@ -61,6 +61,11 @@ void Engine::InitD3DResource()
 
 	m_VertexBuffer.CreateAsVertexBuffer(sizeof(Vertex) * m_Vertices.size(), D3DBuffer::eGpuReadCpuWrite, nullptr);
 	m_IndexBuffer.CreateAsIndexBuffer(sizeof(uint32_t) * m_Indices.size(), D3DBuffer::eGpuReadOnly, m_Indices.data());
+
+	m_AlphaBlend.Create(false, false, 0U, true,
+		D3DState::eSrcAlpha, D3DState::eInvSrcAlpha, D3DState::eAdd,
+		D3DState::eOne, D3DState::eZero, D3DState::eAdd,
+		D3DState::eColorAll);
 }
 
 void Engine::DrawMap()
@@ -119,10 +124,10 @@ void Engine::UpdateVertexBuffer(const Object2D &object)
 {
 	const Object2D::Area &area = object.GetArea();
 
-	float width = (float)area.Width / GameApplication::eWidth;
-	float height = (float)area.Height / GameApplication::eHeight;
+	float width = (float)area.Width / GameApplication::eWidth * 2.0f;
+	float height = (float)area.Height / GameApplication::eHeight * 2.0f;
 
-	Vec2 lefttop((float)area.Left / GameApplication::eWidth, (float)area.Top / GameApplication::eHeight);
+	Vec2 lefttop((float)area.Left / GameApplication::eWidth, (float)(GameApplication::eHeight - area.Top) / GameApplication::eHeight);
 	lefttop *= 2.0f;
 	lefttop -= 1.0f;
 
@@ -157,7 +162,9 @@ void Engine::DrawObject(const Object2D &object)
 	D3DEngine::Instance().SetPixelShader(m_CurrentMap->IsDarkMode() ? m_PixelShaderDark : m_PixelShader);
 
 	D3DEngine::Instance().SetShaderResourceView(object.GetImage()->GetShaderResourceView(), 0U, D3DShader::ePixelShader);
+	
 	D3DEngine::Instance().SetSamplerState(D3DStaticState::LinearSampler, 0U, D3DShader::ePixelShader);
+	D3DEngine::Instance().SetBlendState(m_AlphaBlend);
 
 	D3DEngine::Instance().DrawIndexed((uint32_t)m_Indices.size(), 0U, 0, eTriangleList);
 }
@@ -165,6 +172,10 @@ void Engine::DrawObject(const Object2D &object)
 void Engine::DrawObjects()
 {
 }
+
+#if 0
+Object2D *pTest = new Object2D(Object2D::eTile);
+#endif
 
 void Engine::Init(HWND hWnd, uint32_t width, uint32_t height)
 {
@@ -177,9 +188,7 @@ void Engine::Init(HWND hWnd, uint32_t width, uint32_t height)
 	LoadMaps();
 
 #if 0
-	Object2D *pTest = new Object2D(Object2D::eTile);
 	pTest->UpdateArea(64U, 128U, 32U, 32U, 256U, 32U);
-	m_Objects.push_back(pTest);
 #endif
 }
 
@@ -210,10 +219,10 @@ void Engine::HandleInput(uint32_t msg, WPARAM wParam, LPARAM /*lParam*/)
 
 void Engine::RenderScene()
 {
-	D3DEngine::Instance().ResetDefaultRenderSurfaces(Vec4(107.0f / 255.0f, 136.0f / 255.0f, 255.0f / 255.0f, 1.0f));
+	D3DEngine::Instance().ResetDefaultRenderSurfaces(m_BackColor);
 	D3DEngine::Instance().SetViewport(D3DViewport(0.0f, 0.0f, (float)640, (float)480), 0U);
 #if 0 
-	m_Renderer->DrawObject(m_Objects.at(0));
+	DrawObject(*pTest);
 #endif
 
 #if 1

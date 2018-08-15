@@ -6,6 +6,7 @@
 #include "Image.h"
 #include "D3DShader.h"
 #include "D3DBuffer.h"
+#include "D3DState.h"
 
 class Engine
 {
@@ -68,10 +69,14 @@ private:
 	std::array<Vertex, 4U> m_Vertices;
 	std::array<uint32_t, 6U> m_Indices = { 0U, 1U, 2U, 0U, 2U, 3U };
 
+	Vec4 m_BackColor{ 107.0f / 255.0f, 136.0f / 255.0f, 255.0f / 255.0f, 1.0f };
+	Vec4 m_AlphaColor{ 255.0f / 255.0f, 60.0f / 255.0f, 174.0f / 255.0f, 1.0f };
+
 	D3DInputLayout m_VertexLayout;
 	D3DBuffer m_VertexBuffer;
 	D3DBuffer m_IndexBuffer;
 	D3DVertexShader m_VertexShader;
 	D3DPixelShader m_PixelShader;
 	D3DPixelShader m_PixelShaderDark;
+	D3DBlendState m_AlphaBlend;
 };
