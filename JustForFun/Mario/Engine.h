@@ -79,4 +79,5 @@ private:
 	D3DPixelShader m_PixelShader;
 	D3DPixelShader m_PixelShaderDark;
 	D3DBlendState m_AlphaBlend;
+	D3DViewport m_Viewport;
 };

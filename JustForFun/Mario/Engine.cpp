@@ -66,6 +66,8 @@ void Engine::InitD3DResource()
 		D3DState::eSrcAlpha, D3DState::eInvSrcAlpha, D3DState::eAdd,
 		D3DState::eOne, D3DState::eZero, D3DState::eAdd,
 		D3DState::eColorAll);
+
+	m_Viewport = { 0.0f, 0.0f, (float)GameApplication::eWidth, (float)GameApplication::eHeight, 0U };
 }
 
 void Engine::DrawMap()
@@ -220,7 +222,7 @@ void Engine::HandleInput(uint32_t msg, WPARAM wParam, LPARAM /*lParam*/)
 void Engine::RenderScene()
 {
 	D3DEngine::Instance().ResetDefaultRenderSurfaces(m_BackColor);
-	D3DEngine::Instance().SetViewport(D3DViewport(0.0f, 0.0f, (float)640, (float)480), 0U);
+	D3DEngine::Instance().SetViewport(m_Viewport);
 #if 0 
 	DrawObject(*pTest);
 #endif
@@ -234,5 +236,8 @@ void Engine::RenderScene()
 
 void Engine::Resize(uint32_t width, uint32_t height)
 {
+	m_Viewport.Width = (float)width;
+	m_Viewport.Height = (float)height;
+
 	D3DEngine::Instance().Resize(width, height);
 }
