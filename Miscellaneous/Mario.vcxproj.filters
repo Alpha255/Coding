@@ -7,8 +7,9 @@
     <ClCompile Include="..\JustForFun\Mario\Main.cpp" />
     <ClCompile Include="..\JustForFun\Mario\Map.cpp" />
     <ClCompile Include="..\JustForFun\Mario\Object2D.cpp" />
-    <ClCompile Include="..\JustForFun\Mario\Objects.cpp" />
     <ClCompile Include="..\JustForFun\Mario\Renderer.cpp" />
+    <ClCompile Include="..\JustForFun\Mario\ObjectMario.cpp" />
+    <ClCompile Include="..\JustForFun\Mario\Objects.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\JustForFun\Mario\Engine.h" />
@@ -16,11 +17,12 @@
     <ClInclude Include="..\JustForFun\Mario\Image.h" />
     <ClInclude Include="..\JustForFun\Mario\Map.h" />
     <ClInclude Include="..\JustForFun\Mario\Object2D.h" />
-    <ClInclude Include="..\JustForFun\Mario\Objects.h" />
     <ClInclude Include="..\JustForFun\Mario\Renderer.h" />
     <ClInclude Include="..\JustForFun\Mario\resource.h">
       <Filter>Resource</Filter>
     </ClInclude>
+    <ClInclude Include="..\JustForFun\Mario\ObjectMario.h" />
+    <ClInclude Include="..\JustForFun\Mario\Objects.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resource">

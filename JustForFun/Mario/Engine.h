@@ -8,6 +8,8 @@
 #include "D3DBuffer.h"
 #include "D3DState.h"
 
+#include <list>
+
 class Engine
 {
 public:
@@ -68,6 +70,8 @@ private:
 	std::array<Map, Map::eMapCount> m_Maps;
 	std::array<Vertex, 4U> m_Vertices;
 	std::array<uint32_t, 6U> m_Indices = { 0U, 1U, 2U, 0U, 2U, 3U };
+
+	std::list<Object2D *> m_Objects;
 
 	Vec4 m_BackColor{ 107.0f / 255.0f, 136.0f / 255.0f, 255.0f / 255.0f, 1.0f };
 	Vec4 m_AlphaColor{ 255.0f / 255.0f, 60.0f / 255.0f, 174.0f / 255.0f, 1.0f };
