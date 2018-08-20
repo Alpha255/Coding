@@ -77,7 +77,7 @@ void Engine::DrawMap()
 	Object2D *pMapObject = m_CurrentMap->GetMapObject();
 
 	uint32_t min = m_CurrentMap->Left() / Map::eObjectWidth;
-	uint32_t max = min + 20U;  /// WindowWidth / s_MapObjectW
+	uint32_t max = min + GameApplication::eWidth / Map::eObjectWidth;
 	int32_t deltaLeft = m_CurrentMap->Left() - min * Map::eObjectWidth;
 
 	for (uint32_t i = 0U; i < m_CurrentMap->Height(); ++i)
@@ -210,10 +210,10 @@ void Engine::HandleInput(uint32_t msg, WPARAM wParam, LPARAM /*lParam*/)
 	switch (wParam)
 	{
 	case VK_RIGHT:
-		m_CurrentMap->HorizontalScrolling(5);
+		m_CurrentMap->HorizontalScrolling(Map::eObjectHeight);
 		break;
 	case VK_LEFT:
-		m_CurrentMap->HorizontalScrolling(-5);
+		m_CurrentMap->HorizontalScrolling(-1 * Map::eObjectHeight);
 		break;
 	}
 #endif

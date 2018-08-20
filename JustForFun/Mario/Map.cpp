@@ -1,6 +1,7 @@
 #include "Map.h"
 #include "System.h"
 #include "Image.h"
+#include "GameApplication.h"
 
 #include <string>
 #include <fstream>
@@ -51,4 +52,12 @@ void Map::Create(const char *pFileName)
 	m_StaticMarks.reset(pStaticMarks);
 	m_DynamicMarks.reset(pDynamicMarks);
 	m_ImageObject = Object2D(Object2D::eTile);
+}
+
+void Map::HorizontalScrolling(int32_t delta)
+{
+	int32_t mapWidth = m_Width * (GameApplication::eWidth / eObjectWidth + 8.8);
+	m_Left += delta;
+	m_Left = m_Left < 0 ? 0 : m_Left;
+	m_Left = m_Left >= mapWidth ? mapWidth : m_Left;
 }

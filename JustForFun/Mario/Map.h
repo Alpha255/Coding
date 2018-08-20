@@ -20,17 +20,13 @@ public:
 
 	void Create(const char *pFileName);
 
+	void HorizontalScrolling(int32_t delta);
+
 	inline void Update(int32_t x, int32_t y, char data)
 	{
 		uint32_t index = y * m_Width + x;
 
 		m_DynamicMarks.get()[index] = data;
-	}
-
-	inline void HorizontalScrolling(int32_t delta)
-	{
-		m_Left += delta;
-		m_Left = m_Left < 0 ? 0 : m_Left;
 	}
 
 	inline int32_t Left()
