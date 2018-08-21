@@ -83,6 +83,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DeferredShading", "Deferred
 		Application\Resource\Shaders\DeferredShading\VisualizeGBuffer.hlsl = Application\Resource\Shaders\DeferredShading\VisualizeGBuffer.hlsl
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Vulkan", "Miscellaneous\Vulkan.vcxproj", "{BFB88A6B-D364-413D-B337-D0B7DC60D7A1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -321,6 +323,18 @@ Global
 		{2C9D7FFA-5030-4CF8-BE72-097863287A9B}.Release|x64.Build.0 = Release|x64
 		{2C9D7FFA-5030-4CF8-BE72-097863287A9B}.Release|x86.ActiveCfg = Release|Win32
 		{2C9D7FFA-5030-4CF8-BE72-097863287A9B}.Release|x86.Build.0 = Release|Win32
+		{BFB88A6B-D364-413D-B337-D0B7DC60D7A1}.Debug|x64.ActiveCfg = Debug|x64
+		{BFB88A6B-D364-413D-B337-D0B7DC60D7A1}.Debug|x64.Build.0 = Debug|x64
+		{BFB88A6B-D364-413D-B337-D0B7DC60D7A1}.Debug|x86.ActiveCfg = Debug|Win32
+		{BFB88A6B-D364-413D-B337-D0B7DC60D7A1}.Debug|x86.Build.0 = Debug|Win32
+		{BFB88A6B-D364-413D-B337-D0B7DC60D7A1}.Profile|x64.ActiveCfg = Release|x64
+		{BFB88A6B-D364-413D-B337-D0B7DC60D7A1}.Profile|x64.Build.0 = Release|x64
+		{BFB88A6B-D364-413D-B337-D0B7DC60D7A1}.Profile|x86.ActiveCfg = Release|Win32
+		{BFB88A6B-D364-413D-B337-D0B7DC60D7A1}.Profile|x86.Build.0 = Release|Win32
+		{BFB88A6B-D364-413D-B337-D0B7DC60D7A1}.Release|x64.ActiveCfg = Release|x64
+		{BFB88A6B-D364-413D-B337-D0B7DC60D7A1}.Release|x64.Build.0 = Release|x64
+		{BFB88A6B-D364-413D-B337-D0B7DC60D7A1}.Release|x86.ActiveCfg = Release|Win32
+		{BFB88A6B-D364-413D-B337-D0B7DC60D7A1}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -347,5 +361,6 @@ Global
 		{2F847EA8-F3D0-415E-BA0F-0173FEC8D19C} = {EFE29E72-DA45-4E86-89AA-EB189F7D69F0}
 		{2C9D7FFA-5030-4CF8-BE72-097863287A9B} = {EFE29E72-DA45-4E86-89AA-EB189F7D69F0}
 		{3E2BF552-CA94-45F0-9970-CCF85CAEC649} = {7E3259D7-2974-4D19-9C8B-9FA8D4948146}
+		{BFB88A6B-D364-413D-B337-D0B7DC60D7A1} = {3974EA02-D2AF-48C8-A50A-406095ED1D69}
 	EndGlobalSection
 EndGlobal
