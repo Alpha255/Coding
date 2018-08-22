@@ -10,7 +10,7 @@ static IApplication* s_Application = nullptr;
 }
 
 IApplication::IApplication()
-	: m_pTimer(new Timer())
+	: m_Timer(new Timer())
 {
 }
 
@@ -61,12 +61,12 @@ void IApplication::HandleWindowMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM /
 		if (LOWORD(wParam) == WA_INACTIVE)
 		{
 			m_bActive = false;
-			m_pTimer->Stop();
+			m_Timer->Stop();
 		}
 		else
 		{
 			m_bActive = true;
-			m_pTimer->Start();
+			m_Timer->Start();
 		}
 		break;
 	case WM_SYSCOMMAND:
@@ -77,11 +77,11 @@ void IApplication::HandleWindowMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM /
 		break;
 	case WM_ENTERSIZEMOVE:
 		m_bActive = false;
-		m_pTimer->Stop();
+		m_Timer->Stop();
 		m_bNeedResize = true;
 		break;
 	case WM_EXITSIZEMOVE:
-		m_pTimer->Start();
+		m_Timer->Start();
 		m_bActive = true;
 		break;
 	case WM_DESTROY:
@@ -159,7 +159,7 @@ void IApplication::Running()
 {
 	::MSG msg = { 0 };
 
-	m_pTimer->Reset();
+	m_Timer->Reset();
 
 	while (msg.message != WM_QUIT)
 	{
@@ -170,7 +170,7 @@ void IApplication::Running()
 		}
 		else
 		{
-			m_pTimer->Tick();
+			m_Timer->Tick();
 
 			if (m_bActive)
 			{
@@ -184,9 +184,4 @@ void IApplication::Running()
 			}
 		}
 	}
-}
-
-IApplication::~IApplication()
-{
-	SafeDelete(m_pTimer);
 }

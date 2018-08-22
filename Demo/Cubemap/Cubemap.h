@@ -1,11 +1,11 @@
 #pragma once
 
 #include "Camera.h"
-#include "D3DApp.h"
+#include "RenderApp.h"
 #include "D3DSkyBox.h"
 #include "D3DLighting.h"
 
-class AppCubemap : public D3DApp
+class AppCubemap : public RenderApp
 {
 public:
 	AppCubemap() = default;

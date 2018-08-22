@@ -1,10 +1,10 @@
 #pragma once
 
-#include "D3DApp.h"
+#include "RenderApp.h"
 #include "D3DGeometry.h"
 #include "D3DView.h"
 
-class AppHDRLighting : public D3DApp
+class AppHDRLighting : public RenderApp
 {
 public:
 	AppHDRLighting() = default;

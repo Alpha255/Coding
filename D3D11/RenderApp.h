@@ -2,18 +2,18 @@
 
 #include "IApplication.h"
 
-class D3DApp : public IApplication
+class RenderApp : public IApplication
 {
 public:
-	D3DApp();
-	virtual ~D3DApp();
+	RenderApp();
+	virtual ~RenderApp();
 
-	virtual	LRESULT MsgProc(HWND hWnd, uint32_t msg, WPARAM wParam, LPARAM lParam);
+	virtual	::LRESULT MsgProc(::HWND hWnd, uint32_t msg, ::WPARAM wParam, ::LPARAM lParam);
 
 	virtual void ResizeWindow(uint32_t width, uint32_t height);
 
-	virtual void MouseWheel(WPARAM wParam);
-	virtual void MouseMove(WPARAM wParam, int32_t x, int32_t y);
+	virtual void MouseWheel(::WPARAM wParam);
+	virtual void MouseMove(::WPARAM wParam, int32_t x, int32_t y);
 
 	virtual void RenderToWindow() final;
 	virtual void InitRenderer() final;
@@ -24,14 +24,14 @@ public:
 	
 	void Frame();
 protected:
-	class Camera* m_Camera = nullptr;
+	std::unique_ptr<class Camera> m_Camera = nullptr;
 
 	float m_FPS = 0.0f;
 
 	bool m_bVSync = false;
 	bool m_bFullScreen = false;
 
-	typedef D3DApp Base;
+	typedef RenderApp Base;
 
 	void UpdateFPS();
 private:

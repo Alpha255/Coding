@@ -1,12 +1,12 @@
 #pragma once
 
-#include "D3DApp.h"
+#include "RenderApp.h"
 #include "D3DGeometry.h"
 #include "D3DView.h"
 
 ///#define ColorMask
 
-class AppBox : public D3DApp
+class AppBox : public RenderApp
 {
 public:
 	AppBox() = default;

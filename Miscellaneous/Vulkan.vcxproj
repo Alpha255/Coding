@@ -19,8 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Vulkan\VulkanCommon.h" />
     <ClInclude Include="..\Vulkan\VulkanEngine.h" />
+    <ClInclude Include="..\Vulkan\VulkanObject.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Vulkan\VulkanEngine.cpp" />

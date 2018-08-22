@@ -1,21 +1,19 @@
-#include "D3DApp.h"
+#include "RenderApp.h"
 #include "resource.h"
 #include "Timer.h"
 #include "Camera.h"
 #include "D3DEngine.h"
 #include "D3DGUI_imGui.h"
 
-#include <d3d11.h>
-
-D3DApp::D3DApp()
+RenderApp::RenderApp()
 	: m_Camera(new Camera())
 {
 	m_IconID = IDI_ICON_APP;
 }
 
-LRESULT D3DApp::MsgProc(HWND hWnd, uint32_t msg, WPARAM wParam, LPARAM lParam)
+LRESULT RenderApp::MsgProc(::HWND hWnd, uint32_t msg, ::WPARAM wParam, ::LPARAM lParam)
 {
-	assert(m_pTimer);
+	assert(m_Timer);
 
 	if (m_bRenderedInited && D3DGUI_imGui::Instance().WinProc(hWnd, msg, wParam, lParam))
 	{
@@ -32,7 +30,7 @@ LRESULT D3DApp::MsgProc(HWND hWnd, uint32_t msg, WPARAM wParam, LPARAM lParam)
 	return ::DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-void D3DApp::ResizeWindow(uint32_t width, uint32_t height)
+void RenderApp::ResizeWindow(uint32_t width, uint32_t height)
 {
 	if (m_bRenderedInited)
 	{
@@ -42,7 +40,7 @@ void D3DApp::ResizeWindow(uint32_t width, uint32_t height)
 	m_Camera->SetProjParams(DirectX::XM_PIDIV4, (float)width / height, 1.0f, 3000.0f);
 }
 
-void D3DApp::MouseWheel(WPARAM wParam)
+void RenderApp::MouseWheel(::WPARAM wParam)
 {
 	m_MouseWheelDelta = (short)HIWORD(wParam);
 
@@ -56,7 +54,7 @@ void D3DApp::MouseWheel(WPARAM wParam)
 	m_Camera->SetViewRadius(radius);
 }
 
-void D3DApp::MouseMove(WPARAM wParam, int32_t x, int32_t y)
+void RenderApp::MouseMove(::WPARAM wParam, int32_t x, int32_t y)
 {
 	if ((wParam & MK_LBUTTON) != 0)
 	{
@@ -66,7 +64,7 @@ void D3DApp::MouseMove(WPARAM wParam, int32_t x, int32_t y)
 	IApplication::MouseMove(wParam, x, y);
 }
 
-void D3DApp::InitRenderer()
+void RenderApp::InitRenderer()
 {
 	if (!m_bRenderedInited)
 	{
@@ -80,12 +78,12 @@ void D3DApp::InitRenderer()
 	}
 }
 
-void D3DApp::UpdateFPS()
+void RenderApp::UpdateFPS()
 {
 	static uint32_t s_FrameNumber = 0U;
 	static float s_LastUpdateTime = 0.0f;
 
-	float totalTime = m_pTimer->TotalTime();
+	float totalTime = m_Timer->TotalTime();
 	s_FrameNumber++;
 
 	float elapseTime = totalTime - s_LastUpdateTime;
@@ -98,11 +96,11 @@ void D3DApp::UpdateFPS()
 	}
 }
 
-void D3DApp::Frame()
+void RenderApp::Frame()
 {
 	m_Camera->Update();
 
-	Update(m_pTimer->DeltaTime(), m_pTimer->TotalTime());
+	Update(m_Timer->DeltaTime(), m_Timer->TotalTime());
 
 	D3DGUI_imGui::Instance().RenderBegin();
 
@@ -115,7 +113,7 @@ void D3DApp::Frame()
 	UpdateFPS();
 }
 
-void D3DApp::RenderToWindow()
+void RenderApp::RenderToWindow()
 {
 	if (!m_bSceneInited)
 	{
@@ -126,9 +124,7 @@ void D3DApp::RenderToWindow()
 	Frame();
 }
 
-D3DApp::~D3DApp()
+RenderApp::~RenderApp()
 {
-	SafeDelete(m_Camera);
-
 	D3DGUI_imGui::Destroy();
 }

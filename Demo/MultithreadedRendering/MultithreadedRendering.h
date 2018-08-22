@@ -1,12 +1,12 @@
 #pragma once
 
-#include "D3DApp.h"
+#include "RenderApp.h"
 #include "D3DGeometry.h"
 #include "D3DView.h"
 #include "D3DState.h"
 #include "D3DRenderThread.h"
 
-class AppMultithreadedRendering : public D3DApp
+class AppMultithreadedRendering : public RenderApp
 {
 public:
 	AppMultithreadedRendering() = default;

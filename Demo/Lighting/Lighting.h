@@ -1,10 +1,10 @@
 #pragma once
 
-#include "D3DApp.h"
+#include "RenderApp.h"
 #include "D3DGeometry.h"
 #include "D3DLighting.h"
 
-class AppLighting : public D3DApp
+class AppLighting : public RenderApp
 {
 public:
 	enum eShadingMode

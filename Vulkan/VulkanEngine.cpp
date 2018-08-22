@@ -1,6 +1,6 @@
 #include "VulkanEngine.h"
 
-void VulkanEngine::InitLayerProperties()
+void VkEngine::InitLayerProperties()
 {
 	uint32_t layerCount = 0U;
 	VkResult res = VK_NOT_READY;
@@ -25,7 +25,7 @@ void VulkanEngine::InitLayerProperties()
 	}
 }
 
-void VulkanEngine::Initialize(HWND hWnd, uint32_t width, uint32_t height, bool bWindowed)
+void VkEngine::Initialize(HWND hWnd, uint32_t width, uint32_t height, bool bWindowed)
 {
 	///InitLayerProperties();
 	VkApplicationInfo appInfo

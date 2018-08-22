@@ -1,11 +1,11 @@
 #pragma once
 
-#include "D3DApp.h"
+#include "RenderApp.h"
 #include "D3DGeometry.h"
 #include "D3DView.h"
 #include "D3DState.h"
 
-class AppAlphaBlend : public D3DApp
+class AppAlphaBlend : public RenderApp
 {
 public:
 	AppAlphaBlend() = default;

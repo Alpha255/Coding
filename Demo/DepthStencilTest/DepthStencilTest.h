@@ -1,11 +1,11 @@
 #pragma once
 
-#include "D3DApp.h"
+#include "RenderApp.h"
 #include "D3DGeometry.h"
 #include "D3DState.h"
 #include "D3DView.h"
 
-class AppDepthStencilTest : public D3DApp
+class AppDepthStencilTest : public RenderApp
 {
 public:
 	AppDepthStencilTest() = default;

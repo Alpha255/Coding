@@ -1,12 +1,12 @@
 
 #pragma once
 
-#include "D3DApp.h"
+#include "RenderApp.h"
 #include "D3DGeometry.h"
 #include "D3DGeometryBuffer.h"
 #include "LightController.h"
 
-class AppDeferredShading : public D3DApp
+class AppDeferredShading : public RenderApp
 {
 public:
 	AppDeferredShading() = default;

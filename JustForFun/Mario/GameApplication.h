@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IApplication.h"
-#include "resource.h"
+#include "Timer.h"
 
 class GameApplication : public IApplication
 {
@@ -12,10 +12,7 @@ public:
 		eHeight = 480
 	};
 
-	GameApplication()
-	{
-		m_IconID = IDI_ICON_MARIO;
-	}
+	GameApplication();
 	~GameApplication() = default;
 
 	virtual	LRESULT MsgProc(HWND hWnd, uint32_t msg, WPARAM wParam, LPARAM lParam);

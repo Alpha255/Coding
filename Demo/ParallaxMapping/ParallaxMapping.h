@@ -1,11 +1,11 @@
 #pragma once
 
-#include "D3DApp.h"
+#include "RenderApp.h"
 #include "D3DGeometry.h"
 #include "D3DView.h"
 #include "D3DLighting.h"
 
-class AppParallaxMapping : public D3DApp
+class AppParallaxMapping : public RenderApp
 {
 public:
 	AppParallaxMapping() = default;

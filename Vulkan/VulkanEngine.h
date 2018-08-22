@@ -1,16 +1,16 @@
 #pragma once
 
-#include "VulkanCommon.h"
+#include "VulkanObject.h"
 
-class VulkanEngine : public NoneCopyable
+class VkEngine : public NoneCopyable
 {
 public:
-	static VulkanEngine &Instance()
+	static VkEngine &Instance()
 	{
 		if (!s_Instance)
 		{
-			s_Instance = std::unique_ptr<VulkanEngine, std::function<void(VulkanEngine *)>>
-				(new VulkanEngine(), [](VulkanEngine *pEngine) { SafeDelete(pEngine) });
+			s_Instance = std::unique_ptr<VkEngine, std::function<void(VkEngine *)>>
+				(new VkEngine(), [](VkEngine *pEngine) { SafeDelete(pEngine) });
 		}
 		return *s_Instance;
 	}
@@ -38,12 +38,12 @@ public:
 	void Initialize(HWND hWnd, uint32_t width, uint32_t height, bool bWindowed);
 
 protected:
-	VulkanEngine() = default;
-	~VulkanEngine() = default;
+	VkEngine() = default;
+	~VkEngine() = default;
 
 	void InitLayerProperties();
 private:
-	static std::unique_ptr<VulkanEngine, std::function<void(VulkanEngine *)>> s_Instance;
+	static std::unique_ptr<VkEngine, std::function<void(VkEngine *)>> s_Instance;
 
 	bool m_Inited = false;
 };

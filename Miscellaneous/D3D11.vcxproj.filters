@@ -22,7 +22,6 @@
     <ClCompile Include="..\D3D11\D3DGUI_AntTweakBar.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="..\D3D11\D3DApp.cpp" />
     <ClCompile Include="..\D3D11\D3DView.cpp" />
     <ClCompile Include="..\D3D11\D3DObject.cpp" />
     <ClCompile Include="..\D3D11\D3DLighting.cpp" />
@@ -58,7 +57,6 @@
       <Filter>GUI</Filter>
     </ClInclude>
     <ClInclude Include="..\D3D11\D3DObject.h" />
-    <ClInclude Include="..\D3D11\D3DApp.h" />
     <ClInclude Include="..\D3D11\D3DLighting.h" />
     <ClInclude Include="..\D3D11\D3DModel.h">
       <Filter>Obsolete</Filter>

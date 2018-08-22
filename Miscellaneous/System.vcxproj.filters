@@ -23,6 +23,7 @@
       <Filter>Resource</Filter>
     </ClInclude>
     <ClInclude Include="..\System\Camera.h" />
+    <ClInclude Include="..\D3D11\RenderApp.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\System\IApplication.cpp" />
@@ -31,6 +32,7 @@
     <ClCompile Include="..\System\IThread.cpp">
       <Filter>Thread</Filter>
     </ClCompile>
+    <ClCompile Include="..\D3D11\RenderApp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Thread">
