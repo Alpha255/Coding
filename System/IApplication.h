@@ -1,5 +1,22 @@
 #pragma once
 
+#define UsingD3D11
+///#define UsingVulkan
+
+#ifdef UsingD3D11
+#include "D3DEngine.h"
+#include "D3DGUI_imGui.h"
+typedef D3DEngine Renderer;
+typedef D3DGUI_imGui GUI_ImGui;
+#elif defined(UsingVulkan)
+#include "VulkanEngine.h"
+#include "D3DGUI_imGui.h"
+typedef VkEngine Renderer;
+typedef D3DGUI_imGui GUI_ImGui;
+#else
+#error "Undefine Renderer"
+#endif
+
 #include "Common.h"
 
 class IApplication

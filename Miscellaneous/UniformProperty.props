@@ -8,13 +8,13 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)System\;$(SolutionDir)D3D11\;$(SolutionDir)ThirdParty\;$(SolutionDir)ThirdParty\vcglib\;$(SolutionDir)ThirdParty\DXUT\Optional\;$(SolutionDir)ThirdParty\freetype\include\;$(VK_SDK_PATH)\Include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)System\;$(SolutionDir)D3D11\;$(SolutionDir)Vulkan\;$(SolutionDir)ThirdParty\;$(SolutionDir)ThirdParty\vcglib\;$(SolutionDir)ThirdParty\DXUT\Optional\;$(SolutionDir)ThirdParty\freetype\include\;$(VK_SDK_PATH)\Include\</AdditionalIncludeDirectories>
       <WarningLevel>Level4</WarningLevel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;windowscodecs.lib;Usp10.lib;Comctl32.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;windowscodecs.lib;Usp10.lib;Comctl32.lib;freetype.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories Condition="'$(Platform)'=='Win32'">$(SolutionDir)ThirdParty\freetype\win32\;$(VK_SDK_PATH)\Lib32\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalLibraryDirectories Condition="'$(Platform)'=='x64'">$(SolutionDir)ThirdParty\freetype\win64\;$(VK_SDK_PATH)\Lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>

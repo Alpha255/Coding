@@ -51,5 +51,8 @@
     <Image Include="..\Application\Resource\directx.ico">
       <Filter>Resource</Filter>
     </Image>
+    <Image Include="..\Application\Resource\Vulkan.ico">
+      <Filter>Resource</Filter>
+    </Image>
   </ItemGroup>
 </Project>

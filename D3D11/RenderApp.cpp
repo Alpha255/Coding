@@ -2,27 +2,29 @@
 #include "resource.h"
 #include "Timer.h"
 #include "Camera.h"
-#include "D3DEngine.h"
-#include "D3DGUI_imGui.h"
 
 RenderApp::RenderApp()
 	: m_Camera(new Camera())
 {
-	m_IconID = IDI_ICON_APP;
+#ifdef UsingD3D11
+	m_IconID = IDI_ICON_D3D;
+#elif defined(UsingVulkan)
+	m_IconID = IDI_ICON_VULKAN;
+#endif
 }
 
 LRESULT RenderApp::MsgProc(::HWND hWnd, uint32_t msg, ::WPARAM wParam, ::LPARAM lParam)
 {
 	assert(m_Timer);
 
-	if (m_bRenderedInited && D3DGUI_imGui::Instance().WinProc(hWnd, msg, wParam, lParam))
+	if (m_bRenderedInited && GUI_ImGui::Instance().WinProc(hWnd, msg, wParam, lParam))
 	{
 		return 1LL;
 	}
 
 	HandleWindowMessage(msg, wParam, lParam);
 
-	if (!m_bRenderedInited || !D3DGUI_imGui::Instance().IsFocus())
+	if (!m_bRenderedInited || !GUI_ImGui::Instance().IsFocus())
 	{
 		HandleInput(msg, wParam, lParam);
 	}
@@ -34,7 +36,7 @@ void RenderApp::ResizeWindow(uint32_t width, uint32_t height)
 {
 	if (m_bRenderedInited)
 	{
-		D3DEngine::Instance().Resize(width, height);
+		Renderer::Instance().Resize(width, height);
 	}
 
 	m_Camera->SetProjParams(DirectX::XM_PIDIV4, (float)width / height, 1.0f, 3000.0f);
@@ -68,9 +70,9 @@ void RenderApp::InitRenderer()
 {
 	if (!m_bRenderedInited)
 	{
-		D3DEngine::Instance().Initialize(m_hWnd, m_Width, m_Height, m_bWindowed);
+		Renderer::Instance().Initialize(m_hWnd, m_Width, m_Height, m_bWindowed);
 
-		D3DGUI_imGui::Instance().Initialize(m_hWnd);
+		GUI_ImGui::Instance().Initialize(m_hWnd);
 
 		m_Camera->SetProjParams(DirectX::XM_PIDIV4, (float)m_Width / m_Height, 1.0f, 3000.0f);
 
@@ -102,13 +104,13 @@ void RenderApp::Frame()
 
 	Update(m_Timer->DeltaTime(), m_Timer->TotalTime());
 
-	D3DGUI_imGui::Instance().RenderBegin();
+	GUI_ImGui::Instance().RenderBegin();
 
 	RenderScene();
 
-	D3DGUI_imGui::Instance().RenderEnd();
+	GUI_ImGui::Instance().RenderEnd();
 
-	D3DEngine::Instance().Flush();
+	Renderer::Instance().Flush();
 
 	UpdateFPS();
 }
@@ -126,5 +128,5 @@ void RenderApp::RenderToWindow()
 
 RenderApp::~RenderApp()
 {
-	D3DGUI_imGui::Destroy();
+	GUI_ImGui::Destroy();
 }

@@ -37,6 +37,8 @@ public:
 
 	void Initialize(HWND hWnd, uint32_t width, uint32_t height, bool bWindowed);
 
+	void Resize(uint32_t width, uint32_t height) {}
+
 protected:
 	VkEngine() = default;
 	~VkEngine() = default;
