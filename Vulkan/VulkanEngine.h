@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Common.h"
+#include "VulkanCommon.h"
 
 class VulkanEngine : public NoneCopyable
 {
@@ -41,6 +41,7 @@ protected:
 	VulkanEngine() = default;
 	~VulkanEngine() = default;
 
+	void InitLayerProperties();
 private:
 	static std::unique_ptr<VulkanEngine, std::function<void(VulkanEngine *)>> s_Instance;
 
