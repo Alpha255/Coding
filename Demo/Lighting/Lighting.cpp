@@ -2,7 +2,7 @@
 #include "Camera.h"
 #include "D3DEngine.h"
 #include "D3DLighting.h"
-#include "D3DGUI_imGui.h"
+#include "ImGUI.h"
 
 struct ConstantBufferVS
 {

@@ -30,6 +30,7 @@ protected:
 
 	bool m_bVSync = false;
 	bool m_bFullScreen = false;
+	bool m_bRenderGUI = true;
 
 	typedef RenderApp Base;
 

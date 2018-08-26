@@ -2,7 +2,7 @@
 #include "MultithreadedRendering.h"
 #include "Camera.h"
 #include "D3DEngine.h"
-#include "D3DGUI_imGui.h"
+#include "ImGUI.h"
 #include "D3DTexture.h"
 #include "D3DLighting.h"
 

@@ -1,7 +1,7 @@
 #include "AlphaBlend.h"
 #include "Camera.h"
 #include "D3DEngine.h"
-#include "D3DGUI_imGui.h"
+#include "ImGUI.h"
 
 void AppAlphaBlend::Initialize()
 {

@@ -1,6 +1,6 @@
 #include "ForwardLighting.h"
 #include "D3DEngine.h"
-#include "D3DGUI_imGui.h"
+#include "ImGUI.h"
 #include "D3DLighting.h"
 #include "Camera.h"
 

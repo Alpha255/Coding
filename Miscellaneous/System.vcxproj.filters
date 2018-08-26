@@ -24,6 +24,7 @@
     </ClInclude>
     <ClInclude Include="..\System\Camera.h" />
     <ClInclude Include="..\D3D11\RenderApp.h" />
+    <ClInclude Include="..\D3D11\ImGUI.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\System\IApplication.cpp" />
@@ -33,6 +34,7 @@
       <Filter>Thread</Filter>
     </ClCompile>
     <ClCompile Include="..\D3D11\RenderApp.cpp" />
+    <ClCompile Include="..\D3D11\ImGUI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Thread">

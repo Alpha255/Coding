@@ -1,7 +1,7 @@
 #include "ParallaxMapping.h"
 #include "Camera.h"
 #include "D3DEngine.h"
-#include "D3DGUI_imGui.h"
+#include "ImGUI.h"
 #include "D3DLighting.h"
 
 /// https://cgcookie.com/2017/06/15/normal-vs-displacement-mapping-why-games-use-normals/

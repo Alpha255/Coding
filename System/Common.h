@@ -42,4 +42,7 @@ protected:
 private:
 };
 
+///#define UsingD3D11
+#define UsingVulkan
+
 ///atexit(func);

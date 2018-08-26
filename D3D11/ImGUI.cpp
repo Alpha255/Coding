@@ -1,10 +1,10 @@
-#include "D3DGUI_imGui.h"
+#include "ImGUI.h"
 #include "D3DEngine.h"
 #include "D3DTexture.h"
 
-std::unique_ptr<D3DGUI_imGui> D3DGUI_imGui::s_Instance;
+std::unique_ptr<ImGUI> ImGUI::s_Instance;
 
-void D3DGUI_imGui::Initialize(::HWND hWnd)
+void ImGUI::Initialize(::HWND hWnd)
 {
 	assert(hWnd && !m_Inited);
 
@@ -31,7 +31,8 @@ void D3DGUI_imGui::Initialize(::HWND hWnd)
 	io.KeyMap[ImGuiKey_Z] = 'Z';
 	io.RenderDrawListsFn = nullptr;
 	io.ImeWindowHandle = hWnd;
-	
+
+#ifdef UsingD3D11
 	/// Init D3D resource
 	const D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
@@ -58,11 +59,13 @@ void D3DGUI_imGui::Initialize(::HWND hWnd)
 		D3DBuffer::eGpuReadWrite, (const void*)pPixels, (uint32_t)width * 4U);
 	m_Resource.FontTexture.CreateAsTexture(D3DView::eTexture2D, fontTex, eRGBA8_UNorm, 0U, 1U);
 	io.Fonts->TexID = (void *)m_Resource.FontTexture.Get();
+#else
+#endif
 
 	m_Inited = true;
 }
 
-::LRESULT D3DGUI_imGui::WinProc(::HWND hWnd, uint32_t uMsg, ::WPARAM wParam, ::LPARAM lParam)
+::LRESULT ImGUI::WinProc(::HWND hWnd, uint32_t uMsg, ::WPARAM wParam, ::LPARAM lParam)
 {
 	ImGuiIO &io = ImGui::GetIO();
 
@@ -133,8 +136,13 @@ void D3DGUI_imGui::Initialize(::HWND hWnd)
 	return 0LL;
 }
 
-void D3DGUI_imGui::RenderBegin(const char *pPanelName)
+void ImGUI::RenderBegin(bool bDraw, const char *pPanelName)
 {
+	if (!bDraw)
+	{
+		return;
+	}
+
 	ImGuiIO &io = ImGui::GetIO();
 	::HWND hWnd = (::HWND)io.ImeWindowHandle;
 	assert(hWnd);
@@ -173,8 +181,13 @@ void D3DGUI_imGui::RenderBegin(const char *pPanelName)
 	ImGui::Begin(pPanelName);
 }
 
-void D3DGUI_imGui::RenderEnd()
+void ImGUI::RenderEnd(bool bDraw)
 {
+	if (!bDraw)
+	{
+		return;
+	}
+
 	ImGui::End();
 
 	ImGui::Render();
@@ -182,7 +195,7 @@ void D3DGUI_imGui::RenderEnd()
 	UpdateAndRender();
 }
 
-void D3DGUI_imGui::UpdateAndRender()
+void ImGUI::UpdateAndRender()
 {
 	ImDrawData *pDrawData = ImGui::GetDrawData();
 	if (!pDrawData)
@@ -260,7 +273,7 @@ void D3DGUI_imGui::UpdateAndRender()
 	D3DEngine::Instance().SetDepthStencilState(D3DStaticState::NoneDepthStencilState, 0U);
 }
 
-void D3DGUI_imGui::UpdateDrawData(bool bRecreateVB, bool bRecreateIB, const ImDrawData *pDrawData)
+void ImGUI::UpdateDrawData(bool bRecreateVB, bool bRecreateIB, const ImDrawData *pDrawData)
 {
 	if (bRecreateVB)
 	{

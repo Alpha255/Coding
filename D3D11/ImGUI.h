@@ -8,14 +8,14 @@
 
 #include <GUI/ocornut/imgui.h>
 
-class D3DGUI_imGui
+class ImGUI
 {
 public:
-	static D3DGUI_imGui &Instance()
+	static ImGUI &Instance()
 	{
 		if (!s_Instance)
 		{
-			s_Instance = std::unique_ptr<D3DGUI_imGui>(new D3DGUI_imGui());
+			s_Instance = std::unique_ptr<ImGUI>(new ImGUI());
 		}
 
 		return *s_Instance;
@@ -30,8 +30,8 @@ public:
 
 	::LRESULT WinProc(::HWND hWnd, uint32_t uMsg, ::WPARAM wParam, ::LPARAM lParam);
 
-	void RenderBegin(const char *pPanelName = "imGUI");
-	void RenderEnd();
+	void RenderBegin(bool bDraw = true, const char *pPanelName = "imGUI");
+	void RenderEnd(bool bDraw = true);
 	void UpdateAndRender();
 
 	inline bool IsFocus() const 
@@ -40,7 +40,7 @@ public:
 		return io.WantCaptureMouse || io.WantCaptureKeyboard;
 	}
 protected:
-	D3DGUI_imGui() = default;
+	ImGUI() = default;
 
 	struct RenderResource
 	{
@@ -74,7 +74,7 @@ protected:
 		return false;
 	}
 private:
-	static std::unique_ptr<D3DGUI_imGui> s_Instance;
+	static std::unique_ptr<ImGUI> s_Instance;
 
 	int32_t m_VertexCount = 0;
 	int32_t m_IndexCount = 0;

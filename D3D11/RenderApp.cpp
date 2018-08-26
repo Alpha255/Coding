@@ -2,29 +2,36 @@
 #include "resource.h"
 #include "Timer.h"
 #include "Camera.h"
+#include "ImGUI.h"
+
+#ifdef UsingD3D11
+#include "D3DEngine.h"
+typedef D3DEngine Renderer;
+#elif defined(UsingVulkan)
+#include "VulkanEngine.h"
+typedef VkEngine Renderer;
+#else
+#error "Undefine Renderer"
+#endif
 
 RenderApp::RenderApp()
 	: m_Camera(new Camera())
 {
-#ifdef UsingD3D11
-	m_IconID = IDI_ICON_D3D;
-#elif defined(UsingVulkan)
-	m_IconID = IDI_ICON_VULKAN;
-#endif
+	m_IconID = IDI_ICON_APP;
 }
 
 LRESULT RenderApp::MsgProc(::HWND hWnd, uint32_t msg, ::WPARAM wParam, ::LPARAM lParam)
 {
 	assert(m_Timer);
 
-	if (m_bRenderedInited && GUI_ImGui::Instance().WinProc(hWnd, msg, wParam, lParam))
+	if (m_bRenderedInited && ImGUI::Instance().WinProc(hWnd, msg, wParam, lParam))
 	{
 		return 1LL;
 	}
 
 	HandleWindowMessage(msg, wParam, lParam);
 
-	if (!m_bRenderedInited || !GUI_ImGui::Instance().IsFocus())
+	if (!m_bRenderedInited || !ImGUI::Instance().IsFocus())
 	{
 		HandleInput(msg, wParam, lParam);
 	}
@@ -72,7 +79,7 @@ void RenderApp::InitRenderer()
 	{
 		Renderer::Instance().Initialize(m_hWnd, m_Width, m_Height, m_bWindowed);
 
-		GUI_ImGui::Instance().Initialize(m_hWnd);
+		ImGUI::Instance().Initialize(m_hWnd);
 
 		m_Camera->SetProjParams(DirectX::XM_PIDIV4, (float)m_Width / m_Height, 1.0f, 3000.0f);
 
@@ -104,11 +111,11 @@ void RenderApp::Frame()
 
 	Update(m_Timer->DeltaTime(), m_Timer->TotalTime());
 
-	GUI_ImGui::Instance().RenderBegin();
+	ImGUI::Instance().RenderBegin(m_bRenderGUI);
 
 	RenderScene();
 
-	GUI_ImGui::Instance().RenderEnd();
+	ImGUI::Instance().RenderEnd(m_bRenderGUI);
 
 	Renderer::Instance().Flush();
 
@@ -128,5 +135,5 @@ void RenderApp::RenderToWindow()
 
 RenderApp::~RenderApp()
 {
-	GUI_ImGui::Destroy();
+	ImGUI::Destroy();
 }
