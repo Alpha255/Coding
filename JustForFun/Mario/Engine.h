@@ -37,6 +37,8 @@ public:
 
 	void Resize(uint32_t width, uint32_t height);
 
+	void AddObject(Object2D::eType type, uint32_t left, uint32_t top);
+
 	inline const Image *GetImage(uint32_t index) const
 	{
 		assert(index < m_Textures.size());
@@ -56,9 +58,9 @@ protected:
 	void LoadMaps();
 	void InitD3DResource();
 
-	void DrawMap();
 	void DrawObject(const Object2D &object);
-	void DrawObjects();
+	void DrawStaticObjects();
+	void DrawDynamicObjects();
 
 	void UpdateVertexBuffer(const Object2D &object);
 private:
@@ -71,7 +73,7 @@ private:
 	std::array<Vertex, 4U> m_Vertices;
 	std::array<uint32_t, 6U> m_Indices = { 0U, 1U, 2U, 0U, 2U, 3U };
 
-	std::list<Object2D *> m_Objects;
+	std::list<std::shared_ptr<Object2D>> m_Objects;
 
 	Vec4 m_BackColor{ 107.0f / 255.0f, 136.0f / 255.0f, 255.0f / 255.0f, 1.0f };
 	Vec4 m_AlphaColor{ 255.0f / 255.0f, 60.0f / 255.0f, 174.0f / 255.0f, 1.0f };

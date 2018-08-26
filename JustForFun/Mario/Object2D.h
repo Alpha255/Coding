@@ -13,10 +13,11 @@ public:
 		eExplode,
 		eFlower,
 		eMario,
-		eMonster,
 		eMushroom,
 		eTile,
-		eTurtle,
+		eMonster,
+		eWalkingTurtle,
+		eFlyingTurtle,
 		eTypeCount
 	};
 
@@ -41,20 +42,20 @@ public:
 
 	struct Area
 	{
-		uint32_t Top = 0U;   /// Coordinate in window
 		uint32_t Left = 0U;
+		uint32_t Top = 0U;   /// Coordinate in window
 
-		uint32_t Width = 0U;
-		uint32_t Height = 0U;
+		uint32_t ObjectWidth = 0U;
+		uint32_t ObjectHeight = 0U;
 
-		uint32_t ImageX = 0U;
-		uint32_t ImageY = 0U;
+		uint32_t UVX = 0U;
+		uint32_t UVY = 0U;
 	};
 
 	Object2D() = default;
 	virtual ~Object2D() = default;
 
-	Object2D(eType type);
+	Object2D(eType type, uint32_t left = 0U, uint32_t top = 0U);
 
 	inline const class Image *GetImage() const
 	{
@@ -73,20 +74,20 @@ public:
 		m_Motion = motion;
 	}
 
-	inline void UpdateArea(uint32_t top, uint32_t left, uint32_t width, uint32_t height, uint32_t imageX, uint32_t imageY)
+	inline void UpdateArea(uint32_t top, uint32_t left, uint32_t width, uint32_t height, uint32_t uvX, uint32_t uvY)
 	{
 		m_Area.Top = top;
 		m_Area.Left = left;
-		m_Area.Width = width;
-		m_Area.Height = height;
-		m_Area.ImageX = imageX;
-		m_Area.ImageY = imageY;
+		m_Area.ObjectWidth = width;
+		m_Area.ObjectHeight = height;
+		m_Area.UVX = uvX;
+		m_Area.UVY = uvY;
 	}
 
 	void virtual Update(float /*elapseTime*/) {}
 
-	bool IsCollision(const Object2D &object);
-	bool IsCollision(const class Map &map);
+	bool IsCollide(const Object2D &object);
+	bool IsCollide(const class Map &map);
 protected:
 	eType m_Type = eTypeCount;
 	eOrientation m_Orientation = eLeft;
@@ -94,8 +95,8 @@ protected:
 
 	Area m_Area;
 
-	Vec2 m_Velocity = { 0.0f, 0.0f };
-	Vec2 m_Acceleration = { 0.0f, 0.0f };
+	Vec2 m_Velocity = {};
+	Vec2 m_Acceleration = {};
 
 	const class Image *m_Image = nullptr;
 	typedef Object2D Base;

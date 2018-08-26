@@ -57,7 +57,7 @@ public:
 		return &m_ImageObject;
 	}
 
-	inline uint32_t GetInvertImageY() const
+	inline uint32_t GetInvertUVY() const
 	{
 		return m_ImageObject.GetImage()->Height() - Map::eObjectHeight;
 	}
@@ -68,6 +68,7 @@ public:
 	}
 
 protected:
+	void RegisterNPCs(std::ifstream &mapFile);
 private:
 	uint32_t m_DarkBg = 0U;
 	uint32_t m_Width = 0U;

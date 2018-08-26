@@ -2,6 +2,7 @@
 #include "System.h"
 #include "Image.h"
 #include "GameApplication.h"
+#include "Engine.h"
 
 #include <string>
 #include <fstream>
@@ -48,10 +49,31 @@ void Map::Create(const char *pFileName)
 	}
 
 	/// NPCs
+	RegisterNPCs(mapFile);
+
+	mapFile.close();
 
 	m_StaticMarks.reset(pStaticMarks);
 	m_DynamicMarks.reset(pDynamicMarks);
 	m_ImageObject = Object2D(Object2D::eTile);
+}
+
+void Map::RegisterNPCs(std::ifstream &mapFile)
+{
+	uint32_t npcCount = 0U;
+	uint32_t left = 0, top = 0;
+
+	for (uint32_t i = Object2D::eMonster; i < Object2D::eTypeCount; ++i)
+	{
+		/// Monsters
+		mapFile >> npcCount;
+		for (uint32_t j = 0U; j < npcCount; ++j)
+		{
+			mapFile >> left;
+			mapFile >> top;
+			Engine::Instance().AddObject((Object2D::eType)i, left, top);
+		}
+	}
 }
 
 void Map::HorizontalScrolling(int32_t delta)

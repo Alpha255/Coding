@@ -18,10 +18,11 @@ void Engine::LoadTextures()
 		"Mario\\explode.dds",
 		"Mario\\flower.dds",
 		"Mario\\mario.dds",
-		"Mario\\monster.dds",
 		"Mario\\mushroom.dds",
 		"Mario\\tile.dds",
-		"Mario\\turtle.dds"
+		"Mario\\monster.dds",
+		"Mario\\turtle.dds",
+		"Mario\\turtle.dds",
 	};
 
 	for (uint32_t i = 0U; i < m_Textures.size(); ++i)
@@ -44,6 +45,17 @@ void Engine::LoadMaps()
 	}
 
 	m_CurrentMap = &m_Maps[0];
+}
+
+void Engine::Init(HWND hWnd, uint32_t width, uint32_t height)
+{
+	D3DEngine::Instance().Initialize(hWnd, width, height, true);
+
+	InitD3DResource();
+
+	LoadTextures();
+
+	LoadMaps();
 }
 
 void Engine::InitD3DResource()
@@ -70,7 +82,7 @@ void Engine::InitD3DResource()
 	m_Viewport = { 0.0f, 0.0f, (float)GameApplication::eWidth, (float)GameApplication::eHeight, 0U };
 }
 
-void Engine::DrawMap()
+void Engine::DrawStaticObjects()
 {
 	assert(m_CurrentMap);
 
@@ -90,22 +102,22 @@ void Engine::DrawMap()
 
 			if (mark > 0)
 			{
-				uint32_t imageX = mark % Map::eObjectCount * Map::eObjectWidth;
-				uint32_t imageY = mark / Map::eObjectCount * Map::eObjectHeight;
+				uint32_t uvX = mark % Map::eObjectCount * Map::eObjectWidth;
+				uint32_t uvY = mark / Map::eObjectCount * Map::eObjectHeight;
 
 				uint32_t width = Map::eObjectWidth;
 				uint32_t height = Map::eObjectHeight;
 
 				if (min == j)
 				{
-					imageX += deltaLeft;
+					uvX += deltaLeft;
 				}
 				else if (max == j)
 				{
 					width -= (Map::eObjectWidth - deltaLeft);
 				}
 
-				pMapObject->UpdateArea(i * Map::eObjectHeight, left, width, height, imageX, imageY + m_CurrentMap->GetInvertImageY());
+				pMapObject->UpdateArea(i * Map::eObjectHeight, left, width, height, uvX, uvY + m_CurrentMap->GetInvertUVY());
 
 				DrawObject(*pMapObject);
 			}
@@ -122,12 +134,20 @@ void Engine::DrawMap()
 	}
 }
 
+void Engine::DrawDynamicObjects()
+{
+	for each (std::shared_ptr<Object2D> object in m_Objects)
+	{
+		DrawObject(*object);
+	}
+}
+
 void Engine::UpdateVertexBuffer(const Object2D &object)
 {
 	const Object2D::Area &area = object.GetArea();
 
-	float width = (float)area.Width / GameApplication::eWidth * 2.0f;
-	float height = (float)area.Height / GameApplication::eHeight * 2.0f;
+	float width = (float)area.ObjectWidth / GameApplication::eWidth * 2.0f;
+	float height = (float)area.ObjectHeight / GameApplication::eHeight * 2.0f;
 
 	Vec2 lefttop((float)area.Left / GameApplication::eWidth, (float)(GameApplication::eHeight - area.Top) / GameApplication::eHeight);
 	lefttop *= 2.0f;
@@ -140,10 +160,10 @@ void Engine::UpdateVertexBuffer(const Object2D &object)
 
 	uint32_t imageWidth = object.GetImage()->Width();
 	uint32_t imageHeight = object.GetImage()->Height();
-	float uwidth = (float)area.Width / imageWidth;
-	float uheight = (float)area.Height / imageHeight;
+	float uwidth = (float)area.ObjectWidth / imageWidth;
+	float uheight = (float)area.ObjectHeight / imageHeight;
 
-	Vec2 ulefttop((float)area.ImageX / imageWidth, (float)area.ImageY / imageHeight);
+	Vec2 ulefttop((float)area.UVX / imageWidth, (float)area.UVY / imageHeight);
 	m_Vertices[0].UV = Vec2(ulefttop.x, ulefttop.y - uheight);
 	m_Vertices[1].UV = Vec2(ulefttop.x + uwidth, ulefttop.y - uheight);
 	m_Vertices[2].UV = Vec2(ulefttop.x + uwidth, ulefttop.y);
@@ -171,32 +191,12 @@ void Engine::DrawObject(const Object2D &object)
 	D3DEngine::Instance().DrawIndexed((uint32_t)m_Indices.size(), 0U, 0, eTriangleList);
 }
 
-void Engine::DrawObjects()
+void Engine::Update(float elapseTime, float /*totalTime*/)
 {
-}
-
-#if 0
-Object2D *pTest = new Object2D(Object2D::eTile);
-#endif
-
-void Engine::Init(HWND hWnd, uint32_t width, uint32_t height)
-{
-	D3DEngine::Instance().Initialize(hWnd, width, height, true);
-
-	InitD3DResource();
-
-	LoadTextures();
-
-	LoadMaps();
-
-#if 0
-	pTest->UpdateArea(64U, 128U, 32U, 32U, 256U, 32U);
-#endif
-}
-
-void Engine::Update(float /*elapseTime*/, float /*totalTime*/)
-{
-
+	for each (std::shared_ptr<Object2D> object in m_Objects)
+	{
+		object->Update(elapseTime);
+	}
 }
 
 void Engine::HandleInput(uint32_t msg, WPARAM wParam, LPARAM /*lParam*/)
@@ -223,13 +223,10 @@ void Engine::RenderScene()
 {
 	D3DEngine::Instance().ResetDefaultRenderSurfaces(m_BackColor);
 	D3DEngine::Instance().SetViewport(m_Viewport);
-#if 0 
-	DrawObject(*pTest);
-#endif
 
-#if 1
-	DrawMap();
-#endif
+	DrawStaticObjects();
+
+	DrawDynamicObjects();
 
 	D3DEngine::Instance().Flush();
 }
@@ -240,4 +237,22 @@ void Engine::Resize(uint32_t width, uint32_t height)
 	m_Viewport.Height = (float)height;
 
 	D3DEngine::Instance().Resize(width, height);
+}
+
+void Engine::AddObject(Object2D::eType type, uint32_t left, uint32_t top)
+{
+	switch (type)
+	{
+	case Object2D::eMonster:
+		m_Objects.emplace_back(new Monster(left, top));
+		break;
+	case Object2D::eWalkingTurtle:
+		m_Objects.emplace_back(new WalkingTurtle(left, top));
+		break;
+	case Object2D::eFlyingTurtle:
+		m_Objects.emplace_back(new FlyingTurtle(left, top));
+		break;
+	default:
+		assert(!"Unknown object type!");
+	}
 }
