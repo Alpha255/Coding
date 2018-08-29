@@ -57,9 +57,9 @@ public:
 		return &m_ImageObject;
 	}
 
-	inline uint32_t GetInvertUVY() const
+	inline uint32_t GetUVYStart() const
 	{
-		return m_ImageObject.GetImage()->Height() - Map::eObjectHeight;
+		return m_UVYStart;
 	}
 
 	inline bool IsDarkMode() const
@@ -73,6 +73,7 @@ private:
 	uint32_t m_DarkBg = 0U;
 	uint32_t m_Width = 0U;
 	uint32_t m_Height = 0U;
+	uint32_t m_UVYStart = 0U;
 
 	int32_t m_Left = 0U;
 

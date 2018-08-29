@@ -103,7 +103,7 @@ void Engine::DrawStaticObjects()
 			if (mark > 0)
 			{
 				uint32_t uvX = mark % Map::eObjectCount * Map::eObjectWidth;
-				uint32_t uvY = mark / Map::eObjectCount * Map::eObjectHeight;
+				uint32_t uvY = mark / Map::eObjectCount * Map::eObjectHeight + m_CurrentMap->GetUVYStart();
 
 				uint32_t width = Map::eObjectWidth;
 				uint32_t height = Map::eObjectHeight;
@@ -117,7 +117,7 @@ void Engine::DrawStaticObjects()
 					width -= (Map::eObjectWidth - deltaLeft);
 				}
 
-				pMapObject->UpdateArea(i * Map::eObjectHeight, left, width, height, uvX, uvY + m_CurrentMap->GetInvertUVY());
+				pMapObject->UpdateArea(i * Map::eObjectHeight, left, width, height, uvX, uvY);
 
 				DrawObject(*pMapObject);
 			}
@@ -138,6 +138,48 @@ void Engine::DrawDynamicObjects()
 {
 	for each (std::shared_ptr<Object2D> object in m_Objects)
 	{
+		const Object2D::Area &area = object->GetArea();
+
+		int32_t l = area.Left - m_CurrentMap->Left();
+		int32_t t = area.Top;
+
+		if (((l + object->ObjectWidth()) < 0)
+			|| ((t + object->ObjectHeight()) < 0)
+			|| (l > GameApplication::eWidth)
+			|| (t > GameApplication::eHeight))
+		{
+			continue;
+		}
+
+		const Object2D::State &state = object->GetState();
+
+		uint32_t left = state.TexIndex * object->ObjectWidth();
+		uint32_t top = 0U;
+		uint32_t width = left + object->ObjectWidth();
+		uint32_t height = top + object->ObjectHeight();
+
+		if (l < 0)
+		{
+			left += (-l);
+			l = 0;
+		}
+		else if (l + area.ObjectWidth > GameApplication::eWidth)
+		{
+			width -= l + object->ObjectWidth() - GameApplication::eWidth;
+		}
+
+		if (t < 0)
+		{
+			top += (-t);
+			t = 0;
+		}
+		else if (t + area.ObjectHeight > GameApplication::eHeight)
+		{
+			height -= t + object->ObjectHeight() - GameApplication::eHeight;
+		}
+
+		object->UpdateArea(top, left, width, height, state.TexIndex * object->ObjectWidth(), 0U);
+
 		DrawObject(*object);
 	}
 }
@@ -247,10 +289,10 @@ void Engine::AddObject(Object2D::eType type, uint32_t left, uint32_t top)
 		m_Objects.emplace_back(new Monster(left, top));
 		break;
 	case Object2D::eWalkingTurtle:
-		m_Objects.emplace_back(new WalkingTurtle(left, top));
+		m_Objects.emplace_back(new Turtle(Object2D::eWalkingTurtle, left, top));
 		break;
 	case Object2D::eFlyingTurtle:
-		m_Objects.emplace_back(new FlyingTurtle(left, top));
+		m_Objects.emplace_back(new Turtle(Object2D::eFlyingTurtle, left, top));
 		break;
 	default:
 		assert(!"Unknown object type!");

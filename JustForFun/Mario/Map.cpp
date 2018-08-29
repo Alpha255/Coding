@@ -55,7 +55,9 @@ void Map::Create(const char *pFileName)
 
 	m_StaticMarks.reset(pStaticMarks);
 	m_DynamicMarks.reset(pDynamicMarks);
-	m_ImageObject = Object2D(Object2D::eTile);
+	m_ImageObject = Object2D(Object2D::eTile, 32U, 32U);
+
+	m_UVYStart = m_ImageObject.GetImage()->Height() - Map::eObjectHeight;
 }
 
 void Map::RegisterNPCs(std::ifstream &mapFile)
