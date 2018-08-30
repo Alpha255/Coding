@@ -44,8 +44,12 @@ protected:
 	~VkEngine() = default;
 
 	void InitLayerProperties();
+	void CreateDevice(const VulkanPhysicalDevice &vkpDevice);
 private:
 	static std::unique_ptr<VkEngine, std::function<void(VkEngine *)>> s_Instance;
+
+	VulkanDevice m_Device;
+	VulkanSwapchain m_Swapchain;
 
 	bool m_Inited = false;
 };

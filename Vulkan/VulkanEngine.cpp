@@ -27,6 +27,37 @@ void VkEngine::InitLayerProperties()
 	}
 }
 
+void VkEngine::CreateDevice(const VulkanPhysicalDevice &vkpDevice)
+{
+	const float queuePriorities[] = { 0.0f };
+	VkDeviceQueueCreateInfo queueInfo =
+	{
+		VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+		nullptr,
+		0U,
+		0U,
+		1U,
+		queuePriorities
+	};
+
+	const char *pExtensionNames[] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+	VkDeviceCreateInfo deviceInfo =
+	{
+		VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+		nullptr,
+		0U,
+		1U,
+		&queueInfo,
+		0U,
+		nullptr,
+		1U,
+		pExtensionNames,
+		nullptr
+	};
+
+	VKCheck(vkCreateDevice(vkpDevice.GetRef(), &deviceInfo, nullptr, m_Device.MakeObject()));
+}
+
 void VkEngine::Initialize(HWND hWnd, uint32_t width, uint32_t height, bool bWindowed)
 {
 	///InitLayerProperties();
@@ -54,21 +85,12 @@ void VkEngine::Initialize(HWND hWnd, uint32_t width, uint32_t height, bool bWind
 	
 	uint32_t deviceCount = 0U;
 	VKCheck(vkEnumeratePhysicalDevices(vkInstance, &deviceCount, nullptr));
-
 	assert(deviceCount >= 1U);
-	std::vector<VkPhysicalDevice> vkDeviceList(deviceCount);
-	VKCheck(vkEnumeratePhysicalDevices(vkInstance, &deviceCount, vkDeviceList.data()));
 
-	uint32_t deviceFamilyCount = 0U;
-	vkGetPhysicalDeviceQueueFamilyProperties(vkDeviceList[0], &deviceFamilyCount, nullptr);
+	VulkanPhysicalDevice vkpDevice;
+	VKCheck(vkEnumeratePhysicalDevices(vkInstance, &deviceCount, vkpDevice.MakeObject()));
 
-	assert(deviceFamilyCount > 1U);
-	std::vector<VkQueueFamilyProperties> vkQueueFamilyProperties(deviceFamilyCount);
-	vkGetPhysicalDeviceQueueFamilyProperties(vkDeviceList[0], &deviceFamilyCount, vkQueueFamilyProperties.data());
+	CreateDevice(vkpDevice);
 
-	VkPhysicalDeviceMemoryProperties vkDeviceMemoryProperty;
-	vkGetPhysicalDeviceMemoryProperties(vkDeviceList[0], &vkDeviceMemoryProperty);
-
-	VkPhysicalDeviceProperties vkDeviceProperty;
-	vkGetPhysicalDeviceProperties(vkDeviceList[0], &vkDeviceProperty);
+	m_Swapchain.Create(vkpDevice, m_Device, width, height);
 }

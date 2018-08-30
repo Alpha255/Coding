@@ -8,7 +8,7 @@ template<typename T> class D3DObject
 {
 public:
 	D3DObject() = default;
-	~D3DObject() = default;
+	virtual ~D3DObject() = default;
 
 	inline bool IsValid() const
 	{

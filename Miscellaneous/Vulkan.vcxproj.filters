@@ -6,5 +6,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Vulkan\VulkanEngine.cpp" />
+    <ClCompile Include="..\Vulkan\VulkanObject.cpp" />
   </ItemGroup>
 </Project>

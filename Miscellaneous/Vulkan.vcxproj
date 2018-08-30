@@ -24,6 +24,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Vulkan\VulkanEngine.cpp" />
+    <ClCompile Include="..\Vulkan\VulkanObject.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{BFB88A6B-D364-413D-B337-D0B7DC60D7A1}</ProjectGuid>
