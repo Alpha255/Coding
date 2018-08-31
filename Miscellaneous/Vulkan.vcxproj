@@ -21,10 +21,14 @@
   <ItemGroup>
     <ClInclude Include="..\Vulkan\VulkanEngine.h" />
     <ClInclude Include="..\Vulkan\VulkanObject.h" />
+    <ClInclude Include="..\Vulkan\VulkanShader.h" />
+    <ClInclude Include="..\Vulkan\VulkanTexture.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Vulkan\VulkanEngine.cpp" />
     <ClCompile Include="..\Vulkan\VulkanObject.cpp" />
+    <ClCompile Include="..\Vulkan\VulkanShader.cpp" />
+    <ClCompile Include="..\Vulkan\VulkanTexture.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{BFB88A6B-D364-413D-B337-D0B7DC60D7A1}</ProjectGuid>
