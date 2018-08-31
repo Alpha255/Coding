@@ -21,7 +21,7 @@ public:
 
 	inline bool IsValid() const
 	{
-		return m_Object.get() != nullptr;
+		return m_Object.get() != nullptr && *m_Object != VK_NULL_HANDLE;
 	}
 
 	inline T *Get() const 
@@ -117,7 +117,7 @@ public:
 		Destory();
 	}
 
-	void Create(const VulkanInstance &inst, const ::HWND window);
+	void Create(const VulkanInstance &inst, ::HWND window);
 protected:
 	inline void Destory()
 	{
@@ -135,14 +135,16 @@ public:
 		Destory();
 	}
 
-	void Create(const VulkanPhysicalDevice &vkpDevice, const VulkanDevice &device, uint32_t width, uint32_t height);
+	void Create(const VulkanPhysicalDevice &vkpDevice, const VulkanDevice &device, const VulkanInstance &inst, 
+		uint32_t width, uint32_t height, ::HWND window);
 protected:
 	inline void Destory()
 	{
 		vkDestroySwapchainKHR(m_Device.GetRef(), *m_Object, nullptr);
 	}
 
-	void ValidPresentingSupport(const VulkanPhysicalDevice &vkpDevice);
+	std::array<uint32_t, 2> ValidPresentingSupport(const VulkanPhysicalDevice &vkpDevice);
 private:
 	VulkanDevice m_Device;
+	VulkanSurface m_Surface;
 };

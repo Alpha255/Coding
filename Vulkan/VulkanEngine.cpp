@@ -58,7 +58,7 @@ void VkEngine::CreateDevice(const VulkanPhysicalDevice &vkpDevice)
 	VKCheck(vkCreateDevice(vkpDevice.GetRef(), &deviceInfo, nullptr, m_Device.MakeObject()));
 }
 
-void VkEngine::Initialize(HWND hWnd, uint32_t width, uint32_t height, bool bWindowed)
+void VkEngine::Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool bWindowed)
 {
 	///InitLayerProperties();
 	VkApplicationInfo appInfo
@@ -72,25 +72,29 @@ void VkEngine::Initialize(HWND hWnd, uint32_t width, uint32_t height, bool bWind
 		VK_API_VERSION_1_0
 	};
 
+	const char *pExtensionNames[] = { VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_WIN32_SURFACE_EXTENSION_NAME };
 	VkInstanceCreateInfo instInfo
 	{
 		VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
 		nullptr,
 		0U,
 		&appInfo,
+		0U,
+		nullptr,
+		2U,
+		pExtensionNames
 	};
 
-	VkInstance vkInstance;
-	VKCheck(vkCreateInstance(&instInfo, nullptr, &vkInstance));
+	VKCheck(vkCreateInstance(&instInfo, nullptr, m_Instance.MakeObject()));
 	
 	uint32_t deviceCount = 0U;
-	VKCheck(vkEnumeratePhysicalDevices(vkInstance, &deviceCount, nullptr));
+	VKCheck(vkEnumeratePhysicalDevices(m_Instance.GetRef(), &deviceCount, nullptr));
 	assert(deviceCount >= 1U);
 
 	VulkanPhysicalDevice vkpDevice;
-	VKCheck(vkEnumeratePhysicalDevices(vkInstance, &deviceCount, vkpDevice.MakeObject()));
+	VKCheck(vkEnumeratePhysicalDevices(m_Instance.GetRef(), &deviceCount, vkpDevice.MakeObject()));
 
 	CreateDevice(vkpDevice);
 
-	m_Swapchain.Create(vkpDevice, m_Device, width, height);
+	m_Swapchain.Create(vkpDevice, m_Device, m_Instance, width, height, hWnd);
 }

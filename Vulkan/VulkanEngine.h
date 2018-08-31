@@ -35,7 +35,7 @@ public:
 	{
 	}
 
-	void Initialize(HWND hWnd, uint32_t width, uint32_t height, bool bWindowed);
+	void Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool bWindowed);
 
 	void Resize(uint32_t width, uint32_t height) {}
 
@@ -50,6 +50,7 @@ private:
 
 	VulkanDevice m_Device;
 	VulkanSwapchain m_Swapchain;
+	VulkanInstance m_Instance;
 
 	bool m_Inited = false;
 };
