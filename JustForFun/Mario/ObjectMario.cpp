@@ -2,8 +2,6 @@
 #include "Image.h"
 
 Mario::Mario()
-	: Base(eMario, 32U, 32U)
+	: Base(eMario, 32U, 32U, 64U, 383U)
 {
-	m_Area.UVX = 0U;
-	m_Area.UVY = m_Image->Height() - m_Area.ObjectWidth;
 }

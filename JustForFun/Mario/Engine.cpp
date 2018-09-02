@@ -2,6 +2,7 @@
 
 #include "Image.h"
 #include "Objects.h"
+#include "ObjectMario.h"
 #include "Map.h"
 #include "D3DEngine.h"
 #include "GameApplication.h"
@@ -56,6 +57,8 @@ void Engine::Init(HWND hWnd, uint32_t width, uint32_t height)
 	LoadTextures();
 
 	LoadMaps();
+
+	m_Objects.emplace_back(new Mario());
 }
 
 void Engine::InitD3DResource()
@@ -178,7 +181,7 @@ void Engine::DrawDynamicObjects()
 			height -= t + object->ObjectHeight() - GameApplication::eHeight;
 		}
 
-		object->UpdateArea(top, left, width, height, state.TexIndex * object->ObjectWidth(), 0U);
+		object->UpdateArea(t, l, width, height, state.TexIndex * object->ObjectWidth(), 0U);
 
 		DrawObject(*object);
 	}

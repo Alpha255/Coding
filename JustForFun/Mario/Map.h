@@ -52,6 +52,12 @@ public:
 		return m_StaticMarks.get()[index];
 	}
 
+	inline char GetDynamicMark(uint32_t index)
+	{
+		assert(m_DynamicMarks);
+		return m_DynamicMarks.get()[index];
+	}
+
 	inline Object2D *GetMapObject()
 	{
 		return &m_ImageObject;
