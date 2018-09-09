@@ -32,6 +32,7 @@ public:
 
 	void Update(float elapseTime, float totalTime);
 	void RenderScene();
+	void DrawMap();
 
 	void HandleInput(uint32_t msg, WPARAM wParam, LPARAM lParam);
 
@@ -43,6 +44,11 @@ public:
 	{
 		assert(index < m_Textures.size());
 		return &m_Textures[index];
+	}
+
+	inline void SetMap(Map *pMap)
+	{
+		m_CurrentMap = pMap == nullptr ? m_CurrentMap : pMap;
 	}
 protected:
 	struct Vertex

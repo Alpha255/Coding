@@ -19,33 +19,33 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{3D30D096-C9DB-40B5-BACA-5DB9F5BAB9EA}</ProjectGuid>
+    <ProjectGuid>{61989F8A-A0AE-4859-A99A-B2CF824857AD}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Mario</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -150,18 +150,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\JustForFun\Mario\GameApplication.cpp" />
-    <ClCompile Include="..\JustForFun\Mario\Main.cpp" />
+    <ClCompile Include="..\JustForFun\Mario\Engine.cpp" />
+    <ClCompile Include="..\JustForFun\Mario\Image.cpp" />
+    <ClCompile Include="..\JustForFun\Mario\Map.cpp" />
+    <ClCompile Include="..\JustForFun\Mario\Object2D.cpp" />
+    <ClCompile Include="..\JustForFun\Mario\ObjectMario.cpp" />
+    <ClCompile Include="..\JustForFun\Mario\Objects.cpp" />
+    <ClCompile Include="..\JustForFun\Mario\Renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\JustForFun\Mario\GameApplication.h" />
-    <ClInclude Include="..\JustForFun\Mario\resource.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="..\JustForFun\Mario\Mario.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="..\Application\Resource\Mario.ico" />
+    <ClInclude Include="..\JustForFun\Mario\Engine.h" />
+    <ClInclude Include="..\JustForFun\Mario\Image.h" />
+    <ClInclude Include="..\JustForFun\Mario\Map.h" />
+    <ClInclude Include="..\JustForFun\Mario\Object2D.h" />
+    <ClInclude Include="..\JustForFun\Mario\ObjectMario.h" />
+    <ClInclude Include="..\JustForFun\Mario\Objects.h" />
+    <ClInclude Include="..\JustForFun\Mario\Renderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ThirdParty\DirectXTK\DirectXTK_Desktop_2015.vcxproj">
@@ -169,9 +173,6 @@
     </ProjectReference>
     <ProjectReference Include="D3D11.vcxproj">
       <Project>{dd9fa08b-7ce1-4151-8456-2e3217505704}</Project>
-    </ProjectReference>
-    <ProjectReference Include="MarioLib.vcxproj">
-      <Project>{61989f8a-a0ae-4859-a99a-b2cf824857ad}</Project>
     </ProjectReference>
     <ProjectReference Include="System.vcxproj">
       <Project>{6db11869-f668-4424-b0db-de705c4124c9}</Project>

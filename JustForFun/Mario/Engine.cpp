@@ -45,7 +45,7 @@ void Engine::LoadMaps()
 		m_Maps[i].Create(s_MapNames[i]);
 	}
 
-	m_CurrentMap = &m_Maps[0];
+	SetMap(&m_Maps[0]);
 }
 
 void Engine::Init(HWND hWnd, uint32_t width, uint32_t height)
@@ -55,8 +55,6 @@ void Engine::Init(HWND hWnd, uint32_t width, uint32_t height)
 	InitD3DResource();
 
 	LoadTextures();
-
-	LoadMaps();
 
 	m_Objects.emplace_back(new Mario());
 }
@@ -266,12 +264,27 @@ void Engine::HandleInput(uint32_t msg, WPARAM wParam, LPARAM /*lParam*/)
 
 void Engine::RenderScene()
 {
+	if (!m_CurrentMap)
+	{
+		LoadMaps();
+	}
+
 	D3DEngine::Instance().ResetDefaultRenderSurfaces(m_BackColor);
 	D3DEngine::Instance().SetViewport(m_Viewport);
 
 	DrawStaticObjects();
 
 	DrawDynamicObjects();
+
+	D3DEngine::Instance().Flush();
+}
+
+void Engine::DrawMap()
+{
+	D3DEngine::Instance().ResetDefaultRenderSurfaces(m_BackColor);
+	D3DEngine::Instance().SetViewport(m_Viewport);
+
+	DrawStaticObjects();
 
 	D3DEngine::Instance().Flush();
 }

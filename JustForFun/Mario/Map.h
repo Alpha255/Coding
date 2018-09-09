@@ -73,6 +73,11 @@ public:
 		return 1U == m_DarkBg;
 	}
 
+	inline bool IsValid() const
+	{
+		return m_IsValid;
+	}
+
 protected:
 	void RegisterNPCs(std::ifstream &mapFile);
 private:
@@ -82,6 +87,7 @@ private:
 	uint32_t m_UVYStart = 0U;
 
 	int32_t m_Left = 0U;
+	bool m_IsValid = false;
 
 	Object2D m_ImageObject;
 

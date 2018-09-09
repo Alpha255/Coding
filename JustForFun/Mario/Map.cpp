@@ -58,6 +58,8 @@ void Map::Create(const char *pFileName)
 	m_ImageObject = Object2D(Object2D::eTile, 32U, 32U);
 
 	m_UVYStart = m_ImageObject.GetImage()->Height() - Map::eObjectHeight;
+
+	m_IsValid = true;
 }
 
 void Map::RegisterNPCs(std::ifstream &mapFile)
