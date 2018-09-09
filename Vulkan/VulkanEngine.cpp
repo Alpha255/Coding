@@ -1,8 +1,8 @@
 #include "VulkanEngine.h"
 
-std::unique_ptr<VkEngine, std::function<void(VkEngine *)>> VkEngine::s_Instance;
+std::unique_ptr<VulkanEngine, std::function<void(VulkanEngine *)>> VulkanEngine::s_Instance;
 
-void VkEngine::InitLayerProperties()
+void VulkanEngine::InitLayerProperties()
 {
 	uint32_t layerCount = 0U;
 	VkResult res = VK_NOT_READY;
@@ -27,8 +27,15 @@ void VkEngine::InitLayerProperties()
 	}
 }
 
-void VkEngine::CreateDevice(const VulkanPhysicalDevice &vkpDevice)
+void VulkanEngine::CreateDevice()
 {
+	uint32_t deviceCount = 0U;
+	VKCheck(vkEnumeratePhysicalDevices(m_Instance.GetRef(), &deviceCount, nullptr));
+	assert(deviceCount >= 1U);
+
+	VKCheck(vkEnumeratePhysicalDevices(m_Instance.GetRef(), &deviceCount, m_PhysicalDevice.Get()));
+	assert(deviceCount >= 1U);
+
 	const float queuePriorities[] = { 0.0f };
 	VkDeviceQueueCreateInfo queueInfo =
 	{
@@ -55,10 +62,10 @@ void VkEngine::CreateDevice(const VulkanPhysicalDevice &vkpDevice)
 		nullptr
 	};
 
-	VKCheck(vkCreateDevice(vkpDevice.GetRef(), &deviceInfo, nullptr, m_Device.MakeObject()));
+	VKCheck(vkCreateDevice(m_PhysicalDevice.GetRef(), &deviceInfo, nullptr, m_Device.Get()));
 }
 
-void VkEngine::Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool bWindowed)
+void VulkanEngine::Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool bWindowed)
 {
 	///InitLayerProperties();
 	VkApplicationInfo appInfo
@@ -85,16 +92,9 @@ void VkEngine::Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool bWi
 		pExtensionNames
 	};
 
-	VKCheck(vkCreateInstance(&instInfo, nullptr, m_Instance.MakeObject()));
-	
-	uint32_t deviceCount = 0U;
-	VKCheck(vkEnumeratePhysicalDevices(m_Instance.GetRef(), &deviceCount, nullptr));
-	assert(deviceCount >= 1U);
+	VKCheck(vkCreateInstance(&instInfo, nullptr, m_Instance.Get()));
 
-	VulkanPhysicalDevice vkpDevice;
-	VKCheck(vkEnumeratePhysicalDevices(m_Instance.GetRef(), &deviceCount, vkpDevice.MakeObject()));
+	CreateDevice();
 
-	CreateDevice(vkpDevice);
-
-	m_Swapchain.Create(vkpDevice, m_Device, m_Instance, width, height, hWnd);
+	m_Swapchain.Create(hWnd, width, height);
 }

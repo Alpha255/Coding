@@ -2,22 +2,27 @@
 
 #include "VulkanObject.h"
 
-class VulkanShader
+class VulkanShader : public VulkanObject<VkShaderModule>
 {
 public:
-	void CompileShaderFile(const char *pFileName, const char *pEntryPoint);
 protected:
+	void CompileShaderFile(const char *pFileName, const char *pEntryPoint);
+	VkShaderStageFlagBits m_Stage = VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM;
 private:
 };
 
-class VulkanVertexShader : public VulkanObject<VkShaderModule>, public VulkanShader
+class VulkanVertexShader : public VulkanShader
 {
 public:
+	VulkanVertexShader()
+	{
+		m_Stage = VK_SHADER_STAGE_VERTEX_BIT;
+	}
 	void Create(const char *pFileName, const char *pEntryPoint);
 protected:
 private:
 };
 
-class VulkanPixelShader : public VulkanObject<VkShaderModule>, public VulkanShader
+class VulkanPixelShader : public VulkanShader
 {
 };

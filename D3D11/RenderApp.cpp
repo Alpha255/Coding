@@ -9,7 +9,7 @@
 typedef D3DEngine Renderer;
 #elif defined(UsingVulkan)
 #include "VulkanEngine.h"
-typedef VkEngine Renderer;
+typedef VulkanEngine Renderer;
 #else
 #error "Undefine Renderer"
 #endif

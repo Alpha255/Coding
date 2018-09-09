@@ -2,15 +2,15 @@
 
 #include "VulkanObject.h"
 
-class VkEngine : public NoneCopyable
+class VulkanEngine : public NoneCopyable
 {
 public:
-	static VkEngine &Instance()
+	static VulkanEngine &Instance()
 	{
 		if (!s_Instance)
 		{
-			s_Instance = std::unique_ptr<VkEngine, std::function<void(VkEngine *)>>
-				(new VkEngine(), [](VkEngine *pEngine) { SafeDelete(pEngine) });
+			s_Instance = std::unique_ptr<VulkanEngine, std::function<void(VulkanEngine *)>>
+				(new VulkanEngine(), [](VulkanEngine *pEngine) { SafeDelete(pEngine) });
 		}
 		return *s_Instance;
 	}
@@ -35,20 +35,39 @@ public:
 	{
 	}
 
+	inline const VulkanDevice &GetDevice() const
+	{
+		assert(m_Device.IsValid());
+		return m_Device;
+	}
+
+	inline const VulkanPhysicalDevice &GetPhysicalDevice() const
+	{
+		assert(m_PhysicalDevice.IsValid());
+		return m_PhysicalDevice;
+	}
+
+	inline const VulkanInstance &GetInstance() const
+	{
+		assert(m_Instance.IsValid());
+		return m_Instance;
+	}
+
 	void Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool bWindowed);
 
 	void Resize(uint32_t width, uint32_t height) {}
 
 protected:
-	VkEngine() = default;
-	~VkEngine() = default;
+	VulkanEngine() = default;
+	~VulkanEngine() = default;
 
 	void InitLayerProperties();
-	void CreateDevice(const VulkanPhysicalDevice &vkpDevice);
+	void CreateDevice();
 private:
-	static std::unique_ptr<VkEngine, std::function<void(VkEngine *)>> s_Instance;
+	static std::unique_ptr<VulkanEngine, std::function<void(VulkanEngine *)>> s_Instance;
 
 	VulkanDevice m_Device;
+	VulkanPhysicalDevice m_PhysicalDevice;
 	VulkanSwapchain m_Swapchain;
 	VulkanInstance m_Instance;
 

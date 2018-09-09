@@ -12,35 +12,19 @@ public:
 	VulkanObject() = default;
 	inline virtual ~VulkanObject() = default;
 
-	inline T *MakeObject()
-	{
-		T *pNewObject = new T();
-		m_Object.reset(pNewObject);
-		return pNewObject;
-	}
-
 	inline bool IsValid() const
 	{
-		return m_Object.get() != nullptr && *m_Object != VK_NULL_HANDLE;
+		return m_Object != VK_NULL_HANDLE;
 	}
 
-	inline T *Get() const 
+	inline T * const Get()
 	{
-		return m_Object.get();
+		return &m_Object;
 	}
 
 	inline const T &GetRef() const
 	{
-		return *m_Object;
-	}
-
-	inline void Reset()
-	{
-		if (m_Object)
-		{
-			m_Object.reset();
-			m_Object = nullptr;
-		}
+		return m_Object;
 	}
 
 	inline VulkanObject(const VulkanObject &other)
@@ -51,29 +35,14 @@ public:
 		}
 	}
 
-	inline T * const operator->() const
-	{
-		assert(IsValid());
-		return m_Object.get();
-	}
-
 	inline bool operator==(const VulkanObject &other) const
 	{
-		if (IsValid() && other.IsValid())
-		{
-			return (void*)m_Object.get() == (void*)other.Get();
-		}
-		else if (!IsValid() && !other.IsValid())
-		{
-			return true;
-		}
-
-		return false;
+		return this->m_Object == other.m_Object;
 	}
 
-	inline bool operator==(const T *other) const
+	inline bool operator==(const T &other) const
 	{
-		return (void*)m_Object.get() == (void*)other;
+		return m_Object == other;
 	}
 
 	inline bool operator!=(const VulkanObject &other) const
@@ -81,12 +50,12 @@ public:
 		return !(*this == other);
 	}
 
-	inline bool operator!=(const T *other) const
+	inline bool operator!=(const T &other) const
 	{
-		return (void*)m_Object.get() != (void*)other;
+		return !(*this == other);
 	}
 protected:
-	std::shared_ptr<T> m_Object;
+	T m_Object = VK_NULL_HANDLE;
 private:
 };
 
@@ -96,55 +65,29 @@ class VulkanPhysicalDevice : public VulkanObject<VkPhysicalDevice> {};
 class VulkanDevice : public VulkanObject<VkDevice>
 {
 public:
-	inline ~VulkanDevice()
-	{
-		Destory();
-	}
-protected:
 	inline void Destory()
 	{
-		vkDeviceWaitIdle(*m_Object);
-		vkDestroyDevice(*m_Object, nullptr);
+		vkDeviceWaitIdle(m_Object);
+		vkDestroyDevice(m_Object, nullptr);
 	}
-private:
-};
-
-class VulkanSurface : public VulkanObject<VkSurfaceKHR> 
-{
-public:
-	inline ~VulkanSurface()
-	{
-		Destory();
-	}
-
-	void Create(const VulkanInstance &inst, ::HWND window);
 protected:
-	inline void Destory()
-	{
-		vkDestroySurfaceKHR(m_Inst.GetRef(), *m_Object, nullptr);
-	}
 private:
-	VulkanInstance m_Inst;
 };
 
 class VulkanSwapchain : public VulkanObject<VkSwapchainKHR>
 {
 public:
-	inline ~VulkanSwapchain()
-	{
-		Destory();
-	}
-
-	void Create(const VulkanPhysicalDevice &vkpDevice, const VulkanDevice &device, const VulkanInstance &inst, 
-		uint32_t width, uint32_t height, ::HWND window);
+	void Create(::HWND hWnd, uint32_t width, uint32_t height);
 protected:
-	inline void Destory()
+	class VulkanSurface : public VulkanObject<VkSurfaceKHR>
 	{
-		vkDestroySwapchainKHR(m_Device.GetRef(), *m_Object, nullptr);
-	}
+	public:
+		void Create(::HWND hWnd);
+	protected:
+	private:
+	};
 
-	std::array<uint32_t, 2> ValidPresentingSupport(const VulkanPhysicalDevice &vkpDevice);
+	///std::array<uint32_t, 2> ValidPresentingSupport();
 private:
-	VulkanDevice m_Device;
 	VulkanSurface m_Surface;
 };
