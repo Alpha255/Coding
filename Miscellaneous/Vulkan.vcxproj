@@ -19,12 +19,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Vulkan\VulkanBuffer.h" />
     <ClInclude Include="..\Vulkan\VulkanEngine.h" />
     <ClInclude Include="..\Vulkan\VulkanObject.h" />
     <ClInclude Include="..\Vulkan\VulkanShader.h" />
     <ClInclude Include="..\Vulkan\VulkanTexture.h" />
+    <ClInclude Include="..\Vulkan\VulkanView.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Vulkan\VulkanBuffer.cpp" />
     <ClCompile Include="..\Vulkan\VulkanEngine.cpp" />
     <ClCompile Include="..\Vulkan\VulkanObject.cpp" />
     <ClCompile Include="..\Vulkan\VulkanShader.cpp" />

@@ -4,7 +4,7 @@
 
 #include <fstream>
 
-void VulkanShader::CompileShaderFile(const char *pFileName, const char *pEntryPoint)
+void VulkanShader::Create(const char *pFileName, const char *pEntryPoint)
 {
 	std::string shaderFileDir = System::ResourceFileDirectory(System::eShader);
 	std::string shaderFile = shaderFileDir + pFileName;
@@ -42,9 +42,4 @@ void VulkanShader::CompileShaderFile(const char *pFileName, const char *pEntryPo
 	{
 		assert(!"Failed to open specified shader file!!!");
 	}
-}
-
-void VulkanVertexShader::Create(const char *pFileName, const char *pEntryPoint)
-{
-	CompileShaderFile(pFileName, pEntryPoint);
 }

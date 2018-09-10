@@ -77,8 +77,6 @@ private:
 class VulkanSwapchain : public VulkanObject<VkSwapchainKHR>
 {
 public:
-	void Create(::HWND hWnd, uint32_t width, uint32_t height);
-protected:
 	class VulkanSurface : public VulkanObject<VkSurfaceKHR>
 	{
 	public:
@@ -87,6 +85,8 @@ protected:
 	private:
 	};
 
+	void Create(::HWND hWnd, uint32_t width, uint32_t height);
+protected:
 	///std::array<uint32_t, 2> ValidPresentingSupport();
 private:
 	VulkanSurface m_Surface;
