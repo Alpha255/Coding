@@ -1,10 +1,10 @@
 #include "D3DGeometry.h"
 #include "D3DEngine.h"
+#include "D3DLighting.h"
 #include "Camera.h"
 #include "System.h"
 
 #include <fstream>
-#include <sstream>
 
 NamespaceBegin(Geometry)
 
@@ -23,7 +23,7 @@ void Mesh::CreateRenderResource()
 
 	D3DVertexShader vertexShader;
 	vertexShader.Create("Mesh.hlsl", "VSMain");
-	VertexLayout.Create(vertexShader.GetBlob(), layout, 4U);
+	VertexLayout.Create(vertexShader.GetBlob(), layout, _countof(layout));
 
 	VertexBuffer.CreateAsVertexBuffer(sizeof(Vertex) * m_Vertices.size(), D3DBuffer::eGpuReadOnly, m_Vertices.data());
 	IndexBuffer.CreateAsIndexBuffer(sizeof(uint32_t) * m_Indices.size(), D3DBuffer::eGpuReadOnly, m_Indices.data());
@@ -88,15 +88,15 @@ void Mesh::SubDivide()
 		m_Indices.push_back(i * 6 + 0);
 		m_Indices.push_back(i * 6 + 3);
 		m_Indices.push_back(i * 6 + 5);
-		
+
 		m_Indices.push_back(i * 6 + 3);
 		m_Indices.push_back(i * 6 + 4);
 		m_Indices.push_back(i * 6 + 5);
-		
+
 		m_Indices.push_back(i * 6 + 5);
 		m_Indices.push_back(i * 6 + 4);
 		m_Indices.push_back(i * 6 + 2);
-		
+
 		m_Indices.push_back(i * 6 + 3);
 		m_Indices.push_back(i * 6 + 1);
 		m_Indices.push_back(i * 6 + 4);
@@ -289,7 +289,7 @@ void Mesh::CreateAsSphere(float radius, uint32_t slice, uint32_t stack)
 			m_Indices.push_back(baseIndex + i * ringVertexCount + j);
 			m_Indices.push_back(baseIndex + i * ringVertexCount + j + 1);
 			m_Indices.push_back(baseIndex + (i + 1) * ringVertexCount + j);
-			
+
 			m_Indices.push_back(baseIndex + (i + 1) * ringVertexCount + j);
 			m_Indices.push_back(baseIndex + i * ringVertexCount + j + 1);
 			m_Indices.push_back(baseIndex + (i + 1) * ringVertexCount + j + 1);
@@ -500,7 +500,7 @@ void Mesh::CreateAsCylinder(float bottomRadius, float topRadius, float height, u
 			m_Indices.push_back(i * ringVertexCount + j);
 			m_Indices.push_back((i + 1) * ringVertexCount + j);
 			m_Indices.push_back((i + 1) * ringVertexCount + j + 1);
-			
+
 			m_Indices.push_back(i * ringVertexCount + j);
 			m_Indices.push_back((i + 1) * ringVertexCount + j + 1);
 			m_Indices.push_back(i * ringVertexCount + j + 1);
@@ -541,10 +541,10 @@ void Mesh::CreateAsGrid(float width, float depth, uint32_t m, uint32_t n)
 			m_Vertices[i * n + j].Position = Vec3(x, 0.0f, z);
 			m_Vertices[i * n + j].Normal = Vec3(0.0f, 1.0f, 0.0f);
 			m_Vertices[i * n + j].Tangent = Vec3(1.0f, 0.0f, 0.0f);
-			
+
 			m_Vertices[i * n + j].UV.x = j * du;
 			m_Vertices[i * n + j].UV.y = i * dv;
-		}		 
+		}
 	}
 
 	/// Create the indices
@@ -558,7 +558,7 @@ void Mesh::CreateAsGrid(float width, float depth, uint32_t m, uint32_t n)
 			m_Indices[k] = i * n + j;
 			m_Indices[k + 1] = i * n + j + 1;
 			m_Indices[k + 2] = (i + 1) * n + j;
-			
+
 			m_Indices[k + 3] = (i + 1) * n + j;
 			m_Indices[k + 4] = i * n + j + 1;
 			m_Indices[k + 5] = (i + 1) * n + j + 1;
@@ -607,7 +607,7 @@ void Mesh::CreateAsQuad(float length)
 	m_Indices[0] = 0;
 	m_Indices[1] = 1;
 	m_Indices[2] = 2;
-	
+
 	m_Indices[3] = 0;
 	m_Indices[4] = 2;
 	m_Indices[5] = 3;
@@ -615,172 +615,107 @@ void Mesh::CreateAsQuad(float length)
 	CreateRenderResource();
 }
 
-void ObjMesh::Create(const char *pFileName)
+void Mesh::CreateAsQuad(float left, float top, float width, float height)
 {
-	assert(pFileName);
+	assert(!m_Created);
 
-	std::string meshFilePath = System::ResourceFilePath(pFileName, System::eObjMesh);
+	m_Vertices.resize(4U);
+	m_Indices.resize(6U);
 
-	std::ifstream meshFile(meshFilePath.c_str(), std::ios::in);
-	if (meshFile.good())
+	/// Position coordinates specified in NDC space.
+	m_Vertices[0] = Vertex(
+		left, top - height, 0.0f,
+		0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f,
+		0.0f, 1.0f);
+
+	m_Vertices[1] = Vertex(
+		left, top, 0.0f,
+		0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f);
+
+	m_Vertices[2] = Vertex(
+		left + width, top, 0.0f,
+		0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f);
+
+	m_Vertices[3] = Vertex(
+		left + width, top - height, 0.0f,
+		0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f,
+		1.0f, 1.0f);
+
+	m_Indices[0] = 0;
+	m_Indices[1] = 1;
+	m_Indices[2] = 2;
+
+	m_Indices[3] = 0;
+	m_Indices[4] = 2;
+	m_Indices[5] = 3;
+
+	CreateRenderResource();
+}
+
+void Mesh::SaveAsObjFile(const char *pObjFileName)
+{
+	assert(0);
+
+	assert(m_Created && pObjFileName);
+
+	std::string filePath = System::ResourceFileDirectory(System::eObjMesh) + pObjFileName;
+	std::ofstream os(filePath.c_str(), std::ios::out);
+
+	if (os.good())
 	{
-		char line[MAX_PATH] = { 0 };
-		std::vector<Vec3> vertices;
-		std::vector<ObjIndex> indices;
-		std::vector<Vec3> normals;
-		std::vector<Vec2> uvs;
+		std::vector<ObjMesh::ObjIndex> indices;
 
-		while (meshFile >> line)
+		for (size_t i = 0U; i < m_Vertices.size(); ++i)
 		{
-			if (0 == strcmp(line, "#"))
-			{
-				meshFile.getline(line, MAX_PATH);
-			}
-			else if (0 == strcmp(line, "v"))   		/// Read vertices
-			{
-				Vec3 v;
-				meshFile >> v.x >> v.y >> v.z;
-				vertices.push_back(v);
-			}
-			else if (0 == strcmp(line, "vn"))       /// Read normals
-			{
-				Vec3 vn;
-				meshFile >> vn.x >> vn.y >> vn.z;
-				normals.push_back(vn);
-			}
-			else if (0 == strcmp(line, "vt"))   	/// Read uvs
-			{
-				Vec2 vt;
-				meshFile >> vt.x >> vt.y;
-				uvs.push_back(vt);
-			}
-			else if (0 == strcmp(line, "f"))  		/// Read indices
-			{
-				meshFile.getline(line, MAX_PATH);
+			/// Output vertices
 
-				/// f 1      i
-				/// f 1/1    i/t
-				/// f 1//1   i/n
-				/// f 1/1/1  i/t/n
-				ObjIndex index[4];
-				const char *pStrBeg = &line[1];
-				
-				std::stringstream ss(pStrBeg);
-				uint32_t m = 0U;
-				while (!ss.eof())
-				{
-					ss >> index[m].i;
-					const char *pStr = pStrBeg + ss.tellg();
+			/// Output normals
 
-					if (' ' == *pStr)
-					{
-						++m;
-						continue;
-					}
-					else if ('/' == *pStr)
-					{
-						ss.get();
-						pStr = pStrBeg + ss.tellg();
-						if ('/' == *pStr)
-						{
-							ss.get();
-							ss >> index[m].n;
-						}
-						else
-						{
-							ss >> index[m].t;
-							pStr = pStrBeg + ss.tellg();
-							if (' ' == *pStr)
-							{
-								++m;
-								continue;
-							}
-							else if ('/' == *pStr)
-							{
-								ss.get();
-								ss >> index[m].n;
-							}
-							else
-							{
-								assert(!"Invalid obj file!!");
-							}
-						}
-					}
-					else
-					{
-						assert(!"Invalid obj file!!");
-					}
-
-					++m;
-				}
-
-				indices.insert(indices.end(), &index[0], &index[0] + 4);
-			}
+			/// Output UVs
 		}
-
-		meshFile.close();
-
-		CreateVertexData(vertices, indices, normals, uvs);
-
-		CreateRenderResource();
-	}
-	else
-	{
-		assert(0);
 	}
 }
 
-void ObjMesh::CreateVertexData(
-	const std::vector<Vec3> &srcVertices, 
-	const std::vector<ObjIndex> &objIndices, 
-	const std::vector<Vec3> &normals, 
-	const std::vector<Vec2> &uvs)
+void Mesh::ApplyMaterial(const Material *pMaterial)
 {
-	for (size_t i = 0U; i < objIndices.size(); i += 4)
+	if (nullptr == pMaterial)
 	{
-		for (size_t j = i; j < i + 3U; ++j)
+		return;
+	}
+
+	uint32_t slot = 0U;
+	for (uint32_t i = 0U; i < Material::ePropertyCount; ++i)
+	{
+		if (pMaterial->Textures[i].IsValid())
 		{
-			const ObjIndex &face = objIndices.at(j);
-
-			Vertex v;
-			v.Position = srcVertices.at(face.i - 1U);
-			v.Normal = face.n > 0U ? normals.at(face.n - 1U) : Vec3(0.0f, 0.0f, 0.0f);
-			v.UV = face.t > 0U ? uvs.at(face.t - 1U) : Vec2(0.0f, 0.0f);
-
-			m_Vertices.push_back(v);
-			m_Indices.push_back(face.i - 1U);
-		}
-
-		if (objIndices.at(i + 3U).i > 0U)  /// Quad ?
-		{
-			Vertex v;
-
-			size_t i0 = i + 2U;
-			const ObjIndex &face0 = objIndices.at(i0);
-			v.Position = srcVertices.at(face0.i - 1U);
-			v.Normal = face0.n > 0U ? normals.at(face0.n - 1U) : Vec3(0.0f, 0.0f, 0.0f);
-			v.UV = face0.t > 0U ? uvs.at(face0.t - 1U) : Vec2(0.0f, 0.0f);
-			m_Vertices.push_back(v);
-			m_Indices.push_back(face0.i - 1U);
-
-			size_t i1 = i + 3U;
-			const ObjIndex &face1 = objIndices.at(i1);
-			v.Position = srcVertices.at(face1.i - 1U);
-			v.Normal = face1.n > 0U ? normals.at(face1.n - 1U) : Vec3(0.0f, 0.0f, 0.0f);
-			v.UV = face1.t > 0U ? uvs.at(face1.t - 1U) : Vec2(0.0f, 0.0f);
-			m_Vertices.push_back(v);
-			m_Indices.push_back(face1.i - 1U);
-
-			size_t i2 = i;
-			const ObjIndex &face2 = objIndices.at(i2);
-			v.Position = srcVertices.at(face2.i - 1U);
-			v.Normal = face2.n > 0U ? normals.at(face2.n - 1U) : Vec3(0.0f, 0.0f, 0.0f);
-			v.UV = face2.t > 0U ? uvs.at(face2.t - 1U) : Vec2(0.0f, 0.0f);
-
-			m_Vertices.push_back(v);
-			m_Indices.push_back(face2.i - 1U);
+			D3DEngine::Instance().SetShaderResourceView(pMaterial->Textures[i], slot, D3DShader::ePixelShader);
+			++slot;
 		}
 	}
+
+	D3DEngine::Instance().SetSamplerState(D3DStaticState::LinearSampler, 0U, D3DShader::ePixelShader);
+}
+
+void Mesh::Bind(const Material *pMaterial)
+{
+	ApplyMaterial(pMaterial);
+
+	D3DEngine::Instance().SetInputLayout(VertexLayout);
+	D3DEngine::Instance().SetVertexBuffer(VertexBuffer, sizeof(Vertex), 0U, 0U);
+	D3DEngine::Instance().SetIndexBuffer(IndexBuffer, eR32_UInt, 0U);
+}
+
+void Mesh::Draw(const Material *pMaterial, uint32_t startIndex, int32_t vertexOffset)
+{
+	Bind(pMaterial);
+
+	D3DEngine::Instance().DrawIndexed(IndexCount, startIndex, vertexOffset, eTriangleList);
 }
 
 NamespaceEnd(Geometry)

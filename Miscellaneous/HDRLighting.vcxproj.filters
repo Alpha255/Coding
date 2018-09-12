@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource">
+      <UniqueIdentifier>{073ae2ca-3110-4be1-8e15-071af9d46551}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\System\resource.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Demo\HDRLighting\HDRLighting.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\System\Resource.rc">
+      <Filter>Resource</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Application\Resource\directx.ico">
+      <Filter>Resource</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Demo\HDRLighting\HDRLighting.cpp" />
+    <ClCompile Include="..\Demo\HDRLighting\Main.cpp" />
+  </ItemGroup>
+</Project>

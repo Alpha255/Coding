@@ -1,9 +1,10 @@
 #pragma once
 
-#include "D3DApp.h"
+#include "RenderApp.h"
 #include "D3DGeometry.h"
+#include "D3DLighting.h"
 
-class AppLighting : public D3DApp
+class AppLighting : public RenderApp
 {
 public:
 	enum eShadingMode
@@ -31,7 +32,7 @@ private:
 	D3DBuffer m_CBufferVS;
 	D3DBuffer m_CBufferPS;
 
+	Material m_SphereMaterial;
+
 	eShadingMode m_ShadingMode = eFlat;
-	bool m_bWireframe = false;
-	bool m_bDrawNormal = false;
 };

@@ -3,7 +3,7 @@
   <ItemGroup>
     <ClInclude Include="..\Fort\DataStructures\linearlist.hpp" />
     <ClInclude Include="..\Fort\DataStructures\linkedlist.hpp" />
-    <ClInclude Include="..\Fort\DataStructures\Node.h" />
+    <ClInclude Include="..\Fort\DataStructures\node.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Fort\DataStructures\MainTester.cpp" />

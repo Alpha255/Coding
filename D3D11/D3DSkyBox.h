@@ -16,23 +16,17 @@ public:
 
 	void Draw(const class Camera &cam);
 protected:
-	struct RenderResource
-	{
-		D3DInputLayout VertexLayout;
-
-		D3DBuffer VertexBuffer;
-		D3DBuffer IndexBuffer;
-		D3DBuffer ConstantBufferVS;
-
-		D3DVertexShader VertexShader;
-		D3DPixelShader PixelShader;
-
-		D3DDepthStencilState DepthLessEqual;
-
-		D3DShaderResourceView Cubemap;
-	};
 private:
-	RenderResource m_Resource;
+	D3DVertexShader m_VertexShader;
+	D3DPixelShader m_PixelShader;
 
-	Geometry::Mesh m_Sphere;
+	D3DBuffer m_CBufferVS;
+
+	D3DDepthStencilState m_DepthLessEqual;
+
+	D3DShaderResourceView m_Cubemap;
+
+	Geometry::Mesh m_SphereMesh;
+
+	bool m_Inited = false;
 };

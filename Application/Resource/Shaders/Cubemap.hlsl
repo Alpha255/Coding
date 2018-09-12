@@ -1,4 +1,4 @@
-#include "CommonLighting.hlsli"
+#include "TurnOnTheLight.hlsli"
 
 cbuffer cbVS
 {
@@ -9,16 +9,14 @@ cbuffer cbVS
 
 cbuffer cbPS
 {
-    float3 EyePos;
-    uint EnableReflection;
+    float4 EyePos;
 
     DirectionalLight DirLight;
-    Material Mat;
+    Material RawMat;
 };
 
-Texture2D DiffuseTex;
-TextureCube CubemapTex;
-
+Texture2D DiffuseMap;
+TextureCube CubeMap;
 SamplerState LinearSampler;
 
 struct VSInput
@@ -29,72 +27,37 @@ struct VSInput
     float2 UV : TEXCOORD;
 };
 
-
-struct VSOutput
+Material ApplyMaterial(in Material materialIn, in VSOutput psInput)
 {
-    float4 PosH : SV_POSITION;
-    float3 PosW : POSITION;
-    float3 NormalW : NORMAL;
-    float2 UV : TEXCOORD;
-};
+    Material materialOut = materialIn;
+    materialOut.Diffuse = DiffuseMap.Sample(LinearSampler, psInput.UV);
+    materialOut.Normal = float4(normalize(psInput.NormalW), 0.0f);
 
-VSOutput VSMain(VSInput input)
+    return materialOut;
+}
+
+VSOutput VSMain(VSInput vsInput)
 {
     VSOutput output;
-
-    output.PosW = mul(float4(input.Pos, 1.0f), World).xyz;
-    output.NormalW = mul(input.Normal, (float3x3)WorldInverse);
-
-    output.PosH = mul(float4(input.Pos, 1.0f), WVP);
-
-    output.UV = input.UV;
+    output.PosH = mul(float4(vsInput.Pos, 1.0f), WVP);
+    output.PosW = mul(float4(vsInput.Pos, 1.0f), World).xyz;
+    output.NormalW = mul(vsInput.Normal, (float3x3)WorldInverse);
+    output.TangentW = mul(vsInput.Tangent, (float3x3)World);
+    output.UV = vsInput.UV;
 
     return output;
 }
 
-float4 PSMain(VSOutput input) : SV_Target
+float4 PSMain(VSOutput psInput) : SV_Target
 {
-    input.NormalW = normalize(input.NormalW);
+    Material material = ApplyMaterial(RawMat, psInput);
+    float3 lightingColor = DirectionalLighting(DirLight, psInput.PosW, EyePos.xyz, material);
+	lightingColor += DirLight.Ambient.rgb;
 
-    float3 toEye = EyePos - input.PosW;
+    float3 reflectionVector = reflect(-EyePos.xyz, psInput.NormalW);
+    float4 reflectionColor = CubeMap.Sample(LinearSampler, reflectionVector);
 
-    float disToEye = length(toEye);
+    lightingColor += material.Reflection * reflectionColor;
 
-    ///toEye = normalize(toEye);
-    toEye /= disToEye;
-
-    float4 texClr = float4(1.0f, 1.0f, 1.0f, 1.0f);
-    texClr = DiffuseTex.Sample(LinearSampler, input.UV);
-    clip(texClr.a - 0.1f);
-
-    float4 litClr = texClr;
-
-    float4 ambient = float4(0.0f, 0.0f, 0.0f, 0.0f);
-    float4 diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
-    float4 spec = float4(0.0f, 0.0f, 0.0f, 0.0f);
-
-	[unroll]
-    for (int i = 0; i < 1; ++i)
-    {
-        float4 A, D, S;
-        ComputeDirectionalLight(Mat, DirLight, input.NormalW, toEye, A, D, S);
-
-        ambient += A;
-        diffuse += D;
-        spec += S;
-    }
-
-    litClr = texClr * (ambient + diffuse) + spec;
-
-    if (EnableReflection == 1)
-    {
-        float3 reflectionVector = reflect(-toEye, input.NormalW);
-        float4 reflectionColor = CubemapTex.Sample(LinearSampler, reflectionVector);
-
-        litClr += Mat.Reflection * reflectionColor;
-    }
-
-    litClr.a = Mat.Diffuse.a * texClr.a;
-
-    return litClr;
+    return float4(lightingColor, 1.0f);
 }

@@ -89,7 +89,7 @@
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -103,7 +103,7 @@
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -115,7 +115,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
@@ -133,7 +133,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
@@ -150,23 +150,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\JustForFun\Mario\Engine.cpp" />
     <ClCompile Include="..\JustForFun\Mario\GameApplication.cpp" />
-    <ClCompile Include="..\JustForFun\Mario\Image.cpp" />
     <ClCompile Include="..\JustForFun\Mario\Main.cpp" />
-    <ClCompile Include="..\JustForFun\Mario\Map.cpp" />
-    <ClCompile Include="..\JustForFun\Mario\Object2D.cpp" />
-    <ClCompile Include="..\JustForFun\Mario\Objects.cpp" />
-    <ClCompile Include="..\JustForFun\Mario\Renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\JustForFun\Mario\Engine.h" />
     <ClInclude Include="..\JustForFun\Mario\GameApplication.h" />
-    <ClInclude Include="..\JustForFun\Mario\Image.h" />
-    <ClInclude Include="..\JustForFun\Mario\Map.h" />
-    <ClInclude Include="..\JustForFun\Mario\Object2D.h" />
-    <ClInclude Include="..\JustForFun\Mario\Objects.h" />
-    <ClInclude Include="..\JustForFun\Mario\Renderer.h" />
     <ClInclude Include="..\JustForFun\Mario\resource.h" />
   </ItemGroup>
   <ItemGroup>
@@ -176,6 +164,15 @@
     <Image Include="..\Application\Resource\Mario.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ThirdParty\DirectXTK\DirectXTK_Desktop_2015.vcxproj">
+      <Project>{e0b52ae7-e160-4d32-bf3f-910b785e5a8e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="D3D11.vcxproj">
+      <Project>{dd9fa08b-7ce1-4151-8456-2e3217505704}</Project>
+    </ProjectReference>
+    <ProjectReference Include="MarioLib.vcxproj">
+      <Project>{61989f8a-a0ae-4859-a99a-b2cf824857ad}</Project>
+    </ProjectReference>
     <ProjectReference Include="System.vcxproj">
       <Project>{6db11869-f668-4424-b0db-de705c4124c9}</Project>
     </ProjectReference>

@@ -220,7 +220,7 @@ void D3DShaderResourceView::CreateAsTextureArray(eViewType type, D3DResource &re
 	MakeObject(pShaderResourceView);
 }
 
-void D3DShaderResourceView::Create(const char *pDdsName)
+void D3DShaderResourceView::Create(const char *pDdsName, bool bFromCurDir)
 {
 	assert(pDdsName && !IsValid());
 
@@ -230,7 +230,7 @@ void D3DShaderResourceView::Create(const char *pDdsName)
 		assert(0);
 	}
 
-	std::string ddsFilePath = System::ResourceFilePath(pDdsName, System::eTexture);
+	std::string ddsFilePath = bFromCurDir ? pDdsName : System::ResourceFilePath(pDdsName, System::eTexture);
 	std::wstring wddsFilePath(ddsFilePath.begin(), ddsFilePath.end());
 
 	ID3D11ShaderResourceView *pShaderResourceView = nullptr;

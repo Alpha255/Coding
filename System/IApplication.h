@@ -6,7 +6,7 @@ class IApplication
 {
 public:
 	IApplication();
-	virtual ~IApplication();
+	virtual ~IApplication() = default;
 
 	virtual	::LRESULT MsgProc(::HWND hWnd, uint32_t msg, ::WPARAM wParam, ::LPARAM lParam) = 0;
 
@@ -38,14 +38,14 @@ public:
 protected:
 	void MakeWindow(const wchar_t *pTitle, uint32_t width, uint32_t height, uint32_t windowStyle);
 
-	HWND m_hWnd = nullptr;
+	::HWND m_hWnd = nullptr;
 	int32_t m_LastMousePos[2] = {};
 	uint32_t m_Width = 0U;
 	uint32_t m_Height = 0U;
 	uint16_t m_IconID = 0U;
 	bool m_bWindowed = false;
 
-	class Timer* m_pTimer = nullptr;
+	std::unique_ptr<class Timer> m_Timer = nullptr;
 private:
 	bool m_bActive = false;
 	bool m_bNeedResize = false;

@@ -6,6 +6,18 @@ struct DirectionalLight
     float4 Direction;
 };
 
+struct PointLight
+{
+    float4 Ambient;
+    float4 Diffuse;
+    float4 Specular;
+
+    float3 Position;
+    float Range;
+
+    float4 Attenuation;
+};
+
 struct Material
 {
     float4 VertexColor;
@@ -16,6 +28,7 @@ struct Material
     float4 Reflection;
 };
 
+/// Phong Lighting
 void ComputeDirectionalLight(in Material i_Mat,
                              in DirectionalLight i_Light,
                              in float3 i_Normal,
@@ -47,9 +60,48 @@ void ComputeDirectionalLight(in Material i_Mat,
     }
 }
 
+/// BlinnPhong Lighting
+void ComputePointLight(in Material i_Mat,
+                       in PointLight i_Light,
+                       in float3 i_Normal,
+                       in float3 i_VertexPos,
+                       in float3 i_EyePos,
+                       out float4 o_Ambient,
+                       out float4 o_Diffuse,
+                       out float4 o_Specular)
+{
+    o_Ambient = float4(0.0f, 0.0f, 0.0f, 0.0f);
+    o_Diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
+    o_Specular = float4(0.0f, 0.0f, 0.0f, 0.0f);
+
+    float3 lightDir = i_Light.Position - i_VertexPos;
+    float distance = sqrt(sqrt(length(lightDir)));
+	///float scale = 1.0f;
+    //if (distance > i_Light.Range)
+    //{
+    //    return;
+    //}
+
+    lightDir = normalize(lightDir);
+    float3 viewDir = normalize(i_EyePos - i_VertexPos);
+    float3 halfWay = normalize(lightDir + viewDir);
+
+    o_Ambient = i_Light.Ambient * i_Mat.Diffuse;
+    o_Diffuse = i_Light.Diffuse * i_Mat.Diffuse * max(dot(lightDir, i_Normal), 0.0f);
+
+    float specFactor = pow(max(dot(halfWay, i_Normal), 0.0f), i_Mat.Specular.w);
+    o_Specular = specFactor * i_Mat.Specular * i_Light.Specular;
+
+    float attenuation = 1.0f / dot(i_Light.Attenuation.xyz, float3(1.0f, distance, distance * distance));
+    ///float attenuation = 1.0 / (i_Light.Attenuation.x + i_Light.Attenuation.y * distance + i_Light.Attenuation.z * (distance * distance));
+    o_Ambient *= attenuation;
+    o_Diffuse *= attenuation;
+    o_Specular *= attenuation;
+}
+
 /// http://developer.download.nvidia.com/CgTutorial/cg_tutorial_chapter08.html
 /// http://blog.csdn.net/candycat1992/article/details/41605257
-float3 NormalSampleToWorldSpace(float3 normalMap, float3 unitNormalW, float3 tangentW)
+float3 UnpackNormal(float3 normalMap, float3 unitNormalW, float3 tangentW)
 {
 	/// Uncompress each component from [0,1] to [-1,1].
     float3 normalT = 2.0f * normalMap - 1.0f;

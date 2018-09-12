@@ -28,7 +28,7 @@ public:
 		eBindAsShaderResource = D3D11_BIND_SHADER_RESOURCE,
 		eBindAsStreamOutput = D3D11_BIND_STREAM_OUTPUT,
 		eBindAsRenderTarget = D3D11_BIND_RENDER_TARGET,
-		eBindAsDepthStencil, D3D11_BIND_DEPTH_STENCIL,
+		eBindAsDepthStencil = D3D11_BIND_DEPTH_STENCIL,
 		eBindAsUnorderedAccess = D3D11_BIND_UNORDERED_ACCESS,
 		eBindAsDecoder = D3D11_BIND_DECODER,
 		eBindAsVideoEncoder = D3D11_BIND_VIDEO_ENCODER
@@ -74,7 +74,7 @@ public:
 	inline void CreateAsConstantBuffer(
 		size_t byteWidth,
 		uint32_t usage,
-		const void *pData)
+		const void *pData = nullptr)
 	{
 		Create(eBindAsConstantBuffer, byteWidth, usage, pData, GetCpuAccessFlag(usage));
 	}
@@ -166,6 +166,7 @@ enum ePrimitiveTopology
 	eLineStripAdj = D3D_PRIMITIVE_TOPOLOGY_LINESTRIP_ADJ,
 	eTriangleListAdj = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ,
 	eTriangleStripAdj = D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP_ADJ,
+	eControlPointPatchList3 = D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST
 };
 
 enum eFormat

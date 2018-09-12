@@ -22,3 +22,4 @@ https://learnopengl.com/Introduction
 https://learnopengl-cn.github.io
 
 https://free3d.com
+https://software.intel.com/en-us/articles/sample-distribution-shadow-maps

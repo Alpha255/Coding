@@ -1,7 +1,7 @@
 #include "AlphaBlend.h"
 #include "Camera.h"
 #include "D3DEngine.h"
-#include "D3DGUI_imGui.h"
+#include "ImGUI.h"
 
 void AppAlphaBlend::Initialize()
 {
@@ -28,6 +28,9 @@ void AppAlphaBlend::Initialize()
 
 void AppAlphaBlend::RenderScene()
 {
+	D3DEngine::Instance().ResetDefaultRenderSurfaces();
+	D3DEngine::Instance().SetViewport(D3DViewport(0.0f, 0.0f, (float)m_Width, (float)m_Height));
+
 	D3DEngine::Instance().SetInputLayout(m_FloorMesh.VertexLayout);
 
 	D3DEngine::Instance().SetVertexShader(m_VertexShader);

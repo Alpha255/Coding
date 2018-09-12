@@ -1,6 +1,15 @@
 #include "D3DObject.h"
 #include "D3DEngine.h"
 
+void D3DContext::CreateAsDeferredContext()
+{
+	assert(!IsValid());
+
+	ID3D11DeviceContext *pContext = nullptr;
+	HRCheck(D3DEngine::Instance().GetDevice().Get()->CreateDeferredContext(0U, &pContext));
+	MakeObject(pContext);
+}
+
 void D3DSwapChain::Create(HWND hWnd, uint32_t width, uint32_t height, bool bWindowed)
 {
 	m_Desc.BufferCount = eBufferCount;

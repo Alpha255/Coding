@@ -23,6 +23,8 @@
       <Filter>Resource</Filter>
     </ClInclude>
     <ClInclude Include="..\System\Camera.h" />
+    <ClInclude Include="..\D3D11\RenderApp.h" />
+    <ClInclude Include="..\D3D11\ImGUI.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\System\IApplication.cpp" />
@@ -31,6 +33,8 @@
     <ClCompile Include="..\System\IThread.cpp">
       <Filter>Thread</Filter>
     </ClCompile>
+    <ClCompile Include="..\D3D11\RenderApp.cpp" />
+    <ClCompile Include="..\D3D11\ImGUI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Thread">
@@ -47,6 +51,9 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\Application\Resource\directx.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="..\Application\Resource\Vulkan.ico">
       <Filter>Resource</Filter>
     </Image>
   </ItemGroup>

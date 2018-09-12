@@ -2,37 +2,27 @@
 #include "Camera.h"
 #include "D3DEngine.h"
 #include "D3DLighting.h"
-#include "D3DGUI_imGui.h"
+#include "ImGUI.h"
 
 struct ConstantBufferVS
 {
 	Matrix World;
-	Matrix WorldInverseTranspose;
+	Matrix WorldInverse;
 	Matrix WVP;
 
 	Vec4 EyePos;
 
 	DirectionalLight Light;
 
-	Material Mat;
+	Material::RawMaterial Mat;
 
 	ConstantBufferVS()
 	{
 		World.Identity();
-		WorldInverseTranspose.Identity();
+		WorldInverse.Identity();
 		WVP.Identity();
 
-		EyePos = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
-
-		Light.Ambient = Vec4(0.2f, 0.2f, 0.2f, 1.0f);
-		Light.Diffuse = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		Light.Specular = Vec4(0.5f, 0.5f, 0.5f, 1.0f);
 		Light.Direction = Vec4(0.5f, -0.5f, 0.5f, 0.0f);
-
-		Mat.Ambient = Vec4(0.8f, 0.8f, 0.8f, 1.0f);
-		Mat.Diffuse = Vec4(0.8f, 0.8f, 0.8f, 1.0f);
-		Mat.Specular = Vec4(0.8f, 0.8f, 0.8f, 9.0f);
-		Mat.Reflection = Vec4(0.0f, 0.0f, 0.0f, 0.0f);
 	}
 };
 
@@ -42,21 +32,12 @@ struct ConstantBufferPS
 
 	DirectionalLight Light;
 
-	Material Mat;
+	Material::RawMaterial Mat;
 
 	ConstantBufferPS()
 	{
-		EyePos = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
-
-		Light.Ambient = Vec4(0.2f, 0.2f, 0.2f, 1.0f);
-		Light.Diffuse = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		Light.Specular = Vec4(0.5f, 0.5f, 0.5f, 1.0f);
-		Light.Direction = Vec4(0.5f, -0.5f, 0.5f, 0.0f);
-
-		Mat.Ambient = Vec4(0.8f, 0.8f, 0.8f, 1.0f);
-		Mat.Diffuse = Vec4(0.8f, 0.8f, 0.8f, 1.0f);
-		Mat.Specular = Vec4(0.8f, 0.8f, 0.8f, 9.0f);
-		Mat.Reflection = Vec4(0.0f, 0.0f, 0.0f, 0.0f);
+		Light.Direction = Vec4(1.0f, -1.0f, 1.0f, 0.0f);
+		Light.SpecularIntensity = 16.0f;
 	}
 };
 
@@ -65,8 +46,8 @@ void AppLighting::Initialize()
 	m_FlatSphere.CreateAsFlatGeoSphere(0.5f, 2U);
 	m_Sphere.CreateAsGeoSphere(0.5f, 2U);
 
-	m_CBufferVS.CreateAsConstantBuffer(sizeof(ConstantBufferVS), D3DBuffer::eGpuReadCpuWrite, nullptr);
-	m_CBufferPS.CreateAsConstantBuffer(sizeof(ConstantBufferPS), D3DBuffer::eGpuReadCpuWrite, nullptr);
+	m_CBufferVS.CreateAsConstantBuffer(sizeof(ConstantBufferVS), D3DBuffer::eGpuReadCpuWrite);
+	m_CBufferPS.CreateAsConstantBuffer(sizeof(ConstantBufferPS), D3DBuffer::eGpuReadCpuWrite);
 
 	const char *pEntry[eShadingModeCount] = 
 	{
@@ -87,71 +68,44 @@ void AppLighting::Initialize()
 		m_PixelShader[i].Create("Lighting.hlsl", psEntry.c_str());
 	}
 
+	m_SphereMaterial.Set(Material::eDiffuse, Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	m_SphereMaterial.Set(Material::eSpecular, Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+
 	m_Camera->SetViewRadius(2.5f);
 }
 
 void AppLighting::RenderScene()
 {
-	D3DEngine::Instance().SetInputLayout(m_Sphere.VertexLayout);
-
-	if (eFlat == m_ShadingMode)
-	{
-		D3DEngine::Instance().SetVertexBuffer(m_FlatSphere.VertexBuffer, sizeof(Geometry::Vertex), 0U);
-		D3DEngine::Instance().SetIndexBuffer(m_FlatSphere.IndexBuffer, eR32_UInt, 0U);
-	}
-	else
-	{
-		D3DEngine::Instance().SetVertexBuffer(m_Sphere.VertexBuffer, sizeof(Geometry::Vertex), 0U);
-		D3DEngine::Instance().SetIndexBuffer(m_Sphere.IndexBuffer, eR32_UInt, 0U);
-	}
+	D3DEngine::Instance().ResetDefaultRenderSurfaces();
+	D3DEngine::Instance().SetViewport(D3DViewport(0.0f, 0.0f, (float)m_Width, (float)m_Height));
 
 	D3DEngine::Instance().SetVertexShader(m_VertexShader[m_ShadingMode]);
 	D3DEngine::Instance().SetPixelShader(m_PixelShader[m_ShadingMode]);
 
-	static ConstantBufferVS s_CBufferVS;
+	ConstantBufferVS CBufferVS;
 	Matrix world = m_Camera->GetWorldMatrix();
-	s_CBufferVS.World = Matrix::Transpose(world);
-	s_CBufferVS.WorldInverseTranspose = Matrix::InverseTranspose(world);
-	s_CBufferVS.WVP = Matrix::Transpose(m_Camera->GetWVPMatrix());
-	s_CBufferVS.EyePos = m_Camera->GetEyePos();
-	m_CBufferVS.Update(&s_CBufferVS, sizeof(ConstantBufferVS));
+	CBufferVS.World = Matrix::Transpose(world);
+	CBufferVS.WorldInverse = Matrix::InverseTranspose(world);
+	CBufferVS.WVP = Matrix::Transpose(m_Camera->GetWVPMatrix());
+	CBufferVS.EyePos = m_Camera->GetEyePos();
+	CBufferVS.Mat = m_SphereMaterial.RawValue;
+	m_CBufferVS.Update(&CBufferVS, sizeof(ConstantBufferVS));
 	D3DEngine::Instance().SetConstantBuffer(m_CBufferVS, 0U, D3DShader::eVertexShader);
+	
+	ConstantBufferPS CBufferPS;
+	CBufferPS.EyePos = m_Camera->GetEyePos();
+	CBufferPS.Mat = m_SphereMaterial.RawValue;
+	m_CBufferPS.Update(&CBufferPS, sizeof(ConstantBufferPS));
+	D3DEngine::Instance().SetConstantBuffer(m_CBufferPS, 0U, D3DShader::ePixelShader);
 
-	static ConstantBufferPS s_CBufferPS;
-	if (m_ShadingMode > eGouraud)
+	if (eFlat == m_ShadingMode)
 	{
-		s_CBufferPS.EyePos = m_Camera->GetEyePos();
-		m_CBufferPS.Update(&s_CBufferPS, sizeof(ConstantBufferPS));
-		D3DEngine::Instance().SetConstantBuffer(m_CBufferPS, 0U, D3DShader::ePixelShader);
+		m_FlatSphere.Draw(&m_SphereMaterial);
 	}
-
-	if (m_bWireframe)
+	else
 	{
-		D3DEngine::Instance().SetRasterizerState(D3DStaticState::Wireframe);
+		m_Sphere.Draw(&m_SphereMaterial);
 	}
-
-	uint32_t indexCount = (eFlat == m_ShadingMode) ? m_FlatSphere.IndexCount : m_Sphere.IndexCount;
-	D3DEngine::Instance().DrawIndexed(indexCount, 0U, 0, eTriangleList);
-
-	///Vec3 lightPos(-s_CBufferVS.Light.Direction.x, -s_CBufferVS.Light.Direction.y, -s_CBufferVS.Light.Direction.z);
-	///Light::DrawLight(lightPos, Light::eDirectional, *m_Camera);
-
-	///if (m_bDrawNormal)
-	///{
-	///	if (eFlat == m_ShadingMode)
-	///	{
-	///		m_FlatSphere.DrawNormal(*m_Camera);
-	///	}
-	///	else
-	///	{
-	///		m_Sphere.DrawNormal(*m_Camera);
-	///	}
-	///}
 
 	ImGui::Combo("ShadingType", (int32_t*)&m_ShadingMode, "Flat\0Gouraud\0Phong\0BlinnPhong");
-	ImGui::Checkbox("Wireframe", &m_bWireframe);
-	ImGui::Checkbox("DrawNormal", &m_bDrawNormal);
-	ImGui::SliderFloat("SpecularFactor", &s_CBufferPS.Mat.Specular.w, 1.0f, 32.0f);
-	ImGui::ColorEdit4("LightColorVS", (float*)&s_CBufferVS.Light.Diffuse);
-	ImGui::ColorEdit4("LightColorPS", (float*)&s_CBufferPS.Light.Diffuse);
 }

@@ -1,0 +1,88 @@
+$$HeaderBegin
+#pragma once
+
+#include "D3DApp.h"
+#include "D3DGeometry.h"
+#include "D3DView.h"
+
+class App$$REPLACE : public D3DApp
+{
+public:
+	App$$REPLACE() = default;
+	~App$$REPLACE() = default;
+
+	virtual void Initialize() override;
+	virtual void RenderScene() override;
+protected:
+private:
+};
+$$HeaderEnd
+
+$$CppBegin
+#include "$$REPLACE.h"
+#include "Camera.h"
+#include "D3DEngine.h"
+#include "D3DGUI_imGui.h"
+
+void App$$REPLACE::Initialize()
+{
+}
+
+void App$$REPLACE::RenderScene()
+{
+    D3DEngine::Instance().ResetDefaultRenderSurfaces();
+    D3DEngine::Instance().SetViewport(D3DViewport(0.0f, 0.0f, (float)m_Width, (float)m_Height));
+}
+$$CppEnd
+
+$$ShaderBegin
+cbuffer cbVS
+{
+    matrix WVP;
+};
+
+struct VSInput
+{
+    float3 Pos : POSITION;
+    float3 Normal : NORMAL;
+    float3 Tangent : TANGENT;
+    float2 UV : TEXCOORD;
+};
+
+struct VSOutput
+{
+    float4 Pos : SV_POSITION;
+    float2 UV : TEXCOORD;
+};
+
+VSOutput VSMain(VSInput vsInput)
+{
+    VSOutput output;
+    output.Pos = mul(float4(vsInput.Pos, 1.0f), WVP);
+    output.UV = vsInput.UV;
+
+    return output;
+}
+
+float4 PSMain(VSOutput psInput) : SV_Target
+{
+    return float4(0.84f, 0.84f, 0.84f, 1.0f);
+}
+$$ShaderEnd
+
+$$MainBegin
+#include "$$REPLACE.h"
+
+int32_t WINAPI wWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpCmdLine*/, int /*nShow*/)
+{
+	App$$REPLACE $$REPLACE;
+
+	$$REPLACE.Startup(L"$$REPLACE");
+
+	$$REPLACE.Running();
+
+	$$REPLACE.ShutDown();
+
+	return 0;
+}
+$$MainEnd

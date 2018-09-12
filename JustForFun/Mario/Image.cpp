@@ -1,5 +1,6 @@
 ﻿#include "Image.h"
 #include "System.h"
+#include "DirectXTK/Src/DDS.h"
 
 #include <string>
 #include <fstream>
@@ -16,22 +17,31 @@ void Image::Create(const char *pFileName)
 	{
 		".bmp",
 		".png",
-		".jpg"
+		".jpg",
+		".dds"
 	};
 
 	std::string filePath = System::ResourceFilePath(pFileName, System::eTexture);
 
 	if (ext == s_Ext[eBmp])
 	{
+		m_ImageType = eBmp;
 		CreateAsBmp(filePath.c_str());
 	}
 	else if (ext == s_Ext[ePng])
 	{
+		m_ImageType = ePng;
 		CreateAsPng(filePath.c_str());
 	}
 	else if (ext == s_Ext[eJpg])
 	{
+		m_ImageType = eJpg;
 		CreateAsJpg(filePath.c_str());
+	}
+	else if (ext == s_Ext[eDds])
+	{
+		m_ImageType = eDds;
+		CreateAsDds(pFileName);
 	}
 	else
 	{
@@ -60,19 +70,20 @@ void Image::CreateAsBmp(const char *pFilePath)
 		::RGBQUAD rgb[256]{}; /// ???
 		bmpFile.read((char *)rgb, sizeof(::RGBQUAD) * 256); /// ???
 
-		m_pBitmapInfo = (LPBITMAPINFO)new BYTE[sizeof(BITMAPINFOHEADER) + sizeof(RGBQUAD) * 256]();
-		memcpy(&m_pBitmapInfo->bmiHeader, &infoHeader, sizeof(BITMAPINFOHEADER));
-		memcpy(m_pBitmapInfo->bmiColors, rgb, sizeof(RGBQUAD) * 256);
+		PBITMAPINFO pBitmapInfo = (PBITMAPINFO)new BYTE[sizeof(BITMAPINFOHEADER) + sizeof(RGBQUAD) * 256]();
+		memcpy(&pBitmapInfo->bmiHeader, &infoHeader, sizeof(BITMAPINFOHEADER));
+		memcpy(pBitmapInfo->bmiColors, rgb, sizeof(RGBQUAD) * 256);
+		m_BitmapInfo.reset(pBitmapInfo);
 
 		bmpFile.seekg(fileHeader.bfOffBits, std::ios::beg);
 		uint32_t bytesPerLine = (infoHeader.biWidth * (infoHeader.biBitCount / 8) + 3) / 4 * 4; 
 		size_t dataSize = bytesPerLine * ::abs(infoHeader.biHeight);
-		m_pData = new byte[dataSize]();
-		bmpFile.read((char *)m_pData, dataSize);
+
+		byte *pData = new byte[dataSize]();
+		bmpFile.read((char *)pData, dataSize);
+		m_pData.reset(pData);
 
 		bmpFile.close();
-
-		///delete lpBmpInfo;
 	}
 	else
 	{
@@ -88,4 +99,25 @@ void Image::CreateAsPng(const char * /*pFilePath*/)
 void Image::CreateAsJpg(const char * /*pFilePath*/)
 {
 	assert(0);
+}
+
+void Image::CreateAsDds(const char *pFileName)
+{
+	std::string filePath = System::ResourceFilePath(pFileName, System::eTexture);
+	std::ifstream fileStream(filePath, std::ios::in | std::ios::binary);
+	assert(fileStream.good());
+
+	uint32_t dwMagicNumber = 0U;
+	fileStream.read((char *)&dwMagicNumber, sizeof(uint32_t));
+	assert(dwMagicNumber == DirectX::DDS_MAGIC);
+
+	DirectX::DDS_HEADER header;
+	fileStream.read((char *)&header, sizeof(DirectX::DDS_HEADER));
+	assert(header.size == sizeof(DirectX::DDS_HEADER));
+	assert(header.ddspf.size == sizeof(DirectX::DDS_PIXELFORMAT));
+
+	m_Width = header.width;
+	m_Height = header.height;
+
+	m_ShaderResourceView.Create(pFileName);
 }

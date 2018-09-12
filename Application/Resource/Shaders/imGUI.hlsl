@@ -32,6 +32,5 @@ VSOutput VS_Main(VSInput input)
 
 float4 PS_Main(VSOutput input) : SV_Target
 {
-    float4 clr = input.Clr * FontTexture.Sample(SamplerLinear, input.UV);
-    return clr;
+    return input.Clr * FontTexture.Sample(SamplerLinear, input.UV);
 }

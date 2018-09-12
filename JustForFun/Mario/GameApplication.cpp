@@ -1,11 +1,15 @@
 #include "GameApplication.h"
-
-#include "Timer.h"
+#include "resource.h"
 #include "Engine.h"
+
+GameApplication::GameApplication()
+{
+	m_IconID = IDI_ICON_MARIO;
+}
 
 LRESULT GameApplication::MsgProc(HWND hWnd, uint32_t msg, WPARAM wParam, LPARAM lParam)
 {
-	assert(m_pTimer);
+	assert(m_Timer);
 
 	HandleWindowMessage(msg, wParam, lParam);
 
@@ -22,7 +26,7 @@ void GameApplication::RenderToWindow()
 		m_bInited = true;
 	}
 
-	Engine::Instance().Update(m_pTimer->DeltaTime(), m_pTimer->TotalTime());
+	Engine::Instance().Update(m_Timer->DeltaTime(), m_Timer->TotalTime());
 
 	Engine::Instance().RenderScene();
 }
@@ -32,7 +36,6 @@ void GameApplication::ResizeWindow(uint32_t width, uint32_t height)
 	Engine::Instance().Resize(width, height);
 }
 
-GameApplication::~GameApplication()
+void GameApplication::InitRenderer()
 {
-	Engine::Destory();
 }

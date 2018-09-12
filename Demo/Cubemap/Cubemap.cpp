@@ -15,8 +15,15 @@ struct ConstantBufferPS
 {
 	Vec4 EyePos;
 
-	DirectionalLight DirLights;
-	Material Mat;
+	DirectionalLight Light;
+	Material::RawMaterial Mat;
+
+	ConstantBufferPS()
+	{
+		Light.Diffuse = Vec4(0.5f, 0.5f, 0.5f, 1.0f);
+		Light.Specular = Vec3(0.5f, 0.5f, 0.5f);
+		Light.Direction = Vec4(0.57735f, -0.57735f, 0.57735f, 0.0f);
+	}
 };
 
 void AppCubemap::InitCubemapCameras(float cx, float cy, float cz)
@@ -52,8 +59,13 @@ void AppCubemap::InitCubemapCameras(float cx, float cy, float cz)
 
 void AppCubemap::Initialize()
 {
-	m_CubeMesh.CreateAsCube(1.0f);
-	m_DiffuseTex.Create("stone.dds");
+	m_SkyBox.Create("sunsetcube1024.dds", 5000.0f);
+
+	m_CubeMesh.CreateAsCube(3.0f);
+	m_DiffuseTexCube.Create("WoodCrate01.dds");
+	m_DiffuseTexSphere.Create("wood.dds");
+
+	m_SphereMesh.CreateAsGeoSphere(1.0f, 4U);
 
 	m_VertexShader.Create("Cubemap.hlsl", "VSMain");
 	m_PixelShader.Create("Cubemap.hlsl", "PSMain");
@@ -77,150 +89,86 @@ void AppCubemap::Initialize()
 	m_CubemapDSV.Create(eD32_Float, CubemapSize, CubemapSize);
 
 	m_CubemapViewport = { 0.0f, 0.0f, (float)CubemapSize, (float)CubemapSize, 0.0f, 1.0f };
+	
+	m_MatrialCube.Set(Material::eDiffuse, "WoodCrate01.dds");
+	m_MatrialCube.Set(Material::eSpecular, Vec4(0.8f, 0.8f, 0.8f, 1.0f));
+
+	m_MatrialSphere.Set(Material::eDiffuse, "stone.dds");
+	m_MatrialSphere.Set(Material::eSpecular, Vec4(0.8f, 0.8f, 0.8f, 16.0f));
+	m_MatrialSphere.Set(Material::eReflection, Vec4(0.8f, 0.8f, 0.8f, 1.0f));
 
 	m_Camera->Translation(0.0f, 2.0f, -15.0f);
 }
 
-void AppCubemap::DrawScene(const Camera &cam)
+void AppCubemap::DrawClutter(const Camera &cam, bool isGenCubemap)
 {
-	//s_Resource.Skull.Draw(cam);
+	ConstantBufferVS CBufferVS;
+	ConstantBufferPS CBufferPS;
 
-	//ConstantsBufVS cbVS;
-	//memset(&cbVS, 0, sizeof(ConstantsBufVS));
+	D3DEngine::Instance().SetVertexShader(m_VertexShader);
+	D3DEngine::Instance().SetPixelShader(m_PixelShader);
 
-	//Vec4 eyePos = cam.GetEyePos();
-	//s_CBPS.EyePos = Vec3(eyePos.x, eyePos.y, eyePos.z);
+	D3DEngine::Instance().SetConstantBuffer(m_CBufferVS, 0U, D3DShader::eVertexShader);
+	D3DEngine::Instance().SetConstantBuffer(m_CBufferPS, 0U, D3DShader::ePixelShader);
 
-	//Matrix world, view, proj, wvp;
-	//view = cam.GetViewMatrix();
-	//proj = cam.GetProjMatrix();
+	/// Draw Cube
+	Matrix translation = Matrix::Translation(0.0f, -2.0f, 10.0f);
+	Matrix world = cam.GetWorldMatrix() * translation;
+	CBufferVS.World = Matrix::Transpose(world);
+	CBufferVS.WorldInverse = Matrix::Inverse(world);
+	CBufferVS.WVP = Matrix::Transpose(world * cam.GetViewMatrix() * cam.GetProjMatrix());
+	m_CBufferVS.Update(&CBufferVS, sizeof(ConstantBufferVS));
 
-	//g_Renderer->SetInputLayout(s_Resource.Layout);
-	//
-	//g_Renderer->SetVertexShader(s_Resource.VertexShader);
-	//g_Renderer->SetPixelShader(s_Resource.PixelShader);
+	CBufferPS.EyePos = cam.GetEyePos();
+	CBufferPS.Mat = m_MatrialCube.RawValue;
+	m_CBufferPS.Update(&CBufferPS, sizeof(ConstantBufferPS));
 
-	//g_Renderer->SetConstantBuffer(s_Resource.ConstantsBufVS, 0U, D3DGraphic::eVertexShader);
-	//g_Renderer->SetConstantBuffer(s_Resource.ConstantsBufPS, 0U, D3DGraphic::ePixelShader);
+	D3DShaderResourceView NoneSRV;
+	m_CubeMesh.Bind(&m_MatrialCube);
+	D3DEngine::Instance().SetShaderResourceView(NoneSRV, 1U, D3DShader::ePixelShader);
+	D3DEngine::Instance().DrawIndexed(m_CubeMesh.IndexCount, 0U, 0, eTriangleList);
 
-	//g_Renderer->SetVertexBuffer(s_Resource.GeometriesVBuf, sizeof(Vertex), 0U);
-	//g_Renderer->SetIndexBuffer(s_Resource.GeometriesIBuf, DXGI_FORMAT_R32_UINT, 0U);  
+	/// Draw Sphere
+	if (!isGenCubemap)
+	{
+		translation = Matrix::Translation(0.0f, 1.0f, 10.0f);
+		world = cam.GetWorldMatrix() * translation;
+		CBufferVS.World = Matrix::Transpose(world);
+		CBufferVS.WorldInverse = Matrix::Inverse(world);
+		CBufferVS.WVP = Matrix::Transpose(world * cam.GetViewMatrix() * cam.GetProjMatrix());
+		m_CBufferVS.Update(&CBufferVS, sizeof(ConstantBufferVS));
 
-	//g_Renderer->SetSamplerStates(s_Resource.Sampler, 0U, D3DGraphic::ePixelShader);
-	//
-	//{
-	//	/// Draw Grid
-	//	world = s_Geometries.WorldGrid;
-	//	wvp = world * view * proj;
-	//	cbVS.World = world.Transpose();
-	//	cbVS.WorldInverse = cbVS.World.Inverse();
-	//	cbVS.WVP = wvp.Transpose();
-	//	cbVS.TexTransform = Matrix::Scaling(6.0f, 8.0f, 1.0f)/*.Transpose()*/;
-	//	g_Renderer->UpdateBuffer(s_Resource.ConstantsBufVS, &cbVS, sizeof(ConstantsBufVS));
+		CBufferPS.Mat = m_MatrialSphere.RawValue;
+		m_CBufferPS.Update(&CBufferPS, sizeof(ConstantBufferPS));
 
-	//	memcpy(&s_CBPS.Mat, &s_Geometries.MatGrid, sizeof(Lighting::Material));
-	//	g_Renderer->UpdateBuffer(s_Resource.ConstantsBufPS, &s_CBPS, sizeof(ConstantsBufPS));
+		m_SphereMesh.Bind(&m_MatrialSphere);
+		D3DEngine::Instance().SetShaderResourceView(m_CubeMap, 1U, D3DShader::ePixelShader);
+		D3DEngine::Instance().DrawIndexed(m_SphereMesh.IndexCount, 0U, 0, eTriangleList);
+	}
 
-	//	g_Renderer->SetShaderResource(s_Resource.FloorTex, 0U, D3DGraphic::ePixelShader);
-
-	//	g_Renderer->DrawIndexed(s_Geometries.GridIndexCount, s_Geometries.GridIndexOffset, s_Geometries.GridVertexOffset);
-	//}
-
-	//{
-	//	/// Draw Box
-	//	world = s_Geometries.WorldBox;
-	//	wvp = world * view * proj;
-	//	cbVS.World = world.Transpose();
-	//	cbVS.WorldInverse = cbVS.World.Inverse();
-	//	cbVS.WVP = wvp.Transpose();
-	//	cbVS.TexTransform.Identity();
-	//	g_Renderer->UpdateBuffer(s_Resource.ConstantsBufVS, &cbVS, sizeof(ConstantsBufVS));
-
-	//	memcpy(&s_CBPS.Mat, &s_Geometries.MatBox, sizeof(Lighting::Material));
-	//	g_Renderer->UpdateBuffer(s_Resource.ConstantsBufPS, &s_CBPS, sizeof(ConstantsBufPS));
-
-	//	g_Renderer->SetShaderResource(s_Resource.StoneTex, 0U, D3DGraphic::ePixelShader);
-
-	//	g_Renderer->DrawIndexed(s_Geometries.BoxIndexCount, s_Geometries.BoxIndexOffset, s_Geometries.BoxVertexOffset);
-	//}
-
-	//{
-	//	/// Draw Spheres
-	//	for (uint32_t i = 0U; i < 10U; ++i)
-	//	{
-	//		world = s_Geometries.WorldSphere[i];
-	//		wvp = world * view * proj;
-	//		cbVS.World = world.Transpose();
-	//		cbVS.WorldInverse = cbVS.World.Inverse();
-	//		cbVS.WVP = wvp.Transpose();
-	//		cbVS.TexTransform.Identity();
-	//		g_Renderer->UpdateBuffer(s_Resource.ConstantsBufVS, &cbVS, sizeof(ConstantsBufVS));
-
-	//		memcpy(&s_CBPS.Mat, &s_Geometries.MatSphere, sizeof(Lighting::Material));
-	//		g_Renderer->UpdateBuffer(s_Resource.ConstantsBufPS, &s_CBPS, sizeof(ConstantsBufPS));
-
-	//		g_Renderer->SetShaderResource(s_Resource.StoneTex, 0U, D3DGraphic::ePixelShader);
-
-	//		g_Renderer->DrawIndexed(s_Geometries.SphereIndexCount, s_Geometries.SphereIndexOffset, s_Geometries.SphereVertexOffset);
-	//	}
-	//}
-
-	//if (bDrawCenterSphere)
-	//{
-	//	world = s_Geometries.WorldCenterSphere;
-	//	wvp = world * view * proj;
-	//	cbVS.World = world.Transpose();
-	//	cbVS.WorldInverse = cbVS.World.Inverse();
-	//	cbVS.WVP = wvp.Transpose();
-	//	cbVS.TexTransform.Identity();
-	//	g_Renderer->UpdateBuffer(s_Resource.ConstantsBufVS, &cbVS, sizeof(ConstantsBufVS));
-
-	//	memcpy(&s_CBPS.Mat, &s_Geometries.MatCenterSphere, sizeof(Lighting::Material));
-	//	g_Renderer->UpdateBuffer(s_Resource.ConstantsBufPS, &s_CBPS, sizeof(ConstantsBufPS));
-
-	//	g_Renderer->SetShaderResource(s_Resource.StoneTex, 0U, D3DGraphic::ePixelShader);
-
-	//	g_Renderer->SetShaderResource(s_Resource.DynamicCubeMap, 1U, D3DGraphic::ePixelShader);
-
-	//	g_Renderer->DrawIndexed(s_Geometries.SphereIndexCount, s_Geometries.SphereIndexOffset, s_Geometries.SphereVertexOffset);
-
-	//	Ref<ID3D11ShaderResourceView> nullCubemap;
-	//	g_Renderer->SetShaderResource(nullCubemap, 1U, D3DGraphic::ePixelShader);
-	//}
-
-	//s_Resource.Sky.Draw(cam);
-}
-
-void AppCubemap::DrawDynamicCubemap()
-{
-	//g_Renderer->SetViewports(&s_Resource.DynamicCubemapVP);
-
-	//for (uint32_t i = 0U; i < 6U; ++i)
-	//{
-	//	g_Renderer->ClearRenderTarget(s_Resource.DynamicCubemapRTVs[i], reinterpret_cast<const float*>(&Color::Silver));
-	//	g_Renderer->ClearDepthStencil(s_Resource.DynamicCubemapDSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0U);
-
-	//	g_Renderer->SetRenderTarget(s_Resource.DynamicCubemapRTVs[i]);
-	//	g_Renderer->SetDepthStencil(s_Resource.DynamicCubemapDSV);
-
-	//	DrawScene(s_CubemapCamera[i]);
-	//}
+	/// Draw Sky Box
+	m_SkyBox.Draw(cam);
 }
 
 void AppCubemap::RenderScene()
 {
-	//DrawDynamicCubemap();
+	/// Draw Dynamic Cubemap
+	D3DEngine::Instance().SetViewport(m_CubemapViewport, 0U);
+	D3DEngine::Instance().SetDepthStencilView(m_CubemapDSV);
+	for (uint32_t i = 0U; i < 6U; ++i)
+	{
+		D3DEngine::Instance().SetRenderTargetView(m_CubemapRTV[i], 0U);
 
-	//g_Renderer->ClearRenderTarget(g_Renderer->DefaultRenderTarget());
-	//g_Renderer->ClearDepthStencil(g_Renderer->DefaultDepthStencil(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0U);
+		D3DEngine::Instance().ClearRenderTargetView(m_CubemapRTV[i], Color::Silver);
+		D3DEngine::Instance().ClearDepthStencilView(m_CubemapDSV, D3DDepthStencilView::eDepthStencil, 1.0f, 0U);
 
-	//g_Renderer->SetRenderTarget(g_Renderer->DefaultRenderTarget());
-	//g_Renderer->SetDepthStencil(g_Renderer->DefaultDepthStencil());
+		DrawClutter(m_CubemapCamera[i], true);
+	}
 
-	//g_Renderer->SetViewports(&s_Resource.VP);
+	/// Draw Scene
+	D3DEngine::Instance().ResetDefaultRenderSurfaces();
+	D3DEngine::Instance().SetViewport(D3DViewport(0.0f, 0.0f, (float)m_Width, (float)m_Height));
+	DrawClutter(*m_Camera, false);
 
-	//DrawScene(*m_Camera, true);
-
-	//ImGui::Checkbox("Reflection", &m_bEnableReflection);
-	//s_CBPS.EnableReflection = m_bEnableReflection ? 1U : 0U;
+	m_SkyBox.Draw(*m_Camera);
 }

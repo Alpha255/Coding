@@ -173,6 +173,7 @@ struct D3DStaticState
 	static void Initialize();
 
 	static D3DSamplerState PointSampler;
+	static D3DSamplerState PointClampSampler;
 	static D3DSamplerState LinearSampler;
 	static D3DSamplerState AnisotropicSampler;
 

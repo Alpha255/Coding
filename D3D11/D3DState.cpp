@@ -123,6 +123,7 @@ void D3DRasterizerState::Create(uint32_t fillMode, uint32_t cullMode, bool bFron
 }
 
 D3DSamplerState D3DStaticState::PointSampler;
+D3DSamplerState D3DStaticState::PointClampSampler;
 D3DSamplerState D3DStaticState::LinearSampler;
 D3DSamplerState D3DStaticState::AnisotropicSampler;
 
@@ -147,12 +148,13 @@ void D3DStaticState::Initialize()
 	}
 
 	PointSampler.Create(D3DState::ePoint, D3DState::eWrap, 0.0f, D3DState::eNever, nullptr, 0.0f, FLT_MAX);
+	PointClampSampler.Create(D3DState::ePoint, D3DState::eClamp, 0.0f, D3DState::eAlways, nullptr, 0.0f, FLT_MAX);
 	LinearSampler.Create(D3DState::eLinear, D3DState::eWrap, 0.0f, D3DState::eNever, nullptr, 0.0f, FLT_MAX);
 	AnisotropicSampler.Create(D3DState::eAnisotropic, D3DState::eWrap, 0.0f, D3DState::eNever, nullptr, 0.0f, FLT_MAX);
 
 	Wireframe.Create(D3DState::eWireframe, D3DState::eCullBackFace, false, true, false);
 	Solid.Create(D3DState::eSolid, D3DState::eCullBackFace, false, true, false);
-	WireframeNoneCulling.Create(D3DState::eWireframe, D3DState::eCullNone, false, true, false);
+	WireframeNoneCulling.Create(D3DState::eWireframe, D3DState::eCullNone, false, false, false);
 	SolidNoneCulling.Create(D3DState::eSolid, D3DState::eCullNone, false, true, false);
 	SolidFrontCCW.Create(D3DState::eSolid, D3DState::eCullBackFace, true, true, false);
 

@@ -7,5 +7,5 @@ template<typename T> class linkedlist
 public:
 protected:
 private:
-	Node *mRoot;
+	node *m_Root;
 };

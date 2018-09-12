@@ -8,7 +8,7 @@ template<typename T> class D3DObject
 {
 public:
 	D3DObject() = default;
-	~D3DObject() = default;
+	virtual ~D3DObject() = default;
 
 	inline bool IsValid() const
 	{
@@ -25,18 +25,11 @@ public:
 		if (m_Object)
 		{
 			m_Object.reset();
+			m_Object = nullptr;
 		}
 	}
 
 	inline D3DObject(const D3DObject &other)
-	{
-		if (m_Object != other.m_Object)
-		{
-			m_Object = other.m_Object;
-		}
-	}
-
-	inline void operator=(const D3DObject &other)
 	{
 		if (m_Object != other.m_Object)
 		{
@@ -64,16 +57,26 @@ public:
 		return false;
 	}
 
+	inline bool operator==(const T *other) const
+	{
+		return (void*)m_Object.get() == (void*)other;
+	}
+
 	inline bool operator!=(const D3DObject &other) const
 	{
 		return !(*this == other);
+	}
+
+	inline bool operator!=(const T *other) const
+	{
+		return (void*)m_Object.get() != (void*)other;
 	}
 
 	inline void MakeObject(T *pObject)
 	{
 		if (pObject)
 		{
-			m_Object.reset(pObject, std::function<void(T *)>([](T *pObject){ SafeRelease(pObject) }));
+			m_Object.reset(pObject, std::function<void(T *)>([](T * pObject){ pObject->Release(); }));
 		}
 	}
 protected:
@@ -82,9 +85,9 @@ private:
 };
 
 class D3DDevice : public D3DObject<ID3D11Device> {};
-class D3DContext : public D3DObject<ID3D11DeviceContext> {};
 class DXGIFactory : public D3DObject<IDXGIFactory> {};
 class D3DResource : public D3DObject<ID3D11Resource> {};
+class D3DCommandList : public D3DObject<ID3D11CommandList> {};
 
 class D3DSwapChain : public D3DObject<IDXGISwapChain> 
 {
