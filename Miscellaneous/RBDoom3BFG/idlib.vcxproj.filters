@@ -1,0 +1,371 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Base64.cpp" />
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\BitMsg.cpp" />
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\CmdArgs.cpp" />
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\CommandLink.cpp" />
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Dict.cpp" />
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Heap.cpp" />
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\LangDict.cpp" />
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Lexer.cpp" />
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Lib.cpp" />
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\MapFile.cpp" />
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\ParallelJobList.cpp" />
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Parser.cpp" />
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\RectAllocator.cpp" />
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\SoftwareCache.cpp" />
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Str.cpp" />
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Thread.cpp" />
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Timer.cpp" />
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Token.cpp" />
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\precompiled.cpp" />
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\bv\Bounds.cpp">
+      <Filter>bv</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\bv\Box.cpp">
+      <Filter>bv</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\bv\Sphere.cpp">
+      <Filter>bv</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\HashIndex.cpp">
+      <Filter>containers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\DrawVert.cpp">
+      <Filter>geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\JointTransform.cpp">
+      <Filter>geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\RenderMatrix.cpp">
+      <Filter>geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\Surface.cpp">
+      <Filter>geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\Surface_Patch.cpp">
+      <Filter>geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\Surface_Polytope.cpp">
+      <Filter>geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\Surface_SweptSpline.cpp">
+      <Filter>geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\TraceModel.cpp">
+      <Filter>geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\Winding.cpp">
+      <Filter>geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\Winding2D.cpp">
+      <Filter>geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\hashing\CRC32.cpp">
+      <Filter>hashing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\hashing\MD4.cpp">
+      <Filter>hashing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\hashing\MD5.cpp">
+      <Filter>hashing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Angles.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Complex.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Lcp.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\MatX.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Math.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Matrix.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Ode.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Plane.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Pluecker.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Polynomial.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Quat.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Rotation.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Simd.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Simd_Generic.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Simd_SSE.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\VecX.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Vector.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\sys\sys_assert.cpp">
+      <Filter>sys</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\sys\win32\win_thread.cpp">
+      <Filter>sys\win32</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Base64.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\BitMsg.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Callback.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\CmdArgs.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\DataQueue.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Dict.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Heap.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\LangDict.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Lexer.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Lib.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\MapFile.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\ParallelJobList.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\ParallelJobList_JobHeaders.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Parser.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\SoftwareCache.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Str.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\StrStatic.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Swap.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Thread.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Timer.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Token.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\precompiled.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\bv\Bounds.h">
+      <Filter>bv</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\bv\Box.h">
+      <Filter>bv</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\bv\Sphere.h">
+      <Filter>bv</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\Array.h">
+      <Filter>containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\BTree.h">
+      <Filter>containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\BinSearch.h">
+      <Filter>containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\HashIndex.h">
+      <Filter>containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\HashTable.h">
+      <Filter>containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\Hierarchy.h">
+      <Filter>containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\LinkList.h">
+      <Filter>containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\List.h">
+      <Filter>containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\PlaneSet.h">
+      <Filter>containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\Queue.h">
+      <Filter>containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\Sort.h">
+      <Filter>containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\Stack.h">
+      <Filter>containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\StaticList.h">
+      <Filter>containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\StrList.h">
+      <Filter>containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\StrPool.h">
+      <Filter>containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\VectorSet.h">
+      <Filter>containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\DrawVert.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\DrawVert_intrinsics.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\JointTransform.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\RenderMatrix.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\Surface.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\Surface_Patch.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\Surface_Polytope.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\Surface_SweptSpline.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\TraceModel.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\Winding.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\Winding2D.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\hashing\CRC32.h">
+      <Filter>hashing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\hashing\MD4.h">
+      <Filter>hashing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\hashing\MD5.h">
+      <Filter>hashing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Angles.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Complex.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Curve.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Extrapolate.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Interpolate.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Lcp.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\MatX.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Math.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Matrix.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Ode.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Plane.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Pluecker.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Polynomial.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Quat.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Random.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Rotation.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Simd.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Simd_Generic.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Simd_SSE.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\VecX.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Vector.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\VectorI.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\sys\sys_alloc_tags.h">
+      <Filter>sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\sys\sys_assert.h">
+      <Filter>sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\sys\sys_builddefines.h">
+      <Filter>sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\sys\sys_defines.h">
+      <Filter>sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\sys\sys_filesystem.h">
+      <Filter>sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\sys\sys_includes.h">
+      <Filter>sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\sys\sys_intrinsics.h">
+      <Filter>sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\sys\sys_threading.h">
+      <Filter>sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\sys\sys_types.h">
+      <Filter>sys</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="sys\win32">
+      <UniqueIdentifier>{020F5602-9EAB-3B38-BA6E-197948EECDC6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="bv">
+      <UniqueIdentifier>{9287A22C-7CD0-3474-B8F2-779EFE788670}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="containers">
+      <UniqueIdentifier>{1FF687EF-C9D7-3000-8A22-90592E179CF5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="geometry">
+      <UniqueIdentifier>{A3B3FE4C-65F5-3BBF-9662-AEDC46C8262A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hashing">
+      <UniqueIdentifier>{CD076339-406D-396F-B0E6-14789A73D392}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="math">
+      <UniqueIdentifier>{8F63B509-ED17-36C6-921E-651538297039}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sys">
+      <UniqueIdentifier>{47575610-0DAB-31F7-9E85-725BF85C94B4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

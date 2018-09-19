@@ -1,0 +1,30 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RBDoom3BFG", "Miscellaneous\RBDoom3BFG\RBDoom3BFG.vcxproj", "{75FB4DD3-0135-340D-8EF5-81F77B6FF2FE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "idlib", "Miscellaneous\RBDoom3BFG\idlib.vcxproj", "{8D89EA78-89C1-3255-AC5A-A4D1FDA75BD4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{75FB4DD3-0135-340D-8EF5-81F77B6FF2FE}.Debug|x64.ActiveCfg = Debug|x64
+		{75FB4DD3-0135-340D-8EF5-81F77B6FF2FE}.Debug|x64.Build.0 = Debug|x64
+		{75FB4DD3-0135-340D-8EF5-81F77B6FF2FE}.Release|x64.ActiveCfg = Release|x64
+		{75FB4DD3-0135-340D-8EF5-81F77B6FF2FE}.Release|x64.Build.0 = Release|x64
+		{8D89EA78-89C1-3255-AC5A-A4D1FDA75BD4}.Debug|x64.ActiveCfg = Debug|x64
+		{8D89EA78-89C1-3255-AC5A-A4D1FDA75BD4}.Debug|x64.Build.0 = Debug|x64
+		{8D89EA78-89C1-3255-AC5A-A4D1FDA75BD4}.Release|x64.ActiveCfg = Release|x64
+		{8D89EA78-89C1-3255-AC5A-A4D1FDA75BD4}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C840E278-EC30-34FA-A324-6F026D0938DB}
+	EndGlobalSection
+EndGlobal
