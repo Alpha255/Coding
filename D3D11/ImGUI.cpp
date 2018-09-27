@@ -9,6 +9,8 @@ void ImGUI::Initialize(::HWND hWnd)
 	assert(hWnd && !m_Inited);
 
 	/// Init key map
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
 	ImGuiIO &io = ImGui::GetIO();
 	io.KeyMap[ImGuiKey_Tab] = VK_TAB;
 	io.KeyMap[ImGuiKey_LeftArrow] = VK_LEFT;
@@ -158,7 +160,7 @@ void ImGUI::RenderBegin(bool bDraw, const char *pPanelName)
 	io.KeySuper = false;
 
 	/// Set OS mouse position if requested last frame by io.WantMoveMouse flag (used when io.NavMovesTrue is enabled by user and using directional navigation)
-	if (io.WantMoveMouse)
+	if (io.WantCaptureMouse)
 	{
 		::POINT pos = { (LONG)io.MousePos.x, (LONG)io.MousePos.y };
 		::ClientToScreen(hWnd, &pos);

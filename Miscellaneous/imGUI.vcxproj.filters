@@ -1,54 +1,89 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="extra_fonts">
-      <UniqueIdentifier>{e3debaef-00c2-4290-ba5d-75c620602a2a}</UniqueIdentifier>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\ThirdParty\GUI\ocornut\extra_fonts\binary_to_compressed_c.cpp">
-      <Filter>extra_fonts</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ThirdParty\GUI\ocornut\imgui.cpp" />
-    <ClCompile Include="..\ThirdParty\GUI\ocornut\imgui_demo.cpp" />
-    <ClCompile Include="..\ThirdParty\GUI\ocornut\imgui_draw.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Font Include="..\ThirdParty\GUI\ocornut\extra_fonts\Cousine-Regular.ttf">
-      <Filter>extra_fonts</Filter>
-    </Font>
-    <Font Include="..\ThirdParty\GUI\ocornut\extra_fonts\DroidSans.ttf">
-      <Filter>extra_fonts</Filter>
-    </Font>
-    <Font Include="..\ThirdParty\GUI\ocornut\extra_fonts\Karla-Regular.ttf">
-      <Filter>extra_fonts</Filter>
-    </Font>
-    <Font Include="..\ThirdParty\GUI\ocornut\extra_fonts\ProggyClean.ttf">
-      <Filter>extra_fonts</Filter>
-    </Font>
-    <Font Include="..\ThirdParty\GUI\ocornut\extra_fonts\ProggyTiny.ttf">
-      <Filter>extra_fonts</Filter>
-    </Font>
-    <Font Include="..\ThirdParty\GUI\ocornut\extra_fonts\Roboto-Medium.ttf">
-      <Filter>extra_fonts</Filter>
-    </Font>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="..\ThirdParty\GUI\ocornut\extra_fonts\README.txt">
-      <Filter>extra_fonts</Filter>
-    </Text>
-    <Text Include="..\ThirdParty\GUI\ocornut\LICENSE.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="..\ThirdParty\GUI\ocornut\.travis.yml" />
-    <None Include="..\ThirdParty\GUI\ocornut\README.md" />
+    <None Include="..\ThirdParty\GUI\ocornut\misc\freetype\README.md">
+      <Filter>misc\freetype</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\ThirdParty\GUI\ocornut\imconfig.h" />
     <ClInclude Include="..\ThirdParty\GUI\ocornut\imgui.h" />
     <ClInclude Include="..\ThirdParty\GUI\ocornut\imgui_internal.h" />
-    <ClInclude Include="..\ThirdParty\GUI\ocornut\stb_rect_pack.h" />
-    <ClInclude Include="..\ThirdParty\GUI\ocornut\stb_textedit.h" />
-    <ClInclude Include="..\ThirdParty\GUI\ocornut\stb_truetype.h" />
+    <ClInclude Include="..\ThirdParty\GUI\ocornut\imstb_rectpack.h" />
+    <ClInclude Include="..\ThirdParty\GUI\ocornut\imstb_textedit.h" />
+    <ClInclude Include="..\ThirdParty\GUI\ocornut\imstb_truetype.h" />
+    <ClInclude Include="..\ThirdParty\GUI\ocornut\misc\freetype\imgui_freetype.h">
+      <Filter>misc\freetype</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\GUI\ocornut\misc\stl\imgui_stl.h">
+      <Filter>misc\stl</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\ThirdParty\GUI\ocornut\imgui.cpp" />
+    <ClCompile Include="..\ThirdParty\GUI\ocornut\imgui_demo.cpp" />
+    <ClCompile Include="..\ThirdParty\GUI\ocornut\imgui_draw.cpp" />
+    <ClCompile Include="..\ThirdParty\GUI\ocornut\imgui_widgets.cpp" />
+    <ClCompile Include="..\ThirdParty\GUI\ocornut\misc\fonts\binary_to_compressed_c.cpp">
+      <Filter>misc\font</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParty\GUI\ocornut\misc\freetype\imgui_freetype.cpp">
+      <Filter>misc\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParty\GUI\ocornut\misc\stl\imgui_stl.cpp">
+      <Filter>misc\stl</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\ThirdParty\GUI\ocornut\LICENSE.txt" />
+    <Text Include="..\ThirdParty\GUI\ocornut\misc\fonts\README.txt">
+      <Filter>misc\font</Filter>
+    </Text>
+    <Text Include="..\ThirdParty\GUI\ocornut\misc\natvis\README.txt">
+      <Filter>misc\natvis</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="misc">
+      <UniqueIdentifier>{32891079-f6a6-4470-ae4f-30bf3ef88a77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="misc\font">
+      <UniqueIdentifier>{5ad391c3-5408-494e-8aef-5d326c862d47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="misc\freetype">
+      <UniqueIdentifier>{109ac045-751d-403c-9909-0caa7fc349b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="misc\natvis">
+      <UniqueIdentifier>{41b00d84-0e78-4711-ba75-a7556bf75c60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="misc\stl">
+      <UniqueIdentifier>{1109f806-f044-43bf-a000-84d1df3cf8e3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="..\ThirdParty\GUI\ocornut\misc\fonts\Cousine-Regular.ttf">
+      <Filter>misc\font</Filter>
+    </Font>
+    <Font Include="..\ThirdParty\GUI\ocornut\misc\fonts\DroidSans.ttf">
+      <Filter>misc\font</Filter>
+    </Font>
+    <Font Include="..\ThirdParty\GUI\ocornut\misc\fonts\Karla-Regular.ttf">
+      <Filter>misc\font</Filter>
+    </Font>
+    <Font Include="..\ThirdParty\GUI\ocornut\misc\fonts\ProggyClean.ttf">
+      <Filter>misc\font</Filter>
+    </Font>
+    <Font Include="..\ThirdParty\GUI\ocornut\misc\fonts\ProggyTiny.ttf">
+      <Filter>misc\font</Filter>
+    </Font>
+    <Font Include="..\ThirdParty\GUI\ocornut\misc\fonts\Roboto-Medium.ttf">
+      <Filter>misc\font</Filter>
+    </Font>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="..\ThirdParty\GUI\ocornut\misc\natvis\imgui.natvis">
+      <Filter>misc\natvis</Filter>
+    </Natvis>
   </ItemGroup>
 </Project>

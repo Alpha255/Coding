@@ -23,7 +23,7 @@ public:
 
 	static void Destroy()
 	{
-		ImGui::Shutdown();
+		ImGui::DestroyContext();
 	}
 
 	void Initialize(::HWND hWnd);
