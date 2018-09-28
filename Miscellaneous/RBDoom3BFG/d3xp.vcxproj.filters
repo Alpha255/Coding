@@ -1,0 +1,627 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Achievements.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Actor.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\AF.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\AFEntity.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\AimAssist.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\BrittleFracture.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Camera.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Entity.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Fx.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\GameEdit.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Game_local.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Game_network.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Grabber.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\IK.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Item.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Leaderboards.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Light.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Misc.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Moveable.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Mover.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\MultiplayerGame.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Player.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\PlayerIcon.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\PlayerView.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\precompiled.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Projectile.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Pvs.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\SecurityCamera.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\SmokeParticles.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Sound.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Target.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Trigger.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Weapon.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\WorldSpawn.cpp">
+      <Filter>game-d3xp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\ai\AAS.cpp">
+      <Filter>game-d3xp\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\ai\AAS_debug.cpp">
+      <Filter>game-d3xp\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\ai\AAS_pathing.cpp">
+      <Filter>game-d3xp\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\ai\AAS_routing.cpp">
+      <Filter>game-d3xp\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\ai\AI.cpp">
+      <Filter>game-d3xp\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\ai\AI_Vagary.cpp">
+      <Filter>game-d3xp\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\ai\AI_events.cpp">
+      <Filter>game-d3xp\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\ai\AI_pathing.cpp">
+      <Filter>game-d3xp\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\anim\Anim.cpp">
+      <Filter>game-d3xp\anim</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\anim\Anim_Blend.cpp">
+      <Filter>game-d3xp\anim</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\anim\Anim_Testmodel.cpp">
+      <Filter>game-d3xp\anim</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\gamesys\Class.cpp">
+      <Filter>game-d3xp\gamesys</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\gamesys\Event.cpp">
+      <Filter>game-d3xp\gamesys</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\gamesys\SaveGame.cpp">
+      <Filter>game-d3xp\gamesys</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\gamesys\SysCmds.cpp">
+      <Filter>game-d3xp\gamesys</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\gamesys\SysCvar.cpp">
+      <Filter>game-d3xp\gamesys</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuHandler.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuHandler_HUD.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuHandler_PDA.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuHandler_Scoreboard.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuHandler_Shell.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen_HUD.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen_PDA_Inventory.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen_PDA_UserData.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen_PDA_UserEmails.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen_PDA_VideoDisks.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen_Scoreboard.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen_Shell_Bindings.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen_Shell_Browser.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen_Shell_ControllerLayout.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen_Shell_Controls.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen_Shell_Credits.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen_Shell_Dev.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen_Shell_Difficulty.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen_Shell_GameLobby.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen_Shell_GameOptions.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen_Shell_Gamepad.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen_Shell_Leaderboards.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen_Shell_Load.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen_Shell_MatchSettings.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen_Shell_ModeSelect.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen_Shell_NewGame.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen_Shell_PartyLobby.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen_Shell_Pause.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen_Shell_Playstation.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen_Shell_PressStart.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen_Shell_Resolution.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen_Shell_Root.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen_Shell_Save.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen_Shell_Settings.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen_Shell_Singleplayer.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen_Shell_Stereoscopics.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen_Shell_SystemOptions.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuWidget.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuWidget_Button.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuWidget_Carousel.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuWidget_CommandBar.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuWidget_DynamicList.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuWidget_Help.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuWidget_InfoBox.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuWidget_ItemAssignment.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuWidget_List.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuWidget_LobbyList.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuWidget_MenuBar.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuWidget_NavBar.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuWidget_NavButton.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuWidget_PDA_AudioFiles.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuWidget_PDA_EmailInbox.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuWidget_PDA_Objective.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuWidget_PDA_UserData.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuWidget_PDA_VideoInfo.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuWidget_Scrollbar.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuWidget_Shell_SaveInfo.cpp">
+      <Filter>game-d3xp\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Clip.cpp">
+      <Filter>game-d3xp\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Force.cpp">
+      <Filter>game-d3xp\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Force_Constant.cpp">
+      <Filter>game-d3xp\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Force_Drag.cpp">
+      <Filter>game-d3xp\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Force_Field.cpp">
+      <Filter>game-d3xp\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Force_Grab.cpp">
+      <Filter>game-d3xp\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Force_Spring.cpp">
+      <Filter>game-d3xp\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Physics.cpp">
+      <Filter>game-d3xp\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Physics_AF.cpp">
+      <Filter>game-d3xp\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Physics_Actor.cpp">
+      <Filter>game-d3xp\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Physics_Base.cpp">
+      <Filter>game-d3xp\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Physics_Monster.cpp">
+      <Filter>game-d3xp\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Physics_Parametric.cpp">
+      <Filter>game-d3xp\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Physics_Player.cpp">
+      <Filter>game-d3xp\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Physics_RigidBody.cpp">
+      <Filter>game-d3xp\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Physics_Static.cpp">
+      <Filter>game-d3xp\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Physics_StaticMulti.cpp">
+      <Filter>game-d3xp\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Push.cpp">
+      <Filter>game-d3xp\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\script\Script_Compiler.cpp">
+      <Filter>game-d3xp\script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\script\Script_Interpreter.cpp">
+      <Filter>game-d3xp\script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\script\Script_Program.cpp">
+      <Filter>game-d3xp\script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\script\Script_Thread.cpp">
+      <Filter>game-d3xp\script</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Achievements.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Actor.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\AF.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\AFEntity.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\AimAssist.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\BrittleFracture.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Camera.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Entity.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Fx.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Game.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\GameEdit.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Game_local.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Grabber.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\IK.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Item.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Leaderboards.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Light.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Misc.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Moveable.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Mover.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\MultiplayerGame.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Player.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\PlayerIcon.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\PlayerView.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\PredictedValue.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Projectile.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Pvs.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\SecurityCamera.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\SmokeParticles.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Sound.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Target.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Trigger.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\Weapon.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\WorldSpawn.h">
+      <Filter>game-d3xp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\ai\AAS.h">
+      <Filter>game-d3xp\ai</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\ai\AAS_local.h">
+      <Filter>game-d3xp\ai</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\ai\AI.h">
+      <Filter>game-d3xp\ai</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\anim\Anim.h">
+      <Filter>game-d3xp\anim</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\anim\Anim_Testmodel.h">
+      <Filter>game-d3xp\anim</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\gamesys\Class.h">
+      <Filter>game-d3xp\gamesys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\gamesys\Event.h">
+      <Filter>game-d3xp\gamesys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\gamesys\SaveGame.h">
+      <Filter>game-d3xp\gamesys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\gamesys\SysCmds.h">
+      <Filter>game-d3xp\gamesys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\gamesys\SysCvar.h">
+      <Filter>game-d3xp\gamesys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuHandler.h">
+      <Filter>game-d3xp\menus</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuScreen.h">
+      <Filter>game-d3xp\menus</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\menus\MenuWidget.h">
+      <Filter>game-d3xp\menus</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Clip.h">
+      <Filter>game-d3xp\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Force.h">
+      <Filter>game-d3xp\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Force_Constant.h">
+      <Filter>game-d3xp\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Force_Drag.h">
+      <Filter>game-d3xp\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Force_Field.h">
+      <Filter>game-d3xp\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Force_Grab.h">
+      <Filter>game-d3xp\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Force_Spring.h">
+      <Filter>game-d3xp\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Physics.h">
+      <Filter>game-d3xp\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Physics_AF.h">
+      <Filter>game-d3xp\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Physics_Actor.h">
+      <Filter>game-d3xp\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Physics_Base.h">
+      <Filter>game-d3xp\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Physics_Monster.h">
+      <Filter>game-d3xp\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Physics_Parametric.h">
+      <Filter>game-d3xp\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Physics_Player.h">
+      <Filter>game-d3xp\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Physics_RigidBody.h">
+      <Filter>game-d3xp\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Physics_Static.h">
+      <Filter>game-d3xp\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Physics_StaticMulti.h">
+      <Filter>game-d3xp\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\physics\Push.h">
+      <Filter>game-d3xp\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\script\Script_Compiler.h">
+      <Filter>game-d3xp\script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\script\Script_Interpreter.h">
+      <Filter>game-d3xp\script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\script\Script_Program.h">
+      <Filter>game-d3xp\script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\d3xp\script\Script_Thread.h">
+      <Filter>game-d3xp\script</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="game-d3xp">
+      <UniqueIdentifier>{54A5D56F-FD3D-3A5B-9E13-6F5574F635D6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game-d3xp\ai">
+      <UniqueIdentifier>{09E13180-D81F-3040-A846-4C178C03EA4B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game-d3xp\anim">
+      <UniqueIdentifier>{F3C41075-4415-394C-A695-CBDDBB3C8EAC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game-d3xp\gamesys">
+      <UniqueIdentifier>{4EBA51C3-8969-351D-9D6E-1759ECEE14EB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game-d3xp\menus">
+      <UniqueIdentifier>{30575D23-8142-3526-A251-C86A5CE4217E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game-d3xp\physics">
+      <UniqueIdentifier>{AE0AA445-0103-32F1-A342-5516BDC2EDDF}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game-d3xp\script">
+      <UniqueIdentifier>{212207A6-18FD-30C2-BD67-FE1BEA5BD6BA}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

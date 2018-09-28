@@ -1,0 +1,513 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\irrxml\src\irrXML.cpp">
+      <Filter>libs\irrxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jcapimin.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jcapistd.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jccoefct.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jccolor.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jcdctmgr.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jchuff.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jcinit.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jcmainct.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jcmarker.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jcmaster.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jcomapi.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jcparam.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jcphuff.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jcprepct.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jcsample.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jctrans.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jdapimin.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jdapistd.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jdatadst.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jdatasrc.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jdcoefct.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jdcolor.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jddctmgr.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jdhuff.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jdinput.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jdmainct.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jdmarker.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jdmaster.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jdmerge.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jdphuff.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jdpostct.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jdsample.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jdtrans.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jerror.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jfdctflt.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jfdctfst.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jfdctint.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jidctflt.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jidctfst.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jidctint.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jidctred.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jmemmgr.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jmemnobs.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jquant1.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jquant2.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jutils.cpp">
+      <Filter>libs\jpeg-6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\png\example.c">
+      <Filter>libs\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\png\png.c">
+      <Filter>libs\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\png\pngerror.c">
+      <Filter>libs\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\png\pnggccrd.c">
+      <Filter>libs\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\png\pngget.c">
+      <Filter>libs\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\png\pngmem.c">
+      <Filter>libs\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\png\pngpread.c">
+      <Filter>libs\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\png\pngread.c">
+      <Filter>libs\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\png\pngrio.c">
+      <Filter>libs\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\png\pngrtran.c">
+      <Filter>libs\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\png\pngrutil.c">
+      <Filter>libs\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\png\pngset.c">
+      <Filter>libs\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\png\pngtrans.c">
+      <Filter>libs\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\png\pngvcrd.c">
+      <Filter>libs\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\png\pngwio.c">
+      <Filter>libs\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\png\pngwrite.c">
+      <Filter>libs\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\png\pngwtran.c">
+      <Filter>libs\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\png\pngwutil.c">
+      <Filter>libs\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib\adler32.c">
+      <Filter>libs\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib\compress.c">
+      <Filter>libs\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib\crc32.c">
+      <Filter>libs\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib\deflate.c">
+      <Filter>libs\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib\gzclose.c">
+      <Filter>libs\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib\gzlib.c">
+      <Filter>libs\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib\gzread.c">
+      <Filter>libs\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib\gzwrite.c">
+      <Filter>libs\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib\infback.c">
+      <Filter>libs\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib\inffast.c">
+      <Filter>libs\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib\inflate.c">
+      <Filter>libs\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib\inftrees.c">
+      <Filter>libs\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib\trees.c">
+      <Filter>libs\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib\uncompr.c">
+      <Filter>libs\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib\zutil.c">
+      <Filter>libs\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib\minizip\ioapi.c">
+      <Filter>libs\zlib\minizip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib\minizip\unzip.cpp">
+      <Filter>libs\zlib\minizip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib\minizip\zip.cpp">
+      <Filter>libs\zlib\minizip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\glew\src\glew.c">
+      <Filter>libs\glew</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\timidity\common.cpp">
+      <Filter>libs\timidity</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\timidity\controls.cpp">
+      <Filter>libs\timidity</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\timidity\filter.cpp">
+      <Filter>libs\timidity</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\timidity\instrum.cpp">
+      <Filter>libs\timidity</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\timidity\mix.cpp">
+      <Filter>libs\timidity</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\timidity\output.cpp">
+      <Filter>libs\timidity</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\timidity\playmidi.cpp">
+      <Filter>libs\timidity</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\timidity\readmidi.cpp">
+      <Filter>libs\timidity</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\timidity\resample.cpp">
+      <Filter>libs\timidity</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\timidity\sdl_a.cpp">
+      <Filter>libs\timidity</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\timidity\sdl_c.cpp">
+      <Filter>libs\timidity</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\timidity\tables.cpp">
+      <Filter>libs\timidity</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\timidity\timidity.cpp">
+      <Filter>libs\timidity</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\irrxml\src\CXMLReaderImpl.h">
+      <Filter>libs\irrxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\irrxml\src\fast_atof.h">
+      <Filter>libs\irrxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\irrxml\src\heapsort.h">
+      <Filter>libs\irrxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\irrxml\src\irrArray.h">
+      <Filter>libs\irrxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\irrxml\src\irrString.h">
+      <Filter>libs\irrxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\irrxml\src\irrTypes.h">
+      <Filter>libs\irrxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\irrxml\src\irrXML.h">
+      <Filter>libs\irrxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jchuff.h">
+      <Filter>libs\jpeg-6</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jconfig.h">
+      <Filter>libs\jpeg-6</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jdct.h">
+      <Filter>libs\jpeg-6</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jdhuff.h">
+      <Filter>libs\jpeg-6</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jerror.h">
+      <Filter>libs\jpeg-6</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jinclude.h">
+      <Filter>libs\jpeg-6</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jmemsys.h">
+      <Filter>libs\jpeg-6</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jmorecfg.h">
+      <Filter>libs\jpeg-6</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jpegint.h">
+      <Filter>libs\jpeg-6</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jpeglib.h">
+      <Filter>libs\jpeg-6</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jversion.h">
+      <Filter>libs\jpeg-6</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\png\png.h">
+      <Filter>libs\png</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\png\pngconf.h">
+      <Filter>libs\png</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib\crc32.h">
+      <Filter>libs\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib\deflate.h">
+      <Filter>libs\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib\gzguts.h">
+      <Filter>libs\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib\inffast.h">
+      <Filter>libs\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib\inffixed.h">
+      <Filter>libs\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib\inflate.h">
+      <Filter>libs\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib\inftrees.h">
+      <Filter>libs\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib\trees.h">
+      <Filter>libs\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib\zconf.h">
+      <Filter>libs\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib\zlib.h">
+      <Filter>libs\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib\zutil.h">
+      <Filter>libs\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib\minizip\ioapi.h">
+      <Filter>libs\zlib\minizip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib\minizip\unzip.h">
+      <Filter>libs\zlib\minizip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib\minizip\zip.h">
+      <Filter>libs\zlib\minizip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\glew\include\GL\glew.h">
+      <Filter>libs\glew</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\glew\include\GL\wglew.h">
+      <Filter>libs\glew</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\rapidjson\include\rapidjson\allocators.h">
+      <Filter>libs\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\rapidjson\include\rapidjson\document.h">
+      <Filter>libs\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\rapidjson\include\rapidjson\encodedstream.h">
+      <Filter>libs\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\rapidjson\include\rapidjson\encodings.h">
+      <Filter>libs\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\rapidjson\include\rapidjson\filereadstream.h">
+      <Filter>libs\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\rapidjson\include\rapidjson\filewritestream.h">
+      <Filter>libs\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\rapidjson\include\rapidjson\memorybuffer.h">
+      <Filter>libs\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\rapidjson\include\rapidjson\memorystream.h">
+      <Filter>libs\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\rapidjson\include\rapidjson\prettywriter.h">
+      <Filter>libs\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\rapidjson\include\rapidjson\rapidjson.h">
+      <Filter>libs\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\rapidjson\include\rapidjson\reader.h">
+      <Filter>libs\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\rapidjson\include\rapidjson\stringbuffer.h">
+      <Filter>libs\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\rapidjson\include\rapidjson\writer.h">
+      <Filter>libs\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\timidity\common.h">
+      <Filter>libs\timidity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\timidity\config.h">
+      <Filter>libs\timidity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\timidity\controls.h">
+      <Filter>libs\timidity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\timidity\filter.h">
+      <Filter>libs\timidity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\timidity\instrum.h">
+      <Filter>libs\timidity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\timidity\mix.h">
+      <Filter>libs\timidity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\timidity\output.h">
+      <Filter>libs\timidity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\timidity\playmidi.h">
+      <Filter>libs\timidity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\timidity\readmidi.h">
+      <Filter>libs\timidity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\timidity\resample.h">
+      <Filter>libs\timidity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\timidity\structs.h">
+      <Filter>libs\timidity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\timidity\tables.h">
+      <Filter>libs\timidity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\timidity\timidity.h">
+      <Filter>libs\timidity</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="libs">
+      <UniqueIdentifier>{447312CB-DEEF-3ADA-AB31-7005DF6BE96B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\zlib\minizip">
+      <UniqueIdentifier>{CD794548-D259-33CA-92F4-848C4999E220}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\irrxml">
+      <UniqueIdentifier>{35388819-E265-311C-92F6-0D5D24A64606}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\jpeg-6">
+      <UniqueIdentifier>{B0F276C9-4CE7-3D53-B000-391DAD3FDA04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\png">
+      <UniqueIdentifier>{481C0A25-4597-34E3-AE7F-D76859F24DD3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\zlib">
+      <UniqueIdentifier>{B997832A-E4E5-35A3-B71C-28AE6D4F2FF4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\glew">
+      <UniqueIdentifier>{4C5C372A-A1F5-3628-BCF7-C74ADE64A876}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\rapidjson">
+      <UniqueIdentifier>{87B1C7D7-5F51-3A6D-B70B-F50407E81F22}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\timidity">
+      <UniqueIdentifier>{D5EAF838-B234-327D-8FC5-87BE317386D9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

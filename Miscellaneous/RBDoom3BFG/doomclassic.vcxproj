@@ -11,11 +11,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{8D89EA78-89C1-3255-AC5A-A4D1FDA75BD4}</ProjectGuid>
+    <ProjectGuid>{9B6A879E-B624-4F96-B341-2E318B039F2F}</ProjectGuid>
     <WindowsTargetPlatformVersion>10.0.10586.0</WindowsTargetPlatformVersion>
     <Keyword>Win32Proj</Keyword>
     <Platform>x64</Platform>
-    <ProjectName>idlib</ProjectName>
+    <ProjectName>doomclassic</ProjectName>
     <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -54,21 +54,27 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
-    <ResourceCompile>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;_MBCS;USE_EXCEPTIONS;USE_INTRINSICS;GLEW_STATIC;__IDLIB__;__DOOM_DLL__;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib;..\..\JustForFun\RBDOOM-3-BFG\neo\libs\png;..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6;..\..\JustForFun\RBDOOM-3-BFG\neo\libs\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ResourceCompile>
+    <ResourceCompile />
     <Midl>
-      <AdditionalIncludeDirectories>..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib;..\..\JustForFun\RBDOOM-3-BFG\neo\libs\png;..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6;..\..\JustForFun\RBDOOM-3-BFG\neo\libs\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib;..\..\JustForFun\RBDOOM-3-BFG\neo\libs\png;..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6;..\..\JustForFun\RBDOOM-3-BFG\neo\libs\glew\include;..\..\JustForFun\RBDOOM-3-BFG\neo\.;..\..\JustForFun\RBDOOM-3-BFG\neo\idlib;C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\include;..\..\JustForFun\RBDOOM-3-BFG\neo\libs\ffmpeg-win64\include;..\..\JustForFun\RBDOOM-3-BFG\neo\libs\ffmpeg-win64\include\libswscale;..\..\JustForFun\RBDOOM-3-BFG\neo\libs\ffmpeg-win64\include\libavformat;..\..\JustForFun\RBDOOM-3-BFG\neo\libs\ffmpeg-win64\include\libavdevice;..\..\JustForFun\RBDOOM-3-BFG\neo\libs\ffmpeg-win64\include\libavcodec;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
       <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
-    <Lib>
+    <Link>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
-    </Lib>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <ProjectReference />
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -84,431 +90,521 @@
       <DebugInformationFormat>
       </DebugInformationFormat>
     </ClCompile>
-    <ResourceCompile>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;_MBCS;USE_EXCEPTIONS;USE_INTRINSICS;GLEW_STATIC;__IDLIB__;__DOOM_DLL__;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib;..\..\JustForFun\RBDOOM-3-BFG\neo\libs\png;..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6;..\..\JustForFun\RBDOOM-3-BFG\neo\libs\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ResourceCompile>
+    <ResourceCompile />
     <Midl>
-      <AdditionalIncludeDirectories>..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib;..\..\JustForFun\RBDOOM-3-BFG\neo\libs\png;..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6;..\..\JustForFun\RBDOOM-3-BFG\neo\libs\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib;..\..\JustForFun\RBDOOM-3-BFG\neo\libs\png;..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6;..\..\JustForFun\RBDOOM-3-BFG\neo\libs\glew\include;..\..\JustForFun\RBDOOM-3-BFG\neo\.;..\..\JustForFun\RBDOOM-3-BFG\neo\idlib;C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\include;..\..\JustForFun\RBDOOM-3-BFG\neo\libs\ffmpeg-win64\include;..\..\JustForFun\RBDOOM-3-BFG\neo\libs\ffmpeg-win64\include\libswscale;..\..\JustForFun\RBDOOM-3-BFG\neo\libs\ffmpeg-win64\include\libavformat;..\..\JustForFun\RBDOOM-3-BFG\neo\libs\ffmpeg-win64\include\libavdevice;..\..\JustForFun\RBDOOM-3-BFG\neo\libs\ffmpeg-win64\include\libavcodec;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
       <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
-    <Lib>
+    <Link>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
-    </Lib>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+    </Link>
+    <ProjectReference />
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Base64.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\BitMsg.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\CmdArgs.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\CommandLink.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Dict.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Heap.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\LangDict.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Lexer.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Lib.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\MapFile.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\ParallelJobList.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Parser.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\RectAllocator.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\SoftwareCache.cpp" />
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Str.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Thread.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Timer.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Token.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\precompiled.cpp">
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\Main.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\Precompiled.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\am_map.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\constructs.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\d_englsh.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\d_event.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\d_french.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\d_items.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\d_main.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\d_net.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\d_player.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\d_textur.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\d_think.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\d_ticcmd.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\defs.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\doomdata.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\doomdef.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\doominterface.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\doomlib.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\doomstat.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\doomtype.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\dstrings.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\f_finale.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\f_wipe.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\g_game.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\globaldata.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\hu_lib.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\hu_stuff.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\i_net.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\i_sound.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\i_system.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\i_video.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\info.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\m_argv.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\m_bbox.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\m_cheat.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\m_fixed.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\m_menu.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\m_misc.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\m_random.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\m_swap.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\p_inter.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\p_local.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\p_mobj.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\p_pspr.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\p_saveg.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\p_setup.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\p_spec.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\p_tick.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\r_bsp.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\r_data.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\r_defs.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\r_draw.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\r_local.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\r_main.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\r_plane.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\r_segs.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\r_sky.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\r_state.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\r_things.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\s_sound.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\sounds.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\st_lib.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\st_stuff.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\structs.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\tables.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\typedefs.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\v_video.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\vars.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\w_wad.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\wi_stuff.h" />
+    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\z_zone.h" />
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\Precompiled.cpp">
+      <ObjectFileName>$(IntDir)/H_/Coding/JustForFun/RBDOOM-3-BFG/doomclassic/doom/Precompiled.cpp.obj</ObjectFileName>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)$(TargetName).obj</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)$(TargetName).obj</ObjectFileName>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\bv\Bounds.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\am_map.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\bv\Box.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\d_items.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\bv\Sphere.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\d_main.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\HashIndex.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\d_net.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\DrawVert.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\doomdef.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\JointTransform.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\doominterface.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\RenderMatrix.cpp" />
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\Surface.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\doomlib.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\Surface_Patch.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\doomstat.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\Surface_Polytope.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\dstrings.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\Surface_SweptSpline.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\f_finale.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\TraceModel.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\f_wipe.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\Winding.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\g_game.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\Winding2D.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\globaldata.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\hashing\CRC32.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\hu_lib.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\hashing\MD4.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\hu_stuff.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\hashing\MD5.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\i_input.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Angles.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\i_main.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Complex.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\i_net.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Lcp.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\i_net_win32.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\MatX.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\i_system.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Math.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\i_video_ps3.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Matrix.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\info.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Ode.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\m_argv.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Plane.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\m_bbox.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Pluecker.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\m_cheat.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Polynomial.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\m_fixed.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Quat.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\m_menu.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Rotation.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\m_misc.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Simd.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\m_random.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Simd_Generic.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\m_swap.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Simd_SSE.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\mus2midi.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\VecX.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\p_ceilng.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Vector.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\p_doors.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\sys\sys_assert.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\p_enemy.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\sys\win32\win_thread.cpp">
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\p_floor.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Base64.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\BitMsg.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Callback.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\CmdArgs.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\DataQueue.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Dict.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Heap.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\LangDict.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Lexer.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Lib.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\MapFile.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\ParallelJobList.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\ParallelJobList_JobHeaders.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Parser.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\SoftwareCache.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Str.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\StrStatic.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Swap.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Thread.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Timer.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\Token.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\precompiled.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\bv\Bounds.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\bv\Box.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\bv\Sphere.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\Array.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\BTree.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\BinSearch.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\HashIndex.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\HashTable.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\Hierarchy.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\LinkList.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\List.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\PlaneSet.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\Queue.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\Sort.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\Stack.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\StaticList.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\StrList.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\StrPool.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\containers\VectorSet.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\DrawVert.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\DrawVert_intrinsics.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\JointTransform.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\RenderMatrix.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\Surface.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\Surface_Patch.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\Surface_Polytope.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\Surface_SweptSpline.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\TraceModel.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\Winding.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\geometry\Winding2D.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\hashing\CRC32.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\hashing\MD4.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\hashing\MD5.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Angles.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Complex.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Curve.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Extrapolate.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Interpolate.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Lcp.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\MatX.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Math.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Matrix.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Ode.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Plane.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Pluecker.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Polynomial.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Quat.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Random.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Rotation.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Simd.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Simd_Generic.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Simd_SSE.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\VecX.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\Vector.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\math\VectorI.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\sys\sys_alloc_tags.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\sys\sys_assert.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\sys\sys_builddefines.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\sys\sys_defines.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\sys\sys_filesystem.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\sys\sys_includes.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\sys\sys_intrinsics.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\sys\sys_threading.h" />
-    <ClInclude Include="..\..\JustForFun\RBDOOM-3-BFG\neo\idlib\sys\sys_types.h" />
-  </ItemGroup>
-  <ItemGroup>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\p_inter.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\p_lights.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\p_map.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\p_maputl.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\p_mobj.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\p_plats.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\p_pspr.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\p_saveg.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\p_setup.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\p_sight.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\p_spec.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\p_switch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\p_telept.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\p_tick.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\p_user.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\r_bsp.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\r_data.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\r_draw.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\r_main.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\r_plane.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\r_segs.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\r_sky.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\r_things.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\s_sound.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\sounds.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\st_lib.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\st_stuff.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\tables.cpp">
+      <ObjectFileName>$(IntDir)/H_/Coding/JustForFun/RBDOOM-3-BFG/doomclassic/doom/tables.cpp.obj</ObjectFileName>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\v_video.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\w_wad.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\wi_stuff.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\z_zone.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\doomclassic\doom\i_sound_win32.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
