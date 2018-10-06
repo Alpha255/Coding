@@ -3,7 +3,7 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IntDir>$(SolutionDir)Intermediate\RBDoom3BFG\$(ProjectName)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)Intermediate\$(ProjectName)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)Application\RBDoom3BFG\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup>

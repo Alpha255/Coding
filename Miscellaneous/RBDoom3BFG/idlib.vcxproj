@@ -72,15 +72,21 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
+      <AdditionalIncludeDirectories>..\..\JustForFun\RBDOOM-3-BFG\neo\libs\zlib;..\..\JustForFun\RBDOOM-3-BFG\neo\libs\png;..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6;..\..\JustForFun\RBDOOM-3-BFG\neo\libs\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Release/</AssemblerListingLocation>
       <CompileAs>CompileAsCpp</CompileAs>
       <ExceptionHandling>Sync</ExceptionHandling>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <OmitFramePointers>true</OmitFramePointers>
       <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;_MBCS;USE_EXCEPTIONS;USE_INTRINSICS;GLEW_STATIC;__IDLIB__;__DOOM_DLL__;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
       <DebugInformationFormat>
       </DebugInformationFormat>
     </ClCompile>
