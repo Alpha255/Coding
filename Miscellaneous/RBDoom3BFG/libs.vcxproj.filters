@@ -142,6 +142,9 @@
     <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\jpeg-6\jutils.cpp">
       <Filter>libs\jpeg-6</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\png\example.c">
+      <Filter>libs\png</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\png\png.c">
       <Filter>libs\png</Filter>
     </ClCompile>
@@ -176,6 +179,9 @@
       <Filter>libs\png</Filter>
     </ClCompile>
     <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\png\pngtrans.c">
+      <Filter>libs\png</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\png\pngvcrd.c">
       <Filter>libs\png</Filter>
     </ClCompile>
     <ClCompile Include="..\..\JustForFun\RBDOOM-3-BFG\neo\libs\png\pngwio.c">
