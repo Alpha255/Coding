@@ -1,11 +1,11 @@
 $$HeaderBegin
 #pragma once
 
-#include "D3DApp.h"
+#include "RenderApp.h"
 #include "D3DGeometry.h"
 #include "D3DView.h"
 
-class App$$REPLACE : public D3DApp
+class App$$REPLACE : public RenderApp
 {
 public:
 	App$$REPLACE() = default;
@@ -22,7 +22,7 @@ $$CppBegin
 #include "$$REPLACE.h"
 #include "Camera.h"
 #include "D3DEngine.h"
-#include "D3DGUI_imGui.h"
+#include "ImGui.h"
 
 void App$$REPLACE::Initialize()
 {
