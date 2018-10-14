@@ -48,6 +48,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{7E32
 		Application\Resource\Shaders\Mesh.hlsl = Application\Resource\Shaders\Mesh.hlsl
 		Application\Resource\Shaders\MultithreadedRendering.hlsl = Application\Resource\Shaders\MultithreadedRendering.hlsl
 		Application\Resource\Shaders\ParallaxMapping.hlsl = Application\Resource\Shaders\ParallaxMapping.hlsl
+		Application\Resource\Shaders\RayCast.hlsl = Application\Resource\Shaders\RayCast.hlsl
 		Application\Resource\Shaders\Shadow.hlsl = Application\Resource\Shaders\Shadow.hlsl
 		Application\Resource\Shaders\SkyBox.hlsl = Application\Resource\Shaders\SkyBox.hlsl
 		Application\Resource\Shaders\TurnOnTheLight.hlsli = Application\Resource\Shaders\TurnOnTheLight.hlsli
@@ -94,6 +95,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MarioGame", "MarioGame", "{C0CCF068-3CF6-4FC6-B599-598D4728594A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MarioLib", "Miscellaneous\MarioLib.vcxproj", "{61989F8A-A0AE-4859-A99A-B2CF824857AD}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RayCast", "Miscellaneous\RayCast.vcxproj", "{A5574C6D-12D5-460C-8A36-4B8AD9EF52C2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -380,6 +383,18 @@ Global
 		{61989F8A-A0AE-4859-A99A-B2CF824857AD}.Release|x64.Build.0 = Release|x64
 		{61989F8A-A0AE-4859-A99A-B2CF824857AD}.Release|x86.ActiveCfg = Release|Win32
 		{61989F8A-A0AE-4859-A99A-B2CF824857AD}.Release|x86.Build.0 = Release|Win32
+		{A5574C6D-12D5-460C-8A36-4B8AD9EF52C2}.Debug|x64.ActiveCfg = Debug|x64
+		{A5574C6D-12D5-460C-8A36-4B8AD9EF52C2}.Debug|x64.Build.0 = Debug|x64
+		{A5574C6D-12D5-460C-8A36-4B8AD9EF52C2}.Debug|x86.ActiveCfg = Debug|Win32
+		{A5574C6D-12D5-460C-8A36-4B8AD9EF52C2}.Debug|x86.Build.0 = Debug|Win32
+		{A5574C6D-12D5-460C-8A36-4B8AD9EF52C2}.Profile|x64.ActiveCfg = Release|x64
+		{A5574C6D-12D5-460C-8A36-4B8AD9EF52C2}.Profile|x64.Build.0 = Release|x64
+		{A5574C6D-12D5-460C-8A36-4B8AD9EF52C2}.Profile|x86.ActiveCfg = Release|Win32
+		{A5574C6D-12D5-460C-8A36-4B8AD9EF52C2}.Profile|x86.Build.0 = Release|Win32
+		{A5574C6D-12D5-460C-8A36-4B8AD9EF52C2}.Release|x64.ActiveCfg = Release|x64
+		{A5574C6D-12D5-460C-8A36-4B8AD9EF52C2}.Release|x64.Build.0 = Release|x64
+		{A5574C6D-12D5-460C-8A36-4B8AD9EF52C2}.Release|x86.ActiveCfg = Release|Win32
+		{A5574C6D-12D5-460C-8A36-4B8AD9EF52C2}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -411,5 +426,6 @@ Global
 		{B12702AD-ABFB-343A-A199-8E24837244A3} = {C0CCF068-3CF6-4FC6-B599-598D4728594A}
 		{C0CCF068-3CF6-4FC6-B599-598D4728594A} = {C7E6F089-4A86-4550-9D1C-DDBDA610A4F9}
 		{61989F8A-A0AE-4859-A99A-B2CF824857AD} = {C0CCF068-3CF6-4FC6-B599-598D4728594A}
+		{A5574C6D-12D5-460C-8A36-4B8AD9EF52C2} = {8A14800A-8442-4CBA-AECB-4E3D586913F7}
 	EndGlobalSection
 EndGlobal

@@ -127,6 +127,32 @@ public:
 		return Vec3(left.x * scale, left.y * scale, left.z * scale);
 	}
 
+	static inline Vec3 Min(const Vec3 &left, const Vec3 &right)
+	{
+		DirectX::XMVECTOR vLeft = DirectX::XMLoadFloat3(&left);
+		DirectX::XMVECTOR vRight = DirectX::XMLoadFloat3(&right);
+
+		DirectX::XMVECTOR vMin = DirectX::XMVectorMin(vLeft, vRight);
+
+		Vec3 result;
+		DirectX::XMStoreFloat3(&result, vMin);
+
+		return result;
+	}
+
+	static inline Vec3 Max(const Vec3 &left, const Vec3 &right)
+	{
+		DirectX::XMVECTOR vLeft = DirectX::XMLoadFloat3(&left);
+		DirectX::XMVECTOR vRight = DirectX::XMLoadFloat3(&right);
+
+		DirectX::XMVECTOR vMax = DirectX::XMVectorMax(vLeft, vRight);
+
+		Vec3 result;
+		DirectX::XMStoreFloat3(&result, vMax);
+
+		return result;
+	}
+
 	inline static Vec3 Cross(const Vec3 &v0, const Vec3 &v1)
 	{
 		DirectX::XMVECTOR xv0 = DirectX::XMLoadFloat3(&v0);
@@ -226,23 +252,18 @@ public:
 		return result;
 	}
 
-	///inline void Transform(const class Matrix& matrix)
-	///{
-	///	DirectX::XMVECTOR srcVec = DirectX::XMVectorSet(x, y, z, w);
-	///
-	///	DirectX::XMVECTOR result = DirectX::XMVector3Transform(srcVec, matrix);
-	///
-	///	memcpy(this, &result, sizeof(DirectX::XMVECTOR));
-	///}
-	///
-	///inline void TransformNormal(const class Matrix& matrix)
-	///{
-	///	DirectX::XMVECTOR srcVec = DirectX::XMVectorSet(x, y, z, w);
-	///
-	///	DirectX::XMVECTOR result = DirectX::XMVector3TransformNormal(srcVec, matrix);
-	///
-	///	memcpy(this, &result, sizeof(DirectX::XMVECTOR));
-	///}
+	inline void Normalize()
+	{
+		DirectX::XMVECTOR tmp = DirectX::XMLoadFloat4(this);
+
+		DirectX::XMVECTOR normalized = DirectX::XMVector4Normalize(tmp);
+
+		DirectX::XMStoreFloat4(this, normalized);
+	}
+
+	void TransformCoord(const class Matrix& matrix);
+	
+	void TransformNormal(const class Matrix& matrix);
 };
 
 class Matrix : public DirectX::XMFLOAT4X4A
