@@ -162,16 +162,171 @@ void AppRayCast::MouseButtonDown(::WPARAM wParam, int32_t x, int32_t y)
 
 bool AppRayCast::IsIntersectRayAxisAlignedBox(const Vec4 &origin, const Vec4 &dir, float &min)
 {
-	Vec4 vEpsilon(1e-20f, 1e-20f, 1e-20f, 1e-20f);
-	Vec4 vFloatMin(-FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX);
-	Vec4 vFloatMax(FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX);
+	Math::XMVECTOR vEpsilon
+	{
+		1e-20f, 1e-20f, 1e-20f, 1e-20f
+	};
+	Math::XMVECTOR vFloatMin =
+	{
+		-FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX
+	};
+	Math::XMVECTOR vFloatMax =
+	{
+		FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX
+	};
+
+	Math::XMVECTOR vCenter = Math::XMLoadFloat3(&m_MeshBox.Center);
+	Math::XMVECTOR vExtents = Math::XMLoadFloat3(&m_MeshBox.Extents);
+	Math::XMVECTOR vOrigin = Math::XMLoadFloat4(&origin);
 
 	/// Adjust ray origin to be relative to center of the box.
+	Math::XMVECTOR axisOrigin = Math::XMVectorSubtract(vCenter, vOrigin);
+
+	/// Compute the dot product againt each axis of the box.
+	/// Since the axii are (1,0,0), (0,1,0), (0,0,1) no computation is necessary.
+	Math::XMVECTOR axisDir = Math::XMLoadFloat4(&dir);
+
+	/// if (fabs(AxisDotDirection) <= Epsilon) the ray is nearly parallel to the slab.
+	Math::XMVECTOR isParallel = Math::XMVectorLessOrEqual(Math::XMVectorAbs(axisDir), vEpsilon);
+
+	/// Test against all three axii simultaneously.
+	Math::XMVECTOR inverseAxisDotDir = Math::XMVectorReciprocal(axisDir);
+	Math::XMVECTOR t1 = Math::XMVectorMultiply(Math::XMVectorSubtract(axisOrigin, vExtents), inverseAxisDotDir);
+	Math::XMVECTOR t2 = Math::XMVectorMultiply(Math::XMVectorAdd(axisOrigin, vExtents), inverseAxisDotDir);
+
+	/// Compute the max of min(t1,t2) and the min of max(t1,t2) ensuring we don't
+	/// use the results from any directions parallel to the slab.
+	Math::XMVECTOR t_min = Math::XMVectorSelect(Math::XMVectorMin(t1, t2), vFloatMin, isParallel);
+	Math::XMVECTOR t_max = Math::XMVectorSelect(Math::XMVectorMax(t1, t2), vFloatMax, isParallel);
+
+	t_min = Math::XMVectorMax(t_min, Math::XMVectorSplatY(t_min));
+	t_min = Math::XMVectorMax(t_min, Math::XMVectorSplatZ(t_min));
+	t_max = Math::XMVectorMin(t_max, Math::XMVectorSplatY(t_max));
+	t_max = Math::XMVectorMin(t_max, Math::XMVectorSplatZ(t_max));
+
+	/// if ( t_min > t_max ) return FALSE;
+	Math::XMVECTOR noIntersection = Math::XMVectorGreater(Math::XMVectorSplatX(t_min), Math::XMVectorSplatX(t_max));
+
+	/// if ( t_max < 0.0f ) return FALSE;
+	noIntersection = Math::XMVectorOrInt(noIntersection, Math::XMVectorLess(Math::XMVectorSplatX(t_max), Math::XMVectorZero()));
+
+	/// if (IsParallel && (-Extents > AxisDotOrigin || Extents < AxisDotOrigin)) return FALSE;
+	Math::XMVECTOR parallelOverlap = Math::XMVectorInBounds(axisOrigin, vExtents);
+	noIntersection = Math::XMVectorOrInt(noIntersection, Math::XMVectorAndCInt(isParallel, parallelOverlap));
+
+	if (!Math::Internal::XMVector3AnyTrue(noIntersection))
+	{
+		/// Store the x-component to *pDist
+		Math::XMStoreFloat(&min, t_min);
+	}
 
 	return false;
 }
 
 bool AppRayCast::IsIntersectRayTriangle(const Vec4 &origin, const Vec4 &dir, const Vec3 &v0, const Vec3 &v1, const Vec3 &v2, float &min)
 {
-	return false;
+	Math::XMVECTOR Epsilon =
+	{
+		1e-20f, 1e-20f, 1e-20f, 1e-20f
+	};
+
+	Math::XMVECTOR negEpsilon = 
+	{
+		-1e-20f, -1e-20f, -1e-20f, -1e-20f
+	};
+
+	Math::XMVECTOR Zero = Math::XMVectorZero();
+	Math::XMVECTOR V0 = Math::XMLoadFloat3(&v0);
+	Math::XMVECTOR V1 = Math::XMLoadFloat3(&v1);
+	Math::XMVECTOR V2 = Math::XMLoadFloat3(&v2);
+	Math::XMVECTOR Direction = Math::XMLoadFloat4(&dir);
+	Math::XMVECTOR Origin = Math::XMLoadFloat4(&origin);
+
+	Math::XMVECTOR e1 = Math::XMVectorSubtract(V1, V0);
+	Math::XMVECTOR e2 = Math::XMVectorSubtract(V2, V0);
+
+	/// p = Direction ^ e2;
+	Math::XMVECTOR p = Math::XMVector3Cross(Direction, e2);
+
+	/// det = e1 * p;
+	Math::XMVECTOR det = Math::XMVector3Dot(e1, p);
+
+	Math::XMVECTOR u, v, t;
+
+	if (Math::XMVector3GreaterOrEqual(det, Epsilon))
+	{
+		/// Determinate is positive (front side of the triangle).
+		Math::XMVECTOR s = Math::XMVectorSubtract(Origin, V0);
+
+		/// u = s * p;
+		u = Math::XMVector3Dot(s, p);
+
+		Math::XMVECTOR NoIntersection = Math::XMVectorLess(u, Zero);
+		NoIntersection = Math::XMVectorOrInt(NoIntersection, Math::XMVectorGreater(u, det));
+
+		/// q = s ^ e1;
+		Math::XMVECTOR q = Math::XMVector3Cross(s, e1);
+
+		/// v = Direction * q;
+		v = Math::XMVector3Dot(Direction, q);
+
+		NoIntersection = Math::XMVectorOrInt(NoIntersection, Math::XMVectorLess(v, Zero));
+		NoIntersection = Math::XMVectorOrInt(NoIntersection, Math::XMVectorGreater(Math::XMVectorAdd(u, v), det));
+
+		/// t = e2 * q;
+		t = Math::XMVector3Dot(e2, q);
+
+		NoIntersection = Math::XMVectorOrInt(NoIntersection, Math::XMVectorLess(t, Zero));
+
+		if (Math::XMVector4EqualInt(NoIntersection, Math::XMVectorTrueInt()))
+		{
+			return false;
+		}
+	}
+	else if (Math::XMVector3LessOrEqual(det, negEpsilon))
+	{
+		/// Determinate is negative (back side of the triangle).
+		Math::XMVECTOR s = Math::XMVectorSubtract(Origin, V0);
+
+		/// u = s * p;
+		u = Math::XMVector3Dot(s, p);
+
+		Math::XMVECTOR NoIntersection = Math::XMVectorGreater(u, Zero);
+		NoIntersection = Math::XMVectorOrInt(NoIntersection, Math::XMVectorLess(u, det));
+
+		/// q = s ^ e1;
+		Math::XMVECTOR q = Math::XMVector3Cross(s, e1);
+
+		/// v = Direction * q;
+		v = Math::XMVector3Dot(Direction, q);
+
+		NoIntersection = Math::XMVectorOrInt(NoIntersection, Math::XMVectorGreater(v, Zero));
+		NoIntersection = Math::XMVectorOrInt(NoIntersection, Math::XMVectorLess(Math::XMVectorAdd(u, v), det));
+
+		/// t = e2 * q;
+		t = Math::XMVector3Dot(e2, q);
+
+		NoIntersection = Math::XMVectorOrInt(NoIntersection, Math::XMVectorGreater(t, Zero));
+
+		if (Math::XMVector4EqualInt(NoIntersection, Math::XMVectorTrueInt()))
+		{
+			return false;
+		}
+	}
+	else
+	{
+		/// Parallel ray.
+		return false;
+	}
+
+	Math::XMVECTOR inv_det = Math::XMVectorReciprocal(det);
+
+	t = Math::XMVectorMultiply(t, inv_det);
+
+	/// u * inv_det and v * inv_det are the barycentric cooridinates of the intersection.
+
+	/// Store the x-component to *pDist
+	Math::XMStoreFloat(&min, t);
+
+	return true;
 }
