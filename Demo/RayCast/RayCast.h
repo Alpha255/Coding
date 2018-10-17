@@ -28,10 +28,16 @@ protected:
 		Vec2 UV;
 	};
 
+	struct ConstantsBuffer
+	{
+		Matrix WVP;
+		Vec4 Color;
+	};
+
 	void Pick(int32_t x, int32_t y);
 	void LoadMesh();
-	bool IsIntersectRayAxisAlignedBox(const Vec4 &origin, const Vec4 &dir, float &min);
-	bool IsIntersectRayTriangle(const Vec4 &origin, const Vec4 &dir, const Vec3 &v0, const Vec3 &v1, const Vec3 &v2, float &min);
+	bool IsIntersectRayAxisAlignedBox(const Math::XMVECTOR &vOrigin, const Math::XMVECTOR &vDir, float &min);
+	bool IsIntersectRayTriangle(const Math::XMVECTOR &vOrigin, const Math::XMVECTOR &vDir, const Vec3 &v0, const Vec3 &v1, const Vec3 &v2, float &min);
 private:
 	D3DVertexShader m_VertexShader;
 	D3DPixelShader m_PixelShader;

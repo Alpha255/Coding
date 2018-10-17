@@ -18,8 +18,15 @@ void AppRayCast::LoadMesh()
 	meshFile >> ignore >> indexCount;
 	meshFile >> ignore >> ignore >> ignore >> ignore;
 
-	Vec3 vMin(FLT_MAX, FLT_MAX, FLT_MAX);
-	Vec3 vMax(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+	Math::XMVECTOR vMin = 
+	{
+		FLT_MAX, FLT_MAX, FLT_MAX
+	};
+
+	Math::XMVECTOR vMax = 
+	{
+		-FLT_MAX, -FLT_MAX, -FLT_MAX
+	};
 
 	m_Verties.resize(vertexCount);
 	for (uint32_t i = 0U; i < vertexCount; ++i)
@@ -27,12 +34,16 @@ void AppRayCast::LoadMesh()
 		meshFile >> m_Verties[i].Pos.x >> m_Verties[i].Pos.y >> m_Verties[i].Pos.z;
 		meshFile >> m_Verties[i].Normal.x >> m_Verties[i].Normal.y >> m_Verties[i].Normal.z;
 
-		vMin = Vec3::Min(vMin, m_Verties[i].Pos);
-		vMax = Vec3::Max(vMax, m_Verties[i].Pos);
+		Math::XMVECTOR vPos = Math::XMLoadFloat3(&m_Verties[i].Pos);
+
+		vMin = Math::XMVectorMin(vMin, vPos);
+		vMax = Math::XMVectorMax(vMax, vPos);
 	}
 
-	m_MeshBox.Center = (vMax + vMin) * 0.5f;
-	m_MeshBox.Extents = (vMax - vMin) * 0.5f;
+	Math::XMStoreFloat3(&m_MeshBox.Center, Math::XMVectorAdd(vMax, vMin));
+	m_MeshBox.Center *= 0.5f;
+	Math::XMStoreFloat3(&m_MeshBox.Extents, Math::XMVectorSubtract(vMax, vMin));
+	m_MeshBox.Extents *= 0.5f;
 
 	meshFile >> ignore;
 	meshFile >> ignore;
@@ -56,7 +67,7 @@ void AppRayCast::Initialize()
 	m_VertexShader.Create("RayCast.hlsl", "VSMain");
 	m_PixelShader.Create("RayCast.hlsl", "PSMain");
 
-	m_ConstantBuffer.CreateAsConstantBuffer(sizeof(Matrix), D3DBuffer::eGpuReadCpuWrite);
+	m_ConstantBuffer.CreateAsConstantBuffer(sizeof(ConstantsBuffer), D3DBuffer::eGpuReadCpuWrite);
 
 	const D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
@@ -69,6 +80,8 @@ void AppRayCast::Initialize()
 
 void AppRayCast::RenderScene()
 {
+	static ConstantsBuffer CBuffer;
+
     D3DEngine::Instance().ResetDefaultRenderSurfaces();
     D3DEngine::Instance().SetViewport(D3DViewport(0.0f, 0.0f, (float)m_Width, (float)m_Height));
 
@@ -81,11 +94,27 @@ void AppRayCast::RenderScene()
 
 	D3DEngine::Instance().SetRasterizerState(D3DStaticState::Wireframe);
 
-	Matrix wvp = Matrix::Transpose(m_Camera->GetWVPMatrix());
-	m_ConstantBuffer.Update(&wvp, sizeof(Matrix));
+	CBuffer.WVP = Matrix::Transpose(m_Camera->GetWVPMatrix());
+	CBuffer.Color = Color::White;
+	m_ConstantBuffer.Update(&CBuffer, sizeof(ConstantsBuffer));
 	D3DEngine::Instance().SetConstantBuffer(m_ConstantBuffer, 0U, D3DShader::eVertexShader);
+	D3DEngine::Instance().SetConstantBuffer(m_ConstantBuffer, 0U, D3DShader::ePixelShader);
 
 	D3DEngine::Instance().DrawIndexed((uint32_t)m_Indices.size(), 0U, 0, eTriangleList);
+
+	if (m_PickedTriangleIndex != UINT_MAX)
+	{
+		CBuffer.Color = Color::Red;
+		m_ConstantBuffer.Update(&CBuffer, sizeof(ConstantsBuffer));
+
+		D3DEngine::Instance().SetRasterizerState(D3DStaticState::Solid);
+
+		/// Change depth test from < to <= so that if we draw the same triangle twice, it will still pass
+		/// the depth test.  This is because we redraw the picked triangle with a different material
+		/// to highlight it.
+
+		D3DEngine::Instance().DrawIndexed(3U, 3U * m_PickedTriangleIndex, 0, eTriangleList);
+	}
 }
 
 void AppRayCast::Pick(int32_t x, int32_t y)
@@ -97,8 +126,14 @@ void AppRayCast::Pick(int32_t x, int32_t y)
 	float vy = (-2.0f * y / m_Height + 1.0f) / proj.m[1][1];
 
 	/// Ray definition in view space.
-	Vec4 rayOrigin(0.0f, 0.0f, 0.0f, 1.0f);
-	Vec4 rayDir(vx, vy, 1.0f, 0.0f);
+	Math::XMVECTOR vRayOrigin = 
+	{
+		0.0f, 0.0f, 0.0f, 1.0f
+	};
+	Math::XMVECTOR vRayDir = 
+	{
+		vx, vy, 1.0f, 0.0f 
+	};
 
 	/// Tranform ray to local space of Mesh.
 	Matrix view = m_Camera->GetViewMatrix();
@@ -109,11 +144,11 @@ void AppRayCast::Pick(int32_t x, int32_t y)
 
 	Matrix toLocal = view * world;
 
-	rayOrigin.TransformCoord(toLocal);
-	rayDir.TransformNormal(toLocal);
+	vRayOrigin = Math::XMVector3TransformCoord(vRayOrigin, *(Math::XMMATRIX *)&toLocal);
+	vRayDir = Math::XMVector3TransformNormal(vRayDir, *(Math::XMMATRIX *)&toLocal);
 
 	/// Make the ray direction unit length for the intersection tests.
-	rayDir.Normalize();
+	vRayDir = Math::XMVector3Normalize(vRayDir);
 
 	/// If we hit the bounding box of the Mesh, then we might have picked a Mesh triangle,
 	/// so do the ray/triangle tests.
@@ -123,7 +158,7 @@ void AppRayCast::Pick(int32_t x, int32_t y)
 	/// Assume we have not picked anything yet, so init to -1.
 	m_PickedTriangleIndex = UINT_MAX;
 	float tmin0 = 0.0f;
-	if (!IsIntersectRayAxisAlignedBox(rayOrigin, rayDir, tmin0))
+	if (!IsIntersectRayAxisAlignedBox(vRayOrigin, vRayDir, tmin0))
 	{
 		return;
 	}
@@ -138,7 +173,7 @@ void AppRayCast::Pick(int32_t x, int32_t y)
 		Vec3 v2 = m_Verties[m_Indices[i * 3 + 2]].Pos;
 
 		float tmin1 = FLT_MAX;
-		if (IsIntersectRayTriangle(rayOrigin, rayDir, v0, v1, v2, tmin1))
+		if (IsIntersectRayTriangle(vRayOrigin, vRayDir, v0, v1, v2, tmin1))
 		{
 			if (tmin1 < tmin0)
 			{
@@ -160,7 +195,7 @@ void AppRayCast::MouseButtonDown(::WPARAM wParam, int32_t x, int32_t y)
 	}
 }
 
-bool AppRayCast::IsIntersectRayAxisAlignedBox(const Vec4 &origin, const Vec4 &dir, float &min)
+bool AppRayCast::IsIntersectRayAxisAlignedBox(const Math::XMVECTOR &vOrigin, const Math::XMVECTOR &vDir, float &min)
 {
 	Math::XMVECTOR vEpsilon
 	{
@@ -177,27 +212,24 @@ bool AppRayCast::IsIntersectRayAxisAlignedBox(const Vec4 &origin, const Vec4 &di
 
 	Math::XMVECTOR vCenter = Math::XMLoadFloat3(&m_MeshBox.Center);
 	Math::XMVECTOR vExtents = Math::XMLoadFloat3(&m_MeshBox.Extents);
-	Math::XMVECTOR vOrigin = Math::XMLoadFloat4(&origin);
 
 	/// Adjust ray origin to be relative to center of the box.
-	Math::XMVECTOR axisOrigin = Math::XMVectorSubtract(vCenter, vOrigin);
+	Math::XMVECTOR vAxisOrigin = Math::XMVectorSubtract(vCenter, vOrigin);
 
 	/// Compute the dot product againt each axis of the box.
 	/// Since the axii are (1,0,0), (0,1,0), (0,0,1) no computation is necessary.
-	Math::XMVECTOR axisDir = Math::XMLoadFloat4(&dir);
-
 	/// if (fabs(AxisDotDirection) <= Epsilon) the ray is nearly parallel to the slab.
-	Math::XMVECTOR isParallel = Math::XMVectorLessOrEqual(Math::XMVectorAbs(axisDir), vEpsilon);
+	Math::XMVECTOR vParallel = Math::XMVectorLessOrEqual(Math::XMVectorAbs(vDir), vEpsilon);
 
 	/// Test against all three axii simultaneously.
-	Math::XMVECTOR inverseAxisDotDir = Math::XMVectorReciprocal(axisDir);
-	Math::XMVECTOR t1 = Math::XMVectorMultiply(Math::XMVectorSubtract(axisOrigin, vExtents), inverseAxisDotDir);
-	Math::XMVECTOR t2 = Math::XMVectorMultiply(Math::XMVectorAdd(axisOrigin, vExtents), inverseAxisDotDir);
+	Math::XMVECTOR inverseAxisDotDir = Math::XMVectorReciprocal(vDir);
+	Math::XMVECTOR t1 = Math::XMVectorMultiply(Math::XMVectorSubtract(vAxisOrigin, vExtents), inverseAxisDotDir);
+	Math::XMVECTOR t2 = Math::XMVectorMultiply(Math::XMVectorAdd(vAxisOrigin, vExtents), inverseAxisDotDir);
 
 	/// Compute the max of min(t1,t2) and the min of max(t1,t2) ensuring we don't
 	/// use the results from any directions parallel to the slab.
-	Math::XMVECTOR t_min = Math::XMVectorSelect(Math::XMVectorMin(t1, t2), vFloatMin, isParallel);
-	Math::XMVECTOR t_max = Math::XMVectorSelect(Math::XMVectorMax(t1, t2), vFloatMax, isParallel);
+	Math::XMVECTOR t_min = Math::XMVectorSelect(Math::XMVectorMin(t1, t2), vFloatMin, vParallel);
+	Math::XMVECTOR t_max = Math::XMVectorSelect(Math::XMVectorMax(t1, t2), vFloatMax, vParallel);
 
 	t_min = Math::XMVectorMax(t_min, Math::XMVectorSplatY(t_min));
 	t_min = Math::XMVectorMax(t_min, Math::XMVectorSplatZ(t_min));
@@ -205,25 +237,26 @@ bool AppRayCast::IsIntersectRayAxisAlignedBox(const Vec4 &origin, const Vec4 &di
 	t_max = Math::XMVectorMin(t_max, Math::XMVectorSplatZ(t_max));
 
 	/// if ( t_min > t_max ) return FALSE;
-	Math::XMVECTOR noIntersection = Math::XMVectorGreater(Math::XMVectorSplatX(t_min), Math::XMVectorSplatX(t_max));
+	Math::XMVECTOR vNoIntersection = Math::XMVectorGreater(Math::XMVectorSplatX(t_min), Math::XMVectorSplatX(t_max));
 
 	/// if ( t_max < 0.0f ) return FALSE;
-	noIntersection = Math::XMVectorOrInt(noIntersection, Math::XMVectorLess(Math::XMVectorSplatX(t_max), Math::XMVectorZero()));
+	vNoIntersection = Math::XMVectorOrInt(vNoIntersection, Math::XMVectorLess(Math::XMVectorSplatX(t_max), Math::XMVectorZero()));
 
 	/// if (IsParallel && (-Extents > AxisDotOrigin || Extents < AxisDotOrigin)) return FALSE;
-	Math::XMVECTOR parallelOverlap = Math::XMVectorInBounds(axisOrigin, vExtents);
-	noIntersection = Math::XMVectorOrInt(noIntersection, Math::XMVectorAndCInt(isParallel, parallelOverlap));
+	Math::XMVECTOR vParallelOverlap = Math::XMVectorInBounds(vAxisOrigin, vExtents);
+	vNoIntersection = Math::XMVectorOrInt(vNoIntersection, Math::XMVectorAndCInt(vParallel, vParallelOverlap));
 
-	if (!Math::Internal::XMVector3AnyTrue(noIntersection))
+	if (!Math::Internal::XMVector3AnyTrue(vNoIntersection))
 	{
 		/// Store the x-component to *pDist
 		Math::XMStoreFloat(&min, t_min);
+		return true;
 	}
 
 	return false;
 }
 
-bool AppRayCast::IsIntersectRayTriangle(const Vec4 &origin, const Vec4 &dir, const Vec3 &v0, const Vec3 &v1, const Vec3 &v2, float &min)
+bool AppRayCast::IsIntersectRayTriangle(const Math::XMVECTOR &vOrigin, const Math::XMVECTOR &vDir, const Vec3 &v0, const Vec3 &v1, const Vec3 &v2, float &min)
 {
 	Math::XMVECTOR Epsilon =
 	{
@@ -239,14 +272,12 @@ bool AppRayCast::IsIntersectRayTriangle(const Vec4 &origin, const Vec4 &dir, con
 	Math::XMVECTOR V0 = Math::XMLoadFloat3(&v0);
 	Math::XMVECTOR V1 = Math::XMLoadFloat3(&v1);
 	Math::XMVECTOR V2 = Math::XMLoadFloat3(&v2);
-	Math::XMVECTOR Direction = Math::XMLoadFloat4(&dir);
-	Math::XMVECTOR Origin = Math::XMLoadFloat4(&origin);
 
 	Math::XMVECTOR e1 = Math::XMVectorSubtract(V1, V0);
 	Math::XMVECTOR e2 = Math::XMVectorSubtract(V2, V0);
 
 	/// p = Direction ^ e2;
-	Math::XMVECTOR p = Math::XMVector3Cross(Direction, e2);
+	Math::XMVECTOR p = Math::XMVector3Cross(vDir, e2);
 
 	/// det = e1 * p;
 	Math::XMVECTOR det = Math::XMVector3Dot(e1, p);
@@ -256,7 +287,7 @@ bool AppRayCast::IsIntersectRayTriangle(const Vec4 &origin, const Vec4 &dir, con
 	if (Math::XMVector3GreaterOrEqual(det, Epsilon))
 	{
 		/// Determinate is positive (front side of the triangle).
-		Math::XMVECTOR s = Math::XMVectorSubtract(Origin, V0);
+		Math::XMVECTOR s = Math::XMVectorSubtract(vOrigin, V0);
 
 		/// u = s * p;
 		u = Math::XMVector3Dot(s, p);
@@ -268,7 +299,7 @@ bool AppRayCast::IsIntersectRayTriangle(const Vec4 &origin, const Vec4 &dir, con
 		Math::XMVECTOR q = Math::XMVector3Cross(s, e1);
 
 		/// v = Direction * q;
-		v = Math::XMVector3Dot(Direction, q);
+		v = Math::XMVector3Dot(vDir, q);
 
 		NoIntersection = Math::XMVectorOrInt(NoIntersection, Math::XMVectorLess(v, Zero));
 		NoIntersection = Math::XMVectorOrInt(NoIntersection, Math::XMVectorGreater(Math::XMVectorAdd(u, v), det));
@@ -286,7 +317,7 @@ bool AppRayCast::IsIntersectRayTriangle(const Vec4 &origin, const Vec4 &dir, con
 	else if (Math::XMVector3LessOrEqual(det, negEpsilon))
 	{
 		/// Determinate is negative (back side of the triangle).
-		Math::XMVECTOR s = Math::XMVectorSubtract(Origin, V0);
+		Math::XMVECTOR s = Math::XMVectorSubtract(vOrigin, V0);
 
 		/// u = s * p;
 		u = Math::XMVector3Dot(s, p);
@@ -298,7 +329,7 @@ bool AppRayCast::IsIntersectRayTriangle(const Vec4 &origin, const Vec4 &dir, con
 		Math::XMVECTOR q = Math::XMVector3Cross(s, e1);
 
 		/// v = Direction * q;
-		v = Math::XMVector3Dot(Direction, q);
+		v = Math::XMVector3Dot(vDir, q);
 
 		NoIntersection = Math::XMVectorOrInt(NoIntersection, Math::XMVectorGreater(v, Zero));
 		NoIntersection = Math::XMVectorOrInt(NoIntersection, Math::XMVectorLess(Math::XMVectorAdd(u, v), det));
