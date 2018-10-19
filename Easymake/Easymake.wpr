@@ -1,0 +1,16 @@
+#!wing
+#!version=4.0
+##################################################################
+# Wing IDE project file                                          #
+##################################################################
+[project attributes]
+proj.directory-list = [{'dirloc': loc('.'),
+                        'excludes': [u'.project',
+                                     u'.pydevproject'],
+                        'filter': '*',
+                        'include_hidden': False,
+                        'recursive': True,
+                        'watch_for_changes': True}]
+proj.file-list = [loc('../../../EasymakeGameConfig.py'),
+                  loc('../../../GameHandler.py')]
+proj.file-type = 'shared'
