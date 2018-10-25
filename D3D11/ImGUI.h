@@ -6,7 +6,7 @@
 #include "D3DState.h"
 #include "D3DBuffer.h"
 
-#include <GUI/ocornut/imgui.h>
+#include <ImGUI/imgui.h>
 
 class ImGUI
 {
