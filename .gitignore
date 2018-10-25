@@ -25,6 +25,7 @@
 *.opendb
 *.iobj
 *.ipdb
+*.sln
 
 Debug/
 Release/
@@ -40,3 +41,4 @@ ThirdParty/GUI/AntTweakBar/src/TwDirect3D11_TextPS.h
 ThirdParty/GUI/AntTweakBar/src/TwDirect3D11_TextVS.h
 JustForFun/MarioMapEditor/GeneratedFiles/
 Application/
+Projects/
