@@ -2,42 +2,12 @@ import hashlib
 import os
 import sys
 
-LibraryDirectory = [
-	'D3D11\\',
-	'System\\',
-	'Vulkan\\',
-	'ThirdParty\\ImGUI\\',
-	'ThirdParty\\DirectXTK\\',
+ResourceFileList = [
+	''
 ]
 
 ShaderDirectory = [
 	'Application\\Resource\\Shaders\\',
-]
-
-ApplicationDirectory = [
-	'Demo\\D3D11\\AdaptiveTessellation\\',
-	'Demo\\D3D11\\AlphaBlend\\',
-	'Demo\\D3D11\\Box\\',
-	'Demo\\D3D11\\Cubemap\\',
-	'Demo\\D3D11\\DepthStencilTest\\',
-	'Demo\\D3D11\\DisplacementMapping\\',
-	'Demo\\D3D11\\GammaCorrection\\',
-	'Demo\\D3D11\\HDRLighting\\',
-	'Demo\\D3D11\\HLSLCookBook\\DeferredShading\\',
-	'Demo\\D3D11\\HLSLCookBook\\ForwardLighting\\',
-	'Demo\\D3D11\\Lighting\\',
-	'Demo\\D3D11\\MultithreadedRendering\\',
-	'Demo\\D3D11\\Nvidia\\FXAA\\',
-	'Demo\\D3D11\\Nvidia\\OceanFFT\\',
-	'Demo\\D3D11\\ParallaxMapping\\',
-	'Demo\\D3D11\\ParticleSystem\\',
-	'Demo\\D3D11\\RayCast\\',
-	'Demo\\D3D11\\Shadow\\',
-	'Demo\\Vulkan\\VulkanBox\\',
-	'Fort\\DataStructures\\',
-	'JustForFun\\Mario\\',
-	'JustForFun\\MarioMapEditor\\',
-	'JustForFun\\UEStatConverter\\',
 ]
 
 Configurations = [
@@ -48,6 +18,15 @@ Configurations = [
 Platforms = [
 	'Win32',
 	'x64',
+]
+
+SolutionFolders = [
+	'Libs',
+	'D3D11',
+	'Vulkan',
+	'ThirdParty',
+	'JustForFun',
+	'Fort'
 ]
 
 def MakeGUID(_Name):
@@ -69,7 +48,7 @@ def MakeFileList(_Directory, _Filters = [], _ExcludeDirectory = []):
 					ignore = True
 					break
 			for excludeDir in _ExcludeDirectory:
-				if root.lower() in excludeDir.lower():
+				if excludeDir.lower() in root.lower():
 					ignore = True
 					break
 			if ignore == False:
@@ -92,14 +71,16 @@ class VCProject:
 	Name = ''
 	GUID = ''
 	Path = ''
+	Folder = ''
 	IsLibrary = True
 	IsThirdParty = False
 	IsJustForFun = False
 	Dependencies = []
 	FileList = []
-	def __init__(self, _Name, _Path, _IsLibrary, _Filters = [], _ExcludeDirectory = [], _Dependencies = []):
+	def __init__(self, _Name, _Path, _BelongTo, _IsLibrary, _Filters = [], _ExcludeDirectory = [], _Dependencies = []):
 		self.Name = _Name
 		self.Path = _Path
+		self.Folder = _BelongTo
 		self.GUID = MakeGUID(_Path + _Name)
 		self.IsLibrary = _IsLibrary
 		if 'ThirdParty' in _Path:
@@ -153,6 +134,8 @@ def MakeProjectFilter(_vcProject):
 			resourceFileList.append(file)
 		elif file.rfind('.ico') != -1:
 			imageFileList.append(file)
+		elif file.rfind('.hlsl') != -1 or file.rfind('.hlsli') != -1:
+			shaderFileList.append(file) 
 
 	if len(cppFileList) > 0:
 		filterXML.append('\t<ItemGroup>\n')
@@ -310,18 +293,9 @@ def MakeSolution(_SolutionName, _Version, _vcProjects):
 		solutionXML.append('Project("%s") = "%s", "%s", "%s"\n' % (solutionGUID, vcProject.Name, 'Projects\\' + vcProject.Name + '.vcxproj', vcProject.GUID))
 		solutionXML.append('EndProject\n')
 
-	libGUID = MakeGUID('Lib')
-	demoGUID = MakeGUID('Demo')
-	thirdPartyGUID = MakeGUID('ThirdParty')
-	justForFunGUID = MakeGUID('JustForFun')
-	solutionXML.append('Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "%s", "%s", "%s"\n' % ('Lib', 'Lib', libGUID))
-	solutionXML.append('EndProject\n')
-	solutionXML.append('Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "%s", "%s", "%s"\n' % ('Demo', 'Demo', demoGUID))
-	solutionXML.append('EndProject\n')
-	solutionXML.append('Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "%s", "%s", "%s"\n' % ('ThirdParty', 'ThirdParty', thirdPartyGUID))
-	solutionXML.append('EndProject\n')
-	solutionXML.append('Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "%s", "%s", "%s"\n' % ('JustForFun', 'JustForFun', justForFunGUID))
-	solutionXML.append('EndProject\n')
+	for folder in SolutionFolders:
+		solutionXML.append('Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "%s", "%s", "%s"\n' % (folder, folder, MakeGUID(folder)))
+		solutionXML.append('EndProject\n')
 
 	solutionXML.append('Global\n')
 
@@ -345,18 +319,10 @@ def MakeSolution(_SolutionName, _Version, _vcProjects):
 
 	solutionXML.append('\tGlobalSection(NestedProjects) = preSolution\n')
 	for vcProject in _vcProjects:
-		targetGUID = ''
-		if vcProject.IsLibrary:
-			if vcProject.IsThirdParty:
-				targetGUID = thirdPartyGUID
-			else:
-				targetGUID = libGUID
-		else:
-			if vcProject.IsJustForFun:
-				targetGUID = justForFunGUID
-			else:
-				targetGUID = demoGUID
-		solutionXML.append('\t\t%s = %s\n' % (vcProject.GUID, targetGUID))
+		for folder in SolutionFolders:
+			if vcProject.Folder == folder:
+				solutionXML.append('\t\t%s = %s\n' % (vcProject.GUID, MakeGUID(folder)))
+				break
 	solutionXML.append('\tEndGlobalSection\n')
 
 	solutionXML.append('EndGlobal\n')
@@ -367,29 +333,49 @@ def MakeSolution(_SolutionName, _Version, _vcProjects):
 
 	return versionInfo
 
-def MakeProjectList():
-	vcProjects = []
-	libProjects = []
-	for libProjDir in LibraryDirectory:
-		subDirs = libProjDir.rsplit('\\')
-		vcProject = VCProject(subDirs[len(subDirs) - 2], libProjDir, True)
-		vcProjects.append(vcProject)
-		libProjects.append(vcProject)
+libProjects = [
+	VCProject('D3D11', 'D3D11\\', 'Libs', True),
+	VCProject('System', 'System\\', 'Libs', True),
+	VCProject('Vulkan', 'Vulkan\\', 'Libs', True),
+	VCProject('ImGUI', 'ThirdParty\\ImGUI\\', 'ThirdParty', True, [], ['\\.github', '\\docs', '\\examples', '\\natvis\\misc']),
+	#VCProject('DirectXTK', 'ThirdParty\\DirectXTK\\', 'ThirdParty', True, [], ['\\Audio', '\\Bin', '\\MakeSpriteFont', '\\XWBTool', '\\Src\\Shaders']), 
+]
 
-	for appDir in ApplicationDirectory:
-		subDirs = appDir.rsplit('\\')
-		vcProjects.append(VCProject(subDirs[len(subDirs) - 2], appDir, False, [], [], libProjects))
+demoProjects = [
+	VCProject('AdaptiveTessellation', 'Demo\\D3D11\\AdaptiveTessellation\\', 'D3D11', False, [], [], libProjects),
+	VCProject('AlphaBlend', 'Demo\\D3D11\\AlphaBlend\\', 'D3D11', False, [], [], libProjects),
+	VCProject('Box', 'Demo\\D3D11\\Box\\', 'D3D11', False, [], [], libProjects),
+	VCProject('Cubemap', 'Demo\\D3D11\\Cubemap\\', 'D3D11', False, [], [], libProjects),
+	VCProject('DepthStencilTest', 'Demo\\D3D11\\DepthStencilTest\\', 'D3D11', False, [], [], libProjects),
+	VCProject('DisplacementMapping', 'Demo\\D3D11\\DisplacementMapping\\', 'D3D11', False, [], [], libProjects),
+	VCProject('GammaCorrection', 'Demo\\D3D11\\GammaCorrection\\', 'D3D11', False, [], [], libProjects),
+	VCProject('HDRLighting', 'Demo\\D3D11\\HDRLighting\\', 'D3D11', False, [], [], libProjects),
+	VCProject('DeferredShading', 'Demo\\D3D11\\HLSLCookBook\\DeferredShading\\', 'D3D11', False, [], [], libProjects),
+	VCProject('ForwardLighting', 'Demo\\D3D11\\HLSLCookBook\\ForwardLighting\\', 'D3D11', False, [], [], libProjects),
+	VCProject('Lighting', 'Demo\\D3D11\\Lighting\\', 'D3D11', False, [], [], libProjects),
+	VCProject('MultithreadedRendering', 'Demo\\D3D11\\MultithreadedRendering\\', 'D3D11', False, [], [], libProjects),
+	VCProject('FXAA', 'Demo\\D3D11\\Nvidia\\FXAA\\', 'D3D11', False, [], [], libProjects),
+	VCProject('OceanFFT', 'Demo\\D3D11\\Nvidia\\OceanFFT\\', 'D3D11', False, [], [], libProjects),
+	VCProject('ParallaxMapping', 'Demo\\D3D11\\ParallaxMapping\\', 'D3D11', False, [], [], libProjects),
+	VCProject('ParticleSystem', 'Demo\\D3D11\\ParticleSystem\\', 'D3D11', False, [], [], libProjects),
+	VCProject('RayCast', 'Demo\\D3D11\\RayCast\\', 'D3D11', False, [], [], libProjects),
+	VCProject('Shadow', 'Demo\\D3D11\\Shadow\\', 'D3D11', False, [], [], libProjects),
 
-	return vcProjects
+	VCProject('VulkanBox', 'Demo\\Vulkan\\VulkanBox\\', 'Vulkan', False, [], [], libProjects),
+
+	VCProject('DataStructures', 'Fort\\DataStructures\\', 'Fort', False, [], [], libProjects),
+	VCProject('Mario', 'JustForFun\\Mario\\', 'JustForFun', False, [], [], libProjects),
+	VCProject('UEStatConverter', 'JustForFun\\UEStatConverter\\', 'JustForFun', False, [], [], libProjects),
+]
 
 def _main_(_argv):
-	vcProjects = MakeProjectList()
-	versionInfo = MakeSolution('Miscellaneous', 'vs2015', vcProjects)
+	allMyProjects = libProjects + demoProjects
+	versionInfo = MakeSolution('Miscellaneous', 'vs2015', allMyProjects)
 
 	if not os.path.exists('Projects'):
 		os.mkdir('Projects')
 
-	for vcProject in vcProjects:
+	for vcProject in allMyProjects:
 		MakeProject(vcProject, versionInfo)
 
 _main_(sys.argv[1:])

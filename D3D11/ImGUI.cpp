@@ -57,8 +57,11 @@ void ImGUI::Initialize(::HWND hWnd)
 	io.Fonts->GetTexDataAsRGBA32(&pPixels, &width, &height);
 
 	D3DTexture2D fontTex;
+	D3D11_SUBRESOURCE_DATA subRes = {};
+	subRes.pSysMem = (const void *)pPixels;
+	subRes.SysMemPitch = (uint32_t)width * 4U;
 	fontTex.Create(eRGBA8_UNorm, (uint32_t)width, (uint32_t)height, D3DBuffer::eBindAsShaderResource, 1U, 1U, 0U, 0U,
-		D3DBuffer::eGpuReadWrite, (const void*)pPixels, (uint32_t)width * 4U);
+		D3DBuffer::eGpuReadWrite, &subRes);
 	m_Resource.FontTexture.CreateAsTexture(D3DView::eTexture2D, fontTex, eRGBA8_UNorm, 0U, 1U);
 	io.Fonts->TexID = (void *)m_Resource.FontTexture.Get();
 #else

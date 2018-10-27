@@ -4,6 +4,7 @@
 #include "D3DLighting.h"
 #include "Camera.h"
 #include "System.h"
+#include "ResourceFile.h"
 
 #include <fstream>
 #include <DirectXTK/Inc/Effects.h>
@@ -168,7 +169,7 @@ void SDKMesh::LoadMeshs(const uint8_t *pData, size_t dataSize, const SDKMeshHead
 		mesh->MeshBoundingBox.Extents = mh.BoundingBoxExtents;
 
 		mesh->MeshParts.reserve(mh.NumSubsets);
-		ePrimitiveTopology ptType;
+		ePrimitiveTopology ptType = ePrimitiveTopologyCount;
 		for (uint32_t j = 0U; j < mh.NumSubsets; ++j)
 		{
 			auto sIndex = subsets[j];
@@ -216,7 +217,8 @@ void SDKMesh::Create(const char *pFileName, bool ccw, bool alpha)
 {
 	assert(!m_Created && pFileName && System::IsStrEndwith(pFileName, ".sdkmesh"));
 
-	std::string filePath = System::ResourceFilePath(pFileName, System::eSDKMesh);
+	ResourceFile sdkMesh(pFileName);
+	std::string filePath = sdkMesh.GetFilePath();
 
 	char oldWorkingDir[MAX_PATH] = {};
 	::GetCurrentDirectoryA(MAX_PATH, oldWorkingDir);
@@ -255,14 +257,14 @@ void SDKMesh::Draw(bool bAlphaParts, bool bDisableMaterial)
 	D3DEngine::Instance().SetInputLayout(m_VertexLayout);
 
 	/// Draw opaque parts
-	for (auto it = m_Meshs.cbegin(); it != m_Meshs.cend(); ++it)
+	for (auto itMesh = m_Meshs.cbegin(); itMesh != m_Meshs.cend(); ++itMesh)
 	{
-		auto mesh = it->get();
+		auto mesh = itMesh->get();
 		assert(mesh);
 
-		for (auto it = mesh->MeshParts.cbegin(); it != mesh->MeshParts.cend(); ++it)
+		for (auto itPart = mesh->MeshParts.cbegin(); itPart != mesh->MeshParts.cend(); ++itPart)
 		{
-			auto part = (*it).get();
+			auto part = (*itPart).get();
 			assert(part);
 
 			if (part->IsAlpha != bAlphaParts)

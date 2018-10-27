@@ -2,6 +2,7 @@
 #include "D3DEngine.h"
 #include "Camera.h"
 #include "System.h"
+#include "ResourceFile.h"
 
 #include <fstream>
 #include <sstream>
@@ -12,7 +13,9 @@ void ObjMesh::Create(const char *pFileName)
 {
 	assert(pFileName);
 
-	std::string meshFilePath = System::ResourceFilePath(pFileName, System::eObjMesh);
+	ResourceFile objMesh(pFileName);
+
+	std::string meshFilePath = objMesh.GetFilePath();
 
 	std::ifstream meshFile(meshFilePath.c_str(), std::ios::in);
 	if (meshFile.good())

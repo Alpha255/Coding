@@ -1,9 +1,10 @@
 #include "D3DView.h"
 #include "D3DTexture.h"
 #include "D3DEngine.h"
+#include "D3DUtil.h"
 #include "System.h"
 
-#include <DirectXTK/Inc/DDSTextureLoader.h>
+#include <fstream>
 
 void D3DRenderTargetView::Create(D3DResource &resource)
 {
@@ -220,21 +221,13 @@ void D3DShaderResourceView::CreateAsTextureArray(eViewType type, D3DResource &re
 	MakeObject(pShaderResourceView);
 }
 
-void D3DShaderResourceView::Create(const char *pDdsName, bool bFromCurDir)
+void D3DShaderResourceView::Create(const char *pDdsName, bool bSRGB)
 {
 	assert(pDdsName && !IsValid());
-
-	bool bDDS = System::IsStrEndwith(pDdsName, ".dds");
-	if (!bDDS)
-	{
-		assert(0);
-	}
-
-	std::string ddsFilePath = bFromCurDir ? pDdsName : System::ResourceFilePath(pDdsName, System::eTexture);
-	std::wstring wddsFilePath(ddsFilePath.begin(), ddsFilePath.end());
+	assert(System::IsStrEndwith(pDdsName, ".dds"));
 
 	ID3D11ShaderResourceView *pShaderResourceView = nullptr;
-	HRCheck(DirectX::CreateDDSTextureFromFile(D3DEngine::Instance().GetDevice().Get(), wddsFilePath.c_str(), nullptr, &pShaderResourceView));
+	D3DUtil::CreateShaderResourceViewFromDds(pDdsName, &pShaderResourceView, bSRGB);
 	
 	MakeObject(pShaderResourceView);
 }

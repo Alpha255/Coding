@@ -663,23 +663,6 @@ void Mesh::SaveAsObjFile(const char *pObjFileName)
 	assert(0);
 
 	assert(m_Created && pObjFileName);
-
-	std::string filePath = System::ResourceFileDirectory(System::eObjMesh) + pObjFileName;
-	std::ofstream os(filePath.c_str(), std::ios::out);
-
-	if (os.good())
-	{
-		std::vector<ObjMesh::ObjIndex> indices;
-
-		for (size_t i = 0U; i < m_Vertices.size(); ++i)
-		{
-			/// Output vertices
-
-			/// Output normals
-
-			/// Output UVs
-		}
-	}
 }
 
 void Mesh::ApplyMaterial(const Material *pMaterial)

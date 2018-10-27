@@ -43,7 +43,10 @@ void D3DFontFreeType::InitFreeTypeLib(const char *pFontName)
 		}
 
 		D3DTexture2D charTex;
-		charTex.Create(eR8_Typeless, ftFace->glyph->bitmap.width, ftFace->glyph->bitmap.rows, D3DBuffer::eBindAsShaderResource, 1U, 1U, 0U, 0U, 0U, ftFace->glyph->bitmap.buffer, ftFace->glyph->bitmap.pitch);
+		D3D11_SUBRESOURCE_DATA subRes = {};
+		subRes.pSysMem = ftFace->glyph->bitmap.buffer;
+		subRes.SysMemPitch = ftFace->glyph->bitmap.pitch;
+		charTex.Create(eR8_Typeless, ftFace->glyph->bitmap.width, ftFace->glyph->bitmap.rows, D3DBuffer::eBindAsShaderResource, 1U, 1U, 0U, 0U, 0U, &subRes);
 
 		Character newChar;
 		newChar.CharTex.CreateAsTexture(D3DView::eTexture2D, charTex, eR8_UNorm, 0U, 1U);

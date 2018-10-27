@@ -27,7 +27,7 @@ void Light::Initialize()
 	s_Inited = true;
 }
 
-void Light::DebugDisplay(const Vec3 &position, const eLightType type, const Camera &cam, const float scale)
+void Light::DebugDisplay(const Vec3 &position, const eLightType, const Camera &cam, const float scale)
 {
 	Initialize();
 

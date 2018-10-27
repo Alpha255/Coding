@@ -55,12 +55,13 @@ public:
 class D3DShaderResourceView : public D3DObject<ID3D11ShaderResourceView>, public D3DView
 {
 public:
-	void Create(const char *pDdsName, bool bFromCurDir = false);
+	void Create(const char *pDdsName, bool bSRGB = false);
 
 	void CreateAsBuffer();
 	void CreateAsBufferEx();
 	void CreateAsTexture(eViewType type, D3DResource &resource, uint32_t fmt, uint32_t mostDetailedMip, uint32_t mipLevels);
 	void CreateAsTextureArray(eViewType type, D3DResource &resource, uint32_t fmt, uint32_t mostDetailedMip, uint32_t mipLevels, uint32_t firstArraySlice, uint32_t arraySize);
+protected:
 };
 
 class D3DUnorderedAccessView : public D3DObject<ID3D11UnorderedAccessView>, public D3DView

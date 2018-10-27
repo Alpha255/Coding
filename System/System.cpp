@@ -2,41 +2,18 @@
 
 NamespaceBegin(System)
 
-std::string ResourceFileDirectory(eResourceType resType)
+bool IsStrEndwith(const char *pStr, const char *pPostfix)
 {
-	static const char* s_ResourcePath[eResourceType::eResTypeCount] =
-	{
-		"\\Resource\\Shaders\\",
-		"\\Resource\\Textures\\",
-		"\\Resource\\SDKMeshs\\",
-		"\\Resource\\TxtMeshs\\",
-		"\\Resource\\ObjMeshs\\",
-		"\\Resource\\Sounds\\",
-		"\\Resource\\RawData\\",
-	};
-	static char directory[MAX_PATH]{};
-	::GetModuleFileNameA(::GetModuleHandle(nullptr), directory, MAX_PATH);
+	assert(pStr && pPostfix);
 
-	std::string appDir(directory);
-	std::string resFileDir = appDir.substr(0, appDir.rfind("\\"));
-	resFileDir += s_ResourcePath[resType];
+	std::string str(pStr);
+	std::string postfix(pPostfix);
 
-	return resFileDir;
-}
+	std::transform(str.begin(), str.end(), str.begin(), tolower);
+	std::transform(postfix.begin(), postfix.end(), postfix.begin(), tolower);
 
-std::string ResourceFilePath(const char *pFileName, eResourceType resType)
-{
-	std::string path = ResourceFileDirectory(resType);
-
-	path += pFileName;
-
-	return path;
-}
-
-bool IsStrEndwith(const std::string &srcStr, const char *pPostfix)
-{
-	size_t findPos = srcStr.rfind(pPostfix);
-	return (findPos != std::string::npos) && ((srcStr.length() - findPos) == strlen(pPostfix));
+	size_t findPos = str.rfind(postfix);
+	return (findPos != std::string::npos) && ((str.length() - findPos) == strlen(pPostfix));
 }
 
 void RecursiveFileList(std::vector<std::string> &outFileList, const char *pTargetDir)
@@ -104,7 +81,7 @@ void RecursiveFileListWithFilter(std::vector<std::string> &outFileList, const ch
 				std::string fileNameFull(pTargetDir);
 				fileNameFull += '\\';
 				fileNameFull += fileName;
-				if (IsStrEndwith(fileName, pFilter))
+				if (IsStrEndwith(fileName.c_str(), pFilter))
 				{
 					outFileList.push_back(fileNameFull);
 				}
@@ -149,6 +126,16 @@ bool IsValidDirectory(const char *pTargetDir)
 	::FindClose(fileHandle);
 
 	return bValid;
+}
+
+bool FileExists(const char *pFilePath)
+{
+	assert(pFilePath);
+
+	uint32_t attri = ::GetFileAttributesA(pFilePath);
+
+	return (attri != INVALID_FILE_ATTRIBUTES &&
+		!(attri & FILE_ATTRIBUTE_DIRECTORY));
 }
 
 NamespaceEnd(System)

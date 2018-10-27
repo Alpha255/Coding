@@ -1,8 +1,7 @@
 #include "D3DShader.h"
 #include "D3DEngine.h"
-#include "System.h"
+#include "ResourceFile.h"
 
-#include <fstream>
 #include <d3dcompiler.h>
 
 void D3DInputLayout::Create(D3DBlob &blob, const D3D11_INPUT_ELEMENT_DESC *pInputElement, size_t elementSize)
@@ -29,50 +28,36 @@ D3DBlob D3DShader::CompileShaderFile(const char *pFileName, const char *pEntryPo
 		"cs_5_0"
 	};
 
-	std::string shaderFileDir = System::ResourceFileDirectory(System::eShader);
-	std::string shaderFilePath = shaderFileDir + pFileName;
-
 	D3DBlob result;
 	D3DBlob errMsg;
 	ID3DBlob *pResult = nullptr;
 	ID3DBlob *pErrMsg = nullptr;
-	std::ifstream file(shaderFilePath, std::ios::in);
-	if (file.good())
-	{
-		file.seekg(0U, std::ios::end);
-		size_t fileSize = (size_t)file.tellg();
 
-		char* pData = new char[fileSize]();
-		file.seekg(0U, std::ios::beg);
-		file.read(pData, fileSize);
+	ResourceFile shaderFile(pFileName);
 
 #if defined(DEBUG) || defined(_DEBUG)
-		uint32_t flags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG;
+	uint32_t flags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG;
 #else
-		uint32_t flags = D3DCOMPILE_ENABLE_STRICTNESS;
+	uint32_t flags = D3DCOMPILE_ENABLE_STRICTNESS;
 #endif
-		char workingDir[MAX_PATH] = { };
-		::GetCurrentDirectoryA(MAX_PATH, workingDir);
+	std::string fileDir = shaderFile.GetFilePath(); 
+	fileDir = fileDir.substr(0, fileDir.rfind('\\'));
+	auto pData = std::unique_ptr<uint8_t>(shaderFile.Load());
 
-		::SetCurrentDirectoryA(shaderFileDir.c_str());
-		ID3DInclude* pIncludeInfo = (nullptr == pInclude ? D3D_COMPILE_STANDARD_FILE_INCLUDE : pInclude);
-		if (FAILED(D3DCompile(pData, fileSize, pFileName, pMacros, pIncludeInfo, pEntryPoint, models[m_Type], flags, 0U, &pResult, &pErrMsg)))
-		{
-			OutputDebugStringA((char*)pErrMsg->GetBufferPointer());
-			assert(!"Shader compile failed!!!");
-		}
-		::SetCurrentDirectoryA(workingDir);
+	char workingDir[MAX_PATH] = {};
+	::GetCurrentDirectoryA(MAX_PATH, workingDir);
 
-		SafeDeleteArray(pData);
-		file.close();
-
-		errMsg.MakeObject(pErrMsg);
-		result.MakeObject(pResult);
-	}
-	else
+	::SetCurrentDirectoryA(fileDir.c_str());
+	ID3DInclude* pIncludeInfo = (nullptr == pInclude ? D3D_COMPILE_STANDARD_FILE_INCLUDE : pInclude);
+	if (FAILED(D3DCompile((void *)pData.get(), shaderFile.GetSize(), pFileName, pMacros, pIncludeInfo, pEntryPoint, models[m_Type], flags, 0U, &pResult, &pErrMsg)))
 	{
-		assert(!"Failed to open specified shader file!!!");
+		OutputDebugStringA((char*)pErrMsg->GetBufferPointer());
+		assert(!"Shader compile failed!!!");
 	}
+	::SetCurrentDirectoryA(workingDir);
+
+	errMsg.MakeObject(pErrMsg);
+	result.MakeObject(pResult);
 
 	return result;
 }
