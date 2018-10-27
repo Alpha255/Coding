@@ -10,3 +10,6 @@
 [submodule "ThirdParty/glslang"]
 	path = ThirdParty/glslang
 	url = https://github.com/KhronosGroup/glslang.git
+[submodule "ThirdParty/ImGUI"]
+	path = ThirdParty/ImGUI
+	url = git@github.com:ocornut/imgui.git
