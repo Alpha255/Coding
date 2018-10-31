@@ -3,7 +3,10 @@ import os
 import sys
 
 ResourceFileList = [
-	''
+	'System\\Resource.rc',
+	'Application\\Resource\\directx.ico',
+	'Application\\Resource\\Vulkan.ico',
+	'Application\\Resource\\Mario.ico',
 ]
 
 ShaderDirectory = [
@@ -89,11 +92,21 @@ class VCProject:
 			self.IsJustForFun = True
 		self.Dependencies = _Dependencies
 		self.FileList = MakeFileList(_Path, _Filters, _ExcludeDirectory)
+		if False == self.IsLibrary:
+			self.FileList += ResourceFileList
 
 def MakeProjectFilter(_vcProject):
 	filterList = []
+	rcFileList = []
+	iconFileList = []
 	projectRootPath = _vcProject.Path.rsplit('\\', 1)[0]
 	for file in _vcProject.FileList:
+		if file.rfind('.rc') != -1:
+			rcFileList.append(file)
+			continue
+		if file.rfind('.ico') != -1:
+			iconFileList.append(file)
+			continue
 		fileRootPath = file.rsplit('\\', 1)[0]
 		if fileRootPath == projectRootPath:
 			continue
@@ -112,13 +125,15 @@ def MakeProjectFilter(_vcProject):
 	filterXML.append('<?xml version="1.0" encoding="utf-8"?>\n')
 	filterXML.append('<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">\n')
 
-	if len(filterList) > 0:
-		filterXML.append('\t<ItemGroup>\n')
-		for subDir in filterList:
-			filterXML.append('\t\t<Filter Include="%s">\n' % subDir)
-			filterXML.append('\t\t\t<UniqueIdentifier>%s</UniqueIdentifier>\n' % MakeGUID(subDir))
-			filterXML.append('\t\t</Filter>\n')
-		filterXML.append('\t</ItemGroup>\n')
+	filterXML.append('\t<ItemGroup>\n')
+	for subDir in filterList:
+		filterXML.append('\t\t<Filter Include="%s">\n' % subDir)
+		filterXML.append('\t\t\t<UniqueIdentifier>%s</UniqueIdentifier>\n' % MakeGUID(subDir))
+		filterXML.append('\t\t</Filter>\n')
+	filterXML.append('\t\t<Filter Include="%s">\n' % 'Resource')
+	filterXML.append('\t\t\t<UniqueIdentifier>%s</UniqueIdentifier>\n' % MakeGUID('Resource'))
+	filterXML.append('\t\t</Filter>\n')
+	filterXML.append('\t</ItemGroup>\n')
 
 	headerFileList = []
 	cppFileList = []
@@ -157,6 +172,22 @@ def MakeProjectFilter(_vcProject):
 				if fileRootPath != projectRootPath:
 					filterXML.append('\t\t\t<Filter>%s</Filter>\n' % headerFile.rsplit('\\', 1)[0][len(projectRootPath) + 1:])
 			filterXML.append('\t\t</ClInclude>\n')
+		filterXML.append('\t</ItemGroup>\n')
+
+	if len(rcFileList) > 0:
+		filterXML.append('\t<ItemGroup>\n')
+		for rcFile in rcFileList:
+			filterXML.append('\t\t<ResourceCompile Include="..\\%s">\n' % rcFile)
+			filterXML.append('\t\t\t<Filter>Resource</Filter>\n')
+			filterXML.append('\t\t</ResourceCompile>\n')
+		filterXML.append('\t</ItemGroup>\n')
+	
+	if len(iconFileList) > 0:
+		filterXML.append('\t<ItemGroup>\n')
+		for iconFile in iconFileList:
+			filterXML.append('\t\t<Image Include="..\\%s">\n' % iconFile)
+			filterXML.append('\t\t\t<Filter>Resource</Filter>\n')
+			filterXML.append('\t\t</Image>\n')
 		filterXML.append('\t</ItemGroup>\n')
 
 	filterXML.append('</Project>')
@@ -206,9 +237,6 @@ def MakeProject(_vcProject, _VersionInfo):
 	projectXML.append('\t<ImportGroup Label="ExtensionSettings">\n')
 	projectXML.append('\t</ImportGroup>\n')
 	projectXML.append('\t<ImportGroup Label="Shared">\n')
-	projectXML.append('\t</ImportGroup>\n')
-	projectXML.append('\t<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />\n')
-	projectXML.append('\t<ImportGroup Label="ExtensionTargets">\n')
 	projectXML.append('\t</ImportGroup>\n')
 
 	projectXML.append('\t<ImportGroup Label="PropertySheets">\n')
@@ -268,6 +296,10 @@ def MakeProject(_vcProject, _VersionInfo):
 			projectXML.append('\t\t\t<Project>%s</Project>\n' % dependency.GUID)
 			projectXML.append('\t\t</ProjectReference>\n')
 		projectXML.append('\t</ItemGroup>\n')
+
+	projectXML.append('\t<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />\n')
+	projectXML.append('\t<ImportGroup Label="ExtensionTargets">\n')
+	projectXML.append('\t</ImportGroup>\n')
 
 	projectXML.append('</Project>')
 

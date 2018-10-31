@@ -7,7 +7,7 @@
     <OutDir Condition="'$(ConfigurationType)'=='Application'">$(SolutionDir)Application\</OutDir>
     <IntDir>$(SolutionDir)Intermediate\$(ProjectName)\</IntDir>
     <TargetExt>$(TargetExt)</TargetExt>
-    <TargetPath>$(OutDir)$(TargetName)$(TargetExt)</TargetPath>
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
@@ -16,6 +16,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <DisableSpecificWarnings>4592;</DisableSpecificWarnings>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;windowscodecs.lib;Usp10.lib;Comctl32.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -26,6 +27,7 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <SubSystem>Windows</SubSystem>
       <ProgramDatabaseFile>$(IntDir)DebugInfo\$(TargetName).pdb</ProgramDatabaseFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
     </Link>
     <FxCompile>
       <ShaderModel>5.0</ShaderModel>
