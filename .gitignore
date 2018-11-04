@@ -32,6 +32,7 @@ Release/
 obj/
 Temp/
 .hg/
+.vs/
 Intermediate/
 ThirdParty/GUI/AntTweakBar/src/TwDirect3D11_LineRectCstColorVS.h
 ThirdParty/GUI/AntTweakBar/src/TwDirect3D11_LineRectPS.h
