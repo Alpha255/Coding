@@ -7,7 +7,6 @@
 #include <functional>
 #include <array>
 #include <vector>
-#include "RefCountPtr.h"
 
 /// http://blog.csdn.net/slshelly/article/details/8720487
 ///#ifdef _WINDLL

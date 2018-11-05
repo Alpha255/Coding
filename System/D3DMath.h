@@ -256,7 +256,7 @@ public:
 	{
 	}
 
-	inline Matrix(const float* pArray)
+	inline Matrix(const float *pArray)
 		: DirectX::XMFLOAT4X4A(pArray)
 	{
 	}
@@ -495,42 +495,8 @@ public:
 	}
 };
 
-class Transform
-{
-public:
-	Transform() = default;
-	~Transform() = default;
-
-	inline void Translate(float x, float y, float z)
-	{
-		m_Translation = Matrix::Translation(x, y, z);
-	}
-
-	inline void Rotate(float x, float y, float z, float angle)
-	{
-		m_Rotation = Matrix::RotationAxis(x, y, z, angle);
-	}
-
-	inline void Scale(float f)
-	{
-		m_Scale = Matrix::Scaling(f);
-	}
-
-	inline Matrix Get() const
-	{
-		Matrix world;
-		world.Identity();
-		world = world * m_Rotation * m_Scale * m_Translation;
-		return world;
-	}
-protected:
-private:
-	Matrix m_Translation;
-	Matrix m_Rotation;
-	Matrix m_Scale;
-};
-
 NamespaceBegin(Math)
+
 using namespace DirectX;
 
 template<typename T> inline T Clamp(const T& x, const T& low, const T& high) 
@@ -559,17 +525,17 @@ inline float AngleFromXY(float x, float y)
 	{
 		/// If x = 0, then atanf(y/x) = +pi/2 if y > 0
 		///                atanf(y/x) = -pi/2 if y < 0
-		theta = atanf(y / x); /// in [-pi/2, +pi/2]
+		theta = ::atanf(y / x); /// in [-pi/2, +pi/2]
 
 		if (theta < 0.0f)
 		{
-			theta += 2.0f * XM_PI; /// in [0, 2*pi).
+			theta += 2.0f * DirectX::XM_PI; /// in [0, 2*pi).
 		}
 	}
 	/// Quadrant II or III
 	else
 	{
-		theta = atanf(y / x) + XM_PI; /// in [0, 2*pi).
+		theta = ::atanf(y / x) + DirectX::XM_PI; /// in [0, 2*pi).
 	}
 
 	return theta;

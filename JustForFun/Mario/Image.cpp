@@ -1,6 +1,7 @@
 ﻿#include "Image.h"
 #include "System.h"
-#include "DirectXTK/Src/DDS.h"
+#include "dds.h"
+#include "ResourceFile.h"
 
 #include <string>
 #include <fstream>
@@ -9,44 +10,9 @@ void Image::Create(const char *pFileName)
 {
 	assert(pFileName);
 
-	std::string fileName(pFileName);
-	std::string ext = fileName.substr(fileName.rfind('.'));
-	assert(ext.length());
+	m_ImageType = eDds;
 
-	static const char *const s_Ext[eTypeCount] = 
-	{
-		".bmp",
-		".png",
-		".jpg",
-		".dds"
-	};
-
-	std::string filePath = System::ResourceFilePath(pFileName, System::eTexture);
-
-	if (ext == s_Ext[eBmp])
-	{
-		m_ImageType = eBmp;
-		CreateAsBmp(filePath.c_str());
-	}
-	else if (ext == s_Ext[ePng])
-	{
-		m_ImageType = ePng;
-		CreateAsPng(filePath.c_str());
-	}
-	else if (ext == s_Ext[eJpg])
-	{
-		m_ImageType = eJpg;
-		CreateAsJpg(filePath.c_str());
-	}
-	else if (ext == s_Ext[eDds])
-	{
-		m_ImageType = eDds;
-		CreateAsDds(pFileName);
-	}
-	else
-	{
-		assert("Unsupport type!!!");
-	}
+	CreateAsDds(pFileName);
 }
 
 void Image::CreateAsBmp(const char *pFilePath)
@@ -91,20 +57,10 @@ void Image::CreateAsBmp(const char *pFilePath)
 	}
 }
 
-void Image::CreateAsPng(const char * /*pFilePath*/)
-{
-	assert(0);
-}
-
-void Image::CreateAsJpg(const char * /*pFilePath*/)
-{
-	assert(0);
-}
-
 void Image::CreateAsDds(const char *pFileName)
 {
-	std::string filePath = System::ResourceFilePath(pFileName, System::eTexture);
-	std::ifstream fileStream(filePath, std::ios::in | std::ios::binary);
+	ResourceFile texFile(pFileName);
+	std::ifstream fileStream(texFile.GetFilePath(), std::ios::in | std::ios::binary);
 	assert(fileStream.good());
 
 	uint32_t dwMagicNumber = 0U;

@@ -1,5 +1,4 @@
 #include "Timer.h"
-#include "Common.h"
 
 Timer::Timer()
 	: m_SecondsPerCount(0.0)
@@ -10,15 +9,15 @@ Timer::Timer()
 	, m_CurTime(0)
 	, m_bStopped(false)
 {
-	__int64 countsPerSec = 0;
+	int64_t countsPerSec = 0;
 	/// Retrieves the frequency of the performance counter. 
 	/// The frequency of the performance counter is fixed at system boot and is consistent across all processors. 
 	/// Therefore, the frequency need only be queried upon application initialization, and the result can be cached.
-	::QueryPerformanceFrequency((LARGE_INTEGER*)&countsPerSec);
+	::QueryPerformanceFrequency((::LARGE_INTEGER*)&countsPerSec);
 	m_SecondsPerCount = 1.0 / (double)countsPerSec;               
 }
 
-float Timer::TotalTime() const
+float Timer::GetTotalTime() const
 {
 	/// If we are stopped, do not count the time that has passed since we stopped.
 	/// Moreover, if we previously already had a pause, the distance 
@@ -48,17 +47,17 @@ float Timer::TotalTime() const
 	}
 }
 
-float Timer::DeltaTime() const
+float Timer::GetDeltaTime() const
 {
 	return (float)m_DeltaTime;
 }
 
 void Timer::Reset()
 {
-	__int64 curTime = 0;
+	int64_t curTime = 0;
 	/// Retrieves the current value of the performance counter, 
 	/// which is a high resolution (<1us) time stamp that can be used for time-interval measurements.
-	QueryPerformanceCounter((LARGE_INTEGER*)&curTime);
+	QueryPerformanceCounter((::LARGE_INTEGER*)&curTime);
 
 	m_BaseTime = curTime;
 	m_PrevTime = curTime;
@@ -68,8 +67,8 @@ void Timer::Reset()
 
 void Timer::Start()
 {
-	__int64	startTime = 0;
-	::QueryPerformanceCounter((LARGE_INTEGER*)&startTime);
+	int64_t	startTime = 0;
+	::QueryPerformanceCounter((::LARGE_INTEGER*)&startTime);
 
 	/// Accumulate the time elapsed between stop and start pairs.
 	///
@@ -91,8 +90,8 @@ void Timer::Stop()
 {
 	if (!m_bStopped)
 	{
-		__int64 curTime = 0;
-		::QueryPerformanceCounter((LARGE_INTEGER*)&curTime);
+		int64_t curTime = 0;
+		::QueryPerformanceCounter((::LARGE_INTEGER*)&curTime);
 
 		m_StopTime = curTime;
 		m_bStopped = true;
@@ -107,8 +106,8 @@ void Timer::Tick()
 		return;
 	}
 
-	__int64 curTime = 0;
-	::QueryPerformanceCounter((LARGE_INTEGER*)&curTime);
+	int64_t curTime = 0;
+	::QueryPerformanceCounter((::LARGE_INTEGER*)&curTime);
 	m_CurTime = curTime;
 
 	m_DeltaTime = (m_CurTime - m_PrevTime) * m_SecondsPerCount;

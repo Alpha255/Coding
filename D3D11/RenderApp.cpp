@@ -17,7 +17,7 @@ typedef VulkanEngine Renderer;
 RenderApp::RenderApp()
 	: m_Camera(new Camera())
 {
-	m_IconID = IDI_ICON_APP;
+	m_IconID = IconDirectX;
 }
 
 LRESULT RenderApp::MsgProc(::HWND hWnd, uint32_t msg, ::WPARAM wParam, ::LPARAM lParam)
@@ -92,7 +92,7 @@ void RenderApp::UpdateFPS()
 	static uint32_t s_FrameNumber = 0U;
 	static float s_LastUpdateTime = 0.0f;
 
-	float totalTime = m_Timer->TotalTime();
+	float totalTime = m_Timer->GetTotalTime();
 	s_FrameNumber++;
 
 	float elapseTime = totalTime - s_LastUpdateTime;
@@ -109,7 +109,7 @@ void RenderApp::Frame()
 {
 	m_Camera->Update();
 
-	Update(m_Timer->DeltaTime(), m_Timer->TotalTime());
+	Update(m_Timer->GetDeltaTime(), m_Timer->GetTotalTime());
 
 	ImGUI::Instance().RenderBegin(m_bRenderGUI);
 

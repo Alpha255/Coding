@@ -80,7 +80,7 @@ ResourceFile::eType ResourceFile::GetType(const char *pFileName)
 	{
 		return eSound;
 	}
-	else if (System::IsStrEndwith(pFileName, ".data"))
+	else if (System::IsStrEndwith(pFileName, ".dat"))
 	{
 		return eLevelData;
 	}

@@ -1,5 +1,4 @@
 #include "FXAA.h"
-#include <RefCountPtr.h>
 #include <D3DGraphic.h>
 #include <Camera.h>
 #include <D3DModel.h>

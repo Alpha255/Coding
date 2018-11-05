@@ -2,6 +2,11 @@
 
 NamespaceBegin(System)
 
+inline char ToLower(char c)
+{
+	return (char)::tolower((int)c);
+}
+
 bool IsStrEndwith(const char *pStr, const char *pPostfix)
 {
 	assert(pStr && pPostfix);
@@ -9,8 +14,8 @@ bool IsStrEndwith(const char *pStr, const char *pPostfix)
 	std::string str(pStr);
 	std::string postfix(pPostfix);
 
-	std::transform(str.begin(), str.end(), str.begin(), tolower);
-	std::transform(postfix.begin(), postfix.end(), postfix.begin(), tolower);
+	std::transform(str.begin(), str.end(), str.begin(), ToLower);
+	std::transform(postfix.begin(), postfix.end(), postfix.begin(), ToLower);
 
 	size_t findPos = str.rfind(postfix);
 	return (findPos != std::string::npos) && ((str.length() - findPos) == strlen(pPostfix));

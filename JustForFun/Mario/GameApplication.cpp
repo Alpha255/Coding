@@ -4,7 +4,7 @@
 
 GameApplication::GameApplication()
 {
-	m_IconID = IDI_ICON_MARIO;
+	m_IconID = IconMario;
 }
 
 LRESULT GameApplication::MsgProc(HWND hWnd, uint32_t msg, WPARAM wParam, LPARAM lParam)
@@ -26,7 +26,7 @@ void GameApplication::RenderToWindow()
 		m_bInited = true;
 	}
 
-	Engine::Instance().Update(m_Timer->DeltaTime(), m_Timer->TotalTime());
+	Engine::Instance().Update(m_Timer->GetDeltaTime(), m_Timer->GetTotalTime());
 
 	Engine::Instance().RenderScene();
 }

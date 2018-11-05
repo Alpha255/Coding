@@ -3,6 +3,7 @@
 #include "Image.h"
 #include "GameApplication.h"
 #include "Engine.h"
+#include "ResourceFile.h"
 
 #include <string>
 #include <fstream>
@@ -11,8 +12,8 @@ void Map::Create(const char *pFileName)
 {
 	assert(pFileName);
 
-	std::string filePath = System::ResourceFilePath(pFileName, System::eRawData);
-	std::ifstream mapFile(filePath, std::ios::in);
+	ResourceFile map(pFileName);
+	std::ifstream mapFile(map.GetFilePath(), std::ios::in);
 
 	assert(mapFile.good());
 

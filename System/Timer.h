@@ -1,12 +1,14 @@
 #pragma once
 
+#include "Common.h"
+
 class Timer
 {
 public:
 	Timer();
 
-	float TotalTime() const;
-	float DeltaTime() const;
+	float GetTotalTime() const;
+	float GetDeltaTime() const;
 
 	void Reset();
 	void Start();
@@ -14,14 +16,14 @@ public:
 	void Tick();
 protected:
 private:
-	double  m_SecondsPerCount;
-	double  m_DeltaTime;
+	double  m_SecondsPerCount = 0.0;
+	double  m_DeltaTime = 0.0;
 
-	__int64 m_BaseTime; 
-	__int64 m_PausedTime;
-	__int64 m_StopTime;
-	__int64 m_PrevTime;
-	__int64 m_CurTime;
+	int64_t m_BaseTime = 0; 
+	int64_t m_PausedTime = 0;
+	int64_t m_StopTime = 0;
+	int64_t m_PrevTime = 0;
+	int64_t m_CurTime = 0;
 
-	bool    m_bStopped;
+	bool m_bStopped = false;
 };

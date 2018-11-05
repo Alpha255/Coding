@@ -51,8 +51,6 @@ public:
 	}
 protected:
 	void CreateAsBmp(const char *pFilePath);
-	void CreateAsPng(const char *pFilePath);
-	void CreateAsJpg(const char *pFilePath);
 	void CreateAsDds(const char *pFileName);
 private:
 	uint32_t m_Width = 0U;

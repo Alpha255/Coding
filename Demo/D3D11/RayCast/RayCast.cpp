@@ -4,12 +4,13 @@
 #include "D3DEngine.h"
 #include "ImGui.h"
 #include "System.h"
+#include "ResourceFile.h"
 #include <fstream>
 
 void AppRayCast::LoadMesh()
 {
-	std::string meshPath = ResourceFilePath("car.txt", System::eTxtMesh);
-	std::ifstream meshFile(meshPath.c_str(), std::ios::in);
+	ResourceFile mesh("car.txt");
+	std::ifstream meshFile(mesh.GetFilePath(), std::ios::in);
 	assert(meshFile.good());
 
 	uint32_t vertexCount = 0U, indexCount = 0U;
