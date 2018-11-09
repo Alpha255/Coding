@@ -88,7 +88,7 @@ def MakeFileList(_ProjectName, _Directorys, _TypeFilters = [], _ExcludeDirectory
 						fileList[FileType.eResource].append(fullFilePath)
 					elif IsFileTypeMatch(file, ['.ico']):
 						fileList[FileType.eImage].append(fullFilePath)
-					elif IsFileTypeMatch(file, ['.hlsl', '.hlsli']):
+					elif IsFileTypeMatch(file, ['.hlsl', '.hlsli', '.glsl']):
 						if _ProjectName.lower() in fullFilePath.lower():
 							fileList[FileType.eShader].append(fullFilePath)
 
@@ -102,7 +102,7 @@ def MakeFilterList(_vcProject):
 	for fileType in FileType:
 		for file in _vcProject.FileList[fileType]:
 			fileRoot = GetFileRootPath(file) + '\\'
-			if ((fileRoot.lower() == _vcProject.Path.lower()) or IsFileTypeMatch(file, ['.hlsl', '.hlsli', '.rc', '.ico'])):
+			if ((fileRoot.lower() == _vcProject.Path.lower()) or IsFileTypeMatch(file, ['.hlsl', '.hlsli', '.glsl', '.rc', '.ico'])):
 				continue
 			newFilter = file[len(_vcProject.Path):(len(file) - len(GetFileName(file))) - 1]
 			subFilter = newFilter.split('\\', 1)
