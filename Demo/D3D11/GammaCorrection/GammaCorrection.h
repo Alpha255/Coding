@@ -1,11 +1,11 @@
 #pragma once
 
-#include "D3DApp.h"
+#include "RenderApp.h"
 #include "D3DGeometry.h"
 #include "D3DView.h"
 #include "D3DLighting.h"
 
-class AppGammaCorrection : public D3DApp
+class AppGammaCorrection : public RenderApp
 {
 public:
 	AppGammaCorrection() = default;
