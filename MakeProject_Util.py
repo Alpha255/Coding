@@ -41,7 +41,7 @@ class VCProject:
 		self.Dependencies = _Dependencies
 		self.ExtraDirectory = _ExtraDirectory
 		self.IsConsole = _IsConsole
-		self.FileList = MakeFileList(_Name, [_Path] + _ExtraDirectory, _Filters, _ExcludeDirectory)
+		self.FileList = MakeFileList(_Name, [_Path] + _ExtraDirectory, _Filters, _ExcludeDirectory, _IsLibrary)
 
 def GetFileRootPath(_FilePath):
 	return _FilePath.rsplit('\\', 1)[0]
@@ -61,7 +61,7 @@ def MakeGUID(_Name):
 	GUID = '{' + GUID[:8] + '-' + GUID[8:12] + '-' + GUID[12:16] + '-' + GUID[16:20] + '-' + GUID[20:32] + '}'
 	return GUID
 
-def MakeFileList(_ProjectName, _Directorys, _TypeFilters = [], _ExcludeDirectorys = []):
+def MakeFileList(_ProjectName, _Directorys, _TypeFilters = [], _ExcludeDirectorys = [], _IsLibrary = False):
 	fileList = {}
 	for fileType in FileType:
 		fileList[fileType] = []
@@ -89,7 +89,7 @@ def MakeFileList(_ProjectName, _Directorys, _TypeFilters = [], _ExcludeDirectory
 					elif IsFileTypeMatch(file, ['.ico']):
 						fileList[FileType.eImage].append(fullFilePath)
 					elif IsFileTypeMatch(file, ['.hlsl', '.hlsli', '.glsl']):
-						if _ProjectName.lower() in fullFilePath.lower():
+						if ((_ProjectName.lower() in fullFilePath.lower()) and False == _IsLibrary):
 							fileList[FileType.eShader].append(fullFilePath)
 
 	return fileList
