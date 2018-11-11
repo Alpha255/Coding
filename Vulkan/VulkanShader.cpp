@@ -3,12 +3,8 @@
 #include "System.h"
 #include "ResourceFile.h"
 
-#include <fstream>
-
-void VulkanShader::Create(const char *pFileName, const char *pEntryPoint)
+void VulkanShader::Create(const char *pFileName)
 {
-	assert(0);
-
 	ResourceFile shaderFile(pFileName);
 
 	///char workingDir[MAX_PATH] = {};
@@ -24,7 +20,7 @@ void VulkanShader::Create(const char *pFileName, const char *pEntryPoint)
 		shaderFile.GetSize(),
 		(uint32_t *)shaderFile.Load()
 	};
-	VKCheck(vkCreateShaderModule(VulkanEngine::Instance().GetDevice().GetRef(), &createInfo, nullptr, &m_Object));
+	VKCheck(vkCreateShaderModule(VulkanEngine::Instance().GetDevice().Get(), &createInfo, nullptr, &m_Handle));
 
 	///::SetCurrentDirectoryA(workingDir);
 }

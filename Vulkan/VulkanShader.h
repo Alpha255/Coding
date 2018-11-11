@@ -9,8 +9,9 @@ public:
 		: m_Stage(stage)
 	{
 	}
+
+	void Create(const char *pFileName);
 protected:
-	void Create(const char *pFileName, const char *pEntryPoint);
 	VkShaderStageFlagBits m_Stage;
 private:
 };

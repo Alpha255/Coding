@@ -1,6 +1,7 @@
 #pragma once
 
 #include "VulkanObject.h"
+#include "VulkanSwapChain.h"
 
 class VulkanEngine : public NoneCopyable
 {
@@ -35,22 +36,27 @@ public:
 	{
 	}
 
-	inline const VulkanDevice &GetDevice() const
-	{
-		assert(m_Device.IsValid());
-		return m_Device;
-	}
-
 	inline const VulkanPhysicalDevice &GetPhysicalDevice() const
 	{
 		assert(m_PhysicalDevice.IsValid());
 		return m_PhysicalDevice;
 	}
 
+	inline const VulkanDevice &GetDevice() const
+	{
+		assert(m_Device.IsValid());
+		return m_Device;
+	}
+
 	inline const VulkanInstance &GetInstance() const
 	{
 		assert(m_Instance.IsValid());
 		return m_Instance;
+	}
+
+	inline const VulkanSwapchain &GetSwapchain() const
+	{
+		return m_Swapchain;
 	}
 
 	void Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool bWindowed);
@@ -61,13 +67,11 @@ protected:
 	VulkanEngine() = default;
 	~VulkanEngine() = default;
 
-	void InitLayerProperties();
-	void CreateDevice();
 private:
 	static std::unique_ptr<VulkanEngine, std::function<void(VulkanEngine *)>> s_Instance;
 
-	VulkanDevice m_Device;
 	VulkanPhysicalDevice m_PhysicalDevice;
+	VulkanDevice m_Device;
 	VulkanSwapchain m_Swapchain;
 	VulkanInstance m_Instance;
 

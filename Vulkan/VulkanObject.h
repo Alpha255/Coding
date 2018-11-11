@@ -12,37 +12,33 @@ public:
 	VulkanObject() = default;
 	inline virtual ~VulkanObject() = default;
 
-	inline bool IsValid() const
+	inline T Get() const
 	{
-		return m_Object != VK_NULL_HANDLE;
-	}
-
-	inline T * const Get()
-	{
-		return &m_Object;
-	}
-
-	inline const T &GetRef() const
-	{
-		return m_Object;
+		assert(IsValid());
+		return m_Handle;
 	}
 
 	inline VulkanObject(const VulkanObject &other)
 	{
-		if (m_Object != other.m_Object)
+		if (m_Handle != other.m_Handle)
 		{
-			m_Object = other.m_Object;
+			m_Handle = other.m_Handle;
 		}
+	}
+
+	inline bool IsValid() const
+	{
+		return m_Handle != VK_NULL_HANDLE;
 	}
 
 	inline bool operator==(const VulkanObject &other) const
 	{
-		return this->m_Object == other.m_Object;
+		return this->m_Handle == other.m_Handle;
 	}
 
 	inline bool operator==(const T &other) const
 	{
-		return m_Object == other;
+		return m_Handle == other;
 	}
 
 	inline bool operator!=(const VulkanObject &other) const
@@ -55,39 +51,62 @@ public:
 		return !(*this == other);
 	}
 protected:
-	T m_Object = VK_NULL_HANDLE;
+	T m_Handle = VK_NULL_HANDLE;
 private:
 };
 
-class VulkanInstance : public VulkanObject<VkInstance> {};
-class VulkanPhysicalDevice : public VulkanObject<VkPhysicalDevice> {};
+class VulkanInstance : public VulkanObject<VkInstance>
+{
+public:
+	void Create(const char *pInstName = "VulkanInstance");
+
+	inline void Destory()
+	{
+		vkDestroyInstance(m_Handle, nullptr);
+	}
+
+	inline const std::vector<VkLayerProperties> &GetLayerProperties() const
+	{
+		return m_LayerProperties;
+	}
+protected:
+	void InitLayerProperties();
+
+private:
+	std::vector<VkLayerProperties> m_LayerProperties;
+	std::vector<VkExtensionProperties> m_ExtensionProperties;
+};
+
+class VulkanPhysicalDevice : public VulkanObject<VkPhysicalDevice> 
+{
+public:
+	void Create();
+
+	inline const std::vector<VkQueueFamilyProperties> &GetQueueFamilyProperties() const
+	{
+		return m_QueueFamilyProperties;
+	}
+
+	inline const VkPhysicalDeviceMemoryProperties &GetDeviceMemoryProperties() const
+	{
+		return m_DeviceMemoryProperties;
+	}
+
+protected:
+	void InitExtensionProperties();
+private:
+	std::vector<VkQueueFamilyProperties> m_QueueFamilyProperties;
+	std::vector<VkExtensionProperties> m_ExtensionProperties;
+	VkPhysicalDeviceMemoryProperties m_DeviceMemoryProperties = {};
+	VkPhysicalDeviceProperties m_DeviceProperties = {};
+};
 
 class VulkanDevice : public VulkanObject<VkDevice>
 {
 public:
-	inline void Destory()
-	{
-		vkDeviceWaitIdle(m_Object);
-		vkDestroyDevice(m_Object, nullptr);
-	}
+	void Create();
 protected:
 private:
-};
-
-class VulkanSwapchain : public VulkanObject<VkSwapchainKHR>
-{
-public:
-	class VulkanSurface : public VulkanObject<VkSurfaceKHR>
-	{
-	public:
-		void Create(::HWND hWnd);
-	protected:
-	private:
-	};
-
-	void Create(::HWND hWnd, uint32_t width, uint32_t height);
-protected:
-	///std::array<uint32_t, 2> ValidPresentingSupport();
-private:
-	VulkanSurface m_Surface;
+	uint32_t m_GraphicQueueFamilyIndex = UINT32_MAX;
+	uint32_t m_QueuePresentQueueFamilyIndex = UINT32_MAX;
 };
