@@ -143,3 +143,48 @@ void VulkanDevice::Create()
 
 	VKCheck(vkCreateDevice(VulkanEngine::Instance().GetPhysicalDevice().Get(), &deviceCreateInfo, nullptr, &m_Handle));
 }
+
+void VulkanCommandBuffer::Create(const VulkanCommandPool &pool, uint32_t level, uint32_t count)
+{
+	VkCommandBufferAllocateInfo allocInfo
+	{
+		VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+		nullptr,
+		pool.Get(),
+		(VkCommandBufferLevel)level,
+		count
+	};
+
+	VKCheck(vkAllocateCommandBuffers(VulkanEngine::Instance().GetDevice().Get(), &allocInfo, &m_Handle));
+}
+
+void VulkanCommandBuffer::Begin(uint32_t flags)
+{
+	VkCommandBufferBeginInfo beginInfo
+	{
+		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+		nullptr,
+		(VkCommandBufferUsageFlags)flags,
+		nullptr
+	};
+
+	VKCheck(vkBeginCommandBuffer(m_Handle, &beginInfo));
+}
+
+void VulkanCommandBuffer::End()
+{
+	VKCheck(vkEndCommandBuffer(m_Handle));
+}
+
+void VulkanCommandPool::Create(uint32_t flags)
+{
+	VkCommandPoolCreateInfo createInfo
+	{
+		VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+		nullptr,
+		flags,
+		VulkanEngine::Instance().GetDevice().GetGraphicQueueFamilyIndex()
+	};
+
+	VKCheck(vkCreateCommandPool(VulkanEngine::Instance().GetDevice().Get(), &createInfo, nullptr, &m_Handle));
+}

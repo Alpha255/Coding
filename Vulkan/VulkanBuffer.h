@@ -5,6 +5,8 @@
 class VulkanDeviceMemory : public VulkanObject<VkDeviceMemory>
 {
 public:
+	static uint32_t GetMemoryType(uint32_t memoryTypeBits, uint32_t memoryPropertyFlagBits);
+
 	void Create(size_t size, uint32_t memoryType, uint32_t flags = 0U);
 
 	void Update(const void *pMemory, size_t size, size_t offset);
