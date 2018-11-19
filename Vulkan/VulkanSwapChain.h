@@ -28,9 +28,16 @@ public:
 		assert(m_PresentQueueFamilyIndex != UINT32_MAX);
 		return m_PresentQueueFamilyIndex;
 	}
+
+	inline uint32_t GetFormat() const
+	{
+		assert(m_Format != VK_FORMAT_UNDEFINED);
+		return m_Format;
+	}
 protected:
 private:
 	VulkanSurface m_Surface;
 	uint32_t m_GraphicsQueueFamilyIndex = UINT32_MAX;
 	uint32_t m_PresentQueueFamilyIndex = UINT32_MAX;
+	uint32_t m_Format = VK_FORMAT_UNDEFINED;
 };

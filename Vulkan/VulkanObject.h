@@ -158,3 +158,11 @@ public:
 protected:
 private:
 };
+
+class VulkanRenderPass : public VulkanObject<VkRenderPass>
+{
+public:
+	void Create(bool depth, uint32_t colorFormat, uint32_t depthFormat, bool clear = true, uint32_t imageLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+protected:
+private:
+};
