@@ -19,7 +19,7 @@ private:
 class VulkanBuffer : public VulkanObject<VkBuffer>
 {
 public:
-	void Create(size_t size, VkBufferUsageFlagBits usage);
+	void Create(size_t size, uint32_t usage);
 
 	void Destory();
 
@@ -39,6 +39,15 @@ public:
 	{
 		VulkanBuffer::Create(size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 	}
+protected:
+private:
+};
+
+
+class VulkanFrameBuffer : public VulkanObject<VkFramebuffer>
+{
+public:
+	void Create(uint32_t width, uint32_t height, const class VulkanRenderPass renderPass, const class VulkanTexture2D &tex);
 protected:
 private:
 };

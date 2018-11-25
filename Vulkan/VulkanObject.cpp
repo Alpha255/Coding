@@ -1,4 +1,5 @@
 #include "VulkanObject.h"
+#include "VulkanPool.h"
 #include "VulkanEngine.h"
 
 void VulkanInstance::InitLayerProperties()
@@ -176,19 +177,6 @@ void VulkanCommandBuffer::End()
 	VKCheck(vkEndCommandBuffer(m_Handle));
 }
 
-void VulkanCommandPool::Create(uint32_t flags)
-{
-	VkCommandPoolCreateInfo createInfo
-	{
-		VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
-		nullptr,
-		flags,
-		VulkanEngine::Instance().GetDevice().GetGraphicQueueFamilyIndex()
-	};
-
-	VKCheck(vkCreateCommandPool(VulkanEngine::Instance().GetDevice().Get(), &createInfo, nullptr, &m_Handle));
-}
-
 void VulkanRenderPass::Create(bool depth, uint32_t colorFormat, uint32_t depthFormat, bool clear, uint32_t imageLayout)
 {
 	VkAttachmentDescription layoutColor
@@ -256,4 +244,16 @@ void VulkanRenderPass::Create(bool depth, uint32_t colorFormat, uint32_t depthFo
 	};
 
 	VKCheck(vkCreateRenderPass(VulkanEngine::Instance().GetDevice().Get(), &renderPassCreateInfo, nullptr, &m_Handle));
+}
+
+void VulkanSemaphore::Create()
+{
+	VkSemaphoreCreateInfo createInfo
+	{
+		VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+		nullptr,
+		0U
+	};
+
+	VKCheck(vkCreateSemaphore(VulkanEngine::Instance().GetDevice().Get(), &createInfo, nullptr, &m_Handle));
 }

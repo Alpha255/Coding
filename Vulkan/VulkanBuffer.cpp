@@ -1,4 +1,5 @@
 #include "VulkanBuffer.h"
+#include "VulkanTexture.h"
 #include "VulkanEngine.h"
 
 uint32_t VulkanDeviceMemory::GetMemoryType(uint32_t memoryTypeBits, uint32_t memoryPropertyFlagBits)
@@ -7,7 +8,6 @@ uint32_t VulkanDeviceMemory::GetMemoryType(uint32_t memoryTypeBits, uint32_t mem
 	bool bValidMemoryType = false;
 	auto deviceMemoryProperties = VulkanEngine::Instance().GetPhysicalDevice().GetDeviceMemoryProperties();
 	uint32_t memoryType = 0U;
-	uint32_t memoryTypeBits = memoryTypeBits;
 	for (uint32_t i = 0; i < deviceMemoryProperties.memoryTypeCount; i++)
 	{
 		if ((memoryTypeBits & 1) == 1)
@@ -56,7 +56,7 @@ void VulkanDeviceMemory::Destory()
 	vkFreeMemory(VulkanEngine::Instance().GetDevice().Get(), m_Handle, nullptr);
 }
 
-void VulkanBuffer::Create(size_t size, VkBufferUsageFlagBits usage)
+void VulkanBuffer::Create(size_t size, uint32_t usage)
 {
 	VkBufferCreateInfo createInfo = 
 	{
@@ -64,7 +64,7 @@ void VulkanBuffer::Create(size_t size, VkBufferUsageFlagBits usage)
 		nullptr,
 		0U,
 		size,
-		usage,
+		(VkBufferUsageFlags)usage,
 		VK_SHARING_MODE_EXCLUSIVE,
 		0U,
 		nullptr
@@ -82,4 +82,22 @@ void VulkanBuffer::Destory()
 	vkDestroyBuffer(VulkanEngine::Instance().GetDevice().Get(), m_Handle, nullptr);
 
 	m_Memory.Destory();
+}
+
+void VulkanFrameBuffer::Create(uint32_t width, uint32_t height, const VulkanRenderPass renderPass, const VulkanTexture2D &tex)
+{
+	VkFramebufferCreateInfo createInfo
+	{
+		VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+		nullptr,
+		0U,
+		renderPass.Get(),
+		1U,
+		nullptr,///&tex.Get(),
+		width,
+		height,
+		1U
+	};
+
+	VKCheck(vkCreateFramebuffer(VulkanEngine::Instance().GetDevice().Get(), &createInfo, nullptr, &m_Handle));
 }

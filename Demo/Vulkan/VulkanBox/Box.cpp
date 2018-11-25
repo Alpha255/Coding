@@ -1,6 +1,7 @@
 #include "Box.h"
 #include "Camera.h"
 #include "VulkanShader.h"
+#include "VulkanEngine.h"
 
 void AppBox::Initialize()
 {
@@ -12,4 +13,5 @@ void AppBox::Initialize()
 
 void AppBox::RenderScene()
 {
+	VulkanEngine::Instance().ClearRenderSurface();
 }

@@ -143,26 +143,56 @@ protected:
 private:
 };
 
-class VulkanCommandPool : public VulkanObject<VkCommandPool>
-{
-public:
-	void Create(uint32_t flags);
-
-	inline VulkanCommandBuffer AllocCommandBuffer(uint32_t level, uint32_t count)
-	{
-		VulkanCommandBuffer buffer;
-		buffer.Create(*this, level, count);
-
-		return buffer;
-	}
-protected:
-private:
-};
-
 class VulkanRenderPass : public VulkanObject<VkRenderPass>
 {
 public:
 	void Create(bool depth, uint32_t colorFormat, uint32_t depthFormat, bool clear = true, uint32_t imageLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+protected:
+private:
+};
+
+class VulkanSemaphore : public VulkanObject<VkSemaphore>
+{
+public:
+	void Create();
+protected:
+private:
+};
+
+class VulkanDescriptorSetLayout : public VulkanObject<VkDescriptorSetLayout>
+{
+public:
+	void Create(bool bUseTex);
+protected:
+private:
+};
+
+class VulkanPipelineLayout : public VulkanObject<VkPipelineLayout>
+{
+public:
+	void Create(bool bUseTex);
+protected:
+private:
+};
+
+class VulkanDescriptorSet : public VulkanObject<VkDescriptorSet>
+{
+public:
+	void Create(bool bUseTex);
+protected:
+private:
+};
+
+class VulkanPipelineCache : public VulkanObject<VkPipelineCache>
+{
+public:
+protected:
+private:
+};
+
+class VulkanPipeline : public VulkanObject<VkPipeline>
+{
+public:
 protected:
 private:
 };
