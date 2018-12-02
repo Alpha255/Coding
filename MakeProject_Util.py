@@ -52,8 +52,7 @@ def GetFileName(_FilePath):
 def IsFileTypeMatch(_FileName, _Types):
 	typeMatch = False
 	for fileType in _Types:
-		if (('.' + _FileName.rsplit('.', 1)[1].lower()) == fileType.lower()):
-			typeMatch = True
+		typeMatch = _FileName.lower().endswith(fileType.lower())
 	return typeMatch
 
 def MakeGUID(_Name):
