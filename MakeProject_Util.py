@@ -52,7 +52,8 @@ def GetFileName(_FilePath):
 def IsFileTypeMatch(_FileName, _Types):
 	typeMatch = False
 	for fileType in _Types:
-		typeMatch = _FileName.lower().endswith(fileType.lower())
+		if (('.' + _FileName.rsplit('.', 1)[1].lower()) == fileType.lower()):
+			typeMatch = True
 	return typeMatch
 
 def MakeGUID(_Name):
@@ -101,7 +102,11 @@ def MakeFilterList(_vcProject):
 	for fileType in FileType:
 		for file in _vcProject.FileList[fileType]:
 			fileRoot = GetFileRootPath(file) + '\\'
-			if ((fileRoot.lower() == _vcProject.Path.lower()) or IsFileTypeMatch(file, ['.hlsl', '.hlsli', '.glsl', '.rc', '.ico'])):
+			if ((fileRoot.lower() == _vcProject.Path.lower()) or IsFileTypeMatch(file, ['.rc', '.ico'])):
+				continue
+			if (IsFileTypeMatch(file, ['.hlsl', '.hlsli', '.glsl'])):
+				if ('Shaders' not in filterList):
+					filterList.append('Shaders')
 				continue
 			newFilter = file[len(_vcProject.Path):(len(file) - len(GetFileName(file))) - 1]
 			subFilter = newFilter.split('\\', 1)
@@ -141,6 +146,9 @@ def MakeProjectFilter(_vcProject, _IncludeType):
 						break
 					elif (IsFileTypeMatch(file, ['.rc', '.ico'])):
 						filterXML.append('\t\t\t<Filter>%s</Filter>\n' % 'Resource')
+						break
+					elif (IsFileTypeMatch(file, ['.hlsl', '.hlsli', 'glsl'])):
+						filterXML.append('\t\t\t<Filter>%s</Filter>\n' % 'Shaders')
 						break
 				filterXML.append('\t\t</%s>\n' % _IncludeType[fileType].split(' ', 1)[0])
 			filterXML.append('\t</ItemGroup>\n')
