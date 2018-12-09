@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RenderApp.h"
+#include "D3DGeometry.h"
 
 class AppBox : public RenderApp
 {
@@ -16,4 +17,5 @@ public:
 	virtual void RenderScene() override;
 protected:
 private:
+	Geometry::Mesh m_Box;
 };
