@@ -4,7 +4,9 @@
 #include "VulkanView.h"
 #include "VulkanBuffer.h"
 #include "VulkanShader.h"
+#include "VulkanState.h"
 #include "D3DMath.h"
+#include "D3DShader.h"
 
 class VulkanContext : public VulkanObject<VkPipeline>
 {
@@ -17,9 +19,9 @@ public:
 	void SetVertexBuffer(const VulkanBuffer &vertexBuffer, uint32_t stride, uint32_t offset, uint32_t slot = 0U);
 	void SetIndexBuffer(const VulkanBuffer &indexBuffer, uint32_t fmt, uint32_t offset);
 
-	//void SetSamplerState(const D3DSamplerState &samplerState, uint32_t slot, D3DShader::eShaderType targetShader);
-	//void SetRasterizerState(const D3DRasterizerState &rasterizerState);
-	//void SetDepthStencilState(const D3DDepthStencilState &depthStencilState, uint32_t stencilRef);
+	void SetSamplerState(const VulkanSamplerState &samplerState, uint32_t slot, D3DShader::eShaderType targetShader);
+	void SetRasterizerState(const VulkanRasterizerState &rasterizerState);
+	void SetDepthStencilState(const VulkanDepthStencilState &depthStencilState, uint32_t stencilRef);
 	//void SetBlendState(const D3DBlendState &blendState, Vec4 blendFactor = Vec4(0.0f, 0.0f, 0.0f, 0.0f), uint32_t mask = 0xFFFFFFFF);
 
 	///void SetInputLayout(const D3DInputLayout &inputLayout);

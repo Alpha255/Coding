@@ -35,3 +35,26 @@ public:
 protected:
 private:
 };
+
+class VulkanDepthStencilState
+{
+public:
+	void Create(
+		bool bDepthEnable,
+		uint32_t depthWriteMask,
+		uint32_t compFunc,
+		bool bStencilEnable,
+		uint8_t stencilReadMask,
+		uint8_t stencilWriteMask,
+		uint32_t stencilFailOpFrontFace,
+		uint32_t stencilDepthFailOpFrontFace,
+		uint32_t stencilPassOpFrontFace,
+		uint32_t stencilCompFuncFrontFace,
+		uint32_t stencilFailOpBackFace,
+		uint32_t stencilDepthFailOpBackFace,
+		uint32_t stencilPassOpBackFace,
+		uint32_t stencilCompFuncBackFace);
+protected:
+private:
+	VkPipelineDepthStencilStateCreateInfo m_StateInfo = {};
+};
