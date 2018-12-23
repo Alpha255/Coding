@@ -20,6 +20,8 @@ public:
 
 	void Create(uint32_t width, uint32_t height, bool bWindowed = true);
 
+	void CreateFrameBuffer(uint32_t width, uint32_t height, VkRenderPass renderPass);
+
 	inline uint32_t GetGraphicsQueueFamilyIndex() const
 	{
 		assert(m_GraphicsQueueFamilyIndex != UINT32_MAX);

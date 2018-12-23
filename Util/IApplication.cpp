@@ -1,17 +1,29 @@
 #include "IApplication.h"
-#include "Timer.h"
+#include "ImGUI.h"
 
 static IApplication* s_Application = nullptr;
 
 ::LRESULT WINAPI WndProc(::HWND hWnd, uint32_t msg, ::WPARAM wParam, ::LPARAM lParam)
 {
 	assert(s_Application);
-	return s_Application->MsgProc(hWnd, msg, wParam, lParam);
+	return s_Application->MessageProcFunc(hWnd, msg, wParam, lParam);
 }
 
-IApplication::IApplication()
-	: m_Timer(new Timer())
+::LRESULT IApplication::MessageProcFunc(::HWND hWnd, uint32_t msg, ::WPARAM wParam, ::LPARAM lParam)
 {
+	if (m_bRenderEngineInited && m_ImGUI->MessageProcFunc(hWnd, msg, wParam, lParam))
+	{
+		return 1LL;
+	}
+
+	HandleWindowMessage(msg, wParam, lParam);
+
+	if (!m_bRenderEngineInited || !m_ImGUI->IsFocus())
+	{
+		HandleInput(msg, wParam, lParam);
+	}
+
+	return ::DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
 void IApplication::MakeWindow(const wchar_t *pTitle, uint32_t width, uint32_t height, uint32_t windowStyle)
@@ -53,6 +65,16 @@ void IApplication::MakeWindow(const wchar_t *pTitle, uint32_t width, uint32_t he
 	}
 }
 
+void IApplication::ResizeWindow(uint32_t width, uint32_t height)
+{
+	if (m_bRenderEngineInited)
+	{
+		m_Engine->Resize(width, height);
+	}
+
+	m_Camera.SetProjParams(DirectX::XM_PIDIV4, (float)width / height, 1.0f, 3000.0f);
+}
+
 void IApplication::HandleWindowMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM /*lParam*/)
 {
 	switch (msg)
@@ -61,12 +83,12 @@ void IApplication::HandleWindowMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM /
 		if (LOWORD(wParam) == WA_INACTIVE)
 		{
 			m_bActive = false;
-			m_Timer->Stop();
+			m_Timer.Stop();
 		}
 		else
 		{
 			m_bActive = true;
-			m_Timer->Start();
+			m_Timer.Start();
 		}
 		break;
 	case WM_SYSCOMMAND:
@@ -77,11 +99,11 @@ void IApplication::HandleWindowMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM /
 		break;
 	case WM_ENTERSIZEMOVE:
 		m_bActive = false;
-		m_Timer->Stop();
+		m_Timer.Stop();
 		m_bNeedResize = true;
 		break;
 	case WM_EXITSIZEMOVE:
-		m_Timer->Start();
+		m_Timer.Start();
 		m_bActive = true;
 		break;
 	case WM_DESTROY:
@@ -126,6 +148,23 @@ void IApplication::HandleInput(uint32_t msg, ::WPARAM wParam, ::LPARAM lParam)
 	}
 }
 
+void IApplication::RenderToWindow()
+{
+	m_Camera.Update();
+
+	UpdateScene(m_Timer.GetDeltaTime(), m_Timer.GetTotalTime());
+
+	m_ImGUI->RenderBegin(m_bDrawGUI);
+
+	RenderScene();
+
+	m_ImGUI->RenderEnd(m_bDrawGUI);
+
+	m_Engine->Flush();
+
+	UpdateFPS();
+}
+
 void IApplication::UpdateWindow()
 {
 	if (!m_bNeedResize)
@@ -148,18 +187,67 @@ void IApplication::Startup(const wchar_t *pTitle, uint32_t width, uint32_t heigh
 {
 	s_Application = this;
 
-	m_bWindowed = bWindowed;
+	m_bFullScreen = bWindowed;
 
 	MakeWindow(pTitle, width, height, windowStyle);
 
-	InitRenderer();
+	SetupRenderEngine();
+
+	if (!m_bRenderEngineInited)
+	{
+		m_Engine->Initialize(m_hWnd, m_Width, m_Height, m_bFullScreen);
+
+		m_ImGUI->Initialize(m_hWnd);
+
+		m_Camera.SetProjParams(DirectX::XM_PIDIV4, (float)m_Width / m_Height, 1.0f, 3000.0f);
+
+		m_bRenderEngineInited = true;
+	}
+
+	if (!m_bSceneInited)
+	{
+		InitScene();
+		m_bSceneInited = true;
+	}
+}
+
+void IApplication::MouseWheel(::WPARAM wParam)
+{
+	m_MouseWheelDelta = (int16_t)HIWORD(wParam);
+
+	/// Not perfect 
+	float radius = m_Camera.GetViewRadius();
+	float radiusCopy = radius;
+
+	radius -= m_MouseWheelDelta * radius * 0.1f / 120.0f;
+	radius = Math::Clamp(radius, radiusCopy / 2.0f, radiusCopy * 2.0f);
+
+	m_Camera.SetViewRadius(radius);
+}
+
+void IApplication::UpdateFPS()
+{
+	static uint32_t s_FrameNumber = 0U;
+	static float s_LastUpdateTime = 0.0f;
+
+	float totalTime = m_Timer.GetTotalTime();
+	s_FrameNumber++;
+
+	float elapseTime = totalTime - s_LastUpdateTime;
+	if (elapseTime > 1.0f)
+	{
+		m_FPS = s_FrameNumber / elapseTime;
+
+		s_LastUpdateTime = totalTime;
+		s_FrameNumber = 0U;
+	}
 }
 
 void IApplication::Running()
 {
 	::MSG msg = { 0 };
 
-	m_Timer->Reset();
+	m_Timer.Reset();
 
 	while (msg.message != WM_QUIT)
 	{
@@ -170,7 +258,7 @@ void IApplication::Running()
 		}
 		else
 		{
-			m_Timer->Tick();
+			m_Timer.Tick();
 
 			if (m_bActive)
 			{
@@ -184,4 +272,9 @@ void IApplication::Running()
 			}
 		}
 	}
+}
+
+void IApplication::ShutDown()
+{
+	m_ImGUI->Destroy();
 }

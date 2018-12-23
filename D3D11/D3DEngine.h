@@ -1,5 +1,6 @@
 #pragma once
 
+#include "IRenderEngine.h"
 #include "D3DView.h"
 #include "D3DMath.h"
 #include "D3DShader.h"
@@ -7,11 +8,12 @@
 #include "D3DState.h"
 #include "D3DContext.h"
 #include "D3DGeometry.h"
+#include "D3DTexture.h"
 
 #include <unordered_map>
 #include <thread>
 
-class D3DEngine : public NoneCopyable
+class D3DEngine : public IRenderEngine
 {
 public:
 	static D3DEngine &Instance()

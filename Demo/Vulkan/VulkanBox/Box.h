@@ -40,6 +40,9 @@ private:
 	VulkanCommandPool m_CmdPool;
 	VulkanCommandBuffer m_CmdBuffer;
 
+	VulkanBuffer m_VertexBuffer;
+	VulkanBuffer m_IndexBuffer;
+
 	VulkanSemaphore m_Wait;
 	VulkanFence m_Fence;
 };

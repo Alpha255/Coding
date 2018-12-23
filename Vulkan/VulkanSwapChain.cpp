@@ -134,7 +134,10 @@ void VulkanSwapchain::Create(uint32_t width, uint32_t height, bool bWindowed)
 	};
 
 	VKCheck(vkCreateSwapchainKHR(VulkanEngine::Instance().GetDevice().Get(), &createInfo, nullptr, &m_Handle));
+}
 
+void VulkanSwapchain::CreateFrameBuffer(uint32_t width, uint32_t height, VkRenderPass renderPass)
+{
 	uint32_t imageCount = 0U;
 	VkImage *pImage = new VkImage[imageCount]();
 	VKCheck(vkGetSwapchainImagesKHR(VulkanEngine::Instance().GetDevice().Get(), m_Handle, &imageCount, nullptr));
@@ -170,7 +173,7 @@ void VulkanSwapchain::Create(uint32_t width, uint32_t height, bool bWindowed)
 		fbInfo.width = width;
 		fbInfo.height = height;
 		fbInfo.layers = 1;
-		fbInfo.renderPass = 0;
+		fbInfo.renderPass = renderPass;
 		VKCheck(vkCreateFramebuffer(VulkanEngine::Instance().GetDevice().Get(), &fbInfo, nullptr, &image.FrameBuffer));
 	}
 }

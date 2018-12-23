@@ -72,7 +72,7 @@ public:
 	D3DBuffer IndexBuffer;
 	uint32_t IndexCount = 0U;
 	uint32_t VertexCount = 0U;
-protected:
+public:
 	std::vector<Vertex> m_Vertices;
 	std::vector<uint32_t> m_Indices;
 

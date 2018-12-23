@@ -1,10 +1,7 @@
-#include "ImGUI.h"
-#include "D3DEngine.h"
-#include "D3DTexture.h"
+#include "IImGUI.h"
+#include "D3DMath.h"
 
-std::unique_ptr<ImGUI> ImGUI::s_Instance;
-
-void ImGUI::Initialize(::HWND hWnd)
+void IImGUI::Initialize(::HWND hWnd)
 {
 	assert(hWnd && !m_Inited);
 
@@ -34,43 +31,12 @@ void ImGUI::Initialize(::HWND hWnd)
 	io.RenderDrawListsFn = nullptr;
 	io.ImeWindowHandle = hWnd;
 
-#ifdef UsingD3D11
-	/// Init D3D resource
-	const D3D11_INPUT_ELEMENT_DESC layout[] =
-	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (size_t)(&((ImDrawVert*)0)->pos), D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (size_t)(&((ImDrawVert*)0)->uv),  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR",    0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, (size_t)(&((ImDrawVert*)0)->col), D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
-
-	m_Resource.VertexShader.Create("imGUI.hlsl", "VS_Main");
-	m_Resource.VertexLayout.Create(m_Resource.VertexShader.GetBlob(), layout, _countof(layout));
-	m_Resource.PixelShader.Create("imGUI.hlsl", "PS_Main");
-
-	m_Resource.ConstantBufferVS.CreateAsConstantBuffer(sizeof(Matrix), D3DBuffer::eGpuReadCpuWrite, nullptr);
-
-	m_Resource.ClrWriteBlend.Create(false, false, 0U, true, D3DState::eSrcAlpha, D3DState::eInvSrcAlpha, D3DState::eAdd, 
-		D3DState::eInvSrcAlpha, D3DState::eZero, D3DState::eAdd, D3DState::eColorAll);
-
-	unsigned char *pPixels = nullptr;
-	int32_t width = 0, height = 0;
-	io.Fonts->GetTexDataAsRGBA32(&pPixels, &width, &height);
-
-	D3DTexture2D fontTex;
-	D3D11_SUBRESOURCE_DATA subRes = {};
-	subRes.pSysMem = (const void *)pPixels;
-	subRes.SysMemPitch = (uint32_t)width * 4U;
-	fontTex.Create(eRGBA8_UNorm, (uint32_t)width, (uint32_t)height, D3DBuffer::eBindAsShaderResource, 1U, 1U, 0U, 0U,
-		D3DBuffer::eGpuReadWrite, &subRes);
-	m_Resource.FontTexture.CreateAsTexture(D3DView::eTexture2D, fontTex, eRGBA8_UNorm, 0U, 1U);
-	io.Fonts->TexID = (void *)m_Resource.FontTexture.Get();
-#else
-#endif
+	InitRenderResource(io);
 
 	m_Inited = true;
 }
 
-::LRESULT ImGUI::WinProc(::HWND hWnd, uint32_t uMsg, ::WPARAM wParam, ::LPARAM lParam)
+::LRESULT IImGUI::MessageProcFunc(::HWND hWnd, uint32_t uMsg, ::WPARAM wParam, ::LPARAM lParam)
 {
 	ImGuiIO &io = ImGui::GetIO();
 
@@ -141,7 +107,7 @@ void ImGUI::Initialize(::HWND hWnd)
 	return 0LL;
 }
 
-void ImGUI::RenderBegin(bool bDraw, const char *pPanelName)
+void IImGUI::RenderBegin(bool bDraw, const char *pPanelName)
 {
 	if (!bDraw)
 	{
@@ -186,7 +152,7 @@ void ImGUI::RenderBegin(bool bDraw, const char *pPanelName)
 	ImGui::Begin(pPanelName);
 }
 
-void ImGUI::RenderEnd(bool bDraw)
+void IImGUI::RenderEnd(bool bDraw)
 {
 	if (!bDraw)
 	{
@@ -197,10 +163,10 @@ void ImGUI::RenderEnd(bool bDraw)
 
 	ImGui::Render();
 
-	UpdateAndRender();
+	Update();
 }
 
-void ImGUI::UpdateAndRender()
+void IImGUI::Update()
 {
 	ImDrawData *pDrawData = ImGui::GetDrawData();
 	if (!pDrawData)
@@ -208,10 +174,7 @@ void ImGUI::UpdateAndRender()
 		return;
 	}
 
-	UpdateDrawData(
-		(!m_Resource.VertexBuffer.IsValid() || m_VertexCount < pDrawData->TotalVtxCount),
-		(!m_Resource.IndexBuffer.IsValid() || m_IndexCount < pDrawData->TotalIdxCount),
-		pDrawData);
+	UpdateDrawData(m_VertexCount < pDrawData->TotalVtxCount, m_IndexCount < pDrawData->TotalIdxCount, pDrawData);
 
 	float L = 0.0f;
 	float R = ImGui::GetIO().DisplaySize.x;
@@ -223,21 +186,8 @@ void ImGUI::UpdateAndRender()
 		0.0f, 0.0f, 0.5f, 0.0f,
 		(R + L) / (L - R), (T + B) / (B - T), 0.5f, 1.0f
 	);
-	m_Resource.ConstantBufferVS.Update(&wvp, sizeof(Matrix));
 
-	D3DViewport vp(0.0f, 0.0f, ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y);
-	
-	D3DEngine::Instance().SetViewport(vp);
-	D3DEngine::Instance().SetVertexShader(m_Resource.VertexShader);
-	D3DEngine::Instance().SetPixelShader(m_Resource.PixelShader);
-	D3DEngine::Instance().SetInputLayout(m_Resource.VertexLayout);
-	D3DEngine::Instance().SetVertexBuffer(m_Resource.VertexBuffer, sizeof(ImDrawVert), 0U);
-	D3DEngine::Instance().SetIndexBuffer(m_Resource.IndexBuffer, sizeof(ImDrawIdx) == 2U ? eR16_UInt : eR32_UInt, 0U);
-	D3DEngine::Instance().SetConstantBuffer(m_Resource.ConstantBufferVS, 0U, D3DShader::eVertexShader);
-	D3DEngine::Instance().SetSamplerState(D3DStaticState::LinearSampler, 0U, D3DShader::ePixelShader);
-	D3DEngine::Instance().SetBlendState(m_Resource.ClrWriteBlend);
-	D3DEngine::Instance().SetDepthStencilState(D3DStaticState::DisableDepthStencil, 0U);
-	D3DEngine::Instance().SetRasterizerState(D3DStaticState::SolidNoneCulling);
+	SetupRenderResource(wvp);
 
 	for (int i = 0, vOffset = 0, iOffset = 0; i < pDrawData->CmdListsCount; ++i)
 	{
@@ -251,11 +201,15 @@ void ImGUI::UpdateAndRender()
 			}
 			else
 			{
-				D3DRect rect((uint32_t)pDrawCmd->ClipRect.x, (uint32_t)pDrawCmd->ClipRect.y, (uint32_t)pDrawCmd->ClipRect.z, (uint32_t)pDrawCmd->ClipRect.w);
+				::RECT scissorRect
+				{
+					(long)pDrawCmd->ClipRect.x, 
+					(long)pDrawCmd->ClipRect.y, 
+					(long)pDrawCmd->ClipRect.z, 
+					(long)pDrawCmd->ClipRect.w
+				};
 
-				D3DEngine::Instance().SetShaderResourceView(m_Resource.FontTexture, 0U, D3DShader::ePixelShader);
-				D3DEngine::Instance().SetScissorRect(rect);
-				D3DEngine::Instance().DrawIndexed(pDrawCmd->ElemCount, iOffset, vOffset, eTriangleList);
+				Draw(scissorRect, pDrawCmd, iOffset, vOffset);
 			}
 
 			iOffset += pDrawCmd->ElemCount;
@@ -266,19 +220,20 @@ void ImGUI::UpdateAndRender()
 
 	/// Restore D3D state
 	::HWND hWnd = (::HWND)ImGui::GetIO().ImeWindowHandle;
-	D3DRect rect;
+	::RECT rect;
 	::GetClientRect(hWnd, &rect);
 
-	D3DViewport vpOld(0.0f, 0.0f, (float)(rect.right - rect.left), (float)(rect.bottom - rect.top));
-
-	D3DEngine::Instance().SetViewport(vpOld);
-	D3DEngine::Instance().SetScissorRect(rect);
-	D3DEngine::Instance().SetRasterizerState(D3DStaticState::Solid);
-	D3DEngine::Instance().SetBlendState(D3DStaticState::NoneBlendState);
-	D3DEngine::Instance().SetDepthStencilState(D3DStaticState::NoneDepthStencilState, 0U);
+	::RECT oldViewport
+	{
+		0,
+		0,
+		(rect.right - rect.left),
+		(rect.bottom - rect.top)
+	};
+	RestoreRenderResource(oldViewport);
 }
 
-void ImGUI::UpdateDrawData(bool bRecreateVB, bool bRecreateIB, const ImDrawData *pDrawData)
+void IImGUI::UpdateDrawData(bool bRecreateVB, bool bRecreateIB, const ImDrawData *pDrawData)
 {
 	if (bRecreateVB)
 	{
@@ -286,8 +241,7 @@ void ImGUI::UpdateDrawData(bool bRecreateVB, bool bRecreateIB, const ImDrawData 
 		
 		m_Vertices.reset(new ImDrawVert[m_VertexCount]());
 
-		m_Resource.VertexBuffer.Reset();
-		m_Resource.VertexBuffer.CreateAsVertexBuffer(m_VertexCount * sizeof(ImDrawVert), D3DBuffer::eGpuReadCpuWrite, nullptr);
+		ResetVertexBuffer();
 	}
 
 	if (bRecreateIB)
@@ -296,8 +250,7 @@ void ImGUI::UpdateDrawData(bool bRecreateVB, bool bRecreateIB, const ImDrawData 
 
 		m_Indices.reset(new ImDrawIdx[m_IndexCount]());
 
-		m_Resource.IndexBuffer.Reset();
-		m_Resource.IndexBuffer.CreateAsIndexBuffer(m_IndexCount * sizeof(ImDrawIdx), D3DBuffer::eGpuReadCpuWrite, nullptr);
+		ResetIndexBuffer();
 	}
 
 	/// Update vertices and indices
@@ -312,6 +265,5 @@ void ImGUI::UpdateDrawData(bool bRecreateVB, bool bRecreateIB, const ImDrawData 
 		totalIndices += pDrawList->IdxBuffer.Size;
 	}
 
-	m_Resource.VertexBuffer.Update(m_Vertices.get(), sizeof(ImDrawVert) * m_VertexCount);
-	m_Resource.IndexBuffer.Update(m_Indices.get(), sizeof(ImDrawIdx) * m_IndexCount);
+	UpdateBuffers();
 }

@@ -60,7 +60,7 @@ public:
 		return m_Instance;
 	}
 
-	inline const VulkanSwapchain &GetSwapchain() const
+	inline VulkanSwapchain &GetSwapchain()
 	{
 		return m_Swapchain;
 	}

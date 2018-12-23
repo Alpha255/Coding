@@ -1,18 +1,14 @@
 #pragma once
 
-#include "RenderApp.h"
-#include "D3DGeometry.h"
-#include "D3DView.h"
+#include "D3DApplication.h"
 
-///#define ColorMask
-
-class AppBox : public RenderApp
+class AppBox : public RApplication
 {
 public:
 	AppBox() = default;
 	~AppBox() = default;
 
-	virtual void Initialize() override;
+	virtual void InitScene() override;
 	virtual void RenderScene() override;
 protected:
 	enum eSpecialEffect
@@ -26,27 +22,12 @@ protected:
 		eEffectCount
 	};
 private:
-#if !defined (ColorMask)
 	Geometry::Mesh m_BoxMesh;
 
-	D3DVertexShader m_VertexShader;
-	D3DPixelShader m_PixelShader[eEffectCount];
-	D3DBuffer m_CBufferVS;
-	D3DShaderResourceView m_DiffuseTex;
+	RVertexShader m_VertexShader;
+	RPixelShader m_PixelShader[eEffectCount];
+	RBuffer m_CBufferVS;
+	RShaderResourceView m_DiffuseTex;
 
 	int32_t m_Effect = eNone;
-#else
-	Geometry::Mesh m_Mesh;
-
-	D3DVertexShader m_VertexShader;
-	D3DPixelShader m_PixelShader;
-
-	D3DBuffer m_CBufferVS;
-	D3DBuffer m_CBufferPS;
-
-	D3DShaderResourceView m_DiffuseTexMiddle;
-	D3DShaderResourceView m_DiffuseTexPoor;
-
-	int32_t m_TexIndex = 0U;
-#endif
 };

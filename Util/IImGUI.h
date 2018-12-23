@@ -1,62 +1,41 @@
 #pragma once
 
 #include "Common.h"
-#include "D3DShader.h"
-#include "D3DView.h"
-#include "D3DState.h"
-#include "D3DBuffer.h"
-
 #include <ImGUI/imgui.h>
 
-class ImGUI
+class IImGUI : public NoneCopyable
 {
 public:
-	static ImGUI &Instance()
-	{
-		if (!s_Instance)
-		{
-			s_Instance = std::unique_ptr<ImGUI>(new ImGUI());
-		}
+	IImGUI() = default;
+	virtual ~IImGUI() = default;
 
-		return *s_Instance;
-	}
+	void Initialize(::HWND hWnd);
 
-	static void Destroy()
+	inline void Destroy()
 	{
 		ImGui::DestroyContext();
 	}
 
-	void Initialize(::HWND hWnd);
-
-	::LRESULT WinProc(::HWND hWnd, uint32_t uMsg, ::WPARAM wParam, ::LPARAM lParam);
+	::LRESULT MessageProcFunc(::HWND hWnd, uint32_t uMsg, ::WPARAM wParam, ::LPARAM lParam);
 
 	void RenderBegin(bool bDraw = true, const char *pPanelName = "imGUI");
 	void RenderEnd(bool bDraw = true);
-	void UpdateAndRender();
 
 	inline bool IsFocus() const 
 	{
 		const ImGuiIO &io = ImGui::GetIO();
 		return io.WantCaptureMouse || io.WantCaptureKeyboard;
 	}
+
+	virtual void InitRenderResource(ImGuiIO &) = 0;
+	virtual void SetupRenderResource(class Matrix &) = 0;
+	virtual void Draw(::RECT &, const ImDrawCmd *, uint32_t, int32_t) = 0;
+	virtual void RestoreRenderResource(::RECT &) = 0;
+	virtual void ResetVertexBuffer() = 0;
+	virtual void ResetIndexBuffer() = 0;
+	virtual void UpdateBuffers() = 0;
 protected:
-	ImGUI() = default;
-
-	struct RenderResource
-	{
-		D3DInputLayout VertexLayout;
-
-		D3DVertexShader VertexShader;
-		D3DPixelShader PixelShader;
-
-		D3DBuffer VertexBuffer;
-		D3DBuffer IndexBuffer;
-		D3DBuffer ConstantBufferVS;
-
-		D3DBlendState ClrWriteBlend;
-
-		D3DShaderResourceView FontTexture;
-	};
+	void Update();
 	
 	void UpdateDrawData(bool bRecreateVB, bool bRecreateIB, const ImDrawData *pDrawData);
 
@@ -73,16 +52,13 @@ protected:
 
 		return false;
 	}
-private:
-	static std::unique_ptr<ImGUI> s_Instance;
 
 	int32_t m_VertexCount = 0;
 	int32_t m_IndexCount = 0;
 
 	std::shared_ptr<ImDrawVert> m_Vertices;
 	std::shared_ptr<ImDrawIdx> m_Indices;
-
-	RenderResource m_Resource;
+private:
 
 	bool m_Inited = false;
 };

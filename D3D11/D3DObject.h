@@ -157,12 +157,17 @@ public:
 class D3DRect : public D3D11_RECT
 {
 public:
-	D3DRect()
+	inline D3DRect()
 	{
 		memset(this, 0, sizeof(D3D11_RECT));
 	}
 
-	D3DRect(uint32_t l, uint32_t t, uint32_t r, uint32_t b)
+	inline D3DRect(::RECT &rect)
+	{
+		memcpy(this, &rect, sizeof(::RECT));
+	}
+
+	inline D3DRect(uint32_t l, uint32_t t, uint32_t r, uint32_t b)
 	{
 		left = l;
 		top = t;
