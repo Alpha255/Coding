@@ -68,15 +68,14 @@ void VulkanSwapchain::Create(uint32_t width, uint32_t height, bool bWindowed)
 	std::vector<VkSurfaceFormatKHR> formats(formatCount);
 	VKCheck(vkGetPhysicalDeviceSurfaceFormatsKHR(VulkanEngine::Instance().GetPhysicalDevice().Get(), m_Surface.Get(), &formatCount, formats.data()));
 
-	VkFormat format = VK_FORMAT_UNDEFINED;
 	if (1U == formatCount && VK_FORMAT_UNDEFINED == formats[0].format)
 	{
-		format = VK_FORMAT_B8G8R8A8_UNORM;
+		m_Format = VK_FORMAT_B8G8R8A8_UNORM;
 	}
 	else
 	{
 		assert(formatCount > 1U);
-		format = formats[0].format;
+		m_Format = formats[0].format;
 	}
 
 	VkExtent2D swapchainExtent;
@@ -119,7 +118,7 @@ void VulkanSwapchain::Create(uint32_t width, uint32_t height, bool bWindowed)
 		0U, /// flags
 		m_Surface.Get(),
 		surfCapabilities.minImageCount,
-		format,
+		(VkFormat)m_Format,
 		VK_COLORSPACE_SRGB_NONLINEAR_KHR,
 		swapchainExtent,
 		1U,
@@ -129,10 +128,49 @@ void VulkanSwapchain::Create(uint32_t width, uint32_t height, bool bWindowed)
 		sameIndex ? nullptr : queueFamilyIndices,
 		surfCapabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR ? VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR : surfCapabilities.currentTransform,
 		compositeAlpha,
-		VK_PRESENT_MODE_FIFO_KHR,
+		VK_PRESENT_MODE_IMMEDIATE_KHR,
 		true,
 		VK_NULL_HANDLE
 	};
 
 	VKCheck(vkCreateSwapchainKHR(VulkanEngine::Instance().GetDevice().Get(), &createInfo, nullptr, &m_Handle));
+
+	uint32_t imageCount = 0U;
+	VkImage *pImage = new VkImage[imageCount]();
+	VKCheck(vkGetSwapchainImagesKHR(VulkanEngine::Instance().GetDevice().Get(), m_Handle, &imageCount, nullptr));
+	VKCheck(vkGetSwapchainImagesKHR(VulkanEngine::Instance().GetDevice().Get(), m_Handle, &imageCount, pImage));
+
+	for (uint32_t i = 0U; i < imageCount; ++i)
+	{
+		FrameImage &image = m_Images[i];
+
+		VkImageViewCreateInfo viewInfo;
+		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		viewInfo.pNext = NULL;
+		viewInfo.format = (VkFormat)m_Format;
+		viewInfo.components.r = VK_COMPONENT_SWIZZLE_R;
+		viewInfo.components.g = VK_COMPONENT_SWIZZLE_G;
+		viewInfo.components.b = VK_COMPONENT_SWIZZLE_B;
+		viewInfo.components.a = VK_COMPONENT_SWIZZLE_A;
+		viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		viewInfo.subresourceRange.baseMipLevel = 0;
+		viewInfo.subresourceRange.levelCount = 1;
+		viewInfo.subresourceRange.baseArrayLayer = 0;
+		viewInfo.subresourceRange.layerCount = 1;
+		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		viewInfo.flags = 0;
+		viewInfo.image = pImage[i];
+
+		image.Image = pImage[i];
+		VKCheck(vkCreateImageView(VulkanEngine::Instance().GetDevice().Get(), &viewInfo, nullptr, &image.View));
+
+		VkFramebufferCreateInfo fbInfo = { VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO };
+		fbInfo.attachmentCount = 2;
+		fbInfo.pAttachments = &image.View;
+		fbInfo.width = width;
+		fbInfo.height = height;
+		fbInfo.layers = 1;
+		fbInfo.renderPass = 0;
+		VKCheck(vkCreateFramebuffer(VulkanEngine::Instance().GetDevice().Get(), &fbInfo, nullptr, &image.FrameBuffer));
+	}
 }

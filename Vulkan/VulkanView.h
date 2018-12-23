@@ -5,7 +5,7 @@
 class VulkanRenderTargetView : public VulkanObject<VkRenderPass>
 {
 public:
-
+	void Create();
 protected:
 private:
 };

@@ -11,6 +11,7 @@
 class VulkanContext : public VulkanObject<VkPipeline>
 {
 public:
+	VulkanRenderTargetView m_RenderTargetView;
 	//void SetRenderTargetView(const D3DRenderTargetView &renderTarget, uint32_t slot = 0U);
 	//void SetDepthStencilView(const D3DDepthStencilView &depthStencilView);
 	//void SetShaderResourceView(const D3DShaderResourceView &shaderResourceView, uint32_t slot, D3DShader::eShaderType targetShader);
@@ -53,6 +54,9 @@ public:
 
 	//	m_Object->ClearDepthStencilView(depthStencil.Get(), clearFlag, depth, stencil);
 	//}
+
+	void Create(const VkPipelineShaderStageCreateInfo *pShaderStage, const size_t shaderCount);
 protected:
 private:
+	VkPipelineLayout m_Layout;
 };

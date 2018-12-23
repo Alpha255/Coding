@@ -1,6 +1,9 @@
 #pragma once
 
 #include "VulkanObject.h"
+#include "VulkanTexture.h"
+#include "VulkanBuffer.h"
+#include "VulkanPool.h"
 
 class VulkanSurface : public VulkanObject<VkSurfaceKHR>
 {
@@ -34,10 +37,24 @@ public:
 		assert(m_Format != VK_FORMAT_UNDEFINED);
 		return m_Format;
 	}
+
+	struct FrameImage
+	{
+		VulkanDeviceMemory Memory;
+		VkImage Image;
+		VkImageView View;
+		VkFramebuffer FrameBuffer;
+	};
+
+	inline FrameImage GetImage(uint32_t index) const
+	{
+		return m_Images[index];
+	}
 protected:
 private:
 	VulkanSurface m_Surface;
 	uint32_t m_GraphicsQueueFamilyIndex = UINT32_MAX;
 	uint32_t m_PresentQueueFamilyIndex = UINT32_MAX;
 	uint32_t m_Format = VK_FORMAT_UNDEFINED;
+	FrameImage m_Images[3] = {};
 };

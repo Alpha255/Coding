@@ -8,7 +8,7 @@ void VulkanCommandPool::Create(uint32_t flags)
 		VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
 		nullptr,
 		flags,
-		VulkanEngine::Instance().GetDevice().GetGraphicQueueFamilyIndex()
+		VulkanEngine::Instance().GetSwapchain().GetGraphicsQueueFamilyIndex()
 	};
 
 	VKCheck(vkCreateCommandPool(VulkanEngine::Instance().GetDevice().Get(), &createInfo, nullptr, &m_Handle));

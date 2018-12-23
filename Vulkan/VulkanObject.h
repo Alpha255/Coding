@@ -18,6 +18,12 @@ public:
 		return m_Handle;
 	}
 
+	inline const T *GetPtr() const
+	{
+		assert(IsValid());
+		return &m_Handle;
+	}
+
 	inline VulkanObject(const VulkanObject &other)
 	{
 		if (m_Handle != other.m_Handle)
@@ -114,21 +120,13 @@ class VulkanDevice : public VulkanObject<VkDevice>
 public:
 	void Create();
 
-	inline uint32_t GetGraphicQueueFamilyIndex() const
+	inline VkQueue GetQueue() const
 	{
-		assert(m_GraphicQueueFamilyIndex != UINT32_MAX);
-		return m_GraphicQueueFamilyIndex;
-	}
-
-	inline uint32_t GetQueuePresentQueueFamilyIndex() const
-	{
-		assert(m_QueuePresentQueueFamilyIndex != UINT32_MAX);
-		return m_QueuePresentQueueFamilyIndex;
+		return m_Queue;
 	}
 protected:
 private:
-	uint32_t m_GraphicQueueFamilyIndex = UINT32_MAX;
-	uint32_t m_QueuePresentQueueFamilyIndex = UINT32_MAX;
+	VkQueue m_Queue = 0;
 };
 
 class VulkanCommandBuffer : public VulkanObject<VkCommandBuffer>
@@ -152,6 +150,14 @@ private:
 };
 
 class VulkanSemaphore : public VulkanObject<VkSemaphore>
+{
+public:
+	void Create();
+protected:
+private:
+};
+
+class VulkanFence : public VulkanObject<VkFence>
 {
 public:
 	void Create();

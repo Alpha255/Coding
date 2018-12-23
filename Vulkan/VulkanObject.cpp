@@ -46,9 +46,9 @@ void VulkanInstance::Create(const char *pInstName)
 		VK_STRUCTURE_TYPE_APPLICATION_INFO,
 		nullptr,
 		pInstName,
-		0U,
+		1U,
 		pInstName,
-		0U,
+		1U,
 		VK_API_VERSION_1_0
 	};
 
@@ -116,7 +116,7 @@ void VulkanPhysicalDevice::Create()
 
 void VulkanDevice::Create()
 {
-	const float queuePriorities[] = { 0.0 };
+	const float queuePriorities[] = { 1.0 };
 	VkDeviceQueueCreateInfo deviceQueueCreateInfo
 	{
 		VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
@@ -127,6 +127,7 @@ void VulkanDevice::Create()
 		queuePriorities
 	};
 
+	VkPhysicalDeviceFeatures features = {};
 	std::vector<const char *>extensionNames = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 	VkDeviceCreateInfo deviceCreateInfo
 	{
@@ -139,10 +140,13 @@ void VulkanDevice::Create()
 		nullptr,
 		extensionNames.size(),
 		extensionNames.data(),
-		nullptr
+		&features
 	};
 
 	VKCheck(vkCreateDevice(VulkanEngine::Instance().GetPhysicalDevice().Get(), &deviceCreateInfo, nullptr, &m_Handle));
+
+	vkGetDeviceQueue(m_Handle, VulkanEngine::Instance().GetSwapchain().GetGraphicsQueueFamilyIndex(), VulkanEngine::Instance().GetSwapchain().GetPresentQueueFamilyIndex(), &m_Queue);
+	assert(m_Queue);
 }
 
 void VulkanCommandBuffer::Create(const VulkanCommandPool &pool, uint32_t level, uint32_t count)
@@ -256,4 +260,16 @@ void VulkanSemaphore::Create()
 	};
 
 	VKCheck(vkCreateSemaphore(VulkanEngine::Instance().GetDevice().Get(), &createInfo, nullptr, &m_Handle));
+}
+
+void VulkanFence::Create()
+{
+	VkFenceCreateInfo createInfo 
+	{
+		VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+		nullptr,
+		0U
+	};
+
+	VKCheck(vkCreateFence(VulkanEngine::Instance().GetDevice().Get(), &createInfo, nullptr, &m_Handle));
 }
