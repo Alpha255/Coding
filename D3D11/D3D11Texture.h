@@ -1,8 +1,8 @@
 #pragma once
 
-#include "D3DObject.h"
+#include "D3D11Object.h"
 
-class D3DTexture1D : public D3DResource
+class D3D11Texture1D : public D3D11Resource
 {
 public:
 	void Create(
@@ -19,7 +19,7 @@ public:
 	void CreateRandomTexture();
 };
 
-class D3DTexture2D : public D3DResource
+class D3D11Texture2D : public D3D11Resource
 {
 public:
 	void Create(
@@ -35,7 +35,7 @@ public:
 		const D3D11_SUBRESOURCE_DATA *pSubResData = nullptr);
 };
 
-class D3DTexture3D : public D3DResource
+class D3D11Texture3D : public D3D11Resource
 {
 public:
 	void Create(

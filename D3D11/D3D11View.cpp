@@ -1,22 +1,22 @@
-#include "D3DView.h"
-#include "D3DTexture.h"
-#include "D3DEngine.h"
-#include "D3DUtil.h"
-#include "System.h"
+#include "D3D11View.h"
+#include "D3D11Texture.h"
+#include "D3D11Engine.h"
+#include "D3D11Util.h"
+#include "Util/System.h"
 
 #include <fstream>
 
-void D3DRenderTargetView::Create(D3DResource &resource)
+void D3D11RenderTargetView::Create(D3D11Resource &resource)
 {
 	assert(resource.IsValid() && !IsValid());
 
 	ID3D11RenderTargetView *pRenderTargetView = nullptr;
-	D3DEngine::Instance().GetDevice()->CreateRenderTargetView(resource.Get(), nullptr, &pRenderTargetView);
+	D3D11Engine::Instance().GetDevice()->CreateRenderTargetView(resource.Get(), nullptr, &pRenderTargetView);
 
 	MakeObject(pRenderTargetView);
 }
 
-void D3DRenderTargetView::CreateAsTexture(eViewType type, D3DResource &resource, uint32_t fmt, uint32_t mipSlice)
+void D3D11RenderTargetView::CreateAsTexture(eRViewType type, D3D11Resource &resource, uint32_t fmt, uint32_t mipSlice)
 {
 	assert(resource.IsValid() && !IsValid());
 
@@ -38,12 +38,12 @@ void D3DRenderTargetView::CreateAsTexture(eViewType type, D3DResource &resource,
 	}
 
 	ID3D11RenderTargetView *pRenderTargetView = nullptr;
-	D3DEngine::Instance().GetDevice()->CreateRenderTargetView(resource.Get(), &desc, &pRenderTargetView);
+	D3D11Engine::Instance().GetDevice()->CreateRenderTargetView(resource.Get(), &desc, &pRenderTargetView);
 
 	MakeObject(pRenderTargetView);
 }
 
-void D3DRenderTargetView::CreateAsTextureArray(eViewType type, D3DResource &resource, uint32_t fmt, uint32_t mipSlice, uint32_t firstArraySlice, uint32_t arraySize)
+void D3D11RenderTargetView::CreateAsTextureArray(eRViewType type, D3D11Resource &resource, uint32_t fmt, uint32_t mipSlice, uint32_t firstArraySlice, uint32_t arraySize)
 {
 	assert(resource.IsValid() && !IsValid());
 
@@ -69,24 +69,24 @@ void D3DRenderTargetView::CreateAsTextureArray(eViewType type, D3DResource &reso
 	}
 
 	ID3D11RenderTargetView *pRenderTargetView = nullptr;
-	D3DEngine::Instance().GetDevice()->CreateRenderTargetView(resource.Get(), &desc, &pRenderTargetView);
+	D3D11Engine::Instance().GetDevice()->CreateRenderTargetView(resource.Get(), &desc, &pRenderTargetView);
 	MakeObject(pRenderTargetView);
 }
 
-void D3DDepthStencilView::Create(uint32_t fmt, uint32_t width, uint32_t height)
+void D3D11DepthStencilView::Create(uint32_t fmt, uint32_t width, uint32_t height)
 {
 	assert(!IsValid());
 
-	D3DTexture2D resource;
+	D3D11Texture2D resource;
 	resource.Create(fmt, width, height, D3D11_BIND_DEPTH_STENCIL);
 
 	ID3D11DepthStencilView *pDepthStencilView = nullptr;
-	HRCheck(D3DEngine::Instance().GetDevice()->CreateDepthStencilView(resource.Get(), nullptr, &pDepthStencilView));
+	HRCheck(D3D11Engine::Instance().GetDevice()->CreateDepthStencilView(resource.Get(), nullptr, &pDepthStencilView));
 
 	MakeObject(pDepthStencilView);
 }
 
-void D3DDepthStencilView::CreateAsTexture(eViewType type, D3DResource &resource, uint32_t fmt, uint32_t flags, uint32_t mipSlice)
+void D3D11DepthStencilView::CreateAsTexture(eRViewType type, D3D11Resource &resource, uint32_t fmt, uint32_t flags, uint32_t mipSlice)
 {
 	assert(resource.IsValid() && !IsValid());
 
@@ -108,12 +108,12 @@ void D3DDepthStencilView::CreateAsTexture(eViewType type, D3DResource &resource,
 	}
 
 	ID3D11DepthStencilView *pDepthStencilView = nullptr;
-	HRCheck(D3DEngine::Instance().GetDevice()->CreateDepthStencilView(resource.Get(), &desc, &pDepthStencilView));
+	HRCheck(D3D11Engine::Instance().GetDevice()->CreateDepthStencilView(resource.Get(), &desc, &pDepthStencilView));
 
 	MakeObject(pDepthStencilView);
 }
 
-void D3DDepthStencilView::CreateAsTextureArray(eViewType type, D3DResource &resource, uint32_t fmt, uint32_t flags, uint32_t mipSlice, uint32_t firstArraySlice, uint32_t arraySize)
+void D3D11DepthStencilView::CreateAsTextureArray(eRViewType type, D3D11Resource &resource, uint32_t fmt, uint32_t flags, uint32_t mipSlice, uint32_t firstArraySlice, uint32_t arraySize)
 {
 	assert(resource.IsValid() && !IsValid());
 
@@ -139,12 +139,12 @@ void D3DDepthStencilView::CreateAsTextureArray(eViewType type, D3DResource &reso
 	}
 
 	ID3D11DepthStencilView *pDepthStencilView = nullptr;
-	HRCheck(D3DEngine::Instance().GetDevice()->CreateDepthStencilView(resource.Get(), &desc, &pDepthStencilView));
+	HRCheck(D3D11Engine::Instance().GetDevice()->CreateDepthStencilView(resource.Get(), &desc, &pDepthStencilView));
 
 	MakeObject(pDepthStencilView);
 }
 
-void D3DShaderResourceView::CreateAsTexture(eViewType type, D3DResource &resource, uint32_t fmt, uint32_t mostDetailedMip, uint32_t mipLevels)
+void D3D11ShaderResourceView::CreateAsTexture(eRViewType type, D3D11Resource &resource, uint32_t fmt, uint32_t mostDetailedMip, uint32_t mipLevels)
 {
 	assert(resource.IsValid() && !IsValid());
 
@@ -177,12 +177,12 @@ void D3DShaderResourceView::CreateAsTexture(eViewType type, D3DResource &resourc
 	}
 
 	ID3D11ShaderResourceView *pShaderResourceView = nullptr;
-	HRCheck(D3DEngine::Instance().GetDevice()->CreateShaderResourceView(resource.Get(), &desc, &pShaderResourceView));
+	HRCheck(D3D11Engine::Instance().GetDevice()->CreateShaderResourceView(resource.Get(), &desc, &pShaderResourceView));
 
 	MakeObject(pShaderResourceView);
 }
 
-void D3DShaderResourceView::CreateAsTextureArray(eViewType type, D3DResource &resource, uint32_t fmt, uint32_t mostDetailedMip, uint32_t mipLevels, uint32_t firstArraySlice, uint32_t arraySize)
+void D3D11ShaderResourceView::CreateAsTextureArray(eRViewType type, D3D11Resource &resource, uint32_t fmt, uint32_t mostDetailedMip, uint32_t mipLevels, uint32_t firstArraySlice, uint32_t arraySize)
 {
 	assert(resource.IsValid() && !IsValid());
 
@@ -216,12 +216,12 @@ void D3DShaderResourceView::CreateAsTextureArray(eViewType type, D3DResource &re
 	}
 
 	ID3D11ShaderResourceView *pShaderResourceView = nullptr;
-	HRCheck(D3DEngine::Instance().GetDevice()->CreateShaderResourceView(resource.Get(), &desc, &pShaderResourceView));
+	HRCheck(D3D11Engine::Instance().GetDevice()->CreateShaderResourceView(resource.Get(), &desc, &pShaderResourceView));
 
 	MakeObject(pShaderResourceView);
 }
 
-void D3DShaderResourceView::Create(const char *pDdsName, bool bSRGB)
+void D3D11ShaderResourceView::Create(const char *pDdsName, bool bSRGB)
 {
 	assert(pDdsName && !IsValid());
 	assert(System::IsStrEndwith(pDdsName, ".dds"));
@@ -232,7 +232,7 @@ void D3DShaderResourceView::Create(const char *pDdsName, bool bSRGB)
 	MakeObject(pShaderResourceView);
 }
 
-void D3DUnorderedAccessView::Create(D3DResource &resource, uint32_t format, uint32_t dimension, uint32_t firstElem, uint32_t numElems, uint32_t flags)
+void D3D11UnorderedAccessView::Create(D3D11Resource &resource, uint32_t format, uint32_t dimension, uint32_t firstElem, uint32_t numElems, uint32_t flags)
 {
 	assert(resource.IsValid() && !IsValid());
 
@@ -244,7 +244,7 @@ void D3DUnorderedAccessView::Create(D3DResource &resource, uint32_t format, uint
 	desc.Buffer.NumElements = numElems;
 
 	ID3D11UnorderedAccessView *pUnorderedAccessView = nullptr;
-	HRCheck(D3DEngine::Instance().GetDevice()->CreateUnorderedAccessView(resource.Get(), &desc, &pUnorderedAccessView));
+	HRCheck(D3D11Engine::Instance().GetDevice()->CreateUnorderedAccessView(resource.Get(), &desc, &pUnorderedAccessView));
 
 	MakeObject(pUnorderedAccessView);
 }

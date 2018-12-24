@@ -1,8 +1,8 @@
-#include "D3DUtil.h"
-#include "ResourceFile.h"
-#include "D3DEngine.h"
-#include "D3DTexture.h"
-#include "dds.h"
+#include "D3D11Util.h"
+#include "Util/dds.h"
+#include "Util/ResourceFile.h"
+#include "D3D11Engine.h"
+#include "D3D11Texture.h"
 
 /// Helper functions for texture loaders and screen grabber
 ///
@@ -680,16 +680,16 @@ void UpdateSubResource(
 			assert((pSrcBits + numBytes) <= pEndBits);
 
 			uint32_t res = D3D11CalcSubresource(0U, i, mipCount);
-			D3DEngine::Instance().GetIMContext()->UpdateSubresource(pResource, res, nullptr, pSrcBits, (uint32_t)rowBytes, (uint32_t)numBytes);
+			D3D11Engine::Instance().GetIMContext()->UpdateSubresource(pResource, res, nullptr, pSrcBits, (uint32_t)rowBytes, (uint32_t)numBytes);
 			pSrcBits += numBytes;
 		}
 	}
 	else
 	{
-		D3DEngine::Instance().GetIMContext()->UpdateSubresource(pResource, 0U, nullptr, pBitData, (uint32_t)rowBytes, (uint32_t)numBytes);
+		D3D11Engine::Instance().GetIMContext()->UpdateSubresource(pResource, 0U, nullptr, pBitData, (uint32_t)rowBytes, (uint32_t)numBytes);
 	}
 
-	D3DEngine::Instance().GetIMContext()->GenerateMips(pShaderResourceView);
+	D3D11Engine::Instance().GetIMContext()->GenerateMips(pShaderResourceView);
 }
 
 void CreateShaderResourceView(
@@ -715,7 +715,7 @@ void CreateShaderResourceView(
 	{
 	case D3D11_RESOURCE_DIMENSION_TEXTURE1D:
 	{
-		D3DTexture1D texture1D;
+		D3D11Texture1D texture1D;
 		texture1D.Create(format, width, bindFlags, mipCount, arraySize, cpuAccessFlags, miscFlags, usage, pSubResData);
 
 		D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};
@@ -732,7 +732,7 @@ void CreateShaderResourceView(
 			desc.Texture1D.MipLevels = mipCount;
 		}
 
-		HRCheck(D3DEngine::Instance().GetDevice()->CreateShaderResourceView(texture1D.Get(), &desc, ppShaderResourceView));
+		HRCheck(D3D11Engine::Instance().GetDevice()->CreateShaderResourceView(texture1D.Get(), &desc, ppShaderResourceView));
 
 		if (autoGen)
 		{
@@ -742,7 +742,7 @@ void CreateShaderResourceView(
 	}
 	case D3D11_RESOURCE_DIMENSION_TEXTURE2D:
 	{
-		D3DTexture2D texture2D;
+		D3D11Texture2D texture2D;
 		texture2D.Create(format, width, height, bindFlags, mipCount, arraySize, cpuAccessFlags, miscFlags, usage, pSubResData);
 
 		D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};
@@ -774,7 +774,7 @@ void CreateShaderResourceView(
 			desc.Texture2D.MipLevels = mipCount;
 		}
 
-		HRCheck(D3DEngine::Instance().GetDevice()->CreateShaderResourceView(texture2D.Get(), &desc, ppShaderResourceView));
+		HRCheck(D3D11Engine::Instance().GetDevice()->CreateShaderResourceView(texture2D.Get(), &desc, ppShaderResourceView));
 
 		if (autoGen)
 		{
@@ -784,7 +784,7 @@ void CreateShaderResourceView(
 	}
 	case D3D11_RESOURCE_DIMENSION_TEXTURE3D:
 	{
-		D3DTexture3D texture3D;
+		D3D11Texture3D texture3D;
 		texture3D.Create(format, width, height, depth, bindFlags, mipCount, cpuAccessFlags, miscFlags, usage, pSubResData);
 
 		D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};
@@ -792,7 +792,7 @@ void CreateShaderResourceView(
 		desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE3D;
 		desc.Texture3D.MipLevels = mipCount;
 
-		HRCheck(D3DEngine::Instance().GetDevice()->CreateShaderResourceView(texture3D.Get(), &desc, ppShaderResourceView));
+		HRCheck(D3D11Engine::Instance().GetDevice()->CreateShaderResourceView(texture3D.Get(), &desc, ppShaderResourceView));
 
 		if (autoGen)
 		{
@@ -946,11 +946,11 @@ void CreateShaderResourceViewFromDds(const char *pDdsName, _Out_ ID3D11ShaderRes
 	if (1U == mipCount && ppShaderResourceView)
 	{
 		uint32_t supportFmt = 0U;
-		HRCheck(D3DEngine::Instance().GetDevice()->CheckFormatSupport(format, &supportFmt));
+		HRCheck(D3D11Engine::Instance().GetDevice()->CheckFormatSupport(format, &supportFmt));
 
 		if (supportFmt & D3D11_FORMAT_SUPPORT_MIP_AUTOGEN)
 		{
-			if (dim != D3D11_RESOURCE_DIMENSION_TEXTURE3D || D3DEngine::Instance().GetDevice()->GetFeatureLevel() >= D3D_FEATURE_LEVEL_10_0)
+			if (dim != D3D11_RESOURCE_DIMENSION_TEXTURE3D || D3D11Engine::Instance().GetDevice()->GetFeatureLevel() >= D3D_FEATURE_LEVEL_10_0)
 			{
 				bAutoGen = false;
 			}
@@ -1027,7 +1027,7 @@ void CreateShaderResourceViewFromDds(const char *pDdsName, _Out_ ID3D11ShaderRes
 		if (0U == maxSize && mipCount > 1U)
 		{
 			assert(!"WTF!");
-			switch (D3DEngine::Instance().GetDevice()->GetFeatureLevel())
+			switch (D3D11Engine::Instance().GetDevice()->GetFeatureLevel())
 			{
 			case D3D_FEATURE_LEVEL_9_1:
 			case D3D_FEATURE_LEVEL_9_2:

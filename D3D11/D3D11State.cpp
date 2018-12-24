@@ -1,7 +1,7 @@
-#include "D3DState.h"
-#include "D3DEngine.h"
+#include "D3D11State.h"
+#include "D3D11Engine.h"
 
-void D3DSamplerState::Create(uint32_t filter, uint32_t addressMode, float LODBias, uint32_t compFunc, const float *pBorderClr, float minLOD, float maxLOD)
+void D3D11SamplerState::Create(uint32_t filter, uint32_t addressMode, float LODBias, uint32_t compFunc, const float *pBorderClr, float minLOD, float maxLOD)
 {
 	assert(!IsValid());
 
@@ -20,12 +20,12 @@ void D3DSamplerState::Create(uint32_t filter, uint32_t addressMode, float LODBia
 	}
 
 	ID3D11SamplerState *pSamplerState = nullptr;
-	HRCheck(D3DEngine::Instance().GetDevice()->CreateSamplerState(&desc, &pSamplerState));
+	HRCheck(D3D11Engine::Instance().GetDevice()->CreateSamplerState(&desc, &pSamplerState));
 
 	MakeObject(pSamplerState);
 }
 
-void D3DDepthStencilState::Create(
+void D3D11DepthStencilState::Create(
 	bool bDepthEnable,
 	uint32_t depthWriteMask,
 	uint32_t compFunc,
@@ -60,12 +60,12 @@ void D3DDepthStencilState::Create(
 	desc.BackFace.StencilFunc = (D3D11_COMPARISON_FUNC)stencilCompFuncBackFace;
 
 	ID3D11DepthStencilState *pDepthStencilState = nullptr;
-	HRCheck(D3DEngine::Instance().GetDevice()->CreateDepthStencilState(&desc, &pDepthStencilState));
+	HRCheck(D3D11Engine::Instance().GetDevice()->CreateDepthStencilState(&desc, &pDepthStencilState));
 
 	MakeObject(pDepthStencilState);
 }
 
-void D3DBlendState::Create(
+void D3D11BlendState::Create(
 	bool bAlphaToCoverage,
 	bool bIndependentBlend,
 	uint32_t surfaceIndex,
@@ -95,12 +95,12 @@ void D3DBlendState::Create(
 	desc.RenderTarget[surfaceIndex].RenderTargetWriteMask = renderTargetWriteMask;
 
 	ID3D11BlendState *pBlendState = nullptr;
-	HRCheck(D3DEngine::Instance().GetDevice()->CreateBlendState(&desc, &pBlendState));
+	HRCheck(D3D11Engine::Instance().GetDevice()->CreateBlendState(&desc, &pBlendState));
 
 	MakeObject(pBlendState);
 }
 
-void D3DRasterizerState::Create(uint32_t fillMode, uint32_t cullMode, bool bFrontCCW, bool bDepthClip, bool bScissor)
+void D3D11RasterizerState::Create(uint32_t fillMode, uint32_t cullMode, bool bFrontCCW, bool bDepthClip, bool bScissor)
 {
 	assert(!IsValid());
 
@@ -117,30 +117,30 @@ void D3DRasterizerState::Create(uint32_t fillMode, uint32_t cullMode, bool bFron
 	desc.DepthBiasClamp = 0.0f;
 
 	ID3D11RasterizerState *pRasterizerState = nullptr;
-	HRCheck(D3DEngine::Instance().GetDevice()->CreateRasterizerState(&desc, &pRasterizerState));
+	HRCheck(D3D11Engine::Instance().GetDevice()->CreateRasterizerState(&desc, &pRasterizerState));
 
 	MakeObject(pRasterizerState);
 }
 
-D3DSamplerState D3DStaticState::PointSampler;
-D3DSamplerState D3DStaticState::PointClampSampler;
-D3DSamplerState D3DStaticState::LinearSampler;
-D3DSamplerState D3DStaticState::AnisotropicSampler;
+D3D11SamplerState D3D11StaticState::PointSampler;
+D3D11SamplerState D3D11StaticState::PointClampSampler;
+D3D11SamplerState D3D11StaticState::LinearSampler;
+D3D11SamplerState D3D11StaticState::AnisotropicSampler;
 
-D3DRasterizerState D3DStaticState::Wireframe;
-D3DRasterizerState D3DStaticState::Solid;
-D3DRasterizerState D3DStaticState::WireframeNoneCulling;
-D3DRasterizerState D3DStaticState::SolidNoneCulling;
-D3DRasterizerState D3DStaticState::SolidFrontCCW;
+D3D11RasterizerState D3D11StaticState::Wireframe;
+D3D11RasterizerState D3D11StaticState::Solid;
+D3D11RasterizerState D3D11StaticState::WireframeNoneCulling;
+D3D11RasterizerState D3D11StaticState::SolidNoneCulling;
+D3D11RasterizerState D3D11StaticState::SolidFrontCCW;
 
-D3DDepthStencilState D3DStaticState::DisableDepthStencil;
+D3D11DepthStencilState D3D11StaticState::DisableDepthStencil;
 
-D3DBlendState D3DStaticState::NoneBlendState;
-D3DDepthStencilState D3DStaticState::NoneDepthStencilState;
+D3D11BlendState D3D11StaticState::NoneBlendState;
+D3D11DepthStencilState D3D11StaticState::NoneDepthStencilState;
 
-bool D3DStaticState::Inited = false;
+bool D3D11StaticState::Inited = false;
 
-void D3DStaticState::Initialize()
+void D3D11StaticState::Initialize()
 {
 	if (Inited)
 	{

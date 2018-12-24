@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Common.h"
+#include "Util/Common.h"
 
 #include <d3d11.h>
 
@@ -84,12 +84,12 @@ protected:
 private:
 };
 
-class D3DDevice : public D3DObject<ID3D11Device> {};
+class D3D11Device : public D3DObject<ID3D11Device> {};
 class DXGIFactory : public D3DObject<IDXGIFactory> {};
-class D3DResource : public D3DObject<ID3D11Resource> {};
-class D3DCommandList : public D3DObject<ID3D11CommandList> {};
+class D3D11Resource : public D3DObject<ID3D11Resource> {};
+class D3D11CommandList : public D3DObject<ID3D11CommandList> {};
 
-class D3DSwapChain : public D3DObject<IDXGISwapChain> 
+class D3D11SwapChain : public D3DObject<IDXGISwapChain> 
 {
 public:
 	void Create(HWND hWnd, uint32_t width, uint32_t height, bool bWindowed);
@@ -135,15 +135,15 @@ private:
 	bool m_bFullScreen = false;
 };
 
-class D3DViewport : public D3D11_VIEWPORT
+class D3D11Viewport : public D3D11_VIEWPORT
 {
 public:
-	D3DViewport()
+	D3D11Viewport()
 	{
 		memset(this, 0, sizeof(D3D11_VIEWPORT));
 	}
 
-	D3DViewport(float topLeftX, float topLeftY, float width, float height, float minDepth = 0.0f, float maxDepth = 1.0f)
+	D3D11Viewport(float topLeftX, float topLeftY, float width, float height, float minDepth = 0.0f, float maxDepth = 1.0f)
 	{
 		TopLeftX = topLeftX;
 		TopLeftY = topLeftY;
@@ -154,20 +154,20 @@ public:
 	}
 };
 
-class D3DRect : public D3D11_RECT
+class D3D11Rect : public D3D11_RECT
 {
 public:
-	inline D3DRect()
+	inline D3D11Rect()
 	{
 		memset(this, 0, sizeof(D3D11_RECT));
 	}
 
-	inline D3DRect(::RECT &rect)
+	inline D3D11Rect(::RECT &rect)
 	{
 		memcpy(this, &rect, sizeof(::RECT));
 	}
 
-	inline D3DRect(uint32_t l, uint32_t t, uint32_t r, uint32_t b)
+	inline D3D11Rect(uint32_t l, uint32_t t, uint32_t r, uint32_t b)
 	{
 		left = l;
 		top = t;

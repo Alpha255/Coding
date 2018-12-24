@@ -1,7 +1,9 @@
 #include "IImGUI.h"
 #include "D3DMath.h"
 
-void IImGUI::Initialize(::HWND hWnd)
+std::unique_ptr<ImGUI> ImGUI::s_Instance;
+
+void ImGUI::Initialize(::HWND hWnd)
 {
 	assert(hWnd && !m_Inited);
 
@@ -36,7 +38,7 @@ void IImGUI::Initialize(::HWND hWnd)
 	m_Inited = true;
 }
 
-::LRESULT IImGUI::MessageProcFunc(::HWND hWnd, uint32_t uMsg, ::WPARAM wParam, ::LPARAM lParam)
+::LRESULT ImGUI::MessageProcFunc(::HWND hWnd, uint32_t uMsg, ::WPARAM wParam, ::LPARAM lParam)
 {
 	ImGuiIO &io = ImGui::GetIO();
 
@@ -107,7 +109,7 @@ void IImGUI::Initialize(::HWND hWnd)
 	return 0LL;
 }
 
-void IImGUI::RenderBegin(bool bDraw, const char *pPanelName)
+void ImGUI::RenderBegin(bool bDraw, const char *pPanelName)
 {
 	if (!bDraw)
 	{
@@ -152,7 +154,7 @@ void IImGUI::RenderBegin(bool bDraw, const char *pPanelName)
 	ImGui::Begin(pPanelName);
 }
 
-void IImGUI::RenderEnd(bool bDraw)
+void ImGUI::RenderEnd(bool bDraw)
 {
 	if (!bDraw)
 	{
@@ -166,7 +168,7 @@ void IImGUI::RenderEnd(bool bDraw)
 	Update();
 }
 
-void IImGUI::Update()
+void ImGUI::Update()
 {
 	ImDrawData *pDrawData = ImGui::GetDrawData();
 	if (!pDrawData)
@@ -233,7 +235,7 @@ void IImGUI::Update()
 	RestoreRenderResource(oldViewport);
 }
 
-void IImGUI::UpdateDrawData(bool bRecreateVB, bool bRecreateIB, const ImDrawData *pDrawData)
+void ImGUI::UpdateDrawData(bool bRecreateVB, bool bRecreateIB, const ImDrawData *pDrawData)
 {
 	if (bRecreateVB)
 	{

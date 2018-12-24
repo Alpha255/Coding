@@ -1,16 +1,16 @@
-#include "D3DObject.h"
-#include "D3DEngine.h"
+#include "D3D11Object.h"
+#include "D3D11Engine.h"
 
-void D3DContext::CreateAsDeferredContext()
+void D3D11Context::CreateAsDeferredContext()
 {
 	assert(!IsValid());
 
 	ID3D11DeviceContext *pContext = nullptr;
-	HRCheck(D3DEngine::Instance().GetDevice().Get()->CreateDeferredContext(0U, &pContext));
+	HRCheck(D3D11Engine::Instance().GetDevice().Get()->CreateDeferredContext(0U, &pContext));
 	MakeObject(pContext);
 }
 
-void D3DSwapChain::Create(HWND hWnd, uint32_t width, uint32_t height, bool bWindowed)
+void D3D11SwapChain::Create(HWND hWnd, uint32_t width, uint32_t height, bool bWindowed)
 {
 	m_Desc.BufferCount = eBufferCount;
 	m_Desc.BufferDesc.Width = width;
@@ -34,11 +34,11 @@ void D3DSwapChain::Create(HWND hWnd, uint32_t width, uint32_t height, bool bWind
 	HRCheck(CreateDXGIFactory(IID_IDXGIFactory, reinterpret_cast<void **>(&pFactory)));
 	DXGIFactory dxgiFactory;
 	dxgiFactory.MakeObject(pFactory);
-	HRCheck(dxgiFactory->CreateSwapChain(D3DEngine::Instance().GetDevice().Get(), &m_Desc, &pSwapChain));
+	HRCheck(dxgiFactory->CreateSwapChain(D3D11Engine::Instance().GetDevice().Get(), &m_Desc, &pSwapChain));
 	MakeObject(pSwapChain);
 }
 
-void D3DSwapChain::Resize(uint32_t width, uint32_t height)
+void D3D11SwapChain::Resize(uint32_t width, uint32_t height)
 {
 	assert(IsValid());
 

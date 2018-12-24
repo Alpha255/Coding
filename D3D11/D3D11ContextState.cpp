@@ -1,6 +1,6 @@
-#include "D3DContext.h"
+#include "D3D11Context.h"
 
-void D3DContextState::CommitState(D3DContext &ctx)
+void D3D11ContextState::CommitState(D3D11Context &ctx)
 {
 	if (!ctx.IsValid())
 	{
@@ -145,9 +145,9 @@ void D3DContextState::CommitState(D3DContext &ctx)
 	}
 }
 
-void D3DContextState::BindConstantBuffers(D3DContext &ctx)
+void D3D11ContextState::BindConstantBuffers(D3D11Context &ctx)
 {
-	for (uint32_t i = 0U; i < D3DShader::eShaderTypeCount; ++i)
+	for (uint32_t i = 0U; i < D3D11Shader::eShaderTypeCount; ++i)
 	{
 		if (IsDirty(eConstantBuffer, i))
 		{
@@ -158,14 +158,14 @@ void D3DContextState::BindConstantBuffers(D3DContext &ctx)
 				continue;
 			}
 
-			switch ((D3DShader::eShaderType)i)
+			switch ((D3D11Shader::eShaderType)i)
 			{
-			case D3DShader::eVertexShader:   ctx->VSSetConstantBuffers(0U, constantBuffers, ConstantBuffers[i].data()); break;
-			case D3DShader::eHullShader:     ctx->HSSetConstantBuffers(0U, constantBuffers, ConstantBuffers[i].data()); break;
-			case D3DShader::eDomainShader:   ctx->DSSetConstantBuffers(0U, constantBuffers, ConstantBuffers[i].data()); break;
-			case D3DShader::eGeometryShader: ctx->GSSetConstantBuffers(0U, constantBuffers, ConstantBuffers[i].data()); break;
-			case D3DShader::ePixelShader:    ctx->PSSetConstantBuffers(0U, constantBuffers, ConstantBuffers[i].data()); break;
-			case D3DShader::eComputeShader:  ctx->CSSetConstantBuffers(0U, constantBuffers, ConstantBuffers[i].data()); break;
+			case D3D11Shader::eVertexShader:   ctx->VSSetConstantBuffers(0U, constantBuffers, ConstantBuffers[i].data()); break;
+			case D3D11Shader::eHullShader:     ctx->HSSetConstantBuffers(0U, constantBuffers, ConstantBuffers[i].data()); break;
+			case D3D11Shader::eDomainShader:   ctx->DSSetConstantBuffers(0U, constantBuffers, ConstantBuffers[i].data()); break;
+			case D3D11Shader::eGeometryShader: ctx->GSSetConstantBuffers(0U, constantBuffers, ConstantBuffers[i].data()); break;
+			case D3D11Shader::ePixelShader:    ctx->PSSetConstantBuffers(0U, constantBuffers, ConstantBuffers[i].data()); break;
+			case D3D11Shader::eComputeShader:  ctx->CSSetConstantBuffers(0U, constantBuffers, ConstantBuffers[i].data()); break;
 			}
 
 			SetDirty(eConstantBuffer, false);
@@ -173,9 +173,9 @@ void D3DContextState::BindConstantBuffers(D3DContext &ctx)
 	}
 }
 
-void D3DContextState::BindSamplerStates(D3DContext &ctx)
+void D3D11ContextState::BindSamplerStates(D3D11Context &ctx)
 {
-	for (uint32_t i = 0U; i < D3DShader::eShaderTypeCount; ++i)
+	for (uint32_t i = 0U; i < D3D11Shader::eShaderTypeCount; ++i)
 	{
 		if (IsDirty(eSamplerState, i))
 		{
@@ -186,14 +186,14 @@ void D3DContextState::BindSamplerStates(D3DContext &ctx)
 				continue;
 			}
 
-			switch ((D3DShader::eShaderType)i)
+			switch ((D3D11Shader::eShaderType)i)
 			{
-			case D3DShader::eVertexShader:   ctx->VSSetSamplers(0U, samplers, SamplerStates[i].data()); break;
-			case D3DShader::eHullShader:     ctx->HSSetSamplers(0U, samplers, SamplerStates[i].data()); break;
-			case D3DShader::eDomainShader:   ctx->DSSetSamplers(0U, samplers, SamplerStates[i].data()); break;
-			case D3DShader::eGeometryShader: ctx->GSSetSamplers(0U, samplers, SamplerStates[i].data()); break;
-			case D3DShader::ePixelShader:    ctx->PSSetSamplers(0U, samplers, SamplerStates[i].data()); break;
-			case D3DShader::eComputeShader:  ctx->CSSetSamplers(0U, samplers, SamplerStates[i].data()); break;
+			case D3D11Shader::eVertexShader:   ctx->VSSetSamplers(0U, samplers, SamplerStates[i].data()); break;
+			case D3D11Shader::eHullShader:     ctx->HSSetSamplers(0U, samplers, SamplerStates[i].data()); break;
+			case D3D11Shader::eDomainShader:   ctx->DSSetSamplers(0U, samplers, SamplerStates[i].data()); break;
+			case D3D11Shader::eGeometryShader: ctx->GSSetSamplers(0U, samplers, SamplerStates[i].data()); break;
+			case D3D11Shader::ePixelShader:    ctx->PSSetSamplers(0U, samplers, SamplerStates[i].data()); break;
+			case D3D11Shader::eComputeShader:  ctx->CSSetSamplers(0U, samplers, SamplerStates[i].data()); break;
 			}
 		}
 
@@ -201,9 +201,9 @@ void D3DContextState::BindSamplerStates(D3DContext &ctx)
 	}
 }
 
-void D3DContextState::BindShaderResourceViews(D3DContext &ctx)
+void D3D11ContextState::BindShaderResourceViews(D3D11Context &ctx)
 {
-	for (uint32_t i = 0U; i < D3DShader::eShaderTypeCount; ++i)
+	for (uint32_t i = 0U; i < D3D11Shader::eShaderTypeCount; ++i)
 	{
 		if (IsDirty(eShaderResourceView, i))
 		{
@@ -214,14 +214,14 @@ void D3DContextState::BindShaderResourceViews(D3DContext &ctx)
 				continue;
 			}
 
-			switch ((D3DShader::eShaderType)i)
+			switch ((D3D11Shader::eShaderType)i)
 			{
-			case D3DShader::eVertexShader:   ctx->VSSetShaderResources(0U, shaderResourceViews, ShaderResourceViews[i].data()); break;
-			case D3DShader::eHullShader:     ctx->HSSetShaderResources(0U, shaderResourceViews, ShaderResourceViews[i].data()); break;
-			case D3DShader::eDomainShader:   ctx->DSSetShaderResources(0U, shaderResourceViews, ShaderResourceViews[i].data()); break;
-			case D3DShader::eGeometryShader: ctx->GSSetShaderResources(0U, shaderResourceViews, ShaderResourceViews[i].data()); break;
-			case D3DShader::ePixelShader:    ctx->PSSetShaderResources(0U, shaderResourceViews, ShaderResourceViews[i].data()); break;
-			case D3DShader::eComputeShader:  ctx->CSSetShaderResources(0U, shaderResourceViews, ShaderResourceViews[i].data()); break;
+			case D3D11Shader::eVertexShader:   ctx->VSSetShaderResources(0U, shaderResourceViews, ShaderResourceViews[i].data()); break;
+			case D3D11Shader::eHullShader:     ctx->HSSetShaderResources(0U, shaderResourceViews, ShaderResourceViews[i].data()); break;
+			case D3D11Shader::eDomainShader:   ctx->DSSetShaderResources(0U, shaderResourceViews, ShaderResourceViews[i].data()); break;
+			case D3D11Shader::eGeometryShader: ctx->GSSetShaderResources(0U, shaderResourceViews, ShaderResourceViews[i].data()); break;
+			case D3D11Shader::ePixelShader:    ctx->PSSetShaderResources(0U, shaderResourceViews, ShaderResourceViews[i].data()); break;
+			case D3D11Shader::eComputeShader:  ctx->CSSetShaderResources(0U, shaderResourceViews, ShaderResourceViews[i].data()); break;
 			}
 
 			SetDirty(eShaderResourceView, false, i);
@@ -229,7 +229,7 @@ void D3DContextState::BindShaderResourceViews(D3DContext &ctx)
 	}
 }
 
-void D3DContextState::BindUnorderedAccessViews(D3DContext &ctx)
+void D3D11ContextState::BindUnorderedAccessViews(D3D11Context &ctx)
 {
 	if (!IsDirty(eUnorderedAccessView))
 	{

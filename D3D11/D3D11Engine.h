@@ -1,38 +1,30 @@
 #pragma once
 
-#include "IRenderEngine.h"
-#include "D3DView.h"
-#include "D3DMath.h"
-#include "D3DShader.h"
-#include "D3DBuffer.h"
-#include "D3DState.h"
-#include "D3DContext.h"
-#include "D3DGeometry.h"
-#include "D3DTexture.h"
+#include "D3D11Context.h"
 
 #include <unordered_map>
 #include <thread>
 
-class D3DEngine : public IRenderEngine
+class D3D11Engine : public NoneCopyable
 {
 public:
-	static D3DEngine &Instance()
+	static D3D11Engine &Instance()
 	{
 		if (!s_Instance)
 		{
-			s_Instance = std::unique_ptr<D3DEngine, std::function<void(D3DEngine *)>>
-				(new D3DEngine(), [](D3DEngine *pEngine) { SafeDelete(pEngine) });
+			s_Instance = std::unique_ptr<D3D11Engine, std::function<void(D3D11Engine *)>>
+				(new D3D11Engine(), [](D3D11Engine *pEngine) { SafeDelete(pEngine) });
 		}
 		return *s_Instance;
 	}
 
-	inline const D3DDevice &GetDevice() const
+	inline const D3D11Device &GetDevice() const
 	{
 		assert(m_Device.IsValid());
 		return m_Device;
 	}
 
-	inline const D3DContext &GetIMContext() const
+	inline const D3D11Context &GetIMContext() const
 	{
 		assert(m_IMContext.IsValid());
 		return m_IMContext;
@@ -58,102 +50,102 @@ public:
 		GetThreadContext().ForceCommitState();
 	}
 
-	inline void SetRenderTargetView(const D3DRenderTargetView &renderTarget, uint32_t slot = 0U)
+	inline void SetRenderTargetView(const D3D11RenderTargetView &renderTarget, uint32_t slot = 0U)
 	{
 		GetThreadContext().SetRenderTargetView(renderTarget, slot);
 	}
 
-	inline void SetDepthStencilView(const D3DDepthStencilView &depthStencilView)
+	inline void SetDepthStencilView(const D3D11DepthStencilView &depthStencilView)
 	{
 		GetThreadContext().SetDepthStencilView(depthStencilView);
 	}
 
-	inline void SetShaderResourceView(const D3DShaderResourceView &shaderResourceView, uint32_t slot, D3DShader::eShaderType targetShader)
+	inline void SetShaderResourceView(const D3D11ShaderResourceView &shaderResourceView, uint32_t slot, D3D11Shader::eShaderType targetShader)
 	{
 		GetThreadContext().SetShaderResourceView(shaderResourceView, slot, targetShader);
 	}
 
-	inline void SetUnorderedAccessView(const D3DUnorderedAccessView &unorderedAccessView, uint32_t slot, D3DShader::eShaderType targetShader = D3DShader::eComputeShader)
+	inline void SetUnorderedAccessView(const D3D11UnorderedAccessView &unorderedAccessView, uint32_t slot, D3D11Shader::eShaderType targetShader = D3D11Shader::eComputeShader)
 	{
 		GetThreadContext().SetUnorderedAccessView(unorderedAccessView, slot, targetShader);
 	}
 
-	inline void SetVertexBuffer(const D3DBuffer &vertexBuffer, uint32_t stride, uint32_t offset, uint32_t slot = 0U) 
+	inline void SetVertexBuffer(const D3D11Buffer &vertexBuffer, uint32_t stride, uint32_t offset, uint32_t slot = 0U) 
 	{
 		GetThreadContext().SetVertexBuffer(vertexBuffer, stride, offset, slot);
 	}
 
-	inline void SetIndexBuffer(const D3DBuffer &indexBuffer, uint32_t fmt, uint32_t offset)
+	inline void SetIndexBuffer(const D3D11Buffer &indexBuffer, uint32_t fmt, uint32_t offset)
 	{
 		GetThreadContext().SetIndexBuffer(indexBuffer, fmt, offset);
 	}
 
-	inline void SetSamplerState(const D3DSamplerState &samplerState, uint32_t slot, D3DShader::eShaderType targetShader)
+	inline void SetSamplerState(const D3D11SamplerState &samplerState, uint32_t slot, D3D11Shader::eShaderType targetShader)
 	{
 		GetThreadContext().SetSamplerState(samplerState, slot, targetShader);
 	}
 
-	inline void SetRasterizerState(const D3DRasterizerState &rasterizerState)
+	inline void SetRasterizerState(const D3D11RasterizerState &rasterizerState)
 	{
 		GetThreadContext().SetRasterizerState(rasterizerState);
 	}
 
-	inline void SetDepthStencilState(const D3DDepthStencilState &depthStencilState, uint32_t stencilRef)
+	inline void SetDepthStencilState(const D3D11DepthStencilState &depthStencilState, uint32_t stencilRef)
 	{
 		GetThreadContext().SetDepthStencilState(depthStencilState, stencilRef);
 	}
 
-	inline void SetBlendState(const D3DBlendState &blendState, Vec4 blendFactor = Vec4(0.0f, 0.0f, 0.0f, 0.0f), uint32_t mask = 0xFFFFFFFF)
+	inline void SetBlendState(const D3D11BlendState &blendState, Vec4 blendFactor = Vec4(0.0f, 0.0f, 0.0f, 0.0f), uint32_t mask = 0xFFFFFFFF)
 	{
 		GetThreadContext().SetBlendState(blendState, blendFactor, mask);
 	}
 
-	inline void SetInputLayout(const D3DInputLayout &inputLayout)
+	inline void SetInputLayout(const D3D11InputLayout &inputLayout)
 	{
 		GetThreadContext().SetInputLayout(inputLayout);
 	}
 
-	inline void SetVertexShader(const D3DVertexShader &vertexShader)
+	inline void SetVertexShader(const D3D11VertexShader &vertexShader)
 	{
 		GetThreadContext().SetVertexShader(vertexShader);
 	}
 
-	inline void SetHullShader(const D3DHullShader &hullShader)
+	inline void SetHullShader(const D3D11HullShader &hullShader)
 	{
 		GetThreadContext().SetHullShader(hullShader);
 	}
 
-	inline void SetDomainShader(const D3DDomainShader &domainShader)
+	inline void SetDomainShader(const D3D11DomainShader &domainShader)
 	{
 		GetThreadContext().SetDomainShader(domainShader);
 	}
 
-	inline void SetPixelShader(const D3DPixelShader &pixelShader)
+	inline void SetPixelShader(const D3D11PixelShader &pixelShader)
 	{
 		GetThreadContext().SetPixelShader(pixelShader);
 	}
 
-	inline void SetGeometryShader(const D3DGeometryShader &geometryShader)
+	inline void SetGeometryShader(const D3D11GeometryShader &geometryShader)
 	{
 		GetThreadContext().SetGeometryShader(geometryShader);
 	}
 
-	inline void SetComputeShader(const D3DComputeShader &computeShader)
+	inline void SetComputeShader(const D3D11ComputeShader &computeShader)
 	{
 		GetThreadContext().SetComputeShader(computeShader);
 	}
 
-	inline void SetConstantBuffer(const D3DBuffer &constantBuffer, uint32_t slot, D3DShader::eShaderType targetShader)
+	inline void SetConstantBuffer(const D3D11Buffer &constantBuffer, uint32_t slot, D3D11Shader::eShaderType targetShader)
 	{
 		GetThreadContext().SetConstantBuffer(constantBuffer, slot, targetShader);
 	}
 
-	inline void SetViewport(const D3DViewport &viewport, uint32_t slot = 0U)
+	inline void SetViewport(const D3D11Viewport &viewport, uint32_t slot = 0U)
 	{
 		GetThreadContext().SetViewport(viewport, slot);
 	}
 
-	inline void SetScissorRect(const D3DRect &rect, uint32_t slot = 0U)
+	inline void SetScissorRect(const D3D11Rect &rect, uint32_t slot = 0U)
 	{
 		GetThreadContext().SetScissorRect(rect, slot);
 	}
@@ -168,30 +160,30 @@ public:
 		GetThreadContext().DrawIndexed(indexCount, startIndex, offset, primitive);
 	}
 
-	inline void ClearRenderTargetView(D3DRenderTargetView &renderTarget, const Vec4 &color = Color::DarkBlue)
+	inline void ClearRenderTargetView(D3D11RenderTargetView &renderTarget, const Vec4 &color = Color::DarkBlue)
 	{
 		GetThreadContext().ClearRenderTargetView(renderTarget, color);
 	}
 
-	inline void ClearDepthStencilView(D3DDepthStencilView &depthStencil, uint32_t clearFlag = D3DDepthStencilView::eDepthStencil, float depth = 1.0f, uint8_t stencil = 0U)
+	inline void ClearDepthStencilView(D3D11DepthStencilView &depthStencil, uint32_t clearFlag = D3D11DepthStencilView::eDepthStencil, float depth = 1.0f, uint8_t stencil = 0U)
 	{
 		GetThreadContext().ClearDepthStencilView(depthStencil, clearFlag, depth, stencil);
 	}
 
 	inline void ResetDefaultRenderSurfaces(const Vec4 &clearClr = Color::DarkBlue)
 	{
-		D3DContext &ctx = GetThreadContext();
+		D3D11Context &ctx = GetThreadContext();
 
 		ctx.SetRenderTargetView(m_RenderTargetView, 0U);
 		ctx.ClearRenderTargetView(m_RenderTargetView, clearClr);
 
 		ctx.SetDepthStencilView(m_DepthStencilView);
-		ctx.ClearDepthStencilView(m_DepthStencilView, D3DDepthStencilView::eDepthStencil, 1.0f, 0U);
+		ctx.ClearDepthStencilView(m_DepthStencilView, D3D11DepthStencilView::eDepthStencil, 1.0f, 0U);
 	}
 
 	inline void ResetDefaultRenderTargetView(const Vec4 &clearClr = Color::DarkBlue)
 	{
-		D3DContext &ctx = GetThreadContext();
+		D3D11Context &ctx = GetThreadContext();
 
 		ctx.SetRenderTargetView(m_RenderTargetView, 0U);
 		ctx.ClearRenderTargetView(m_RenderTargetView, clearClr);
@@ -199,13 +191,13 @@ public:
 
 	inline void ResetDefaultDepthStencilView()
 	{
-		D3DContext &ctx = GetThreadContext();
+		D3D11Context &ctx = GetThreadContext();
 
 		ctx.SetDepthStencilView(m_DepthStencilView);
-		ctx.ClearDepthStencilView(m_DepthStencilView, D3DDepthStencilView::eDepthStencil, 1.0f, 0U);
+		ctx.ClearDepthStencilView(m_DepthStencilView, D3D11DepthStencilView::eDepthStencil, 1.0f, 0U);
 	}
 
-	void Initialize(HWND hWnd, uint32_t width, uint32_t height, bool bWindowed);
+	void Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool bWindowed);
 
 	void Resize(uint32_t width, uint32_t height);
 
@@ -217,28 +209,28 @@ public:
 	///void DrawTextInPos(const char *pTextContent, uint32_t left = 10U, uint32_t top = 10U, uint32_t fontSize = 1U);
 
 protected:
-	D3DEngine() = default;
-	~D3DEngine() = default;
+	D3D11Engine() = default;
+	~D3D11Engine() = default;
 
 	void RecreateRenderTargetDepthStencil(uint32_t width, uint32_t height);
 
-	inline D3DContext &GetThreadContext()
+	inline D3D11Context &GetThreadContext()
 	{
 		return m_IMContext;
 		///return m_ContextsMap[std::this_thread::get_id()];
 	}
 private:
-	static std::unique_ptr<D3DEngine, std::function<void(D3DEngine *)>> s_Instance;
+	static std::unique_ptr<D3D11Engine, std::function<void(D3D11Engine *)>> s_Instance;
 
-	D3DDevice m_Device;
-	D3DContext m_IMContext;
-	D3DSwapChain m_SwapChain;
-	D3DRenderTargetView m_RenderTargetView;
-	D3DDepthStencilView m_DepthStencilView;
+	D3D11Device m_Device;
+	D3D11Context m_IMContext;
+	D3D11SwapChain m_SwapChain;
+	D3D11RenderTargetView m_RenderTargetView;
+	D3D11DepthStencilView m_DepthStencilView;
 
-	std::unordered_map<std::thread::id, D3DContext> m_ContextsMap;
+	std::unordered_map<std::thread::id, D3D11Context> m_ContextsMap;
 
-	D3DContextState m_IMContextState;
+	D3D11ContextState m_IMContextState;
 
 	bool m_Inited = false;
 };

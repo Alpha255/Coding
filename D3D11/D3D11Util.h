@@ -1,6 +1,7 @@
 #pragma once
 
-#include "D3DView.h"
+#include "D3D11View.h"
+#include "D3D11Util.inline.h"
 
 NamespaceBegin(D3DUtil)
 

@@ -1,7 +1,6 @@
 #include "IApplication.h"
-#include "ImGUI.h"
 
-static IApplication* s_Application = nullptr;
+static IApplication *s_Application = nullptr;
 
 ::LRESULT WINAPI WndProc(::HWND hWnd, uint32_t msg, ::WPARAM wParam, ::LPARAM lParam)
 {
@@ -23,7 +22,7 @@ static IApplication* s_Application = nullptr;
 		HandleInput(msg, wParam, lParam);
 	}
 
-	return ::DefWindowProc(hWnd, msg, wParam, lParam);
+	return ::DefWindowProcW(hWnd, msg, wParam, lParam);
 }
 
 void IApplication::MakeWindow(const wchar_t *pTitle, uint32_t width, uint32_t height, uint32_t windowStyle)
@@ -45,9 +44,9 @@ void IApplication::MakeWindow(const wchar_t *pTitle, uint32_t width, uint32_t he
 	wndClassEx.lpszMenuName = nullptr;
 	wndClassEx.style = CS_HREDRAW | CS_VREDRAW;
 
-	if (RegisterClassEx(&wndClassEx))
+	if (::RegisterClassEx(&wndClassEx))
 	{
-		RECT rect{ 0, 0, (long)width, (long)height };
+		::RECT rect{ 0, 0, (long)width, (long)height };
 		::AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, false);
 		m_hWnd = ::CreateWindow(pTitle, pTitle, WS_OVERLAPPEDWINDOW ^ windowStyle, CW_USEDEFAULT, CW_USEDEFAULT,
 			rect.right - rect.left, rect.bottom - rect.top, 0, 0, hInst, nullptr);
@@ -129,15 +128,15 @@ void IApplication::HandleInput(uint32_t msg, ::WPARAM wParam, ::LPARAM lParam)
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
 	case WM_MBUTTONDOWN:
-		MouseButtonDown(wParam, (int)LOWORD(lParam), (int)HIWORD(lParam));
+		MouseButtonDown(wParam, (int32_t)LOWORD(lParam), (int32_t)HIWORD(lParam));
 		break;
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
 	case WM_MBUTTONUP:
-		///MouseButtonUp(wParam, (int)LOWORD(lParam), (int)HIWORD(lParam));
+		///MouseButtonUp(wParam, (int32_t)LOWORD(lParam), (int32_t)HIWORD(lParam));
 		break;
 	case WM_MOUSEMOVE:
-		MouseMove(wParam, (int)LOWORD(lParam), (int)HIWORD(lParam));
+		MouseMove(wParam, (int32_t)LOWORD(lParam), (int32_t)HIWORD(lParam));
 		break;
 	case WM_MOUSEWHEEL:
 		MouseWheel(wParam);
@@ -172,7 +171,7 @@ void IApplication::UpdateWindow()
 		return;
 	}
 
-	::RECT rect;
+	::RECT rect = {};
 	::GetClientRect(m_hWnd, &rect);
 
 	m_Width = std::max<uint32_t>((rect.right - rect.left), 32U);
@@ -183,11 +182,11 @@ void IApplication::UpdateWindow()
 	m_bNeedResize = false;
 }
 
-void IApplication::Startup(const wchar_t *pTitle, uint32_t width, uint32_t height, bool bWindowed, uint32_t windowStyle)
+void IApplication::Startup(const wchar_t *pTitle, uint32_t width, uint32_t height, bool bFullScreen, uint32_t windowStyle)
 {
 	s_Application = this;
 
-	m_bFullScreen = bWindowed;
+	m_bFullScreen = bFullScreen;
 
 	MakeWindow(pTitle, width, height, windowStyle);
 

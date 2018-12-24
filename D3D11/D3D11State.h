@@ -1,6 +1,6 @@
 #pragma once
 
-#include "D3DObject.h"
+#include "D3D11Object.h"
 
 class D3DState
 {
@@ -119,13 +119,13 @@ public:
 	};
 };
 
-class D3DSamplerState : public D3DObject<ID3D11SamplerState>, public D3DState
+class D3D11SamplerState : public D3DObject<ID3D11SamplerState>
 {
 public:
 	void Create(uint32_t filter, uint32_t addressMode, float LODBias, uint32_t compFunc, const float *pBorderClr, float minLOD, float maxLOD);
 };
 
-class D3DDepthStencilState : public D3DObject<ID3D11DepthStencilState>, public D3DState
+class D3D11DepthStencilState : public D3DObject<ID3D11DepthStencilState>
 {
 public:
 	void Create(
@@ -145,7 +145,7 @@ public:
 		uint32_t stencilCompFuncBackFace);
 };
 
-class D3DBlendState : public D3DObject<ID3D11BlendState>, public D3DState
+class D3D11BlendState : public D3DObject<ID3D11BlendState>
 {
 public:
 	void Create(
@@ -162,31 +162,31 @@ public:
 		uint8_t renderTargetWriteMask);
 };
 
-class D3DRasterizerState : public D3DObject<ID3D11RasterizerState>, public D3DState
+class D3D11RasterizerState : public D3DObject<ID3D11RasterizerState>
 {
 public:
 	void Create(uint32_t fillMode, uint32_t cullMode, bool bFrontCCW, bool bDepthClip, bool bScissor);
 };
 
-struct D3DStaticState
+struct D3D11StaticState
 {
 	static void Initialize();
 
-	static D3DSamplerState PointSampler;
-	static D3DSamplerState PointClampSampler;
-	static D3DSamplerState LinearSampler;
-	static D3DSamplerState AnisotropicSampler;
+	static D3D11SamplerState PointSampler;
+	static D3D11SamplerState PointClampSampler;
+	static D3D11SamplerState LinearSampler;
+	static D3D11SamplerState AnisotropicSampler;
 
-	static D3DRasterizerState Wireframe;
-	static D3DRasterizerState Solid;
-	static D3DRasterizerState WireframeNoneCulling;
-	static D3DRasterizerState SolidNoneCulling;
-	static D3DRasterizerState SolidFrontCCW;
+	static D3D11RasterizerState Wireframe;
+	static D3D11RasterizerState Solid;
+	static D3D11RasterizerState WireframeNoneCulling;
+	static D3D11RasterizerState SolidNoneCulling;
+	static D3D11RasterizerState SolidFrontCCW;
 
-	static D3DDepthStencilState DisableDepthStencil;
+	static D3D11DepthStencilState DisableDepthStencil;
 
-	static D3DBlendState NoneBlendState;
-	static D3DDepthStencilState NoneDepthStencilState;
+	static D3D11BlendState NoneBlendState;
+	static D3D11DepthStencilState NoneDepthStencilState;
 
 	static bool Inited;
 };

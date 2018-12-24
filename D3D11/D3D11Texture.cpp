@@ -1,9 +1,9 @@
-#include "D3DTexture.h"
-#include "D3DEngine.h"
-#include "System.h"
-#include "D3DMath.h"
+#include "D3D11Texture.h"
+#include "D3D11Engine.h"
+#include "Util/System.h"
+#include "Util/D3DMath.h"
 
-void D3DTexture1D::Create(
+void D3D11Texture1D::Create(
 	uint32_t fmt,
 	uint32_t width,
 	uint32_t bindFlags,
@@ -33,12 +33,12 @@ void D3DTexture1D::Create(
 	///subResData.SysMemSlicePitch = 0U; 	/// System-memory-slice pitch is only used for 3D texture data as it has no meaning for the other resource types
 
 	ID3D11Texture1D *pTexture1D = nullptr;
-	HRCheck(D3DEngine::Instance().GetDevice()->CreateTexture1D(&desc, pSubResData, &pTexture1D));
+	HRCheck(D3D11Engine::Instance().GetDevice()->CreateTexture1D(&desc, pSubResData, &pTexture1D));
 
 	MakeObject(pTexture1D);
 }
 
-void D3DTexture1D::CreateRandomTexture()
+void D3D11Texture1D::CreateRandomTexture()
 {
 	assert(!IsValid());
 
@@ -56,13 +56,13 @@ void D3DTexture1D::CreateRandomTexture()
 	D3D11_SUBRESOURCE_DATA subResData = {};
 	subResData.pSysMem = &random;
 	subResData.SysMemPitch = size * sizeof(Vec4);
-	Create(eRGBA32_Float, size, D3DBuffer::eBindAsShaderResource, 1U, 1U, 0U, 0U,
-		D3DBuffer::eGpuReadOnly, &subResData);
+	Create(eRGBA32_Float, size, D3D11Buffer::eBindAsShaderResource, 1U, 1U, 0U, 0U,
+		D3D11Buffer::eGpuReadOnly, &subResData);
 
 	///CreateShaderResourceView(rSRV, tex.Ptr(), DXGI_FORMAT_R32G32B32A32_FLOAT, D3D11_SRV_DIMENSION_TEXTURE1D);
 }
 
-void D3DTexture2D::Create(
+void D3D11Texture2D::Create(
 	uint32_t fmt,
 	uint32_t width,
 	uint32_t height,
@@ -95,12 +95,12 @@ void D3DTexture2D::Create(
 	///subResData.SysMemSlicePitch = 0U; 	/// System-memory-slice pitch is only used for 3D texture data as it has no meaning for the other resource types
 
 	ID3D11Texture2D *pTexture2D = nullptr;
-	HRCheck(D3DEngine::Instance().GetDevice()->CreateTexture2D(&desc, pSubResData, &pTexture2D));
+	HRCheck(D3D11Engine::Instance().GetDevice()->CreateTexture2D(&desc, pSubResData, &pTexture2D));
 
 	MakeObject(pTexture2D);
 }
 
-void D3DTexture3D::Create(
+void D3D11Texture3D::Create(
 	uint32_t fmt,
 	uint32_t width,
 	uint32_t height,
@@ -131,7 +131,7 @@ void D3DTexture3D::Create(
 	///subResData.SysMemSlicePitch = memSlicePitch; 	/// System-memory-slice pitch is only used for 3D texture data as it has no meaning for the other resource types
 
 	ID3D11Texture3D *pTexture3D = nullptr;
-	HRCheck(D3DEngine::Instance().GetDevice()->CreateTexture3D(&desc, pSubResData, &pTexture3D));
+	HRCheck(D3D11Engine::Instance().GetDevice()->CreateTexture3D(&desc, pSubResData, &pTexture3D));
 
 	MakeObject(pTexture3D);
 }

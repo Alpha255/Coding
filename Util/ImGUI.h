@@ -3,11 +3,21 @@
 #include "Common.h"
 #include <ImGUI/imgui.h>
 
-class IImGUI : public NoneCopyable
+class ImGUI : public NoneCopyable
 {
 public:
-	IImGUI() = default;
-	virtual ~IImGUI() = default;
+	static ImGUI &Instance()
+	{
+		if (!s_Instance)
+		{
+			s_Instance = std::unique_ptr<ImGUI>(new ImGUI());
+		}
+	}
+
+	inline static void Destroy()
+	{
+		ImGui::DestroyContext();
+	}
 
 	void Initialize(::HWND hWnd);
 
@@ -26,15 +36,12 @@ public:
 		const ImGuiIO &io = ImGui::GetIO();
 		return io.WantCaptureMouse || io.WantCaptureKeyboard;
 	}
-
-	virtual void InitRenderResource(ImGuiIO &) = 0;
-	virtual void SetupRenderResource(class Matrix &) = 0;
-	virtual void Draw(::RECT &, const ImDrawCmd *, uint32_t, int32_t) = 0;
-	virtual void RestoreRenderResource(::RECT &) = 0;
-	virtual void ResetVertexBuffer() = 0;
-	virtual void ResetIndexBuffer() = 0;
-	virtual void UpdateBuffers() = 0;
 protected:
+	ImGUI() = default;
+	~ImGUI() = default;
+
+	void InitRenderResource();
+
 	void Update();
 	
 	void UpdateDrawData(bool bRecreateVB, bool bRecreateIB, const ImDrawData *pDrawData);
@@ -52,13 +59,31 @@ protected:
 
 		return false;
 	}
+private:
+	struct RenderResource
+	{
+		RInputLayout VertexLayout;
+
+		RVertexShader VertexShader;
+		RPixelShader PixelShader;
+
+		RBuffer VertexBuffer;
+		RBuffer IndexBuffer;
+		RBuffer ConstantBufferVS;
+
+		RBlendState ClrWriteBlend;
+
+		RShaderResourceView FontTexture;
+	};
+
+	RenderResource m_Resource;
+
+	static std::unique_ptr<ImGUI> s_Instance;
 
 	int32_t m_VertexCount = 0;
 	int32_t m_IndexCount = 0;
 
 	std::shared_ptr<ImDrawVert> m_Vertices;
 	std::shared_ptr<ImDrawIdx> m_Indices;
-private:
-
 	bool m_Inited = false;
 };

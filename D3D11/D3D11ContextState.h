@@ -1,9 +1,9 @@
 #pragma once
 
-#include "D3DMath.h"
-#include "D3DShader.h"
+#include "Util/D3DMath.h"
+#include "D3D11Shader.h"
 
-struct D3DContextState
+struct D3D11ContextState
 {	
 public:
 	enum eResourceLimits
@@ -26,7 +26,7 @@ public:
 
 		eConstantBuffer,
 
-		eVertexShader = eConstantBuffer + D3DShader::eShaderTypeCount,
+		eVertexShader = eConstantBuffer + D3D11Shader::eShaderTypeCount,
 		eHullShader,
 		eDomainShader,
 		ePixelShader,
@@ -37,7 +37,7 @@ public:
 
 		eSamplerState,
 		
-		eBlendState = eSamplerState + D3DShader::eShaderTypeCount,
+		eBlendState = eSamplerState + D3D11Shader::eShaderTypeCount,
 		eDepthStencilState,
 
 		eRenderTargetView,
@@ -45,7 +45,7 @@ public:
 
 		eShaderResourceView,
 
-		eUnorderedAccessView = eShaderResourceView + D3DShader::eShaderTypeCount,
+		eUnorderedAccessView = eShaderResourceView + D3D11Shader::eShaderTypeCount,
 
 		eScissorRect,
 		eViewport,
@@ -67,20 +67,20 @@ public:
 		DirtyFlag = bDirty ? (DirtyFlag | ((uint64_t)1 << (flag + index))) : (DirtyFlag & ~((uint64_t)1 << (flag + index)));
 	}
 
-	void CommitState(class D3DContext &ctx);
+	void CommitState(class D3D11Context &ctx);
 
 	inline void ClearState()
 	{
-		memset(this, 0, sizeof(D3DContextState));
+		memset(this, 0, sizeof(D3D11ContextState));
 	}
 
-	friend class D3DContext;
+	friend class D3D11Context;
 
 protected:
-	void BindConstantBuffers(class D3DContext &ctx);
-	void BindSamplerStates(class D3DContext &ctx);
-	void BindShaderResourceViews(class D3DContext &ctx);
-	void BindUnorderedAccessViews(class D3DContext &ctx);
+	void BindConstantBuffers(class D3D11Context &ctx);
+	void BindSamplerStates(class D3D11Context &ctx);
+	void BindShaderResourceViews(class D3D11Context &ctx);
+	void BindUnorderedAccessViews(class D3D11Context &ctx);
 
 	template<typename T> inline uint32_t GetCount(T counter)
 	{
@@ -133,14 +133,14 @@ private:
 	std::array<D3D11_RECT, eMaxScissorRects> ScissorRects;
 	uint16_t ScissorRectsInUse = 0U;
 
-	std::array<std::array<ID3D11Buffer *, eMaxConstantBuffers>, D3DShader::eShaderTypeCount> ConstantBuffers;
-	uint16_t ConstantBuffersInUse[D3DShader::eShaderTypeCount] = {};
+	std::array<std::array<ID3D11Buffer *, eMaxConstantBuffers>, D3D11Shader::eShaderTypeCount> ConstantBuffers;
+	uint16_t ConstantBuffersInUse[D3D11Shader::eShaderTypeCount] = {};
 
-	std::array<std::array<ID3D11SamplerState *, eMaxSamplers>, D3DShader::eShaderTypeCount> SamplerStates;
-	uint16_t SamplersInUse[D3DShader::eShaderTypeCount] = {};
+	std::array<std::array<ID3D11SamplerState *, eMaxSamplers>, D3D11Shader::eShaderTypeCount> SamplerStates;
+	uint16_t SamplersInUse[D3D11Shader::eShaderTypeCount] = {};
 
-	std::array<std::array<ID3D11ShaderResourceView *, eMaxShaderResourceViews>, D3DShader::eShaderTypeCount> ShaderResourceViews;
-	uint8_t ShaderResourceViewsInUse[D3DShader::eShaderTypeCount] = {};
+	std::array<std::array<ID3D11ShaderResourceView *, eMaxShaderResourceViews>, D3D11Shader::eShaderTypeCount> ShaderResourceViews;
+	uint8_t ShaderResourceViewsInUse[D3D11Shader::eShaderTypeCount] = {};
 
 	std::array<ID3D11RenderTargetView *, eMaxRenderTargetViews> RenderTargetViews;
 	uint8_t RenderTargetsInUse = 0U;

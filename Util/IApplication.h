@@ -13,7 +13,7 @@ public:
 
 	::LRESULT MessageProcFunc(::HWND hWnd, uint32_t msg, ::WPARAM wParam, ::LPARAM lParam);
 
-	void Startup(const wchar_t *pTitle, uint32_t width = 800U, uint32_t height = 600U, bool bWindowed = true, uint32_t windowStyle = 0U);
+	void Startup(const wchar_t *pTitle, uint32_t width = 800U, uint32_t height = 600U, bool bFullScreen = false, uint32_t windowStyle = 0U);
 	void Running();
 	void ShutDown();
 
@@ -22,7 +22,6 @@ public:
 	virtual void RenderScene() = 0;
 	virtual void UpdateScene(float, float) {}
 protected:
-
 	void MakeWindow(const wchar_t *pTitle, uint32_t width, uint32_t height, uint32_t windowStyle);
 	void ResizeWindow(uint32_t, uint32_t);
 	void UpdateWindow();
@@ -65,8 +64,8 @@ protected:
 	Timer m_Timer;
 	Camera m_Camera;
 
-	std::unique_ptr<IRenderEngine> m_Engine;
-	std::unique_ptr<IImGUI> m_ImGUI;
+	std::shared_ptr<IRenderEngine> m_Engine;
+	std::shared_ptr<IImGUI> m_ImGUI;
 private:
 	bool m_bActive = false;
 	bool m_bNeedResize = false;

@@ -1,9 +1,8 @@
-#include "D3DEngine.h"
-#include "D3DFontFreeType.h"
+#include "D3D11Engine.h"
 
-std::unique_ptr<D3DEngine, std::function<void(D3DEngine *)>> D3DEngine::s_Instance;
+std::unique_ptr<D3D11Engine, std::function<void(D3D11Engine *)>> D3D11Engine::s_Instance;
 
-void D3DEngine::Initialize(HWND hWnd, uint32_t width, uint32_t height, bool bWindowed)
+void D3D11Engine::Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool bWindowed)
 {
 	assert(hWnd && !m_Inited);
 
@@ -49,11 +48,9 @@ void D3DEngine::Initialize(HWND hWnd, uint32_t width, uint32_t height, bool bWin
 
 			RecreateRenderTargetDepthStencil(width, height);
 
-			D3DStaticState::Initialize();
+			D3D11StaticState::Initialize();
 
 			m_ContextsMap.emplace(std::make_pair(std::this_thread::get_id(), m_IMContext));
-
-			///D3DFontFreeType::Instance().Initialize(width, height);
 
 			m_Inited = true;
 
@@ -64,20 +61,20 @@ void D3DEngine::Initialize(HWND hWnd, uint32_t width, uint32_t height, bool bWin
 	assert(!"Failed to initialize D3D device!!!");
 }
 
-void D3DEngine::RecreateRenderTargetDepthStencil(uint32_t width, uint32_t height)
+void D3D11Engine::RecreateRenderTargetDepthStencil(uint32_t width, uint32_t height)
 {
 	assert(m_SwapChain.IsValid());
 
 	ID3D11Texture2D *pTexture2D = nullptr;
 	HRCheck(m_SwapChain->GetBuffer(0U, __uuidof(ID3D11Texture2D), reinterpret_cast<void **>(&pTexture2D)));
-	D3DResource surface;
+	D3D11Resource surface;
 	surface.MakeObject(pTexture2D);
 	m_RenderTargetView.Create(surface);
 
 	m_DepthStencilView.Create(eD24_UNorm_S8_UInt, width, height);
 }
 
-void D3DEngine::Resize(uint32_t width, uint32_t height)
+void D3D11Engine::Resize(uint32_t width, uint32_t height)
 {
 	assert((width > 0U) && (height > 0U));
 
@@ -93,24 +90,13 @@ void D3DEngine::Resize(uint32_t width, uint32_t height)
 	m_SwapChain.Resize(width, height);
 
 	RecreateRenderTargetDepthStencil(width, height);
-
-	///D3DFontFreeType::Instance().Resize(width, height);
 }
 
-void D3DEngine::RegisterRenderThread(std::thread::id workerThreadID)
+void D3D11Engine::RegisterRenderThread(std::thread::id workerThreadID)
 {
 	uint32_t workerThreadsLimit = std::thread::hardware_concurrency();
 	assert(m_ContextsMap.size() < workerThreadsLimit);
 
-	m_ContextsMap.emplace(std::make_pair(workerThreadID, D3DContext()));
+	m_ContextsMap.emplace(std::make_pair(workerThreadID, D3D11Context()));
 	m_ContextsMap[workerThreadID].CreateAsDeferredContext();
 }
-
-#if 0
-void D3DEngine::DrawTextInPos(const char *pTextContent, uint32_t left, uint32_t top, uint32_t fontSize)
-{
-	assert(pTextContent);
-
-	D3DFontFreeType::Instance().RenderText(pTextContent, left, top, fontSize);
-}
-#endif

@@ -1,7 +1,7 @@
-#include "D3DBuffer.h"
-#include "D3DEngine.h"
+#include "D3D11Buffer.h"
+#include "D3D11Engine.h"
 
-void D3DBuffer::Create(
+void D3D11Buffer::Create(
 	uint32_t bindFlags,
 	size_t byteWidth,
 	uint32_t usage,
@@ -28,17 +28,17 @@ void D3DBuffer::Create(
 	srcData.SysMemSlicePitch = 0U;
 
 	ID3D11Buffer *pBuffer = nullptr;
-	HRCheck(D3DEngine::Instance().GetDevice()->CreateBuffer(&bufDesc, ((nullptr == pData) ? nullptr : &srcData), &pBuffer));
+	HRCheck(D3D11Engine::Instance().GetDevice()->CreateBuffer(&bufDesc, ((nullptr == pData) ? nullptr : &srcData), &pBuffer));
 
 	MakeObject(pBuffer);
 }
 
-void D3DBuffer::Update(const void *pData, size_t size)
+void D3D11Buffer::Update(const void *pData, size_t size)
 {
 	assert(pData && size && IsValid());
 
 	D3D11_MAPPED_SUBRESOURCE mapped = {};
-	HRCheck(D3DEngine::Instance().GetIMContext()->Map(Get(), 0U, D3D11_MAP_WRITE_DISCARD, 0U, &mapped)); 	/// Map cannot be called with MAP_WRITE_DISCARD access
+	HRCheck(D3D11Engine::Instance().GetIMContext()->Map(Get(), 0U, D3D11_MAP_WRITE_DISCARD, 0U, &mapped)); 	/// Map cannot be called with MAP_WRITE_DISCARD access
 	memcpy(mapped.pData, pData, size);
-	D3DEngine::Instance().GetIMContext()->Unmap(Get(), 0U);
+	D3D11Engine::Instance().GetIMContext()->Unmap(Get(), 0U);
 }
