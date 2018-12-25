@@ -26,12 +26,12 @@ void VulkanInstance::Create(const char *pApplicationName, const char *pEngineNam
 	m_ExtensionProperties.resize(count);
 	VKCheck(vkEnumerateInstanceExtensionProperties(nullptr, &count, m_ExtensionProperties.data()));
 
-	for each (auto layer in m_LayerProperties)
+	for each (auto &layer in m_LayerProperties)
 	{
 		m_SupportedLayers.emplace_back(layer.layerName);
 	}
 
-	for each (auto extension in m_ExtensionProperties)
+	for each (auto &extension in m_ExtensionProperties)
 	{
 		m_SupportedExtension.emplace_back(extension.extensionName);
 	}
@@ -39,22 +39,23 @@ void VulkanInstance::Create(const char *pApplicationName, const char *pEngineNam
 	std::vector<std::string> layers;
 #if defined(_DEBUG)
 	/// https://vulkan.lunarg.com/doc/view/1.0.13.0/windows/layers.html
-	///layers.push_back("VK_LAYER_LUNARG_api_dump");
-	///layers.push_back("VK_LAYER_LUNARG_standard_validation");
-	///layers.push_back("VK_LAYER_GOOGLE_threading");
-	///layers.push_back("VK_LAYER_GOOGLE_unique_objects");
-	layers.emplace_back("VK_LAYER_LUNARG_parameter_validation");
-	layers.emplace_back("VK_LAYER_LUNARG_object_tracker");
-	layers.emplace_back("VK_LAYER_LUNARG_image");
-	layers.emplace_back("VK_LAYER_LUNARG_device_limits");
-	layers.emplace_back("VK_LAYER_LUNARG_core_validation");
-	layers.emplace_back("VK_LAYER_LUNARG_swapchain");
+	layers.emplace_back("VK_LAYER_LUNARG_standard_validation");
+	///layers.emplace_back("VK_LAYER_LUNARG_api_dump");
+	///layers.emplace_back("VK_LAYER_GOOGLE_threading");
+	///layers.emplace_back("VK_LAYER_GOOGLE_unique_objects");
+	///layers.emplace_back("VK_LAYER_LUNARG_parameter_validation");
+	///layers.emplace_back("VK_LAYER_LUNARG_object_tracker");
+	///layers.emplace_back("VK_LAYER_LUNARG_image");
+	///layers.emplace_back("VK_LAYER_LUNARG_device_limits");
+	///layers.emplace_back("VK_LAYER_LUNARG_core_validation");
+	///layers.emplace_back("VK_LAYER_LUNARG_swapchain");
 #endif
+	layers.emplace_back("VK_LAYER_RENDERDOC_Capture");
 
 	std::vector<const char *> enabledLayers;
-	for each (auto layer in layers)
+	for each (auto &layer in layers)
 	{
-		for each (auto supportedLayer in m_SupportedLayers)
+		for each (auto &supportedLayer in m_SupportedLayers)
 		{
 			if (layer == supportedLayer)
 			{
@@ -65,8 +66,8 @@ void VulkanInstance::Create(const char *pApplicationName, const char *pEngineNam
 
 	/// https://vulkan.lunarg.com/doc/view/1.0.39.1/windows/LoaderAndLayerInterface.html
 	std::vector<std::string> extensions;
-	extensions.push_back("VK_KHR_xcb_surface");  /// Linux
-	extensions.push_back("VK_KHR_xlib_surface"); /// Linux
+	extensions.emplace_back("VK_KHR_xcb_surface");  /// Linux
+	extensions.emplace_back("VK_KHR_xlib_surface"); /// Linux
 	extensions.emplace_back(VK_KHR_SURFACE_EXTENSION_NAME);;
 	extensions.emplace_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
 	extensions.emplace_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
@@ -78,9 +79,9 @@ void VulkanInstance::Create(const char *pApplicationName, const char *pEngineNam
 #endif
 
 	std::vector<const char *> enabledExtensions;
-	for each (auto extension in extensions)
+	for each (auto &extension in extensions)
 	{
-		for each (auto supportedExtension in m_SupportedExtension)
+		for each (auto &supportedExtension in m_SupportedExtension)
 		{
 			if (extension == supportedExtension)
 			{
@@ -106,6 +107,7 @@ void VulkanInstance::Create(const char *pApplicationName, const char *pEngineNam
 
 void VulkanPhysicalDevice::InitExtensionProperties()
 {
+#if 0
 	const std::vector<VkLayerProperties> layerProperties = VulkanEngine::Instance().GetInstance().GetLayerProperties();
 
 	VkResult res = VK_NOT_READY;
@@ -125,6 +127,7 @@ void VulkanPhysicalDevice::InitExtensionProperties()
 			res = vkEnumerateDeviceExtensionProperties(m_Handle, layerProperty.layerName, &count, m_ExtensionProperties.data());
 		} while (VK_INCOMPLETE == res);
 	}
+#endif
 }
 
 void VulkanPhysicalDevice::Create()

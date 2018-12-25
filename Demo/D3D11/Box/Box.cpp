@@ -3,6 +3,7 @@
 
 void AppBox::InitScene()
 {
+#if 0
 	m_BoxMesh.CreateAsCube(1.0f);
 	m_DiffuseTex.Create("WoodCrate01.dds");
 
@@ -17,10 +18,12 @@ void AppBox::InitScene()
 	m_CBufferVS.CreateAsConstantBuffer(sizeof(Matrix), eGpuReadCpuWrite, nullptr);
 
 	m_Camera.SetViewRadius(5.0f);
+#endif
 }
 
 void AppBox::RenderScene()
 {
+#if 0
 	REngine::Instance().ResetDefaultRenderSurfaces();
 	REngine::Instance().SetViewport(RViewport(0.0f, 0.0f, (float)m_Width, (float)m_Height));
 
@@ -43,4 +46,5 @@ void AppBox::RenderScene()
 	ImGui::Combo("SpecialEffect", &m_Effect, "None\0Inversion\0Grayscale\0Sharpen\0Blur\0EdgeDetection");
 	ImGui::Checkbox("VSync", &m_bVSync);
 	ImGui::Text("\n%.2f FPS", m_FPS);
+#endif
 }

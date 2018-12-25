@@ -93,8 +93,10 @@ struct Material
 
 	inline void Set(eProperty target, const char *pTextureName, bool bFromCurDir = false)
 	{
+#if 0
 		assert(target < ePropertyCount);
 		Textures[target].Create(pTextureName, bFromCurDir);
+#endif
 	}
 
 	RawMaterial RawValue;

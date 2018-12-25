@@ -668,6 +668,7 @@ void Mesh::ApplyMaterial(const Material *pMaterial)
 		return;
 	}
 
+#if 0
 	uint32_t slot = 0U;
 	for (uint32_t i = 0U; i < Material::ePropertyCount; ++i)
 	{
@@ -679,15 +680,18 @@ void Mesh::ApplyMaterial(const Material *pMaterial)
 	}
 
 	REngine::Instance().SetSamplerState(RStaticState::LinearSampler, 0U, ePixelShader);
+#endif
 }
 
 void Mesh::Bind(const Material *pMaterial)
 {
 	ApplyMaterial(pMaterial);
 
+#if 0
 	REngine::Instance().SetInputLayout(InputLayout);
 	REngine::Instance().SetVertexBuffer(VertexBuffer, sizeof(Vertex), 0U, 0U);
 	REngine::Instance().SetIndexBuffer(IndexBuffer, eR32_UInt, 0U);
+#endif
 }
 
 void Mesh::Draw(const Material *pMaterial, uint32_t startIndex, int32_t vertexOffset)

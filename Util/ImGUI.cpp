@@ -40,6 +40,7 @@ void ImGUI::Initialize(::HWND hWnd)
 
 void ImGUI::InitRenderResource()
 {
+#if 0
 	const VertexLayout layout[] = 
 	{
 		{ "POSITION", (size_t)(&((ImDrawVert*)0)->pos), eRG32_Float  },
@@ -68,6 +69,7 @@ void ImGUI::InitRenderResource()
 	fontTex.Create(eRGBA8_UNorm, (uint32_t)width, (uint32_t)height, eBindAsShaderResource, 1U, 1U, 0U, 0U, eGpuReadWrite, &subRes);
 	m_Resource.FontTexture.CreateAsTexture(eTexture2D, fontTex, eRGBA8_UNorm, 0U, 1U);
 	io.Fonts->TexID = (void *)m_Resource.FontTexture.Get();
+#endif
 }
 
 ::LRESULT ImGUI::MessageProcFunc(::HWND hWnd, uint32_t uMsg, ::WPARAM wParam, ::LPARAM lParam)
@@ -227,6 +229,7 @@ void ImGUI::Update()
 	m_Resource.ConstantBufferVS.Update(&wvp, sizeof(Matrix));
 
 	RViewport vp(0.0f, 0.0f, ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y);
+#if 0
 	REngine::Instance().SetViewport(vp);
 	REngine::Instance().SetVertexShader(m_Resource.VertexShader);
 	REngine::Instance().SetPixelShader(m_Resource.PixelShader);
@@ -238,6 +241,7 @@ void ImGUI::Update()
 	REngine::Instance().SetBlendState(m_Resource.ClrWriteBlend);
 	REngine::Instance().SetDepthStencilState(D3D11StaticState::DisableDepthStencil, 0U);
 	REngine::Instance().SetRasterizerState(D3D11StaticState::SolidNoneCulling);
+#endif
 
 	for (int i = 0, vOffset = 0, iOffset = 0; i < pDrawData->CmdListsCount; ++i)
 	{
@@ -259,9 +263,11 @@ void ImGUI::Update()
 					(long)pDrawCmd->ClipRect.w
 				};
 
+#if 0
 				REngine::Instance().SetShaderResourceView(m_Resource.FontTexture, 0U, ePixelShader);
 				REngine::Instance().SetScissorRect(scissorRect);
 				REngine::Instance().DrawIndexed(pDrawCmd->ElemCount, iOffset, vOffset, eTriangleList);
+#endif
 			}
 
 			iOffset += pDrawCmd->ElemCount;
@@ -276,11 +282,13 @@ void ImGUI::Update()
 	::GetClientRect(hWnd, &rect);
 
 	RViewport vpOld(0.0f, 0.0f, (float)(rect.right - rect.left), (float)(rect.bottom - rect.top));
+#if 0
 	REngine::Instance().SetViewport(vpOld);
 	REngine::Instance().SetScissorRect(rect);
 	REngine::Instance().SetRasterizerState(D3D11StaticState::Solid);
 	REngine::Instance().SetBlendState(D3D11StaticState::NoneBlendState);
 	REngine::Instance().SetDepthStencilState(D3D11StaticState::NoneDepthStencilState, 0U);
+#endif
 }
 
 void ImGUI::UpdateDrawData(bool bRecreateVB, bool bRecreateIB, const ImDrawData *pDrawData)
