@@ -18,7 +18,7 @@ void Mesh::CreateRenderResource()
 	};
 
 	RVertexShader vertexShader;
-	vertexShader.Create("Mesh.hlsl", "main");
+	vertexShader.Create("Mesh.hlsl", "VSMain");
 	InputLayout.Create(vertexShader.GetBlob(), layout, _countof(layout));
 
 	VertexBuffer.CreateAsVertexBuffer(sizeof(Vertex) * m_Vertices.size(), eGpuReadOnly, m_Vertices.data());

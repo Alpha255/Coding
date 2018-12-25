@@ -11,7 +11,7 @@ void VulkanCommandPool::Create(uint32_t flags)
 		VulkanEngine::Instance().GetSwapchain().GetGraphicsQueueFamilyIndex()
 	};
 
-	VKCheck(vkCreateCommandPool(VulkanEngine::Instance().GetDevice().Get(), &createInfo, nullptr, &m_Handle));
+	VKCheck(vkCreateCommandPool(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
 }
 
 void VulkanDescriptorPool::Create(bool bUseTex)
@@ -36,5 +36,5 @@ void VulkanDescriptorPool::Create(bool bUseTex)
 		poolSize
 	};
 
-	VKCheck(vkCreateDescriptorPool(VulkanEngine::Instance().GetDevice().Get(), &createInfo, nullptr, &m_Handle));
+	VKCheck(vkCreateDescriptorPool(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
 }

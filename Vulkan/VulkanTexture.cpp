@@ -50,7 +50,7 @@ void VulkanImage::Create(
 		VK_IMAGE_LAYOUT_UNDEFINED
 	};
 
-	VKCheck(vkCreateImage(VulkanEngine::Instance().GetDevice().Get(), &imageCreateInfo, nullptr, &m_Handle));
+	VKCheck(vkCreateImage(VulkanEngine::Instance().GetDevice(), &imageCreateInfo, nullptr, &m_Handle));
 }
 
 void VulkanTexture2D::Create(
@@ -78,12 +78,12 @@ void VulkanTexture2D::Create(
 		flags);
 
 	VkMemoryRequirements memoryRequiments{};
-	vkGetImageMemoryRequirements(VulkanEngine::Instance().GetDevice().Get(), image.Get(), &memoryRequiments);
+	vkGetImageMemoryRequirements(VulkanEngine::Instance().GetDevice(), image.Get(), &memoryRequiments);
 
 	VulkanDeviceMemory memory;
-	memory.Create(memoryRequiments.size, VulkanDeviceMemory::GetMemoryType(memoryRequiments.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
+	memory.Alloc(memoryRequiments.size, VulkanDeviceMemory::GetMemoryType(memoryRequiments.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
 
-	VKCheck(vkBindImageMemory(VulkanEngine::Instance().GetDevice().Get(), image.Get(), memory.Get(), 0U));
+	VKCheck(vkBindImageMemory(VulkanEngine::Instance().GetDevice(), image.Get(), memory.Get(), 0U));
 
 	VkImageViewCreateInfo imageViewCreateInfo
 	{
@@ -103,5 +103,5 @@ void VulkanTexture2D::Create(
 		imageViewCreateInfo.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
 	}
 
-	VKCheck(vkCreateImageView(VulkanEngine::Instance().GetDevice().Get(), &imageViewCreateInfo, nullptr, &m_Handle));
+	VKCheck(vkCreateImageView(VulkanEngine::Instance().GetDevice(), &imageViewCreateInfo, nullptr, &m_Handle));
 }

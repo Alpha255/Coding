@@ -133,15 +133,15 @@ void VulkanSwapchain::Create(uint32_t width, uint32_t height, bool bWindowed)
 		VK_NULL_HANDLE
 	};
 
-	VKCheck(vkCreateSwapchainKHR(VulkanEngine::Instance().GetDevice().Get(), &createInfo, nullptr, &m_Handle));
+	VKCheck(vkCreateSwapchainKHR(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
 }
 
 void VulkanSwapchain::CreateFrameBuffer(uint32_t width, uint32_t height, VkRenderPass renderPass)
 {
 	uint32_t imageCount = 0U;
 	VkImage *pImage = new VkImage[imageCount]();
-	VKCheck(vkGetSwapchainImagesKHR(VulkanEngine::Instance().GetDevice().Get(), m_Handle, &imageCount, nullptr));
-	VKCheck(vkGetSwapchainImagesKHR(VulkanEngine::Instance().GetDevice().Get(), m_Handle, &imageCount, pImage));
+	VKCheck(vkGetSwapchainImagesKHR(VulkanEngine::Instance().GetDevice(), m_Handle, &imageCount, nullptr));
+	VKCheck(vkGetSwapchainImagesKHR(VulkanEngine::Instance().GetDevice(), m_Handle, &imageCount, pImage));
 
 	for (uint32_t i = 0U; i < imageCount; ++i)
 	{
@@ -165,7 +165,7 @@ void VulkanSwapchain::CreateFrameBuffer(uint32_t width, uint32_t height, VkRende
 		viewInfo.image = pImage[i];
 
 		image.Image = pImage[i];
-		VKCheck(vkCreateImageView(VulkanEngine::Instance().GetDevice().Get(), &viewInfo, nullptr, &image.View));
+		VKCheck(vkCreateImageView(VulkanEngine::Instance().GetDevice(), &viewInfo, nullptr, &image.View));
 
 		VkFramebufferCreateInfo fbInfo = { VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO };
 		fbInfo.attachmentCount = 2;
@@ -174,6 +174,6 @@ void VulkanSwapchain::CreateFrameBuffer(uint32_t width, uint32_t height, VkRende
 		fbInfo.height = height;
 		fbInfo.layers = 1;
 		fbInfo.renderPass = renderPass;
-		VKCheck(vkCreateFramebuffer(VulkanEngine::Instance().GetDevice().Get(), &fbInfo, nullptr, &image.FrameBuffer));
+		VKCheck(vkCreateFramebuffer(VulkanEngine::Instance().GetDevice(), &fbInfo, nullptr, &image.FrameBuffer));
 	}
 }

@@ -163,6 +163,13 @@ void IApplication::RenderToWindow()
 	REngine::Instance().Flush();
 
 	UpdateFPS();
+
+	static bool s_VSync = m_bVSync;
+	if (s_VSync == !m_bVSync)
+	{
+		REngine::Instance().SetVSync(m_bVSync);
+		s_VSync = m_bVSync;
+	}
 }
 
 void IApplication::UpdateWindow()

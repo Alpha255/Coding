@@ -24,7 +24,7 @@ void AppBox::RenderScene()
 	REngine::Instance().ResetDefaultRenderSurfaces();
 	REngine::Instance().SetViewport(RViewport(0.0f, 0.0f, (float)m_Width, (float)m_Height));
 
-	REngine::Instance().SetInputLayout(m_BoxMesh.VertexLayout);
+	REngine::Instance().SetInputLayout(m_BoxMesh.InputLayout);
 	REngine::Instance().SetVertexShader(m_VertexShader);
 	REngine::Instance().SetPixelShader(m_PixelShader[m_Effect]);
 
@@ -41,4 +41,6 @@ void AppBox::RenderScene()
 	REngine::Instance().DrawIndexed(m_BoxMesh.IndexCount, 0U, 0, eTriangleList);
 
 	ImGui::Combo("SpecialEffect", &m_Effect, "None\0Inversion\0Grayscale\0Sharpen\0Blur\0EdgeDetection");
+	ImGui::Checkbox("VSync", &m_bVSync);
+	ImGui::Text("\n%.2f FPS", m_FPS);
 }

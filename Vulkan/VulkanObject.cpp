@@ -2,70 +2,106 @@
 #include "VulkanPool.h"
 #include "VulkanEngine.h"
 
-void VulkanInstance::InitLayerProperties()
+void VulkanInstance::Create(const char *pApplicationName, const char *pEngineName)
 {
-	uint32_t count = 0U;
-	VkResult res = VK_NOT_READY;
-
-	do
-	{
-		res = vkEnumerateInstanceLayerProperties(&count, nullptr);
-
-		if (VK_SUCCESS == res || 0U == count)
-		{
-			return;
-		}
-
-		m_LayerProperties.resize(count);
-		res = vkEnumerateInstanceLayerProperties(&count, m_LayerProperties.data());
-	} while (VK_INCOMPLETE == res);
-
-	for (auto &layerProperty : m_LayerProperties)
-	{
-		do
-		{
-			res = vkEnumerateInstanceExtensionProperties(layerProperty.layerName, &count, nullptr);
-			
-			if (VK_SUCCESS == res || 0U == count)
-			{
-				return;
-			}
-
-			m_ExtensionProperties.resize(count);
-			res = vkEnumerateInstanceExtensionProperties(layerProperty.layerName, &count, m_ExtensionProperties.data());
-		} while (VK_INCOMPLETE == res);
-	}
-}
-
-void VulkanInstance::Create(const char *pInstName)
-{
-	InitLayerProperties();
+	assert(pApplicationName && pEngineName);
 
 	VkApplicationInfo appInfo
 	{
 		VK_STRUCTURE_TYPE_APPLICATION_INFO,
 		nullptr,
-		pInstName,
+		pApplicationName,
 		1U,
-		pInstName,
+		pEngineName,
 		1U,
 		VK_API_VERSION_1_0
 	};
 
-	const char *pExtensionNames[] = { VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_WIN32_SURFACE_EXTENSION_NAME };
-	VkInstanceCreateInfo instInfo
+	uint32_t count = 0U;
+	VKCheck(vkEnumerateInstanceLayerProperties(&count, nullptr));
+	m_LayerProperties.resize(count);
+	VKCheck(vkEnumerateInstanceLayerProperties(&count, m_LayerProperties.data()));
+
+	VKCheck(vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr));
+	m_ExtensionProperties.resize(count);
+	VKCheck(vkEnumerateInstanceExtensionProperties(nullptr, &count, m_ExtensionProperties.data()));
+
+	for each (auto layer in m_LayerProperties)
+	{
+		m_SupportedLayers.emplace_back(layer.layerName);
+	}
+
+	for each (auto extension in m_ExtensionProperties)
+	{
+		m_SupportedExtension.emplace_back(extension.extensionName);
+	}
+
+	std::vector<std::string> layers;
+#if defined(_DEBUG)
+	/// https://vulkan.lunarg.com/doc/view/1.0.13.0/windows/layers.html
+	///layers.push_back("VK_LAYER_LUNARG_api_dump");
+	///layers.push_back("VK_LAYER_LUNARG_standard_validation");
+	///layers.push_back("VK_LAYER_GOOGLE_threading");
+	///layers.push_back("VK_LAYER_GOOGLE_unique_objects");
+	layers.emplace_back("VK_LAYER_LUNARG_parameter_validation");
+	layers.emplace_back("VK_LAYER_LUNARG_object_tracker");
+	layers.emplace_back("VK_LAYER_LUNARG_image");
+	layers.emplace_back("VK_LAYER_LUNARG_device_limits");
+	layers.emplace_back("VK_LAYER_LUNARG_core_validation");
+	layers.emplace_back("VK_LAYER_LUNARG_swapchain");
+#endif
+
+	std::vector<const char *> enabledLayers;
+	for each (auto layer in layers)
+	{
+		for each (auto supportedLayer in m_SupportedLayers)
+		{
+			if (layer == supportedLayer)
+			{
+				enabledLayers.emplace_back(supportedLayer.c_str());
+			}
+		}
+	}
+
+	/// https://vulkan.lunarg.com/doc/view/1.0.39.1/windows/LoaderAndLayerInterface.html
+	std::vector<std::string> extensions;
+	extensions.push_back("VK_KHR_xcb_surface");  /// Linux
+	extensions.push_back("VK_KHR_xlib_surface"); /// Linux
+	extensions.emplace_back(VK_KHR_SURFACE_EXTENSION_NAME);;
+	extensions.emplace_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+	extensions.emplace_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+#if VK_EXT_debug_report
+	extensions.emplace_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+#endif
+#if VK_EXT_debug_marker
+	extensions.emplace_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+#endif
+
+	std::vector<const char *> enabledExtensions;
+	for each (auto extension in extensions)
+	{
+		for each (auto supportedExtension in m_SupportedExtension)
+		{
+			if (extension == supportedExtension)
+			{
+				enabledExtensions.emplace_back(supportedExtension.c_str());
+			}
+		}
+	}
+
+	VkInstanceCreateInfo createInfo
 	{
 		VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
 		nullptr,
 		0U,
 		&appInfo,
-		0U,
-		nullptr,
-		_countof(pExtensionNames),
-		pExtensionNames
+		enabledLayers.size(),
+		enabledLayers.data(),
+		enabledExtensions.size(),
+		enabledExtensions.data()
 	};
 
-	VKCheck(vkCreateInstance(&instInfo, nullptr, &m_Handle));
+	VKCheck(vkCreateInstance(&createInfo, nullptr, &m_Handle));
 }
 
 void VulkanPhysicalDevice::InitExtensionProperties()
@@ -160,7 +196,7 @@ void VulkanCommandBuffer::Create(const VulkanCommandPool &pool, uint32_t level, 
 		count
 	};
 
-	VKCheck(vkAllocateCommandBuffers(VulkanEngine::Instance().GetDevice().Get(), &allocInfo, &m_Handle));
+	VKCheck(vkAllocateCommandBuffers(VulkanEngine::Instance().GetDevice(), &allocInfo, &m_Handle));
 }
 
 void VulkanCommandBuffer::Begin(uint32_t flags)
@@ -247,7 +283,7 @@ void VulkanRenderPass::Create(bool depth, uint32_t colorFormat, uint32_t depthFo
 		nullptr
 	};
 
-	VKCheck(vkCreateRenderPass(VulkanEngine::Instance().GetDevice().Get(), &renderPassCreateInfo, nullptr, &m_Handle));
+	VKCheck(vkCreateRenderPass(VulkanEngine::Instance().GetDevice(), &renderPassCreateInfo, nullptr, &m_Handle));
 }
 
 void VulkanSemaphore::Create()
@@ -259,7 +295,7 @@ void VulkanSemaphore::Create()
 		0U
 	};
 
-	VKCheck(vkCreateSemaphore(VulkanEngine::Instance().GetDevice().Get(), &createInfo, nullptr, &m_Handle));
+	VKCheck(vkCreateSemaphore(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
 }
 
 void VulkanFence::Create()
@@ -271,5 +307,5 @@ void VulkanFence::Create()
 		0U
 	};
 
-	VKCheck(vkCreateFence(VulkanEngine::Instance().GetDevice().Get(), &createInfo, nullptr, &m_Handle));
+	VKCheck(vkCreateFence(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
 }

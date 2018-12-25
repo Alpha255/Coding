@@ -48,5 +48,5 @@ void VulkanRenderTargetView::Create()
 	rpInfo.pDependencies = NULL;
 	rpInfo.dependencyCount = 0;
 
-	VKCheck(vkCreateRenderPass(VulkanEngine::Instance().GetDevice().Get(), &rpInfo, NULL, &m_Handle));
+	VKCheck(vkCreateRenderPass(VulkanEngine::Instance().GetDevice(), &rpInfo, NULL, &m_Handle));
 }

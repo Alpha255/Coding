@@ -40,11 +40,11 @@ void ImGUI::Initialize(::HWND hWnd)
 
 void ImGUI::InitRenderResource()
 {
-	const D3D11_INPUT_ELEMENT_DESC layout[] =
+	const VertexLayout layout[] = 
 	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (size_t)(&((ImDrawVert*)0)->pos), D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (size_t)(&((ImDrawVert*)0)->uv),  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR",    0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, (size_t)(&((ImDrawVert*)0)->col), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "POSITION", (size_t)(&((ImDrawVert*)0)->pos), eRG32_Float  },
+		{ "TEXCOORD", (size_t)(&((ImDrawVert*)0)->uv),  eRG32_Float  },
+		{ "COLOR",    (size_t)(&((ImDrawVert*)0)->col), eRGBA8_UNorm }
 	};
 
 	m_Resource.VertexShader.Create("imGUI.hlsl", "VS_Main");

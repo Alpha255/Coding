@@ -25,7 +25,7 @@ void VulkanSamplerState::Create(uint32_t filter, uint32_t addressMode, float LOD
 		false
 	};
 
-	VKCheck(vkCreateSampler(VulkanEngine::Instance().GetDevice().Get(), &createInfo, 0, &m_Handle));
+	VKCheck(vkCreateSampler(VulkanEngine::Instance().GetDevice(), &createInfo, 0, &m_Handle));
 }
 
 void VulkanDepthStencilState::Create(

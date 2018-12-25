@@ -1,6 +1,5 @@
 #include "VulkanContext.h"
 #include "VulkanEngine.h"
-#include "Util/Geometry.h"
 
 void VulkanContext::Draw(uint32_t vertexCount, uint32_t startVertex, uint32_t primitive)
 {
@@ -19,37 +18,37 @@ void VulkanContext::Create(const VkPipelineShaderStageCreateInfo *pShaderStage, 
 	VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
 	pipelineLayoutCreateInfo.setLayoutCount = 0;
 	pipelineLayoutCreateInfo.pSetLayouts = NULL;
-	VkResult result = vkCreatePipelineLayout(VulkanEngine::Instance().GetDevice().Get(), &pipelineLayoutCreateInfo, 0, &m_Layout);
+	VkResult result = vkCreatePipelineLayout(VulkanEngine::Instance().GetDevice(), &pipelineLayoutCreateInfo, 0, &m_Layout);
 	assert(result == VK_SUCCESS);
 
-	VkVertexInputBindingDescription vertexBindings[1] = {};
-	vertexBindings[0].binding = 0;
-	vertexBindings[0].stride = sizeof(Geometry::Vertex);
-	vertexBindings[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+	//VkVertexInputBindingDescription vertexBindings[1] = {};
+	//vertexBindings[0].binding = 0;
+	//vertexBindings[0].stride = sizeof(Geometry::Vertex);
+	//vertexBindings[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
-	VkVertexInputAttributeDescription attributes[4] = {};
-	attributes[0].location = 0;
-	attributes[0].binding = 0;
-	attributes[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-	attributes[0].offset = offsetof(Geometry::Vertex, Position);
-	attributes[1].location = 1;
-	attributes[1].binding = 0;
-	attributes[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-	attributes[1].offset = offsetof(Geometry::Vertex, Normal);
-	attributes[2].location = 1;
-	attributes[2].binding = 0;
-	attributes[2].format = VK_FORMAT_R32G32B32_SFLOAT;
-	attributes[2].offset = offsetof(Geometry::Vertex, Tangent);
-	attributes[3].location = 1;
-	attributes[3].binding = 0;
-	attributes[3].format = VK_FORMAT_R32G32_SFLOAT;
-	attributes[3].offset = offsetof(Geometry::Vertex, UV);
+	//VkVertexInputAttributeDescription attributes[4] = {};
+	//attributes[0].location = 0;
+	//attributes[0].binding = 0;
+	//attributes[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+	//attributes[0].offset = offsetof(Geometry::Vertex, Position);
+	//attributes[1].location = 1;
+	//attributes[1].binding = 0;
+	//attributes[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+	//attributes[1].offset = offsetof(Geometry::Vertex, Normal);
+	//attributes[2].location = 1;
+	//attributes[2].binding = 0;
+	//attributes[2].format = VK_FORMAT_R32G32B32_SFLOAT;
+	//attributes[2].offset = offsetof(Geometry::Vertex, Tangent);
+	//attributes[3].location = 1;
+	//attributes[3].binding = 0;
+	//attributes[3].format = VK_FORMAT_R32G32_SFLOAT;
+	//attributes[3].offset = offsetof(Geometry::Vertex, UV);
 
 	VkPipelineVertexInputStateCreateInfo viStateInfo = { VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO };
 	viStateInfo.vertexBindingDescriptionCount = 1;
-	viStateInfo.pVertexBindingDescriptions = vertexBindings;
-	viStateInfo.vertexAttributeDescriptionCount = _countof(attributes);
-	viStateInfo.pVertexAttributeDescriptions = attributes;
+	viStateInfo.pVertexBindingDescriptions = nullptr;
+	viStateInfo.vertexAttributeDescriptionCount = 0;
+	viStateInfo.pVertexAttributeDescriptions = nullptr;
 
 	VkPipelineInputAssemblyStateCreateInfo iaStateInfo = { VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO };
 	iaStateInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -126,7 +125,7 @@ void VulkanContext::Create(const VkPipelineShaderStageCreateInfo *pShaderStage, 
 
 	pipelineInfo.layout = m_Layout;
 
-	result = vkCreateGraphicsPipelines(VulkanEngine::Instance().GetDevice().Get(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_Handle);
+	result = vkCreateGraphicsPipelines(VulkanEngine::Instance().GetDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_Handle);
 	assert(result == VK_SUCCESS);
 }
 

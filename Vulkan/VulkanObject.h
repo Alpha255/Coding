@@ -6,7 +6,7 @@ template <typename T> class VulkanObject
 {
 public:
 	VulkanObject() = default;
-	inline virtual ~VulkanObject() = default;
+	virtual ~VulkanObject() = default;
 
 	inline T Get() const
 	{
@@ -14,22 +14,24 @@ public:
 		return m_Handle;
 	}
 
-	inline const T *GetPtr() const
-	{
-		assert(IsValid());
-		return &m_Handle;
-	}
-
 	inline VulkanObject(const VulkanObject &other)
 	{
+		assert(!IsValid());
 		if (m_Handle != other.m_Handle)
 		{
 			m_Handle = other.m_Handle;
 		}
 	}
 
+	inline T *operator&()
+	{
+		assert(IsValid());
+		return &m_Handle;
+	}
+
 	inline void operator=(const VulkanObject &other)
 	{
+		assert(!IsValid());
 		if (m_Handle != other.m_Handle)
 		{
 			m_Handle = other.m_Handle;
@@ -53,12 +55,17 @@ public:
 
 	inline bool operator!=(const VulkanObject &other) const
 	{
-		return !(*this == other);
+		return this->m_Handle != other.m_Handle;
 	}
 
 	inline bool operator!=(const T &other) const
 	{
-		return !(*this == other);
+		return m_Handle != other;
+	}
+
+	inline void Reset()
+	{
+		m_Handle = VK_NULL_HANDLE;
 	}
 protected:
 	T m_Handle = VK_NULL_HANDLE;
@@ -68,21 +75,24 @@ private:
 class VulkanInstance : public VulkanObject<VkInstance>
 {
 public:
-	void Create(const char *pInstName = "VulkanInstance");
+	VulkanInstance() = default;
+	~VulkanInstance()
+	{
+		Destory();
+	}
+
+	void Create(const char *pApplicationName = "VulkanApplication", const char *pEngineName = "VulkanEngine");
 
 	inline void Destory()
 	{
 		vkDestroyInstance(m_Handle, nullptr);
-	}
-
-	inline const std::vector<VkLayerProperties> &GetLayerProperties() const
-	{
-		return m_LayerProperties;
+		Reset();
 	}
 protected:
-	void InitLayerProperties();
-
 private:
+	std::vector<std::string> m_SupportedLayers;
+	std::vector<std::string> m_SupportedExtension;
+
 	std::vector<VkLayerProperties> m_LayerProperties;
 	std::vector<VkExtensionProperties> m_ExtensionProperties;
 };

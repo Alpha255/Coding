@@ -2,5 +2,5 @@
 
 void D3DRenderThread::Register()
 {
-	D3DEngine::Instance().RegisterRenderThread(GetThreadID());
+	///D3DEngine::Instance().RegisterRenderThread(GetThreadID());
 }

@@ -20,7 +20,7 @@ void VulkanShader::Create(const char *pFileName, const char *pEntryPoint)
 		shaderFile.GetSize(),
 		(uint32_t *)shaderFile.Load()
 	};
-	VKCheck(vkCreateShaderModule(VulkanEngine::Instance().GetDevice().Get(), &createInfo, nullptr, &m_Handle));
+	VKCheck(vkCreateShaderModule(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
 
 	m_ShaderStage.flags = 0;
 	m_ShaderStage.module = m_Handle;
