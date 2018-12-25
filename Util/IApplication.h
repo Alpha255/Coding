@@ -23,7 +23,6 @@ public:
 	void Running();
 	void ShutDown();
 
-	virtual void SetupRenderEngine() = 0;
 	virtual void InitScene() {}
 	virtual void RenderScene() = 0;
 	virtual void UpdateScene(float, float) {}
@@ -64,7 +63,7 @@ protected:
 	uint16_t m_IconID = IconID;
 	int16_t m_MouseWheelDelta = 0;
 	bool m_bFullScreen = false;
-	bool m_bDrawGUI = false;
+	bool m_bDrawGUI = true;
 	bool m_bVSync = false;
 
 	Timer m_Timer;

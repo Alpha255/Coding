@@ -2,7 +2,7 @@
 
 std::unique_ptr<D3D11Engine, std::function<void(D3D11Engine *)>> D3D11Engine::s_Instance;
 
-void D3D11Engine::Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool bWindowed)
+void D3D11Engine::Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool bFullScreen)
 {
 	assert(hWnd && !m_Inited);
 
@@ -44,7 +44,7 @@ void D3D11Engine::Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool 
 			m_Device.MakeObject(pDevice);
 			m_IMContext.MakeObject(pContext);
 
-			m_SwapChain.Create(hWnd, width, height, bWindowed);
+			m_SwapChain.Create(hWnd, width, height, bFullScreen);
 
 			RecreateRenderTargetDepthStencil(width, height);
 

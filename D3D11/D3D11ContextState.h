@@ -19,42 +19,42 @@ public:
 
 	enum eDirtyFlag
 	{
-		eInputLayout,
-		eVertexBuffer,
-		eIndexBuffer,
+		eDirtyInputLayout,
+		eDirtyVertexBuffer,
+		eDirtyIndexBuffer,
 
-		eConstantBuffer,
+		eDirtyConstantBuffer,
 
-		eVertexShader = eConstantBuffer + eRShaderTypeCount,
-		eHullShader,
-		eDomainShader,
-		ePixelShader,
-		eGeometryShader,
-		eComputeShader,
+		eDirtyVertexShader = eDirtyConstantBuffer + eRShaderTypeCount,
+		eDirtyHullShader,
+		eDirtyDomainShader,
+		eDirtyPixelShader,
+		eDirtyGeometryShader,
+		eDirtyComputeShader,
 
-		eRasterizerState,
+		eDirtyRasterizerState,
 
-		eSamplerState,
+		eDirtySamplerState,
 		
-		eBlendState = eSamplerState + eRShaderTypeCount,
-		eDepthStencilState,
+		eDirtyBlendState = eDirtySamplerState + eRShaderTypeCount,
+		eDirtyDepthStencilState,
 
-		eRenderTargetView,
-		eDepthStencilView,
+		eDirtyRenderTargetView,
+		eDirtyDepthStencilView,
 
-		eShaderResourceView,
+		eDirtyShaderResourceView,
 
-		eUnorderedAccessView = eShaderResourceView + eRShaderTypeCount,
+		eDirtyUnorderedAccessView = eDirtyShaderResourceView + eRShaderTypeCount,
 
-		eScissorRect,
-		eViewport,
+		eDirtyScissorRect,
+		eDirtyViewport,
 
-		ePrimitiveTopology,
+		eDirtyPrimitiveTopology,
 
-		eDirtyFlagCount
+		eDirtyDirtyFlagCount
 	};
 
-	static_assert(eDirtyFlagCount <= sizeof(uint64_t) * 8U, "Out of range!!!");
+	static_assert(eDirtyDirtyFlagCount <= sizeof(uint64_t) * 8U, "Out of range!!!");
 
 	inline bool IsDirty(eDirtyFlag flag, uint32_t index = 0U) const
 	{

@@ -92,7 +92,7 @@ class D3D11CommandList : public D3DObject<ID3D11CommandList> {};
 class D3D11SwapChain : public D3DObject<IDXGISwapChain> 
 {
 public:
-	void Create(HWND hWnd, uint32_t width, uint32_t height, bool bWindowed);
+	void Create(HWND hWnd, uint32_t width, uint32_t height, bool bFullScreen);
 	void Resize(uint32_t width, uint32_t height);
 
 	inline void SetVSync(bool bVSync)

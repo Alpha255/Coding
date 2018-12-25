@@ -191,8 +191,6 @@ void IApplication::Startup(const wchar_t *pTitle, uint32_t width, uint32_t heigh
 
 	MakeWindow(pTitle, width, height, windowStyle);
 
-	SetupRenderEngine();
-
 	if (!m_bRenderEngineInited)
 	{
 		REngine::Instance().Initialize(m_hWnd, m_Width, m_Height, m_bFullScreen);

@@ -11,7 +11,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)ThirdParty\;$(VK_SDK_PATH)\Include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)ThirdParty\;$(SolutionDir)ThirdParty\ImGUI\;$(SolutionDir)ThirdParty\freetype\include\;$(VK_SDK_PATH)\Include\</AdditionalIncludeDirectories>
       <WarningLevel>Level4</WarningLevel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>

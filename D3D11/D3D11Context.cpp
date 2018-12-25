@@ -10,7 +10,7 @@ void D3D11Context::SetRenderTargetView(const D3D11RenderTargetView &renderTarget
 
 		m_State.RenderTargetsInUse |= (1U << slot);
 
-		m_State.SetDirty(D3D11ContextState::eRenderTargetView, true);
+		m_State.SetDirty(D3D11ContextState::eDirtyRenderTargetView, true);
 	}
 }
 
@@ -20,7 +20,7 @@ void D3D11Context::SetDepthStencilView(const D3D11DepthStencilView &depthStencil
 	{
 		m_State.DepthStencilView = depthStencilView.Get();
 
-		m_State.SetDirty(D3D11ContextState::eDepthStencilView, true);
+		m_State.SetDirty(D3D11ContextState::eDirtyDepthStencilView, true);
 	}
 }
 
@@ -41,7 +41,7 @@ void D3D11Context::SetVertexBuffer(const D3D11Buffer &vertexBuffer, uint32_t str
 		m_State.VertexOffsets[slot] = offset;
 		m_State.VertexBuffers[slot] = vertexBuffer.Get();
 
-		m_State.SetDirty(D3D11ContextState::eVertexBuffer, true);
+		m_State.SetDirty(D3D11ContextState::eDirtyVertexBuffer, true);
 	}
 }
 
@@ -55,7 +55,7 @@ void D3D11Context::SetIndexBuffer(const D3D11Buffer &indexBuffer, uint32_t fmt, 
 		m_State.IndexOffset = offset;
 		m_State.IndexBuffer = indexBuffer.Get();
 
-		m_State.SetDirty(D3D11ContextState::eIndexBuffer, true);
+		m_State.SetDirty(D3D11ContextState::eDirtyIndexBuffer, true);
 	}
 }
 
@@ -69,7 +69,7 @@ void D3D11Context::SetShaderResourceView(const D3D11ShaderResourceView &shaderRe
 
 		m_State.ShaderResourceViewsInUse[targetShader] |= (1 << slot);
 
-		m_State.SetDirty(D3D11ContextState::eShaderResourceView, true, targetShader);
+		m_State.SetDirty(D3D11ContextState::eDirtyShaderResourceView, true, targetShader);
 	}
 }
 
@@ -83,7 +83,7 @@ void D3D11Context::SetUnorderedAccessView(const D3D11UnorderedAccessView &unorde
 
 		m_State.UnorderedAccessViewsInUse |= (1U << slot);
 
-		m_State.SetDirty(D3D11ContextState::eUnorderedAccessView, true, targetShader);
+		m_State.SetDirty(D3D11ContextState::eDirtyUnorderedAccessView, true, targetShader);
 	}
 }
 
@@ -97,7 +97,7 @@ void D3D11Context::SetSamplerState(const D3D11SamplerState &samplerState, uint32
 
 		m_State.SamplersInUse[targetShader] |= (1U << slot);
 
-		m_State.SetDirty(D3D11ContextState::eSamplerState, true, targetShader);
+		m_State.SetDirty(D3D11ContextState::eDirtySamplerState, true, targetShader);
 	}
 }
 
@@ -111,7 +111,7 @@ void D3D11Context::SetConstantBuffer(const D3D11Buffer &constantBuffer, uint32_t
 
 		m_State.ConstantBuffersInUse[targetShader] |= (1U << slot);
 
-		m_State.SetDirty(D3D11ContextState::eConstantBuffer, true, targetShader);
+		m_State.SetDirty(D3D11ContextState::eDirtyConstantBuffer, true, targetShader);
 	}
 }
 
@@ -121,7 +121,7 @@ void D3D11Context::SetRasterizerState(const D3D11RasterizerState &rasterizerStat
 	{
 		m_State.RasterizerState = rasterizerState.Get();
 
-		m_State.SetDirty(D3D11ContextState::eRasterizerState, true);
+		m_State.SetDirty(D3D11ContextState::eDirtyRasterizerState, true);
 	}
 }
 
@@ -133,7 +133,7 @@ void D3D11Context::SetDepthStencilState(const D3D11DepthStencilState &depthStenc
 		m_State.StencilRef = stencilRef;
 		m_State.DepthStencilState = depthStencilState.Get();
 
-		m_State.SetDirty(D3D11ContextState::eDepthStencilState, true);
+		m_State.SetDirty(D3D11ContextState::eDirtyDepthStencilState, true);
 	}
 }
 
@@ -147,7 +147,7 @@ void D3D11Context::SetBlendState(const D3D11BlendState &blendState, Vec4 blendfa
 		m_State.BlendFactor = blendfactor;
 		m_State.BlendState = blendState.Get();
 
-		m_State.SetDirty(D3D11ContextState::eBlendState, true);
+		m_State.SetDirty(D3D11ContextState::eDirtyBlendState, true);
 	}
 }
 
@@ -157,7 +157,7 @@ void D3D11Context::SetInputLayout(const D3D11InputLayout &inputLayout)
 	{
 		m_State.InputLayout = inputLayout.Get();
 
-		m_State.SetDirty(D3D11ContextState::eInputLayout, true);
+		m_State.SetDirty(D3D11ContextState::eDirtyInputLayout, true);
 	}
 }
 
@@ -167,7 +167,7 @@ void D3D11Context::SetVertexShader(const D3D11VertexShader &vertexShader)
 	{
 		m_State.VertexShader = vertexShader.Get();
 
-		m_State.SetDirty(D3D11ContextState::eVertexShader, true);
+		m_State.SetDirty(D3D11ContextState::eDirtyVertexShader, true);
 	}
 }
 
@@ -177,7 +177,7 @@ void D3D11Context::SetHullShader(const D3D11HullShader &hullShader)
 	{
 		m_State.HullShader = hullShader.Get();
 
-		m_State.SetDirty(D3D11ContextState::eHullShader, true);
+		m_State.SetDirty(D3D11ContextState::eDirtyHullShader, true);
 	}
 }
 
@@ -187,7 +187,7 @@ void D3D11Context::SetDomainShader(const D3D11DomainShader &domainShader)
 	{
 		m_State.DomainShader = domainShader.Get();
 
-		m_State.SetDirty(D3D11ContextState::eDomainShader, true);
+		m_State.SetDirty(D3D11ContextState::eDirtyDomainShader, true);
 	}
 }
 
@@ -197,7 +197,7 @@ void D3D11Context::SetPixelShader(const D3D11PixelShader &pixelShader)
 	{
 		m_State.PixelShader = pixelShader.Get();
 
-		m_State.SetDirty(D3D11ContextState::ePixelShader, true);
+		m_State.SetDirty(D3D11ContextState::eDirtyPixelShader, true);
 	}
 }
 
@@ -207,7 +207,7 @@ void D3D11Context::SetGeometryShader(const D3D11GeometryShader &geometryShader)
 	{
 		m_State.GeometryShader = geometryShader.Get();
 
-		m_State.SetDirty(D3D11ContextState::eGeometryShader, true);
+		m_State.SetDirty(D3D11ContextState::eDirtyGeometryShader, true);
 	}
 }
 
@@ -217,7 +217,7 @@ void D3D11Context::SetComputeShader(const D3D11ComputeShader &computeShader)
 	{
 		m_State.ComputeShader = computeShader.Get();
 
-		m_State.SetDirty(D3D11ContextState::eComputeShader, true);
+		m_State.SetDirty(D3D11ContextState::eDirtyComputeShader, true);
 	}
 }
 
@@ -231,7 +231,7 @@ void D3D11Context::SetViewport(const D3D11Viewport &viewport, uint32_t slot)
 
 		m_State.ViewportsInUse |= (1U << slot);
 
-		m_State.SetDirty(D3D11ContextState::eViewport, true);
+		m_State.SetDirty(D3D11ContextState::eDirtyViewport, true);
 	}
 }
 
@@ -245,7 +245,7 @@ void D3D11Context::SetScissorRect(const D3D11Rect &rect, uint32_t slot)
 
 		m_State.ScissorRectsInUse |= (1U << slot);
 
-		m_State.SetDirty(D3D11ContextState::eScissorRect, true);
+		m_State.SetDirty(D3D11ContextState::eDirtyScissorRect, true);
 	}
 }
 
@@ -255,7 +255,7 @@ void D3D11Context::Draw(uint32_t vertexCount, uint32_t startVertex, uint32_t pri
 	{
 		m_State.PrimitiveTopology = primitive;
 
-		m_State.SetDirty(D3D11ContextState::ePrimitiveTopology, true);
+		m_State.SetDirty(D3D11ContextState::eDirtyPrimitiveTopology, true);
 	}
 
 	m_State.CommitState(*this);
@@ -269,7 +269,7 @@ void D3D11Context::DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t
 	{
 		m_State.PrimitiveTopology = primitive;
 
-		m_State.SetDirty(D3D11ContextState::ePrimitiveTopology, true);
+		m_State.SetDirty(D3D11ContextState::eDirtyPrimitiveTopology, true);
 	}
 
 	m_State.CommitState(*this);

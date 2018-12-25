@@ -10,7 +10,7 @@ void D3D11Context::CreateAsDeferredContext()
 	MakeObject(pContext);
 }
 
-void D3D11SwapChain::Create(HWND hWnd, uint32_t width, uint32_t height, bool bWindowed)
+void D3D11SwapChain::Create(HWND hWnd, uint32_t width, uint32_t height, bool bFullScreen)
 {
 	m_Desc.BufferCount = eBufferCount;
 	m_Desc.BufferDesc.Width = width;
@@ -22,7 +22,7 @@ void D3D11SwapChain::Create(HWND hWnd, uint32_t width, uint32_t height, bool bWi
 	m_Desc.BufferDesc.Scaling = DXGI_MODE_SCALING_STRETCHED;
 	m_Desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_BACK_BUFFER;
 	m_Desc.OutputWindow = hWnd;
-	m_Desc.Windowed = bWindowed;
+	m_Desc.Windowed = !bFullScreen;
 	m_Desc.SampleDesc.Count = 1;
 	m_Desc.SampleDesc.Quality = 0;
 	m_Desc.SwapEffect = eBufferCount > 1 ? DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL : DXGI_SWAP_EFFECT_DISCARD;

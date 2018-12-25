@@ -272,16 +272,8 @@ void ImGUI::Update()
 
 	/// Restore D3D state
 	::HWND hWnd = (::HWND)ImGui::GetIO().ImeWindowHandle;
-	::RECT rect;
+	::RECT rect = {};
 	::GetClientRect(hWnd, &rect);
-
-	::RECT oldViewport
-	{
-		0,
-		0,
-		(rect.right - rect.left),
-		(rect.bottom - rect.top)
-	};
 
 	RViewport vpOld(0.0f, 0.0f, (float)(rect.right - rect.left), (float)(rect.bottom - rect.top));
 	REngine::Instance().SetViewport(vpOld);

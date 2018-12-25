@@ -1,8 +1,9 @@
 #pragma once
 
-#include "D3DApplication.h"
+#include "Util/Geometry.h"
+#include "Util/IApplication.h"
 
-class AppBox : public RApplication
+class AppBox : public IApplication
 {
 public:
 	AppBox() = default;

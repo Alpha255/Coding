@@ -8,14 +8,14 @@ void D3D11ContextState::CommitState(D3D11Context &ctx)
 	}
 
 	/// Input Assembler
-	if (IsDirty(eInputLayout))
+	if (IsDirty(eDirtyInputLayout))
 	{
 		ctx->IASetInputLayout(InputLayout);
 
-		SetDirty(eInputLayout, false);
+		SetDirty(eDirtyInputLayout, false);
 	}
 
-	if (IsDirty(eVertexBuffer))
+	if (IsDirty(eDirtyVertexBuffer))
 	{
 		uint32_t vertexStreams = GetCount<uint32_t>(VertexBuffersInUse);
 
@@ -23,21 +23,21 @@ void D3D11ContextState::CommitState(D3D11Context &ctx)
 
 		ctx->IASetVertexBuffers(0U, vertexStreams, VertexBuffers.data(), VertexStrides.data(), VertexOffsets.data());
 
-		SetDirty(eVertexBuffer, false);
+		SetDirty(eDirtyVertexBuffer, false);
 	}
 
-	if (IsDirty(eIndexBuffer))
+	if (IsDirty(eDirtyIndexBuffer))
 	{
 		ctx->IASetIndexBuffer(IndexBuffer, (DXGI_FORMAT)IndexFormat, IndexOffset);
 
-		SetDirty(eIndexBuffer, false);
+		SetDirty(eDirtyIndexBuffer, false);
 	}
 
-	if (IsDirty(ePrimitiveTopology))
+	if (IsDirty(eDirtyPrimitiveTopology))
 	{
 		ctx->IASetPrimitiveTopology((D3D11_PRIMITIVE_TOPOLOGY)PrimitiveTopology);
 
-		SetDirty(ePrimitiveTopology, false);
+		SetDirty(eDirtyPrimitiveTopology, false);
 	}
 
 	BindConstantBuffers(ctx);
@@ -49,91 +49,91 @@ void D3D11ContextState::CommitState(D3D11Context &ctx)
 	BindUnorderedAccessViews(ctx);
 
 	/// VS->HS->DS->GS
-	if (IsDirty(eVertexShader))
+	if (IsDirty(eDirtyVertexShader))
 	{
 		assert(VertexShader);
 
 		ctx->VSSetShader(VertexShader, nullptr, 0U);
 
-		SetDirty(eVertexShader, false);
+		SetDirty(eDirtyVertexShader, false);
 	}
 
-	if (IsDirty(eHullShader))
+	if (IsDirty(eDirtyHullShader))
 	{
 		ctx->HSSetShader(HullShader, nullptr, 0U);
 
-		SetDirty(eHullShader, false);
+		SetDirty(eDirtyHullShader, false);
 	}
 
-	if (IsDirty(eDomainShader))
+	if (IsDirty(eDirtyDomainShader))
 	{
 		ctx->DSSetShader(DomainShader, nullptr, 0U);
 
-		SetDirty(eDomainShader, false);
+		SetDirty(eDirtyDomainShader, false);
 	}
 
-	if (IsDirty(eGeometryShader))
+	if (IsDirty(eDirtyGeometryShader))
 	{
 		ctx->GSSetShader(GeometryShader, nullptr, 0U);
 
-		SetDirty(eGeometryShader, false);
+		SetDirty(eDirtyGeometryShader, false);
 	}
 
 	/// Rasterizer
-	if (IsDirty(eRasterizerState))
+	if (IsDirty(eDirtyRasterizerState))
 	{
 		ctx->RSSetState(RasterizerState);
 
-		SetDirty(eRasterizerState, false);
+		SetDirty(eDirtyRasterizerState, false);
 	}
 
-	if (IsDirty(eViewport))
+	if (IsDirty(eDirtyViewport))
 	{
 		assert(ViewportsInUse > 0U);
 
 		ctx->RSSetViewports(ViewportsInUse, Viewports.data());
 
-		SetDirty(eViewport, false);
+		SetDirty(eDirtyViewport, false);
 	}
 
-	if (IsDirty(eScissorRect))
+	if (IsDirty(eDirtyScissorRect))
 	{
 		ctx->RSSetScissorRects(ScissorRectsInUse, ScissorRects.data());
 
-		SetDirty(eScissorRect, false);
+		SetDirty(eDirtyScissorRect, false);
 	}
 
 	/// Pixel Shader
-	if (IsDirty(ePixelShader))
+	if (IsDirty(eDirtyPixelShader))
 	{
 		ctx->PSSetShader(PixelShader, nullptr, 0U);
 
-		SetDirty(ePixelShader, false);
+		SetDirty(eDirtyPixelShader, false);
 	}
 
-	if (IsDirty(eComputeShader))
+	if (IsDirty(eDirtyComputeShader))
 	{
 		ctx->CSSetShader(ComputeShader, nullptr, 0U);
 
-		SetDirty(eComputeShader, false);
+		SetDirty(eDirtyComputeShader, false);
 	}
 
 	/// Output Merge
-	if (IsDirty(eBlendState))
+	if (IsDirty(eDirtyBlendState))
 	{
 		ctx->OMSetBlendState(BlendState, (float *)&BlendFactor, BlendMask);
 
-		SetDirty(eBlendState, false);
+		SetDirty(eDirtyBlendState, false);
 	}
 
-	if (IsDirty(eDepthStencilState))
+	if (IsDirty(eDirtyDepthStencilState))
 	{
 		ctx->OMSetDepthStencilState(DepthStencilState, StencilRef);
 		
-		SetDirty(eDepthStencilState, false);
+		SetDirty(eDirtyDepthStencilState, false);
 	}
 
-	if (IsDirty(eRenderTargetView) || IsDirty(eDepthStencilView))
+	if (IsDirty(eDirtyRenderTargetView) || IsDirty(eDirtyDepthStencilView))
 	{
 		uint32_t renderTargets = GetCount<uint8_t>(RenderTargetsInUse);
 
@@ -141,7 +141,7 @@ void D3D11ContextState::CommitState(D3D11Context &ctx)
 
 		///SetDirty(eRenderTargetView, false);
 
-		SetDirty(eDepthStencilView, false);
+		SetDirty(eDirtyDepthStencilView, false);
 	}
 }
 
@@ -149,7 +149,7 @@ void D3D11ContextState::BindConstantBuffers(D3D11Context &ctx)
 {
 	for (uint32_t i = 0U; i < eRShaderTypeCount; ++i)
 	{
-		if (IsDirty(eConstantBuffer, i))
+		if (IsDirty(eDirtyConstantBuffer, i))
 		{
 			uint32_t constantBuffers = GetCount<uint16_t>(ConstantBuffersInUse[i]);
 
@@ -168,7 +168,7 @@ void D3D11ContextState::BindConstantBuffers(D3D11Context &ctx)
 			case eComputeShader:  ctx->CSSetConstantBuffers(0U, constantBuffers, ConstantBuffers[i].data()); break;
 			}
 
-			SetDirty(eConstantBuffer, false);
+			SetDirty(eDirtyConstantBuffer, false);
 		}
 	}
 }
@@ -177,7 +177,7 @@ void D3D11ContextState::BindSamplerStates(D3D11Context &ctx)
 {
 	for (uint32_t i = 0U; i < eRShaderTypeCount; ++i)
 	{
-		if (IsDirty(eSamplerState, i))
+		if (IsDirty(eDirtySamplerState, i))
 		{
 			uint32_t samplers = GetCount<uint16_t>(SamplersInUse[i]);
 
@@ -197,7 +197,7 @@ void D3D11ContextState::BindSamplerStates(D3D11Context &ctx)
 			}
 		}
 
-		SetDirty(eSamplerState, false, i);
+		SetDirty(eDirtySamplerState, false, i);
 	}
 }
 
@@ -205,7 +205,7 @@ void D3D11ContextState::BindShaderResourceViews(D3D11Context &ctx)
 {
 	for (uint32_t i = 0U; i < eRShaderTypeCount; ++i)
 	{
-		if (IsDirty(eShaderResourceView, i))
+		if (IsDirty(eDirtyShaderResourceView, i))
 		{
 			uint32_t shaderResourceViews = GetCount<uint8_t>(ShaderResourceViewsInUse[i]);
 
@@ -224,14 +224,14 @@ void D3D11ContextState::BindShaderResourceViews(D3D11Context &ctx)
 			case eComputeShader:  ctx->CSSetShaderResources(0U, shaderResourceViews, ShaderResourceViews[i].data()); break;
 			}
 
-			SetDirty(eShaderResourceView, false, i);
+			SetDirty(eDirtyShaderResourceView, false, i);
 		}
 	}
 }
 
 void D3D11ContextState::BindUnorderedAccessViews(D3D11Context &ctx)
 {
-	if (!IsDirty(eUnorderedAccessView))
+	if (!IsDirty(eDirtyUnorderedAccessView))
 	{
 		return;
 	}
@@ -243,5 +243,5 @@ void D3D11ContextState::BindUnorderedAccessViews(D3D11Context &ctx)
 		ctx->CSSetUnorderedAccessViews(0U, unorderedAccessViews, UnorderedAccessViews.data(), nullptr);
 	}
 
-	SetDirty(eUnorderedAccessView, false);
+	SetDirty(eDirtyUnorderedAccessView, false);
 }

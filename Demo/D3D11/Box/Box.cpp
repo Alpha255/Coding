@@ -1,4 +1,5 @@
 #include "Box.h"
+#include "Util/ImGUI.h"
 
 void AppBox::InitScene()
 {
@@ -13,7 +14,7 @@ void AppBox::InitScene()
 	m_PixelShader[eBlur].Create("Box.hlsl", "PSMain_Blur");
 	m_PixelShader[eEdgeDetection].Create("Box.hlsl", "PSMain_EdgeDetection");
 
-	m_CBufferVS.CreateAsConstantBuffer(sizeof(Matrix), D3DBuffer::eGpuReadCpuWrite, nullptr);
+	m_CBufferVS.CreateAsConstantBuffer(sizeof(Matrix), eGpuReadCpuWrite, nullptr);
 
 	m_Camera.SetViewRadius(5.0f);
 }
@@ -32,12 +33,12 @@ void AppBox::RenderScene()
 
 	Matrix wvp = Matrix::Transpose(m_Camera.GetWVPMatrix());
 	m_CBufferVS.Update(&wvp, sizeof(Matrix));
-	REngine::Instance().SetConstantBuffer(m_CBufferVS, 0U, D3DShader::eVertexShader);
+	REngine::Instance().SetConstantBuffer(m_CBufferVS, 0U, eVertexShader);
 
-	REngine::Instance().SetShaderResourceView(m_DiffuseTex, 0U, D3DShader::ePixelShader);
-	REngine::Instance().SetSamplerState(D3DStaticState::LinearSampler, 0U, D3DShader::ePixelShader);
+	REngine::Instance().SetShaderResourceView(m_DiffuseTex, 0U, ePixelShader);
+	REngine::Instance().SetSamplerState(RStaticState::LinearSampler, 0U, ePixelShader);
 
 	REngine::Instance().DrawIndexed(m_BoxMesh.IndexCount, 0U, 0, eTriangleList);
 
-	///ImGui::Combo("SpecialEffect", &m_Effect, "None\0Inversion\0Grayscale\0Sharpen\0Blur\0EdgeDetection");
+	ImGui::Combo("SpecialEffect", &m_Effect, "None\0Inversion\0Grayscale\0Sharpen\0Blur\0EdgeDetection");
 }

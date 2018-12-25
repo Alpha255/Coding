@@ -1,7 +1,7 @@
 #include "VulkanShader.h"
 #include "VulkanEngine.h"
-#include "System.h"
-#include "ResourceFile.h"
+#include "Util/System.h"
+#include "Util/ResourceFile.h"
 
 void VulkanShader::Create(const char *pFileName)
 {

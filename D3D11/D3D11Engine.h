@@ -197,7 +197,7 @@ public:
 		ctx.ClearDepthStencilView(m_DepthStencilView, eClearDepthStencil, 1.0f, 0U);
 	}
 
-	void Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool bWindowed);
+	void Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool bFullScreen);
 
 	void Resize(uint32_t width, uint32_t height);
 
