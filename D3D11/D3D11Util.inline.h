@@ -9,6 +9,25 @@ inline D3D11_USAGE TranslateResourceUsage()
 
 }
 
+inline D3D11_FILTER TranslateTextureFilter(eRTextureFilter rTextureFilter)
+{
+	D3D11_FILTER filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	switch (rTextureFilter)
+	{
+	case ePoint       : filter = D3D11_FILTER_MIN_MAG_MIP_POINT; break;
+	case eLinear      : filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR; break;
+	case eAnisotropic : filter = D3D11_FILTER_ANISOTROPIC; break;
+	default           : filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR; assert(0); break;
+	}
+
+	return filter;
+}
+
+inline D3D11_TEXTURE_ADDRESS_MODE TranslateTextureAddressMode(eRTextureAddressMode rTextureAddressMode)
+{
+	return (D3D11_TEXTURE_ADDRESS_MODE)rTextureAddressMode;
+}
+
 inline D3D_PRIMITIVE_TOPOLOGY TranslateTopology(eRPrimitiveTopology rTopology)
 {
 	D3D_PRIMITIVE_TOPOLOGY topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;

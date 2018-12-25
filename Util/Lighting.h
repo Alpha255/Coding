@@ -1,36 +1,18 @@
 #pragma once
 
 #include "D3DMath.h"
-#include "D3DGeometry.h"
-#include "D3DView.h"
+#include "Definitions.h"
 
-struct Light
+enum eLightType
 {
-public:
-	enum eLightType
-	{
-		ePoint,
-		eDirectional,
-		eSpot,
-		eCapsule,
-		eLightTypeCount
-	};
-
-	static void DebugDisplay(const Vec3 &position, const eLightType type, const class Camera &cam, const float scale = 0.1f);
-
-protected:
-	static Geometry::ObjMesh s_PointLightMesh;
-
-	static D3DVertexShader s_VertexShader;
-	static D3DPixelShader s_PixelShader;
-	static D3DBuffer s_CBufferVS;
-
-	static bool s_Inited;
-
-	static void Initialize();
+	ePointLight,
+	eDirectionalLight,
+	eSpotLight,
+	eCapsuleLight,
+	eLightTypeCount
 };
 
-struct PointLight : public Light
+struct PointLight
 {
 	Vec3 Position = { 0.0f, 0.0f, -2.0f };
 	float Range = 10.0f;
@@ -44,7 +26,7 @@ struct PointLight : public Light
 	Vec4 Attenuation = { 1.0f, 0.045f, 0.0075f, 0.0f };
 };
 
-struct DirectionalLight : public Light
+struct DirectionalLight
 {
 	Vec4 Direction = {};
 	Vec4 Ambient = { 0.05f, 0.05f, 0.05f, 1.0f };
@@ -54,7 +36,7 @@ struct DirectionalLight : public Light
 	float SpecularIntensity = 32.0f;
 };
 
-struct SpotLight : public Light
+struct SpotLight
 {
 	Vec3 Position = {};
 	float Range = 60.0f;
@@ -72,7 +54,7 @@ struct SpotLight : public Light
 	float SpecularIntensity = 250.0f;
 };
 
-struct CapsuleLight : public Light
+struct CapsuleLight
 {
 	Vec3 Position = {};
 	float Range = 20.0f;
@@ -116,5 +98,5 @@ struct Material
 	}
 
 	RawMaterial RawValue;
-	D3DShaderResourceView Textures[ePropertyCount];
+	RShaderResourceView Textures[ePropertyCount];
 };

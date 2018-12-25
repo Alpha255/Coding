@@ -147,7 +147,7 @@ void D3D11ContextState::CommitState(D3D11Context &ctx)
 
 void D3D11ContextState::BindConstantBuffers(D3D11Context &ctx)
 {
-	for (uint32_t i = 0U; i < D3D11Shader::eShaderTypeCount; ++i)
+	for (uint32_t i = 0U; i < eRShaderTypeCount; ++i)
 	{
 		if (IsDirty(eConstantBuffer, i))
 		{
@@ -158,14 +158,14 @@ void D3D11ContextState::BindConstantBuffers(D3D11Context &ctx)
 				continue;
 			}
 
-			switch ((D3D11Shader::eShaderType)i)
+			switch (i)
 			{
-			case D3D11Shader::eVertexShader:   ctx->VSSetConstantBuffers(0U, constantBuffers, ConstantBuffers[i].data()); break;
-			case D3D11Shader::eHullShader:     ctx->HSSetConstantBuffers(0U, constantBuffers, ConstantBuffers[i].data()); break;
-			case D3D11Shader::eDomainShader:   ctx->DSSetConstantBuffers(0U, constantBuffers, ConstantBuffers[i].data()); break;
-			case D3D11Shader::eGeometryShader: ctx->GSSetConstantBuffers(0U, constantBuffers, ConstantBuffers[i].data()); break;
-			case D3D11Shader::ePixelShader:    ctx->PSSetConstantBuffers(0U, constantBuffers, ConstantBuffers[i].data()); break;
-			case D3D11Shader::eComputeShader:  ctx->CSSetConstantBuffers(0U, constantBuffers, ConstantBuffers[i].data()); break;
+			case eVertexShader:   ctx->VSSetConstantBuffers(0U, constantBuffers, ConstantBuffers[i].data()); break;
+			case eHullShader:     ctx->HSSetConstantBuffers(0U, constantBuffers, ConstantBuffers[i].data()); break;
+			case eDomainShader:   ctx->DSSetConstantBuffers(0U, constantBuffers, ConstantBuffers[i].data()); break;
+			case eGeometryShader: ctx->GSSetConstantBuffers(0U, constantBuffers, ConstantBuffers[i].data()); break;
+			case ePixelShader:    ctx->PSSetConstantBuffers(0U, constantBuffers, ConstantBuffers[i].data()); break;
+			case eComputeShader:  ctx->CSSetConstantBuffers(0U, constantBuffers, ConstantBuffers[i].data()); break;
 			}
 
 			SetDirty(eConstantBuffer, false);
@@ -175,7 +175,7 @@ void D3D11ContextState::BindConstantBuffers(D3D11Context &ctx)
 
 void D3D11ContextState::BindSamplerStates(D3D11Context &ctx)
 {
-	for (uint32_t i = 0U; i < D3D11Shader::eShaderTypeCount; ++i)
+	for (uint32_t i = 0U; i < eRShaderTypeCount; ++i)
 	{
 		if (IsDirty(eSamplerState, i))
 		{
@@ -186,14 +186,14 @@ void D3D11ContextState::BindSamplerStates(D3D11Context &ctx)
 				continue;
 			}
 
-			switch ((D3D11Shader::eShaderType)i)
+			switch (i)
 			{
-			case D3D11Shader::eVertexShader:   ctx->VSSetSamplers(0U, samplers, SamplerStates[i].data()); break;
-			case D3D11Shader::eHullShader:     ctx->HSSetSamplers(0U, samplers, SamplerStates[i].data()); break;
-			case D3D11Shader::eDomainShader:   ctx->DSSetSamplers(0U, samplers, SamplerStates[i].data()); break;
-			case D3D11Shader::eGeometryShader: ctx->GSSetSamplers(0U, samplers, SamplerStates[i].data()); break;
-			case D3D11Shader::ePixelShader:    ctx->PSSetSamplers(0U, samplers, SamplerStates[i].data()); break;
-			case D3D11Shader::eComputeShader:  ctx->CSSetSamplers(0U, samplers, SamplerStates[i].data()); break;
+			case eVertexShader:   ctx->VSSetSamplers(0U, samplers, SamplerStates[i].data()); break;
+			case eHullShader:     ctx->HSSetSamplers(0U, samplers, SamplerStates[i].data()); break;
+			case eDomainShader:   ctx->DSSetSamplers(0U, samplers, SamplerStates[i].data()); break;
+			case eGeometryShader: ctx->GSSetSamplers(0U, samplers, SamplerStates[i].data()); break;
+			case ePixelShader:    ctx->PSSetSamplers(0U, samplers, SamplerStates[i].data()); break;
+			case eComputeShader:  ctx->CSSetSamplers(0U, samplers, SamplerStates[i].data()); break;
 			}
 		}
 
@@ -203,7 +203,7 @@ void D3D11ContextState::BindSamplerStates(D3D11Context &ctx)
 
 void D3D11ContextState::BindShaderResourceViews(D3D11Context &ctx)
 {
-	for (uint32_t i = 0U; i < D3D11Shader::eShaderTypeCount; ++i)
+	for (uint32_t i = 0U; i < eRShaderTypeCount; ++i)
 	{
 		if (IsDirty(eShaderResourceView, i))
 		{
@@ -214,14 +214,14 @@ void D3D11ContextState::BindShaderResourceViews(D3D11Context &ctx)
 				continue;
 			}
 
-			switch ((D3D11Shader::eShaderType)i)
+			switch (i)
 			{
-			case D3D11Shader::eVertexShader:   ctx->VSSetShaderResources(0U, shaderResourceViews, ShaderResourceViews[i].data()); break;
-			case D3D11Shader::eHullShader:     ctx->HSSetShaderResources(0U, shaderResourceViews, ShaderResourceViews[i].data()); break;
-			case D3D11Shader::eDomainShader:   ctx->DSSetShaderResources(0U, shaderResourceViews, ShaderResourceViews[i].data()); break;
-			case D3D11Shader::eGeometryShader: ctx->GSSetShaderResources(0U, shaderResourceViews, ShaderResourceViews[i].data()); break;
-			case D3D11Shader::ePixelShader:    ctx->PSSetShaderResources(0U, shaderResourceViews, ShaderResourceViews[i].data()); break;
-			case D3D11Shader::eComputeShader:  ctx->CSSetShaderResources(0U, shaderResourceViews, ShaderResourceViews[i].data()); break;
+			case eVertexShader:   ctx->VSSetShaderResources(0U, shaderResourceViews, ShaderResourceViews[i].data()); break;
+			case eHullShader:     ctx->HSSetShaderResources(0U, shaderResourceViews, ShaderResourceViews[i].data()); break;
+			case eDomainShader:   ctx->DSSetShaderResources(0U, shaderResourceViews, ShaderResourceViews[i].data()); break;
+			case eGeometryShader: ctx->GSSetShaderResources(0U, shaderResourceViews, ShaderResourceViews[i].data()); break;
+			case ePixelShader:    ctx->PSSetShaderResources(0U, shaderResourceViews, ShaderResourceViews[i].data()); break;
+			case eComputeShader:  ctx->CSSetShaderResources(0U, shaderResourceViews, ShaderResourceViews[i].data()); break;
 			}
 
 			SetDirty(eShaderResourceView, false, i);

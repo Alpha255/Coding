@@ -1,5 +1,8 @@
 #pragma once
 
+#define UsingD3D11
+///#define UsingVulkan
+
 #if defined(UsingD3D11)
 	#include "D3D11/D3D11Engine.h"
 	typedef D3D11Engine REngine;
@@ -11,12 +14,12 @@
 	typedef D3D11InputLayout RInputLayout;
 	typedef D3D11BlendState RBlendState;
 	typedef D3D11Texture2D RTexture2D;
+	typedef D3D11StaticState RStaticState;
 #elif defined(UsingVulkan)
-	#include "Vulkan/VulkanEngine.h"
-	typedef VulkanEngine REngine;
-	typedef VulkanVertexShader RVertexShader;
-	typedef VulkanPixelShader RPixelShader;
-	typedef VulkanBuffer RBuffer;
-	typedef VulkanShaderResourceView RShaderResourceView;
-	typedef VulkanViewport RViewport;
+	typedef class VulkanEngine REngine;
+	typedef class VulkanVertexShader RVertexShader;
+	typedef class VulkanPixelShader RPixelShader;
+	typedef class VulkanBuffer RBuffer;
+	typedef class VulkanShaderResourceView RShaderResourceView;
+	typedef class VulkanViewport RViewport;
 #endif

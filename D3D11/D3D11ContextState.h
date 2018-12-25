@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Util/D3DMath.h"
-#include "D3D11Shader.h"
+#include "D3D11Object.h"
 
 struct D3D11ContextState
 {	
@@ -26,7 +25,7 @@ public:
 
 		eConstantBuffer,
 
-		eVertexShader = eConstantBuffer + D3D11Shader::eShaderTypeCount,
+		eVertexShader = eConstantBuffer + eRShaderTypeCount,
 		eHullShader,
 		eDomainShader,
 		ePixelShader,
@@ -37,7 +36,7 @@ public:
 
 		eSamplerState,
 		
-		eBlendState = eSamplerState + D3D11Shader::eShaderTypeCount,
+		eBlendState = eSamplerState + eRShaderTypeCount,
 		eDepthStencilState,
 
 		eRenderTargetView,
@@ -45,7 +44,7 @@ public:
 
 		eShaderResourceView,
 
-		eUnorderedAccessView = eShaderResourceView + D3D11Shader::eShaderTypeCount,
+		eUnorderedAccessView = eShaderResourceView + eRShaderTypeCount,
 
 		eScissorRect,
 		eViewport,
@@ -133,14 +132,14 @@ private:
 	std::array<D3D11_RECT, eMaxScissorRects> ScissorRects;
 	uint16_t ScissorRectsInUse = 0U;
 
-	std::array<std::array<ID3D11Buffer *, eMaxConstantBuffers>, D3D11Shader::eShaderTypeCount> ConstantBuffers;
-	uint16_t ConstantBuffersInUse[D3D11Shader::eShaderTypeCount] = {};
+	std::array<std::array<ID3D11Buffer *, eMaxConstantBuffers>, eRShaderTypeCount> ConstantBuffers;
+	uint16_t ConstantBuffersInUse[eRShaderTypeCount] = {};
 
-	std::array<std::array<ID3D11SamplerState *, eMaxSamplers>, D3D11Shader::eShaderTypeCount> SamplerStates;
-	uint16_t SamplersInUse[D3D11Shader::eShaderTypeCount] = {};
+	std::array<std::array<ID3D11SamplerState *, eMaxSamplers>, eRShaderTypeCount> SamplerStates;
+	uint16_t SamplersInUse[eRShaderTypeCount] = {};
 
-	std::array<std::array<ID3D11ShaderResourceView *, eMaxShaderResourceViews>, D3D11Shader::eShaderTypeCount> ShaderResourceViews;
-	uint8_t ShaderResourceViewsInUse[D3D11Shader::eShaderTypeCount] = {};
+	std::array<std::array<ID3D11ShaderResourceView *, eMaxShaderResourceViews>, eRShaderTypeCount> ShaderResourceViews;
+	uint8_t ShaderResourceViewsInUse[eRShaderTypeCount] = {};
 
 	std::array<ID3D11RenderTargetView *, eMaxRenderTargetViews> RenderTargetViews;
 	uint8_t RenderTargetsInUse = 0U;

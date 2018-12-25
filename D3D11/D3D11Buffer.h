@@ -5,55 +5,6 @@
 class D3D11Buffer : public D3DObject<ID3D11Buffer>
 {
 public:
-	enum eUsage
-	{
-		eGpuReadWrite = D3D11_USAGE_DEFAULT,
-		eGpuReadOnly = D3D11_USAGE_IMMUTABLE,
-		eGpuReadCpuWrite = D3D11_USAGE_DYNAMIC,
-		eGpuCopyToCpu = D3D11_USAGE_STAGING
-	};
-
-	enum eCpuAccessFlag
-	{
-		eCpuRead = D3D11_CPU_ACCESS_READ,
-		eCpuWrite = D3D11_CPU_ACCESS_WRITE,
-		eCpuReadWrite = eCpuRead | eCpuWrite
-	};
-
-	enum eBindFlag
-	{
-		eBindAsVertexBuffer = D3D11_BIND_VERTEX_BUFFER,
-		eBindAsIndexBuffer = D3D11_BIND_INDEX_BUFFER,
-		eBindAsConstantBuffer = D3D11_BIND_CONSTANT_BUFFER,
-		eBindAsShaderResource = D3D11_BIND_SHADER_RESOURCE,
-		eBindAsStreamOutput = D3D11_BIND_STREAM_OUTPUT,
-		eBindAsRenderTarget = D3D11_BIND_RENDER_TARGET,
-		eBindAsDepthStencil = D3D11_BIND_DEPTH_STENCIL,
-		eBindAsUnorderedAccess = D3D11_BIND_UNORDERED_ACCESS,
-		eBindAsDecoder = D3D11_BIND_DECODER,
-		eBindAsVideoEncoder = D3D11_BIND_VIDEO_ENCODER
-	};
-
-	enum eResourceMiscFlag
-	{
-		eMiscGenerateMips = D3D11_RESOURCE_MISC_GENERATE_MIPS,
-		eMiscShared = D3D11_RESOURCE_MISC_SHARED,
-		eMiscCubemap = D3D11_RESOURCE_MISC_TEXTURECUBE,
-		eMiscDrawIndirectArgs = D3D11_RESOURCE_MISC_DRAWINDIRECT_ARGS,
-		eMiscAllowRawViews = D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS,
-		eMiscBufferStructured = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED,
-		eMiscClamp = D3D11_RESOURCE_MISC_RESOURCE_CLAMP,
-		eMiscSharedKeyedMutex = D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX,
-		eMiscGDICompatible = D3D11_RESOURCE_MISC_GDI_COMPATIBLE,
-		eMiscSharedNTHandle = D3D11_RESOURCE_MISC_SHARED_NTHANDLE,
-		eMiscRestrictedContent = D3D11_RESOURCE_MISC_RESTRICTED_CONTENT,
-		eMiscRestrictSharedResource = D3D11_RESOURCE_MISC_RESTRICT_SHARED_RESOURCE,
-		eMiscRestrictSharedResourceDriver = D3D11_RESOURCE_MISC_RESTRICT_SHARED_RESOURCE_DRIVER,
-		eMiscGuarded = D3D11_RESOURCE_MISC_GUARDED,
-		eMiscTilePool = D3D11_RESOURCE_MISC_TILE_POOL,
-		eMiscTiled = D3D11_RESOURCE_MISC_TILED
-	};
-
 	inline void CreateAsVertexBuffer(
 		size_t byteWidth,
 		uint32_t usage,

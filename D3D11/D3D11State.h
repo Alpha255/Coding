@@ -5,22 +5,6 @@
 class D3DState
 {
 public:
-	enum eTextureFilter
-	{
-		ePoint = D3D11_FILTER_MIN_MAG_MIP_POINT,
-		eLinear = D3D11_FILTER_MIN_MAG_MIP_LINEAR,
-		eAnisotropic = D3D11_FILTER_ANISOTROPIC
-	};
-
-	enum eTextureAddressMode
-	{
-		eWrap = D3D11_TEXTURE_ADDRESS_WRAP,
-		eMirror = D3D11_TEXTURE_ADDRESS_MIRROR,
-		eClamp = D3D11_TEXTURE_ADDRESS_CLAMP,
-		eBorder = D3D11_TEXTURE_ADDRESS_BORDER,
-		eMirrorOnce = D3D11_TEXTURE_ADDRESS_MIRROR_ONCE
-	};
-
 	enum eFillMode
 	{
 		eWireframe = D3D11_FILL_WIREFRAME,

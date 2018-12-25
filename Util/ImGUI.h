@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Common.h"
+#include "Definitions.h"
 #include <ImGUI/imgui.h>
 
 class ImGUI : public NoneCopyable
@@ -10,21 +11,19 @@ public:
 	{
 		if (!s_Instance)
 		{
-			s_Instance = std::unique_ptr<ImGUI>(new ImGUI());
+			s_Instance = std::unique_ptr<ImGUI, std::function<void(ImGUI *)>>
+				(new ImGUI(), [](ImGUI *pImGUI) { SafeDelete(pImGUI) });
 		}
+
+		return *s_Instance;
 	}
 
-	inline static void Destroy()
+	static void Destroy()
 	{
 		ImGui::DestroyContext();
 	}
 
 	void Initialize(::HWND hWnd);
-
-	inline void Destroy()
-	{
-		ImGui::DestroyContext();
-	}
 
 	::LRESULT MessageProcFunc(::HWND hWnd, uint32_t uMsg, ::WPARAM wParam, ::LPARAM lParam);
 
@@ -76,9 +75,7 @@ private:
 		RShaderResourceView FontTexture;
 	};
 
-	RenderResource m_Resource;
-
-	static std::unique_ptr<ImGUI> s_Instance;
+	static std::unique_ptr<ImGUI, std::function<void(ImGUI *)>> s_Instance;
 
 	int32_t m_VertexCount = 0;
 	int32_t m_IndexCount = 0;
@@ -86,4 +83,6 @@ private:
 	std::shared_ptr<ImDrawVert> m_Vertices;
 	std::shared_ptr<ImDrawIdx> m_Indices;
 	bool m_Inited = false;
+
+	RenderResource m_Resource;
 };

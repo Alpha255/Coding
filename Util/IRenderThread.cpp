@@ -1,5 +1,4 @@
-#include "D3DRenderThread.h"
-#include "D3DEngine.h"
+#include "IRenderThread.h"
 
 void D3DRenderThread::Register()
 {

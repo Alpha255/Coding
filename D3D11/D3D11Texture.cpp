@@ -56,8 +56,8 @@ void D3D11Texture1D::CreateRandomTexture()
 	D3D11_SUBRESOURCE_DATA subResData = {};
 	subResData.pSysMem = &random;
 	subResData.SysMemPitch = size * sizeof(Vec4);
-	Create(eRGBA32_Float, size, D3D11Buffer::eBindAsShaderResource, 1U, 1U, 0U, 0U,
-		D3D11Buffer::eGpuReadOnly, &subResData);
+	Create(eRGBA32_Float, size, eBindAsShaderResource, 1U, 1U, 0U, 0U,
+		eGpuReadOnly, &subResData);
 
 	///CreateShaderResourceView(rSRV, tex.Ptr(), DXGI_FORMAT_R32G32B32A32_FLOAT, D3D11_SRV_DIMENSION_TEXTURE1D);
 }

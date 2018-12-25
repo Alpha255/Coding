@@ -1,12 +1,12 @@
 #pragma once
 
-#include <Windows.h>
 #include <stdint.h>
 #include <assert.h>
 #include <memory>
 #include <functional>
 #include <array>
 #include <vector>
+#include <Windows.h>
 
 /// http://blog.csdn.net/slshelly/article/details/8720487
 ///#ifdef _WINDLL
@@ -25,8 +25,6 @@
 #define SafeDelete(ptr)       { if((ptr) != nullptr) delete (ptr); (ptr) = nullptr; }
 #define SafeDeleteArray(ptr)  { if((ptr) != nullptr) delete[] (ptr); (ptr) = nullptr; }
 
-#define HRCheck(func)  if (FAILED(func)) { assert(0); }
-
 #define NamespaceBegin(name) namespace name {
 #define NamespaceEnd(name) }
 
@@ -40,9 +38,3 @@ public:
 protected:
 private:
 };
-
-#define UsingD3D11
-///#define UsingVulkan
-
-#include "Types.h"
-#include "Definitions.h"

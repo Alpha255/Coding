@@ -60,12 +60,12 @@ public:
 		GetThreadContext().SetDepthStencilView(depthStencilView);
 	}
 
-	inline void SetShaderResourceView(const D3D11ShaderResourceView &shaderResourceView, uint32_t slot, D3D11Shader::eShaderType targetShader)
+	inline void SetShaderResourceView(const D3D11ShaderResourceView &shaderResourceView, uint32_t slot, eRShaderType targetShader)
 	{
 		GetThreadContext().SetShaderResourceView(shaderResourceView, slot, targetShader);
 	}
 
-	inline void SetUnorderedAccessView(const D3D11UnorderedAccessView &unorderedAccessView, uint32_t slot, D3D11Shader::eShaderType targetShader = D3D11Shader::eComputeShader)
+	inline void SetUnorderedAccessView(const D3D11UnorderedAccessView &unorderedAccessView, uint32_t slot, eRShaderType targetShader = eComputeShader)
 	{
 		GetThreadContext().SetUnorderedAccessView(unorderedAccessView, slot, targetShader);
 	}
@@ -80,7 +80,7 @@ public:
 		GetThreadContext().SetIndexBuffer(indexBuffer, fmt, offset);
 	}
 
-	inline void SetSamplerState(const D3D11SamplerState &samplerState, uint32_t slot, D3D11Shader::eShaderType targetShader)
+	inline void SetSamplerState(const D3D11SamplerState &samplerState, uint32_t slot, eRShaderType targetShader)
 	{
 		GetThreadContext().SetSamplerState(samplerState, slot, targetShader);
 	}
@@ -135,7 +135,7 @@ public:
 		GetThreadContext().SetComputeShader(computeShader);
 	}
 
-	inline void SetConstantBuffer(const D3D11Buffer &constantBuffer, uint32_t slot, D3D11Shader::eShaderType targetShader)
+	inline void SetConstantBuffer(const D3D11Buffer &constantBuffer, uint32_t slot, eRShaderType targetShader)
 	{
 		GetThreadContext().SetConstantBuffer(constantBuffer, slot, targetShader);
 	}
@@ -165,7 +165,7 @@ public:
 		GetThreadContext().ClearRenderTargetView(renderTarget, color);
 	}
 
-	inline void ClearDepthStencilView(D3D11DepthStencilView &depthStencil, uint32_t clearFlag = D3D11DepthStencilView::eDepthStencil, float depth = 1.0f, uint8_t stencil = 0U)
+	inline void ClearDepthStencilView(D3D11DepthStencilView &depthStencil, uint32_t clearFlag = eClearDepthStencil, float depth = 1.0f, uint8_t stencil = 0U)
 	{
 		GetThreadContext().ClearDepthStencilView(depthStencil, clearFlag, depth, stencil);
 	}
@@ -178,7 +178,7 @@ public:
 		ctx.ClearRenderTargetView(m_RenderTargetView, clearClr);
 
 		ctx.SetDepthStencilView(m_DepthStencilView);
-		ctx.ClearDepthStencilView(m_DepthStencilView, D3D11DepthStencilView::eDepthStencil, 1.0f, 0U);
+		ctx.ClearDepthStencilView(m_DepthStencilView, eClearDepthStencil, 1.0f, 0U);
 	}
 
 	inline void ResetDefaultRenderTargetView(const Vec4 &clearClr = Color::DarkBlue)
@@ -194,7 +194,7 @@ public:
 		D3D11Context &ctx = GetThreadContext();
 
 		ctx.SetDepthStencilView(m_DepthStencilView);
-		ctx.ClearDepthStencilView(m_DepthStencilView, D3D11DepthStencilView::eDepthStencil, 1.0f, 0U);
+		ctx.ClearDepthStencilView(m_DepthStencilView, eClearDepthStencil, 1.0f, 0U);
 	}
 
 	void Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool bWindowed);

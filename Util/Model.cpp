@@ -1,12 +1,10 @@
-#include "D3DModel.h"
+//#include "D3DModel.h"
 //#include "D3DGraphic.h"
 //#include "Camera.h"
 //#include "Utility.h"
 //
 //#include <fstream>
 //#include <sstream>
-//
-//extern D3DGraphic* g_Renderer;
 //
 //D3DModel::D3DModel()
 //	: m_EffectFactory(nullptr)

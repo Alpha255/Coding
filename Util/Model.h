@@ -1,25 +1,24 @@
-#pragma once
+//#pragma once
 //
+//#include "D3DMath.h"
+//#include "Definitions.h"
+//#include "Lighting.h"
 //#include <DirectXTK/Inc/Effects.h>
 //#include <DirectXTK/Inc/Model.h>
 //#include <DirectXTK/Inc/CommonStates.h>
-//#include "D3DMath.h"
 //
-//class D3DModel
+//class Model
 //{
 //public:
-//	D3DModel();
-//	~D3DModel();
+//	Model();
+//	~Model();
 //
 //	void CreateFromSDKMesh(const wchar_t* pName);
 //
 //	void Draw(const class Camera& camera, bool bWireframe = false);
-//	///void DrawCustom();
 //
-//	const ID3D11Buffer* const GetVertexBuffer(uint32_t index) const;
-//	const ID3D11Buffer* const GetIndexBuffer(uint32_t index) const;
 //	uint32_t GetVertexStride(uint32_t index) const;
-//	DXGI_FORMAT GetIndexFormat(uint32_t index) const;
+//	uint32_t GetIndexFormat(uint32_t index) const;
 //protected:
 //private:
 //	DirectX::EffectFactory* m_EffectFactory;
@@ -45,9 +44,9 @@
 //
 //	void CreateFromTxt(const char *pName);
 //
-//	inline void SetMaterial(const Lighting::Material &mat)
+//	inline void SetMaterial(const Material &mat)
 //	{
-//		memcpy(&m_CBufferPS.Mat, &mat, sizeof(Lighting::Material));
+//		memcpy(&m_CBufferPS.Mat, &mat, sizeof(Material));
 //	}
 //
 //	inline void SetLightCount(uint32_t litCount)
@@ -56,10 +55,10 @@
 //		m_CBufferPS.LightCount = litCount;
 //	}
 //
-//	inline void SetLight(uint32_t index, const Lighting::DirectionalLight &lit)
+//	inline void SetLight(uint32_t index, const DirectionalLight &lit)
 //	{
 //		assert(index < 3U);  /// Not safety
-//		memcpy(&m_CBufferPS.DirLight[index], &lit, sizeof(Lighting::DirectionalLight));
+//		memcpy(&m_CBufferPS.DirLight[index], &lit, sizeof(DirectionalLight));
 //	}
 //
 //	inline void SetWorldMatrix(const Matrix& world)
@@ -88,9 +87,9 @@
 //		Vec3 ViewPoint;
 //		uint32_t LightCount = 0U;
 //
-//		Lighting::DirectionalLight DirLight[3];
+//		DirectionalLight DirLight[3];
 //
-//		Lighting::Material Mat;
+//		Material Mat;
 //
 //		ConstantsBufferPS()
 //		{

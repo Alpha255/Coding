@@ -1,7 +1,7 @@
 #include "ImGUI.h"
-#include "D3DMath.h"
+#include "IApplication.h"
 
-std::unique_ptr<ImGUI> ImGUI::s_Instance;
+std::unique_ptr<ImGUI, std::function<void(ImGUI *)>> ImGUI::s_Instance;
 
 void ImGUI::Initialize(::HWND hWnd)
 {

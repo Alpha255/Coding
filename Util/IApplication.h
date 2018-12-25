@@ -2,8 +2,14 @@
 
 #include "Timer.h"
 #include "Camera.h"
-#include "IRenderEngine.h"
-#include "IImGUI.h"
+#include "Definitions.h"
+#include "resource.h"
+
+#if defined(UsingD3D11)
+	#define IconID IconDirectX 
+#elif defined(UsingVulkan)
+	#define IconID IconVulkan 
+#endif
 
 class IApplication
 {
@@ -55,7 +61,7 @@ protected:
 	uint32_t m_Width = 0U;
 	uint32_t m_Height = 0U;
 	float m_FPS = 0.0f;
-	uint16_t m_IconID = 0U;
+	uint16_t m_IconID = IconID;
 	int16_t m_MouseWheelDelta = 0;
 	bool m_bFullScreen = false;
 	bool m_bDrawGUI = false;
@@ -63,12 +69,8 @@ protected:
 
 	Timer m_Timer;
 	Camera m_Camera;
-
-	std::shared_ptr<IRenderEngine> m_Engine;
-	std::shared_ptr<IImGUI> m_ImGUI;
 private:
 	bool m_bActive = false;
 	bool m_bNeedResize = false;
 	bool m_bRenderEngineInited = false;
-	bool m_bSceneInited = false;
 };

@@ -1,15 +1,9 @@
 #pragma once
 
-#include "D3DMath.h"
-#include "D3DBuffer.h"
-#include "D3DShader.h"
-
-#include <DirectXTK/Inc/Model.h>
-#include <DirectXTK/Inc/CommonStates.h>
-
-class Camera;
-class D3DEngine;
-struct Material;
+#include "Definitions.h"
+#include "Lighting.h"
+#include "Camera.h"
+#include <DirectXCollision.h>
 
 NamespaceBegin(Geometry)
 
@@ -67,9 +61,9 @@ public:
 		return m_Created;
 	}
 
-	D3DInputLayout VertexLayout;
-	D3DBuffer VertexBuffer;
-	D3DBuffer IndexBuffer;
+	RInputLayout VertexLayout;
+	RBuffer VertexBuffer;
+	RBuffer IndexBuffer;
 	uint32_t IndexCount = 0U;
 	uint32_t VertexCount = 0U;
 public:
@@ -116,7 +110,7 @@ public:
 
 	void Draw(bool bAlphaParts, bool bDisableMaterial = false);
 
-	inline void SetInputLayout(const D3DInputLayout &layout)
+	inline void SetInputLayout(const RInputLayout &layout)
 	{
 		m_VertexLayout = layout;
 	}
@@ -254,10 +248,10 @@ protected:
 			uint32_t  StartIndex;
 			uint32_t  VertexOffset;
 			uint32_t  VertexStride;
-			ePrimitiveTopology PrimitiveType;
+			eRPrimitiveTopology PrimitiveType;
 			uint32_t IndexFormat;
-			D3DBuffer IndexBuffer;
-			D3DBuffer VertexBuffer;
+			RBuffer IndexBuffer;
+			RBuffer VertexBuffer;
 			bool IsAlpha;
 
 			Material *Mt = nullptr;
@@ -327,10 +321,10 @@ protected:
 private:
 	std::vector<std::shared_ptr<ModelMesh>> m_Meshs;
 
-	std::vector<D3DBuffer> m_VertexBuffers;
-	std::vector<D3DBuffer> m_IndexBuffers;
+	std::vector<RBuffer> m_VertexBuffers;
+	std::vector<RBuffer> m_IndexBuffers;
 
-	D3DInputLayout m_VertexLayout;
+	RInputLayout m_VertexLayout;
 
 	bool m_Created = false;
 };

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Util/Common.h"
-
-#include <d3d11.h>
+#include "Util/D3DMath.h"
+#include "D3D11Types.h"
 
 template<typename T> class D3DObject
 {

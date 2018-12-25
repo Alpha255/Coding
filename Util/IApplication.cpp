@@ -1,4 +1,5 @@
 #include "IApplication.h"
+#include "ImGUI.h"
 
 static IApplication *s_Application = nullptr;
 
@@ -10,14 +11,14 @@ static IApplication *s_Application = nullptr;
 
 ::LRESULT IApplication::MessageProcFunc(::HWND hWnd, uint32_t msg, ::WPARAM wParam, ::LPARAM lParam)
 {
-	if (m_bRenderEngineInited && m_ImGUI->MessageProcFunc(hWnd, msg, wParam, lParam))
+	if (m_bRenderEngineInited && ImGUI::Instance().MessageProcFunc(hWnd, msg, wParam, lParam))
 	{
 		return 1LL;
 	}
 
 	HandleWindowMessage(msg, wParam, lParam);
 
-	if (!m_bRenderEngineInited || !m_ImGUI->IsFocus())
+	if (!m_bRenderEngineInited || !ImGUI::Instance().IsFocus())
 	{
 		HandleInput(msg, wParam, lParam);
 	}
@@ -30,7 +31,7 @@ void IApplication::MakeWindow(const wchar_t *pTitle, uint32_t width, uint32_t he
 	::HINSTANCE hInst = ::GetModuleHandle(nullptr);
 	assert(hInst && pTitle);
 
-	::WNDCLASSEX wndClassEx;
+	::WNDCLASSEX wndClassEx = {};
 	memset(&wndClassEx, 0, sizeof(::WNDCLASSEX));
 	wndClassEx.cbClsExtra = 0;
 	wndClassEx.cbSize = sizeof(::WNDCLASSEX);
@@ -68,7 +69,7 @@ void IApplication::ResizeWindow(uint32_t width, uint32_t height)
 {
 	if (m_bRenderEngineInited)
 	{
-		m_Engine->Resize(width, height);
+		REngine::Instance().Resize(width, height);
 	}
 
 	m_Camera.SetProjParams(DirectX::XM_PIDIV4, (float)width / height, 1.0f, 3000.0f);
@@ -153,13 +154,13 @@ void IApplication::RenderToWindow()
 
 	UpdateScene(m_Timer.GetDeltaTime(), m_Timer.GetTotalTime());
 
-	m_ImGUI->RenderBegin(m_bDrawGUI);
+	ImGUI::Instance().RenderBegin(m_bDrawGUI);
 
 	RenderScene();
 
-	m_ImGUI->RenderEnd(m_bDrawGUI);
+	ImGUI::Instance().RenderEnd(m_bDrawGUI);
 
-	m_Engine->Flush();
+	REngine::Instance().Flush();
 
 	UpdateFPS();
 }
@@ -194,20 +195,16 @@ void IApplication::Startup(const wchar_t *pTitle, uint32_t width, uint32_t heigh
 
 	if (!m_bRenderEngineInited)
 	{
-		m_Engine->Initialize(m_hWnd, m_Width, m_Height, m_bFullScreen);
+		REngine::Instance().Initialize(m_hWnd, m_Width, m_Height, m_bFullScreen);
 
-		m_ImGUI->Initialize(m_hWnd);
+		ImGUI::Instance().Initialize(m_hWnd);
 
 		m_Camera.SetProjParams(DirectX::XM_PIDIV4, (float)m_Width / m_Height, 1.0f, 3000.0f);
 
 		m_bRenderEngineInited = true;
 	}
 
-	if (!m_bSceneInited)
-	{
-		InitScene();
-		m_bSceneInited = true;
-	}
+	InitScene();
 }
 
 void IApplication::MouseWheel(::WPARAM wParam)
@@ -275,5 +272,5 @@ void IApplication::Running()
 
 void IApplication::ShutDown()
 {
-	m_ImGUI->Destroy();
+	ImGUI::Instance().Destroy();
 }

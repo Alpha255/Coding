@@ -1,8 +1,4 @@
-#include "D3DGeometry.h"
-#include "D3DEngine.h"
-#include "D3DLighting.h"
-#include "Camera.h"
-#include "System.h"
+#include "Geometry.h"
 
 #include <fstream>
 
@@ -21,12 +17,12 @@ void Mesh::CreateRenderResource()
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
-	D3DVertexShader vertexShader;
+	RVertexShader vertexShader;
 	vertexShader.Create("Mesh.hlsl", "VSMain");
 	VertexLayout.Create(vertexShader.GetBlob(), layout, _countof(layout));
 
-	VertexBuffer.CreateAsVertexBuffer(sizeof(Vertex) * m_Vertices.size(), D3DBuffer::eGpuReadOnly, m_Vertices.data());
-	IndexBuffer.CreateAsIndexBuffer(sizeof(uint32_t) * m_Indices.size(), D3DBuffer::eGpuReadOnly, m_Indices.data());
+	VertexBuffer.CreateAsVertexBuffer(sizeof(Vertex) * m_Vertices.size(), eGpuReadOnly, m_Vertices.data());
+	IndexBuffer.CreateAsIndexBuffer(sizeof(uint32_t) * m_Indices.size(), eGpuReadOnly, m_Indices.data());
 
 	m_Created = true;
 }
@@ -677,28 +673,28 @@ void Mesh::ApplyMaterial(const Material *pMaterial)
 	{
 		if (pMaterial->Textures[i].IsValid())
 		{
-			D3DEngine::Instance().SetShaderResourceView(pMaterial->Textures[i], slot, D3DShader::ePixelShader);
+			REngine::Instance().SetShaderResourceView(pMaterial->Textures[i], slot, ePixelShader);
 			++slot;
 		}
 	}
 
-	D3DEngine::Instance().SetSamplerState(D3DStaticState::LinearSampler, 0U, D3DShader::ePixelShader);
+	REngine::Instance().SetSamplerState(RStaticState::LinearSampler, 0U, ePixelShader);
 }
 
 void Mesh::Bind(const Material *pMaterial)
 {
 	ApplyMaterial(pMaterial);
 
-	D3DEngine::Instance().SetInputLayout(VertexLayout);
-	D3DEngine::Instance().SetVertexBuffer(VertexBuffer, sizeof(Vertex), 0U, 0U);
-	D3DEngine::Instance().SetIndexBuffer(IndexBuffer, eR32_UInt, 0U);
+	REngine::Instance().SetInputLayout(VertexLayout);
+	REngine::Instance().SetVertexBuffer(VertexBuffer, sizeof(Vertex), 0U, 0U);
+	REngine::Instance().SetIndexBuffer(IndexBuffer, eR32_UInt, 0U);
 }
 
 void Mesh::Draw(const Material *pMaterial, uint32_t startIndex, int32_t vertexOffset)
 {
 	Bind(pMaterial);
 
-	D3DEngine::Instance().DrawIndexed(IndexCount, startIndex, vertexOffset, eTriangleList);
+	REngine::Instance().DrawIndexed(IndexCount, startIndex, vertexOffset, eTriangleList);
 }
 
 NamespaceEnd(Geometry)

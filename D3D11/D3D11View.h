@@ -2,17 +2,6 @@
 
 #include "D3D11Object.h"
 
-class D3DView
-{
-public:
-	//enum eDepthStencilViewFlags
-	//{
-	//	eReadonlyDepth = D3D11_DSV_READ_ONLY_DEPTH,
-	//	eReadonlyStencil = D3D11_DSV_READ_ONLY_STENCIL,
-	//	eReadonlyDepthStencil = eReadonlyDepth | eReadonlyStencil
-	//};
-};
-
 class D3D11RenderTargetView : public D3DObject<ID3D11RenderTargetView>
 {
 public:
@@ -26,13 +15,6 @@ public:
 class D3D11DepthStencilView : public D3DObject<ID3D11DepthStencilView>
 {
 public:
-	//enum eClearFlag
-	//{
-	//	eDepthOnly = D3D11_CLEAR_DEPTH,
-	//	eStencilOnly = D3D11_CLEAR_STENCIL,
-	//	eDepthStencil = eDepthOnly | eStencilOnly
-	//};
-
 	void Create(uint32_t fmt, uint32_t width, uint32_t height);
 	void CreateAsBuffer();
 	void CreateAsTexture(eRViewType type, D3D11Resource &resource, uint32_t fmt, uint32_t flags, uint32_t mipSlice);

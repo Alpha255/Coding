@@ -52,7 +52,8 @@ def GetFileName(_FilePath):
 def IsFileTypeMatch(_FileName, _Types):
 	typeMatch = False
 	for fileType in _Types:
-		if (('.' + _FileName.rsplit('.', 1)[1].lower()) == fileType.lower()):
+		splitParts = _FileName.rsplit('.', 1)
+		if (len(splitParts) > 1 and ('.' + splitParts[1]).lower() == fileType.lower()):
 			typeMatch = True
 	return typeMatch
 
@@ -147,7 +148,7 @@ def MakeProjectFilter(_vcProject, _IncludeType):
 					elif (IsFileTypeMatch(file, ['.rc', '.ico'])):
 						filterXML.append('\t\t\t<Filter>%s</Filter>\n' % 'Resource')
 						break
-					elif (IsFileTypeMatch(file, ['.hlsl', '.hlsli', 'glsl'])):
+					elif (IsFileTypeMatch(file, ['.hlsl', '.hlsli', '.glsl'])):
 						filterXML.append('\t\t\t<Filter>%s</Filter>\n' % 'Shaders')
 						break
 				filterXML.append('\t\t</%s>\n' % _IncludeType[fileType].split(' ', 1)[0])

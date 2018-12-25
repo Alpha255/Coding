@@ -147,10 +147,10 @@ void D3D11StaticState::Initialize()
 		return;
 	}
 
-	PointSampler.Create(D3DState::ePoint, D3DState::eWrap, 0.0f, D3DState::eNever, nullptr, 0.0f, FLT_MAX);
-	PointClampSampler.Create(D3DState::ePoint, D3DState::eClamp, 0.0f, D3DState::eAlways, nullptr, 0.0f, FLT_MAX);
-	LinearSampler.Create(D3DState::eLinear, D3DState::eWrap, 0.0f, D3DState::eNever, nullptr, 0.0f, FLT_MAX);
-	AnisotropicSampler.Create(D3DState::eAnisotropic, D3DState::eWrap, 0.0f, D3DState::eNever, nullptr, 0.0f, FLT_MAX);
+	PointSampler.Create(ePoint, eWrap, 0.0f, D3DState::eNever, nullptr, 0.0f, FLT_MAX);
+	PointClampSampler.Create(ePoint, eClamp, 0.0f, D3DState::eAlways, nullptr, 0.0f, FLT_MAX);
+	LinearSampler.Create(eLinear, eWrap, 0.0f, D3DState::eNever, nullptr, 0.0f, FLT_MAX);
+	AnisotropicSampler.Create(eAnisotropic, eWrap, 0.0f, D3DState::eNever, nullptr, 0.0f, FLT_MAX);
 
 	Wireframe.Create(D3DState::eWireframe, D3DState::eCullBackFace, false, true, false);
 	Solid.Create(D3DState::eSolid, D3DState::eCullBackFace, false, true, false);
