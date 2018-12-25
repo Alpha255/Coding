@@ -3,7 +3,7 @@
 #include "Util/System.h"
 #include "Util/ResourceFile.h"
 
-void VulkanShader::Create(const char *pFileName)
+void VulkanShader::Create(const char *pFileName, const char *pEntryPoint)
 {
 	ResourceFile shaderFile(pFileName);
 
@@ -24,7 +24,7 @@ void VulkanShader::Create(const char *pFileName)
 
 	m_ShaderStage.flags = 0;
 	m_ShaderStage.module = m_Handle;
-	m_ShaderStage.pName = "main";
+	m_ShaderStage.pName = pEntryPoint;
 	m_ShaderStage.pNext = nullptr;
 	m_ShaderStage.pSpecializationInfo = nullptr;
 	m_ShaderStage.stage = m_Stage;

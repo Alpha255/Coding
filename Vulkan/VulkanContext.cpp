@@ -14,7 +14,7 @@ void VulkanContext::DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_
 
 void VulkanContext::Create(const VkPipelineShaderStageCreateInfo *pShaderStage, const size_t shaderCount)
 {
-	m_RenderTargetView.Create();
+	///m_RenderTargetView.Create();
 
 	VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
 	pipelineLayoutCreateInfo.setLayoutCount = 0;
@@ -121,7 +121,7 @@ void VulkanContext::Create(const VkPipelineShaderStageCreateInfo *pShaderStage, 
 	pipelineInfo.stageCount = shaderCount;
 	pipelineInfo.pStages = pShaderStage;
 
-	pipelineInfo.renderPass = m_RenderTargetView.Get();
+	///pipelineInfo.renderPass = m_RenderTargetView.Get();
 	pipelineInfo.subpass = 0;
 
 	pipelineInfo.layout = m_Layout;

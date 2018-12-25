@@ -4,14 +4,34 @@
 
 #include <d3dcompiler.h>
 
-void D3D11InputLayout::Create(D3D11Blob &blob, const D3D11_INPUT_ELEMENT_DESC *pInputElement, size_t elementSize)
+void D3D11InputLayout::Create(D3D11Blob &blob, const VertexLayout *pVertexLayout, size_t layoutCount)
 {
-	assert(blob.IsValid() && pInputElement && elementSize);
+	assert(blob.IsValid() && pVertexLayout && layoutCount);
 
-	ID3D11InputLayout *pLayout = nullptr;
-	HRCheck(D3D11Engine::Instance().GetDevice()->CreateInputLayout(pInputElement, (uint32_t)elementSize, blob->GetBufferPointer(), blob->GetBufferSize(), &pLayout));
+	std::vector<D3D11_INPUT_ELEMENT_DESC> inputDesc;
+	const VertexLayout *pLayout = pVertexLayout;
+	for (uint32_t i = 0U; i < layoutCount; ++i)
+	{
+		assert(pLayout->Semantic);
+		D3D11_INPUT_ELEMENT_DESC desc
+		{
+			pLayout->Semantic,
+			0U,
+			(DXGI_FORMAT)pLayout->Format,
+			0U,
+			pLayout->Offset,
+			D3D11_INPUT_PER_VERTEX_DATA,
+			0U
+		};
+		inputDesc.emplace_back(desc);
+		
+		++pLayout;
+	}
 
-	MakeObject(pLayout);
+	ID3D11InputLayout *pInputLayout = nullptr;
+	HRCheck(D3D11Engine::Instance().GetDevice()->CreateInputLayout(inputDesc.data(), (uint32_t)layoutCount, blob->GetBufferPointer(), blob->GetBufferSize(), &pInputLayout));
+
+	MakeObject(pInputLayout);
 }
 
 D3D11Blob D3D11Shader::CompileShaderFile(const char *pFileName, const char *pEntryPoint, const D3D_SHADER_MACRO *pMacros, ID3DInclude *pInclude)

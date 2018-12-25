@@ -1,10 +1,6 @@
 #pragma once
 
-#include "Util/Common.h"
-#include <vulkan/vulkan.h>
-#include <vulkan/vulkan_win32.h>
-
-#define VKCheck(func) if (VK_SUCCESS != (func)) { assert(0); }
+#include "VulkanTypes.h"
 
 template <typename T> class VulkanObject
 {

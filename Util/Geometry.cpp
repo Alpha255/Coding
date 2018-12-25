@@ -9,17 +9,17 @@ void Mesh::CreateRenderResource()
 	VertexCount = (uint32_t)m_Vertices.size();
 	IndexCount = (uint32_t)m_Indices.size();
 
-	const D3D11_INPUT_ELEMENT_DESC layout[] =
+	const VertexLayout layout[] =
 	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,  0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TANGENT",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "POSITION",  0, eRGB32_Float },
+		{ "NORMAL",   12, eRGB32_Float },
+		{ "TANGENT",  24, eRGB32_Float },
+		{ "TEXCOORD", 36, eRG32_Float  }
 	};
 
 	RVertexShader vertexShader;
-	vertexShader.Create("Mesh.hlsl", "VSMain");
-	VertexLayout.Create(vertexShader.GetBlob(), layout, _countof(layout));
+	vertexShader.Create("Mesh.hlsl", "main");
+	InputLayout.Create(vertexShader.GetBlob(), layout, _countof(layout));
 
 	VertexBuffer.CreateAsVertexBuffer(sizeof(Vertex) * m_Vertices.size(), eGpuReadOnly, m_Vertices.data());
 	IndexBuffer.CreateAsIndexBuffer(sizeof(uint32_t) * m_Indices.size(), eGpuReadOnly, m_Indices.data());
@@ -685,7 +685,7 @@ void Mesh::Bind(const Material *pMaterial)
 {
 	ApplyMaterial(pMaterial);
 
-	REngine::Instance().SetInputLayout(VertexLayout);
+	REngine::Instance().SetInputLayout(InputLayout);
 	REngine::Instance().SetVertexBuffer(VertexBuffer, sizeof(Vertex), 0U, 0U);
 	REngine::Instance().SetIndexBuffer(IndexBuffer, eR32_UInt, 0U);
 }

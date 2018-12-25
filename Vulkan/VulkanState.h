@@ -58,3 +58,13 @@ protected:
 private:
 	VkPipelineDepthStencilStateCreateInfo m_StateInfo = {};
 };
+
+class VulkanBlendState
+{
+
+};
+
+class VulkanStaticState
+{
+
+};

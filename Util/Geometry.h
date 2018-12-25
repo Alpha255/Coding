@@ -61,7 +61,7 @@ public:
 		return m_Created;
 	}
 
-	RInputLayout VertexLayout;
+	RInputLayout InputLayout;
 	RBuffer VertexBuffer;
 	RBuffer IndexBuffer;
 	uint32_t IndexCount = 0U;

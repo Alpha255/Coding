@@ -38,3 +38,10 @@ public:
 protected:
 private:
 };
+
+struct VertexLayout
+{
+	const char *Semantic = nullptr;
+	int32_t Offset = 0;
+	uint32_t Format = 0U;
+};

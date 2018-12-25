@@ -7,7 +7,7 @@ class D3D11Blob : public D3DObject<ID3DBlob> {};
 class D3D11InputLayout : public D3DObject<ID3D11InputLayout>
 {
 public:
-	void Create(D3D11Blob &blob, const D3D11_INPUT_ELEMENT_DESC *pInputElement, size_t elementSize);
+	void Create(D3D11Blob &blob, const VertexLayout *pVertexLayout, size_t layoutCount);
 };
 
 class D3D11Shader

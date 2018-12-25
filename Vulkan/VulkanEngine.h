@@ -1,8 +1,6 @@
 #pragma once
 
-#include "VulkanObject.h"
-#include "VulkanSwapChain.h"
-#include "Util/D3DMath.h"
+#include "VulkanContext.h"
 
 class VulkanEngine : public NoneCopyable
 {
@@ -48,10 +46,10 @@ public:
 		return m_PhysicalDevice;
 	}
 
-	inline const VulkanDevice &GetDevice() const
+	inline VkDevice GetDevice() const
 	{
 		assert(m_Device.IsValid());
-		return m_Device;
+		return m_Device.Get();
 	}
 
 	inline const VulkanInstance &GetInstance() const

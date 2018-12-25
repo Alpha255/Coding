@@ -27,8 +27,10 @@ uint32_t VulkanDeviceMemory::GetMemoryType(uint32_t memoryTypeBits, uint32_t mem
 	return memoryType;
 }
 
-void VulkanDeviceMemory::Create(size_t size, uint32_t memoryType, uint32_t flags)
+void VulkanDeviceMemory::Alloc(size_t size, uint32_t memoryType)
 {
+	assert(!IsValid());
+
 	VkMemoryAllocateInfo allocInfo
 	{
 		VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
@@ -36,24 +38,27 @@ void VulkanDeviceMemory::Create(size_t size, uint32_t memoryType, uint32_t flags
 		size,
 		memoryType
 	};
-	VKCheck(vkAllocateMemory(VulkanEngine::Instance().GetDevice().Get(), &allocInfo, nullptr, &m_Handle));
+	VKCheck(vkAllocateMemory(VulkanEngine::Instance().GetDevice(), &allocInfo, nullptr, &m_Handle));
 }
 
 void VulkanDeviceMemory::Update(const void *pMemory, size_t size, size_t offset)
 {
-	assert(IsValid());
+	assert(IsValid() && pMemory && size);
 
 	void *pDeviceMemory = nullptr;
-	VKCheck(vkMapMemory(VulkanEngine::Instance().GetDevice().Get(), m_Handle, offset, size, 0U, &pDeviceMemory));
+	VKCheck(vkMapMemory(VulkanEngine::Instance().GetDevice(), m_Handle, offset, size, 0U, &pDeviceMemory));
 
 	memcpy(pDeviceMemory, pMemory, size);
 
-	vkUnmapMemory(VulkanEngine::Instance().GetDevice().Get(), m_Handle);
+	vkUnmapMemory(VulkanEngine::Instance().GetDevice(), m_Handle);
 }
 
-void VulkanDeviceMemory::Destory()
+void VulkanDeviceMemory::Free()
 {
-	vkFreeMemory(VulkanEngine::Instance().GetDevice().Get(), m_Handle, nullptr);
+	assert(IsValid());
+
+	vkFreeMemory(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
+	m_Handle = VK_NULL_HANDLE;
 }
 
 void VulkanBuffer::Create(size_t size, uint32_t usage)
@@ -69,19 +74,19 @@ void VulkanBuffer::Create(size_t size, uint32_t usage)
 		0U,
 		nullptr
 	};
-	VKCheck(vkCreateBuffer(VulkanEngine::Instance().GetDevice().Get(), &createInfo, nullptr, &m_Handle));
+	VKCheck(vkCreateBuffer(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
 
-	VkMemoryRequirements memoryRequirements{};
-	vkGetBufferMemoryRequirements(VulkanEngine::Instance().GetDevice().Get(), m_Handle, &memoryRequirements);
+	VkMemoryRequirements memoryRequirements = {};
+	vkGetBufferMemoryRequirements(VulkanEngine::Instance().GetDevice(), m_Handle, &memoryRequirements);
 	
-	m_Memory.Create(size, VulkanDeviceMemory::GetMemoryType(memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT));
+	m_Memory.Alloc(size, VulkanDeviceMemory::GetMemoryType(memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT));
 }
 
 void VulkanBuffer::Destory()
 {
-	vkDestroyBuffer(VulkanEngine::Instance().GetDevice().Get(), m_Handle, nullptr);
+	vkDestroyBuffer(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
 
-	m_Memory.Destory();
+	m_Memory.Free();
 }
 
 void VulkanFrameBuffer::Create(uint32_t width, uint32_t height, const VulkanRenderPass renderPass, const VulkanTexture2D &tex)
@@ -99,5 +104,5 @@ void VulkanFrameBuffer::Create(uint32_t width, uint32_t height, const VulkanRend
 		1U
 	};
 
-	VKCheck(vkCreateFramebuffer(VulkanEngine::Instance().GetDevice().Get(), &createInfo, nullptr, &m_Handle));
+	VKCheck(vkCreateFramebuffer(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
 }

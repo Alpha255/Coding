@@ -9,3 +9,8 @@ public:
 protected:
 private:
 };
+
+class VulkanShaderResourceView
+{
+
+};

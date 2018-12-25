@@ -2,6 +2,12 @@
 
 #include "VulkanObject.h"
 
+class VulkanInputLayout
+{
+public:
+	void Create(const void *, const VertexLayout *pLayout, size_t layoutCount);
+};
+
 class VulkanShader : public VulkanObject<VkShaderModule>
 {
 public:
@@ -10,7 +16,7 @@ public:
 	{
 	}
 
-	void Create(const char *pFileName);
+	void Create(const char *pFileName, const char *pEntryPoint);
 
 	VkPipelineShaderStageCreateInfo GetShaderStage() const
 	{
@@ -28,6 +34,11 @@ public:
 	VulkanVertexShader()
 		: VulkanShader(VK_SHADER_STAGE_VERTEX_BIT)
 	{
+	}
+
+	inline void *GetBlob() const
+	{
+		return nullptr;
 	}
 protected:
 private:

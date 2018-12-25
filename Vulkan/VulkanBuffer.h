@@ -7,11 +7,11 @@ class VulkanDeviceMemory : public VulkanObject<VkDeviceMemory>
 public:
 	static uint32_t GetMemoryType(uint32_t memoryTypeBits, uint32_t memoryPropertyFlagBits);
 
-	void Create(size_t size, uint32_t memoryType, uint32_t flags = 0U);
+	void Alloc(size_t size, uint32_t memoryType);
 
 	void Update(const void *pMemory, size_t size, size_t offset);
 
-	void Destory();
+	void Free();
 protected:
 private:
 };
@@ -19,7 +19,38 @@ private:
 class VulkanBuffer : public VulkanObject<VkBuffer>
 {
 public:
-	void Create(size_t size, uint32_t usage);
+	inline void CreateAsVertexBuffer(
+		size_t byteWidth,
+		uint32_t usage,
+		const void *pData,
+		uint32_t bindFlags = 0U)
+	{
+		Create(byteWidth, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+
+		Update(pData, byteWidth, 0U);
+	}
+
+	inline void CreateAsIndexBuffer(
+		size_t byteWidth,
+		uint32_t usage,
+		const void *pData,
+		uint32_t bindFlags = 0U)
+	{
+		Create(byteWidth, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
+
+		Update(pData, byteWidth, 0U);
+	}
+
+	inline void CreateAsConstantBuffer(
+		size_t byteWidth,
+		uint32_t usage,
+		const void *pData,
+		uint32_t bindFlags = 0U)
+	{
+		Create(byteWidth, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+
+		Update(pData, byteWidth, 0U);
+	}
 
 	void Destory();
 
@@ -28,6 +59,7 @@ public:
 		m_Memory.Update(pMemory, size, offset);
 	}
 protected:
+	void Create(size_t size, uint32_t usage);
 private:
 	VulkanDeviceMemory m_Memory;
 };
@@ -43,12 +75,11 @@ protected:
 private:
 };
 
-
 class VulkanFrameBuffer : public VulkanObject<VkFramebuffer>
 {
 public:
-	void Create(uint32_t width, uint32_t height, const class VulkanRenderPass renderPass, const class VulkanTexture2D &tex);
 protected:
+	void Create(uint32_t width, uint32_t height, const class VulkanRenderPass renderPass, const class VulkanTexture2D &tex);
 private:
 };
 
