@@ -143,4 +143,17 @@ bool FileExists(const char *pFilePath)
 		!(attri & FILE_ATTRIBUTE_DIRECTORY));
 }
 
+void Log(const char *pFormatMsg, ...)
+{
+	static char message[MAX_PATH] = {};
+
+	va_list ap = nullptr;
+	va_start(ap, pFormatMsg);
+	_vsnprintf_s(message, MAX_PATH, pFormatMsg, ap);
+	va_end(ap);
+
+	strcat_s(message, "\n");
+	OutputDebugStringA(message);
+}
+
 NamespaceEnd(System)

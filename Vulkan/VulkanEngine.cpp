@@ -6,11 +6,14 @@ void VulkanEngine::Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool
 {
 	m_Instance.Create();
 
-	m_PhysicalDevice.Create();
+	m_Device.Create();
+
+	for (uint32_t i = 0U; i < m_CommandPools.size(); ++i)
+	{
+		m_CommandPools[i].Create((VulkanCommandPool::ePoolType)i);
+	}
 
 	m_Swapchain.Init(hWnd);
-
-	m_Device.Create();
 
 	m_Swapchain.Create(width, height, bWindowed);
 

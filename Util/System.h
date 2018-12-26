@@ -14,4 +14,6 @@ bool IsValidDirectory(const char *pTargetDir);
 
 bool FileExists(const char *pFilePath);
 
+void Log(const char *pFormatMsg, ...);
+
 NamespaceEnd(System)

@@ -1,17 +1,36 @@
 #include "VulkanPool.h"
 #include "VulkanEngine.h"
 
-void VulkanCommandPool::Create(uint32_t flags)
+void VulkanCommandPool::Create(ePoolType type)
 {
+	uint32_t flags = VK_COMMAND_POOL_CREATE_FLAG_BITS_MAX_ENUM;
+	switch (type)
+	{
+	case eTemp: flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;  break;
+	case eGeneral: flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;  break;
+	case eProtected: flags = VK_COMMAND_POOL_CREATE_PROTECTED_BIT; break;
+	case eGeneralTemp: flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT; break;
+	default:
+		assert(0);
+		break;
+	}
 	VkCommandPoolCreateInfo createInfo
 	{
 		VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
 		nullptr,
 		flags,
-		VulkanEngine::Instance().GetSwapchain().GetGraphicsQueueFamilyIndex()
+		VulkanEngine::Instance().GetVulkanDevice().GetQueueFamilyIndex()
 	};
 
 	VKCheck(vkCreateCommandPool(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
+}
+
+void VulkanCommandPool::Destory()
+{
+	assert(IsValid());
+
+	/// When a pool is destroyed, all command buffers allocated from the pool are freed
+	vkDestroyCommandPool(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
 }
 
 void VulkanDescriptorPool::Create(bool bUseTex)

@@ -5,6 +5,12 @@
 class VulkanDeviceMemory : public VulkanObject<VkDeviceMemory>
 {
 public:
+	VulkanDeviceMemory() = default;
+	inline ~VulkanDeviceMemory()
+	{
+		Free();
+	}
+
 	static uint32_t GetMemoryType(uint32_t memoryTypeBits, uint32_t memoryPropertyFlagBits);
 
 	void Alloc(size_t size, uint32_t memoryType);
@@ -62,6 +68,18 @@ protected:
 	void Create(size_t size, uint32_t usage);
 private:
 	VulkanDeviceMemory m_Memory;
+};
+
+class VulkanCommandBuffer : public VulkanObject<VkCommandBuffer>
+{
+public:
+	void Create(const class VulkanCommandPool &pool, uint32_t level, uint32_t count);
+
+	void Begin(uint32_t flags);
+
+	void End();
+protected:
+private:
 };
 
 class VulkanUniformBuffer : public VulkanBuffer

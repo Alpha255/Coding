@@ -4,27 +4,28 @@
 
 uint32_t VulkanDeviceMemory::GetMemoryType(uint32_t memoryTypeBits, uint32_t memoryPropertyFlagBits)
 {
-	/// Search memtypes to find first index with those properties
-	bool bValidMemoryType = false;
-	auto deviceMemoryProperties = VulkanEngine::Instance().GetPhysicalDevice().GetDeviceMemoryProperties();
-	uint32_t memoryType = 0U;
-	for (uint32_t i = 0; i < deviceMemoryProperties.memoryTypeCount; i++)
-	{
-		if ((memoryTypeBits & 1) == 1)
-		{
-			/// Type is available, does it match user properties?
-			if ((deviceMemoryProperties.memoryTypes[i].propertyFlags & memoryPropertyFlagBits) == memoryPropertyFlagBits)
-			{
-				memoryType = i;
-				bValidMemoryType = true;
-				break;
-			}
-		}
-		memoryTypeBits >>= 1;
-	}
-	assert(bValidMemoryType);
+	return 0;
+	///// Search memtypes to find first index with those properties
+	//bool bValidMemoryType = false;
+	//auto deviceMemoryProperties = VulkanEngine::Instance().GetPhysicalDevice().GetDeviceMemoryProperties();
+	//uint32_t memoryType = 0U;
+	//for (uint32_t i = 0; i < deviceMemoryProperties.memoryTypeCount; i++)
+	//{
+	//	if ((memoryTypeBits & 1) == 1)
+	//	{
+	//		/// Type is available, does it match user properties?
+	//		if ((deviceMemoryProperties.memoryTypes[i].propertyFlags & memoryPropertyFlagBits) == memoryPropertyFlagBits)
+	//		{
+	//			memoryType = i;
+	//			bValidMemoryType = true;
+	//			break;
+	//		}
+	//	}
+	//	memoryTypeBits >>= 1;
+	//}
+	//assert(bValidMemoryType);
 
-	return memoryType;
+	//return memoryType;
 }
 
 void VulkanDeviceMemory::Alloc(size_t size, uint32_t memoryType)
@@ -58,7 +59,8 @@ void VulkanDeviceMemory::Free()
 	assert(IsValid());
 
 	vkFreeMemory(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
-	m_Handle = VK_NULL_HANDLE;
+
+	Reset();
 }
 
 void VulkanBuffer::Create(size_t size, uint32_t usage)

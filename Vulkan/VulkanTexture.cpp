@@ -13,44 +13,44 @@ void VulkanImage::Create(
 	uint32_t usage,
 	uint32_t flags)
 {
-	VkFormatProperties fmtProperties{};
-	vkGetPhysicalDeviceFormatProperties(VulkanEngine::Instance().GetPhysicalDevice().Get(), (VkFormat)format, &fmtProperties);
-	VkImageTiling tiling = VK_IMAGE_TILING_MAX_ENUM;
+	//VkFormatProperties fmtProperties{};
+	//vkGetPhysicalDeviceFormatProperties(VulkanEngine::Instance().GetPhysicalDevice().Get(), (VkFormat)format, &fmtProperties);
+	//VkImageTiling tiling = VK_IMAGE_TILING_MAX_ENUM;
 
-	if (fmtProperties.linearTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
-	{
-		tiling = VK_IMAGE_TILING_LINEAR;
-	}
-	else if (fmtProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
-	{
-		tiling = VK_IMAGE_TILING_OPTIMAL;
-	}
-	else
-	{
-		assert(0);
-	}
+	//if (fmtProperties.linearTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
+	//{
+	//	tiling = VK_IMAGE_TILING_LINEAR;
+	//}
+	//else if (fmtProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
+	//{
+	//	tiling = VK_IMAGE_TILING_OPTIMAL;
+	//}
+	//else
+	//{
+	//	assert(0);
+	//}
 
-	assert(tiling != VK_IMAGE_TILING_MAX_ENUM);
-	VkImageCreateInfo imageCreateInfo
-	{
-		VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
-		nullptr,
-		0U,
-		VK_IMAGE_TYPE_2D,
-		(VkFormat)format,
-		{ width, height, depth },
-		mipLevels,
-		arrayLayers,
-		(VkSampleCountFlagBits)samples,
-		tiling,
-		(VkImageUsageFlags)usage,
-		VK_SHARING_MODE_EXCLUSIVE,
-		0U,
-		nullptr,
-		VK_IMAGE_LAYOUT_UNDEFINED
-	};
+	//assert(tiling != VK_IMAGE_TILING_MAX_ENUM);
+	//VkImageCreateInfo imageCreateInfo
+	//{
+	//	VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+	//	nullptr,
+	//	0U,
+	//	VK_IMAGE_TYPE_2D,
+	//	(VkFormat)format,
+	//	{ width, height, depth },
+	//	mipLevels,
+	//	arrayLayers,
+	//	(VkSampleCountFlagBits)samples,
+	//	tiling,
+	//	(VkImageUsageFlags)usage,
+	//	VK_SHARING_MODE_EXCLUSIVE,
+	//	0U,
+	//	nullptr,
+	//	VK_IMAGE_LAYOUT_UNDEFINED
+	//};
 
-	VKCheck(vkCreateImage(VulkanEngine::Instance().GetDevice(), &imageCreateInfo, nullptr, &m_Handle));
+	//VKCheck(vkCreateImage(VulkanEngine::Instance().GetDevice(), &imageCreateInfo, nullptr, &m_Handle));
 }
 
 void VulkanTexture2D::Create(

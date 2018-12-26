@@ -16,14 +16,20 @@ public:
 
 	inline VulkanObject(const VulkanObject &other)
 	{
-		assert(!IsValid());
-		if (m_Handle != other.m_Handle)
-		{
-			m_Handle = other.m_Handle;
-		}
+		m_Handle = other.m_Handle;
+	}
+
+	inline VulkanObject(const T &other)
+	{
+		m_Handle = other;
 	}
 
 	inline T *operator&()
+	{
+		return &m_Handle;
+	}
+
+	inline const T *operator&() const
 	{
 		assert(IsValid());
 		return &m_Handle;
@@ -32,10 +38,13 @@ public:
 	inline void operator=(const VulkanObject &other)
 	{
 		assert(!IsValid());
-		if (m_Handle != other.m_Handle)
-		{
-			m_Handle = other.m_Handle;
-		}
+		m_Handle = other.m_Handle;
+	}
+
+	inline void operator=(const T &other)
+	{
+		assert(!IsValid());
+		m_Handle = other;
 	}
 
 	inline bool IsValid() const
@@ -63,9 +72,9 @@ public:
 		return m_Handle != other;
 	}
 
-	inline void Reset()
+	inline void Reset(const T other = VK_NULL_HANDLE)
 	{
-		m_Handle = VK_NULL_HANDLE;
+		m_Handle = other;
 	}
 protected:
 	T m_Handle = VK_NULL_HANDLE;
@@ -90,61 +99,64 @@ public:
 	}
 protected:
 private:
-	std::vector<std::string> m_SupportedLayers;
-	std::vector<std::string> m_SupportedExtension;
-
 	std::vector<VkLayerProperties> m_LayerProperties;
 	std::vector<VkExtensionProperties> m_ExtensionProperties;
 };
 
-class VulkanPhysicalDevice : public VulkanObject<VkPhysicalDevice> 
+typedef VulkanObject<VkPhysicalDevice> VulkanPhysicalDevice;
+class VulkanLogicalDevice : public VulkanObject<VkDevice> {};
+class VulkanQueue : public VulkanObject<VkQueue> {};
+
+class VulkanDevice
 {
 public:
-	void Create();
+	VulkanDevice() = default;
+	~VulkanDevice() = default;
 
-	inline const std::vector<VkQueueFamilyProperties> &GetQueueFamilyProperties() const
+	inline void Create()
 	{
-		return m_QueueFamilyProperties;
+		GetPhysicalDevice();
+
+		CreateLogicalDevice();
 	}
 
-	inline const VkPhysicalDeviceMemoryProperties &GetDeviceMemoryProperties() const
+	inline VkDevice GetLogicalDevice() const
 	{
-		return m_DeviceMemoryProperties;
+		assert(m_LogicalDevice.IsValid());
+		return m_LogicalDevice.Get();
 	}
 
-protected:
-	void InitExtensionProperties();
-private:
-	std::vector<VkQueueFamilyProperties> m_QueueFamilyProperties;
-	std::vector<VkExtensionProperties> m_ExtensionProperties;
-	VkPhysicalDeviceMemoryProperties m_DeviceMemoryProperties = {};
-	VkPhysicalDeviceProperties m_DeviceProperties = {};
-};
-
-class VulkanDevice : public VulkanObject<VkDevice>
-{
-public:
-	void Create();
+	inline VkPhysicalDevice GetPhysicalDevice(uint32_t index = 0U) const
+	{
+		assert(index < m_PhysicalDevices.size() && m_PhysicalDevices.at(index).IsValid());
+		return m_PhysicalDevices.at(index).Get();
+	}
 
 	inline VkQueue GetQueue() const
 	{
-		return m_Queue;
+		assert(m_DeviceQueue.IsValid());
+		return m_DeviceQueue.Get();
+	}
+
+	inline uint32_t GetQueueFamilyIndex() const
+	{
+		assert(m_QueueFamilyIndex != UINT_MAX);
+		return m_QueueFamilyIndex;
 	}
 protected:
+	void GetPhysicalDevice();
+	void CreateLogicalDevice();
+	void VerifyPhysicalFeatures(VkPhysicalDeviceFeatures &enableFeatures);
 private:
-	VkQueue m_Queue = 0;
-};
-
-class VulkanCommandBuffer : public VulkanObject<VkCommandBuffer>
-{
-public:
-	void Create(const class VulkanCommandPool &pool, uint32_t level, uint32_t count);
-
-	void Begin(uint32_t flags);
-
-	void End();
-protected:
-private:
+	uint32_t m_QueueFamilyIndex = UINT_MAX;
+	std::vector<VulkanPhysicalDevice> m_PhysicalDevices;
+	VulkanLogicalDevice m_LogicalDevice;
+	VulkanQueue m_DeviceQueue;
+	std::vector<VkLayerProperties> m_LayerProperties;
+	std::vector<VkExtensionProperties> m_ExtensionProperties;
+	VkPhysicalDeviceFeatures m_EnabledFeatures = {};
+	VkPhysicalDeviceProperties m_PhysicalProperties = {};
+	VkPhysicalDeviceMemoryProperties m_PhysicalMemoryProperties = {};
 };
 
 class VulkanRenderPass : public VulkanObject<VkRenderPass>
@@ -205,7 +217,7 @@ private:
 class VulkanViewport : public VkViewport
 {
 public:
-	VulkanViewport(
+	inline VulkanViewport(
 		float w,
 		float h,
 		float depthMin = 0.0f,

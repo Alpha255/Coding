@@ -1,19 +1,37 @@
 #pragma once
 
 #include "VulkanObject.h"
+#include "VulkanBuffer.h"
 
 class VulkanCommandPool : public VulkanObject<VkCommandPool>
 {
 public:
-	void Create(uint32_t flags);
+	enum ePoolType
+	{
+		eTemp,
+		eGeneral,
+		eProtected,
+		eGeneralTemp,
+		ePoolTypeCount
+	};
 
-	inline VulkanCommandBuffer AllocCommandBuffer(uint32_t level, uint32_t count)
+	VulkanCommandPool() = default;
+	inline ~VulkanCommandPool()
+	{
+		Destory();
+	}
+
+	void Create(ePoolType type);
+
+	inline VulkanCommandBuffer Alloc(uint32_t level, uint32_t count)
 	{
 		VulkanCommandBuffer buffer;
 		buffer.Create(*this, level, count);
 
 		return buffer;
 	}
+
+	void Destory();
 protected:
 private:
 };

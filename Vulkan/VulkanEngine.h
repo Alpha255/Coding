@@ -40,22 +40,25 @@ public:
 
 	}
 
-	inline const VulkanPhysicalDevice &GetPhysicalDevice() const
+	inline VulkanCommandBuffer AllocCommandBuffer(VulkanCommandPool::ePoolType type, size_t size)
 	{
-		assert(m_PhysicalDevice.IsValid());
-		return m_PhysicalDevice;
+		assert(type < VulkanCommandPool::ePoolTypeCount && m_CommandPools[type].IsValid());
+		return m_CommandPools[type].Alloc(0 , 1);
+	}
+
+	inline const VulkanDevice &GetVulkanDevice() const
+	{
+		return m_Device;
 	}
 
 	inline VkDevice GetDevice() const
 	{
-		assert(m_Device.IsValid());
-		return m_Device.Get();
+		return m_Device.GetLogicalDevice();
 	}
 
-	inline const VulkanInstance &GetInstance() const
+	inline VkInstance GetInstance() const
 	{
-		assert(m_Instance.IsValid());
-		return m_Instance;
+		return m_Instance.Get();
 	}
 
 	inline VulkanSwapchain &GetSwapchain()
@@ -74,10 +77,10 @@ protected:
 private:
 	static std::unique_ptr<VulkanEngine, std::function<void(VulkanEngine *)>> s_Instance;
 
-	VulkanPhysicalDevice m_PhysicalDevice;
 	VulkanDevice m_Device;
 	VulkanSwapchain m_Swapchain;
 	VulkanInstance m_Instance;
+	std::array<VulkanCommandPool, VulkanCommandPool::ePoolTypeCount> m_CommandPools;
 
 	bool m_Inited = false;
 };
