@@ -33,6 +33,64 @@ void VulkanCommandPool::Destory()
 	vkDestroyCommandPool(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
 }
 
+VulkanCommandBuffer VulkanCommandPool::Alloc(eBufferType type)
+{
+	assert(IsValid());
+
+	VkCommandBufferAllocateInfo allocInfo
+	{
+		VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+		nullptr,
+		m_Handle,
+		(VkCommandBufferLevel)type,
+		1U
+	};
+
+	VulkanCommandBuffer newCmdBuffer;
+	VKCheck(vkAllocateCommandBuffers(VulkanEngine::Instance().GetDevice(), &allocInfo, &newCmdBuffer));
+
+	return newCmdBuffer;
+}
+
+VulkanCommandBufferList VulkanCommandPool::Alloc(eBufferType type, uint32_t count)
+{
+	assert(IsValid());
+
+	VkCommandBufferAllocateInfo allocInfo
+	{
+		VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+		nullptr,
+		m_Handle,
+		(VkCommandBufferLevel)type,
+		count
+	};
+
+	std::vector<VkCommandBuffer> bufferList(count);
+	VKCheck(vkAllocateCommandBuffers(VulkanEngine::Instance().GetDevice(), &allocInfo, bufferList.data()));
+
+	VulkanCommandBufferList newCmdBufferList(bufferList);
+
+	return newCmdBufferList;
+}
+
+void VulkanCommandPool::Free(VulkanCommandBuffer &cmdBuffer)
+{
+	assert(IsValid());
+
+	vkFreeCommandBuffers(VulkanEngine::Instance().GetDevice(), m_Handle, 1U, &cmdBuffer);
+
+	cmdBuffer.Reset();
+}
+
+void VulkanCommandPool::Free(VulkanCommandBufferList &cmdBufferList)
+{
+	assert(IsValid());
+
+	vkFreeCommandBuffers(VulkanEngine::Instance().GetDevice(), m_Handle, cmdBufferList.GetCount(), &cmdBufferList);
+
+	cmdBufferList.Reset();
+}
+
 void VulkanDescriptorPool::Create(bool bUseTex)
 {
 	VkDescriptorPoolSize poolSize[2]{};

@@ -5,7 +5,7 @@
 
 void VulkanInstance::Create(const char *pApplicationName, const char *pEngineName)
 {
-	assert(pApplicationName && pEngineName);
+	assert(!IsValid() && pApplicationName && pEngineName);
 
 	uint32_t count = 0U;
 	VKCheck(vkEnumerateInstanceLayerProperties(&count, nullptr));
@@ -75,9 +75,45 @@ void VulkanDevice::VerifyPhysicalFeatures(VkPhysicalDeviceFeatures &enableFeatur
 	} while (pStart != pEnd);
 }
 
+uint32_t VulkanDevice::GetOptimalSurfaceFormat(uint32_t flags, bool bDepthSurface) const
+{
+	assert(m_PhysicalDevices[m_QueueFamilyIndex].IsValid());
+
+	VkFormat result = VK_FORMAT_UNDEFINED;
+
+	static const VkFormat colorFormats[] =
+	{
+		VK_FORMAT_B8G8R8A8_UNORM,
+	};
+
+	static const VkFormat depthFormats[] =
+	{
+		VK_FORMAT_D24_UNORM_S8_UINT,
+		VK_FORMAT_D32_SFLOAT_S8_UINT,
+		VK_FORMAT_D16_UNORM_S8_UINT,
+	};
+
+	const VkFormat *pTargetFormats = bDepthSurface ? depthFormats : colorFormats;
+	uint32_t count = bDepthSurface ? _countof(depthFormats) : _countof(colorFormats);
+	for (uint32_t i = 0; i < count; ++i)
+	{
+		VkFormatProperties formatProperties = {};
+		vkGetPhysicalDeviceFormatProperties(m_PhysicalDevices[m_QueueFamilyIndex].Get(), *pTargetFormats, &formatProperties);
+		if (formatProperties.optimalTilingFeatures & flags)
+		{
+			result = *pTargetFormats;
+			break;
+		}
+		++pTargetFormats;
+	}
+
+
+	return result;
+}
+
 void VulkanDevice::CreateLogicalDevice()
 {
-	assert(m_PhysicalDevices.size() > 0U);
+	assert(!m_LogicalDevice.IsValid() && m_PhysicalDevices.size() > 0U);
 
 	VkPhysicalDevice physicalDeviceInUsing = VK_NULL_HANDLE;
 	for each (auto &physicalDevice in m_PhysicalDevices)
@@ -157,38 +193,6 @@ void VulkanDevice::CreateLogicalDevice()
 	vkGetPhysicalDeviceProperties(physicalDeviceInUsing, &m_PhysicalProperties);
 
 	vkGetPhysicalDeviceMemoryProperties(physicalDeviceInUsing, &m_PhysicalMemoryProperties);
-}
-
-void VulkanCommandBuffer::Create(const VulkanCommandPool &pool, uint32_t level, uint32_t count)
-{
-	VkCommandBufferAllocateInfo allocInfo
-	{
-		VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-		nullptr,
-		pool.Get(),
-		(VkCommandBufferLevel)level,
-		count
-	};
-
-	VKCheck(vkAllocateCommandBuffers(VulkanEngine::Instance().GetDevice(), &allocInfo, &m_Handle));
-}
-
-void VulkanCommandBuffer::Begin(uint32_t flags)
-{
-	VkCommandBufferBeginInfo beginInfo
-	{
-		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-		nullptr,
-		(VkCommandBufferUsageFlags)flags,
-		nullptr
-	};
-
-	VKCheck(vkBeginCommandBuffer(m_Handle, &beginInfo));
-}
-
-void VulkanCommandBuffer::End()
-{
-	VKCheck(vkEndCommandBuffer(m_Handle));
 }
 
 void VulkanRenderPass::Create(bool depth, uint32_t colorFormat, uint32_t depthFormat, bool clear, uint32_t imageLayout)

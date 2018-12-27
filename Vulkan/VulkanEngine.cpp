@@ -13,9 +13,7 @@ void VulkanEngine::Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool
 		m_CommandPools[i].Create((VulkanCommandPool::ePoolType)i);
 	}
 
-	m_Swapchain.Init(hWnd);
-
-	m_Swapchain.Create(width, height, bWindowed);
+	m_Swapchain.Create(hWnd, width, height, bWindowed);
 
 	m_Inited = true;
 }

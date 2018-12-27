@@ -15,6 +15,12 @@ public:
 		ePoolTypeCount
 	};
 
+	enum eBufferType
+	{
+		ePrimary = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+		eSecondary = VK_COMMAND_BUFFER_LEVEL_SECONDARY
+	};
+
 	VulkanCommandPool() = default;
 	inline ~VulkanCommandPool()
 	{
@@ -23,13 +29,11 @@ public:
 
 	void Create(ePoolType type);
 
-	inline VulkanCommandBuffer Alloc(uint32_t level, uint32_t count)
-	{
-		VulkanCommandBuffer buffer;
-		buffer.Create(*this, level, count);
+	VulkanCommandBuffer Alloc(eBufferType type);
+	VulkanCommandBufferList Alloc(eBufferType type, uint32_t count);
 
-		return buffer;
-	}
+	void Free(VulkanCommandBuffer &cmdBuffer);
+	void Free(VulkanCommandBufferList &cmdBufferList);
 
 	void Destory();
 protected:

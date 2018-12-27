@@ -73,13 +73,89 @@ private:
 class VulkanCommandBuffer : public VulkanObject<VkCommandBuffer>
 {
 public:
-	void Create(const class VulkanCommandPool &pool, uint32_t level, uint32_t count);
+	inline VulkanCommandBuffer() = default;
+	inline VulkanCommandBuffer(VkCommandBuffer cmdBuffer)
+		: VulkanObject<VkCommandBuffer>(cmdBuffer)
+	{
+	}
 
-	void Begin(uint32_t flags);
+	inline void Begin(uint32_t flags)
+	{
+		assert(IsValid());
 
-	void End();
+		VkCommandBufferBeginInfo beginInfo
+		{
+			VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+			nullptr,
+			(VkCommandBufferUsageFlags)flags,
+			nullptr
+		};
+
+		VKCheck(vkBeginCommandBuffer(m_Handle, &beginInfo));
+	}
+
+	inline void Execute(VulkanCommandBuffer &primaryCmdBuffer)
+	{
+		assert(IsValid() && primaryCmdBuffer.IsValid());
+
+		vkCmdExecuteCommands(primaryCmdBuffer.Get(), 1U, &m_Handle);
+	}
+
+	inline void End()
+	{
+		assert(IsValid());
+
+		VKCheck(vkEndCommandBuffer(m_Handle));
+	}
+
+	inline void ResetCommand(uint32_t flags)
+	{
+		assert(IsValid());
+
+		VKCheck(vkResetCommandBuffer(m_Handle, (VkCommandBufferResetFlags)flags));
+	}
 protected:
 private:
+};
+
+class VulkanCommandBufferList
+{
+public:
+	inline VulkanCommandBufferList(const std::vector<VkCommandBuffer> &other)
+		: m_BufferList(other)
+	{
+	}
+
+	inline void Execute(VulkanCommandBuffer &primaryCmdBuffer)
+	{
+		assert(m_BufferList.size() > 0U);
+
+		vkCmdExecuteCommands(primaryCmdBuffer.Get(), (uint32_t)m_BufferList.size(), m_BufferList.data());
+	}
+
+	inline uint32_t GetCount() const
+	{
+		return (uint32_t)m_BufferList.size();
+	}
+
+	inline VkCommandBuffer *operator&()
+	{
+		return m_BufferList.data();
+	}
+
+	inline VulkanCommandBuffer operator[](uint32_t index)
+	{
+		assert(index < m_BufferList.size() && m_BufferList[index] != VK_NULL_HANDLE);
+		return VulkanCommandBuffer(m_BufferList[index]);
+	}
+
+	inline void Reset()
+	{
+		m_BufferList.clear();
+	}
+protected:
+private:
+	std::vector<VkCommandBuffer> m_BufferList;
 };
 
 class VulkanUniformBuffer : public VulkanBuffer

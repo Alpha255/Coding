@@ -9,54 +9,56 @@ class VulkanSurface : public VulkanObject<VkSurfaceKHR>
 {
 public:
 	void Create(::HWND hWnd);
+
+	inline const VkSurfaceCapabilitiesKHR &GetCapabilities() const
+	{
+		assert(IsValid());
+		return m_Capabilities;
+	}
+
+	inline const std::vector<VkPresentModeKHR> &GetPresentMode() const
+	{
+		assert(IsValid());
+		return m_PresentMode;
+	}
+
+	inline const std::vector<VkSurfaceFormatKHR> &GetFormats() const
+	{
+		assert(IsValid());
+		return m_Formats;
+	}
 protected:
 private:
+	VkSurfaceCapabilitiesKHR m_Capabilities = {};
+	std::vector<VkPresentModeKHR> m_PresentMode;
+	std::vector<VkSurfaceFormatKHR> m_Formats;
 };
 
 class VulkanSwapchain : public VulkanObject<VkSwapchainKHR>
 {
 public:
-	void Init(::HWND hWnd);
+	void Create(::HWND hWnd, uint32_t uWidth, uint32_t uHeight, bool bWindowed = true);
+	void Resize(uint32_t uWidth, uint32_t uHeight);
 
-	void Create(uint32_t width, uint32_t height, bool bWindowed = true);
-
-	void CreateFrameBuffer(uint32_t width, uint32_t height, VkRenderPass renderPass);
-
-	inline uint32_t GetGraphicsQueueFamilyIndex() const
+	inline void SetVSync(bool bVSync)
 	{
-		assert(m_GraphicsQueueFamilyIndex != UINT32_MAX);
-		return m_GraphicsQueueFamilyIndex;
+		assert(IsValid());
+		m_bVSync = bVSync;
 	}
 
-	inline uint32_t GetPresentQueueFamilyIndex() const
+	inline void SetFullScreen(bool bFullScreen)
 	{
-		assert(m_PresentQueueFamilyIndex != UINT32_MAX);
-		return m_PresentQueueFamilyIndex;
-	}
-
-	inline uint32_t GetFormat() const
-	{
-		assert(m_Format != VK_FORMAT_UNDEFINED);
-		return m_Format;
-	}
-
-	struct FrameImage
-	{
-		VulkanDeviceMemory Memory;
-		VkImage Image;
-		VkImageView View;
-		VkFramebuffer FrameBuffer;
-	};
-
-	inline FrameImage GetImage(uint32_t index) const
-	{
-		return m_Images[index];
+		assert(IsValid());
+		m_bFullScreen = bFullScreen;
 	}
 protected:
+	void CreateFrameBuffer(uint32_t width, uint32_t height, VkRenderPass renderPass);
 private:
 	VulkanSurface m_Surface;
-	uint32_t m_GraphicsQueueFamilyIndex = UINT32_MAX;
-	uint32_t m_PresentQueueFamilyIndex = UINT32_MAX;
-	uint32_t m_Format = VK_FORMAT_UNDEFINED;
-	FrameImage m_Images[3] = {};
+	VkExtent2D m_Size = {};
+	VkPresentModeKHR m_PresentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
+	VkFormat m_ColorSurfaceFormat = VK_FORMAT_UNDEFINED;
+	VkFormat m_DepthSurfaceFormat = VK_FORMAT_UNDEFINED;
+	bool m_bVSync = false;
+	bool m_bFullScreen = false;
 };

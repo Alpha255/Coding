@@ -40,11 +40,11 @@ public:
 
 	}
 
-	inline VulkanCommandBuffer AllocCommandBuffer(VulkanCommandPool::ePoolType type, size_t size)
-	{
-		assert(type < VulkanCommandPool::ePoolTypeCount && m_CommandPools[type].IsValid());
-		return m_CommandPools[type].Alloc(0 , 1);
-	}
+	//inline VulkanCommandBuffer AllocCommandBuffer(VulkanCommandPool::ePoolType type, size_t size)
+	//{
+	//	assert(type < VulkanCommandPool::ePoolTypeCount && m_CommandPools[type].IsValid());
+	//	return m_CommandPools[type].Alloc(0 , 1);
+	//}
 
 	inline const VulkanDevice &GetVulkanDevice() const
 	{

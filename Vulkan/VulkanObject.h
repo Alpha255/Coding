@@ -143,6 +143,14 @@ public:
 		assert(m_QueueFamilyIndex != UINT_MAX);
 		return m_QueueFamilyIndex;
 	}
+
+	inline const VkPhysicalDeviceMemoryProperties &GetPhysicalDeviceMemoryProperties() const
+	{
+		assert(m_PhysicalDevices[m_QueueFamilyIndex].IsValid());
+		return m_PhysicalMemoryProperties;
+	}
+
+	uint32_t GetOptimalSurfaceFormat(uint32_t flags, bool bDepthSurface) const;
 protected:
 	void GetPhysicalDevice();
 	void CreateLogicalDevice();
