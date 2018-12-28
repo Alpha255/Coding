@@ -34,9 +34,9 @@ public:
 	//{
 	//}
 
-	//inline void DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, uint32_t primitive)
-	//{
-	//}
+	inline void DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, uint32_t primitive)
+	{
+	}
 
 	//inline void ClearRenderSurface(const Vec4 &color = Color::DarkBlue)
 	//{

@@ -42,6 +42,7 @@ private:
 struct VertexLayout
 {
 	const char *Semantic = nullptr;
-	uint32_t Offset = 0;
+	size_t Stride = 0U;
+	uint32_t Offset = 0U;
 	uint32_t Format = 0U;
 };

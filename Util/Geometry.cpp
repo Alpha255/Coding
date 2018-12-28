@@ -11,10 +11,10 @@ void Mesh::CreateRenderResource()
 
 	const VertexLayout layout[] =
 	{
-		{ "POSITION",  0, eRGB32_Float },
-		{ "NORMAL",   12, eRGB32_Float },
-		{ "TANGENT",  24, eRGB32_Float },
-		{ "TEXCOORD", 36, eRG32_Float  }
+		{ "POSITION", sizeof(Vertex::Position), 0, eRGB32_Float },
+		{ "NORMAL",   sizeof(Vertex::Normal),  12, eRGB32_Float },
+		{ "TANGENT",  sizeof(Vertex::Tangent), 24, eRGB32_Float },
+		{ "TEXCOORD", sizeof(Vertex::UV),      36, eRG32_Float  }
 	};
 
 	RVertexShader vertexShader;

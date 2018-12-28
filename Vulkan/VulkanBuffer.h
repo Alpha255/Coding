@@ -11,9 +11,9 @@ public:
 		Free();
 	}
 
-	static uint32_t GetMemoryType(uint32_t memoryTypeBits, uint32_t memoryPropertyFlagBits);
+	static uint32_t GetMemoryTypeIndex(uint32_t memoryTypeBits, uint32_t memoryPropertyFlagBits);
 
-	void Alloc(size_t size, uint32_t memoryType);
+	void Alloc(size_t size, uint32_t memoryTypeIndex);
 
 	void Update(const void *pMemory, size_t size, size_t offset);
 

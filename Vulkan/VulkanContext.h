@@ -5,6 +5,8 @@
 #include "VulkanShader.h"
 #include "VulkanView.h"
 #include "VulkanState.h"
+#include "VulkanPool.h"
+#include "VulkanTexture.h"
 #include "Util/D3DMath.h"
 
 class VulkanContext : public VulkanObject<VkPipeline>

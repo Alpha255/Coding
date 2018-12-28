@@ -3,8 +3,8 @@
 
 void AppBox::InitScene()
 {
-#if 0
 	m_BoxMesh.CreateAsCube(1.0f);
+#if 0
 	m_DiffuseTex.Create("WoodCrate01.dds");
 
 	m_VertexShader.Create("Box.hlsl", "VSMain");

@@ -64,15 +64,15 @@ enum eRPrimitiveTopology
 
 enum eRViewType
 {
-	eUnknownViewType,
+	eTexture1D = VK_IMAGE_VIEW_TYPE_1D,
+	eTexture2D = VK_IMAGE_VIEW_TYPE_2D,
+	eTexture3D = VK_IMAGE_VIEW_TYPE_3D,
+	eTextureCube = VK_IMAGE_VIEW_TYPE_CUBE,
+	eTexture1DArray = VK_IMAGE_VIEW_TYPE_1D_ARRAY,
+	eTexture2DArray = VK_IMAGE_VIEW_TYPE_2D_ARRAY,
+	eTextureCubeArray = VK_IMAGE_VIEW_TYPE_CUBE_ARRAY,
 	eBuffer,
-	eTexture1D,
-	eTexture2D,
-	eTexture3D,
-	eTextureCube,
-	eTexture1DArray,
-	eTexture2DArray,
-	eTextureCubeArray,
+	eUnknownViewType
 };
 
 enum eRTextureFilter

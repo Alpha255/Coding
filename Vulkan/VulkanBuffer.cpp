@@ -2,20 +2,20 @@
 #include "VulkanTexture.h"
 #include "VulkanEngine.h"
 
-uint32_t VulkanDeviceMemory::GetMemoryType(uint32_t memoryTypeBits, uint32_t memoryPropertyFlagBits)
+uint32_t VulkanDeviceMemory::GetMemoryTypeIndex(uint32_t memoryTypeBits, uint32_t memoryPropertyFlagBits)
 {
 	/// Search memtypes to find first index with those properties
 	bool bValidMemoryType = false;
 	auto &deviceMemoryProperties = VulkanEngine::Instance().GetVulkanDevice().GetPhysicalDeviceMemoryProperties();
-	uint32_t memoryType = 0U;
-	for (uint32_t i = 0; i < deviceMemoryProperties.memoryTypeCount; i++)
+	uint32_t memoryTypeIndex = 0U;
+	for (uint32_t i = 0; i < deviceMemoryProperties.memoryTypeCount; ++i)
 	{
 		if (memoryTypeBits & 1)
 		{
 			/// Type is available, does it match user properties?
 			if ((deviceMemoryProperties.memoryTypes[i].propertyFlags & memoryPropertyFlagBits) == memoryPropertyFlagBits)
 			{
-				memoryType = i;
+				memoryTypeIndex = i;
 				bValidMemoryType = true;
 				break;
 			}
@@ -24,10 +24,10 @@ uint32_t VulkanDeviceMemory::GetMemoryType(uint32_t memoryTypeBits, uint32_t mem
 	}
 	assert(bValidMemoryType);
 
-	return memoryType;
+	return memoryTypeIndex;
 }
 
-void VulkanDeviceMemory::Alloc(size_t size, uint32_t memoryType)
+void VulkanDeviceMemory::Alloc(size_t size, uint32_t memoryTypeIndex)
 {
 	assert(!IsValid());
 
@@ -36,7 +36,7 @@ void VulkanDeviceMemory::Alloc(size_t size, uint32_t memoryType)
 		VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
 		nullptr,
 		size,
-		memoryType
+		memoryTypeIndex
 	};
 	VKCheck(vkAllocateMemory(VulkanEngine::Instance().GetDevice(), &allocInfo, nullptr, &m_Handle));
 }
@@ -55,9 +55,11 @@ void VulkanDeviceMemory::Update(const void *pMemory, size_t size, size_t offset)
 
 void VulkanDeviceMemory::Free()
 {
-	assert(IsValid());
-
-	vkFreeMemory(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
+	///assert(IsValid());
+	if (IsValid())
+	{
+		vkFreeMemory(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
+	}
 
 	Reset();
 }
@@ -82,7 +84,7 @@ void VulkanBuffer::Create(size_t size, uint32_t usage)
 	VkMemoryRequirements memoryRequirements = {};
 	vkGetBufferMemoryRequirements(VulkanEngine::Instance().GetDevice(), m_Handle, &memoryRequirements);
 	
-	m_Memory.Alloc(size, VulkanDeviceMemory::GetMemoryType(memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT));
+	m_Memory.Alloc(size, VulkanDeviceMemory::GetMemoryTypeIndex(memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT));
 }
 
 void VulkanBuffer::Destory()

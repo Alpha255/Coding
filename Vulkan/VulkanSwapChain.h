@@ -1,9 +1,6 @@
 #pragma once
 
-#include "VulkanObject.h"
-#include "VulkanTexture.h"
-#include "VulkanBuffer.h"
-#include "VulkanPool.h"
+#include "VulkanView.h"
 
 class VulkanSurface : public VulkanObject<VkSurfaceKHR>
 {
@@ -61,6 +58,8 @@ private:
 	VkPresentModeKHR m_PresentMode = VK_PRESENT_MODE_MAX_ENUM_KHR;
 	VkFormat m_ColorSurfaceFormat = VK_FORMAT_UNDEFINED;
 	VkFormat m_DepthSurfaceFormat = VK_FORMAT_UNDEFINED;
+	std::vector<VulkanRenderTargetView> m_RenderTargetViews;
+	VulkanDepthStencilView m_DepthStencilView;
 	bool m_bVSync = false;
 	bool m_bFullScreen = false;
 };

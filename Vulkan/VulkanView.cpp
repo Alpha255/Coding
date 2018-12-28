@@ -1,52 +1,106 @@
 #include "VulkanView.h"
 #include "VulkanEngine.h"
 
-void VulkanRenderTargetView::Create()
+void VulkanImage::Create(
+	uint32_t type,
+	uint32_t width, 
+	uint32_t height, 
+	uint32_t format, 
+	uint32_t mipLevels, 
+	uint32_t usage,
+	uint32_t layout)
 {
-	//VkAttachmentDescription attachments[2] = {};
-	//attachments[0].format = (VkFormat)VulkanEngine::Instance().GetSwapchain().GetFormat();
-	//attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
-	//attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	//attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-	//attachments[0].initialLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-	//attachments[0].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-	//attachments[0].flags = 0;
+	assert(!IsValid() && type <= VK_IMAGE_TYPE_END_RANGE);
 
-	//attachments[1].format = VK_FORMAT_D24_UNORM_S8_UINT;
-	//attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
-	//attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	//attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-	//attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	//attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
-	//attachments[1].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-	//attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-	//attachments[1].flags = 0;
+	m_Property = 
+	{ 
+		type,
+		width,
+		height,
+		format,
+		mipLevels,
+		usage,
+		layout
+	};
 
-	//VkSubpassDescription subPass;
-	//subPass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-	//subPass.inputAttachmentCount = 0;
-	//subPass.pInputAttachments = NULL;
+	VkImageCreateInfo createInfo
+	{
+		VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+		nullptr,
+		0U,
+		(VkImageType)type,
+		(VkFormat)format,
+		{ width, height, 1U },
+		mipLevels,
+		1U,
+		VK_SAMPLE_COUNT_1_BIT,
+		VK_IMAGE_TILING_OPTIMAL,
+		(VkImageUsageFlags)usage,
+		VK_SHARING_MODE_EXCLUSIVE,
+		0U,
+		nullptr,
+		(VkImageLayout)layout
+	};
 
-	//VkAttachmentReference colorRefs[1] = { { 0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL } };
-	//subPass.colorAttachmentCount = _countof(colorRefs);
-	//subPass.pColorAttachments = colorRefs;
-	//subPass.flags = 0;
+	VKCheck(vkCreateImage(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
 
-	//VkAttachmentReference depthRefs[1] = { { 1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL } };
+	VkMemoryRequirements memReq = {};
+	vkGetImageMemoryRequirements(VulkanEngine::Instance().GetDevice(), m_Handle, &memReq);
+	m_Memory.Alloc(memReq.size, VulkanDeviceMemory::GetMemoryTypeIndex(memReq.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
 
-	//subPass.pDepthStencilAttachment = depthRefs;
+	VKCheck(vkBindImageMemory(VulkanEngine::Instance().GetDevice(), m_Handle, m_Memory.Get(), 0));
+}
 
-	//subPass.preserveAttachmentCount = 0;
-	//subPass.pPreserveAttachments = NULL;
-	//subPass.pResolveAttachments = NULL;
+void VulkanImageView::Create(VulkanImage &image)
+{
+	assert(!IsValid() && image.IsValid());
 
-	//VkRenderPassCreateInfo rpInfo = { VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO };
-	//rpInfo.pAttachments = attachments;
-	//rpInfo.attachmentCount = _countof(attachments);
-	//rpInfo.pSubpasses = &subPass;
-	//rpInfo.subpassCount = 1;
-	//rpInfo.pDependencies = NULL;
-	//rpInfo.dependencyCount = 0;
+	auto imageProperty = image.GetProperty();
+	VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_FLAG_BITS_MAX_ENUM;
+	if (VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT == imageProperty.Usage)
+	{
+		aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT;
+	}
+	else if (VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT == imageProperty.Usage)
+	{
+		aspectFlags = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+	}
+	else
+	{
+		System::Log("Not supported yet!!");
+		assert(0);
+	}
 
-	//VKCheck(vkCreateRenderPass(VulkanEngine::Instance().GetDevice(), &rpInfo, NULL, &m_Handle));
+	VkImageViewCreateInfo createInfo
+	{
+		VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+		nullptr,
+		0U,
+		image.Get(),
+		(VkImageViewType)imageProperty.Type,
+		(VkFormat)imageProperty.Format,
+		{ VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A },
+		{ aspectFlags, 0U, imageProperty.MipLevels, 0U, 1U }
+	};
+
+	VKCheck(vkCreateImageView(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
+}
+
+void VulkanImageView::CreateAsTexture(eRViewType type, VulkanImage &image, uint32_t fmt, uint32_t mipSlice, uint32_t aspectFlags)
+{
+	assert(!IsValid());
+
+	VkImageViewCreateInfo createInfo
+	{
+		VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+		nullptr,
+		0U,
+		image.Get(),
+		(VkImageViewType)type,
+		(VkFormat)fmt,
+		{ VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A },
+		{ aspectFlags, 0U, mipSlice, 0U, 1U }
+	};
+
+	VKCheck(vkCreateImageView(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
 }
