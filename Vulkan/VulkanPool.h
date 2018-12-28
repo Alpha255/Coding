@@ -40,10 +40,10 @@ protected:
 private:
 };
 
-class VulkanDescriptorPool : public VulkanObject<VkDescriptorPool>
-{
-public:
-	void Create(bool bUseTex);
-protected:
-private:
-};
+//class VulkanDescriptorPool : public VulkanObject<VkDescriptorPool>
+//{
+//public:
+//	void Create(bool bUseTex);
+//protected:
+//private:
+//};

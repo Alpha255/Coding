@@ -18,8 +18,8 @@ void VulkanSurface::Create(::HWND hWnd)
 
 	uint32_t count = 0U;
 	VKCheck(vkGetPhysicalDeviceSurfacePresentModesKHR(VulkanEngine::Instance().GetVulkanDevice().GetPhysicalDevice(), m_Handle, &count, nullptr));
-	m_PresentMode.resize(count);
-	VKCheck(vkGetPhysicalDeviceSurfacePresentModesKHR(VulkanEngine::Instance().GetVulkanDevice().GetPhysicalDevice(), m_Handle, &count, m_PresentMode.data()));
+	m_PresentModes.resize(count);
+	VKCheck(vkGetPhysicalDeviceSurfacePresentModesKHR(VulkanEngine::Instance().GetVulkanDevice().GetPhysicalDevice(), m_Handle, &count, m_PresentModes.data()));
 
 	VkBool32 checkSupport = 0U;
 	VKCheck(vkGetPhysicalDeviceSurfaceSupportKHR(VulkanEngine::Instance().GetVulkanDevice().GetPhysicalDevice(), VulkanEngine::Instance().GetVulkanDevice().GetQueueFamilyIndex(), m_Handle, &checkSupport));
@@ -35,8 +35,10 @@ void VulkanSurface::Create(::HWND hWnd)
 	VKCheck(vkGetPhysicalDeviceSurfaceFormatsKHR(VulkanEngine::Instance().GetVulkanDevice().GetPhysicalDevice(), m_Handle, &count, m_Formats.data()));
 }
 
-void VulkanSwapchain::Create(::HWND hWnd, uint32_t uWidth, uint32_t uHeight, bool bWindowed)
+void VulkanSwapchain::Create(::HWND hWnd, uint32_t uWidth, uint32_t uHeight, bool bFullScreen)
 {
+	m_bFullScreen = bFullScreen;
+
 	if (!m_Surface.IsValid())
 	{
 		m_Surface.Create(hWnd);
@@ -62,6 +64,17 @@ void VulkanSwapchain::Create(::HWND hWnd, uint32_t uWidth, uint32_t uHeight, boo
 		++formatIndex;
 	}
 
+	auto &presentModes = m_Surface.GetPresentModes();
+	m_PresentMode = VK_PRESENT_MODE_FIFO_KHR;
+	for each (auto presentMode in presentModes)
+	{
+		if (presentMode == VK_PRESENT_MODE_MAILBOX_KHR)
+		{
+			m_PresentMode = VK_PRESENT_MODE_MAILBOX_KHR;
+			break;
+		}
+	}
+
 	VkSwapchainCreateInfoKHR createInfo
 	{
 		VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
@@ -73,14 +86,14 @@ void VulkanSwapchain::Create(::HWND hWnd, uint32_t uWidth, uint32_t uHeight, boo
 		surfaceFormats[formatIndex].colorSpace,
 		m_Size,
 		1U,
-		VK_IMAGE_USAGE_TRANSFER_SRC_BIT & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-		VK_SHARING_MODE_EXCLUSIVE,
+		VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+		VK_SHARING_MODE_EXCLUSIVE, /// exclusive or concurrent access resource
 		VulkanEngine::Instance().GetVulkanDevice().GetQueueFamilyIndex(),
 		nullptr,
-		VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR,
-		VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+		surfaceCapabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR ? VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR : surfaceCapabilities.currentTransform,
+		VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,  /// Alpha = 1.0f
 		m_PresentMode,
-		true,
+		true,  /// indicates whether the Vulkan implementation is allowed to discard rendering operations that affect regions of the surface which aren’t visible
 		m_Handle
 	};
 
@@ -89,47 +102,47 @@ void VulkanSwapchain::Create(::HWND hWnd, uint32_t uWidth, uint32_t uHeight, boo
 
 void VulkanSwapchain::Resize(uint32_t uWidth, uint32_t uHeight)
 {
-
+	Create(nullptr, uWidth, uHeight, m_bFullScreen);
 }
 
-void VulkanSwapchain::CreateFrameBuffer(uint32_t width, uint32_t height, VkRenderPass renderPass)
-{
-	//uint32_t imageCount = 0U;
-	//VkImage *pImage = new VkImage[imageCount]();
-	//VKCheck(vkGetSwapchainImagesKHR(VulkanEngine::Instance().GetDevice(), m_Handle, &imageCount, nullptr));
-	//VKCheck(vkGetSwapchainImagesKHR(VulkanEngine::Instance().GetDevice(), m_Handle, &imageCount, pImage));
-
-	//for (uint32_t i = 0U; i < imageCount; ++i)
-	//{
-	//	FrameImage &image = m_Images[i];
-
-	//	VkImageViewCreateInfo viewInfo;
-	//	viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-	//	viewInfo.pNext = NULL;
-	//	viewInfo.format = (VkFormat)m_Format;
-	//	viewInfo.components.r = VK_COMPONENT_SWIZZLE_R;
-	//	viewInfo.components.g = VK_COMPONENT_SWIZZLE_G;
-	//	viewInfo.components.b = VK_COMPONENT_SWIZZLE_B;
-	//	viewInfo.components.a = VK_COMPONENT_SWIZZLE_A;
-	//	viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-	//	viewInfo.subresourceRange.baseMipLevel = 0;
-	//	viewInfo.subresourceRange.levelCount = 1;
-	//	viewInfo.subresourceRange.baseArrayLayer = 0;
-	//	viewInfo.subresourceRange.layerCount = 1;
-	//	viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-	//	viewInfo.flags = 0;
-	//	viewInfo.image = pImage[i];
-
-	//	image.Image = pImage[i];
-	//	VKCheck(vkCreateImageView(VulkanEngine::Instance().GetDevice(), &viewInfo, nullptr, &image.View));
-
-	//	VkFramebufferCreateInfo fbInfo = { VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO };
-	//	fbInfo.attachmentCount = 2;
-	//	fbInfo.pAttachments = &image.View;
-	//	fbInfo.width = width;
-	//	fbInfo.height = height;
-	//	fbInfo.layers = 1;
-	//	fbInfo.renderPass = renderPass;
-	//	VKCheck(vkCreateFramebuffer(VulkanEngine::Instance().GetDevice(), &fbInfo, nullptr, &image.FrameBuffer));
-	//}
-}
+//void VulkanSwapchain::CreateFrameBuffer(uint32_t width, uint32_t height, VkRenderPass renderPass)
+//{
+//	//uint32_t imageCount = 0U;
+//	//VkImage *pImage = new VkImage[imageCount]();
+//	//VKCheck(vkGetSwapchainImagesKHR(VulkanEngine::Instance().GetDevice(), m_Handle, &imageCount, nullptr));
+//	//VKCheck(vkGetSwapchainImagesKHR(VulkanEngine::Instance().GetDevice(), m_Handle, &imageCount, pImage));
+//
+//	//for (uint32_t i = 0U; i < imageCount; ++i)
+//	//{
+//	//	FrameImage &image = m_Images[i];
+//
+//	//	VkImageViewCreateInfo viewInfo;
+//	//	viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+//	//	viewInfo.pNext = NULL;
+//	//	viewInfo.format = (VkFormat)m_Format;
+//	//	viewInfo.components.r = VK_COMPONENT_SWIZZLE_R;
+//	//	viewInfo.components.g = VK_COMPONENT_SWIZZLE_G;
+//	//	viewInfo.components.b = VK_COMPONENT_SWIZZLE_B;
+//	//	viewInfo.components.a = VK_COMPONENT_SWIZZLE_A;
+//	//	viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+//	//	viewInfo.subresourceRange.baseMipLevel = 0;
+//	//	viewInfo.subresourceRange.levelCount = 1;
+//	//	viewInfo.subresourceRange.baseArrayLayer = 0;
+//	//	viewInfo.subresourceRange.layerCount = 1;
+//	//	viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+//	//	viewInfo.flags = 0;
+//	//	viewInfo.image = pImage[i];
+//
+//	//	image.Image = pImage[i];
+//	//	VKCheck(vkCreateImageView(VulkanEngine::Instance().GetDevice(), &viewInfo, nullptr, &image.View));
+//
+//	//	VkFramebufferCreateInfo fbInfo = { VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO };
+//	//	fbInfo.attachmentCount = 2;
+//	//	fbInfo.pAttachments = &image.View;
+//	//	fbInfo.width = width;
+//	//	fbInfo.height = height;
+//	//	fbInfo.layers = 1;
+//	//	fbInfo.renderPass = renderPass;
+//	//	VKCheck(vkCreateFramebuffer(VulkanEngine::Instance().GetDevice(), &fbInfo, nullptr, &image.FrameBuffer));
+//	//}
+//}

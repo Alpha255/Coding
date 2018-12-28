@@ -5,7 +5,15 @@
 class VulkanInputLayout
 {
 public:
-	void Create(const void *, const VertexLayout *pLayout, size_t layoutCount);
+	inline void Create(const void *, const VertexLayout *pLayout, size_t layoutCount)
+	{
+
+	}
+protected:
+private:
+	std::vector<VkVertexInputBindingDescription> m_VertexInputBindingDes;
+	std::vector<VkVertexInputAttributeDescription> m_VertexInputAttrs;
+	VkPipelineVertexInputStateCreateInfo m_InputState = {};
 };
 
 class VulkanShader : public VulkanObject<VkShaderModule>

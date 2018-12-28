@@ -1,17 +1,17 @@
 #include "VulkanContext.h"
 #include "VulkanEngine.h"
 
-void VulkanContext::Draw(uint32_t vertexCount, uint32_t startVertex, uint32_t primitive)
-{
-	///vkCmdDraw();
-}
+//void VulkanContext::Draw(uint32_t vertexCount, uint32_t startVertex, uint32_t primitive)
+//{
+//	///vkCmdDraw();
+//}
+//
+//void VulkanContext::DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, uint32_t primitive)
+//{
+//	///vkCmdDrawIndexed();
+//}
 
-void VulkanContext::DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, uint32_t primitive)
-{
-	///vkCmdDrawIndexed();
-}
-
-void VulkanContext::Create(const VkPipelineShaderStageCreateInfo *pShaderStage, const size_t shaderCount)
+void VulkanContext::Create(const VkPipelineShaderStageCreateInfo *pShaderStage, uint32_t shaderCount)
 {
 	///m_RenderTargetView.Create();
 
@@ -129,11 +129,11 @@ void VulkanContext::Create(const VkPipelineShaderStageCreateInfo *pShaderStage, 
 	assert(result == VK_SUCCESS);
 }
 
-void VulkanContext::SetVertexBuffer(const VulkanBuffer &vertexBuffer, uint32_t stride, uint32_t offset, uint32_t slot)
-{
-}
-
-void VulkanContext::SetIndexBuffer(const VulkanBuffer &indexBuffer, uint32_t fmt, uint32_t offset)
-{
-
-}
+//void VulkanContext::SetVertexBuffer(const VulkanBuffer &vertexBuffer, uint32_t stride, uint32_t offset, uint32_t slot)
+//{
+//}
+//
+//void VulkanContext::SetIndexBuffer(const VulkanBuffer &indexBuffer, uint32_t fmt, uint32_t offset)
+//{
+//
+//}

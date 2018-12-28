@@ -64,6 +64,8 @@ void VulkanDeviceMemory::Free()
 
 void VulkanBuffer::Create(size_t size, uint32_t usage)
 {
+	assert(!IsValid());
+
 	VkBufferCreateInfo createInfo = 
 	{
 		VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
@@ -85,25 +87,11 @@ void VulkanBuffer::Create(size_t size, uint32_t usage)
 
 void VulkanBuffer::Destory()
 {
+	assert(IsValid());
+
 	vkDestroyBuffer(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
 
 	m_Memory.Free();
-}
 
-void VulkanFrameBuffer::Create(uint32_t width, uint32_t height, const VulkanRenderPass renderPass, const VulkanTexture2D &tex)
-{
-	VkFramebufferCreateInfo createInfo
-	{
-		VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
-		nullptr,
-		0U,
-		renderPass.Get(),
-		1U,
-		nullptr,///&tex.Get(),
-		width,
-		height,
-		1U
-	};
-
-	VKCheck(vkCreateFramebuffer(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
+	Reset();
 }

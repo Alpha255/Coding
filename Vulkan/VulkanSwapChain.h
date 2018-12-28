@@ -16,10 +16,10 @@ public:
 		return m_Capabilities;
 	}
 
-	inline const std::vector<VkPresentModeKHR> &GetPresentMode() const
+	inline const std::vector<VkPresentModeKHR> &GetPresentModes() const
 	{
 		assert(IsValid());
-		return m_PresentMode;
+		return m_PresentModes;
 	}
 
 	inline const std::vector<VkSurfaceFormatKHR> &GetFormats() const
@@ -30,14 +30,14 @@ public:
 protected:
 private:
 	VkSurfaceCapabilitiesKHR m_Capabilities = {};
-	std::vector<VkPresentModeKHR> m_PresentMode;
+	std::vector<VkPresentModeKHR> m_PresentModes;
 	std::vector<VkSurfaceFormatKHR> m_Formats;
 };
 
 class VulkanSwapchain : public VulkanObject<VkSwapchainKHR>
 {
 public:
-	void Create(::HWND hWnd, uint32_t uWidth, uint32_t uHeight, bool bWindowed = true);
+	void Create(::HWND hWnd, uint32_t uWidth, uint32_t uHeight, bool bFullScreen);
 	void Resize(uint32_t uWidth, uint32_t uHeight);
 
 	inline void SetVSync(bool bVSync)
@@ -51,12 +51,14 @@ public:
 		assert(IsValid());
 		m_bFullScreen = bFullScreen;
 	}
+
+	void Flush() {}
 protected:
 	void CreateFrameBuffer(uint32_t width, uint32_t height, VkRenderPass renderPass);
 private:
 	VulkanSurface m_Surface;
 	VkExtent2D m_Size = {};
-	VkPresentModeKHR m_PresentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
+	VkPresentModeKHR m_PresentMode = VK_PRESENT_MODE_MAX_ENUM_KHR;
 	VkFormat m_ColorSurfaceFormat = VK_FORMAT_UNDEFINED;
 	VkFormat m_DepthSurfaceFormat = VK_FORMAT_UNDEFINED;
 	bool m_bVSync = false;

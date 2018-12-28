@@ -2,56 +2,56 @@
 #include "VulkanEngine.h"
 #include "VulkanBuffer.h"
 
-void VulkanImage::Create(
-	uint32_t format,
-	uint32_t width,
-	uint32_t height,
-	uint32_t depth,
-	uint32_t mipLevels,
-	uint32_t arrayLayers,
-	uint32_t samples,
-	uint32_t usage,
-	uint32_t flags)
-{
-	//VkFormatProperties fmtProperties{};
-	//vkGetPhysicalDeviceFormatProperties(VulkanEngine::Instance().GetPhysicalDevice().Get(), (VkFormat)format, &fmtProperties);
-	//VkImageTiling tiling = VK_IMAGE_TILING_MAX_ENUM;
-
-	//if (fmtProperties.linearTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
-	//{
-	//	tiling = VK_IMAGE_TILING_LINEAR;
-	//}
-	//else if (fmtProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
-	//{
-	//	tiling = VK_IMAGE_TILING_OPTIMAL;
-	//}
-	//else
-	//{
-	//	assert(0);
-	//}
-
-	//assert(tiling != VK_IMAGE_TILING_MAX_ENUM);
-	//VkImageCreateInfo imageCreateInfo
-	//{
-	//	VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
-	//	nullptr,
-	//	0U,
-	//	VK_IMAGE_TYPE_2D,
-	//	(VkFormat)format,
-	//	{ width, height, depth },
-	//	mipLevels,
-	//	arrayLayers,
-	//	(VkSampleCountFlagBits)samples,
-	//	tiling,
-	//	(VkImageUsageFlags)usage,
-	//	VK_SHARING_MODE_EXCLUSIVE,
-	//	0U,
-	//	nullptr,
-	//	VK_IMAGE_LAYOUT_UNDEFINED
-	//};
-
-	//VKCheck(vkCreateImage(VulkanEngine::Instance().GetDevice(), &imageCreateInfo, nullptr, &m_Handle));
-}
+//void VulkanImage::Create(
+//	uint32_t format,
+//	uint32_t width,
+//	uint32_t height,
+//	uint32_t depth,
+//	uint32_t mipLevels,
+//	uint32_t arrayLayers,
+//	uint32_t samples,
+//	uint32_t usage,
+//	uint32_t flags)
+//{
+//	//VkFormatProperties fmtProperties{};
+//	//vkGetPhysicalDeviceFormatProperties(VulkanEngine::Instance().GetPhysicalDevice().Get(), (VkFormat)format, &fmtProperties);
+//	//VkImageTiling tiling = VK_IMAGE_TILING_MAX_ENUM;
+//
+//	//if (fmtProperties.linearTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
+//	//{
+//	//	tiling = VK_IMAGE_TILING_LINEAR;
+//	//}
+//	//else if (fmtProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
+//	//{
+//	//	tiling = VK_IMAGE_TILING_OPTIMAL;
+//	//}
+//	//else
+//	//{
+//	//	assert(0);
+//	//}
+//
+//	//assert(tiling != VK_IMAGE_TILING_MAX_ENUM);
+//	//VkImageCreateInfo imageCreateInfo
+//	//{
+//	//	VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+//	//	nullptr,
+//	//	0U,
+//	//	VK_IMAGE_TYPE_2D,
+//	//	(VkFormat)format,
+//	//	{ width, height, depth },
+//	//	mipLevels,
+//	//	arrayLayers,
+//	//	(VkSampleCountFlagBits)samples,
+//	//	tiling,
+//	//	(VkImageUsageFlags)usage,
+//	//	VK_SHARING_MODE_EXCLUSIVE,
+//	//	0U,
+//	//	nullptr,
+//	//	VK_IMAGE_LAYOUT_UNDEFINED
+//	//};
+//
+//	//VKCheck(vkCreateImage(VulkanEngine::Instance().GetDevice(), &imageCreateInfo, nullptr, &m_Handle));
+//}
 
 void VulkanTexture2D::Create(
 	uint32_t format, 

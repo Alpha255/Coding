@@ -17,12 +17,12 @@ public:
 		m_StateInfo.lineWidth = 1.0f;
 	}
 
-	inline void Create(uint32_t fillMode, uint32_t cullMode, bool bFrontCCW, bool bDepthClip, bool bScissor)
-	{
-		m_StateInfo.polygonMode = (VkPolygonMode)fillMode;
-		m_StateInfo.cullMode = (VkCullModeFlagBits)cullMode;
-		m_StateInfo.frontFace = bFrontCCW ? VK_FRONT_FACE_COUNTER_CLOCKWISE : VK_FRONT_FACE_CLOCKWISE;
-	}
+	//inline void Create(uint32_t fillMode, uint32_t cullMode, bool bFrontCCW, bool bDepthClip, bool bScissor)
+	//{
+	//	m_StateInfo.polygonMode = (VkPolygonMode)fillMode;
+	//	m_StateInfo.cullMode = (VkCullModeFlagBits)cullMode;
+	//	m_StateInfo.frontFace = bFrontCCW ? VK_FRONT_FACE_COUNTER_CLOCKWISE : VK_FRONT_FACE_CLOCKWISE;
+	//}
 protected:
 private:
 	VkPipelineRasterizationStateCreateInfo m_StateInfo = {};
