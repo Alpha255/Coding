@@ -64,7 +64,7 @@ void VulkanDeviceMemory::Free()
 	Reset();
 }
 
-void VulkanBuffer::Create(size_t size, uint32_t usage)
+void VulkanBuffer::Create(size_t size, uint32_t usage, uint32_t memoryPropertyFlags)
 {
 	assert(!IsValid());
 
@@ -84,7 +84,9 @@ void VulkanBuffer::Create(size_t size, uint32_t usage)
 	VkMemoryRequirements memoryRequirements = {};
 	vkGetBufferMemoryRequirements(VulkanEngine::Instance().GetDevice(), m_Handle, &memoryRequirements);
 	
-	m_Memory.Alloc(size, VulkanDeviceMemory::GetMemoryTypeIndex(memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT));
+	m_Memory.Alloc(size, VulkanDeviceMemory::GetMemoryTypeIndex(memoryRequirements.memoryTypeBits, memoryPropertyFlags));
+
+	VKCheck(vkBindBufferMemory(VulkanEngine::Instance().GetDevice(), m_Handle, m_Memory.Get(), 0));
 }
 
 void VulkanBuffer::Destory()

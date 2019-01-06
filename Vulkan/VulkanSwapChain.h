@@ -51,15 +51,21 @@ public:
 
 	void Flush() {}
 protected:
-	void CreateFrameBuffer(uint32_t width, uint32_t height, VkRenderPass renderPass);
+	struct VulkanBackBuffer
+	{
+		VulkanRenderTargetView RenderTargetView;
+		VulkanFence PresentFence;
+		VulkanSemaphore AcquireSemaphore;
+		VulkanSemaphore RenderSemaphore;
+	};
 private:
 	VulkanSurface m_Surface;
 	VkExtent2D m_Size = {};
 	VkPresentModeKHR m_PresentMode = VK_PRESENT_MODE_MAX_ENUM_KHR;
 	VkFormat m_ColorSurfaceFormat = VK_FORMAT_UNDEFINED;
 	VkFormat m_DepthSurfaceFormat = VK_FORMAT_UNDEFINED;
-	std::vector<VulkanRenderTargetView> m_RenderTargetViews;
 	VulkanDepthStencilView m_DepthStencilView;
+	std::vector<VulkanBackBuffer> m_BackBuffers;
 	bool m_bVSync = false;
 	bool m_bFullScreen = false;
 };

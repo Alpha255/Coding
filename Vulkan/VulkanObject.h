@@ -178,7 +178,15 @@ private:
 class VulkanSemaphore : public VulkanObject<VkSemaphore>
 {
 public:
+	VulkanSemaphore() = default;
+	inline ~VulkanSemaphore()
+	{
+		Destory();
+	}
+
 	void Create();
+
+	void Destory();
 protected:
 private:
 };
@@ -186,7 +194,15 @@ private:
 class VulkanFence : public VulkanObject<VkFence>
 {
 public:
+	VulkanFence() = default;
+	inline ~VulkanFence()
+	{
+		Destory();
+	}
+
 	void Create();
+
+	void Destory();
 protected:
 private:
 };

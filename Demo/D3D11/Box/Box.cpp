@@ -4,7 +4,7 @@
 void AppBox::InitScene()
 {
 	m_BoxMesh.CreateAsCube(1.0f);
-#if 0
+
 	m_DiffuseTex.Create("WoodCrate01.dds");
 
 	m_VertexShader.Create("Box.hlsl", "VSMain");
@@ -18,7 +18,6 @@ void AppBox::InitScene()
 	m_CBufferVS.CreateAsConstantBuffer(sizeof(Matrix), eGpuReadCpuWrite, nullptr);
 
 	m_Camera.SetViewRadius(5.0f);
-#endif
 }
 
 void AppBox::RenderScene()

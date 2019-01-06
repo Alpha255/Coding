@@ -266,6 +266,8 @@ void VulkanDevice::CreateLogicalDevice()
 
 void VulkanSemaphore::Create()
 {
+	assert(!IsValid());
+
 	VkSemaphoreCreateInfo createInfo
 	{
 		VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
@@ -276,8 +278,19 @@ void VulkanSemaphore::Create()
 	VKCheck(vkCreateSemaphore(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
 }
 
+void VulkanSemaphore::Destory()
+{
+	assert(IsValid());
+
+	vkDestroySemaphore(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
+
+	Reset();
+}
+
 void VulkanFence::Create()
 {
+	assert(!IsValid());
+
 	VkFenceCreateInfo createInfo 
 	{
 		VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
@@ -286,4 +299,13 @@ void VulkanFence::Create()
 	};
 
 	VKCheck(vkCreateFence(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
+}
+
+void VulkanFence::Destory()
+{
+	assert(IsValid());
+
+	vkDestroyFence(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
+
+	Reset();
 }

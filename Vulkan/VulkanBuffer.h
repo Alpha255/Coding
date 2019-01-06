@@ -37,7 +37,7 @@ public:
 		const void *pData,
 		uint32_t = 0U)
 	{
-		Create(byteWidth, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+		Create(byteWidth, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
 		Update(pData, byteWidth, 0U);
 	}
@@ -48,7 +48,7 @@ public:
 		const void *pData,
 		uint32_t = 0U)
 	{
-		Create(byteWidth, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
+		Create(byteWidth, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
 		Update(pData, byteWidth, 0U);
 	}
@@ -59,9 +59,14 @@ public:
 		const void *pData,
 		uint32_t = 0U)
 	{
-		Create(byteWidth, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+		Create(byteWidth, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
 		Update(pData, byteWidth, 0U);
+	}
+
+	inline void CreateAsSrcDynamicBuffer(size_t byteWidth)
+	{
+		Create(byteWidth, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 	}
 
 	void Destory();
@@ -71,7 +76,7 @@ public:
 		m_Memory.Update(pMemory, size, offset);
 	}
 protected:
-	void Create(size_t size, uint32_t usage);
+	void Create(size_t size, uint32_t usage, uint32_t memoryPropertyFlags);
 private:
 	VulkanDeviceMemory m_Memory;
 };
@@ -162,4 +167,9 @@ public:
 protected:
 private:
 	std::vector<VkCommandBuffer> m_BufferList;
+};
+
+class VulkanFrameBuffer : public VulkanObject<VkFramebuffer>
+{
+
 };

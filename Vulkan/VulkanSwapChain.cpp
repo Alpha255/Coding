@@ -105,15 +105,18 @@ void VulkanSwapchain::Create(::HWND hWnd, uint32_t uWidth, uint32_t uHeight, boo
 	std::vector<VkImage> images(count);
 	VKCheck(vkGetSwapchainImagesKHR(VulkanEngine::Instance().GetDevice(), m_Handle, &count, images.data()));
 
-	m_RenderTargetViews.resize(count);
+	m_BackBuffers.resize(count);
 	for (uint32_t i = 0U; i < count; ++i)
 	{
 		VulkanImage image(images[i]);
-		m_RenderTargetViews[i].CreateAsTexture(eTexture2D, image, m_ColorSurfaceFormat, 1U);
+		m_BackBuffers[i].RenderTargetView.CreateAsTexture(eTexture2D, image, m_ColorSurfaceFormat, 1U);
+		m_BackBuffers[i].PresentFence.Create();
+		m_BackBuffers[i].AcquireSemaphore.Create();
+		m_BackBuffers[i].RenderSemaphore.Create();
 	}
 
 	VulkanImage depthStencilImage;
-	depthStencilImage.Create(VulkanImage::eImage2D, uWidth, uHeight, m_DepthSurfaceFormat, 1U, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_LAYOUT_UNDEFINED);
+	depthStencilImage.Create(VulkanImage::eImage2D, uWidth, uHeight, 1U, m_DepthSurfaceFormat, 1U, 1U, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_LAYOUT_UNDEFINED);
 	m_DepthStencilView.CreateAsTexture(eTexture2D, depthStencilImage, m_DepthSurfaceFormat, 0U, 1U);
 }
 

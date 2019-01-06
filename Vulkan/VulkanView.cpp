@@ -1,12 +1,15 @@
 #include "VulkanView.h"
 #include "VulkanEngine.h"
+#include "Util/RawTexture.h"
 
 void VulkanImage::Create(
 	uint32_t type,
 	uint32_t width, 
 	uint32_t height, 
+	uint32_t depth,
 	uint32_t format, 
 	uint32_t mipLevels, 
+	uint32_t arraySize,
 	uint32_t usage,
 	uint32_t layout)
 {
@@ -30,9 +33,9 @@ void VulkanImage::Create(
 		0U,
 		(VkImageType)type,
 		(VkFormat)format,
-		{ width, height, 1U },
+		{ width, height, depth },
 		mipLevels,
-		1U,
+		arraySize,
 		VK_SAMPLE_COUNT_1_BIT,
 		VK_IMAGE_TILING_OPTIMAL,
 		(VkImageUsageFlags)usage,
@@ -103,4 +106,70 @@ void VulkanImageView::CreateAsTexture(eRViewType type, VulkanImage &image, uint3
 	};
 
 	VKCheck(vkCreateImageView(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
+}
+
+void VulkanShaderResourceView::Create(const char *pFileName)
+{
+	RawTexture rawDds;
+	rawDds.CreateFromDds(pFileName, true);
+
+	VulkanImage image;
+	image.Create(
+		rawDds.Dimension, 
+		rawDds.Width, 
+		rawDds.Height, 
+		rawDds.Depth,
+		rawDds.Format, 
+		rawDds.MipLevels, 
+		rawDds.ArraySize,
+		VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 
+		VK_IMAGE_LAYOUT_UNDEFINED);
+
+	uint32_t subResCount = rawDds.ArraySize * rawDds.MipLevels;
+
+	VulkanBuffer subResBuffer;
+	subResBuffer.CreateAsSrcDynamicBuffer(rawDds.RawSize + 4 * subResCount);  /// pad block, as we may need to align the data to 4 bytes
+
+	std::unique_ptr<VkBufferImageCopy> subResCopys(new VkBufferImageCopy[subResCount]());
+	auto pSubResCopy = subResCopys.get();
+	uint32_t offset = 0U;
+
+	for (uint32_t i = 0U; i < rawDds.ArraySize; ++i)
+	{
+		uint32_t width = rawDds.Width;
+		uint32_t height = rawDds.Height;
+
+		for (uint32_t j = 0U; j < rawDds.MipLevels; ++j)
+		{
+			subResBuffer.Update(rawDds.RawMipTextures[j].RawMipData, rawDds.RawMipTextures[j].MipSize, offset);
+
+			*pSubResCopy = VkBufferImageCopy
+			{
+				offset,
+				0U,
+				0U,
+				{ VK_IMAGE_ASPECT_COLOR_BIT, j, i, 1 },
+				{ 0, 0, 0 },
+				{ width, height, rawDds.Depth }
+			};
+
+			++pSubResCopy;
+
+			offset += ((rawDds.RawMipTextures[j].MipSize + 3 & (~0x03)));
+
+			width >>= 1;
+			width = width ? width : 1;
+
+			height >>= 1;
+			height = height ? height : 1;
+		}
+	}
+
+	VulkanCommandBuffer tempBuffer = VulkanEngine::Instance().AllocCommandBuffer(VulkanCommandPool::eTemp, VulkanCommandPool::ePrimary);
+	tempBuffer.Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+	{
+
+	}
+
+	vkCmdCopyBufferToImage(tempBuffer.Get(), subResBuffer.Get(), image.Get(), VK_IMAGE_LAYOUT_GENERAL, subResCount, subResCopys.get());
 }
