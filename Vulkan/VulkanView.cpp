@@ -1,6 +1,5 @@
 #include "VulkanView.h"
 #include "VulkanEngine.h"
-#include "Util/RawTexture.h"
 
 void VulkanImage::Create(
 	uint32_t type,
@@ -110,25 +109,25 @@ void VulkanImageView::CreateAsTexture(eRViewType type, VulkanImage &image, uint3
 
 void VulkanShaderResourceView::Create(const char *pFileName)
 {
-	RawTexture rawDds;
 	rawDds.CreateFromDds(pFileName, true);
 
-	VulkanImage image;
-	image.Create(
-		rawDds.Dimension, 
-		rawDds.Width, 
-		rawDds.Height, 
-		rawDds.Depth,
-		rawDds.Format, 
-		rawDds.MipLevels, 
-		rawDds.ArraySize,
-		VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 
-		VK_IMAGE_LAYOUT_UNDEFINED);
-
-	uint32_t subResCount = rawDds.ArraySize * rawDds.MipLevels;
+	//VulkanImage image;
+	//image.Create(
+	//	rawDds.Dimension, 
+	//	rawDds.Width, 
+	//	rawDds.Height, 
+	//	rawDds.Depth,
+	//	rawDds.Format, 
+	//	rawDds.MipLevels, 
+	//	rawDds.ArraySize,
+	//	VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 
+	//	VK_IMAGE_LAYOUT_UNDEFINED);
 
 	VulkanBuffer subResBuffer;
-	subResBuffer.CreateAsSrcDynamicBuffer(rawDds.RawSize + 4 * subResCount);  /// pad block, as we may need to align the data to 4 bytes
+	subResBuffer.CreateAsSrcDynamicBuffer(rawDds.RawSize);
+	subResBuffer.Update(rawDds.RawData.get(), rawDds.RawSize, 0U);
+
+	uint32_t subResCount = rawDds.ArraySize * rawDds.MipLevels;
 
 	std::unique_ptr<VkBufferImageCopy> subResCopys(new VkBufferImageCopy[subResCount]());
 	auto pSubResCopy = subResCopys.get();
@@ -136,13 +135,8 @@ void VulkanShaderResourceView::Create(const char *pFileName)
 
 	for (uint32_t i = 0U; i < rawDds.ArraySize; ++i)
 	{
-		uint32_t width = rawDds.Width;
-		uint32_t height = rawDds.Height;
-
 		for (uint32_t j = 0U; j < rawDds.MipLevels; ++j)
 		{
-			subResBuffer.Update(rawDds.RawMipTextures[j].RawMipData, rawDds.RawMipTextures[j].MipSize, offset);
-
 			*pSubResCopy = VkBufferImageCopy
 			{
 				offset,
@@ -150,26 +144,71 @@ void VulkanShaderResourceView::Create(const char *pFileName)
 				0U,
 				{ VK_IMAGE_ASPECT_COLOR_BIT, j, i, 1 },
 				{ 0, 0, 0 },
-				{ width, height, rawDds.Depth }
+				{ rawDds.RawMipTextures[j].MipWidth, rawDds.RawMipTextures[j].MipHeight, rawDds.Depth }
 			};
 
 			++pSubResCopy;
 
 			offset += ((rawDds.RawMipTextures[j].MipSize + 3 & (~0x03)));
-
-			width >>= 1;
-			width = width ? width : 1;
-
-			height >>= 1;
-			height = height ? height : 1;
 		}
 	}
 
+	VulkanImage image2D;
+	image2D.Create(
+		rawDds.Dimension,
+		rawDds.Width,
+		rawDds.Height,
+		rawDds.Depth,
+		VK_FORMAT_R8G8B8A8_UNORM,
+		rawDds.MipLevels,
+		rawDds.ArraySize,
+		VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+		VK_IMAGE_LAYOUT_UNDEFINED);
+
 	VulkanCommandBuffer tempBuffer = VulkanEngine::Instance().AllocCommandBuffer(VulkanCommandPool::eTemp, VulkanCommandPool::ePrimary);
 	tempBuffer.Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+
+	VkImageMemoryBarrier imageMemoryBarrier
 	{
+		VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+		nullptr,
+		0U,
+		VK_ACCESS_TRANSFER_WRITE_BIT,
+		VK_IMAGE_LAYOUT_UNDEFINED,
+		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+		VK_QUEUE_FAMILY_IGNORED,
+		VK_QUEUE_FAMILY_IGNORED,
+		image2D.Get(),
+		{ VK_IMAGE_ASPECT_COLOR_BIT, 0U, rawDds.MipLevels, 0U, rawDds.ArraySize }
+	};
+	vkCmdPipelineBarrier(tempBuffer.Get(), VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0U, 0U, nullptr, 0U, nullptr, 1, &imageMemoryBarrier);
+	vkCmdCopyBufferToImage(tempBuffer.Get(), subResBuffer.Get(), image2D.Get(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, subResCount, subResCopys.get());
 
-	}
+	imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+	imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+	imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+	imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-	vkCmdCopyBufferToImage(tempBuffer.Get(), subResBuffer.Get(), image.Get(), VK_IMAGE_LAYOUT_GENERAL, subResCount, subResCopys.get());
+	vkCmdPipelineBarrier(tempBuffer.Get(), VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+
+	tempBuffer.End();
+
+	VulkanFence fence;
+	fence.Create();
+
+	VkSubmitInfo submitInfo
+	{
+		VK_STRUCTURE_TYPE_SUBMIT_INFO,
+		nullptr,
+		0U,
+		nullptr,
+		nullptr,
+		1U,
+		&tempBuffer,
+		0U,
+		nullptr
+	};
+	
+	VKCheck(vkQueueSubmit(VulkanEngine::Instance().GetVulkanDevice().GetQueue(), 1U, &submitInfo, fence.Get()));
+	VKCheck(vkWaitForFences(VulkanEngine::Instance().GetDevice(), 1U, &fence, VK_TRUE, UINT32_MAX));
 }

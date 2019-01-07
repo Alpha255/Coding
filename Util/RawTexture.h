@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Common.h"
+#include <ThirdParty/gli/gli/gli.hpp>
+#include <ThirdParty/gli/gli/texture2d.hpp>
 
 namespace DirectX
 {
@@ -12,6 +14,8 @@ struct RawTexture
 	struct RawMipTexture
 	{
 		const uint8_t *RawMipData = nullptr;
+		uint32_t MipWidth = 0U;
+		uint32_t MipHeight = 0U;
 		size_t MipSize = 0U;
 		size_t Offset = 0U;
 	};
@@ -25,7 +29,7 @@ struct RawTexture
 	uint32_t Dimension = 0U;
 	size_t RawSize = 0U;
 
-	std::unique_ptr<uint8_t> RawData = nullptr;
+	std::shared_ptr<uint8_t> RawData = nullptr;
 	std::vector<RawMipTexture> RawMipTextures;
 
 	bool CubeMap = false;
@@ -38,4 +42,6 @@ protected:
 	void SetupMipMaps();
 	void TranslateToVulkanDimension();
 	void TranslateToVulkanFormat();
+
+	gli::texture2d RawTex2D;
 };

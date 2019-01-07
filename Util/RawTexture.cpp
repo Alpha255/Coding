@@ -467,6 +467,22 @@ void RawTexture::CreateFromDds(const char *pFileName, bool bUsingVulkan)
 	ResourceFile ddsFile(pFileName);
 	assert(ddsFile.IsValid());
 
+	RawTex2D = gli::texture2d(gli::load(ddsFile.GetFilePath()));
+	assert(!RawTex2D.empty());
+
+	Width = RawTex2D[0].extent().x;
+	Height = RawTex2D[0].extent().y;
+	MipLevels = (uint32_t)RawTex2D.levels();
+	Depth = 1U;
+	ArraySize = 1U;
+	Dimension = VK_IMAGE_TYPE_2D;
+	RawSize = RawTex2D.size();
+	RawData.reset((uint8_t *)RawTex2D[0].data());
+
+	SetupMipMaps();
+
+#if 0
+
 	RawSize = ddsFile.GetSize();
 
 	RawData.reset(ddsFile.Load());
@@ -593,6 +609,7 @@ void RawTexture::CreateFromDds(const char *pFileName, bool bUsingVulkan)
 	}
 
 	SetupMipMaps();
+#endif
 }
 
 void RawTexture::SetupMipMaps()
@@ -601,6 +618,10 @@ void RawTexture::SetupMipMaps()
 
 	for (uint32_t i = 0U; i < MipLevels; ++i)
 	{
-
+		RawMipTextures[i].MipWidth = RawTex2D[i].extent().x;
+		RawMipTextures[i].MipHeight = RawTex2D[i].extent().y;
+		RawMipTextures[i].MipSize = RawTex2D[i].size();
+		RawMipTextures[i].RawMipData = (uint8_t *)RawTex2D[i].data();
+		RawMipTextures[i].Offset = (ptrdiff_t)(RawMipTextures[i].RawMipData - RawData.get());
 	}
 }

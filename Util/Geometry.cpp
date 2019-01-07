@@ -317,7 +317,7 @@ void Mesh::CreateAsGeoSphere(float radius, uint32_t subDivisions)
 	assert(!m_Created);
 
 	/// Put a cap on the number of subdivisions.
-	subDivisions = min(subDivisions, 5u);
+	subDivisions = std::min(subDivisions, 5u);
 
 	/// Approximate a sphere by tessellating an icosahedron.
 

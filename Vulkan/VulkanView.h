@@ -2,6 +2,7 @@
 
 #include "VulkanObject.h"
 #include "VulkanBuffer.h"
+#include "Util/RawTexture.h"
 
 class VulkanImage : public VulkanObject<VkImage>
 {
@@ -92,5 +93,6 @@ class VulkanShaderResourceView : public VulkanImageView
 public:
 	void Create(const char *pFileName);
 protected:
+	RawTexture rawDds;
 private:
 };
