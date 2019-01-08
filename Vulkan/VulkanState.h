@@ -61,7 +61,19 @@ private:
 
 class VulkanBlendState
 {
-
+public:
+	void Create(
+		bool bAlphaToCoverage,
+		bool bIndependentBlend,
+		uint32_t surfaceIndex,
+		bool bBlend,
+		eRBlend srcColor,
+		eRBlend dstColor,
+		eRBlendOp colorOp,
+		eRBlend srcAlpha,
+		eRBlend dstAlpha,
+		eRBlendOp alphaOp,
+		uint8_t renderTargetWriteMask);
 };
 
 class VulkanStaticState

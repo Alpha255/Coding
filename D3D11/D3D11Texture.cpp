@@ -12,7 +12,9 @@ void D3D11Texture1D::Create(
 	uint32_t cpuFlags,
 	uint32_t miscFlags,
 	uint32_t usage,
-	const D3D11_SUBRESOURCE_DATA *pSubResData)
+	const void *pSysMem,
+	uint32_t sysMemPitch,
+	uint32_t sysMemSlicePitch)
 {
 	assert(!IsValid());
 
@@ -26,14 +28,15 @@ void D3D11Texture1D::Create(
 	desc.MiscFlags = miscFlags;
 	desc.Usage = (D3D11_USAGE)usage;
 
-	///D3D11_SUBRESOURCE_DATA subResData;
-	///memset(&subResData, 0, sizeof(D3D11_SUBRESOURCE_DATA));
-	///subResData.pSysMem = pData;
-	///subResData.SysMemPitch = memPitch;
-	///subResData.SysMemSlicePitch = 0U; 	/// System-memory-slice pitch is only used for 3D texture data as it has no meaning for the other resource types
+	D3D11_SUBRESOURCE_DATA subResData
+	{
+		pSysMem,
+		sysMemPitch,      /// The distance (in bytes) from the beginning of one line of a texture to the next line. System-memory pitch is used only for 2D and 3D texture data as it is has no meaning for the other resource types.
+		sysMemSlicePitch  /// System-memory-slice pitch is only used for 3D texture data as it has no meaning for the other resource types
+	};
 
 	ID3D11Texture1D *pTexture1D = nullptr;
-	HRCheck(D3D11Engine::Instance().GetDevice()->CreateTexture1D(&desc, pSubResData, &pTexture1D));
+	HRCheck(D3D11Engine::Instance().GetDevice()->CreateTexture1D(&desc, pSysMem ? &subResData : nullptr, &pTexture1D));
 
 	MakeObject(pTexture1D);
 }
@@ -72,7 +75,9 @@ void D3D11Texture2D::Create(
 	uint32_t cpuFlags,
 	uint32_t miscFlags,
 	uint32_t usage,
-	const D3D11_SUBRESOURCE_DATA *pSubResData)
+	const void *pSysMem,
+	uint32_t sysMemPitch,
+	uint32_t sysMemSlicePitch)
 {
 	assert(!IsValid());
 
@@ -89,13 +94,15 @@ void D3D11Texture2D::Create(
 	desc.MiscFlags = miscFlags;
 	desc.Usage = (D3D11_USAGE)usage;
 
-	///D3D11_SUBRESOURCE_DATA subResData = {};
-	///subResData.pSysMem = pData;
-	///subResData.SysMemPitch = memPitch;  /// The distance (in bytes) from the beginning of one line of a texture to the next line. System-memory pitch is used only for 2D and 3D texture data as it is has no meaning for the other resource types.
-	///subResData.SysMemSlicePitch = 0U; 	/// System-memory-slice pitch is only used for 3D texture data as it has no meaning for the other resource types
+	D3D11_SUBRESOURCE_DATA subResData
+	{
+		pSysMem,
+		sysMemPitch,
+		sysMemSlicePitch
+	};
 
 	ID3D11Texture2D *pTexture2D = nullptr;
-	HRCheck(D3D11Engine::Instance().GetDevice()->CreateTexture2D(&desc, pSubResData, &pTexture2D));
+	HRCheck(D3D11Engine::Instance().GetDevice()->CreateTexture2D(&desc, pSysMem ? &subResData : nullptr, &pTexture2D));
 
 	MakeObject(pTexture2D);
 }
@@ -110,7 +117,9 @@ void D3D11Texture3D::Create(
 	uint32_t cpuFlags,
 	uint32_t miscFlags,
 	uint32_t usage,
-	const D3D11_SUBRESOURCE_DATA *pSubResData)
+	const void *pSysMem,
+	uint32_t sysMemPitch,
+	uint32_t sysMemSlicePitch)
 {
 	assert(!IsValid());
 
@@ -125,13 +134,15 @@ void D3D11Texture3D::Create(
 	desc.MiscFlags = miscFlags;
 	desc.Usage = (D3D11_USAGE)usage;
 
-	///D3D11_SUBRESOURCE_DATA subResData = {};
-	///subResData.pSysMem = pData;
-	///subResData.SysMemPitch = memPitch;  /// The distance (in bytes) from the beginning of one line of a texture to the next line. System-memory pitch is used only for 2D and 3D texture data as it is has no meaning for the other resource types.
-	///subResData.SysMemSlicePitch = memSlicePitch; 	/// System-memory-slice pitch is only used for 3D texture data as it has no meaning for the other resource types
+	D3D11_SUBRESOURCE_DATA subResData
+	{
+		pSysMem,
+		sysMemPitch,
+		sysMemSlicePitch
+	};
 
 	ID3D11Texture3D *pTexture3D = nullptr;
-	HRCheck(D3D11Engine::Instance().GetDevice()->CreateTexture3D(&desc, pSubResData, &pTexture3D));
+	HRCheck(D3D11Engine::Instance().GetDevice()->CreateTexture3D(&desc, pSysMem ? &subResData : nullptr, &pTexture3D));
 
 	MakeObject(pTexture3D);
 }

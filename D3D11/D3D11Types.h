@@ -1,6 +1,7 @@
 #pragma once
 
 #include <d3d11.h>
+#include <stdint.h>
 
 #define HRCheck(func)  if (FAILED(func)) { assert(0); }
 
@@ -120,6 +121,97 @@ enum eRDepthStencilClearFlag
 	eClearDepthOnly = D3D11_CLEAR_DEPTH,
 	eClearStencilOnly = D3D11_CLEAR_STENCIL,
 	eClearDepthStencil = eClearDepthOnly | eClearStencilOnly,
+};
+
+enum eRFillMode
+{
+	eWireframe = D3D11_FILL_WIREFRAME,
+	eSolid = D3D11_FILL_SOLID
+};
+
+enum eRCullMode
+{
+	eCullNone = D3D11_CULL_NONE,
+	eCullFrontFace = D3D11_CULL_FRONT,
+	eCullBackFace = D3D11_CULL_BACK
+};
+
+enum class eRComparisonFunc
+{
+	eNever = D3D11_COMPARISON_NEVER,
+	eLess = D3D11_COMPARISON_LESS,
+	eEqual = D3D11_COMPARISON_EQUAL,
+	eLessEqual = D3D11_COMPARISON_LESS_EQUAL,
+	eGreater = D3D11_COMPARISON_GREATER,
+	eNotEqual = D3D11_COMPARISON_NOT_EQUAL,
+	eGreaterEqual = D3D11_COMPARISON_GREATER_EQUAL,
+	eAlways = D3D11_COMPARISON_ALWAYS
+};
+
+enum class eRBlend
+{
+	eZero = D3D11_BLEND_ZERO,
+	eOne = D3D11_BLEND_ONE,
+	eFactor = D3D11_BLEND_BLEND_FACTOR,
+	eInvFactor = D3D11_BLEND_INV_BLEND_FACTOR,
+
+	eSrcAlpha = D3D11_BLEND_SRC_ALPHA,
+	eInvSrcAlpha = D3D11_BLEND_INV_SRC_ALPHA,
+	eDestAlpha = D3D11_BLEND_DEST_ALPHA,
+	eInvDestAlpha = D3D11_BLEND_INV_DEST_ALPHA,
+	eSrcAlphaSat = D3D11_BLEND_SRC_ALPHA_SAT,
+	eSrc1Alpha = D3D11_BLEND_SRC1_ALPHA,
+	eInvSrc1Alpha = D3D11_BLEND_INV_SRC1_ALPHA,
+
+	eSrcColor = D3D11_BLEND_SRC_COLOR,
+	eInvSrcColor = D3D11_BLEND_INV_SRC_COLOR,
+	eDestColor = D3D11_BLEND_DEST_COLOR,
+	eInvDestColor = D3D11_BLEND_INV_DEST_COLOR,
+	eSrc1Color = D3D11_BLEND_SRC1_COLOR,
+	eInvSrc1Color = D3D11_BLEND_INV_SRC1_COLOR,
+};
+
+enum class eRBlendOp
+{
+	eAdd = D3D11_BLEND_OP_ADD,
+	eSubtract = D3D11_BLEND_OP_SUBTRACT,
+	eRevSubtract = D3D11_BLEND_OP_REV_SUBTRACT,
+	eMin = D3D11_BLEND_OP_MIN,
+	eMax = D3D11_BLEND_OP_MAX
+};
+
+enum class eRStencilOp
+{
+	eKeep = D3D11_STENCIL_OP_KEEP,
+	eZero = D3D11_STENCIL_OP_ZERO,
+	eReplace = D3D11_STENCIL_OP_REPLACE,  /// Set the stencil data to the reference value
+	eIncrSat = D3D11_STENCIL_OP_INCR_SAT, /// Increment the stencil value by 1, and clamp the result
+	eDecrSat = D3D11_STENCIL_OP_DECR_SAT, /// Decrement the stencil value by 1, and clamp the result
+	eInvert = D3D11_STENCIL_OP_INVERT,
+	eIncr = D3D11_STENCIL_OP_INCR,        /// Increment the stencil value by 1, and wrap the result if necessary
+	eDecr = D3D11_STENCIL_OP_DECR         /// Increment the stencil value by 1, and wrap the result if necessary
+};
+
+enum eRBlendWriteMask : uint8_t
+{
+	eColorNone = 0,
+	eColorRed = D3D11_COLOR_WRITE_ENABLE_RED,
+	eColorGreen = D3D11_COLOR_WRITE_ENABLE_GREEN,
+	eColorBlue = D3D11_COLOR_WRITE_ENABLE_BLUE,
+	eColorAlpha = D3D11_COLOR_WRITE_ENABLE_ALPHA,
+	eColorAll = D3D11_COLOR_WRITE_ENABLE_ALL
+};
+
+enum eRDepthWriteMask
+{
+	eDepthMaskZero = D3D11_DEPTH_WRITE_MASK_ZERO,  /// Turn off writes to the depth-stencil buffer.
+	eDepthMaskAll = D3D11_DEPTH_WRITE_MASK_ALL     /// Turn on writes to the depth-stencil buffer.
+};
+
+enum eRStencilMask : uint8_t
+{
+	eStencilDefaultReadMask = D3D11_DEFAULT_STENCIL_READ_MASK,
+	eStencilDefaultWriteMask = D3D11_DEFAULT_STENCIL_WRITE_MASK
 };
 
 enum eRFormat

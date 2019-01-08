@@ -3,6 +3,7 @@
 
 void AppBox::InitScene()
 {
+#if 0
 	m_BoxMesh.CreateAsCube(1.0f);
 
 	m_DiffuseTex.Create("WoodCrate01.dds");
@@ -14,6 +15,17 @@ void AppBox::InitScene()
 	m_PixelShader[eSharpen].Create("Box.hlsl", "PSMain_Sharpen");
 	m_PixelShader[eBlur].Create("Box.hlsl", "PSMain_Blur");
 	m_PixelShader[eEdgeDetection].Create("Box.hlsl", "PSMain_EdgeDetection");
+
+	m_CBufferVS.CreateAsConstantBuffer(sizeof(Matrix), eGpuReadCpuWrite, nullptr);
+
+	m_Camera.SetViewRadius(5.0f);
+#endif
+	m_BoxMesh.CreateAsCube(1.0f);
+
+	m_DiffuseTex.Create("WoodCrate01.dds");
+
+	m_VertexShader.Create("Box.glsl", "main");
+	m_PixelShader[eNone].Create("Box.glsl", "main");
 
 	m_CBufferVS.CreateAsConstantBuffer(sizeof(Matrix), eGpuReadCpuWrite, nullptr);
 

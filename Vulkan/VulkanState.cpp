@@ -1,8 +1,6 @@
 #include "VulkanState.h"
 #include "VulkanEngine.h"
 
-int dummy = 0;
-
 //void VulkanSamplerState::Create(uint32_t filter, uint32_t addressMode, float LODBias, uint32_t compFunc, const float *pBorderClr, float minLOD, float maxLOD)
 //{
 //	VkSamplerCreateInfo createInfo = 
@@ -78,3 +76,19 @@ int dummy = 0;
 //		1.0f
 //	};
 //}
+
+void VulkanBlendState::Create(
+	bool bAlphaToCoverage,
+	bool bIndependentBlend,
+	uint32_t surfaceIndex,
+	bool bBlend,
+	eRBlend srcColor,
+	eRBlend dstColor,
+	eRBlendOp colorOp,
+	eRBlend srcAlpha,
+	eRBlend dstAlpha,
+	eRBlendOp alphaOp,
+	uint8_t renderTargetWriteMask)
+{
+
+}

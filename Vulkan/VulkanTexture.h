@@ -1,8 +1,8 @@
 #pragma once
 
-#include "VulkanObject.h"
+#include "VulkanView.h"
 
-class VulkanTexture2D : public VulkanObject<VkImageView>
+class VulkanTexture2D : public VulkanImage
 {
 //public:
 //	void Create(

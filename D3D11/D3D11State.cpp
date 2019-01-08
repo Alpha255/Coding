@@ -1,7 +1,7 @@
 #include "D3D11State.h"
 #include "D3D11Engine.h"
 
-void D3D11SamplerState::Create(uint32_t filter, uint32_t addressMode, float LODBias, uint32_t compFunc, const float *pBorderClr, float minLOD, float maxLOD)
+void D3D11SamplerState::Create(uint32_t filter, uint32_t addressMode, float LODBias, eRComparisonFunc compFunc, const float *pBorderClr, float minLOD, float maxLOD)
 {
 	assert(!IsValid());
 
@@ -28,18 +28,18 @@ void D3D11SamplerState::Create(uint32_t filter, uint32_t addressMode, float LODB
 void D3D11DepthStencilState::Create(
 	bool bDepthEnable,
 	uint32_t depthWriteMask,
-	uint32_t compFunc,
+	eRComparisonFunc compFunc,
 	bool bStencilEnable,
 	uint8_t stencilReadMask,
 	uint8_t stencilWriteMask,
-	uint32_t stencilFailOpFrontFace,
-	uint32_t stencilDepthFailOpFrontFace,
-	uint32_t stencilPassOpFrontFace,
-	uint32_t stencilCompFuncFrontFace,
-	uint32_t stencilFailOpBackFace,
-	uint32_t stencilDepthFailOpBackFace,
-	uint32_t stencilPassOpBackFace,
-	uint32_t stencilCompFuncBackFace)
+	eRStencilOp stencilFailOpFrontFace,
+	eRStencilOp stencilDepthFailOpFrontFace,
+	eRStencilOp stencilPassOpFrontFace,
+	eRComparisonFunc stencilCompFuncFrontFace,
+	eRStencilOp stencilFailOpBackFace,
+	eRStencilOp stencilDepthFailOpBackFace,
+	eRStencilOp stencilPassOpBackFace,
+	eRComparisonFunc stencilCompFuncBackFace)
 {
 	assert(!IsValid());
 
@@ -70,12 +70,12 @@ void D3D11BlendState::Create(
 	bool bIndependentBlend,
 	uint32_t surfaceIndex,
 	bool bBlend,
-	uint32_t srcColor,
-	uint32_t dstColor,
-	uint32_t colorOp,
-	uint32_t srcAlpha,
-	uint32_t dstAlpha,
-	uint32_t alphaOp,
+	eRBlend srcColor,
+	eRBlend dstColor,
+	eRBlendOp colorOp,
+	eRBlend srcAlpha,
+	eRBlend dstAlpha,
+	eRBlendOp alphaOp,
 	uint8_t renderTargetWriteMask)
 {
 	assert(!IsValid() && surfaceIndex < 8U);
@@ -147,22 +147,22 @@ void D3D11StaticState::Initialize()
 		return;
 	}
 
-	PointSampler.Create(ePoint, eWrap, 0.0f, D3DState::eNever, nullptr, 0.0f, FLT_MAX);
-	PointClampSampler.Create(ePoint, eClamp, 0.0f, D3DState::eAlways, nullptr, 0.0f, FLT_MAX);
-	LinearSampler.Create(eLinear, eWrap, 0.0f, D3DState::eNever, nullptr, 0.0f, FLT_MAX);
-	AnisotropicSampler.Create(eAnisotropic, eWrap, 0.0f, D3DState::eNever, nullptr, 0.0f, FLT_MAX);
+	PointSampler.Create(ePoint, eWrap, 0.0f, eRComparisonFunc::eNever, nullptr, 0.0f, FLT_MAX);
+	PointClampSampler.Create(ePoint, eClamp, 0.0f, eRComparisonFunc::eAlways, nullptr, 0.0f, FLT_MAX);
+	LinearSampler.Create(eLinear, eWrap, 0.0f, eRComparisonFunc::eNever, nullptr, 0.0f, FLT_MAX);
+	AnisotropicSampler.Create(eAnisotropic, eWrap, 0.0f, eRComparisonFunc::eNever, nullptr, 0.0f, FLT_MAX);
 
-	Wireframe.Create(D3DState::eWireframe, D3DState::eCullBackFace, false, true, false);
-	Solid.Create(D3DState::eSolid, D3DState::eCullBackFace, false, true, false);
-	WireframeNoneCulling.Create(D3DState::eWireframe, D3DState::eCullNone, false, false, false);
-	SolidNoneCulling.Create(D3DState::eSolid, D3DState::eCullNone, false, true, false);
-	SolidFrontCCW.Create(D3DState::eSolid, D3DState::eCullBackFace, true, true, false);
+	Wireframe.Create(eWireframe, eCullBackFace, false, true, false);
+	Solid.Create(eSolid, eCullBackFace, false, true, false);
+	WireframeNoneCulling.Create(eWireframe, eCullNone, false, false, false);
+	SolidNoneCulling.Create(eSolid, eCullNone, false, true, false);
+	SolidFrontCCW.Create(eSolid, eCullBackFace, true, true, false);
 
 	DisableDepthStencil.Create(
-		false, D3DState::eDepthMaskAll, D3DState::eAlways,
+		false, eDepthMaskAll, eRComparisonFunc::eAlways,
 		false, 0U, 0U,
-		D3DState::eStencilKeep, D3DState::eStencilKeep, D3DState::eStencilKeep, D3DState::eAlways,
-		D3DState::eStencilKeep, D3DState::eStencilKeep, D3DState::eStencilKeep, D3DState::eAlways);
+		eRStencilOp::eKeep, eRStencilOp::eKeep, eRStencilOp::eKeep, eRComparisonFunc::eAlways,
+		eRStencilOp::eKeep, eRStencilOp::eKeep, eRStencilOp::eKeep, eRComparisonFunc::eAlways);
 
 	Inited = true;
 }

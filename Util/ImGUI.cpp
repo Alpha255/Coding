@@ -40,7 +40,6 @@ void ImGUI::Initialize(::HWND hWnd)
 
 void ImGUI::InitRenderResource()
 {
-#if 0
 	const VertexLayout layout[] = 
 	{
 		{ "POSITION", (size_t)(&((ImDrawVert*)0)->pos), eRG32_Float  },
@@ -54,8 +53,10 @@ void ImGUI::InitRenderResource()
 
 	m_Resource.ConstantBufferVS.CreateAsConstantBuffer(sizeof(Matrix), eGpuReadCpuWrite, nullptr);
 
-	m_Resource.ClrWriteBlend.Create(false, false, 0U, true, D3DState::eSrcAlpha, D3DState::eInvSrcAlpha, D3DState::eAdd,
-		D3DState::eInvSrcAlpha, D3DState::eZero, D3DState::eAdd, D3DState::eColorAll);
+	m_Resource.ClrWriteBlend.Create(false, false, 0U, true, 
+		eRBlend::eSrcAlpha, eRBlend::eInvSrcAlpha, eRBlendOp::eAdd,
+		eRBlend::eInvSrcAlpha, eRBlend::eZero, eRBlendOp::eAdd,
+		eColorAll);
 
 	unsigned char *pPixels = nullptr;
 	int32_t width = 0, height = 0;
@@ -63,13 +64,9 @@ void ImGUI::InitRenderResource()
 	io.Fonts->GetTexDataAsRGBA32(&pPixels, &width, &height);
 
 	RTexture2D fontTex;
-	D3D11_SUBRESOURCE_DATA subRes = {};
-	subRes.pSysMem = (const void *)pPixels;
-	subRes.SysMemPitch = (uint32_t)width * 4U;
-	fontTex.Create(eRGBA8_UNorm, (uint32_t)width, (uint32_t)height, eBindAsShaderResource, 1U, 1U, 0U, 0U, eGpuReadWrite, &subRes);
+	fontTex.Create(eRGBA8_UNorm, (uint32_t)width, (uint32_t)height, eBindAsShaderResource, 1U, 1U, 0U, 0U, eGpuReadWrite, pPixels, (uint32_t)width * 4U);
 	m_Resource.FontTexture.CreateAsTexture(eTexture2D, fontTex, eRGBA8_UNorm, 0U, 1U);
 	io.Fonts->TexID = (void *)m_Resource.FontTexture.Get();
-#endif
 }
 
 ::LRESULT ImGUI::MessageProcFunc(::HWND hWnd, uint32_t uMsg, ::WPARAM wParam, ::LPARAM lParam)

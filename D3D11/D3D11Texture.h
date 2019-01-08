@@ -14,7 +14,9 @@ public:
 		uint32_t cpuFlags = 0U,
 		uint32_t miscFlags = 0U,
 		uint32_t usage = 0U,
-		const D3D11_SUBRESOURCE_DATA *pSubResData = nullptr);
+		const void *pSysMem = nullptr,
+		uint32_t sysMemPitch = 0U,
+		uint32_t sysMemSlicePitch = 0U);
 
 	void CreateRandomTexture();
 };
@@ -32,7 +34,9 @@ public:
 		uint32_t cpuFlags = 0U,
 		uint32_t miscFlags = 0U,
 		uint32_t usage = 0U,
-		const D3D11_SUBRESOURCE_DATA *pSubResData = nullptr);
+		const void *pSysMem = nullptr,
+		uint32_t sysMemPitch = 0U,
+		uint32_t sysMemSlicePitch = 0U);
 };
 
 class D3D11Texture3D : public D3D11Resource
@@ -48,5 +52,7 @@ public:
 		uint32_t cpuFlags = 0U,
 		uint32_t miscFlags = 0U,
 		uint32_t usage = 0U,
-		const D3D11_SUBRESOURCE_DATA *pSubResData = nullptr);
+		const void *pSysMem = nullptr,
+		uint32_t sysMemPitch = 0U,
+		uint32_t sysMemSlicePitch = 0U);
 };

@@ -91,6 +91,97 @@ enum eRTextureAddressMode
 	eMirrorOnce = VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE
 };
 
+enum eRFillMode
+{
+	eWireframe = VK_POLYGON_MODE_LINE,
+	eSolid = VK_POLYGON_MODE_FILL
+};
+
+enum eRCullMode
+{
+	eCullNone = VK_CULL_MODE_NONE,
+	eCullFrontFace = VK_CULL_MODE_FRONT_BIT,
+	eCullBackFace = VK_CULL_MODE_BACK_BIT
+};
+
+enum class eRComparisonFunc
+{
+	eNever = VK_COMPARE_OP_NEVER,
+	eLess = VK_COMPARE_OP_LESS,
+	eEqual = VK_COMPARE_OP_EQUAL,
+	eLessEqual = VK_COMPARE_OP_LESS_OR_EQUAL,
+	eGreater = VK_COMPARE_OP_GREATER,
+	eNotEqual = VK_COMPARE_OP_NOT_EQUAL,
+	eGreaterEqual = VK_COMPARE_OP_GREATER_OR_EQUAL,
+	eAlways = VK_COMPARE_OP_ALWAYS
+};
+
+enum class eRBlend
+{
+	eZero = VK_BLEND_FACTOR_ZERO,
+	eOne = VK_BLEND_FACTOR_ONE,
+	//eFactor = VK_BLEND_FACTOR_CONSTANT_ALPHA,
+	//eInvFactor = VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA,
+
+	eSrcAlpha = VK_BLEND_FACTOR_SRC_ALPHA,
+	eInvSrcAlpha = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
+	eDestAlpha = VK_BLEND_FACTOR_DST_ALPHA,
+	eInvDestAlpha = VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA,
+	eSrcAlphaSat = VK_BLEND_FACTOR_SRC_ALPHA_SATURATE,
+	eSrc1Alpha = VK_BLEND_FACTOR_SRC1_ALPHA,
+	eInvSrc1Alpha = VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA,
+
+	eSrcColor = VK_BLEND_FACTOR_SRC_COLOR,
+	eInvSrcColor = VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR,
+	eDestColor = VK_BLEND_FACTOR_DST_COLOR,
+	eInvDestColor = VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR,
+	eSrc1Color = VK_BLEND_FACTOR_SRC1_COLOR,
+	eInvSrc1Color = VK_BLEND_FACTOR_ONE_MINUS_SRC1_COLOR,
+};
+
+enum class eRBlendOp
+{
+	eAdd = VK_BLEND_OP_ADD,
+	eSubtract = VK_BLEND_OP_SUBTRACT,
+	eRevSubtract = VK_BLEND_OP_REVERSE_SUBTRACT,
+	eMin = VK_BLEND_OP_MIN,
+	eMax = VK_BLEND_OP_MAX
+};
+
+enum class eRStencilOp
+{
+	eKeep = VK_STENCIL_OP_KEEP,
+	eZero = VK_STENCIL_OP_ZERO,
+	eReplace = VK_STENCIL_OP_REPLACE,  /// Set the stencil data to the reference value
+	eIncrSat = VK_STENCIL_OP_INCREMENT_AND_CLAMP, /// Increment the stencil value by 1, and clamp the result
+	eDecrSat = VK_STENCIL_OP_DECREMENT_AND_CLAMP, /// Decrement the stencil value by 1, and clamp the result
+	eInvert = VK_STENCIL_OP_INVERT,
+	eIncr = VK_STENCIL_OP_INCREMENT_AND_WRAP,        /// Increment the stencil value by 1, and wrap the result if necessary
+	eDecr = VK_STENCIL_OP_DECREMENT_AND_WRAP         /// Increment the stencil value by 1, and wrap the result if necessary
+};
+
+enum eRBlendWriteMask : uint8_t
+{
+	eColorNone = 0,
+	eColorRed,
+	eColorGreen,
+	eColorBlue,
+	eColorAlpha,
+	eColorAll
+};
+
+enum eRDepthWriteMask
+{
+	eDepthMaskZero,  /// Turn off writes to the depth-stencil buffer.
+	eDepthMaskAll     /// Turn on writes to the depth-stencil buffer.
+};
+
+enum eRStencilMask : uint8_t
+{
+	eStencilDefaultReadMask = 0xff,
+	eStencilDefaultWriteMask = 0xff
+};
+
 enum eRFormat
 {
 	eUnknownFormat = VK_FORMAT_UNDEFINED,
