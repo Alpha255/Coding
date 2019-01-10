@@ -24,8 +24,8 @@ void AppBox::InitScene()
 
 	m_DiffuseTex.Create("WoodCrate01.dds");
 
-	m_VertexShader.Create("Box.glsl", "main");
-	m_PixelShader[eNone].Create("Box.glsl", "main");
+	m_VertexShader.Create("VulkanBoxVS.glsl", "main");
+	m_PixelShader[eNone].Create("VulkanBoxPS.glsl", "main");
 
 	m_CBufferVS.CreateAsConstantBuffer(sizeof(Matrix), eGpuReadCpuWrite, nullptr);
 

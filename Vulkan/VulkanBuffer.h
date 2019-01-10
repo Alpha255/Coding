@@ -39,7 +39,10 @@ public:
 	{
 		Create(byteWidth, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
-		Update(pData, byteWidth, 0U);
+		if (pData)
+		{
+			Update(pData, byteWidth, 0U);
+		}
 	}
 
 	inline void CreateAsIndexBuffer(
@@ -50,7 +53,10 @@ public:
 	{
 		Create(byteWidth, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
-		Update(pData, byteWidth, 0U);
+		if (pData)
+		{
+			Update(pData, byteWidth, 0U);
+		}
 	}
 
 	inline void CreateAsConstantBuffer(

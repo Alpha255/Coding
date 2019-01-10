@@ -259,3 +259,18 @@ public:
 protected:
 private:
 };
+
+class VulkanRect : public VkRect2D
+{
+public:
+	inline VulkanRect() = default;
+
+	inline VulkanRect(const ::RECT &rect)
+	{
+		offset.x = (uint32_t)rect.left;
+		offset.y = (uint32_t)rect.top;
+
+		extent.width = (uint32_t)(rect.right - rect.left);
+		extent.height = (uint32_t)(rect.bottom - rect.top);
+	}
+};

@@ -30,6 +30,58 @@ public:
 		m_Swapchain.SetFullScreen(bFullScreen);
 	}
 
+	inline void SetViewport(const VulkanViewport &viewport, uint32_t slot = 0U)
+	{
+	}
+
+	inline void SetInputLayout(const VulkanInputLayout &inputLayout)
+	{
+	}
+
+	inline void SetVertexShader(const VulkanVertexShader &vertexShader)
+	{
+	}
+
+	inline void SetPixelShader(const VulkanPixelShader &pixelShader)
+	{
+	}
+
+	inline void SetConstantBuffer(const VulkanBuffer &constantBuffer, uint32_t slot, eRShaderType targetShader)
+	{
+	}
+
+	inline void SetVertexBuffer(const VulkanBuffer &vertexBuffer, uint32_t stride, uint32_t offset, uint32_t slot = 0U)
+	{
+	}
+
+	inline void SetIndexBuffer(const VulkanBuffer &indexBuffer, uint32_t fmt, uint32_t offset)
+	{
+	}
+
+	inline void SetSamplerState(const VulkanSamplerState &samplerState, uint32_t slot, eRShaderType targetShader)
+	{
+	}
+
+	inline void SetRasterizerState(const VulkanRasterizerState &rasterizerState)
+	{
+	}
+
+	inline void SetDepthStencilState(const VulkanDepthStencilState &depthStencilState, uint32_t stencilRef)
+	{
+	}
+
+	inline void SetBlendState(const VulkanBlendState &blendState, Vec4 blendFactor = Vec4(0.0f, 0.0f, 0.0f, 0.0f), uint32_t mask = 0xFFFFFFFF)
+	{
+	}
+
+	inline void SetShaderResourceView(const VulkanShaderResourceView &shaderResourceView, uint32_t slot, eRShaderType targetShader)
+	{
+	}
+
+	inline void SetScissorRect(const VulkanRect &rect, uint32_t slot = 0U)
+	{
+	}
+
 	//inline void Draw(uint32_t vertexCount, uint32_t startVertex, uint32_t primitive)
 	//{
 	//}

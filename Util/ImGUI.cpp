@@ -226,7 +226,6 @@ void ImGUI::Update()
 	m_Resource.ConstantBufferVS.Update(&wvp, sizeof(Matrix));
 
 	RViewport vp(0.0f, 0.0f, ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y);
-#if 0
 	REngine::Instance().SetViewport(vp);
 	REngine::Instance().SetVertexShader(m_Resource.VertexShader);
 	REngine::Instance().SetPixelShader(m_Resource.PixelShader);
@@ -234,11 +233,10 @@ void ImGUI::Update()
 	REngine::Instance().SetVertexBuffer(m_Resource.VertexBuffer, sizeof(ImDrawVert), 0U);
 	REngine::Instance().SetIndexBuffer(m_Resource.IndexBuffer, sizeof(ImDrawIdx) == 2U ? eR16_UInt : eR32_UInt, 0U);
 	REngine::Instance().SetConstantBuffer(m_Resource.ConstantBufferVS, 0U, eVertexShader);
-	REngine::Instance().SetSamplerState(D3D11StaticState::LinearSampler, 0U, ePixelShader);
+	REngine::Instance().SetSamplerState(RStaticState::LinearSampler, 0U, ePixelShader);
 	REngine::Instance().SetBlendState(m_Resource.ClrWriteBlend);
-	REngine::Instance().SetDepthStencilState(D3D11StaticState::DisableDepthStencil, 0U);
-	REngine::Instance().SetRasterizerState(D3D11StaticState::SolidNoneCulling);
-#endif
+	REngine::Instance().SetDepthStencilState(RStaticState::DisableDepthStencil, 0U);
+	REngine::Instance().SetRasterizerState(RStaticState::SolidNoneCulling);
 
 	for (int i = 0, vOffset = 0, iOffset = 0; i < pDrawData->CmdListsCount; ++i)
 	{
@@ -260,11 +258,9 @@ void ImGUI::Update()
 					(long)pDrawCmd->ClipRect.w
 				};
 
-#if 0
 				REngine::Instance().SetShaderResourceView(m_Resource.FontTexture, 0U, ePixelShader);
 				REngine::Instance().SetScissorRect(scissorRect);
 				REngine::Instance().DrawIndexed(pDrawCmd->ElemCount, iOffset, vOffset, eTriangleList);
-#endif
 			}
 
 			iOffset += pDrawCmd->ElemCount;
@@ -279,13 +275,11 @@ void ImGUI::Update()
 	::GetClientRect(hWnd, &rect);
 
 	RViewport vpOld(0.0f, 0.0f, (float)(rect.right - rect.left), (float)(rect.bottom - rect.top));
-#if 0
 	REngine::Instance().SetViewport(vpOld);
 	REngine::Instance().SetScissorRect(rect);
-	REngine::Instance().SetRasterizerState(D3D11StaticState::Solid);
-	REngine::Instance().SetBlendState(D3D11StaticState::NoneBlendState);
-	REngine::Instance().SetDepthStencilState(D3D11StaticState::NoneDepthStencilState, 0U);
-#endif
+	REngine::Instance().SetRasterizerState(RStaticState::Solid);
+	REngine::Instance().SetBlendState(RStaticState::NoneBlendState);
+	REngine::Instance().SetDepthStencilState(RStaticState::NoneDepthStencilState, 0U);
 }
 
 void ImGUI::UpdateDrawData(bool bRecreateVB, bool bRecreateIB, const ImDrawData *pDrawData)

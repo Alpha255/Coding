@@ -17,12 +17,17 @@ public:
 		m_StateInfo.lineWidth = 1.0f;
 	}
 
-	//inline void Create(uint32_t fillMode, uint32_t cullMode, bool bFrontCCW, bool bDepthClip, bool bScissor)
-	//{
-	//	m_StateInfo.polygonMode = (VkPolygonMode)fillMode;
-	//	m_StateInfo.cullMode = (VkCullModeFlagBits)cullMode;
-	//	m_StateInfo.frontFace = bFrontCCW ? VK_FRONT_FACE_COUNTER_CLOCKWISE : VK_FRONT_FACE_CLOCKWISE;
-	//}
+	inline void Create(uint32_t fillMode, uint32_t cullMode, bool bFrontCCW, bool bDepthClip, bool bScissor)
+	{
+		m_StateInfo.polygonMode = (VkPolygonMode)fillMode;
+		m_StateInfo.cullMode = (VkCullModeFlagBits)cullMode;
+		m_StateInfo.frontFace = bFrontCCW ? VK_FRONT_FACE_COUNTER_CLOCKWISE : VK_FRONT_FACE_CLOCKWISE;
+	}
+
+	inline VkPipelineRasterizationStateCreateInfo Get() const
+	{
+		return m_StateInfo;
+	}
 protected:
 private:
 	VkPipelineRasterizationStateCreateInfo m_StateInfo = {};
@@ -54,6 +59,11 @@ public:
 		uint32_t stencilDepthFailOpBackFace,
 		uint32_t stencilPassOpBackFace,
 		uint32_t stencilCompFuncBackFace);
+
+	inline VkPipelineDepthStencilStateCreateInfo Get() const
+	{
+		return m_StateInfo;
+	}
 protected:
 private:
 	VkPipelineDepthStencilStateCreateInfo m_StateInfo = {};
@@ -76,7 +86,14 @@ public:
 		uint8_t renderTargetWriteMask);
 };
 
-class VulkanStaticState
+struct VulkanStaticState
 {
+	static void Initialize();
 
+	static VulkanSamplerState LinearSampler;
+	static VulkanDepthStencilState DisableDepthStencil;
+	static VulkanRasterizerState SolidNoneCulling;
+	static VulkanRasterizerState Solid;
+	static VulkanBlendState NoneBlendState;
+	static VulkanDepthStencilState NoneDepthStencilState;
 };

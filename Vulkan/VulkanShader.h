@@ -6,6 +6,11 @@ class VulkanInputLayout
 {
 public:
 	void Create(const void *, const VertexLayout *pLayout, size_t layoutCount);
+
+	inline std::vector<VkVertexInputAttributeDescription> Get() const
+	{
+		return m_VertexInputAttrs;
+	}
 protected:
 private:
 	std::vector<VkVertexInputBindingDescription> m_VertexInputBindingDes;
