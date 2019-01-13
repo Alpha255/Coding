@@ -18,7 +18,7 @@ void Mesh::CreateRenderResource()
 	};
 
 	RVertexShader vertexShader;
-	vertexShader.Create("Mesh.hlsl", "VSMain");
+	vertexShader.Create("Mesh.shader", "main");
 	InputLayout.Create(vertexShader.GetBlob(), layout, _countof(layout));
 
 	VertexBuffer.CreateAsVertexBuffer(sizeof(Vertex) * m_Vertices.size(), eGpuReadOnly, m_Vertices.data());
@@ -317,7 +317,7 @@ void Mesh::CreateAsGeoSphere(float radius, uint32_t subDivisions)
 	assert(!m_Created);
 
 	/// Put a cap on the number of subdivisions.
-	subDivisions = std::min(subDivisions, 5u);
+	subDivisions = std::min<uint32_t>(subDivisions, 5u);
 
 	/// Approximate a sphere by tessellating an icosahedron.
 

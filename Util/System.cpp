@@ -1,4 +1,5 @@
 #include "System.h"
+#include "ResourceFile.h"
 
 NamespaceBegin(System)
 
@@ -141,6 +142,41 @@ bool FileExists(const char *pFilePath)
 
 	return (attri != INVALID_FILE_ATTRIBUTES &&
 		!(attri & FILE_ATTRIBUTE_DIRECTORY));
+}
+
+inline void GetShaderCode(const char *pTag, std::string &rawCode)
+{
+	size_t beginIndex = rawCode.find(pTag);
+	assert(beginIndex != std::string::npos);
+	size_t endIndex = rawCode.find(pTag, beginIndex + strlen(pTag));
+	assert(endIndex != std::string::npos);
+
+	rawCode = std::string(rawCode.begin() + beginIndex + strlen(pTag), rawCode.begin() + endIndex);
+}
+
+std::string GetShaderCode(const char *pFileName, const char *pRenderTag, uint32_t shaderType)
+{
+	const char *s_ShaderTag[] =
+	{
+		"#VertexShader",
+		"#HullShader",
+		"#DomainShader",
+		"#GeometryShader",
+		"#PixelShader",
+		"#ComputeShader",
+	};
+
+	assert(pFileName && pRenderTag && shaderType < _countof(s_ShaderTag));
+
+	ResourceFile shaderFile(pFileName);
+	auto pRawCode = std::unique_ptr<uint8_t>(shaderFile.Load());
+	std::string rawCode((char *)pRawCode.get());
+
+	GetShaderCode(pRenderTag, rawCode);
+
+	GetShaderCode(s_ShaderTag[shaderType], rawCode);
+
+	return rawCode;
 }
 
 void Log(const char *pFormatMsg, ...)

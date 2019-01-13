@@ -2,6 +2,13 @@
 
 #include "VulkanView.h"
 
+struct VulkanSubResourceData
+{
+	const void *Memory = nullptr;
+	uint32_t MemPitch = 0U;
+	uint32_t MemSlicePitch = 0U;
+};
+
 class VulkanTexture2D : public VulkanImage
 {
 public:
@@ -15,9 +22,7 @@ public:
 		uint32_t cpuFlags = 0U,
 		uint32_t miscFlags = 0U,
 		uint32_t usage = 0U,
-		const void *pSysMem = nullptr,
-		uint32_t sysMemPitch = 0U,
-		uint32_t sysMemSlicePitch = 0U);
+		const VulkanSubResourceData *pSubResourceData = nullptr);
 protected:
 private:
 };

@@ -122,7 +122,54 @@ void VulkanSwapchain::Create(::HWND hWnd, uint32_t uWidth, uint32_t uHeight, boo
 
 void VulkanSwapchain::Resize(uint32_t uWidth, uint32_t uHeight)
 {
-	Create(nullptr, uWidth, uHeight, m_bFullScreen);
+	///Create(nullptr, uWidth, uHeight, m_bFullScreen);
+}
+
+void VulkanSwapchain::Flush()
+{
+	static uint32_t s_FrameIndex = 0U;
+	if (s_FrameIndex == UINT32_MAX)
+	{
+		s_FrameIndex = 0U;
+	}
+	m_CurBackBufferIndex = s_FrameIndex % m_BackBuffers.size();
+
+	VkResult result = vkDeviceWaitIdle(VulkanEngine::Instance().GetDevice());
+
+	result = vkGetFenceStatus(VulkanEngine::Instance().GetDevice(), m_BackBuffers[m_CurBackBufferIndex].PresentFence.Get());
+	if (VK_NOT_READY == result)
+	{
+		VKCheck(vkWaitForFences(VulkanEngine::Instance().GetDevice(), 1U, &m_BackBuffers[m_CurBackBufferIndex].PresentFence, true, UINT64_MAX));
+	}
+	else if (VK_SUCCESS == result)
+	{
+		VKCheck(vkResetFences(VulkanEngine::Instance().GetDevice(), 1U, &m_BackBuffers[m_CurBackBufferIndex].PresentFence));
+	}
+	else
+	{
+		System::Log("Vulkan Error: %d", result);
+		assert(0);
+	}
+
+	VKCheck(vkAcquireNextImageKHR(VulkanEngine::Instance().GetDevice(), m_Handle, UINT64_MAX, m_BackBuffers[m_CurBackBufferIndex].AcquireSemaphore.Get(), VK_NULL_HANDLE, &m_CurBackBufferIndex));
+
+	VkPresentInfoKHR presentInfo
+	{
+		VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+		nullptr,
+		1U,
+		&m_BackBuffers[m_CurBackBufferIndex].RenderSemaphore,
+		1U,
+		&m_Handle,
+		&m_CurBackBufferIndex,
+		nullptr
+	};
+
+	VKCheck(vkQueuePresentKHR(VulkanEngine::Instance().GetVulkanDevice().GetQueue(), &presentInfo));
+
+	VKCheck(vkQueueSubmit(VulkanEngine::Instance().GetVulkanDevice().GetQueue(), 0U, nullptr, m_BackBuffers[m_CurBackBufferIndex].PresentFence.Get()));
+
+	++s_FrameIndex;
 }
 
 //void VulkanSwapchain::CreateFrameBuffer(uint32_t width, uint32_t height, VkRenderPass renderPass)

@@ -22,8 +22,9 @@ private:
 class VulkanShader : public VulkanObject<VkShaderModule>
 {
 public:
-	VulkanShader(VkShaderStageFlagBits stage)
+	VulkanShader(VkShaderStageFlagBits stage, eRShaderType type)
 		: m_Stage(stage)
+		, m_Type(type)
 	{
 	}
 
@@ -36,6 +37,7 @@ public:
 protected:
 	VkShaderStageFlagBits m_Stage = VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM;
 	VkPipelineShaderStageCreateInfo m_ShaderStage = {};
+	eRShaderType m_Type = eRShaderTypeCount;
 private:
 };
 
@@ -43,7 +45,7 @@ class VulkanVertexShader : public VulkanShader
 {
 public:
 	VulkanVertexShader()
-		: VulkanShader(VK_SHADER_STAGE_VERTEX_BIT)
+		: VulkanShader(VK_SHADER_STAGE_VERTEX_BIT, eVertexShader)
 	{
 	}
 
@@ -59,7 +61,7 @@ class VulkanPixelShader : public VulkanShader
 {
 public:
 	VulkanPixelShader()
-		: VulkanShader(VK_SHADER_STAGE_FRAGMENT_BIT)
+		: VulkanShader(VK_SHADER_STAGE_FRAGMENT_BIT, ePixelShader)
 	{
 	}
 protected:

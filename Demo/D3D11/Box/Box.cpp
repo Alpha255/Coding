@@ -3,29 +3,19 @@
 
 void AppBox::InitScene()
 {
-#if 0
 	m_BoxMesh.CreateAsCube(1.0f);
 
 	m_DiffuseTex.Create("WoodCrate01.dds");
 
-	m_VertexShader.Create("Box.hlsl", "VSMain");
-	m_PixelShader[eNone].Create("Box.hlsl", "PSMain");
-	m_PixelShader[eInversion].Create("Box.hlsl", "PSMain_Inversion");
-	m_PixelShader[eGrayscale].Create("Box.hlsl", "PSMain_Grayscale");
-	m_PixelShader[eSharpen].Create("Box.hlsl", "PSMain_Sharpen");
-	m_PixelShader[eBlur].Create("Box.hlsl", "PSMain_Blur");
-	m_PixelShader[eEdgeDetection].Create("Box.hlsl", "PSMain_EdgeDetection");
-
-	m_CBufferVS.CreateAsConstantBuffer(sizeof(Matrix), eGpuReadCpuWrite, nullptr);
-
-	m_Camera.SetViewRadius(5.0f);
+	m_VertexShader.Create("Box.shader", "main");
+	m_PixelShader[eNone].Create("Box.shader", "main");
+#if defined(UsingD3D11)
+	m_PixelShader[eInversion].Create("Box.shader", "main_Inversion");
+	m_PixelShader[eGrayscale].Create("Box.shader", "main_Grayscale");
+	m_PixelShader[eSharpen].Create("Box.shader", "main_Sharpen");
+	m_PixelShader[eBlur].Create("Box.shader", "main_Blur");
+	m_PixelShader[eEdgeDetection].Create("Box.shader", "main_EdgeDetection");
 #endif
-	m_BoxMesh.CreateAsCube(1.0f);
-
-	m_DiffuseTex.Create("WoodCrate01.dds");
-
-	m_VertexShader.Create("VulkanBoxVS.glsl", "main");
-	m_PixelShader[eNone].Create("VulkanBoxPS.glsl", "main");
 
 	m_CBufferVS.CreateAsConstantBuffer(sizeof(Matrix), eGpuReadCpuWrite, nullptr);
 
@@ -34,8 +24,8 @@ void AppBox::InitScene()
 
 void AppBox::RenderScene()
 {
-#if 0
 	REngine::Instance().ResetDefaultRenderSurfaces();
+#if defined(UsingD3D11)
 	REngine::Instance().SetViewport(RViewport(0.0f, 0.0f, (float)m_Width, (float)m_Height));
 
 	REngine::Instance().SetInputLayout(m_BoxMesh.InputLayout);
@@ -53,9 +43,9 @@ void AppBox::RenderScene()
 	REngine::Instance().SetSamplerState(RStaticState::LinearSampler, 0U, ePixelShader);
 
 	REngine::Instance().DrawIndexed(m_BoxMesh.IndexCount, 0U, 0, eTriangleList);
+#endif
 
 	ImGui::Combo("SpecialEffect", &m_Effect, "None\0Inversion\0Grayscale\0Sharpen\0Blur\0EdgeDetection");
 	ImGui::Checkbox("VSync", &m_bVSync);
 	ImGui::Text("\n%.2f FPS", m_FPS);
-#endif
 }

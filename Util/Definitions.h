@@ -15,6 +15,7 @@
 	typedef D3D11BlendState RBlendState;
 	typedef D3D11Texture2D RTexture2D;
 	typedef D3D11StaticState RStaticState;
+	typedef D3D11SubResourceData RSubResourceData;
 #elif defined(UsingVulkan)
 	#include "Vulkan/VulkanEngine.h"
 	typedef VulkanEngine REngine;
@@ -27,4 +28,7 @@
 	typedef VulkanBlendState RBlendState;
 	typedef VulkanTexture2D RTexture2D;
 	typedef VulkanStaticState RStaticState;
+	typedef VulkanSubResourceData RSubResourceData;
+#else
+	#error "Unknown Render Engine"
 #endif

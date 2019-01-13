@@ -20,7 +20,7 @@ public:
 
 	virtual void Create(const char *pFileName, const char *pEntryPoint, const D3D_SHADER_MACRO *pMacros = nullptr, ID3DInclude *pInclude = nullptr) = 0;
 protected:
-	D3D11Blob CompileShaderFile(const char *pFileName, const char *pEntryPoint, const D3D_SHADER_MACRO *pMacros, ID3DInclude *pInclude);
+	D3D11Blob CompileShaderCode(const char *pFileName, const char *pEntryPoint, const D3D_SHADER_MACRO *pMacros, ID3DInclude *pInclude);
 	eRShaderType m_Type = eRShaderTypeCount;
 private:
 };

@@ -42,14 +42,14 @@ void ImGUI::InitRenderResource()
 {
 	const VertexLayout layout[] = 
 	{
-		{ "POSITION", (size_t)(&((ImDrawVert*)0)->pos), eRG32_Float  },
-		{ "TEXCOORD", (size_t)(&((ImDrawVert*)0)->uv),  eRG32_Float  },
-		{ "COLOR",    (size_t)(&((ImDrawVert*)0)->col), eRGBA8_UNorm }
+		{ "POSITION", sizeof(ImDrawVert::pos), (size_t)(&((ImDrawVert*)0)->pos), eRG32_Float  },
+		{ "TEXCOORD", sizeof(ImDrawVert::uv),  (size_t)(&((ImDrawVert*)0)->uv),  eRG32_Float  },
+		{ "COLOR",    sizeof(ImDrawVert::col), (size_t)(&((ImDrawVert*)0)->col), eRGBA8_UNorm }
 	};
 
-	m_Resource.VertexShader.Create("imGUI.hlsl", "VS_Main");
+	m_Resource.VertexShader.Create("imGUI.shader", "main");
 	m_Resource.VertexLayout.Create(m_Resource.VertexShader.GetBlob(), layout, _countof(layout));
-	m_Resource.PixelShader.Create("imGUI.hlsl", "PS_Main");
+	m_Resource.PixelShader.Create("imGUI.shader", "main");
 
 	m_Resource.ConstantBufferVS.CreateAsConstantBuffer(sizeof(Matrix), eGpuReadCpuWrite, nullptr);
 
@@ -64,7 +64,13 @@ void ImGUI::InitRenderResource()
 	io.Fonts->GetTexDataAsRGBA32(&pPixels, &width, &height);
 
 	RTexture2D fontTex;
-	fontTex.Create(eRGBA8_UNorm, (uint32_t)width, (uint32_t)height, eBindAsShaderResource, 1U, 1U, 0U, 0U, eGpuReadWrite, pPixels, (uint32_t)width * 4U);
+	RSubResourceData subResData
+	{
+		(const void *)pPixels,
+		(uint32_t)width * 4U,
+		0U
+	};
+	fontTex.Create(eRGBA8_UNorm, (uint32_t)width, (uint32_t)height, eBindAsShaderResource, 1U, 1U, 0U, 0U, eGpuReadWrite, &subResData);
 	m_Resource.FontTexture.CreateAsTexture(eTexture2D, fontTex, eRGBA8_UNorm, 0U, 1U);
 	io.Fonts->TexID = (void *)m_Resource.FontTexture.Get();
 }

@@ -1,6 +1,7 @@
 #include "D3D11Shader.h"
 #include "D3D11Engine.h"
 #include "Util/ResourceFile.h"
+#include "Util/System.h"
 
 #include <d3dcompiler.h>
 
@@ -34,9 +35,11 @@ void D3D11InputLayout::Create(D3D11Blob &blob, const VertexLayout *pVertexLayout
 	MakeObject(pInputLayout);
 }
 
-D3D11Blob D3D11Shader::CompileShaderFile(const char *pFileName, const char *pEntryPoint, const D3D_SHADER_MACRO *pMacros, ID3DInclude *pInclude)
+D3D11Blob D3D11Shader::CompileShaderCode(const char *pFileName, const char *pEntryPoint, const D3D_SHADER_MACRO *pMacros, ID3DInclude *pInclude)
 {
-	assert(pFileName && pEntryPoint && m_Type != eRShaderTypeCount);
+	assert(pEntryPoint && m_Type != eRShaderTypeCount);
+
+	std::string shaderCode = System::GetShaderCode(pFileName, "#D3D11", m_Type);
 
 	const char *const models[eRShaderTypeCount] =
 	{
@@ -62,16 +65,15 @@ D3D11Blob D3D11Shader::CompileShaderFile(const char *pFileName, const char *pEnt
 #endif
 	std::string fileDir = shaderFile.GetFilePath(); 
 	fileDir = fileDir.substr(0, fileDir.rfind('\\'));
-	auto pData = std::unique_ptr<uint8_t>(shaderFile.Load());
 
 	char workingDir[MAX_PATH] = {};
 	::GetCurrentDirectoryA(MAX_PATH, workingDir);
 
 	::SetCurrentDirectoryA(fileDir.c_str());
 	ID3DInclude* pIncludeInfo = (nullptr == pInclude ? D3D_COMPILE_STANDARD_FILE_INCLUDE : pInclude);
-	if (FAILED(D3DCompile((void *)pData.get(), shaderFile.GetSize(), pFileName, pMacros, pIncludeInfo, pEntryPoint, models[m_Type], flags, 0U, &pResult, &pErrMsg)))
+	if (FAILED(D3DCompile((const void *)shaderCode.c_str(), shaderCode.length(), pFileName, pMacros, pIncludeInfo, pEntryPoint, models[m_Type], flags, 0U, &pResult, &pErrMsg)))
 	{
-		OutputDebugStringA((char*)pErrMsg->GetBufferPointer());
+		System::Log((const char*)pErrMsg->GetBufferPointer());
 		assert(!"Shader compile failed!!!");
 	}
 	::SetCurrentDirectoryA(workingDir);
@@ -86,7 +88,7 @@ void D3D11VertexShader::Create(const char *pFileName, const char *pEntryPoint, c
 {
 	assert(!IsValid());
 
-	m_Blob = CompileShaderFile(pFileName, pEntryPoint, pMacros, pInclude);
+	m_Blob = CompileShaderCode(pFileName, pEntryPoint, pMacros, pInclude);
 
 	ID3D11VertexShader *pVertexShader = nullptr;
 	HRCheck(D3D11Engine::Instance().GetDevice()->CreateVertexShader(m_Blob->GetBufferPointer(), m_Blob->GetBufferSize(), nullptr, &pVertexShader));
@@ -98,7 +100,7 @@ void D3D11HullShader::Create(const char *pFileName, const char *pEntryPoint, con
 {
 	assert(!IsValid());
 
-	D3D11Blob blob = CompileShaderFile(pFileName, pEntryPoint, pMacros, pInclude);
+	D3D11Blob blob = CompileShaderCode(pFileName, pEntryPoint, pMacros, pInclude);
 
 	ID3D11HullShader *pHullShader = nullptr;
 	HRCheck(D3D11Engine::Instance().GetDevice()->CreateHullShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &pHullShader));
@@ -110,7 +112,7 @@ void D3D11DomainShader::Create(const char *pFileName, const char *pEntryPoint, c
 {
 	assert(!IsValid());
 
-	D3D11Blob blob = CompileShaderFile(pFileName, pEntryPoint, pMacros, pInclude);
+	D3D11Blob blob = CompileShaderCode(pFileName, pEntryPoint, pMacros, pInclude);
 
 	ID3D11DomainShader *pDomainShader = nullptr;
 	HRCheck(D3D11Engine::Instance().GetDevice()->CreateDomainShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &pDomainShader));
@@ -122,7 +124,7 @@ void D3D11GeometryShader::Create(const char *pFileName, const char *pEntryPoint,
 {
 	assert(!IsValid());
 
-	D3D11Blob blob = CompileShaderFile(pFileName, pEntryPoint, pMacros, pInclude);
+	D3D11Blob blob = CompileShaderCode(pFileName, pEntryPoint, pMacros, pInclude);
 
 	ID3D11GeometryShader *pGeometryShader = nullptr;
 	HRCheck(D3D11Engine::Instance().GetDevice()->CreateGeometryShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &pGeometryShader));
@@ -134,7 +136,7 @@ void D3D11PixelShader::Create(const char *pFileName, const char *pEntryPoint, co
 {
 	assert(!IsValid());
 
-	D3D11Blob blob = CompileShaderFile(pFileName, pEntryPoint, pMacros, pInclude);
+	D3D11Blob blob = CompileShaderCode(pFileName, pEntryPoint, pMacros, pInclude);
 
 	ID3D11PixelShader *pPixelShader = nullptr;
 	HRCheck(D3D11Engine::Instance().GetDevice()->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &pPixelShader));
@@ -146,7 +148,7 @@ void D3D11ComputeShader::Create(const char *pFileName, const char *pEntryPoint, 
 {
 	assert(!IsValid());
 
-	D3D11Blob blob = CompileShaderFile(pFileName, pEntryPoint, pMacros, pInclude);
+	D3D11Blob blob = CompileShaderCode(pFileName, pEntryPoint, pMacros, pInclude);
 
 	ID3D11ComputeShader *pComputeShader = nullptr;
 	HRCheck(D3D11Engine::Instance().GetDevice()->CreateComputeShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &pComputeShader));

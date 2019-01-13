@@ -2,6 +2,16 @@
 
 #include "D3D11Object.h"
 
+struct D3D11SubResourceData : public D3D11_SUBRESOURCE_DATA 
+{
+	inline D3D11SubResourceData(const void *pMem, uint32_t memPitch, uint32_t memSlicePitch)
+	{
+		D3D11_SUBRESOURCE_DATA::pSysMem = pMem;
+		D3D11_SUBRESOURCE_DATA::SysMemPitch = memPitch;
+		D3D11_SUBRESOURCE_DATA::SysMemSlicePitch = memSlicePitch;
+	}
+};
+
 class D3D11Texture1D : public D3D11Resource
 {
 public:
@@ -14,9 +24,7 @@ public:
 		uint32_t cpuFlags = 0U,
 		uint32_t miscFlags = 0U,
 		uint32_t usage = 0U,
-		const void *pSysMem = nullptr,
-		uint32_t sysMemPitch = 0U,
-		uint32_t sysMemSlicePitch = 0U);
+		const D3D11SubResourceData *pSubResourceData = nullptr);
 
 	void CreateRandomTexture();
 };
@@ -34,9 +42,7 @@ public:
 		uint32_t cpuFlags = 0U,
 		uint32_t miscFlags = 0U,
 		uint32_t usage = 0U,
-		const void *pSysMem = nullptr,
-		uint32_t sysMemPitch = 0U,
-		uint32_t sysMemSlicePitch = 0U);
+		const D3D11SubResourceData *pSubResourceData = nullptr);
 };
 
 class D3D11Texture3D : public D3D11Resource
@@ -52,7 +58,5 @@ public:
 		uint32_t cpuFlags = 0U,
 		uint32_t miscFlags = 0U,
 		uint32_t usage = 0U,
-		const void *pSysMem = nullptr,
-		uint32_t sysMemPitch = 0U,
-		uint32_t sysMemSlicePitch = 0U);
+		const D3D11SubResourceData *pSubResourceData = nullptr);
 };

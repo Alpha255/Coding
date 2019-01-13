@@ -100,7 +100,7 @@ void IApplication::HandleWindowMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM /
 	case WM_ENTERSIZEMOVE:
 		m_bActive = false;
 		m_Timer.Stop();
-		///m_bNeedResize = true;
+		m_bNeedResize = true;
 		break;
 	case WM_EXITSIZEMOVE:
 		m_Timer.Start();

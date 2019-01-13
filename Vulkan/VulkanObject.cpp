@@ -287,7 +287,7 @@ void VulkanSemaphore::Destory()
 	Reset();
 }
 
-void VulkanFence::Create()
+void VulkanFence::Create(eFenceState state)
 {
 	assert(!IsValid());
 
@@ -295,7 +295,7 @@ void VulkanFence::Create()
 	{
 		VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
 		nullptr,
-		0U
+		eUnSignaled == state ? 0U : VK_FENCE_CREATE_SIGNALED_BIT
 	};
 
 	VKCheck(vkCreateFence(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));

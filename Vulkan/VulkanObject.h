@@ -194,13 +194,19 @@ private:
 class VulkanFence : public VulkanObject<VkFence>
 {
 public:
+	enum eFenceState
+	{
+		eUnSignaled,
+		eSignaled
+	};
+
 	VulkanFence() = default;
 	inline ~VulkanFence()
 	{
 		Destory();
 	}
 
-	void Create();
+	void Create(eFenceState state = eUnSignaled);
 
 	void Destory();
 protected:

@@ -49,7 +49,7 @@ public:
 		m_bFullScreen = bFullScreen;
 	}
 
-	void Flush() {}
+	void Flush();
 protected:
 	struct VulkanBackBuffer
 	{
@@ -66,6 +66,7 @@ private:
 	VkFormat m_DepthSurfaceFormat = VK_FORMAT_UNDEFINED;
 	VulkanDepthStencilView m_DepthStencilView;
 	std::vector<VulkanBackBuffer> m_BackBuffers;
+	uint32_t m_CurBackBufferIndex = 0U;
 	bool m_bVSync = false;
 	bool m_bFullScreen = false;
 };

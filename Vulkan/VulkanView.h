@@ -43,9 +43,7 @@ public:
 		uint32_t arraySize,
 		uint32_t usage,
 		uint32_t layout,
-		const void *pSysMem = nullptr,
-		uint32_t sysMemPitch = 0U,
-		uint32_t sysMemSlicePitch = 0U);
+		const struct VulkanSubResourceData *pSubResourceData = nullptr);
 
 	inline ImageProperty GetProperty() const
 	{

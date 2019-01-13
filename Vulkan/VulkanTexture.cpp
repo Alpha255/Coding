@@ -12,9 +12,7 @@ void VulkanTexture2D::Create(
 	uint32_t cpuFlags,
 	uint32_t miscFlags,
 	uint32_t usage,
-	const void *pSysMem,
-	uint32_t sysMemPitch,
-	uint32_t sysMemSlicePitch)
+	const VulkanSubResourceData *pSubResourceData)
 {
 	VulkanImage::Create(
 		eImage2D,
@@ -26,7 +24,5 @@ void VulkanTexture2D::Create(
 		arraySize,
 		usage,
 		VK_IMAGE_LAYOUT_UNDEFINED,
-		pSysMem,
-		sysMemPitch,
-		sysMemSlicePitch);
+		pSubResourceData);
 }

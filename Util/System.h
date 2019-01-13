@@ -16,4 +16,6 @@ bool FileExists(const char *pFilePath);
 
 void Log(const char *pFormatMsg, ...);
 
+std::string GetShaderCode(const char *pFileName, const char *pRenderTag, uint32_t shaderType);
+
 NamespaceEnd(System)

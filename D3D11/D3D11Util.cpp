@@ -716,7 +716,7 @@ void CreateShaderResourceView(
 	case D3D11_RESOURCE_DIMENSION_TEXTURE1D:
 	{
 		D3D11Texture1D texture1D;
-		texture1D.Create(format, width, bindFlags, mipCount, arraySize, cpuAccessFlags, miscFlags, usage, pSubResData);
+		texture1D.Create(format, width, bindFlags, mipCount, arraySize, cpuAccessFlags, miscFlags, usage, (D3D11SubResourceData *)pSubResData);
 
 		D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};
 		desc.Format = (DXGI_FORMAT)format;
@@ -743,7 +743,7 @@ void CreateShaderResourceView(
 	case D3D11_RESOURCE_DIMENSION_TEXTURE2D:
 	{
 		D3D11Texture2D texture2D;
-		texture2D.Create(format, width, height, bindFlags, mipCount, arraySize, cpuAccessFlags, miscFlags, usage, pSubResData);
+		texture2D.Create(format, width, height, bindFlags, mipCount, arraySize, cpuAccessFlags, miscFlags, usage, (D3D11SubResourceData *)pSubResData);
 
 		D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};
 		desc.Format = (DXGI_FORMAT)format;
@@ -785,7 +785,7 @@ void CreateShaderResourceView(
 	case D3D11_RESOURCE_DIMENSION_TEXTURE3D:
 	{
 		D3D11Texture3D texture3D;
-		texture3D.Create(format, width, height, depth, bindFlags, mipCount, cpuAccessFlags, miscFlags, usage, pSubResData);
+		texture3D.Create(format, width, height, depth, bindFlags, mipCount, cpuAccessFlags, miscFlags, usage, (D3D11SubResourceData *)pSubResData);
 
 		D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};
 		desc.Format = (DXGI_FORMAT)format;

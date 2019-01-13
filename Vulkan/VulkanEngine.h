@@ -30,6 +30,11 @@ public:
 		m_Swapchain.SetFullScreen(bFullScreen);
 	}
 
+	inline void ResetDefaultRenderSurfaces(const Vec4 &clearClr = Color::DarkBlue)
+	{
+
+	}
+
 	inline void SetViewport(const VulkanViewport &viewport, uint32_t slot = 0U)
 	{
 	}

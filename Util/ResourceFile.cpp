@@ -56,7 +56,7 @@ void ResourceFile::GetPath(const char *pFileName)
 
 ResourceFile::eType ResourceFile::GetType(const char *pFileName)
 {
-	if (System::IsStrEndwith(pFileName, ".hlsl") || System::IsStrEndwith(pFileName, ".glsl"))
+	if (System::IsStrEndwith(pFileName, ".shader"))
 	{
 		return eShader;
 	}

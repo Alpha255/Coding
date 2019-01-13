@@ -11,9 +11,7 @@ void VulkanImage::Create(
 	uint32_t arraySize,
 	uint32_t usage,
 	uint32_t layout,
-	const void *pSysMem,
-	uint32_t sysMemPitch,
-	uint32_t sysMemSlicePitch)
+	const VulkanSubResourceData *pSubResourceData)
 {
 	assert(!IsValid() && type <= VK_IMAGE_TYPE_END_RANGE);
 

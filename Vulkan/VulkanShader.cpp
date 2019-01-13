@@ -5,7 +5,7 @@
 
 void VulkanInputLayout::Create(const void *, const VertexLayout *pLayout, size_t layoutCount)
 {
-	assert(pLayout && layoutCount);
+	assert(!m_bValid && pLayout && layoutCount);
 
 	m_VertexInputBindingDes.clear();
 	m_VertexInputAttrs.clear();
@@ -52,7 +52,9 @@ void VulkanInputLayout::Create(const void *, const VertexLayout *pLayout, size_t
 
 void VulkanShader::Create(const char *pFileName, const char *pEntryPoint)
 {
-	ResourceFile shaderFile(pFileName);
+	assert(!IsValid());
+
+	std::string shaderCode = System::GetShaderCode(pFileName, "#Vulkan", m_Type);
 
 	///char workingDir[MAX_PATH] = {};
 	///::GetCurrentDirectoryA(MAX_PATH, workingDir);
@@ -64,8 +66,8 @@ void VulkanShader::Create(const char *pFileName, const char *pEntryPoint)
 		VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
 		nullptr,
 		0U,
-		shaderFile.GetSize(),
-		(uint32_t *)shaderFile.Load()
+		shaderCode.length(),
+		(uint32_t *)shaderCode.c_str()
 	};
 	VKCheck(vkCreateShaderModule(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
 
