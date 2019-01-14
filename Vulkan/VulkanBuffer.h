@@ -8,17 +8,16 @@ public:
 	VulkanDeviceMemory() = default;
 	inline ~VulkanDeviceMemory()
 	{
-		Free();
+		Destory();
 	}
 
 	static uint32_t GetMemoryTypeIndex(uint32_t memoryTypeBits, uint32_t memoryPropertyFlagBits);
 
-	void Alloc(size_t size, uint32_t memoryTypeIndex);
+	void Create(size_t size, uint32_t memoryTypeIndex);
 
 	void Update(const void *pMemory, size_t size, size_t offset);
-
-	void Free();
 protected:
+	void Destory();
 private:
 };
 
@@ -33,11 +32,11 @@ public:
 
 	inline void CreateAsVertexBuffer(
 		size_t byteWidth,
-		uint32_t,
+		uint32_t usage,
 		const void *pData,
-		uint32_t = 0U)
+		uint32_t usageFlag = 0U)
 	{
-		Create(byteWidth, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+		Create(byteWidth, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | usageFlag, GetMemoryProperty(usage));
 
 		if (pData)
 		{
@@ -47,11 +46,11 @@ public:
 
 	inline void CreateAsIndexBuffer(
 		size_t byteWidth,
-		uint32_t,
+		uint32_t usage,
 		const void *pData,
-		uint32_t = 0U)
+		uint32_t usageFlag = 0U)
 	{
-		Create(byteWidth, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+		Create(byteWidth, VK_BUFFER_USAGE_INDEX_BUFFER_BIT | usageFlag, GetMemoryProperty(usage));
 
 		if (pData)
 		{
@@ -61,11 +60,11 @@ public:
 
 	inline void CreateAsConstantBuffer(
 		size_t byteWidth,
-		uint32_t,
+		uint32_t usage,
 		const void *pData,
-		uint32_t = 0U)
+		uint32_t usageFlag = 0U)
 	{
-		Create(byteWidth, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+		Create(byteWidth, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | usageFlag, GetMemoryProperty(usage));
 
 		if (pData)
 		{
@@ -73,12 +72,13 @@ public:
 		}
 	}
 
-	inline void CreateAsSrcDynamicBuffer(size_t byteWidth)
+	inline void CreateAsTransferBuffer(size_t byteWidth, uint32_t usage, bool bSource = true)
 	{
-		Create(byteWidth, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+		Create(
+			byteWidth, 
+			bSource ? VK_BUFFER_USAGE_TRANSFER_SRC_BIT : VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+			GetMemoryProperty(usage));
 	}
-
-	void Destory();
 
 	inline void Update(const void *pMemory, size_t size, size_t offset = 0U)
 	{
@@ -86,6 +86,24 @@ public:
 	}
 protected:
 	void Create(size_t size, uint32_t usage, uint32_t memoryPropertyFlags);
+	void Destory();
+	inline uint32_t GetMemoryProperty(uint32_t usage)
+	{
+		switch (usage)
+		{
+		case eGpuReadWrite:
+			return VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+		case eGpuReadOnly:
+		case eGpuReadCpuWrite:
+			return VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+		case eGpuCopyToCpu:
+			return 0U;
+		default:
+			System::Log("Not supported yet!");
+			assert(0);
+			return 0U;
+		}
+	}
 private:
 	VulkanDeviceMemory m_Memory;
 };
@@ -180,5 +198,15 @@ private:
 
 class VulkanFrameBuffer : public VulkanObject<VkFramebuffer>
 {
+public:
+	inline VulkanFrameBuffer() = default;
+	inline ~VulkanFrameBuffer()
+	{
+		Destory();
+	}
 
+	void Create(const std::vector<class VulkanImageView> &imageViews, const class VulkanRenderPass &renderPass, uint32_t width, uint32_t height, uint32_t layers = 1U);
+protected:
+	void Destory();
+private:
 };

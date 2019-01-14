@@ -9,6 +9,21 @@
 #include "VulkanTexture.h"
 #include "Util/D3DMath.h"
 
+//class VulkanPipelineLayout : public VulkanObject<VkPipelineLayout>
+//{
+//public:
+//	void Create(bool bUseTex);
+//protected:
+//private:
+//};
+
+//class VulkanPipelineCache : public VulkanObject<VkPipelineCache>
+//{
+//public:
+//protected:
+//private:
+//};
+
 class VulkanContext : public VulkanObject<VkPipeline>
 {
 public:

@@ -1,5 +1,6 @@
 #include "VulkanBuffer.h"
 #include "VulkanTexture.h"
+#include "VulkanRenderPass.h"
 #include "VulkanEngine.h"
 
 uint32_t VulkanDeviceMemory::GetMemoryTypeIndex(uint32_t memoryTypeBits, uint32_t memoryPropertyFlagBits)
@@ -27,7 +28,7 @@ uint32_t VulkanDeviceMemory::GetMemoryTypeIndex(uint32_t memoryTypeBits, uint32_
 	return memoryTypeIndex;
 }
 
-void VulkanDeviceMemory::Alloc(size_t size, uint32_t memoryTypeIndex)
+void VulkanDeviceMemory::Create(size_t size, uint32_t memoryTypeIndex)
 {
 	assert(!IsValid());
 
@@ -53,13 +54,11 @@ void VulkanDeviceMemory::Update(const void *pMemory, size_t size, size_t offset)
 	vkUnmapMemory(VulkanEngine::Instance().GetDevice(), m_Handle);
 }
 
-void VulkanDeviceMemory::Free()
+void VulkanDeviceMemory::Destory()
 {
-	///assert(IsValid());
-	if (IsValid())
-	{
-		vkFreeMemory(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
-	}
+	assert(IsValid());
+
+	vkFreeMemory(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
 
 	Reset();
 }
@@ -84,7 +83,7 @@ void VulkanBuffer::Create(size_t size, uint32_t usage, uint32_t memoryPropertyFl
 	VkMemoryRequirements memoryRequirements = {};
 	vkGetBufferMemoryRequirements(VulkanEngine::Instance().GetDevice(), m_Handle, &memoryRequirements);
 	
-	m_Memory.Alloc(size, VulkanDeviceMemory::GetMemoryTypeIndex(memoryRequirements.memoryTypeBits, memoryPropertyFlags));
+	m_Memory.Create(size, VulkanDeviceMemory::GetMemoryTypeIndex(memoryRequirements.memoryTypeBits, memoryPropertyFlags));
 
 	VKCheck(vkBindBufferMemory(VulkanEngine::Instance().GetDevice(), m_Handle, m_Memory.Get(), 0));
 }
@@ -95,7 +94,41 @@ void VulkanBuffer::Destory()
 
 	vkDestroyBuffer(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
 
-	m_Memory.Free();
+	Reset();
+}
+
+void VulkanFrameBuffer::Create(const std::vector<VulkanImageView> &imageViews, const VulkanRenderPass &renderPass, uint32_t width, uint32_t height, uint32_t layers)
+{
+	assert(!IsValid());
+
+	std::vector<VkImageView> vkViews(imageViews.size());
+	for (uint32_t i = 0U; i < imageViews.size(); ++i)
+	{
+		assert(imageViews[i].IsValid());
+		vkViews[i] = imageViews[i].Get();
+	}
+
+	VkFramebufferCreateInfo createInfo
+	{
+		VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+		nullptr,
+		0U, /// Reserved for future use
+		renderPass.Get(),
+		(uint32_t)vkViews.size(),
+		vkViews.data(),
+		width,
+		height, 
+		layers
+	};
+
+	VKCheck(vkCreateFramebuffer(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
+}
+
+void VulkanFrameBuffer::Destory()
+{
+	assert(IsValid());
+
+	vkDestroyFramebuffer(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
 
 	Reset();
 }

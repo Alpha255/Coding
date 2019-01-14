@@ -91,13 +91,14 @@ public:
 	}
 
 	void Create(const char *pApplicationName = "VulkanApplication", const char *pEngineName = "VulkanEngine");
-
+protected:
 	inline void Destory()
 	{
+		assert(IsValid());
+
 		vkDestroyInstance(m_Handle, nullptr);
 		Reset();
 	}
-protected:
 private:
 	std::vector<VkLayerProperties> m_LayerProperties;
 	std::vector<VkExtensionProperties> m_ExtensionProperties;
@@ -111,7 +112,10 @@ class VulkanDevice
 {
 public:
 	VulkanDevice() = default;
-	~VulkanDevice() = default;
+	~VulkanDevice()
+	{
+		Destory();
+	}
 
 	inline void Create()
 	{
@@ -152,9 +156,25 @@ public:
 
 	uint32_t GetOptimalSurfaceFormat(uint32_t flags, bool bDepthSurface) const;
 protected:
-	void GetPhysicalDevice();
 	void CreateLogicalDevice();
+	void GetPhysicalDevice();
 	void VerifyPhysicalFeatures(VkPhysicalDeviceFeatures &enableFeatures);
+	inline void Destory()
+	{
+		assert(m_LogicalDevice.IsValid());
+
+		vkDestroyDevice(m_LogicalDevice.Get(), nullptr);
+
+		for each(auto device in m_PhysicalDevices)
+		{
+			assert(device.IsValid());
+			device.Reset();
+		}
+		m_LogicalDevice.Reset();
+		m_DeviceQueue.Reset();
+
+		m_PhysicalDevices.clear();
+	}
 private:
 	uint32_t m_QueueFamilyIndex = UINT_MAX;
 	std::vector<VulkanPhysicalDevice> m_PhysicalDevices;
@@ -167,14 +187,6 @@ private:
 	VkPhysicalDeviceMemoryProperties m_PhysicalMemoryProperties = {};
 };
 
-//class VulkanRenderPass : public VulkanObject<VkRenderPass>
-//{
-//public:
-//	void Create(bool depth, uint32_t colorFormat, uint32_t depthFormat, bool clear = true, uint32_t imageLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
-//protected:
-//private:
-//};
-
 class VulkanSemaphore : public VulkanObject<VkSemaphore>
 {
 public:
@@ -185,9 +197,8 @@ public:
 	}
 
 	void Create();
-
-	void Destory();
 protected:
+	void Destory();
 private:
 };
 
@@ -207,9 +218,8 @@ public:
 	}
 
 	void Create(eFenceState state = eUnSignaled);
-
-	void Destory();
 protected:
+	void Destory();
 private:
 };
 
@@ -221,13 +231,6 @@ private:
 //private:
 //};
 //
-//class VulkanPipelineLayout : public VulkanObject<VkPipelineLayout>
-//{
-//public:
-//	void Create(bool bUseTex);
-//protected:
-//private:
-//};
 //
 //class VulkanDescriptorSet : public VulkanObject<VkDescriptorSet>
 //{
@@ -237,12 +240,6 @@ private:
 //private:
 //};
 //
-//class VulkanPipelineCache : public VulkanObject<VkPipelineCache>
-//{
-//public:
-//protected:
-//private:
-//};
 
 class VulkanViewport : public VkViewport
 {

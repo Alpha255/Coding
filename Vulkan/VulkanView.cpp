@@ -49,7 +49,7 @@ void VulkanImage::Create(
 
 	VkMemoryRequirements memReq = {};
 	vkGetImageMemoryRequirements(VulkanEngine::Instance().GetDevice(), m_Handle, &memReq);
-	m_Memory.Alloc(memReq.size, VulkanDeviceMemory::GetMemoryTypeIndex(memReq.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
+	m_Memory.Create(memReq.size, VulkanDeviceMemory::GetMemoryTypeIndex(memReq.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
 
 	VKCheck(vkBindImageMemory(VulkanEngine::Instance().GetDevice(), m_Handle, m_Memory.Get(), 0));
 }
@@ -125,7 +125,7 @@ void VulkanShaderResourceView::Create(const char *pFileName)
 	//	VK_IMAGE_LAYOUT_UNDEFINED);
 
 	VulkanBuffer subResBuffer;
-	subResBuffer.CreateAsSrcDynamicBuffer(rawDds.RawSize);
+	subResBuffer.CreateAsTransferBuffer(rawDds.RawSize, 0U);
 	subResBuffer.Update(rawDds.RawData.get(), rawDds.RawSize, 0U);
 
 	uint32_t subResCount = rawDds.ArraySize * rawDds.MipLevels;
