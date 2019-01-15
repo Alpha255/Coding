@@ -89,7 +89,7 @@ def MakeFileList(_ProjectName, _Directorys, _TypeFilters = [], _ExcludeDirectory
 						fileList[FileType.eResource].append(fullFilePath)
 					elif IsFileTypeMatch(file, ['.ico']):
 						fileList[FileType.eImage].append(fullFilePath)
-					elif IsFileTypeMatch(file, ['.hlsl', '.hlsli', '.glsl']):
+					elif IsFileTypeMatch(file, ['.shader']):
 						if ((_ProjectName.lower() in fullFilePath.lower()) and False == _IsLibrary):
 							fileList[FileType.eShader].append(fullFilePath)
 
@@ -105,7 +105,7 @@ def MakeFilterList(_vcProject):
 			fileRoot = GetFileRootPath(file) + '\\'
 			if ((fileRoot.lower() == _vcProject.Path.lower()) or IsFileTypeMatch(file, ['.rc', '.ico'])):
 				continue
-			if (IsFileTypeMatch(file, ['.hlsl', '.hlsli', '.glsl'])):
+			if (IsFileTypeMatch(file, ['.shader'])):
 				if ('Shaders' not in filterList):
 					filterList.append('Shaders')
 				continue
@@ -148,7 +148,7 @@ def MakeProjectFilter(_vcProject, _IncludeType):
 					elif (IsFileTypeMatch(file, ['.rc', '.ico'])):
 						filterXML.append('\t\t\t<Filter>%s</Filter>\n' % 'Resource')
 						break
-					elif (IsFileTypeMatch(file, ['.hlsl', '.hlsli', '.glsl'])):
+					elif (IsFileTypeMatch(file, ['.shader'])):
 						filterXML.append('\t\t\t<Filter>%s</Filter>\n' % 'Shaders')
 						break
 				filterXML.append('\t\t</%s>\n' % _IncludeType[fileType].split(' ', 1)[0])
