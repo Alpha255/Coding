@@ -37,12 +37,11 @@ void VulkanSurface::Create(::HWND hWnd)
 
 void VulkanSwapchain::Create(::HWND hWnd, uint32_t uWidth, uint32_t uHeight, bool bFullScreen)
 {
+	///VKCheck(vkDeviceWaitIdle(VulkanEngine::Instance().GetDevice()));
+
 	m_bFullScreen = bFullScreen;
 
-	if (!m_Surface.IsValid())
-	{
-		m_Surface.Create(hWnd);
-	}
+	m_Surface.Create(hWnd);
 
 	auto &surfaceCapabilities = m_Surface.GetCapabilities();
 	assert(surfaceCapabilities.maxImageExtent.width && surfaceCapabilities.maxImageExtent.height);
@@ -105,19 +104,26 @@ void VulkanSwapchain::Create(::HWND hWnd, uint32_t uWidth, uint32_t uHeight, boo
 	std::vector<VkImage> images(count);
 	VKCheck(vkGetSwapchainImagesKHR(VulkanEngine::Instance().GetDevice(), m_Handle, &count, images.data()));
 
+	VulkanImage depthStencilImage;
+	depthStencilImage.Create(VulkanImage::eImage2D, uWidth, uHeight, 1U, m_DepthSurfaceFormat, 1U, 1U, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_LAYOUT_UNDEFINED);
+	m_DepthStencilView.CreateAsTexture(eTexture2D, depthStencilImage, m_DepthSurfaceFormat, 0U, 1U);
+
 	m_BackBuffers.resize(count);
 	for (uint32_t i = 0U; i < count; ++i)
 	{
 		VulkanImage image(images[i]);
 		m_BackBuffers[i].RenderTargetView.CreateAsTexture(eTexture2D, image, m_ColorSurfaceFormat, 1U);
-		m_BackBuffers[i].PresentFence.Create();
+		m_BackBuffers[i].PresentFence.Create(VulkanFence::eUnSignaled);
 		m_BackBuffers[i].AcquireSemaphore.Create();
 		m_BackBuffers[i].RenderSemaphore.Create();
+		
+		std::vector<VulkanImageView> imageViews;
+		imageViews.emplace_back(m_BackBuffers[i].RenderTargetView);
+		imageViews.emplace_back(m_DepthStencilView);
+		m_BackBuffers[i].FrameBuffer.Create(imageViews, VulkanEngine::Instance().GetDefaultRenderPass(), uWidth, uHeight, 1U);
 	}
 
-	VulkanImage depthStencilImage;
-	depthStencilImage.Create(VulkanImage::eImage2D, uWidth, uHeight, 1U, m_DepthSurfaceFormat, 1U, 1U, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_LAYOUT_UNDEFINED);
-	m_DepthStencilView.CreateAsTexture(eTexture2D, depthStencilImage, m_DepthSurfaceFormat, 0U, 1U);
+	///VKCheck(vkDeviceWaitIdle(VulkanEngine::Instance().GetDevice()));
 }
 
 void VulkanSwapchain::Resize(uint32_t uWidth, uint32_t uHeight)

@@ -7,6 +7,7 @@
 #include "VulkanState.h"
 #include "VulkanPool.h"
 #include "VulkanTexture.h"
+#include "VulkanRenderPass.h"
 #include "Util/D3DMath.h"
 
 //class VulkanPipelineLayout : public VulkanObject<VkPipelineLayout>

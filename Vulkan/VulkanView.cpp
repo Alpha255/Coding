@@ -54,6 +54,15 @@ void VulkanImage::Create(
 	VKCheck(vkBindImageMemory(VulkanEngine::Instance().GetDevice(), m_Handle, m_Memory.Get(), 0));
 }
 
+void VulkanImage::Destory()
+{
+	assert(IsValid());
+
+	vkDestroyImage(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
+
+	Reset();
+}
+
 void VulkanImageView::Create(VulkanImage &image)
 {
 	assert(!IsValid() && image.IsValid());
@@ -125,7 +134,7 @@ void VulkanShaderResourceView::Create(const char *pFileName)
 	//	VK_IMAGE_LAYOUT_UNDEFINED);
 
 	VulkanBuffer subResBuffer;
-	subResBuffer.CreateAsTransferBuffer(rawDds.RawSize, 0U);
+	subResBuffer.CreateAsTransferBuffer(rawDds.RawSize, eGpuReadCpuWrite);
 	subResBuffer.Update(rawDds.RawData.get(), rawDds.RawSize, 0U);
 
 	uint32_t subResCount = rawDds.ArraySize * rawDds.MipLevels;

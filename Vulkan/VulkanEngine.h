@@ -126,6 +126,12 @@ public:
 		return m_Swapchain;
 	}
 
+	inline const VulkanRenderPass &GetDefaultRenderPass() const
+	{
+		assert(m_DefaultRenderPass.IsValid());
+		return m_DefaultRenderPass;
+	}
+
 	void Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool bWindowed);
 
 	inline void Resize(uint32_t width, uint32_t height) 
@@ -143,6 +149,7 @@ private:
 	VulkanDevice m_Device;
 	VulkanSwapchain m_Swapchain;
 	VulkanInstance m_Instance;
+	VulkanRenderPass m_DefaultRenderPass;
 	std::array<VulkanCommandPool, VulkanCommandPool::ePoolTypeCount> m_CommandPools;
 
 	bool m_Inited = false;

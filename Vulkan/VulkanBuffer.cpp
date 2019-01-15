@@ -56,7 +56,7 @@ void VulkanDeviceMemory::Update(const void *pMemory, size_t size, size_t offset)
 
 void VulkanDeviceMemory::Destory()
 {
-	assert(IsValid());
+	///assert(IsValid());
 
 	vkFreeMemory(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
 

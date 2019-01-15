@@ -31,7 +31,10 @@ public:
 	}
 
 	inline VulkanImage() = default;
-	inline ~VulkanImage() = default;
+	inline ~VulkanImage()
+	{
+		///Destory();
+	}
 
 	void Create(
 		uint32_t type,
@@ -44,6 +47,8 @@ public:
 		uint32_t usage,
 		uint32_t layout,
 		const struct VulkanSubResourceData *pSubResourceData = nullptr);
+
+	void Destory();
 
 	inline ImageProperty GetProperty() const
 	{

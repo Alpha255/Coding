@@ -49,6 +49,16 @@ public:
 		m_bFullScreen = bFullScreen;
 	}
 
+	inline uint32_t GetColorSurfaceFormat() const
+	{
+		return m_ColorSurfaceFormat;
+	}
+
+	inline uint32_t GetDepthSurfaceFormat() const
+	{
+		return m_DepthSurfaceFormat;
+	}
+
 	void Flush();
 protected:
 	struct VulkanBackBuffer
@@ -57,6 +67,7 @@ protected:
 		VulkanFence PresentFence;
 		VulkanSemaphore AcquireSemaphore;
 		VulkanSemaphore RenderSemaphore;
+		VulkanFrameBuffer FrameBuffer;
 	};
 private:
 	VulkanSurface m_Surface;

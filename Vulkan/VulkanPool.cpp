@@ -31,6 +31,8 @@ void VulkanCommandPool::Destory()
 
 	/// When a pool is destroyed, all command buffers allocated from the pool are freed
 	vkDestroyCommandPool(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
+
+	Reset();
 }
 
 VulkanCommandBuffer VulkanCommandPool::Alloc(eBufferType type)
