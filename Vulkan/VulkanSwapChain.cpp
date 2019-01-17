@@ -37,8 +37,6 @@ void VulkanSurface::Create(::HWND hWnd)
 
 void VulkanSwapchain::Create(::HWND hWnd, uint32_t uWidth, uint32_t uHeight, bool bFullScreen)
 {
-	///VKCheck(vkDeviceWaitIdle(VulkanEngine::Instance().GetDevice()));
-
 	m_bFullScreen = bFullScreen;
 
 	m_Surface.Create(hWnd);
@@ -113,7 +111,7 @@ void VulkanSwapchain::Create(::HWND hWnd, uint32_t uWidth, uint32_t uHeight, boo
 	{
 		VulkanImage image(images[i]);
 		m_BackBuffers[i].RenderTargetView.CreateAsTexture(eTexture2D, image, m_ColorSurfaceFormat, 1U);
-		m_BackBuffers[i].PresentFence.Create(VulkanFence::eUnSignaled);
+		m_BackBuffers[i].PresentFence.Create(VulkanFence::eSignaled);
 		m_BackBuffers[i].AcquireSemaphore.Create();
 		m_BackBuffers[i].RenderSemaphore.Create();
 		
@@ -122,8 +120,6 @@ void VulkanSwapchain::Create(::HWND hWnd, uint32_t uWidth, uint32_t uHeight, boo
 		imageViews.emplace_back(m_DepthStencilView);
 		m_BackBuffers[i].FrameBuffer.Create(imageViews, VulkanEngine::Instance().GetDefaultRenderPass(), uWidth, uHeight, 1U);
 	}
-
-	///VKCheck(vkDeviceWaitIdle(VulkanEngine::Instance().GetDevice()));
 }
 
 void VulkanSwapchain::Resize(uint32_t uWidth, uint32_t uHeight)
@@ -140,9 +136,9 @@ void VulkanSwapchain::Flush()
 	}
 	m_CurBackBufferIndex = s_FrameIndex % m_BackBuffers.size();
 
-	VkResult result = vkDeviceWaitIdle(VulkanEngine::Instance().GetDevice());
+	VKCheck(vkDeviceWaitIdle(VulkanEngine::Instance().GetDevice()));
 
-	result = vkGetFenceStatus(VulkanEngine::Instance().GetDevice(), m_BackBuffers[m_CurBackBufferIndex].PresentFence.Get());
+	VkResult result = vkGetFenceStatus(VulkanEngine::Instance().GetDevice(), m_BackBuffers[m_CurBackBufferIndex].PresentFence.Get());
 	if (VK_NOT_READY == result)
 	{
 		VKCheck(vkWaitForFences(VulkanEngine::Instance().GetDevice(), 1U, &m_BackBuffers[m_CurBackBufferIndex].PresentFence, true, UINT64_MAX));

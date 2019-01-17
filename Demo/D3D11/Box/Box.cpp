@@ -5,7 +5,7 @@ void AppBox::InitScene()
 {
 	m_BoxMesh.CreateAsCube(1.0f);
 
-	m_DiffuseTex.Create("WoodCrate01.dds");
+	///m_DiffuseTex.Create("WoodCrate01.dds");
 
 	m_VertexShader.Create("Box.shader", "main");
 	m_PixelShader[eNone].Create("Box.shader", "main");
