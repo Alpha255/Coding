@@ -5,31 +5,19 @@
 class VulkanDeviceMemory : public VulkanObject<VkDeviceMemory>
 {
 public:
-	VulkanDeviceMemory() = default;
-	inline ~VulkanDeviceMemory()
-	{
-		Destory();
-	}
-
 	static uint32_t GetMemoryTypeIndex(uint32_t memoryTypeBits, uint32_t memoryPropertyFlagBits);
 
 	void Create(size_t size, uint32_t memoryTypeIndex);
+	void Destory();
 
 	void Update(const void *pMemory, size_t size, size_t offset);
 protected:
-	void Destory();
 private:
 };
 
 class VulkanBuffer : public VulkanObject<VkBuffer>
 {
 public:
-	inline VulkanBuffer() = default;
-	inline ~VulkanBuffer()
-	{
-		Destory();
-	}
-
 	inline void CreateAsVertexBuffer(
 		size_t byteWidth,
 		uint32_t usage,
@@ -84,9 +72,10 @@ public:
 	{
 		m_Memory.Update(pMemory, size, offset);
 	}
+
+	void Destory();
 protected:
 	void Create(size_t size, uint32_t usage, uint32_t memoryPropertyFlags);
-	void Destory();
 	inline uint32_t GetMemoryProperty(uint32_t usage)
 	{
 		switch (usage)
@@ -108,7 +97,41 @@ private:
 	VulkanDeviceMemory m_Memory;
 };
 
-class VulkanCommandBuffer : public VulkanObject<VkCommandBuffer>
+class IVulkanCommandBuffer
+{
+public:
+protected:
+	friend class VulkanEngine;
+
+	inline void SetIndex(uint32_t index)
+	{
+		assert(m_Index == UINT32_MAX);
+		m_Index = index;
+	}
+
+	inline void SetPoolType(uint32_t type)
+	{
+		assert(m_PoolType == UINT32_MAX);
+		m_PoolType = type;
+	}
+
+	inline uint32_t GetIndex() const
+	{
+		assert(m_Index != UINT32_MAX);
+		return m_Index;
+	}
+
+	inline uint32_t GetPoolType() const
+	{
+		assert(m_PoolType != UINT32_MAX);
+		return m_PoolType;
+	}
+
+	uint32_t m_Index = UINT32_MAX;
+	uint32_t m_PoolType = UINT32_MAX;
+};
+
+class VulkanCommandBuffer : public VulkanObject<VkCommandBuffer>, public IVulkanCommandBuffer
 {
 public:
 	inline VulkanCommandBuffer() = default;
@@ -156,7 +179,7 @@ protected:
 private:
 };
 
-class VulkanCommandBufferList
+class VulkanCommandBufferList : public IVulkanCommandBuffer
 {
 public:
 	inline VulkanCommandBufferList(const std::vector<VkCommandBuffer> &other)
@@ -199,14 +222,8 @@ private:
 class VulkanFrameBuffer : public VulkanObject<VkFramebuffer>
 {
 public:
-	inline VulkanFrameBuffer() = default;
-	inline ~VulkanFrameBuffer()
-	{
-		Destory();
-	}
-
 	void Create(const std::vector<class VulkanImageView> &imageViews, const class VulkanRenderPass &renderPass, uint32_t width, uint32_t height, uint32_t layers = 1U);
-protected:
 	void Destory();
+protected:
 private:
 };

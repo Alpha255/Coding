@@ -3,6 +3,8 @@
 
 void VulkanCommandPool::Create(ePoolType type)
 {
+	assert(!IsValid());
+
 	uint32_t flags = VK_COMMAND_POOL_CREATE_FLAG_BITS_MAX_ENUM;
 	switch (type)
 	{
@@ -19,7 +21,7 @@ void VulkanCommandPool::Create(ePoolType type)
 		VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
 		nullptr,
 		flags,
-		VulkanEngine::Instance().GetVulkanDevice().GetQueueFamilyIndex()
+		VulkanEngine::Instance().GetPhysicalDevice().GetQueueFamilyIndex()
 	};
 
 	VKCheck(vkCreateCommandPool(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));

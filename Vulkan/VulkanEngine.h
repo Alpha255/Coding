@@ -103,17 +103,50 @@ public:
 	inline VulkanCommandBuffer AllocCommandBuffer(VulkanCommandPool::ePoolType type, VulkanCommandPool::eBufferType bufferType)
 	{
 		assert(type < VulkanCommandPool::ePoolTypeCount && m_CommandPools[type].IsValid());
-		return m_CommandPools[type].Alloc(bufferType);
+		VulkanCommandBuffer newCmdBuffer = m_CommandPools[type].Alloc(bufferType);
+
+		RegisterCommandBuffer(type, newCmdBuffer);
+
+		return newCmdBuffer;
 	}
 
-	inline const VulkanDevice &GetVulkanDevice() const
+	inline void FreeCommandBuffer(VulkanCommandBuffer &cmdBuffer)
 	{
-		return m_Device;
+		DeregisterCommandBuffer(cmdBuffer);
+
+		m_CommandPools[cmdBuffer.GetPoolType()].Free(cmdBuffer);
+	}
+
+	inline VulkanCommandBufferList AllocCommandBufferList(VulkanCommandPool::ePoolType type, VulkanCommandPool::eBufferType bufferType, uint32_t count)
+	{
+		assert(type < VulkanCommandPool::ePoolTypeCount && m_CommandPools[type].IsValid());
+		VulkanCommandBufferList newCmdBufferList = m_CommandPools[type].Alloc(bufferType, count);
+
+		RegisterCommandBufferList(type, newCmdBufferList);
+
+		return newCmdBufferList;
+	}
+
+	inline void FreeCommandBufferList(VulkanCommandBufferList &cmdBufferList)
+	{
+		DeregisterCommandBufferList(cmdBufferList);
+
+		m_CommandPools[cmdBufferList.GetPoolType()].Free(cmdBufferList);
+	}
+
+	inline const VulkanPhysicalDevice &GetPhysicalDevice() const
+	{
+		return m_Device.GetPhysicalDevice();
 	}
 
 	inline VkDevice GetDevice() const
 	{
-		return m_Device.GetLogicalDevice();
+		return m_Device.Get();
+	}
+
+	inline VkQueue GetQueue() const
+	{
+		return m_Device.GetQueue();
 	}
 
 	inline VkInstance GetInstance() const
@@ -132,17 +165,51 @@ public:
 		return m_DefaultRenderPass;
 	}
 
-	void Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool bWindowed);
-
 	inline void Resize(uint32_t width, uint32_t height) 
 	{
 		m_Swapchain.Resize(width, height);
 	}
 
+	void Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool bWindowed);
+
 protected:
 	VulkanEngine() = default;
-	~VulkanEngine() = default;
+	~VulkanEngine();
 
+	inline void RegisterCommandBuffer(VulkanCommandPool::ePoolType type, VulkanCommandBuffer &cmdBuffer)
+	{
+		m_CommandBuffers[type].insert(std::make_pair(m_CommandBufferCount, cmdBuffer));
+		cmdBuffer.SetPoolType(type);
+		++m_CommandBufferCount;
+		cmdBuffer.SetIndex(m_CommandBufferCount);
+	}
+
+	inline void DeregisterCommandBuffer(VulkanCommandBuffer &cmdBuffer)
+	{
+		m_CommandBuffers[cmdBuffer.GetPoolType()].erase(cmdBuffer.GetIndex());
+		cmdBuffer.SetPoolType(UINT32_MAX);
+		cmdBuffer.SetIndex(UINT32_MAX);
+		--m_CommandBufferCount;
+	}
+
+	inline void RegisterCommandBufferList(VulkanCommandPool::ePoolType type, VulkanCommandBufferList &cmdBufferList)
+	{
+		/// May need to...
+		m_CommandBufferLists[type].insert(std::make_pair(m_CommandBufferCount, cmdBufferList));
+		cmdBufferList.SetPoolType(type);
+		m_CommandBufferCount += cmdBufferList.GetCount();
+		cmdBufferList.SetIndex(m_CommandBufferCount);
+	}
+
+	inline void DeregisterCommandBufferList(VulkanCommandBufferList &cmdBufferList)
+	{
+		m_CommandBufferLists[cmdBufferList.GetPoolType()].erase(cmdBufferList.GetIndex());
+		cmdBufferList.SetPoolType(UINT32_MAX);
+		cmdBufferList.SetIndex(UINT32_MAX);
+		m_CommandBufferCount -= cmdBufferList.GetCount();
+	}
+
+	void FreeCommandBuffers();
 private:
 	static std::unique_ptr<VulkanEngine, std::function<void(VulkanEngine *)>> s_Instance;
 
@@ -151,6 +218,9 @@ private:
 	VulkanInstance m_Instance;
 	VulkanRenderPass m_DefaultRenderPass;
 	std::array<VulkanCommandPool, VulkanCommandPool::ePoolTypeCount> m_CommandPools;
+	std::array<std::unordered_map<uint32_t, VulkanCommandBuffer>, VulkanCommandPool::ePoolTypeCount> m_CommandBuffers = {};
+	std::array<std::unordered_map<uint32_t, VulkanCommandBufferList>, VulkanCommandPool::ePoolTypeCount> m_CommandBufferLists = {};
+	uint32_t m_CommandBufferCount = 0U;
 
 	bool m_Inited = false;
 };

@@ -14,15 +14,15 @@ void VulkanSurface::Create(::HWND hWnd)
 
 	VKCheck(vkCreateWin32SurfaceKHR(VulkanEngine::Instance().GetInstance(), &createInfo, nullptr, &m_Handle));
 
-	VKCheck(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(VulkanEngine::Instance().GetVulkanDevice().GetPhysicalDevice(), m_Handle, &m_Capabilities));
+	VKCheck(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(VulkanEngine::Instance().GetPhysicalDevice().Get(), m_Handle, &m_Capabilities));
 
 	uint32_t count = 0U;
-	VKCheck(vkGetPhysicalDeviceSurfacePresentModesKHR(VulkanEngine::Instance().GetVulkanDevice().GetPhysicalDevice(), m_Handle, &count, nullptr));
+	VKCheck(vkGetPhysicalDeviceSurfacePresentModesKHR(VulkanEngine::Instance().GetPhysicalDevice().Get(), m_Handle, &count, nullptr));
 	m_PresentModes.resize(count);
-	VKCheck(vkGetPhysicalDeviceSurfacePresentModesKHR(VulkanEngine::Instance().GetVulkanDevice().GetPhysicalDevice(), m_Handle, &count, m_PresentModes.data()));
+	VKCheck(vkGetPhysicalDeviceSurfacePresentModesKHR(VulkanEngine::Instance().GetPhysicalDevice().Get(), m_Handle, &count, m_PresentModes.data()));
 
 	VkBool32 checkSupport = 0U;
-	VKCheck(vkGetPhysicalDeviceSurfaceSupportKHR(VulkanEngine::Instance().GetVulkanDevice().GetPhysicalDevice(), VulkanEngine::Instance().GetVulkanDevice().GetQueueFamilyIndex(), m_Handle, &checkSupport));
+	VKCheck(vkGetPhysicalDeviceSurfaceSupportKHR(VulkanEngine::Instance().GetPhysicalDevice().Get(), VulkanEngine::Instance().GetPhysicalDevice().GetQueueFamilyIndex(), m_Handle, &checkSupport));
 
 	if (!checkSupport)
 	{
@@ -30,9 +30,14 @@ void VulkanSurface::Create(::HWND hWnd)
 		assert(checkSupport);
 	}
 
-	VKCheck(vkGetPhysicalDeviceSurfaceFormatsKHR(VulkanEngine::Instance().GetVulkanDevice().GetPhysicalDevice(), m_Handle, &count, nullptr));
+	VKCheck(vkGetPhysicalDeviceSurfaceFormatsKHR(VulkanEngine::Instance().GetPhysicalDevice().Get(), m_Handle, &count, nullptr));
 	m_Formats.resize(count);
-	VKCheck(vkGetPhysicalDeviceSurfaceFormatsKHR(VulkanEngine::Instance().GetVulkanDevice().GetPhysicalDevice(), m_Handle, &count, m_Formats.data()));
+	VKCheck(vkGetPhysicalDeviceSurfaceFormatsKHR(VulkanEngine::Instance().GetPhysicalDevice().Get(), m_Handle, &count, m_Formats.data()));
+}
+
+void VulkanSurface::Destory()
+{
+	assert(IsValid());
 }
 
 void VulkanSwapchain::Create(::HWND hWnd, uint32_t uWidth, uint32_t uHeight, bool bFullScreen)
@@ -46,8 +51,8 @@ void VulkanSwapchain::Create(::HWND hWnd, uint32_t uWidth, uint32_t uHeight, boo
 	m_Size.width = std::min<uint32_t>(uWidth, surfaceCapabilities.maxImageExtent.width);
 	m_Size.height = std::min<uint32_t>(uHeight, surfaceCapabilities.maxImageExtent.height);
 
-	m_ColorSurfaceFormat = (VkFormat)VulkanEngine::Instance().GetVulkanDevice().GetOptimalSurfaceFormat(VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT, false);
-	m_DepthSurfaceFormat = (VkFormat)VulkanEngine::Instance().GetVulkanDevice().GetOptimalSurfaceFormat(VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, true);
+	m_ColorSurfaceFormat = (VkFormat)VulkanEngine::Instance().GetPhysicalDevice().GetOptimalSurfaceFormat(VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT, false);
+	m_DepthSurfaceFormat = (VkFormat)VulkanEngine::Instance().GetPhysicalDevice().GetOptimalSurfaceFormat(VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, true);
 	assert(m_ColorSurfaceFormat != VK_FORMAT_UNDEFINED && m_DepthSurfaceFormat != VK_FORMAT_UNDEFINED);
 
 	auto &surfaceFormats = m_Surface.GetFormats();
@@ -85,7 +90,7 @@ void VulkanSwapchain::Create(::HWND hWnd, uint32_t uWidth, uint32_t uHeight, boo
 		1U,
 		VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
 		VK_SHARING_MODE_EXCLUSIVE, /// exclusive or concurrent access resource
-		VulkanEngine::Instance().GetVulkanDevice().GetQueueFamilyIndex(),
+		VulkanEngine::Instance().GetPhysicalDevice().GetQueueFamilyIndex(),
 		nullptr,
 		surfaceCapabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR ? VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR : surfaceCapabilities.currentTransform,
 		VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,  /// Alpha = 1.0f
@@ -167,11 +172,20 @@ void VulkanSwapchain::Flush()
 		nullptr
 	};
 
-	VKCheck(vkQueuePresentKHR(VulkanEngine::Instance().GetVulkanDevice().GetQueue(), &presentInfo));
+	VKCheck(vkQueuePresentKHR(VulkanEngine::Instance().GetQueue(), &presentInfo));
 
-	VKCheck(vkQueueSubmit(VulkanEngine::Instance().GetVulkanDevice().GetQueue(), 0U, nullptr, m_BackBuffers[m_CurBackBufferIndex].PresentFence.Get()));
+	VKCheck(vkQueueSubmit(VulkanEngine::Instance().GetQueue(), 0U, nullptr, m_BackBuffers[m_CurBackBufferIndex].PresentFence.Get()));
 
 	++s_FrameIndex;
+}
+
+void VulkanSwapchain::Destory()
+{
+	assert(IsValid());
+
+	vkDestroySwapchainKHR(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
+
+	Reset();
 }
 
 //void VulkanSwapchain::CreateFrameBuffer(uint32_t width, uint32_t height, VkRenderPass renderPass)

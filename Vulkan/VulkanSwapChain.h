@@ -24,6 +24,8 @@ public:
 		assert(IsValid());
 		return m_Formats;
 	}
+
+	void Destory();
 protected:
 private:
 	VkSurfaceCapabilitiesKHR m_Capabilities = {};
@@ -60,6 +62,8 @@ public:
 	}
 
 	void Flush();
+
+	void Destory();
 protected:
 	struct VulkanBackBuffer
 	{

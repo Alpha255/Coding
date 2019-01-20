@@ -2,6 +2,26 @@
 
 #include "VulkanTypes.h"
 
+template <typename T> class IVulkanObject
+{
+public:
+	IVulkanObject() = default;
+	virtual ~IVulkanObject() = default;
+
+	virtual void Destory() = 0;
+protected:
+	inline void MakeObject(T object)
+	{
+		if (object)
+		{
+			m_Object.reset((void *)(object), std::bind(&IVulkanObject::Destory, this));
+		}
+	}
+
+	std::shared_ptr<void> m_Object = nullptr;
+private:
+};
+
 template <typename T> class VulkanObject
 {
 public:
@@ -19,7 +39,7 @@ public:
 		m_Handle = other.m_Handle;
 	}
 
-	inline VulkanObject(const T &other)
+	inline VulkanObject(const T other)
 	{
 		m_Handle = other;
 	}
@@ -41,7 +61,7 @@ public:
 		m_Handle = other.m_Handle;
 	}
 
-	inline void operator=(const T &other)
+	inline void operator=(const T other)
 	{
 		assert(!IsValid());
 		m_Handle = other;
@@ -57,7 +77,7 @@ public:
 		return this->m_Handle == other.m_Handle;
 	}
 
-	inline bool operator==(const T &other) const
+	inline bool operator==(const T other) const
 	{
 		return m_Handle == other;
 	}
@@ -67,7 +87,7 @@ public:
 		return this->m_Handle != other.m_Handle;
 	}
 
-	inline bool operator!=(const T &other) const
+	inline bool operator!=(const T other) const
 	{
 		return m_Handle != other;
 	}
@@ -84,56 +104,109 @@ private:
 class VulkanInstance : public VulkanObject<VkInstance>
 {
 public:
-	VulkanInstance() = default;
-	~VulkanInstance()
-	{
-		Destory();
-	}
-
 	void Create(const char *pApplicationName = "VulkanApplication", const char *pEngineName = "VulkanEngine");
-protected:
+
 	inline void Destory()
 	{
 		assert(IsValid());
 
 		vkDestroyInstance(m_Handle, nullptr);
+
 		Reset();
 	}
+protected:
 private:
 	std::vector<VkLayerProperties> m_LayerProperties;
 	std::vector<VkExtensionProperties> m_ExtensionProperties;
 };
 
-typedef VulkanObject<VkPhysicalDevice> VulkanPhysicalDevice;
 class VulkanLogicalDevice : public VulkanObject<VkDevice> {};
 class VulkanQueue : public VulkanObject<VkQueue> {};
 
-class VulkanDevice
+class VulkanPhysicalDevice : public VulkanObject<VkPhysicalDevice> 
 {
 public:
-	VulkanDevice() = default;
-	~VulkanDevice()
+	void Create();
+	inline void Destory()
 	{
-		Destory();
+		Reset();
+
+		m_PhysicalDevices.clear();
 	}
 
-	inline void Create()
+	inline uint32_t GetQueueFamilyIndex() const
 	{
-		GetPhysicalDevice();
-
-		CreateLogicalDevice();
+		assert(IsValid());
+		return m_QueueFamilyIndex;
 	}
 
-	inline VkDevice GetLogicalDevice() const
+	inline const VkPhysicalDeviceFeatures &GetDeviceFeatures() const
 	{
-		assert(m_LogicalDevice.IsValid());
-		return m_LogicalDevice.Get();
+		assert(IsValid());
+		return m_Features;
 	}
 
-	inline VkPhysicalDevice GetPhysicalDevice(uint32_t index = 0U) const
+	inline const VkPhysicalDeviceProperties &GetDeviceProperties() const
 	{
-		assert(index < m_PhysicalDevices.size() && m_PhysicalDevices.at(index).IsValid());
-		return m_PhysicalDevices.at(index).Get();
+		assert(IsValid());
+		return m_Properties;
+	}
+
+	inline const VkPhysicalDeviceMemoryProperties &GetDeviceMemoryProperties() const
+	{
+		assert(IsValid());
+		return m_MemoryProperties;
+	}
+
+	inline const std::vector<VkLayerProperties> &GetLayerProperties() const
+	{
+		assert(IsValid());
+		return m_LayerProperties;
+	}
+
+	inline const std::vector<VkExtensionProperties> &GetExtensionProperties() const
+	{
+		assert(IsValid());
+		return m_ExtensionProperties;
+	}
+
+	uint32_t GetOptimalSurfaceFormat(uint32_t flags, bool bDepthSurface) const;
+protected:
+	void VerifyDeviceFeatures(VkPhysicalDeviceFeatures &enabledFeatures);
+private:
+	std::vector<VkPhysicalDevice> m_PhysicalDevices;
+
+	VkPhysicalDeviceFeatures m_Features = {};
+	VkPhysicalDeviceProperties m_Properties = {};
+	VkPhysicalDeviceMemoryProperties m_MemoryProperties = {};
+
+	std::vector<VkLayerProperties> m_LayerProperties;
+	std::vector<VkExtensionProperties> m_ExtensionProperties;
+
+	uint32_t m_QueueFamilyIndex = UINT_MAX;
+};
+
+class VulkanDevice : public VulkanObject<VkDevice>
+{
+public:
+	void Create();
+	inline void Destory()
+	{
+		assert(IsValid());
+
+		m_PhysicalDevice.Destory();
+
+		m_DeviceQueue.Reset();
+
+		vkDestroyDevice(m_Handle, nullptr);
+		
+		Reset();
+	}
+
+	inline const VulkanPhysicalDevice &GetPhysicalDevice() const
+	{
+		assert(m_PhysicalDevice.IsValid());
+		return m_PhysicalDevice;
 	}
 
 	inline VkQueue GetQueue() const
@@ -141,64 +214,18 @@ public:
 		assert(m_DeviceQueue.IsValid());
 		return m_DeviceQueue.Get();
 	}
-
-	inline uint32_t GetQueueFamilyIndex() const
-	{
-		assert(m_QueueFamilyIndex != UINT_MAX);
-		return m_QueueFamilyIndex;
-	}
-
-	inline const VkPhysicalDeviceMemoryProperties &GetPhysicalDeviceMemoryProperties() const
-	{
-		assert(m_PhysicalDevices[m_QueueFamilyIndex].IsValid());
-		return m_PhysicalMemoryProperties;
-	}
-
-	uint32_t GetOptimalSurfaceFormat(uint32_t flags, bool bDepthSurface) const;
 protected:
-	void CreateLogicalDevice();
-	void GetPhysicalDevice();
-	void VerifyPhysicalFeatures(VkPhysicalDeviceFeatures &enableFeatures);
-	inline void Destory()
-	{
-		assert(m_LogicalDevice.IsValid());
-
-		vkDestroyDevice(m_LogicalDevice.Get(), nullptr);
-
-		for each(auto device in m_PhysicalDevices)
-		{
-			assert(device.IsValid());
-			device.Reset();
-		}
-		m_LogicalDevice.Reset();
-		m_DeviceQueue.Reset();
-
-		m_PhysicalDevices.clear();
-	}
 private:
-	uint32_t m_QueueFamilyIndex = UINT_MAX;
-	std::vector<VulkanPhysicalDevice> m_PhysicalDevices;
-	VulkanLogicalDevice m_LogicalDevice;
+	VulkanPhysicalDevice m_PhysicalDevice;
 	VulkanQueue m_DeviceQueue;
-	std::vector<VkLayerProperties> m_LayerProperties;
-	std::vector<VkExtensionProperties> m_ExtensionProperties;
-	VkPhysicalDeviceFeatures m_EnabledFeatures = {};
-	VkPhysicalDeviceProperties m_PhysicalProperties = {};
-	VkPhysicalDeviceMemoryProperties m_PhysicalMemoryProperties = {};
 };
 
 class VulkanSemaphore : public VulkanObject<VkSemaphore>
 {
 public:
-	VulkanSemaphore() = default;
-	inline ~VulkanSemaphore()
-	{
-		Destory();
-	}
-
 	void Create();
-protected:
 	void Destory();
+protected:
 private:
 };
 
@@ -211,15 +238,9 @@ public:
 		eSignaled
 	};
 
-	VulkanFence() = default;
-	inline ~VulkanFence()
-	{
-		Destory();
-	}
-
 	void Create(eFenceState state = eUnSignaled);
-protected:
 	void Destory();
+protected:
 private:
 };
 

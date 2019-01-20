@@ -39,8 +39,8 @@ std::vector<const char *> FilterExtensions(const std::vector<VkExtensionProperti
 {
 	/// https://vulkan.lunarg.com/doc/view/1.0.39.1/windows/LoaderAndLayerInterface.html
 	std::vector<std::string> extensions;
-	extensions.emplace_back("VK_KHR_xcb_surface");  /// Linux
-	extensions.emplace_back("VK_KHR_xlib_surface"); /// Linux
+	///extensions.emplace_back("VK_KHR_xcb_surface");  /// Linux
+	///extensions.emplace_back("VK_KHR_xlib_surface"); /// Linux
 	extensions.emplace_back(VK_KHR_SURFACE_EXTENSION_NAME);;
 	extensions.emplace_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
 	extensions.emplace_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);

@@ -28,12 +28,13 @@ public:
 	{
 	}
 
-	void Create(const char *pFileName, const char *pEntryPoint);
-
 	VkPipelineShaderStageCreateInfo GetShaderStage() const
 	{
 		return m_ShaderStage;
 	}
+
+	void Create(const char *pFileName, const char *pEntryPoint);
+	void Destory();
 protected:
 	VkShaderStageFlagBits m_Stage = VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM;
 	VkPipelineShaderStageCreateInfo m_ShaderStage = {};

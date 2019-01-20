@@ -117,6 +117,15 @@ void VulkanImageView::CreateAsTexture(eRViewType type, VulkanImage &image, uint3
 	VKCheck(vkCreateImageView(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
 }
 
+void VulkanImageView::Destory()
+{
+	assert(IsValid());
+
+	vkDestroyImageView(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
+
+	Reset();
+}
+
 void VulkanShaderResourceView::Create(const char *pFileName)
 {
 	rawDds.CreateFromDds(pFileName, true);
@@ -219,6 +228,6 @@ void VulkanShaderResourceView::Create(const char *pFileName)
 		nullptr
 	};
 	
-	VKCheck(vkQueueSubmit(VulkanEngine::Instance().GetVulkanDevice().GetQueue(), 1U, &submitInfo, fence.Get()));
+	VKCheck(vkQueueSubmit(VulkanEngine::Instance().GetQueue(), 1U, &submitInfo, fence.Get()));
 	VKCheck(vkWaitForFences(VulkanEngine::Instance().GetDevice(), 1U, &fence, VK_TRUE, UINT32_MAX));
 }

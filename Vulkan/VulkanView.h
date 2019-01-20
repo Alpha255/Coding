@@ -66,6 +66,7 @@ class VulkanImageView : public VulkanObject<VkImageView>
 public:
 	void Create(VulkanImage &image);
 	void CreateAsTexture(eRViewType type, VulkanImage &image, uint32_t fmt, uint32_t mipSlice, uint32_t aspectFlags);
+	void Destory();
 protected:
 private:
 };

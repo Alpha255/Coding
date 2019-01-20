@@ -37,6 +37,7 @@ class VulkanSamplerState : public VulkanObject<VkSampler>
 {
 public:
 	void Create(uint32_t filter, uint32_t addressMode, float LODBias, uint32_t compFunc, const float *pBorderClr, float minLOD, float maxLOD);
+	void Destory();
 protected:
 private:
 };

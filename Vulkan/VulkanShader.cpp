@@ -81,3 +81,12 @@ void VulkanShader::Create(const char *pFileName, const char *pEntryPoint)
 
 	///::SetCurrentDirectoryA(workingDir);
 }
+
+void VulkanShader::Destory()
+{
+	assert(IsValid());
+
+	vkDestroyShaderModule(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
+
+	Reset();
+}

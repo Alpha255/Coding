@@ -45,28 +45,12 @@ void VulkanInstance::Create(const char *pApplicationName, const char *pEngineNam
 	VKCheck(vkCreateInstance(&createInfo, nullptr, &m_Handle));
 }
 
-void VulkanDevice::GetPhysicalDevice()
+void VulkanPhysicalDevice::VerifyDeviceFeatures(VkPhysicalDeviceFeatures &enabledFeatures)
 {
-	uint32_t gpuCount = 0U;
-	VKCheck(vkEnumeratePhysicalDevices(VulkanEngine::Instance().GetInstance(), &gpuCount, nullptr));
+	const VkBool32 *pStart = &m_Features.robustBufferAccess;
+	const VkBool32 *pEnd = &m_Features.inheritedQueries;
 
-	assert(gpuCount > 0U);
-
-	std::vector<VkPhysicalDevice> physicalDevices(gpuCount);
-	VKCheck(vkEnumeratePhysicalDevices(VulkanEngine::Instance().GetInstance(), &gpuCount, physicalDevices.data()));
-
-	for each (auto physicalDevice in physicalDevices)
-	{
-		m_PhysicalDevices.emplace_back(physicalDevice);
-	}
-}
-
-void VulkanDevice::VerifyPhysicalFeatures(VkPhysicalDeviceFeatures &enableFeatures)
-{
-	const VkBool32 *pStart = &m_EnabledFeatures.robustBufferAccess;
-	const VkBool32 *pEnd = &m_EnabledFeatures.inheritedQueries;
-
-	const VkBool32 *pNeedVerify = &enableFeatures.robustBufferAccess;
+	const VkBool32 *pNeedVerify = &enabledFeatures.robustBufferAccess;
 	do
 	{
 		assert((VK_FALSE == *pNeedVerify) || (VK_TRUE == *pNeedVerify && VK_TRUE == *pStart));
@@ -75,9 +59,59 @@ void VulkanDevice::VerifyPhysicalFeatures(VkPhysicalDeviceFeatures &enableFeatur
 	} while (pStart != pEnd);
 }
 
-uint32_t VulkanDevice::GetOptimalSurfaceFormat(uint32_t flags, bool bDepthSurface) const
+void VulkanPhysicalDevice::Create()
 {
-	assert(m_PhysicalDevices[m_QueueFamilyIndex].IsValid());
+	uint32_t count = 0U;
+	VKCheck(vkEnumeratePhysicalDevices(VulkanEngine::Instance().GetInstance(), &count, nullptr));
+
+	assert(count > 0U);
+
+	m_PhysicalDevices.resize(count);
+	VKCheck(vkEnumeratePhysicalDevices(VulkanEngine::Instance().GetInstance(), &count, m_PhysicalDevices.data()));
+
+	for each (auto &physicalDevice in m_PhysicalDevices)
+	{
+		vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &count, nullptr);
+
+		std::vector<VkQueueFamilyProperties> queueFamilyProperties(count);
+		vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &count, queueFamilyProperties.data());
+
+		for (uint32_t i = 0U; i < queueFamilyProperties.size(); ++i)
+		{
+			if (queueFamilyProperties[i].queueFlags & (VK_QUEUE_COMPUTE_BIT | VK_QUEUE_GRAPHICS_BIT))
+			{
+				m_QueueFamilyIndex = i;
+				break;
+			}
+		}
+	}
+
+	assert(m_QueueFamilyIndex != UINT32_MAX);
+
+	Reset(m_PhysicalDevices[m_QueueFamilyIndex]);
+
+	VKCheck(vkEnumerateDeviceLayerProperties(m_Handle, &count, nullptr));
+	m_LayerProperties.resize(count);
+	VKCheck(vkEnumerateDeviceLayerProperties(m_Handle, &count, m_LayerProperties.data()));
+
+	VKCheck(vkEnumerateDeviceExtensionProperties(m_Handle, nullptr, &count, nullptr));
+	m_ExtensionProperties.resize(count);
+	VKCheck(vkEnumerateDeviceExtensionProperties(m_Handle, nullptr, &count, m_ExtensionProperties.data()));
+
+	vkGetPhysicalDeviceFeatures(m_Handle, &m_Features);
+	VkPhysicalDeviceFeatures enabledFeatures = {};
+	enabledFeatures.shaderClipDistance = VK_TRUE;
+	enabledFeatures.shaderCullDistance = VK_TRUE;
+	VerifyDeviceFeatures(enabledFeatures);
+
+	vkGetPhysicalDeviceProperties(m_Handle, &m_Properties);
+
+	vkGetPhysicalDeviceMemoryProperties(m_Handle, &m_MemoryProperties);
+}
+
+uint32_t VulkanPhysicalDevice::GetOptimalSurfaceFormat(uint32_t flags, bool bDepthSurface) const
+{
+	assert(IsValid());
 
 	VkFormat result = VK_FORMAT_UNDEFINED;
 
@@ -98,7 +132,7 @@ uint32_t VulkanDevice::GetOptimalSurfaceFormat(uint32_t flags, bool bDepthSurfac
 	for (uint32_t i = 0; i < count; ++i)
 	{
 		VkFormatProperties formatProperties = {};
-		vkGetPhysicalDeviceFormatProperties(m_PhysicalDevices[m_QueueFamilyIndex].Get(), *pTargetFormats, &formatProperties);
+		vkGetPhysicalDeviceFormatProperties(m_Handle, *pTargetFormats, &formatProperties);
 		if (formatProperties.optimalTilingFeatures & flags)
 		{
 			result = *pTargetFormats;
@@ -111,55 +145,14 @@ uint32_t VulkanDevice::GetOptimalSurfaceFormat(uint32_t flags, bool bDepthSurfac
 	return result;
 }
 
-void VulkanDevice::CreateLogicalDevice()
+void VulkanDevice::Create()
 {
-	assert(!m_LogicalDevice.IsValid() && m_PhysicalDevices.size() > 0U);
+	assert(!IsValid());
 
-	VkPhysicalDevice physicalDeviceInUsing = VK_NULL_HANDLE;
-	for each (auto &physicalDevice in m_PhysicalDevices)
-	{
-		uint32_t count = 0U;
-		vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice.Get(), &count, nullptr);
+	m_PhysicalDevice.Create();
 
-		std::vector<VkQueueFamilyProperties> queueFamilyProperties(count);
-		vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice.Get(), &count, queueFamilyProperties.data());
-
-		for (uint32_t i = 0U; i < queueFamilyProperties.size(); ++i)
-		{
-			if (queueFamilyProperties[i].queueFlags & (VK_QUEUE_COMPUTE_BIT | VK_QUEUE_GRAPHICS_BIT))
-			{
-				m_QueueFamilyIndex = i;
-				break;
-			}
-		}
-
-		if (m_QueueFamilyIndex != UINT_MAX)
-		{
-			physicalDeviceInUsing = m_PhysicalDevices[m_QueueFamilyIndex].Get();
-			assert(physicalDeviceInUsing != VK_NULL_HANDLE);
-			break;
-		}
-	}
-
-	uint32_t count = 0U;
-	VKCheck(vkEnumerateDeviceLayerProperties(physicalDeviceInUsing, &count, nullptr));
-	m_LayerProperties.resize(count);
-	VKCheck(vkEnumerateDeviceLayerProperties(physicalDeviceInUsing, &count, m_LayerProperties.data()));
-
-	VKCheck(vkEnumerateDeviceExtensionProperties(physicalDeviceInUsing, nullptr, &count, nullptr));
-	m_ExtensionProperties.resize(count);
-	VKCheck(vkEnumerateDeviceExtensionProperties(physicalDeviceInUsing, nullptr, &count, m_ExtensionProperties.data()));
-
-	std::vector<const char *> enabledLayers = VulkanUtil::FilterLayers(m_LayerProperties);
-	std::vector<const char *> enabledExtensions = VulkanUtil::FilterExtensions(m_ExtensionProperties);
-
-	VkPhysicalDeviceFeatures enableFeatures = {};
-	enableFeatures.shaderClipDistance = VK_TRUE;
-	enableFeatures.shaderCullDistance = VK_TRUE;
-
-	vkGetPhysicalDeviceFeatures(physicalDeviceInUsing, &m_EnabledFeatures);
-
-	VerifyPhysicalFeatures(enableFeatures);
+	std::vector<const char *> enabledLayers = VulkanUtil::FilterLayers(m_PhysicalDevice.GetLayerProperties());
+	std::vector<const char *> enabledExtensions = VulkanUtil::FilterExtensions(m_PhysicalDevice.GetExtensionProperties());
 
 	float queuePriorities[] = { 1.0f };
 	VkDeviceQueueCreateInfo deviceQueueCreateInfo
@@ -167,7 +160,7 @@ void VulkanDevice::CreateLogicalDevice()
 		VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
 		nullptr,
 		0U,
-		m_QueueFamilyIndex,
+		m_PhysicalDevice.GetQueueFamilyIndex(),
 		1U,
 		queuePriorities
 	};
@@ -183,16 +176,12 @@ void VulkanDevice::CreateLogicalDevice()
 		enabledLayers.data(),
 		(uint32_t)enabledExtensions.size(),
 		enabledExtensions.data(),
-		&enableFeatures
+		&m_PhysicalDevice.GetDeviceFeatures()
 	};
 
-	VKCheck(vkCreateDevice(physicalDeviceInUsing, &deviceCreateInfo, nullptr, &m_LogicalDevice));
+	VKCheck(vkCreateDevice(m_PhysicalDevice.Get(), &deviceCreateInfo, nullptr, &m_Handle));
 
-	vkGetDeviceQueue(m_LogicalDevice.Get(), m_QueueFamilyIndex, 0U, &m_DeviceQueue);
-
-	vkGetPhysicalDeviceProperties(physicalDeviceInUsing, &m_PhysicalProperties);
-
-	vkGetPhysicalDeviceMemoryProperties(physicalDeviceInUsing, &m_PhysicalMemoryProperties);
+	vkGetDeviceQueue(m_Handle, m_PhysicalDevice.GetQueueFamilyIndex(), 0U, &m_DeviceQueue);
 }
 
 void VulkanSemaphore::Create()

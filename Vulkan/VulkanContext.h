@@ -103,6 +103,7 @@ public:
 	//}
 
 	void Create();
+	void Destory();
 protected:
 private:
 	VkPipelineLayout m_Layout = {};
@@ -111,4 +112,5 @@ private:
 	VkPipelineDepthStencilStateCreateInfo m_DepthStencilState = {};
 	VkPipelineRasterizationStateCreateInfo m_RasterizationState = {};
 	std::vector<VkVertexInputAttributeDescription> m_VertexInputAttrDesc;
+	VulkanCommandBuffer m_CmdBuffer;
 };

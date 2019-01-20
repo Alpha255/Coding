@@ -7,7 +7,7 @@ uint32_t VulkanDeviceMemory::GetMemoryTypeIndex(uint32_t memoryTypeBits, uint32_
 {
 	/// Search memtypes to find first index with those properties
 	bool bValidMemoryType = false;
-	auto &deviceMemoryProperties = VulkanEngine::Instance().GetVulkanDevice().GetPhysicalDeviceMemoryProperties();
+	auto &deviceMemoryProperties = VulkanEngine::Instance().GetPhysicalDevice().GetDeviceMemoryProperties();
 	uint32_t memoryTypeIndex = 0U;
 	for (uint32_t i = 0; i < deviceMemoryProperties.memoryTypeCount; ++i)
 	{
@@ -56,7 +56,7 @@ void VulkanDeviceMemory::Update(const void *pMemory, size_t size, size_t offset)
 
 void VulkanDeviceMemory::Destory()
 {
-	///assert(IsValid());
+	assert(IsValid());
 
 	vkFreeMemory(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
 
