@@ -42,7 +42,7 @@ void VulkanDeviceMemory::Create(size_t size, uint32_t memoryTypeIndex)
 	VKCheck(vkAllocateMemory(VulkanEngine::Instance().GetDevice(), &allocInfo, nullptr, &m_Handle));
 }
 
-void VulkanDeviceMemory::Update(const void *pMemory, size_t size, size_t offset)
+void VulkanDeviceMemory::Update(const void *pMemory, size_t size, size_t offset, bool bDoFlush)
 {
 	assert(IsValid() && pMemory && size);
 
@@ -50,6 +50,19 @@ void VulkanDeviceMemory::Update(const void *pMemory, size_t size, size_t offset)
 	VKCheck(vkMapMemory(VulkanEngine::Instance().GetDevice(), m_Handle, offset, size, 0U, &pDeviceMemory));
 
 	memcpy(pDeviceMemory, pMemory, size);
+
+	if (bDoFlush)
+	{
+		VkMappedMemoryRange memRange
+		{
+			VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE,
+			nullptr,
+			m_Handle,
+			offset,
+			size
+		};
+		VKCheck(vkFlushMappedMemoryRanges(VulkanEngine::Instance().GetDevice(), 1U, &memRange));
+	}
 
 	vkUnmapMemory(VulkanEngine::Instance().GetDevice(), m_Handle);
 }

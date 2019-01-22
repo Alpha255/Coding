@@ -11,6 +11,11 @@ public:
 	{
 		return m_VertexInputAttrs;
 	}
+
+	inline const VkPipelineVertexInputStateCreateInfo *GetInputState() const
+	{
+		return &m_InputState;
+	}
 protected:
 private:
 	std::vector<VkVertexInputBindingDescription> m_VertexInputBindingDes;

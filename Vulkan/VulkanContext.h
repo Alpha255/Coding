@@ -102,7 +102,7 @@ public:
 	//	m_Object->ClearDepthStencilView(depthStencil.Get(), clearFlag, depth, stencil);
 	//}
 
-	void Create();
+	void Create(VulkanVertexShader vertexShader, VulkanPixelShader pixelShader, VulkanInputLayout inputLayout);
 	void Destory();
 protected:
 private:

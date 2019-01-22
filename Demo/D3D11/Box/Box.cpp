@@ -3,12 +3,12 @@
 
 void AppBox::InitScene()
 {
-	m_BoxMesh.CreateAsCube(1.0f);
+	///m_BoxMesh.CreateAsCube(1.0f);
 
 	///m_DiffuseTex.Create("WoodCrate01.dds");
 
-	m_VertexShader.Create("Box.shader", "main");
-	m_PixelShader[eNone].Create("Box.shader", "main");
+	///m_VertexShader.Create("Box.shader", "main");
+	///m_PixelShader[eNone].Create("Box.shader", "main");
 #if defined(UsingD3D11)
 	m_PixelShader[eInversion].Create("Box.shader", "main_Inversion");
 	m_PixelShader[eGrayscale].Create("Box.shader", "main_Grayscale");
@@ -17,14 +17,19 @@ void AppBox::InitScene()
 	m_PixelShader[eEdgeDetection].Create("Box.shader", "main_EdgeDetection");
 #endif
 
-	m_CBufferVS.CreateAsConstantBuffer(sizeof(Matrix), eGpuReadCpuWrite, nullptr);
+	///m_CBufferVS.CreateAsConstantBuffer(sizeof(Matrix), eGpuReadCpuWrite, nullptr);
 
-	m_Camera.SetViewRadius(5.0f);
+	///m_Camera.SetViewRadius(5.0f);
+
+#if 1
+	///m_CmdBuffer = VulkanEngine::Instance().AllocCommandBuffer(VulkanCommandPool::eGeneral, VulkanCommandPool::eSecondary);
+	m_Context.Create(m_VertexShader, m_PixelShader[eNone], m_BoxMesh.InputLayout);
+#endif
 }
 
 void AppBox::RenderScene()
 {
-	REngine::Instance().ResetDefaultRenderSurfaces();
+	///REngine::Instance().ResetDefaultRenderSurfaces();
 #if defined(UsingD3D11)
 	REngine::Instance().SetViewport(RViewport(0.0f, 0.0f, (float)m_Width, (float)m_Height));
 
@@ -45,7 +50,53 @@ void AppBox::RenderScene()
 	REngine::Instance().DrawIndexed(m_BoxMesh.IndexCount, 0U, 0, eTriangleList);
 #endif
 
-	ImGui::Combo("SpecialEffect", &m_Effect, "None\0Inversion\0Grayscale\0Sharpen\0Blur\0EdgeDetection");
-	ImGui::Checkbox("VSync", &m_bVSync);
+	///ImGui::Combo("SpecialEffect", &m_Effect, "None\0Inversion\0Grayscale\0Sharpen\0Blur\0EdgeDetection");
+	///ImGui::Checkbox("VSync", &m_bVSync);
 	ImGui::Text("\n%.2f FPS", m_FPS);
+#if 1
+
+#endif
 }
+
+#if 0
+void AppBox::UpdateScene(float, float)
+{
+	static bool s_Update = false;
+
+	if (s_Update)
+	{
+		return;
+	}
+
+	VKCheck(vkDeviceWaitIdle(VulkanEngine::Instance().GetDevice()));
+
+	VkCommandBufferInheritanceInfo inherit = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO };
+	inherit.framebuffer = VK_NULL_HANDLE;
+	inherit.renderPass = VulkanEngine::Instance().GetDefaultRenderPass().Get();
+
+	VkCommandBufferBeginInfo beginInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT | VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+	beginInfo.pInheritanceInfo = &inherit;
+
+	VKCheck(vkBeginCommandBuffer(m_CmdBuffer.Get(), &beginInfo));
+
+	vkCmdBindPipeline(m_CmdBuffer.Get(), VK_PIPELINE_BIND_POINT_GRAPHICS, m_Context.Get());
+
+	VulkanViewport vp((float)m_Width, (float)m_Height);
+	vkCmdSetViewport(m_CmdBuffer.Get(), 0U, 1U, &vp);
+
+	VulkanRect rect;
+	rect.offset = {};
+	rect.extent = { m_Width, m_Height };
+	vkCmdSetScissor(m_CmdBuffer.Get(), 0U, 1U, &rect);
+
+	VkDeviceSize offsets[] = { 0 };
+	vkCmdBindVertexBuffers(m_CmdBuffer.Get(), 0U, 1U, &m_BoxMesh.VertexBuffer, offsets);
+	vkCmdBindIndexBuffer(m_CmdBuffer.Get(), m_BoxMesh.IndexBuffer.Get(), 0, VK_INDEX_TYPE_UINT32);
+	vkCmdDrawIndexed(m_CmdBuffer.Get(), m_BoxMesh.IndexCount, 1U, 0U, 0U, 0U);
+
+	m_CmdBuffer.End();
+
+	s_Update = true;
+}
+#endif

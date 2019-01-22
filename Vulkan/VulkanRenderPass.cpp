@@ -12,8 +12,8 @@ void VulkanRenderPass::Create(bool depth, uint32_t colorFormat, uint32_t depthFo
 		VK_SAMPLE_COUNT_1_BIT,
 		clear ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD,
 		VK_ATTACHMENT_STORE_OP_STORE,
-		VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-		VK_ATTACHMENT_STORE_OP_DONT_CARE,
+		VK_ATTACHMENT_LOAD_OP_LOAD,
+		VK_ATTACHMENT_STORE_OP_STORE,
 		(VkImageLayout)imageLayout,
 		(VkImageLayout)imageLayout
 	};
@@ -21,6 +21,11 @@ void VulkanRenderPass::Create(bool depth, uint32_t colorFormat, uint32_t depthFo
 	{
 		0U,
 		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+	};
+	VkAttachmentReference refDepth
+	{
+		1U,
+		VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
 	};
 
 	VkAttachmentDescription layoutDepth
@@ -30,14 +35,9 @@ void VulkanRenderPass::Create(bool depth, uint32_t colorFormat, uint32_t depthFo
 		VK_SAMPLE_COUNT_1_BIT,
 		clear ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD,
 		VK_ATTACHMENT_STORE_OP_STORE,
-		VK_ATTACHMENT_LOAD_OP_LOAD,
+		VK_ATTACHMENT_LOAD_OP_CLEAR,
 		VK_ATTACHMENT_STORE_OP_STORE,
-		VK_IMAGE_LAYOUT_UNDEFINED,
-		VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
-	};
-	VkAttachmentReference refDepth
-	{
-		1U,
+		VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
 		VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
 	};
 

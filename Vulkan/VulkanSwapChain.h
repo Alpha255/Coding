@@ -69,8 +69,9 @@ protected:
 	{
 		VulkanRenderTargetView RenderTargetView;
 		VulkanFence PresentFence;
-		VulkanSemaphore AcquireSemaphore;
-		VulkanSemaphore RenderSemaphore;
+		VulkanSemaphore ImageAcquireSemaphore;
+		VulkanSemaphore RenderCompleteSemaphore;
+		VulkanCommandBuffer CommandBuffer;
 		VulkanFrameBuffer FrameBuffer;
 	};
 private:

@@ -10,7 +10,7 @@ public:
 	void Create(size_t size, uint32_t memoryTypeIndex);
 	void Destory();
 
-	void Update(const void *pMemory, size_t size, size_t offset);
+	void Update(const void *pMemory, size_t size, size_t offset, bool bDoFlush);
 protected:
 private:
 };
@@ -68,9 +68,9 @@ public:
 			GetMemoryProperty(usage));
 	}
 
-	inline void Update(const void *pMemory, size_t size, size_t offset = 0U)
+	inline void Update(const void *pMemory, size_t size, size_t offset = 0U, bool bDoFlush = false)
 	{
-		m_Memory.Update(pMemory, size, offset);
+		m_Memory.Update(pMemory, size, offset, bDoFlush);
 	}
 
 	void Destory();
@@ -86,7 +86,7 @@ protected:
 		case eGpuReadCpuWrite:
 			return VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
 		case eGpuCopyToCpu:
-			return 0U;
+			return VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
 		default:
 			System::Log("Not supported yet!");
 			assert(0);

@@ -22,6 +22,8 @@ void VulkanEngine::Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool
 
 	m_Swapchain.Create(hWnd, width, height, bWindowed);
 
+	VulkanStaticState::Initialize();
+
 	m_Inited = true;
 }
 

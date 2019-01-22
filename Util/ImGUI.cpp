@@ -71,7 +71,7 @@ void ImGUI::InitRenderResource()
 		0U
 	};
 	fontTex.Create(eRGBA8_UNorm, (uint32_t)width, (uint32_t)height, eBindAsShaderResource, 1U, 1U, 0U, 0U, eGpuReadWrite, &subResData);
-	m_Resource.FontTexture.CreateAsTexture(eTexture2D, fontTex, eRGBA8_UNorm, 0U, 1U);
+	m_Resource.FontTexture.CreateAsTexture(eTexture2D, fontTex, eRGBA8_UNorm, 1U, 1U);
 	io.Fonts->TexID = (void *)m_Resource.FontTexture.Get();
 }
 

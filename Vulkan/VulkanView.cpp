@@ -38,7 +38,8 @@ void VulkanImage::Create(
 		arraySize,
 		VK_SAMPLE_COUNT_1_BIT,
 		VK_IMAGE_TILING_OPTIMAL,
-		(VkImageUsageFlags)usage,
+		///(VkImageUsageFlags)usage,
+		VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
 		VK_SHARING_MODE_EXCLUSIVE,
 		0U,
 		nullptr,
@@ -52,6 +53,74 @@ void VulkanImage::Create(
 	m_Memory.Create(memReq.size, VulkanDeviceMemory::GetMemoryTypeIndex(memReq.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
 
 	VKCheck(vkBindImageMemory(VulkanEngine::Instance().GetDevice(), m_Handle, m_Memory.Get(), 0));
+
+	if (pSubResourceData)
+	{
+		if (!m_CommandBuffer.IsValid())
+		{
+			m_CommandBuffer = VulkanEngine::Instance().AllocCommandBuffer(VulkanCommandPool::eGeneral, VulkanCommandPool::ePrimary);
+		}
+
+		m_CommandBuffer.Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+
+		/// Upload to Buffer
+		m_Buffer.CreateAsTransferBuffer(memReq.size, eGpuCopyToCpu, true);
+		m_Buffer.Update(pSubResourceData->Memory, memReq.size, 0U, true);
+
+		/// Copy to Image
+		VkImageMemoryBarrier copy_barrier[1] = {};
+		copy_barrier[0].sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+		copy_barrier[0].dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+		copy_barrier[0].oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		copy_barrier[0].newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+		copy_barrier[0].srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		copy_barrier[0].dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		copy_barrier[0].image = m_Handle;
+		copy_barrier[0].subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		copy_barrier[0].subresourceRange.levelCount = 1;
+		copy_barrier[0].subresourceRange.layerCount = 1;
+		vkCmdPipelineBarrier(m_CommandBuffer.Get(), VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, NULL, 0, NULL, 1, copy_barrier);
+
+		VkBufferImageCopy region = {};
+		region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		region.imageSubresource.layerCount = 1;
+		region.imageExtent.width = width;
+		region.imageExtent.height = height;
+		region.imageExtent.depth = 1;
+		vkCmdCopyBufferToImage(m_CommandBuffer.Get(), m_Buffer.Get(), m_Handle, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+
+		VkImageMemoryBarrier use_barrier[1] = {};
+		use_barrier[0].sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+		use_barrier[0].srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+		use_barrier[0].dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+		use_barrier[0].oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+		use_barrier[0].newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		use_barrier[0].srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		use_barrier[0].dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		use_barrier[0].image = m_Handle;
+		use_barrier[0].subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		use_barrier[0].subresourceRange.levelCount = 1;
+		use_barrier[0].subresourceRange.layerCount = 1;
+		vkCmdPipelineBarrier(m_CommandBuffer.Get(), VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, NULL, 0, NULL, 1, use_barrier);
+
+		m_CommandBuffer.End();
+
+		VkSubmitInfo info
+		{
+			VK_STRUCTURE_TYPE_SUBMIT_INFO,
+			nullptr,
+			0U,
+			nullptr,
+			nullptr,
+			1U,
+			&m_CommandBuffer,
+			0U,
+			nullptr
+		};
+		VKCheck(vkQueueSubmit(VulkanEngine::Instance().GetQueue(), 1U, &info, VK_NULL_HANDLE));
+
+		VKCheck(vkDeviceWaitIdle(VulkanEngine::Instance().GetDevice()));
+	}
 }
 
 void VulkanImage::Destory()

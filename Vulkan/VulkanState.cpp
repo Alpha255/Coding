@@ -1,7 +1,7 @@
 #include "VulkanState.h"
 #include "VulkanEngine.h"
 
-void VulkanSamplerState::Create(uint32_t filter, uint32_t addressMode, float LODBias, uint32_t compFunc, const float *pBorderClr, float minLOD, float maxLOD)
+void VulkanSamplerState::Create(uint32_t filter, uint32_t addressMode, float LODBias, eRComparisonFunc compFunc, const float *pBorderClr, float minLOD, float maxLOD)
 {
 	VkSamplerCreateInfo createInfo = 
 	{ 
@@ -10,7 +10,7 @@ void VulkanSamplerState::Create(uint32_t filter, uint32_t addressMode, float LOD
 		0U,
 		(VkFilter)filter,
 		(VkFilter)filter,
-		(VkSamplerMipmapMode)filter,
+		VK_SAMPLER_MIPMAP_MODE_LINEAR,
 		(VkSamplerAddressMode)addressMode,
 		(VkSamplerAddressMode)addressMode,
 		(VkSamplerAddressMode)addressMode,
@@ -102,5 +102,5 @@ VulkanDepthStencilState VulkanStaticState::NoneDepthStencilState;
 
 void VulkanStaticState::Initialize()
 {
-
+	LinearSampler.Create(eLinear, eWrap, 0.0f, eRComparisonFunc::eNever, nullptr, 0.0f, FLT_MAX);
 }

@@ -59,6 +59,8 @@ protected:
 private:
 	ImageProperty m_Property = {};
 	VulkanDeviceMemory m_Memory;
+	VulkanBuffer m_Buffer;
+	VulkanCommandBuffer m_CommandBuffer;
 };
 
 class VulkanImageView : public VulkanObject<VkImageView>

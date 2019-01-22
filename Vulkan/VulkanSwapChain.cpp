@@ -42,6 +42,8 @@ void VulkanSurface::Destory()
 
 void VulkanSwapchain::Create(::HWND hWnd, uint32_t uWidth, uint32_t uHeight, bool bFullScreen)
 {
+	VKCheck(vkDeviceWaitIdle(VulkanEngine::Instance().GetDevice()));
+
 	m_bFullScreen = bFullScreen;
 
 	m_Surface.Create(hWnd);
@@ -117,12 +119,13 @@ void VulkanSwapchain::Create(::HWND hWnd, uint32_t uWidth, uint32_t uHeight, boo
 		VulkanImage image(images[i]);
 		m_BackBuffers[i].RenderTargetView.CreateAsTexture(eTexture2D, image, m_ColorSurfaceFormat, 1U);
 		m_BackBuffers[i].PresentFence.Create(VulkanFence::eSignaled);
-		m_BackBuffers[i].AcquireSemaphore.Create();
-		m_BackBuffers[i].RenderSemaphore.Create();
+		m_BackBuffers[i].ImageAcquireSemaphore.Create();
+		m_BackBuffers[i].RenderCompleteSemaphore.Create();
+		m_BackBuffers[i].CommandBuffer = VulkanEngine::Instance().AllocCommandBuffer(VulkanCommandPool::eGeneral, VulkanCommandPool::ePrimary);
 		
 		std::vector<VulkanImageView> imageViews;
 		imageViews.emplace_back(m_BackBuffers[i].RenderTargetView);
-		imageViews.emplace_back(m_DepthStencilView);
+		///imageViews.emplace_back(m_DepthStencilView);
 		m_BackBuffers[i].FrameBuffer.Create(imageViews, VulkanEngine::Instance().GetDefaultRenderPass(), uWidth, uHeight, 1U);
 	}
 }
@@ -134,6 +137,7 @@ void VulkanSwapchain::Resize(uint32_t uWidth, uint32_t uHeight)
 
 void VulkanSwapchain::Flush()
 {
+#if 0
 	static uint32_t s_FrameIndex = 0U;
 	if (s_FrameIndex == UINT32_MAX)
 	{
@@ -177,11 +181,22 @@ void VulkanSwapchain::Flush()
 	VKCheck(vkQueueSubmit(VulkanEngine::Instance().GetQueue(), 0U, nullptr, m_BackBuffers[m_CurBackBufferIndex].PresentFence.Get()));
 
 	++s_FrameIndex;
+#endif
 }
 
 void VulkanSwapchain::Destory()
 {
 	assert(IsValid());
+
+	for (uint32_t i = 0U; i < m_BackBuffers.size(); ++i)
+	{
+		m_BackBuffers[i].ImageAcquireSemaphore.Destory();
+		///m_BackBuffers[i].FrameBuffer.Destory();
+		m_BackBuffers[i].PresentFence.Destory();
+		m_BackBuffers[i].RenderCompleteSemaphore.Destory();
+		///m_BackBuffers[i].RenderTargetView.Destory();
+	}
+	m_BackBuffers.clear();
 
 	vkDestroySwapchainKHR(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
 

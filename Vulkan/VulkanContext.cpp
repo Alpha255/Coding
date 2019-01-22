@@ -11,7 +11,7 @@
 //	///vkCmdDrawIndexed();
 //}
 
-void VulkanContext::Create()
+void VulkanContext::Create(VulkanVertexShader vertexShader, VulkanPixelShader pixelShader, VulkanInputLayout inputLayout)
 {
 	if (IsValid())
 	{
@@ -30,12 +30,6 @@ void VulkanContext::Create()
 
 	};
 	VKCheck(vkCreatePipelineLayout(VulkanEngine::Instance().GetDevice(), &pipelineLayoutCreateInfo, 0, &m_Layout));
-
-	VkPipelineVertexInputStateCreateInfo viStateInfo = { VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO };
-	viStateInfo.vertexBindingDescriptionCount = 1;
-	viStateInfo.pVertexBindingDescriptions = nullptr;
-	viStateInfo.vertexAttributeDescriptionCount = 0;
-	viStateInfo.pVertexAttributeDescriptions = nullptr;
 
 	VkPipelineInputAssemblyStateCreateInfo iaStateInfo = { VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO };
 	iaStateInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -74,27 +68,74 @@ void VulkanContext::Create()
 	dynStateInfo.dynamicStateCount = 2;
 	dynStateInfo.pDynamicStates = dynStates;
 
+	VkPipelineRasterizationStateCreateInfo rsStateInfo = { VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO };
+	rsStateInfo.depthClampEnable = VK_FALSE;
+	rsStateInfo.rasterizerDiscardEnable = VK_FALSE;
+	rsStateInfo.polygonMode = VK_POLYGON_MODE_FILL;
+	rsStateInfo.cullMode = VK_CULL_MODE_NONE;
+	rsStateInfo.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+	rsStateInfo.lineWidth = 1.0f;
+
+	VkPipelineDepthStencilStateCreateInfo noDepth;
+	noDepth = { VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO };
+	noDepth.depthTestEnable = VK_FALSE;
+	noDepth.depthWriteEnable = VK_FALSE;
+	noDepth.depthCompareOp = VK_COMPARE_OP_ALWAYS;
+	noDepth.depthBoundsTestEnable = VK_FALSE;
+	noDepth.stencilTestEnable = VK_FALSE;
+	noDepth.minDepthBounds = 0.0f;
+	noDepth.maxDepthBounds = 1.0f;
+
 	/// Create mPipeline state VI-IA-VS-VP-RS-FS-CB
 	VkGraphicsPipelineCreateInfo pipelineInfo = { VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO };
-	pipelineInfo.pVertexInputState = &viStateInfo;
+	pipelineInfo.pVertexInputState = inputLayout.GetInputState();
 	pipelineInfo.pInputAssemblyState = &iaStateInfo;
 	pipelineInfo.pViewportState = &vpStateInfo;
-	pipelineInfo.pRasterizationState = &m_RasterizationState;
+	pipelineInfo.pRasterizationState = &rsStateInfo;
 	pipelineInfo.pColorBlendState = &cbStateInfo;
 	pipelineInfo.pMultisampleState = &msStateInfo;
-	///pipelineInfo.pTessellationState = &tessStateInfo;
+	pipelineInfo.pTessellationState = &tessStateInfo;
 	pipelineInfo.pDynamicState = &dynStateInfo;
-	pipelineInfo.pDepthStencilState = &m_DepthStencilState;
+	pipelineInfo.pDepthStencilState = &noDepth;
 
-	//pipelineInfo.stageCount = shaderCount;
-	//pipelineInfo.pStages = pShaderStage;
+	VkPipelineShaderStageCreateInfo shaderStage[2] = {};
+	shaderStage[0] = VkPipelineShaderStageCreateInfo
+	{
+		VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+		nullptr,
+		0U,
+		VK_SHADER_STAGE_VERTEX_BIT,
+		vertexShader.Get(),
+		"main",
+		nullptr
+	};
+	shaderStage[1] = VkPipelineShaderStageCreateInfo
+	{
+		VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+		nullptr,
+		0U,
+		VK_SHADER_STAGE_FRAGMENT_BIT,
+		pixelShader.Get(),
+		"main",
+		nullptr
+	};
 
-	///pipelineInfo.renderPass = m_RenderTargetView.Get();
+	pipelineInfo.stageCount = 2U;
+	pipelineInfo.pStages = shaderStage;
+
+	pipelineInfo.renderPass = VulkanEngine::Instance().GetDefaultRenderPass().Get();
 	pipelineInfo.subpass = 0;
 
 	pipelineInfo.layout = m_Layout;
 
 	VKCheck(vkCreateGraphicsPipelines(VulkanEngine::Instance().GetDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_Handle));
+}
+
+void VulkanContext::Destory()
+{
+	vkDestroyPipeline(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
+
+	Reset();
 }
 
 //void VulkanContext::SetVertexBuffer(const VulkanBuffer &vertexBuffer, uint32_t stride, uint32_t offset, uint32_t slot)
