@@ -118,6 +118,7 @@ protected:
 private:
 	std::vector<VkLayerProperties> m_LayerProperties;
 	std::vector<VkExtensionProperties> m_ExtensionProperties;
+	VkDebugReportCallbackEXT m_DebugReportCallback = VK_NULL_HANDLE;
 };
 
 class VulkanLogicalDevice : public VulkanObject<VkDevice> {};
@@ -244,23 +245,31 @@ protected:
 private:
 };
 
-//class VulkanDescriptorSetLayout : public VulkanObject<VkDescriptorSetLayout>
-//{
-//public:
-//	void Create(bool bUseTex);
-//protected:
-//private:
-//};
-//
-//
-//class VulkanDescriptorSet : public VulkanObject<VkDescriptorSet>
-//{
-//public:
-//	void Create(bool bUseTex);
-//protected:
-//private:
-//};
-//
+class VulkanDescriptorPool : public VulkanObject<VkDescriptorPool>
+{
+public:
+	void Create();
+	void Destory();
+};
+
+class VulkanDescriptorSetLayout : public VulkanObject<VkDescriptorSetLayout>
+{
+public:
+	void Create(class VulkanSamplerState sampler);
+	void Destory();
+protected:
+private:
+};
+
+class VulkanDescriptorSet : public VulkanObject<VkDescriptorSet>
+{
+public:
+	void Create(VulkanDescriptorPool pool, VulkanDescriptorSetLayout layout);
+	void Destory();
+protected:
+private:
+};
+
 
 class VulkanViewport : public VkViewport
 {

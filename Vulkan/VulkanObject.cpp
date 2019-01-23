@@ -3,6 +3,21 @@
 #include "VulkanEngine.h"
 #include "VulkanUtil.h"
 
+static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugReportFunc(
+	VkDebugReportFlagsEXT flags,
+	VkDebugReportObjectTypeEXT objectType,
+	uint64_t object,
+	size_t location,
+	int32_t messageCode,
+	const char* pLayerPrefix,
+	const char* pMessage,
+	void* pUserData)
+{
+	System::Log("[Vulkan] ObjectType: %i\nMessage: %s", objectType, pMessage);
+
+	return VK_FALSE;
+}
+
 void VulkanInstance::Create(const char *pApplicationName, const char *pEngineName)
 {
 	assert(!IsValid() && pApplicationName && pEngineName);
@@ -43,6 +58,16 @@ void VulkanInstance::Create(const char *pApplicationName, const char *pEngineNam
 	};
 
 	VKCheck(vkCreateInstance(&createInfo, nullptr, &m_Handle));
+
+	auto vkCreateDebugReportCallbackEXT = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(m_Handle, "vkCreateDebugReportCallbackEXT");
+	assert(vkCreateDebugReportCallbackEXT != NULL);
+
+	VkDebugReportCallbackCreateInfoEXT debugReportInfo = {};
+	debugReportInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
+	debugReportInfo.flags = VK_DEBUG_REPORT_INFORMATION_BIT_EXT | VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT | VK_DEBUG_REPORT_DEBUG_BIT_EXT;
+	debugReportInfo.pfnCallback = VulkanDebugReportFunc;
+	debugReportInfo.pUserData = NULL;
+	VKCheck(vkCreateDebugReportCallbackEXT(m_Handle, &debugReportInfo, nullptr, &m_DebugReportCallback));
 }
 
 void VulkanPhysicalDevice::VerifyDeviceFeatures(VkPhysicalDeviceFeatures &enabledFeatures)
@@ -228,4 +253,63 @@ void VulkanFence::Destory()
 	vkDestroyFence(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
 
 	Reset();
+}
+
+void VulkanDescriptorPool::Create()
+{
+	VkDescriptorPoolSize pool_sizes[] =
+	{
+		{ VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
+		{ VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
+	};
+	VkDescriptorPoolCreateInfo pool_info = {};
+	pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+	pool_info.maxSets = 1000 * _countof(pool_sizes);
+	pool_info.poolSizeCount = _countof(pool_sizes);
+	pool_info.pPoolSizes = pool_sizes;
+	VKCheck(vkCreateDescriptorPool(VulkanEngine::Instance().GetDevice(), &pool_info, nullptr, &m_Handle));
+}
+
+void VulkanDescriptorPool::Destory()
+{
+
+}
+
+void VulkanDescriptorSetLayout::Create(VulkanSamplerState sampler)
+{
+	VkDescriptorSetLayoutBinding binding[1] = {};
+	binding[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	binding[0].descriptorCount = 1;
+	binding[0].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+	binding[0].pImmutableSamplers = &sampler;
+	VkDescriptorSetLayoutCreateInfo info = {};
+	info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	info.bindingCount = 1;
+	info.pBindings = binding;
+	VKCheck(vkCreateDescriptorSetLayout(VulkanEngine::Instance().GetDevice(), &info, nullptr, &m_Handle));
+}
+
+void VulkanDescriptorSetLayout::Destory()
+{
+
+}
+
+void VulkanDescriptorSet::Create(VulkanDescriptorPool pool, VulkanDescriptorSetLayout layout)
+{
+	VkDescriptorSetAllocateInfo alloc_info = {};
+	alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	alloc_info.descriptorPool = pool.Get();
+	alloc_info.descriptorSetCount = 1;
+	alloc_info.pSetLayouts = &layout;
+	VKCheck(vkAllocateDescriptorSets(VulkanEngine::Instance().GetDevice(), &alloc_info, &m_Handle));
 }

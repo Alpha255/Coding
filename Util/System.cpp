@@ -181,11 +181,12 @@ std::string GetShaderCode(const char *pFileName, const char *pRenderTag, uint32_
 
 void Log(const char *pFormatMsg, ...)
 {
-	static char message[MAX_PATH] = {};
+	static const size_t s_MsgLength = MAX_PATH * 5U;
+	static char message[s_MsgLength] = {};
 
 	va_list ap = nullptr;
 	va_start(ap, pFormatMsg);
-	_vsnprintf_s(message, MAX_PATH, pFormatMsg, ap);
+	_vsnprintf_s(message, s_MsgLength, pFormatMsg, ap);
 	va_end(ap);
 
 	strcat_s(message, "\n");

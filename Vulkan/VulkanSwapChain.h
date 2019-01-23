@@ -61,6 +61,15 @@ public:
 		return m_DepthSurfaceFormat;
 	}
 
+	inline VulkanCommandBuffer GetCurCommandBuffer() const
+	{
+		return m_BackBuffers[m_CurBackBufferIndex].CommandBuffer;
+	}
+
+	void Begin();
+
+	void End();
+
 	void Flush();
 
 	void Destory();

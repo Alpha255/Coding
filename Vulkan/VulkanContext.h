@@ -104,6 +104,11 @@ public:
 
 	void Create(VulkanVertexShader vertexShader, VulkanPixelShader pixelShader, VulkanInputLayout inputLayout);
 	void Destory();
+
+	inline VkPipelineLayout GetLayout() const
+	{
+		return m_Layout;
+	}
 protected:
 private:
 	VkPipelineLayout m_Layout = {};

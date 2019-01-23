@@ -37,6 +37,7 @@ public:
 
 	inline void SetViewport(const VulkanViewport &viewport, uint32_t slot = 0U)
 	{
+		vkCmdSetViewport(m_Swapchain.GetCurCommandBuffer().Get(), 0U, 1U, &viewport);
 	}
 
 	inline void SetInputLayout(const VulkanInputLayout &inputLayout)
@@ -57,10 +58,13 @@ public:
 
 	inline void SetVertexBuffer(const VulkanBuffer &vertexBuffer, uint32_t stride, uint32_t offset, uint32_t slot = 0U)
 	{
+		VkDeviceSize vertex_offset[1] = { 0 };
+		vkCmdBindVertexBuffers(m_Swapchain.GetCurCommandBuffer().Get(), 0U, 1U, &vertexBuffer, vertex_offset);
 	}
 
 	inline void SetIndexBuffer(const VulkanBuffer &indexBuffer, uint32_t fmt, uint32_t offset)
 	{
+		vkCmdBindIndexBuffer(m_Swapchain.GetCurCommandBuffer().Get(), indexBuffer.Get(), 0U, VK_INDEX_TYPE_UINT16);
 	}
 
 	inline void SetSamplerState(const VulkanSamplerState &samplerState, uint32_t slot, eRShaderType targetShader)
@@ -85,6 +89,7 @@ public:
 
 	inline void SetScissorRect(const VulkanRect &rect, uint32_t slot = 0U)
 	{
+		vkCmdSetScissor(m_Swapchain.GetCurCommandBuffer().Get(), 0U, 1U, &rect);
 	}
 
 	//inline void Draw(uint32_t vertexCount, uint32_t startVertex, uint32_t primitive)
@@ -93,6 +98,7 @@ public:
 
 	inline void DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, uint32_t primitive)
 	{
+		vkCmdDrawIndexed(m_Swapchain.GetCurCommandBuffer().Get(), indexCount, 1U, startIndex, offset, 0U);
 	}
 
 	//inline void ClearRenderSurface(const Vec4 &color = Color::DarkBlue)

@@ -135,6 +135,57 @@ void VulkanSwapchain::Resize(uint32_t uWidth, uint32_t uHeight)
 	///Create(nullptr, uWidth, uHeight, m_bFullScreen);
 }
 
+void VulkanSwapchain::Begin()
+{
+	VKCheck(vkAcquireNextImageKHR(VulkanEngine::Instance().GetDevice(), m_Handle, UINT64_MAX, m_BackBuffers[m_CurBackBufferIndex].ImageAcquireSemaphore.Get(), VK_NULL_HANDLE, &m_CurBackBufferIndex));
+
+	VKCheck(vkWaitForFences(VulkanEngine::Instance().GetDevice(), 1U, &m_BackBuffers[m_CurBackBufferIndex].PresentFence, VK_TRUE, UINT64_MAX));
+
+	VKCheck(vkResetFences(VulkanEngine::Instance().GetDevice(), 1U, &m_BackBuffers[m_CurBackBufferIndex].PresentFence));
+
+	m_BackBuffers[m_CurBackBufferIndex].CommandBuffer.ResetCommand(0U);
+
+	m_BackBuffers[m_CurBackBufferIndex].CommandBuffer.Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+
+	VkClearValue clearValue = {};
+	memcpy(clearValue.color.float32, &Color::DarkBlue, sizeof(Vec4));
+	VkRenderPassBeginInfo info
+	{
+		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
+		nullptr,
+		VulkanEngine::Instance().GetDefaultRenderPass().Get(),
+		m_BackBuffers[m_CurBackBufferIndex].FrameBuffer.Get(),
+		{ 0U, 0U, 800U, 600U },
+		1U,
+		&clearValue
+	};
+	vkCmdBeginRenderPass(m_BackBuffers[m_CurBackBufferIndex].CommandBuffer.Get(), &info, VK_SUBPASS_CONTENTS_INLINE);
+
+	m_CurBackBufferIndex = (m_CurBackBufferIndex + 1) % m_BackBuffers.size();
+}
+
+void VulkanSwapchain::End()
+{
+	vkCmdEndRenderPass(m_BackBuffers[m_CurBackBufferIndex].CommandBuffer.Get());
+
+	VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	VkSubmitInfo info
+	{
+		VK_STRUCTURE_TYPE_SUBMIT_INFO,
+		nullptr,
+		1U,
+		&m_BackBuffers[m_CurBackBufferIndex].ImageAcquireSemaphore,
+		&wait_stage,
+		1U,
+		&m_BackBuffers[m_CurBackBufferIndex].CommandBuffer,
+		1U,
+		&m_BackBuffers[m_CurBackBufferIndex].RenderCompleteSemaphore
+	};
+	m_BackBuffers[m_CurBackBufferIndex].CommandBuffer.End();
+
+	VKCheck(vkQueueSubmit(VulkanEngine::Instance().GetQueue(), 1U, &info, m_BackBuffers[m_CurBackBufferIndex].PresentFence.Get()));
+}
+
 void VulkanSwapchain::Flush()
 {
 #if 0
@@ -182,6 +233,20 @@ void VulkanSwapchain::Flush()
 
 	++s_FrameIndex;
 #endif
+
+	VkPresentInfoKHR presentInfo
+	{
+		VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+		nullptr,
+		1U,
+		&m_BackBuffers[m_CurBackBufferIndex].RenderCompleteSemaphore,
+		1U,
+		&m_Handle,
+		&m_CurBackBufferIndex,
+		nullptr
+	};
+
+	VKCheck(vkQueuePresentKHR(VulkanEngine::Instance().GetQueue(), &presentInfo));
 }
 
 void VulkanSwapchain::Destory()
