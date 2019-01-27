@@ -7,9 +7,7 @@ void VulkanInputLayout::Create(const void *, const VertexLayout *pLayout, size_t
 {
 	assert(!m_bValid && pLayout && layoutCount);
 
-	m_VertexInputBindingDes.clear();
 	m_VertexInputAttrs.clear();
-	m_InputState = {};
 
 	const VertexLayout *pVertexLayout = pLayout;
 	size_t stride = 0U;
@@ -27,25 +25,6 @@ void VulkanInputLayout::Create(const void *, const VertexLayout *pLayout, size_t
 
 		stride += pVertexLayout->Stride;
 	}
-
-	VkVertexInputBindingDescription bindingDesc
-	{
-		0U,
-		(uint32_t)stride,
-		VK_VERTEX_INPUT_RATE_VERTEX
-	};
-	m_VertexInputBindingDes.emplace_back(bindingDesc);
-
-	m_InputState =
-	{
-		VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
-		nullptr,
-		0U,
-		(uint32_t)m_VertexInputBindingDes.size(),
-		m_VertexInputBindingDes.data(),
-		(uint32_t)m_VertexInputAttrs.size(),
-		m_VertexInputAttrs.data()
-	};
 
 	m_bValid = true;
 }

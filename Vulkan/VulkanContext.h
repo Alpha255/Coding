@@ -8,7 +8,7 @@
 #include "VulkanPool.h"
 #include "VulkanTexture.h"
 #include "VulkanRenderPass.h"
-#include "Util/D3DMath.h"
+#include "VulkanContextState.h"
 
 //class VulkanPipelineLayout : public VulkanObject<VkPipelineLayout>
 //{
@@ -17,7 +17,7 @@
 //protected:
 //private:
 //};
-
+//
 //class VulkanPipelineCache : public VulkanObject<VkPipelineCache>
 //{
 //public:
@@ -28,6 +28,11 @@
 class VulkanContext : public VulkanObject<VkPipeline>
 {
 public:
+	inline void Initialize()
+	{
+		m_State.Initialize();
+	}
+
 	inline void SetRenderTargetView(const VulkanRenderTargetView &renderTarget, uint32_t slot = 0U)
 	{
 
@@ -47,46 +52,149 @@ public:
 
 	inline void SetVertexBuffer(const VulkanBuffer &vertexBuffer, uint32_t stride, uint32_t offset, uint32_t slot = 0U)
 	{
-		m_VIBindingDesc.binding = slot;
-		m_VIBindingDesc.stride = stride;
-		m_VIBindingDesc.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+		if (vertexBuffer.Get() != m_State.VertexBuffers[slot].Buffer)
+		{
+			m_State.VertexBuffers[slot].VertexInputBindingDescription.binding = slot;
+			m_State.VertexBuffers[slot].VertexInputBindingDescription.stride = stride;
+			m_State.VertexBuffers[slot].VertexInputBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+			m_State.VertexBuffers[slot].Buffer = vertexBuffer.Get();
+
+			m_State.SetDirty(true);
+		}
 	}
 
 	inline void SetIndexBuffer(const VulkanBuffer &indexBuffer, uint32_t fmt, uint32_t offset)
 	{
+		if (indexBuffer.Get() != m_State.IndexBuffer.Buffer)
+		{
+			m_State.IndexBuffer.Buffer = indexBuffer.Get();
 
+			if (fmt == eR16_UInt)
+			{
+				m_State.IndexBuffer.Format = VK_INDEX_TYPE_UINT16;
+			}
+			else if (fmt == eR32_UInt)
+			{
+				m_State.IndexBuffer.Format = VK_INDEX_TYPE_UINT32;
+			}
+			else
+			{
+				assert(0);
+			}
+
+			m_State.IndexBuffer.Offset = offset;
+
+			m_State.SetDirty(true);
+		}
 	}
 
-	void SetSamplerState(const VulkanSamplerState &samplerState, uint32_t slot, uint32_t targetShader);
+	inline void SetSamplerState(const VulkanSamplerState &samplerState, uint32_t slot, uint32_t targetShader)
+	{
+		assert(targetShader < eRShaderTypeCount && slot < m_State.SamplerBindInfos[targetShader].Samplers.size());
+
+		if (samplerState.Get() != m_State.SamplerBindInfos[targetShader].Samplers[slot])
+		{
+			m_State.SamplerBindInfos[targetShader].Samplers[slot] = samplerState.Get();
+
+			m_State.SetDirty(true);
+		}
+	}
+
 	inline void SetRasterizerState(const VulkanRasterizerState &rasterizerState)
 	{
-		m_RasterizationState = rasterizerState.Get();
+		if (!IsEqual(rasterizerState.Get(), m_State.RasterizationState))
+		{
+			m_State.RasterizationState = rasterizerState.Get();
+
+			m_State.SetDirty(true);
+		}
 	}
 
 	inline void SetDepthStencilState(const VulkanDepthStencilState &depthStencilState, uint32_t stencilRef)
 	{
-		m_DepthStencilState = depthStencilState.Get();
+		if (!IsEqual(depthStencilState.Get(), m_State.DepthStencilState))
+		{
+			m_State.DepthStencilState = depthStencilState.Get();
+
+			m_State.SetDirty(true);
+		}
 	}
-	void SetBlendState(const VulkanBlendState &blendState, Vec4 blendFactor = Vec4(0.0f, 0.0f, 0.0f, 0.0f), uint32_t mask = 0xFFFFFFFF);
+
+	inline void SetBlendState(const VulkanBlendState &blendState, Vec4 blendFactor = Vec4(0.0f, 0.0f, 0.0f, 0.0f), uint32_t mask = 0xFFFFFFFF)
+	{
+		if (!IsEqual(blendState.Get(), m_State.ColorBlendState))
+		{
+			m_State.ColorBlendState = blendState.Get();
+
+			m_State.SetDirty(true);
+		}
+	}
 
 	inline void SetInputLayout(const VulkanInputLayout &inputLayout)
 	{
-		m_VertexInputAttrDesc = inputLayout.Get();
+		if (!IsEqual(inputLayout.Get(), m_State.VertexBuffers[0].VertexInputAttributeDescription))
+		{
+			m_State.VertexBuffers[0].VertexInputAttributeDescription = inputLayout.Get();
+
+			m_State.SetDirty(true);
+		}
 	}
-	void SetVertexShader(const VulkanVertexShader &vertexShader);
+
+	inline void SetVertexShader(const VulkanVertexShader &vertexShader) 
+	{
+		if (vertexShader.Get() != m_State.VertexShader)
+		{
+			m_State.VertexShader = vertexShader.Get();
+
+			m_State.SetDirty(true);
+		}
+	}
 	//void SetHullShader(const D3DHullShader &hullShader);
 	//void SetDomainShader(const D3DDomainShader &domainShader);
-	void SetPixelShader(const VulkanPixelShader &pixelShader);
+	inline void SetPixelShader(const VulkanPixelShader &pixelShader)
+	{
+		if (pixelShader.Get() != m_State.PixelShader)
+		{
+			m_State.PixelShader = pixelShader.Get();
+
+			m_State.SetDirty(true);
+		}
+	}
 	//void SetGeometryShader(const D3DGeometryShader &geometryShader);
 	//void SetComputeShader(const D3DComputeShader &computeShader);
 
-	void SetConstantBuffer(const VulkanBuffer &constantBuffer, uint32_t slot, eRShaderType targetShader);
+	void SetConstantBuffer(const VulkanBuffer &constantBuffer, uint32_t slot, eRShaderType targetShader) 
+	{
 
-	void SetViewport(const VulkanViewport &viewport, uint32_t slot = 0U);
-	void SetScissorRect(const VulkanRect &rect, uint32_t slot = 0U);
+	}
+
+	inline void SetViewport(const VulkanViewport &viewport, uint32_t slot = 0U) 
+	{
+		assert(slot < m_State.Viewports.size());
+		
+		if (!IsEqual(viewport, m_State.Viewports[slot]))
+		{
+			m_State.Viewports[slot] = viewport;
+
+			m_State.SetDirty(true);
+		}
+	}
+
+	inline void SetScissorRect(const VulkanRect &rect, uint32_t slot = 0U)
+	{
+		assert(slot < m_State.ScissorRects.size());
+
+		if (!IsEqual(rect, m_State.ScissorRects[slot]))
+		{
+			m_State.ScissorRects[slot] = rect;
+
+			m_State.SetDirty(true);
+		}
+	}
 
 	//void Draw(uint32_t vertexCount, uint32_t startVertex, uint32_t primitive);
-	//void DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, uint32_t primitive);
+	void DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, uint32_t primitive);
 
 	//inline void ClearRenderTargetView(D3DRenderTargetView &renderTarget, const Vec4 &color) const
 	//{
@@ -102,8 +210,8 @@ public:
 	//	m_Object->ClearDepthStencilView(depthStencil.Get(), clearFlag, depth, stencil);
 	//}
 
-	void Create(VulkanVertexShader vertexShader, VulkanPixelShader pixelShader, VulkanInputLayout inputLayout);
-	void Destory();
+	void Recreate();
+	void Destory(bool bDestoryState = false);
 
 	inline VkPipelineLayout GetLayout() const
 	{
@@ -112,10 +220,5 @@ public:
 protected:
 private:
 	VkPipelineLayout m_Layout = {};
-	VkGraphicsPipelineCreateInfo m_Info = {};
-	VkVertexInputBindingDescription m_VIBindingDesc = {};
-	VkPipelineDepthStencilStateCreateInfo m_DepthStencilState = {};
-	VkPipelineRasterizationStateCreateInfo m_RasterizationState = {};
-	std::vector<VkVertexInputAttributeDescription> m_VertexInputAttrDesc;
-	VulkanCommandBuffer m_CmdBuffer;
+	VulkanContextState m_State;
 };

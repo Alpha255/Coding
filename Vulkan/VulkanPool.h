@@ -36,10 +36,20 @@ private:
 	uint32_t m_BufferCount = 0U;
 };
 
-//class VulkanDescriptorPool : public VulkanObject<VkDescriptorPool>
-//{
-//public:
-//	void Create(bool bUseTex);
-//protected:
-//private:
-//};
+class VulkanDescriptorPool : public VulkanObject<VkDescriptorPool>
+{
+public:
+	void Create();
+
+	VulkanDescriptorSet AllocDescriptorSet(VulkanDescriptorSetLayout &layout);
+
+	void ResetPool();
+
+	void Destory();
+protected:
+	enum eLimits
+	{
+		eMaxSetCount = 1024
+	};
+private:
+};

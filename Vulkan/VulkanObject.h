@@ -2,6 +2,12 @@
 
 #include "VulkanTypes.h"
 
+template <typename Left, typename Right>
+inline bool IsEqual(const Left &left, const Right &right)
+{
+	return memcmp(&left, &right, sizeof(Right)) == 0;
+}
+
 template <typename T> class IVulkanObject
 {
 public:
@@ -245,32 +251,6 @@ protected:
 private:
 };
 
-class VulkanDescriptorPool : public VulkanObject<VkDescriptorPool>
-{
-public:
-	void Create();
-	void Destory();
-};
-
-class VulkanDescriptorSetLayout : public VulkanObject<VkDescriptorSetLayout>
-{
-public:
-	void Create(class VulkanSamplerState sampler);
-	void Destory();
-protected:
-private:
-};
-
-class VulkanDescriptorSet : public VulkanObject<VkDescriptorSet>
-{
-public:
-	void Create(VulkanDescriptorPool pool, VulkanDescriptorSetLayout layout);
-	void Destory();
-protected:
-private:
-};
-
-
 class VulkanViewport : public VkViewport
 {
 public:
@@ -307,3 +287,14 @@ public:
 		extent.height = (uint32_t)(rect.bottom - rect.top);
 	}
 };
+
+class VulkanDescriptorSetLayout : public VulkanObject<VkDescriptorSetLayout>
+{
+public:
+	void Create(std::vector<VkSampler> &samplers, uint32_t targetShader);
+	void Destory();
+protected:
+private:
+};
+
+typedef VulkanObject<VkDescriptorSet> VulkanDescriptorSet;

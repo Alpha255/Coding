@@ -95,27 +95,67 @@ void VulkanCommandPool::Free(VulkanCommandBufferList &cmdBufferList)
 	cmdBufferList.Reset();
 }
 
-//void VulkanDescriptorPool::Create(bool bUseTex)
-//{
-//	VkDescriptorPoolSize poolSize[2]{};
-//	poolSize[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-//	poolSize[0].descriptorCount = 1U;
-//
-//	if (bUseTex)
-//	{
-//		poolSize[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-//		poolSize[1].descriptorCount = 1;
-//	}
-//
-//	VkDescriptorPoolCreateInfo createInfo
-//	{
-//		VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
-//		nullptr,
-//		0U,
-//		1U,
-//		bUseTex ? 2 : 1,
-//		poolSize
-//	};
-//
-//	VKCheck(vkCreateDescriptorPool(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
-//}
+void VulkanDescriptorPool::Create()
+{
+	assert(!IsValid());
+
+	auto deviceLimits = VulkanEngine::Instance().GetPhysicalDevice().GetDeviceProperties().limits;
+
+	VkDescriptorPoolSize descriptorPoolSize[] =
+	{
+		{ VK_DESCRIPTOR_TYPE_SAMPLER,                deviceLimits.maxPerStageDescriptorSamplers },
+		{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, deviceLimits.maxPerStageDescriptorSamplers },
+		{ VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,          deviceLimits.maxPerStageDescriptorSampledImages },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,          deviceLimits.maxPerStageDescriptorStorageImages },
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER,   deviceLimits.maxPerStageDescriptorSampledImages },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER,   deviceLimits.maxPerStageDescriptorStorageImages },
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,         deviceLimits.maxPerStageDescriptorUniformBuffers },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,         deviceLimits.maxPerStageDescriptorStorageBuffers },
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, deviceLimits.maxPerStageDescriptorUniformBuffers },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, deviceLimits.maxPerStageDescriptorStorageBuffers },
+		{ VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT,       deviceLimits.maxPerStageDescriptorInputAttachments }
+	};
+
+	VkDescriptorPoolCreateInfo createInfo
+	{
+		VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+		nullptr,
+		VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT,
+		eMaxSetCount,
+		_countof(descriptorPoolSize),
+		nullptr
+	};
+	VKCheck(vkCreateDescriptorPool(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
+}
+
+VulkanDescriptorSet VulkanDescriptorPool::AllocDescriptorSet(VulkanDescriptorSetLayout &layout)
+{
+	VkDescriptorSetAllocateInfo allocInfo
+	{
+		VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+		nullptr,
+		m_Handle,
+		1U,
+		&layout
+	};
+
+	VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
+
+	VKCheck(vkAllocateDescriptorSets(VulkanEngine::Instance().GetDevice(), &allocInfo, &descriptorSet));
+
+	return VulkanDescriptorSet(descriptorSet);
+}
+
+void VulkanDescriptorPool::ResetPool()
+{
+	assert(IsValid());
+
+	VKCheck(vkResetDescriptorPool(VulkanEngine::Instance().GetDevice(), m_Handle, 0U));
+}
+
+void VulkanDescriptorPool::Destory()
+{
+	assert(IsValid());
+
+	vkDestroyDescriptorPool(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
+}

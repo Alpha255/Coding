@@ -37,59 +37,67 @@ public:
 
 	inline void SetViewport(const VulkanViewport &viewport, uint32_t slot = 0U)
 	{
-		vkCmdSetViewport(m_Swapchain.GetCurCommandBuffer().Get(), 0U, 1U, &viewport);
+		m_Context.SetViewport(viewport, slot);
 	}
 
 	inline void SetInputLayout(const VulkanInputLayout &inputLayout)
 	{
+		m_Context.SetInputLayout(inputLayout);
 	}
 
 	inline void SetVertexShader(const VulkanVertexShader &vertexShader)
 	{
+		m_Context.SetVertexShader(vertexShader);
 	}
 
 	inline void SetPixelShader(const VulkanPixelShader &pixelShader)
 	{
+		m_Context.SetPixelShader(pixelShader);
 	}
 
 	inline void SetConstantBuffer(const VulkanBuffer &constantBuffer, uint32_t slot, eRShaderType targetShader)
 	{
+		m_Context.SetConstantBuffer(constantBuffer, slot, targetShader);
 	}
 
 	inline void SetVertexBuffer(const VulkanBuffer &vertexBuffer, uint32_t stride, uint32_t offset, uint32_t slot = 0U)
 	{
-		VkDeviceSize vertex_offset[1] = { 0 };
-		vkCmdBindVertexBuffers(m_Swapchain.GetCurCommandBuffer().Get(), 0U, 1U, &vertexBuffer, vertex_offset);
+		m_Context.SetVertexBuffer(vertexBuffer, stride, offset, slot);
 	}
 
 	inline void SetIndexBuffer(const VulkanBuffer &indexBuffer, uint32_t fmt, uint32_t offset)
 	{
-		vkCmdBindIndexBuffer(m_Swapchain.GetCurCommandBuffer().Get(), indexBuffer.Get(), 0U, VK_INDEX_TYPE_UINT16);
+		m_Context.SetIndexBuffer(indexBuffer, fmt, offset);
 	}
 
 	inline void SetSamplerState(const VulkanSamplerState &samplerState, uint32_t slot, eRShaderType targetShader)
 	{
+		m_Context.SetSamplerState(samplerState, slot, targetShader);
 	}
 
 	inline void SetRasterizerState(const VulkanRasterizerState &rasterizerState)
 	{
+		m_Context.SetRasterizerState(rasterizerState);
 	}
 
 	inline void SetDepthStencilState(const VulkanDepthStencilState &depthStencilState, uint32_t stencilRef)
 	{
+		m_Context.SetDepthStencilState(depthStencilState, stencilRef);
 	}
 
 	inline void SetBlendState(const VulkanBlendState &blendState, Vec4 blendFactor = Vec4(0.0f, 0.0f, 0.0f, 0.0f), uint32_t mask = 0xFFFFFFFF)
 	{
+		m_Context.SetBlendState(blendState, blendFactor, mask);
 	}
 
 	inline void SetShaderResourceView(const VulkanShaderResourceView &shaderResourceView, uint32_t slot, eRShaderType targetShader)
 	{
+		m_Context.SetShaderResourceView(shaderResourceView, slot, targetShader);
 	}
 
 	inline void SetScissorRect(const VulkanRect &rect, uint32_t slot = 0U)
 	{
-		vkCmdSetScissor(m_Swapchain.GetCurCommandBuffer().Get(), 0U, 1U, &rect);
+		m_Context.SetScissorRect(rect, slot);
 	}
 
 	//inline void Draw(uint32_t vertexCount, uint32_t startVertex, uint32_t primitive)
@@ -98,7 +106,7 @@ public:
 
 	inline void DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, uint32_t primitive)
 	{
-		vkCmdDrawIndexed(m_Swapchain.GetCurCommandBuffer().Get(), indexCount, 1U, startIndex, offset, 0U);
+		m_Context.DrawIndexed(indexCount, startIndex, offset, primitive);
 	}
 
 	//inline void ClearRenderSurface(const Vec4 &color = Color::DarkBlue)
@@ -223,6 +231,7 @@ private:
 	VulkanSwapchain m_Swapchain;
 	VulkanInstance m_Instance;
 	VulkanRenderPass m_DefaultRenderPass;
+	VulkanContext m_Context;
 	std::array<VulkanCommandPool, VulkanCommandPool::ePoolTypeCount> m_CommandPools;
 	std::array<std::unordered_map<uint32_t, VulkanCommandBuffer>, VulkanCommandPool::ePoolTypeCount> m_CommandBuffers = {};
 	std::array<std::unordered_map<uint32_t, VulkanCommandBufferList>, VulkanCommandPool::ePoolTypeCount> m_CommandBufferLists = {};

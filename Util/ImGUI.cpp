@@ -3,11 +3,6 @@
 
 std::unique_ptr<ImGUI, std::function<void(ImGUI *)>> ImGUI::s_Instance;
 
-VulkanContext s_Context;
-VulkanDescriptorPool s_Pool;
-VulkanDescriptorSetLayout s_SetLayout;
-VulkanDescriptorSet s_Set;
-
 void ImGUI::Initialize(::HWND hWnd)
 {
 	assert(hWnd && !m_Inited);
@@ -78,23 +73,6 @@ void ImGUI::InitRenderResource()
 	fontTex.Create(eRGBA8_UNorm, (uint32_t)width, (uint32_t)height, eBindAsShaderResource, 1U, 1U, 0U, 0U, eGpuReadWrite, &subResData);
 	m_Resource.FontTexture.CreateAsTexture(eTexture2D, fontTex, eRGBA8_UNorm, 1U, 1U);
 	io.Fonts->TexID = (void *)m_Resource.FontTexture.Get();
-
-	s_Context.Create(m_Resource.VertexShader, m_Resource.PixelShader, m_Resource.VertexLayout);
-	s_Pool.Create();
-	s_SetLayout.Create(VulkanStaticState::LinearSampler);
-	s_Set.Create(s_Pool, s_SetLayout);
-
-	VkDescriptorImageInfo desc_image[1] = {};
-	desc_image[0].sampler = VulkanStaticState::LinearSampler.Get();
-	desc_image[0].imageView = m_Resource.FontTexture.Get();
-	desc_image[0].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	VkWriteDescriptorSet write_desc[1] = {};
-	write_desc[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	write_desc[0].dstSet = s_Set.Get();
-	write_desc[0].descriptorCount = 1;
-	write_desc[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	write_desc[0].pImageInfo = desc_image;
-	vkUpdateDescriptorSets(VulkanEngine::Instance().GetDevice(), 1, write_desc, 0, nullptr);
 }
 
 ::LRESULT ImGUI::MessageProcFunc(::HWND hWnd, uint32_t uMsg, ::WPARAM wParam, ::LPARAM lParam)
@@ -224,11 +202,11 @@ void ImGUI::RenderEnd(bool bDraw)
 
 	ImGui::Render();
 
-	VulkanEngine::Instance().GetSwapchain().Begin();
+	///VulkanEngine::Instance().GetSwapchain().Begin();
 
 	Update();
 
-	VulkanEngine::Instance().GetSwapchain().End();
+	///VulkanEngine::Instance().GetSwapchain().End();
 }
 
 void ImGUI::Update()
@@ -257,10 +235,7 @@ void ImGUI::Update()
 
 	m_Resource.ConstantBufferVS.Update(&wvp, sizeof(Matrix));
 
-	vkCmdBindPipeline(VulkanEngine::Instance().GetSwapchain().GetCurCommandBuffer().Get(), VK_PIPELINE_BIND_POINT_GRAPHICS, s_Context.Get());
-	vkCmdBindDescriptorSets(VulkanEngine::Instance().GetSwapchain().GetCurCommandBuffer().Get(), VK_PIPELINE_BIND_POINT_GRAPHICS, s_Context.GetLayout(), 0U, 1U, &s_Set, 0U, nullptr);
-
-	vkCmdPushConstants(VulkanEngine::Instance().GetSwapchain().GetCurCommandBuffer().Get(), s_Context.GetLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0U, sizeof(Matrix), &wvp);
+	///vkCmdPushConstants(VulkanEngine::Instance().GetSwapchain().GetCurCommandBuffer().Get(), s_Context.GetLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0U, sizeof(Matrix), &wvp);
 
 	RViewport vp(0.0f, 0.0f, ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y);
 	REngine::Instance().SetViewport(vp);

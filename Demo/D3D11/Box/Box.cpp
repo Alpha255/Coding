@@ -23,13 +23,13 @@ void AppBox::InitScene()
 
 #if 1
 	///m_CmdBuffer = VulkanEngine::Instance().AllocCommandBuffer(VulkanCommandPool::eGeneral, VulkanCommandPool::eSecondary);
-	m_Context.Create(m_VertexShader, m_PixelShader[eNone], m_BoxMesh.InputLayout);
+	///m_Context.Create(m_VertexShader, m_PixelShader[eNone], m_BoxMesh.InputLayout);
 #endif
 }
 
 void AppBox::RenderScene()
 {
-	///REngine::Instance().ResetDefaultRenderSurfaces();
+	REngine::Instance().ResetDefaultRenderSurfaces();
 #if defined(UsingD3D11)
 	REngine::Instance().SetViewport(RViewport(0.0f, 0.0f, (float)m_Width, (float)m_Height));
 

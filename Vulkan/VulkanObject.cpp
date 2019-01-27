@@ -255,61 +255,55 @@ void VulkanFence::Destory()
 	Reset();
 }
 
-void VulkanDescriptorPool::Create()
+void VulkanDescriptorSetLayout::Create(std::vector<VkSampler> &samplers, uint32_t targetShader)
 {
-	VkDescriptorPoolSize pool_sizes[] =
+	assert(!IsValid());
+
+	std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings;
+
+	VkShaderStageFlags shaderStage = VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM;
+	switch (targetShader)
 	{
-		{ VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
-		{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
-		{ VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
-		{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
-		{ VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
-		{ VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
-		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
-		{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
-		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
-		{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
-		{ VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
+	case eVertexShader:
+		shaderStage = VK_SHADER_STAGE_VERTEX_BIT;
+		break;
+	case ePixelShader:
+		shaderStage = VK_SHADER_STAGE_FRAGMENT_BIT;
+		break;
+	default:
+		assert(0);
+		break;
+	}
+
+	for (uint32_t i = 0U; i < samplers.size(); ++i)
+	{
+		VkDescriptorSetLayoutBinding setLayoutBinding
+		{
+			i,
+			VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+			1U,
+			shaderStage,
+			&samplers[i]
+		};
+
+		setLayoutBindings.emplace_back(setLayoutBinding);
+	}
+
+	VkDescriptorSetLayoutCreateInfo createInfo
+	{
+		VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+		nullptr,
+		0U,
+		(uint32_t)setLayoutBindings.size(),
+		setLayoutBindings.data()
 	};
-	VkDescriptorPoolCreateInfo pool_info = {};
-	pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
-	pool_info.maxSets = 1000 * _countof(pool_sizes);
-	pool_info.poolSizeCount = _countof(pool_sizes);
-	pool_info.pPoolSizes = pool_sizes;
-	VKCheck(vkCreateDescriptorPool(VulkanEngine::Instance().GetDevice(), &pool_info, nullptr, &m_Handle));
-}
 
-void VulkanDescriptorPool::Destory()
-{
-
-}
-
-void VulkanDescriptorSetLayout::Create(VulkanSamplerState sampler)
-{
-	VkDescriptorSetLayoutBinding binding[1] = {};
-	binding[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	binding[0].descriptorCount = 1;
-	binding[0].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-	binding[0].pImmutableSamplers = &sampler;
-	VkDescriptorSetLayoutCreateInfo info = {};
-	info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	info.bindingCount = 1;
-	info.pBindings = binding;
-	VKCheck(vkCreateDescriptorSetLayout(VulkanEngine::Instance().GetDevice(), &info, nullptr, &m_Handle));
+	VKCheck(vkCreateDescriptorSetLayout(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
 }
 
 void VulkanDescriptorSetLayout::Destory()
 {
+	assert(IsValid());
 
-}
-
-void VulkanDescriptorSet::Create(VulkanDescriptorPool pool, VulkanDescriptorSetLayout layout)
-{
-	VkDescriptorSetAllocateInfo alloc_info = {};
-	alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-	alloc_info.descriptorPool = pool.Get();
-	alloc_info.descriptorSetCount = 1;
-	alloc_info.pSetLayouts = &layout;
-	VKCheck(vkAllocateDescriptorSets(VulkanEngine::Instance().GetDevice(), &alloc_info, &m_Handle));
+	vkDestroyDescriptorSetLayout(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
 }

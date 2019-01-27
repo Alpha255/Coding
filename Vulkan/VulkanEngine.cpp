@@ -24,6 +24,8 @@ void VulkanEngine::Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool
 
 	VulkanStaticState::Initialize();
 
+	m_Context.Initialize();
+
 	m_Inited = true;
 }
 
@@ -59,6 +61,8 @@ VulkanEngine::~VulkanEngine()
 	{
 		m_CommandPools[i].Destory();
 	}
+
+	m_Context.Destory();
 
 	m_Device.Destory();
 

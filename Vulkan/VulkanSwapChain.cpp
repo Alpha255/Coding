@@ -125,7 +125,7 @@ void VulkanSwapchain::Create(::HWND hWnd, uint32_t uWidth, uint32_t uHeight, boo
 		
 		std::vector<VulkanImageView> imageViews;
 		imageViews.emplace_back(m_BackBuffers[i].RenderTargetView);
-		///imageViews.emplace_back(m_DepthStencilView);
+		imageViews.emplace_back(m_DepthStencilView);
 		m_BackBuffers[i].FrameBuffer.Create(imageViews, VulkanEngine::Instance().GetDefaultRenderPass(), uWidth, uHeight, 1U);
 	}
 }
