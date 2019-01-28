@@ -29,12 +29,7 @@ public:
 		: VulkanObject<VkImage>(image)
 	{
 	}
-
 	inline VulkanImage() = default;
-	inline ~VulkanImage()
-	{
-		///Destory();
-	}
 
 	void Create(
 		uint32_t type,

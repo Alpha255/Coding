@@ -56,27 +56,6 @@ VulkanCommandBuffer VulkanCommandPool::Alloc(eBufferType type)
 	return newCmdBuffer;
 }
 
-VulkanCommandBufferList VulkanCommandPool::Alloc(eBufferType type, uint32_t count)
-{
-	assert(IsValid());
-
-	VkCommandBufferAllocateInfo allocInfo
-	{
-		VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-		nullptr,
-		m_Handle,
-		(VkCommandBufferLevel)type,
-		count
-	};
-
-	std::vector<VkCommandBuffer> bufferList(count);
-	VKCheck(vkAllocateCommandBuffers(VulkanEngine::Instance().GetDevice(), &allocInfo, bufferList.data()));
-
-	VulkanCommandBufferList newCmdBufferList(bufferList);
-
-	return newCmdBufferList;
-}
-
 void VulkanCommandPool::Free(VulkanCommandBuffer &cmdBuffer)
 {
 	assert(IsValid());
@@ -84,15 +63,6 @@ void VulkanCommandPool::Free(VulkanCommandBuffer &cmdBuffer)
 	vkFreeCommandBuffers(VulkanEngine::Instance().GetDevice(), m_Handle, 1U, &cmdBuffer);
 
 	cmdBuffer.Reset();
-}
-
-void VulkanCommandPool::Free(VulkanCommandBufferList &cmdBufferList)
-{
-	assert(IsValid());
-
-	vkFreeCommandBuffers(VulkanEngine::Instance().GetDevice(), m_Handle, cmdBufferList.GetCount(), &cmdBufferList);
-
-	cmdBufferList.Reset();
 }
 
 void VulkanDescriptorPool::Create()

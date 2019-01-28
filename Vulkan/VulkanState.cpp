@@ -3,6 +3,8 @@
 
 void VulkanSamplerState::Create(uint32_t filter, uint32_t addressMode, float LODBias, eRComparisonFunc compFunc, const float *pBorderClr, float minLOD, float maxLOD)
 {
+	assert(!IsValid());
+
 	VkSamplerCreateInfo createInfo = 
 	{ 
 		VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
@@ -26,6 +28,15 @@ void VulkanSamplerState::Create(uint32_t filter, uint32_t addressMode, float LOD
 	};
 
 	VKCheck(vkCreateSampler(VulkanEngine::Instance().GetDevice(), &createInfo, 0, &m_Handle));
+}
+
+void VulkanSamplerState::Destory()
+{
+	assert(IsValid());
+
+	vkDestroySampler(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
+
+	Reset();
 }
 
 void VulkanDepthStencilState::Create(

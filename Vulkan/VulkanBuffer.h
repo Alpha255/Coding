@@ -179,46 +179,6 @@ protected:
 private:
 };
 
-class VulkanCommandBufferList : public IVulkanCommandBuffer
-{
-public:
-	inline VulkanCommandBufferList(const std::vector<VkCommandBuffer> &other)
-		: m_BufferList(other)
-	{
-	}
-
-	inline void Execute(VulkanCommandBuffer &primaryCmdBuffer)
-	{
-		assert(m_BufferList.size() > 0U);
-
-		vkCmdExecuteCommands(primaryCmdBuffer.Get(), (uint32_t)m_BufferList.size(), m_BufferList.data());
-	}
-
-	inline uint32_t GetCount() const
-	{
-		return (uint32_t)m_BufferList.size();
-	}
-
-	inline VkCommandBuffer *operator&()
-	{
-		return m_BufferList.data();
-	}
-
-	inline VulkanCommandBuffer operator[](uint32_t index)
-	{
-		assert(index < m_BufferList.size() && m_BufferList[index] != VK_NULL_HANDLE);
-		return VulkanCommandBuffer(m_BufferList[index]);
-	}
-
-	inline void Reset()
-	{
-		m_BufferList.clear();
-	}
-protected:
-private:
-	std::vector<VkCommandBuffer> m_BufferList;
-};
-
 class VulkanFrameBuffer : public VulkanObject<VkFramebuffer>
 {
 public:

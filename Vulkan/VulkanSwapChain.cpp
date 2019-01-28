@@ -111,7 +111,7 @@ void VulkanSwapchain::Create(::HWND hWnd, uint32_t uWidth, uint32_t uHeight, boo
 
 	VulkanImage depthStencilImage;
 	depthStencilImage.Create(VulkanImage::eImage2D, uWidth, uHeight, 1U, m_DepthSurfaceFormat, 1U, 1U, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_LAYOUT_UNDEFINED);
-	m_DepthStencilView.CreateAsTexture(eTexture2D, depthStencilImage, m_DepthSurfaceFormat, 0U, 1U);
+	///m_DepthStencilView.CreateAsTexture(eTexture2D, depthStencilImage, m_DepthSurfaceFormat, 0U, 1U);
 
 	m_BackBuffers.resize(count);
 	for (uint32_t i = 0U; i < count; ++i)
@@ -125,7 +125,7 @@ void VulkanSwapchain::Create(::HWND hWnd, uint32_t uWidth, uint32_t uHeight, boo
 		
 		std::vector<VulkanImageView> imageViews;
 		imageViews.emplace_back(m_BackBuffers[i].RenderTargetView);
-		imageViews.emplace_back(m_DepthStencilView);
+		///imageViews.emplace_back(m_DepthStencilView);
 		m_BackBuffers[i].FrameBuffer.Create(imageViews, VulkanEngine::Instance().GetDefaultRenderPass(), uWidth, uHeight, 1U);
 	}
 }
@@ -234,19 +234,19 @@ void VulkanSwapchain::Flush()
 	++s_FrameIndex;
 #endif
 
-	VkPresentInfoKHR presentInfo
-	{
-		VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-		nullptr,
-		1U,
-		&m_BackBuffers[m_CurBackBufferIndex].RenderCompleteSemaphore,
-		1U,
-		&m_Handle,
-		&m_CurBackBufferIndex,
-		nullptr
-	};
+	//VkPresentInfoKHR presentInfo
+	//{
+	//	VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+	//	nullptr,
+	//	1U,
+	//	&m_BackBuffers[m_CurBackBufferIndex].RenderCompleteSemaphore,
+	//	1U,
+	//	&m_Handle,
+	//	&m_CurBackBufferIndex,
+	//	nullptr
+	//};
 
-	VKCheck(vkQueuePresentKHR(VulkanEngine::Instance().GetQueue(), &presentInfo));
+	//VKCheck(vkQueuePresentKHR(VulkanEngine::Instance().GetQueue(), &presentInfo));
 }
 
 void VulkanSwapchain::Destory()

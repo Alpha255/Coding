@@ -45,7 +45,14 @@ public:
 
 	inline void SetShaderResourceView(const VulkanShaderResourceView &shaderResourceView, uint32_t slot, eRShaderType targetShader)
 	{
+		assert(slot < m_State.ShaderResourceViews.size());
 
+		if (shaderResourceView.Get() != m_State.ShaderResourceViews[slot])
+		{
+			m_State.ShaderResourceViews[slot] = shaderResourceView.Get();
+
+			m_State.SetDirty(true);
+		}
 	}
 
 	//void SetUnorderedAccessView(const D3DUnorderedAccessView &unorderedAccessView, uint32_t slot, D3DShader::eShaderType targetShader = D3DShader::eComputeShader);
@@ -115,9 +122,9 @@ public:
 	{
 		if (!IsEqual(depthStencilState.Get(), m_State.DepthStencilState))
 		{
-			m_State.DepthStencilState = depthStencilState.Get();
+			///m_State.DepthStencilState = depthStencilState.Get();
 
-			m_State.SetDirty(true);
+			///m_State.SetDirty(true);
 		}
 	}
 
@@ -125,9 +132,9 @@ public:
 	{
 		if (!IsEqual(blendState.Get(), m_State.ColorBlendState))
 		{
-			m_State.ColorBlendState = blendState.Get();
+			///m_State.ColorBlendState = blendState.Get();
 
-			m_State.SetDirty(true);
+			///m_State.SetDirty(true);
 		}
 	}
 

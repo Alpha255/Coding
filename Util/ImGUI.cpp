@@ -202,11 +202,7 @@ void ImGUI::RenderEnd(bool bDraw)
 
 	ImGui::Render();
 
-	///VulkanEngine::Instance().GetSwapchain().Begin();
-
 	Update();
-
-	///VulkanEngine::Instance().GetSwapchain().End();
 }
 
 void ImGUI::Update()
@@ -234,8 +230,6 @@ void ImGUI::Update()
 	);
 
 	m_Resource.ConstantBufferVS.Update(&wvp, sizeof(Matrix));
-
-	///vkCmdPushConstants(VulkanEngine::Instance().GetSwapchain().GetCurCommandBuffer().Get(), s_Context.GetLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0U, sizeof(Matrix), &wvp);
 
 	RViewport vp(0.0f, 0.0f, ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y);
 	REngine::Instance().SetViewport(vp);

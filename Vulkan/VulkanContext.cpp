@@ -13,8 +13,8 @@ void VulkanContext::Recreate()
 		VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
 		nullptr,
 		0U,
-		0U,
-		nullptr,
+		1U,
+		&m_State.SamplerBindInfos[ePixelShader].DescriptorSetLayout,
 		0U,
 		nullptr
 
@@ -64,8 +64,11 @@ void VulkanContext::Recreate()
 	std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescriptions;
 	for each (auto &vertexBuffer in m_State.VertexBuffers)
 	{
-		vertexInputBindingDescriptions.emplace_back(vertexBuffer.VertexInputBindingDescription);
-		vertexInputAttributeDescriptions.assign(vertexBuffer.VertexInputAttributeDescription.begin(), vertexBuffer.VertexInputAttributeDescription.end());
+		if (vertexBuffer.Buffer != VK_NULL_HANDLE)
+		{
+			vertexInputBindingDescriptions.emplace_back(vertexBuffer.VertexInputBindingDescription);
+			vertexInputAttributeDescriptions.assign(vertexBuffer.VertexInputAttributeDescription.begin(), vertexBuffer.VertexInputAttributeDescription.end());
+		}
 	}
 
 	m_State.VertexInputState =
@@ -122,7 +125,7 @@ void VulkanContext::DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_
 		m_State.SetDirty(true);
 	}
 
-	m_State.CommitState(*this);
+	m_State.CommitState(*this, indexCount, startIndex, offset);
 }
 
 void VulkanContext::Destory(bool bDestoryState)

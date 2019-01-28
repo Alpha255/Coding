@@ -24,10 +24,8 @@ public:
 	void Create(ePoolType type);
 
 	VulkanCommandBuffer Alloc(eBufferType type);
-	VulkanCommandBufferList Alloc(eBufferType type, uint32_t count);
 
 	void Free(VulkanCommandBuffer &cmdBuffer);
-	void Free(VulkanCommandBufferList &cmdBufferList);
 
 	void Destory();
 protected:

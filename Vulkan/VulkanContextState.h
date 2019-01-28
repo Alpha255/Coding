@@ -29,7 +29,7 @@ public:
 
 	void UpdateDescriptorSets();
 
-	void CommitState(class VulkanContext &ctx);
+	void CommitState(class VulkanContext &ctx, uint32_t indexCount, uint32_t startIndex, int32_t offset);
 
 	friend class VulkanContext;
 
@@ -76,7 +76,7 @@ private:
 	std::vector<VulkanVertexBuffer> VertexBuffers;
 	std::array<VulkanSamplerBindInfo, eRShaderTypeCount> SamplerBindInfos;
 	std::vector<VkDescriptorSet> DescriptorSets;
-	std::vector<VkImageView> RenderTargetViews;
+	std::vector<VkImageView> ShaderResourceViews;
 	VulkanIndexBuffer IndexBuffer;
 
 	VulkanDescriptorPool DescriptorPool;

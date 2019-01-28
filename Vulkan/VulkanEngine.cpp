@@ -39,15 +39,6 @@ void VulkanEngine::FreeCommandBuffers()
 			FreeCommandBuffer(buffer);
 		}
 	}
-
-	for each (auto &cmdBufferListMap in m_CommandBufferLists)
-	{
-		for each (auto &cmdBufferList in cmdBufferListMap)
-		{
-			VulkanCommandBufferList bufferList(cmdBufferList.second);
-			FreeCommandBufferList(bufferList);
-		}
-	}
 }
 
 VulkanEngine::~VulkanEngine()
