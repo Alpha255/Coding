@@ -1,12 +1,41 @@
 #include "VulkanContext.h"
 #include "VulkanEngine.h"
 
+void VulkanContextCache::Create()
+{
+	assert(!IsValid());
+
+	VkPipelineCacheCreateInfo createInfo
+	{
+		VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO,
+		nullptr,
+		0U,
+		0U,
+		nullptr
+	};
+
+	VKCheck(vkCreatePipelineCache(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
+}
+
+void VulkanContextCache::Destory()
+{
+	assert(IsValid());
+
+	vkDestroyPipelineCache(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
+
+	Reset();
+}
+
 void VulkanContext::Recreate()
 {
 	if (IsValid())
 	{
+		m_Cache.Destory();
+
 		Destory();
 	}
+
+	m_Cache.Create();
 
 	VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo
 	{

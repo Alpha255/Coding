@@ -18,12 +18,14 @@
 //private:
 //};
 //
-//class VulkanPipelineCache : public VulkanObject<VkPipelineCache>
-//{
-//public:
-//protected:
-//private:
-//};
+class VulkanContextCache : public VulkanObject<VkPipelineCache>
+{
+public:
+	void Create();
+	void Destory();
+protected:
+private:
+};
 
 class VulkanContext : public VulkanObject<VkPipeline>
 {
@@ -228,4 +230,5 @@ protected:
 private:
 	VkPipelineLayout m_Layout = {};
 	VulkanContextState m_State;
+	VulkanContextCache m_Cache;
 };

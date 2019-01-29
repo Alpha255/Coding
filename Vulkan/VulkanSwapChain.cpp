@@ -90,7 +90,7 @@ void VulkanSwapchain::Create(::HWND hWnd, uint32_t uWidth, uint32_t uHeight, boo
 		surfaceFormats[formatIndex].colorSpace,
 		m_Size,
 		1U,
-		VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+		VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
 		VK_SHARING_MODE_EXCLUSIVE, /// exclusive or concurrent access resource
 		VulkanEngine::Instance().GetPhysicalDevice().GetQueueFamilyIndex(),
 		nullptr,
@@ -109,9 +109,8 @@ void VulkanSwapchain::Create(::HWND hWnd, uint32_t uWidth, uint32_t uHeight, boo
 	std::vector<VkImage> images(count);
 	VKCheck(vkGetSwapchainImagesKHR(VulkanEngine::Instance().GetDevice(), m_Handle, &count, images.data()));
 
-	VulkanImage depthStencilImage;
-	depthStencilImage.Create(VulkanImage::eImage2D, uWidth, uHeight, 1U, m_DepthSurfaceFormat, 1U, 1U, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_LAYOUT_UNDEFINED);
-	///m_DepthStencilView.CreateAsTexture(eTexture2D, depthStencilImage, m_DepthSurfaceFormat, 0U, 1U);
+	m_DepthStencilImage.Create(VulkanImage::eImage2D, uWidth, uHeight, 1U, m_DepthSurfaceFormat, 1U, 1U, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_IMAGE_LAYOUT_UNDEFINED);
+	m_DepthStencilView.CreateAsTexture(eTexture2D, m_DepthStencilImage, m_DepthSurfaceFormat, 0U, 1U);
 
 	m_BackBuffers.resize(count);
 	for (uint32_t i = 0U; i < count; ++i)
@@ -125,7 +124,7 @@ void VulkanSwapchain::Create(::HWND hWnd, uint32_t uWidth, uint32_t uHeight, boo
 		
 		std::vector<VulkanImageView> imageViews;
 		imageViews.emplace_back(m_BackBuffers[i].RenderTargetView);
-		///imageViews.emplace_back(m_DepthStencilView);
+		imageViews.emplace_back(m_DepthStencilView);
 		m_BackBuffers[i].FrameBuffer.Create(imageViews, VulkanEngine::Instance().GetDefaultRenderPass(), uWidth, uHeight, 1U);
 	}
 }

@@ -166,7 +166,6 @@ uint32_t VulkanPhysicalDevice::GetOptimalSurfaceFormat(uint32_t flags, bool bDep
 		++pTargetFormats;
 	}
 
-
 	return result;
 }
 
