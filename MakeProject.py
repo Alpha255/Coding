@@ -32,6 +32,7 @@ libProjects = [
 	VCProject('Util', 'Util\\', 'Libs', True, ResourceDirectory),
 	VCProject('Vulkan', 'Vulkan\\', 'Libs', True, ResourceDirectory),
 	VCProject('ImGUI', 'ThirdParty\\ImGUI\\', 'ThirdParty', True, ResourceDirectory, [], ['\\.github', '\\docs', '\\examples', '\\natvis\\misc']),
+	VCProject('vcglib', 'ThirdParty\\vcglib\\', 'ThirdParty', True, ResourceDirectory, [], ['\\sample']),
 ]
 
 demoProjects = [
