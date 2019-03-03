@@ -16,10 +16,10 @@ Platforms = [
 SolutionFolders = [
 	'Libs',
 	'Demo',
-	'Vulkan',
+	#'Vulkan',
 	'ThirdParty',
-	'JustForFun',
-	'Fort'
+	#'JustForFun',
+	#'Fort'
 ]
 
 libProjects = [
@@ -27,7 +27,7 @@ libProjects = [
 	VcProject('Util', 'Libs', True, False, ['Util'], [], [], [FileType.eHeader, FileType.eCpp]),
 	VcProject('Vulkan', 'Libs', True, False, ['Vulkan'], [], [], [FileType.eHeader, FileType.eCpp]),
 	VcProject('ImGUI', 'ThirdParty', True, False, ['ThirdParty\\ImGUI'], ['ThirdParty\\ImGUI\\examples'], [], [FileType.eHeader, FileType.eCpp]),
-	VcProject('vcglib', 'ThirdParty', True, False, ['ThirdParty\\vcglib'], ['ThirdParty\\vcglib\\apps', 'ThirdParty\\vcglib\\eigenlib\\unsupported'], [], [FileType.eHeader, FileType.eCpp]),
+	#VcProject('vcglib', 'ThirdParty', True, False, ['ThirdParty\\vcglib'], ['ThirdParty\\vcglib\\apps', 'ThirdParty\\vcglib\\eigenlib\\unsupported', 'ThirdParty\\vcglib\\wrap\\nanoply'], [], [FileType.eHeader, FileType.eCpp]),
 ]
 
 demoProjects = [
