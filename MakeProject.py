@@ -3,10 +3,6 @@ import os
 import sys
 from MakeProject_Util import *
 
-ResourceDirectory = [
-	'Application\\Resource\\'
-]
-
 Configurations = [
 	'Debug',
 	'Release',
@@ -19,26 +15,25 @@ Platforms = [
 
 SolutionFolders = [
 	'Libs',
-	'D3D11',
+	'Demo',
 	'Vulkan',
 	'ThirdParty',
 	'JustForFun',
 	'Fort'
 ]
 
-
 libProjects = [
-	VCProject('D3D11', 'D3D11\\', 'Libs', True),
-	VCProject('Util', 'Util\\', 'Libs', True, ResourceDirectory),
-	VCProject('Vulkan', 'Vulkan\\', 'Libs', True, ResourceDirectory),
-	VCProject('ImGUI', 'ThirdParty\\ImGUI\\', 'ThirdParty', True, ResourceDirectory, [], ['\\.github', '\\docs', '\\examples', '\\natvis\\misc']),
-	VCProject('vcglib', 'ThirdParty\\vcglib\\', 'ThirdParty', True, ResourceDirectory, [], ['\\sample']),
+	VcProject('D3D11', 'Libs', True, False, ['D3D11'], [], [], [FileType.eHeader, FileType.eCpp]),
+	VcProject('Util', 'Libs', True, False, ['Util'], [], [], [FileType.eHeader, FileType.eCpp]),
+	VcProject('Vulkan', 'Libs', True, False, ['Vulkan'], [], [], [FileType.eHeader, FileType.eCpp]),
+	VcProject('ImGUI', 'ThirdParty', True, False, ['ThirdParty\\ImGUI'], ['ThirdParty\\ImGUI\\examples'], [], [FileType.eHeader, FileType.eCpp]),
+	VcProject('vcglib', 'ThirdParty', True, False, ['ThirdParty\\vcglib'], ['ThirdParty\\vcglib\\apps', 'ThirdParty\\vcglib\\eigenlib\\unsupported'], [], [FileType.eHeader, FileType.eCpp]),
 ]
 
 demoProjects = [
 	#VCProject('AdaptiveTessellation', 'Demo\\D3D11\\AdaptiveTessellation\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
 	#VCProject('AlphaBlend', 'Demo\\D3D11\\AlphaBlend\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
-	VCProject('Box', 'Demo\\D3D11\\Box\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
+	VcProject('Box', 'Demo', False, False, ['Demo\\Box', 'Application'], [], libProjects, [FileType.eHeader, FileType.eCpp, FileType.eIcon, FileType.eResource, FileType.eShader]),
 	#VCProject('Cubemap', 'Demo\\D3D11\\Cubemap\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
 	#VCProject('DepthStencilTest', 'Demo\\D3D11\\DepthStencilTest\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
 	#VCProject('DisplacementMapping', 'Demo\\D3D11\\DisplacementMapping\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
@@ -71,13 +66,17 @@ def _main_(_argv):
 
 	for vcProject in allMyProjects:
 		MakeProject(vcProject, versionInfo, Configurations, Platforms)
-
 _main_(sys.argv[1:])
 
+
 '''
-test = VCProject('ImGUI', 'ThirdParty\\ImGUI\\', 'ThirdParty', True, ResourceDirectory, [], ['\\.github', '\\docs', '\\examples', '\\natvis\\misc'])
-versionInfo = MakeSolution('Miscellaneous', 'vs2017', [test], Configurations, Platforms, SolutionFolders)
-MakeProject(test, versionInfo, Configurations, Platforms)
+utilProj = VcProject('Util', 'Libs', True, False, ['Util'], [], [], [FileType.eHeader, FileType.eCpp])
+versionInfo = MakeSolution('Miscellaneous', 'vs2017', [utilProj], Configurations, Platforms, SolutionFolders)
+MakeProject(utilProj, versionInfo, Configurations, Platforms)
+
+utilProj = VcProject('vcglib', 'ThirdParty', True, False, ['ThirdParty\\vcglib'], [], [], [FileType.eHeader, FileType.eCpp])
+versionInfo = MakeSolution('Miscellaneous', 'vs2017', [utilProj], Configurations, Platforms, SolutionFolders)
+MakeProject(utilProj, versionInfo, Configurations, Platforms)
 '''
 
 
