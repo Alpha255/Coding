@@ -1,0 +1,582 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="source">
+      <UniqueIdentifier>{7b884547-94b8-4b9a-802c-007eb6e6801c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\opt">
+      <UniqueIdentifier>{6e6c19f9-2958-49a0-a53d-528b9f8b4565}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\aggressive_dead_code_elim_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\basic_block.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\block_merge_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\block_merge_util.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\build_module.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\ccp_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\cfg.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\cfg_cleanup_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\code_sink.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\combine_access_chains.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\common_uniform_elim_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\compact_ids_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\composite.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\const_folding_rules.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\constants.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\copy_prop_arrays.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\dead_branch_elim_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\dead_insert_elim_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\dead_variable_elimination.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\decoration_manager.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\def_use_manager.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\dominator_analysis.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\dominator_tree.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\eliminate_dead_constant_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\eliminate_dead_functions_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\eliminate_dead_functions_util.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\eliminate_dead_members_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\feature_manager.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\flatten_decoration_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\fold.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\fold_spec_constant_op_and_composite_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\folding_rules.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\freeze_spec_constant_value_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\function.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\if_conversion.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\inline_exhaustive_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\inline_opaque_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\inline_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\inst_bindless_check_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\instruction.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\instruction_list.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\instrument_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\ir_context.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\ir_loader.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\licm_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\local_access_chain_convert_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\local_redundancy_elimination.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\local_single_block_elim_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\local_single_store_elim_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\local_ssa_elim_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\loop_dependence.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\loop_dependence_helpers.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\loop_descriptor.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\loop_fission.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\loop_fusion.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\loop_fusion_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\loop_peeling.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\loop_unroller.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\loop_unswitch_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\loop_utils.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\mem_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\merge_return_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\module.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\optimizer.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\pass_manager.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\pch_source_opt.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\private_to_local_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\process_lines_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\propagator.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\reduce_load_size.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\redundancy_elimination.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\register_pressure.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\remove_duplicates_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\replace_invalid_opc.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\scalar_analysis.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\scalar_analysis_simplification.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\scalar_replacement_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\set_spec_constant_default_value_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\simplification_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\ssa_rewrite_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\strength_reduction_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\strip_debug_info_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\strip_reflect_info_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\struct_cfg_analysis.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\type_manager.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\types.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\unify_const_pass.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\upgrade_memory_model.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\value_number_table.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\vector_dce.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opt\workaround1209.cpp">
+      <Filter>source\opt</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\aggressive_dead_code_elim_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\basic_block.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\block_merge_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\block_merge_util.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\build_module.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\ccp_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\cfg.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\cfg_cleanup_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\code_sink.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\combine_access_chains.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\common_uniform_elim_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\compact_ids_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\composite.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\const_folding_rules.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\constants.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\copy_prop_arrays.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\dead_branch_elim_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\dead_insert_elim_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\dead_variable_elimination.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\decoration_manager.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\def_use_manager.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\dominator_analysis.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\dominator_tree.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\eliminate_dead_constant_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\eliminate_dead_functions_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\eliminate_dead_functions_util.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\eliminate_dead_members_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\feature_manager.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\flatten_decoration_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\fold.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\fold_spec_constant_op_and_composite_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\folding_rules.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\freeze_spec_constant_value_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\function.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\if_conversion.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\inline_exhaustive_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\inline_opaque_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\inline_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\inst_bindless_check_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\instruction.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\instruction_list.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\instrument_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\ir_builder.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\ir_context.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\ir_loader.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\iterator.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\licm_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\local_access_chain_convert_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\local_redundancy_elimination.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\local_single_block_elim_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\local_single_store_elim_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\local_ssa_elim_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\log.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\loop_dependence.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\loop_descriptor.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\loop_fission.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\loop_fusion.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\loop_fusion_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\loop_peeling.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\loop_unroller.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\loop_unswitch_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\loop_utils.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\mem_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\merge_return_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\module.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\null_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\pass_manager.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\passes.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\pch_source_opt.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\private_to_local_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\process_lines_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\propagator.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\reduce_load_size.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\redundancy_elimination.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\reflect.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\register_pressure.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\remove_duplicates_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\replace_invalid_opc.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\scalar_analysis.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\scalar_analysis_nodes.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\scalar_replacement_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\set_spec_constant_default_value_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\simplification_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\ssa_rewrite_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\strength_reduction_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\strip_debug_info_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\strip_reflect_info_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\struct_cfg_analysis.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\tree_iterator.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\type_manager.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\types.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\unify_const_pass.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\upgrade_memory_model.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\value_number_table.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\vector_dce.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opt\workaround1209.h">
+      <Filter>source\opt</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

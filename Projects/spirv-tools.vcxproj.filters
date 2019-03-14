@@ -1,0 +1,761 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="external">
+      <UniqueIdentifier>{46fe77e5-2170-4787-a832-663bfcdf1ea7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\spirv-headers">
+      <UniqueIdentifier>{6e9f7f83-1fb5-4ffc-911a-9d01da55e263}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\spirv-headers\1.2">
+      <UniqueIdentifier>{438dba0a-e257-491e-b7af-021af5633138}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\spirv-headers\tools">
+      <UniqueIdentifier>{43231534-0e7a-45fb-8e03-82033d268c28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\spirv-headers\tools\buildHeaders">
+      <UniqueIdentifier>{53facf89-420d-4a32-a3a7-6a364d47200c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\spirv-headers\tools\buildHeaders\jsoncpp">
+      <UniqueIdentifier>{7e67e0a3-6225-44a0-80eb-b62995787c23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{dd2914b1-fd1c-4b3e-a125-34d50ad1ae85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source">
+      <UniqueIdentifier>{472f5684-ab49-444f-bdbc-881a8c7f4ceb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\comp">
+      <UniqueIdentifier>{9ed9a8eb-505a-4508-a0b3-26241b199e3c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\link">
+      <UniqueIdentifier>{3fe87111-3e72-4f3d-92b0-259788c9bac1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\util">
+      <UniqueIdentifier>{268555f3-de04-4190-8e3a-b7cc3dd1046b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\val">
+      <UniqueIdentifier>{cd4329b5-22b8-4aa7-b913-29a718c0c56f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tools">
+      <UniqueIdentifier>{8eefc1ec-8bf7-4d6d-b690-5a1318ea73cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tools\cfg">
+      <UniqueIdentifier>{2c2658ff-52fa-4df0-a42d-8b0a27b3d773}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tools\comp">
+      <UniqueIdentifier>{2f636898-1818-45c5-8b02-e4744e6be6f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tools\stats">
+      <UniqueIdentifier>{05745874-bb13-428d-9967-bb41a365d409}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tools\util">
+      <UniqueIdentifier>{aa4473ec-83c6-42c0-aaf1-bc0fed0cfda7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\reduce">
+      <UniqueIdentifier>{1db7791c-29aa-4aff-8bdf-27d64dbe02af}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(VK_SDK_PATH)\spirv-tools\external\spirv-headers\include\spirv\1.2\extinst.glsl.std.450.grammar.json">
+      <Filter>external\spirv-headers\1.2</Filter>
+    </None>
+    <None Include="$(VK_SDK_PATH)\spirv-tools\external\spirv-headers\include\spirv\1.2\extinst.opencl.std.100.grammar.json">
+      <Filter>external\spirv-headers\1.2</Filter>
+    </None>
+    <None Include="$(VK_SDK_PATH)\spirv-tools\external\spirv-headers\include\spirv\1.2\spirv.core.grammar.json">
+      <Filter>external\spirv-headers\1.2</Filter>
+    </None>
+    <None Include="$(VK_SDK_PATH)\spirv-tools\external\spirv-headers\include\spirv\1.2\spirv.cs">
+      <Filter>external\spirv-headers\1.2</Filter>
+    </None>
+    <None Include="$(VK_SDK_PATH)\spirv-tools\external\spirv-headers\include\spirv\1.2\spirv.hpp11">
+      <Filter>external\spirv-headers\1.2</Filter>
+    </None>
+    <None Include="$(VK_SDK_PATH)\spirv-tools\external\spirv-headers\include\spirv\1.2\spirv.json">
+      <Filter>external\spirv-headers\1.2</Filter>
+    </None>
+    <None Include="$(VK_SDK_PATH)\spirv-tools\external\spirv-headers\include\spirv\1.2\spirv.lua">
+      <Filter>external\spirv-headers\1.2</Filter>
+    </None>
+    <None Include="$(VK_SDK_PATH)\spirv-tools\external\spirv-headers\include\spirv\1.2\spirv.py">
+      <Filter>external\spirv-headers\1.2</Filter>
+    </None>
+    <None Include="$(VK_SDK_PATH)\spirv-tools\tools\comp\markv_model_shader_default_autogen.inc">
+      <Filter>tools\comp</Filter>
+    </None>
+    <None Include="$(VK_SDK_PATH)\spirv-tools\source\build-version.inc">
+      <Filter>source</Filter>
+    </None>
+    <None Include="$(VK_SDK_PATH)\spirv-tools\source\core.insts-unified1.inc">
+      <Filter>source</Filter>
+    </None>
+    <None Include="$(VK_SDK_PATH)\spirv-tools\source\debuginfo.insts.inc">
+      <Filter>source</Filter>
+    </None>
+    <None Include="$(VK_SDK_PATH)\spirv-tools\source\enum_string_mapping.inc">
+      <Filter>source</Filter>
+    </None>
+    <None Include="$(VK_SDK_PATH)\spirv-tools\source\extension_enum.inc">
+      <Filter>source</Filter>
+    </None>
+    <None Include="$(VK_SDK_PATH)\spirv-tools\source\extinst.debuginfo.grammar.json">
+      <Filter>source</Filter>
+    </None>
+    <None Include="$(VK_SDK_PATH)\spirv-tools\source\extinst.spv-amd-gcn-shader.grammar.json">
+      <Filter>source</Filter>
+    </None>
+    <None Include="$(VK_SDK_PATH)\spirv-tools\source\extinst.spv-amd-shader-ballot.grammar.json">
+      <Filter>source</Filter>
+    </None>
+    <None Include="$(VK_SDK_PATH)\spirv-tools\source\extinst.spv-amd-shader-explicit-vertex-parameter.grammar.json">
+      <Filter>source</Filter>
+    </None>
+    <None Include="$(VK_SDK_PATH)\spirv-tools\source\extinst.spv-amd-shader-trinary-minmax.grammar.json">
+      <Filter>source</Filter>
+    </None>
+    <None Include="$(VK_SDK_PATH)\spirv-tools\source\generators.inc">
+      <Filter>source</Filter>
+    </None>
+    <None Include="$(VK_SDK_PATH)\spirv-tools\source\glsl.std.450.insts.inc">
+      <Filter>source</Filter>
+    </None>
+    <None Include="$(VK_SDK_PATH)\spirv-tools\source\opencl.std.insts.inc">
+      <Filter>source</Filter>
+    </None>
+    <None Include="$(VK_SDK_PATH)\spirv-tools\source\operand.kinds-unified1.inc">
+      <Filter>source</Filter>
+    </None>
+    <None Include="$(VK_SDK_PATH)\spirv-tools\source\spv-amd-gcn-shader.insts.inc">
+      <Filter>source</Filter>
+    </None>
+    <None Include="$(VK_SDK_PATH)\spirv-tools\source\spv-amd-shader-ballot.insts.inc">
+      <Filter>source</Filter>
+    </None>
+    <None Include="$(VK_SDK_PATH)\spirv-tools\source\spv-amd-shader-explicit-vertex-parameter.insts.inc">
+      <Filter>source</Filter>
+    </None>
+    <None Include="$(VK_SDK_PATH)\spirv-tools\source\spv-amd-shader-trinary-minmax.insts.inc">
+      <Filter>source</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\external\spirv-headers\include\spirv\1.2\GLSL.std.450.h">
+      <Filter>external\spirv-headers\1.2</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\external\spirv-headers\include\spirv\1.2\OpenCL.std.h">
+      <Filter>external\spirv-headers\1.2</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\external\spirv-headers\include\spirv\1.2\spirv.h">
+      <Filter>external\spirv-headers\1.2</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\external\spirv-headers\include\spirv\1.2\spirv.hpp">
+      <Filter>external\spirv-headers\1.2</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\external\spirv-headers\tools\buildHeaders\header.h">
+      <Filter>external\spirv-headers\tools\buildHeaders</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\external\spirv-headers\tools\buildHeaders\jsonToSpirv.h">
+      <Filter>external\spirv-headers\tools\buildHeaders</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\external\spirv-headers\tools\buildHeaders\jsoncpp\dist\json\json.h">
+      <Filter>external\spirv-headers\tools\buildHeaders\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\external\spirv-headers\tools\buildHeaders\jsoncpp\dist\json\json-forwards.h">
+      <Filter>external\spirv-headers\tools\buildHeaders\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\include\spirv-tools\instrument.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\include\spirv-tools\libspirv.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\include\spirv-tools\libspirv.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\include\spirv-tools\linker.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\include\spirv-tools\optimizer.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\comp\bit_stream.h">
+      <Filter>source\comp</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\comp\huffman_codec.h">
+      <Filter>source\comp</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\comp\markv.h">
+      <Filter>source\comp</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\comp\markv_codec.h">
+      <Filter>source\comp</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\comp\markv_decoder.h">
+      <Filter>source\comp</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\comp\markv_encoder.h">
+      <Filter>source\comp</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\comp\markv_logger.h">
+      <Filter>source\comp</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\comp\markv_model.h">
+      <Filter>source\comp</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\comp\move_to_front.h">
+      <Filter>source\comp</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\util\bit_vector.h">
+      <Filter>source\util</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\util\bitutils.h">
+      <Filter>source\util</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\util\hex_float.h">
+      <Filter>source\util</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\util\ilist.h">
+      <Filter>source\util</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\util\ilist_node.h">
+      <Filter>source\util</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\util\make_unique.h">
+      <Filter>source\util</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\util\parse_number.h">
+      <Filter>source\util</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\util\small_vector.h">
+      <Filter>source\util</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\util\string_utils.h">
+      <Filter>source\util</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\util\timer.h">
+      <Filter>source\util</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\val\basic_block.h">
+      <Filter>source\val</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\val\construct.h">
+      <Filter>source\val</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\val\decoration.h">
+      <Filter>source\val</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\val\function.h">
+      <Filter>source\val</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\val\instruction.h">
+      <Filter>source\val</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate.h">
+      <Filter>source\val</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_memory_semantics.h">
+      <Filter>source\val</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_scopes.h">
+      <Filter>source\val</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\val\validation_state.h">
+      <Filter>source\val</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\change_operand_reduction_opportunity.h">
+      <Filter>source\reduce</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\change_operand_to_undef_reduction_opportunity.h">
+      <Filter>source\reduce</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\merge_blocks_reduction_opportunity.h">
+      <Filter>source\reduce</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\merge_blocks_reduction_opportunity_finder.h">
+      <Filter>source\reduce</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\operand_to_const_reduction_opportunity_finder.h">
+      <Filter>source\reduce</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\operand_to_dominating_id_reduction_opportunity_finder.h">
+      <Filter>source\reduce</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\operand_to_undef_reduction_opportunity_finder.h">
+      <Filter>source\reduce</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\pch_source_reduce.h">
+      <Filter>source\reduce</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\reducer.h">
+      <Filter>source\reduce</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\reduction_opportunity.h">
+      <Filter>source\reduce</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\reduction_opportunity_finder.h">
+      <Filter>source\reduce</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\reduction_pass.h">
+      <Filter>source\reduce</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\reduction_util.h">
+      <Filter>source\reduce</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\remove_function_reduction_opportunity.h">
+      <Filter>source\reduce</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\remove_function_reduction_opportunity_finder.h">
+      <Filter>source\reduce</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\remove_instruction_reduction_opportunity.h">
+      <Filter>source\reduce</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\remove_opname_instruction_reduction_opportunity_finder.h">
+      <Filter>source\reduce</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\remove_unreferenced_instruction_reduction_opportunity_finder.h">
+      <Filter>source\reduce</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\structured_loop_to_selection_reduction_opportunity.h">
+      <Filter>source\reduce</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\structured_loop_to_selection_reduction_opportunity_finder.h">
+      <Filter>source\reduce</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\tools\cfg\bin_to_dot.h">
+      <Filter>tools\cfg</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\tools\comp\markv_model_factory.h">
+      <Filter>tools\comp</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\tools\comp\markv_model_shader.h">
+      <Filter>tools\comp</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\tools\stats\spirv_stats.h">
+      <Filter>tools\stats</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\tools\stats\stats_analyzer.h">
+      <Filter>tools\stats</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\tools\util\cli_consumer.h">
+      <Filter>tools\util</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\assembly_grammar.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\binary.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\cfa.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\DebugInfo.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\diagnostic.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\disassemble.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\enum_set.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\enum_string_mapping.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\ext_inst.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\extensions.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\id_descriptor.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\instruction.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\latest_version_glsl_std_450_header.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\latest_version_opencl_std_header.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\latest_version_spirv_header.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\macro.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\name_mapper.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\opcode.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\operand.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\parsed_operand.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\pch_source.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\print.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\spirv_constant.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\spirv_definition.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\spirv_endian.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\spirv_optimizer_options.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\spirv_reducer_options.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\spirv_target_env.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\spirv_validator_options.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\table.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\text.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="$(VK_SDK_PATH)\spirv-tools\source\text_handler.h">
+      <Filter>source</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\external\spirv-headers\tools\buildHeaders\header.cpp">
+      <Filter>external\spirv-headers\tools\buildHeaders</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\external\spirv-headers\tools\buildHeaders\jsonToSpirv.cpp">
+      <Filter>external\spirv-headers\tools\buildHeaders</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\external\spirv-headers\tools\buildHeaders\main.cpp">
+      <Filter>external\spirv-headers\tools\buildHeaders</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\external\spirv-headers\tools\buildHeaders\jsoncpp\dist\jsoncpp.cpp">
+      <Filter>external\spirv-headers\tools\buildHeaders\jsoncpp</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\comp\bit_stream.cpp">
+      <Filter>source\comp</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\comp\markv.cpp">
+      <Filter>source\comp</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\comp\markv_codec.cpp">
+      <Filter>source\comp</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\comp\markv_decoder.cpp">
+      <Filter>source\comp</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\comp\markv_encoder.cpp">
+      <Filter>source\comp</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\comp\move_to_front.cpp">
+      <Filter>source\comp</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\link\linker.cpp">
+      <Filter>source\link</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\util\bit_vector.cpp">
+      <Filter>source\util</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\util\parse_number.cpp">
+      <Filter>source\util</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\util\string_utils.cpp">
+      <Filter>source\util</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\util\timer.cpp">
+      <Filter>source\util</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\basic_block.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\construct.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\function.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\instruction.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_adjacency.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_annotation.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_arithmetics.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_atomics.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_barriers.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_bitwise.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_builtins.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_capability.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_cfg.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_composites.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_constants.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_conversion.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_datarules.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_debug.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_decorations.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_derivatives.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_execution_limitations.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_extensions.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_function.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_id.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_image.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_instruction.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_interfaces.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_layout.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_literals.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_logicals.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_memory.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_memory_semantics.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_mode_setting.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_non_uniform.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_primitives.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_scopes.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validate_type.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\val\validation_state.cpp">
+      <Filter>source\val</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\change_operand_reduction_opportunity.cpp">
+      <Filter>source\reduce</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\change_operand_to_undef_reduction_opportunity.cpp">
+      <Filter>source\reduce</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\merge_blocks_reduction_opportunity.cpp">
+      <Filter>source\reduce</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\merge_blocks_reduction_opportunity_finder.cpp">
+      <Filter>source\reduce</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\operand_to_const_reduction_opportunity_finder.cpp">
+      <Filter>source\reduce</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\operand_to_dominating_id_reduction_opportunity_finder.cpp">
+      <Filter>source\reduce</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\operand_to_undef_reduction_opportunity_finder.cpp">
+      <Filter>source\reduce</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\pch_source_reduce.cpp">
+      <Filter>source\reduce</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\reducer.cpp">
+      <Filter>source\reduce</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\reduction_opportunity.cpp">
+      <Filter>source\reduce</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\reduction_pass.cpp">
+      <Filter>source\reduce</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\reduction_util.cpp">
+      <Filter>source\reduce</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\remove_function_reduction_opportunity.cpp">
+      <Filter>source\reduce</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\remove_function_reduction_opportunity_finder.cpp">
+      <Filter>source\reduce</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\remove_instruction_reduction_opportunity.cpp">
+      <Filter>source\reduce</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\remove_opname_instruction_reduction_opportunity_finder.cpp">
+      <Filter>source\reduce</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\remove_unreferenced_instruction_reduction_opportunity_finder.cpp">
+      <Filter>source\reduce</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\structured_loop_to_selection_reduction_opportunity.cpp">
+      <Filter>source\reduce</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\reduce\structured_loop_to_selection_reduction_opportunity_finder.cpp">
+      <Filter>source\reduce</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\tools\cfg\bin_to_dot.cpp">
+      <Filter>tools\cfg</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\tools\cfg\cfg.cpp">
+      <Filter>tools\cfg</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\tools\comp\markv.cpp">
+      <Filter>tools\comp</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\tools\comp\markv_model_factory.cpp">
+      <Filter>tools\comp</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\tools\comp\markv_model_shader.cpp">
+      <Filter>tools\comp</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\tools\stats\spirv_stats.cpp">
+      <Filter>tools\stats</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\tools\stats\stats.cpp">
+      <Filter>tools\stats</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\tools\stats\stats_analyzer.cpp">
+      <Filter>tools\stats</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\tools\util\cli_consumer.cpp">
+      <Filter>tools\util</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\assembly_grammar.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\binary.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\diagnostic.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\disassemble.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\enum_string_mapping.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\ext_inst.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\extensions.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\id_descriptor.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\libspirv.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\name_mapper.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\opcode.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\operand.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\parsed_operand.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\pch_source.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\print.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\software_version.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\spirv_endian.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\spirv_optimizer_options.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\spirv_reducer_options.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\spirv_target_env.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\spirv_validator_options.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\table.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\text.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="$(VK_SDK_PATH)\spirv-tools\source\text_handler.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

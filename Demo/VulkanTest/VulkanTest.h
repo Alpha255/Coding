@@ -5,8 +5,8 @@
 #include <vector>
 #include <assert.h>
 #include <array>
-#include <Vulkan/vulkan.h>
-#include <Vulkan/vulkan_win32.h>
+#include <vulkan.h>
+#include <vulkan_win32.h>
 #include "Util/D3DMath.h"
 
 #define check(func) if (VK_SUCCESS != func) { assert(0); }
