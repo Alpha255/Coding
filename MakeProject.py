@@ -35,6 +35,7 @@ demoProjects = [
 	#VCProject('AlphaBlend', 'Demo\\D3D11\\AlphaBlend\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
 	VcProject('Box', 'Demo', False, False, ['Demo\\Box', 'Application'], [], libProjects, [FileType.eHeader, FileType.eCpp, FileType.eIcon, FileType.eResource, FileType.eShader]),
 	VcProject('VulkanTest', 'Demo', False, False, ['Demo\\VulkanTest', 'Application'], [], libProjects, [FileType.eHeader, FileType.eCpp, FileType.eIcon, FileType.eResource, FileType.eShader]),
+	#VcProject('VulkanShaderCompiler', 'Demo', False, True, ['Demo\\VulkanShaderCompiler', 'Application'], [], libProjects, [FileType.eHeader, FileType.eCpp, FileType.eIcon, FileType.eResource, FileType.eShader]),
 	#VCProject('Cubemap', 'Demo\\D3D11\\Cubemap\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
 	#VCProject('DepthStencilTest', 'Demo\\D3D11\\DepthStencilTest\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
 	#VCProject('DisplacementMapping', 'Demo\\D3D11\\DisplacementMapping\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
