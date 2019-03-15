@@ -14,7 +14,7 @@ Platforms = [
 ]
 
 SolutionFolders = [
-	'Libs',
+	'Library',
 	'Demo',
 	#'Vulkan',
 	'ThirdParty',
@@ -23,9 +23,8 @@ SolutionFolders = [
 ]
 
 libProjects = [
-	VcProject('D3D11', 'Libs', True, False, ['D3D11'], [], [], [FileType.eHeader, FileType.eCpp]),
-	VcProject('Util', 'Libs', True, False, ['Util'], [], [], [FileType.eHeader, FileType.eCpp]),
-	VcProject('Vulkan', 'Libs', True, False, ['Vulkan'], [], [], [FileType.eHeader, FileType.eCpp]),
+	VcProject('Base', 'Library', True, False, ['Base'], [], [], [FileType.eHeader, FileType.eCpp]),
+	VcProject('Colorful', 'Library', True, False, ['Colorful'], [], [], [FileType.eHeader, FileType.eCpp]),
 	VcProject('ImGUI', 'ThirdParty', True, False, ['ThirdParty\\ImGUI'], ['ThirdParty\\ImGUI\\examples'], [], [FileType.eHeader, FileType.eCpp]),
 	#VcProject('vcglib', 'ThirdParty', True, False, ['ThirdParty\\vcglib'], ['ThirdParty\\vcglib\\apps', 'ThirdParty\\vcglib\\eigenlib\\unsupported', 'ThirdParty\\vcglib\\wrap\\nanoply'], [], [FileType.eHeader, FileType.eCpp]),
 ]
@@ -33,8 +32,8 @@ libProjects = [
 demoProjects = [
 	#VCProject('AdaptiveTessellation', 'Demo\\D3D11\\AdaptiveTessellation\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
 	#VCProject('AlphaBlend', 'Demo\\D3D11\\AlphaBlend\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
-	VcProject('Box', 'Demo', False, False, ['Demo\\Box', 'Application'], [], libProjects, [FileType.eHeader, FileType.eCpp, FileType.eIcon, FileType.eResource, FileType.eShader]),
-	VcProject('VulkanTest', 'Demo', False, False, ['Demo\\VulkanTest', 'Application'], [], libProjects, [FileType.eHeader, FileType.eCpp, FileType.eIcon, FileType.eResource, FileType.eShader]),
+	VcProject('Box', 'Demo', False, False, ['Demo\\Box', 'Assets\\Icon'], [], libProjects, [FileType.eHeader, FileType.eCpp, FileType.eIcon, FileType.eResource, FileType.eShader]),
+	VcProject('VulkanTest', 'Demo', False, False, ['Demo\\VulkanTest', 'Assets\\Icon'], [], libProjects, [FileType.eHeader, FileType.eCpp, FileType.eIcon, FileType.eResource, FileType.eShader]),
 	#VcProject('VulkanShaderCompiler', 'Demo', False, True, ['Demo\\VulkanShaderCompiler', 'Application'], [], libProjects, [FileType.eHeader, FileType.eCpp, FileType.eIcon, FileType.eResource, FileType.eShader]),
 	#VCProject('Cubemap', 'Demo\\D3D11\\Cubemap\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
 	#VCProject('DepthStencilTest', 'Demo\\D3D11\\DepthStencilTest\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),

@@ -3,9 +3,9 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <OutDir Condition="'$(ConfigurationType)'=='StaticLibrary'">$(SolutionDir)Application\Libs\</OutDir>
-    <OutDir Condition="'$(ConfigurationType)'=='Application'">$(SolutionDir)Application\</OutDir>
-    <IntDir>$(SolutionDir)Intermediate\$(ProjectName)\</IntDir>
+    <OutDir Condition="'$(ConfigurationType)'=='StaticLibrary'">$(SolutionDir)Out\Intermediate\Libs\</OutDir>
+    <OutDir Condition="'$(ConfigurationType)'=='Application'">$(SolutionDir)Out\</OutDir>
+    <IntDir>$(SolutionDir)Out\Intermediate\$(ProjectName)\</IntDir>
     <TargetExt>$(TargetExt)</TargetExt>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
