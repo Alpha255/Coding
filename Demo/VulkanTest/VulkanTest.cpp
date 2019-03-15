@@ -2,29 +2,32 @@
 #include "Util/ResourceFile.h"
 #include <ImGUI/imgui.h>
 
-VkInstance vkInstance;
+VkInstance vkInstance = VK_NULL_HANDLE;
 std::vector<VkPhysicalDevice> vkPhysicalDevices;
-VkDevice vkDevice;
-VkPhysicalDeviceProperties vkDeviceProperties;
-VkPhysicalDeviceFeatures vkDeviceFeatures;
-VkPhysicalDeviceMemoryProperties vkDeviceMemoryProperties;
-VkPhysicalDeviceFeatures vkEnabledFeatures;
+VkDevice vkDevice = VK_NULL_HANDLE;
+VkPhysicalDeviceProperties vkDeviceProperties = {};
+VkPhysicalDeviceFeatures vkDeviceFeatures = {};
+VkPhysicalDeviceMemoryProperties vkDeviceMemoryProperties = {};
+VkPhysicalDeviceFeatures vkEnabledFeatures = {};
 std::vector<VkQueueFamilyProperties> vkQueueFamilyProperties;
-VkQueueFamilyIndex vkQueueFamilyIndex;
+VkQueueFamilyIndex vkQueueFamilyIndex = {};
 std::vector<const char*> vkEnabledDeviceExtensions;
 std::vector<const char*> vkEnabledInstanceExtensions;
 std::vector<std::string> vkSupportedExtensions;
-VkCommandPool vkCommandPool;
-VkCommandPool vkCommandPool_S;
-VkQueue vkQueue;
-VkSemaphore vkSemaphoreComplete, vkSemaphorePresent;
-VkSubmitInfo vkSubmitInfo;
+VkCommandPool vkCommandPool = VK_NULL_HANDLE;
+VkCommandPool vkCommandPool_S = VK_NULL_HANDLE;
+VkQueue vkQueue = VK_NULL_HANDLE;
+VkSemaphore vkSemaphoreComplete = VK_NULL_HANDLE, vkSemaphorePresent = VK_NULL_HANDLE;
+VkSubmitInfo vkSubmitInfo = {};
 VkPipelineStageFlags vkSubmitPipelineStages = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-VkSurfaceKHR vkSurface;
-::HWND vkHwnd;
-uint32_t vkWidth, vkHeight;
-uint32_t vkQueueNodeIndex;
+VkSurfaceKHR vkSurface = VK_NULL_HANDLE;
+::HWND vkHwnd = nullptr;
+uint32_t vkWidth = 0U, vkHeight = 0U;
+uint32_t vkQueueNodeIndex = 0U;
 uint32_t vkImageCount = 0U;
+uint32_t vkImageIndex = 0U;
+uint32_t vkVertexCount = 0U;
+uint32_t vkIndexCount = 0U;
 bool vkPrepared = false;
 bool vkVSync = false;
 VkFormat vkColorFormat;
@@ -37,17 +40,19 @@ std::vector<VkFence> vkWaitFences;
 std::vector<VkFramebuffer> vkFrameBuffers;
 std::vector<VkPipelineShaderStageCreateInfo> vkShaderStates;
 VkDepthStencilView vkDepthStencilView;
-VkRenderPass vkRenderpass;
-VkPipelineCache vkPipelineCache;
-VkPipeline vkPipeline;
-VkImage vkImageFont;
-VkImageView vkImageViewFont;
-VkDeviceMemory vkMemoryFontImage;
-VkSampler vkSampler;
-VkDescriptorPool vkDescriptorPool;
-VkDescriptorSetLayout vkDescriptorSetLayout;
-VkDescriptorSet vkDescriptorSet;
-VkPipelineLayout vkPipelineLayout;
+VkRenderPass vkRenderpass = VK_NULL_HANDLE;
+VkPipelineCache vkPipelineCache = VK_NULL_HANDLE;
+VkPipeline vkPipeline = VK_NULL_HANDLE;
+VkImage vkImageFont = VK_NULL_HANDLE;
+VkImageView vkImageViewFont = VK_NULL_HANDLE;
+VkDeviceMemory vkMemoryFontImage = VK_NULL_HANDLE;
+VkSampler vkSampler = VK_NULL_HANDLE;
+VkDescriptorPool vkDescriptorPool = VK_NULL_HANDLE;
+VkDescriptorSetLayout vkDescriptorSetLayout = VK_NULL_HANDLE;
+VkDescriptorSet vkDescriptorSet = VK_NULL_HANDLE;
+VkPipelineLayout vkPipelineLayout = VK_NULL_HANDLE;
+VkMemoryBuffer vkVertexBuffer = {};
+VkMemoryBuffer vkIndexBuffer = {};
 
 bool ExtensionSupported(std::string extension)
 {
@@ -277,6 +282,20 @@ VkFormat GetSupportedDepthFormat()
 	return VK_FORMAT_UNDEFINED;
 }
 
+bool IsMouseBtnDown()
+{
+	ImGuiIO &io = ImGui::GetIO();
+	for (uint32_t i = 0U; i < ARRAYSIZE(io.MouseDown); ++i)
+	{
+		if (io.MouseDown[i])
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 LRESULT CALLBACK vkWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
@@ -294,6 +313,75 @@ LRESULT CALLBACK vkWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 			}
 		}
 		break;
+	}
+
+	if (vkPrepared)
+	{
+		ImGuiIO &io = ImGui::GetIO();
+
+		int mouseBtn = -1;
+		if (WM_LBUTTONDOWN == uMsg || WM_LBUTTONUP == uMsg)
+		{
+			mouseBtn = 0;
+		}
+		if (WM_RBUTTONDOWN == uMsg || WM_RBUTTONUP == uMsg)
+		{
+			mouseBtn = 1;
+		}
+		if (WM_MBUTTONDOWN == uMsg || WM_MBUTTONUP == uMsg)
+		{
+			mouseBtn = 2;
+		}
+
+		switch (uMsg)
+		{
+		case WM_LBUTTONDOWN:
+		case WM_RBUTTONDOWN:
+		case WM_MBUTTONDOWN:
+			if (!IsMouseBtnDown() && ::GetCapture() == nullptr)
+			{
+				::SetCapture(hWnd);
+			}
+			io.MouseDown[mouseBtn] = true;
+			return 0LL;
+		case WM_LBUTTONUP:
+		case WM_RBUTTONUP:
+		case WM_MBUTTONUP:
+			io.MouseDown[mouseBtn] = false;
+			if (!IsMouseBtnDown() && ::GetCapture() == hWnd)
+			{
+				::ReleaseCapture();
+			}
+			return 0LL;
+		case WM_MOUSEWHEEL:
+			io.MouseWheel += GET_WHEEL_DELTA_WPARAM(wParam) > 0 ? +1.0f : -1.0f;
+			return 0LL;
+		case WM_MOUSEMOVE:
+			io.MousePos.x = (signed short)(lParam);
+			io.MousePos.y = (signed short)(lParam >> 16);
+			return 0LL;
+		case WM_KEYDOWN:
+		case WM_SYSKEYDOWN:
+			if (wParam < 256)
+			{
+				io.KeysDown[wParam] = 1;
+			}
+			return 0LL;
+		case WM_KEYUP:
+		case WM_SYSKEYUP:
+			if (wParam < 256)
+			{
+				io.KeysDown[wParam] = 0;
+			}
+			return 0LL;
+		case WM_CHAR:
+			// You can also use ToAscii()+GetKeyboardState() to retrieve characters.
+			if (wParam > 0 && wParam < 0x10000)
+			{
+				io.AddInputCharacter((unsigned short)wParam);
+			}
+			return 0LL;
+		}
 	}
 
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
@@ -334,7 +422,7 @@ void MakeWindow(const wchar_t *pTitle, uint32_t width, uint32_t height, uint32_t
 	}
 }
 
-void Resize(uint32_t width, uint32_t height)
+void Resize(uint32_t, uint32_t)
 {
 
 }
@@ -808,13 +896,13 @@ void CreateShaders()
 	VkPipelineShaderStageCreateInfo shaderStage = {};
 	shaderStage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	shaderStage.stage = VK_SHADER_STAGE_VERTEX_BIT;
-	shaderStage.module = CreateShader("UIVertexShader.shader");
+	shaderStage.module = CreateShader("UIVertexShader.bin");
 	shaderStage.pName = "main"; 
 
 	vkShaderStates.emplace_back(shaderStage);
 
 	shaderStage.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-	shaderStage.module = CreateShader("UIFragmentShader.shader");
+	shaderStage.module = CreateShader("UIFragmentShader.bin");
 	vkShaderStates.emplace_back(shaderStage);
 }
 
@@ -977,7 +1065,7 @@ void FlushCommandBuffer(VkCommandBuffer commandBuffer, VkQueue queue, bool free)
 
 	check(vkEndCommandBuffer(commandBuffer));
 
-	VkSubmitInfo submitInfo{};
+	VkSubmitInfo submitInfo = {};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 	submitInfo.commandBufferCount = 1;
 	submitInfo.pCommandBuffers = &commandBuffer;
@@ -1002,25 +1090,28 @@ void FlushCommandBuffer(VkCommandBuffer commandBuffer, VkQueue queue, bool free)
 void InitImGUI()
 {
 	ImGui::CreateContext();
-	ImGuiStyle& style = ImGui::GetStyle();
-	style.Colors[ImGuiCol_TitleBg] = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
-	style.Colors[ImGuiCol_TitleBgActive] = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
-	style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(1.0f, 0.0f, 0.0f, 0.1f);
-	style.Colors[ImGuiCol_MenuBarBg] = ImVec4(1.0f, 0.0f, 0.0f, 0.4f);
-	style.Colors[ImGuiCol_Header] = ImVec4(0.8f, 0.0f, 0.0f, 0.4f);
-	style.Colors[ImGuiCol_HeaderActive] = ImVec4(1.0f, 0.0f, 0.0f, 0.4f);
-	style.Colors[ImGuiCol_HeaderHovered] = ImVec4(1.0f, 0.0f, 0.0f, 0.4f);
-	style.Colors[ImGuiCol_FrameBg] = ImVec4(0.0f, 0.0f, 0.0f, 0.8f);
-	style.Colors[ImGuiCol_CheckMark] = ImVec4(1.0f, 0.0f, 0.0f, 0.8f);
-	style.Colors[ImGuiCol_SliderGrab] = ImVec4(1.0f, 0.0f, 0.0f, 0.4f);
-	style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(1.0f, 0.0f, 0.0f, 0.8f);
-	style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(1.0f, 1.0f, 1.0f, 0.1f);
-	style.Colors[ImGuiCol_FrameBgActive] = ImVec4(1.0f, 1.0f, 1.0f, 0.2f);
-	style.Colors[ImGuiCol_Button] = ImVec4(1.0f, 0.0f, 0.0f, 0.4f);
-	style.Colors[ImGuiCol_ButtonHovered] = ImVec4(1.0f, 0.0f, 0.0f, 0.6f);
-	style.Colors[ImGuiCol_ButtonActive] = ImVec4(1.0f, 0.0f, 0.0f, 0.8f);
 	ImGuiIO& io = ImGui::GetIO();
-	io.FontGlobalScale = 1.0f;
+	io.KeyMap[ImGuiKey_Tab] = VK_TAB;
+	io.KeyMap[ImGuiKey_LeftArrow] = VK_LEFT;
+	io.KeyMap[ImGuiKey_RightArrow] = VK_RIGHT;
+	io.KeyMap[ImGuiKey_UpArrow] = VK_UP;
+	io.KeyMap[ImGuiKey_DownArrow] = VK_DOWN;
+	io.KeyMap[ImGuiKey_PageUp] = VK_PRIOR;
+	io.KeyMap[ImGuiKey_PageDown] = VK_NEXT;
+	io.KeyMap[ImGuiKey_Home] = VK_HOME;
+	io.KeyMap[ImGuiKey_End] = VK_END;
+	io.KeyMap[ImGuiKey_Delete] = VK_DELETE;
+	io.KeyMap[ImGuiKey_Backspace] = VK_BACK;
+	io.KeyMap[ImGuiKey_Enter] = VK_RETURN;
+	io.KeyMap[ImGuiKey_Escape] = VK_ESCAPE;
+	io.KeyMap[ImGuiKey_A] = 'A';
+	io.KeyMap[ImGuiKey_C] = 'C';
+	io.KeyMap[ImGuiKey_V] = 'V';
+	io.KeyMap[ImGuiKey_X] = 'X';
+	io.KeyMap[ImGuiKey_Y] = 'Y';
+	io.KeyMap[ImGuiKey_Z] = 'Z';
+	io.RenderDrawListsFn = nullptr;
+	io.ImeWindowHandle = vkHwnd;
 
 	unsigned char* fontData;
 	int texWidth, texHeight;
@@ -1108,7 +1199,7 @@ void InitImGUI()
 
 	FlushCommandBuffer(copyCmd, vkQueue, true);
 
-	stagingBuffer.destroy();
+	stagingBuffer.Destroy();
 
 	VkSamplerCreateInfo samplerInfo{};
 	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -1291,4 +1382,241 @@ void InitImGUI()
 	pipelineCreateInfo.pVertexInputState = &pipelineVertexInputStateCreateInfo;
 
 	check(vkCreateGraphicsPipelines(vkDevice, vkPipelineCache, 1, &pipelineCreateInfo, nullptr, &vkPipeline));
+}
+
+void BuildCommandBuffers()
+{
+	VkCommandBufferBeginInfo cmdBufferBeginInfo{};
+	cmdBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+	VkClearValue clearValues[2];
+	clearValues[0].color = { { 0.0f, 0.125f, 0.3f, 1.0f } };
+	clearValues[1].depthStencil = { 1.0f, 0 };
+
+	VkRenderPassBeginInfo renderPassBeginInfo{};
+	renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	renderPassBeginInfo.renderPass = vkRenderpass;
+	renderPassBeginInfo.renderArea.offset.x = 0;
+	renderPassBeginInfo.renderArea.offset.y = 0;
+	renderPassBeginInfo.renderArea.extent.width = vkWidth;
+	renderPassBeginInfo.renderArea.extent.height = vkHeight;
+	renderPassBeginInfo.clearValueCount = 2;
+	renderPassBeginInfo.pClearValues = clearValues;
+
+	for (int32_t i = 0; i < vkDrawCmdBuffers.size(); ++i)
+	{
+		// Set target frame buffer
+		renderPassBeginInfo.framebuffer = vkFrameBuffers[i];
+
+		check(vkBeginCommandBuffer(vkDrawCmdBuffers[i], &cmdBufferBeginInfo));
+
+		vkCmdBeginRenderPass(vkDrawCmdBuffers[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+		const VkViewport viewport = 
+		{
+			0.0f, 0.0f, (float)vkWidth, (float)vkHeight, 0.0f, 1.0f 
+		};
+		const VkRect2D scissor = 
+		{
+			0, 0, vkWidth, vkHeight,
+		};
+		vkCmdSetViewport(vkDrawCmdBuffers[i], 0, 1, &viewport);
+		vkCmdSetScissor(vkDrawCmdBuffers[i], 0, 1, &scissor);
+
+		DrawUI(vkDrawCmdBuffers[i]);
+
+		vkCmdEndRenderPass(vkDrawCmdBuffers[i]);
+
+		check(vkEndCommandBuffer(vkDrawCmdBuffers[i]));
+	}
+}
+
+VkPushConstBlock vkPushConstBlock;
+
+void DrawUI(VkCommandBuffer commandBuffer)
+{
+	ImDrawData* imDrawData = ImGui::GetDrawData();
+	int32_t vertexOffset = 0;
+	int32_t indexOffset = 0;
+
+	if ((!imDrawData) || (imDrawData->CmdListsCount == 0)) {
+		return;
+	}
+
+	ImGuiIO& io = ImGui::GetIO();
+
+	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipeline);
+	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipelineLayout, 0, 1, &vkDescriptorSet, 0, NULL);
+
+	vkPushConstBlock.Scale = Vec2(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
+	vkPushConstBlock.Translate = Vec2(-1.0f, -1.0f);
+	vkCmdPushConstants(commandBuffer, vkPipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(VkPushConstBlock), &vkPushConstBlock);
+
+	VkDeviceSize offsets[1] = { 0 };
+	vkCmdBindVertexBuffers(commandBuffer, 0, 1, &vkVertexBuffer.Buffer, offsets);
+	vkCmdBindIndexBuffer(commandBuffer, vkIndexBuffer.Buffer, 0, VK_INDEX_TYPE_UINT16);
+
+	for (int32_t i = 0; i < imDrawData->CmdListsCount; i++)
+	{
+		const ImDrawList* cmd_list = imDrawData->CmdLists[i];
+		for (int32_t j = 0; j < cmd_list->CmdBuffer.Size; j++)
+		{
+			const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[j];
+			VkRect2D scissorRect;
+			scissorRect.offset.x = std::max<int32_t>((int32_t)(pcmd->ClipRect.x), 0);
+			scissorRect.offset.y = std::max<int32_t>((int32_t)(pcmd->ClipRect.y), 0);
+			scissorRect.extent.width = (uint32_t)(pcmd->ClipRect.z - pcmd->ClipRect.x);
+			scissorRect.extent.height = (uint32_t)(pcmd->ClipRect.w - pcmd->ClipRect.y);
+			vkCmdSetScissor(commandBuffer, 0, 1, &scissorRect);
+			vkCmdDrawIndexed(commandBuffer, pcmd->ElemCount, 1, indexOffset, vertexOffset, 0);
+			indexOffset += pcmd->ElemCount;
+		}
+		vertexOffset += cmd_list->VtxBuffer.Size;
+	}
+}
+
+void UpdateUI()
+{
+	ImGuiIO& io = ImGui::GetIO();
+	::HWND hWnd = (::HWND)io.ImeWindowHandle;
+
+	::RECT rect;
+	::GetClientRect(hWnd, &rect);
+	io.DisplaySize = ImVec2((float)(rect.right - rect.left), (float)(rect.bottom - rect.top));
+
+	io.KeyCtrl = (GetKeyState(VK_CONTROL) & 0x8000) != 0;
+	io.KeyShift = (GetKeyState(VK_SHIFT) & 0x8000) != 0;
+	io.KeyAlt = (GetKeyState(VK_MENU) & 0x8000) != 0;
+	io.KeySuper = false;
+
+	if (io.MouseDrawCursor)
+	{
+		::SetCursor(nullptr);
+	}
+
+	ImVec2 pos(10.0f, 10.0f);
+	ImGui::SetNextWindowPos(pos, ImGuiCond_FirstUseEver);
+
+	ImGui::NewFrame();
+
+	ImGui::Begin("VulkanTest");
+
+	ImGui::Text("VulkanTest");
+
+	ImGui::End();
+
+	ImGui::Render();
+
+	if (UpdateUIBuffer())
+	{
+		BuildCommandBuffers();
+	}
+}
+
+void Frame()
+{
+	check(vkAcquireNextImageKHR(vkDevice, vkSwapchain, UINT64_MAX, vkSemaphorePresent, (VkFence)nullptr, &vkImageIndex));
+
+	vkSubmitInfo.commandBufferCount = 1;
+	vkSubmitInfo.pCommandBuffers = &vkDrawCmdBuffers[vkImageIndex];
+
+	check(vkQueueSubmit(vkQueue, 1, &vkSubmitInfo, VK_NULL_HANDLE));
+
+	VkPresentInfoKHR presentInfo = {};
+	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+	presentInfo.pNext = NULL;
+	presentInfo.swapchainCount = 1;
+	presentInfo.pSwapchains = &vkSwapchain;
+	presentInfo.pImageIndices = &vkImageIndex;
+	if (vkSemaphoreComplete != VK_NULL_HANDLE)
+	{
+		presentInfo.pWaitSemaphores = &vkSemaphoreComplete;
+		presentInfo.waitSemaphoreCount = 1;
+	}
+	check(vkQueuePresentKHR(vkQueue, &presentInfo));
+
+	check(vkQueueWaitIdle(vkQueue));
+
+	UpdateUI();
+}
+
+bool UpdateUIBuffer()
+{
+	ImDrawData* imDrawData = ImGui::GetDrawData();
+	bool updateCmdBuffers = false;
+
+	if (!imDrawData) 
+	{ 
+		return false; 
+	};
+
+	VkDeviceSize vertexBufferSize = imDrawData->TotalVtxCount * sizeof(ImDrawVert);
+	VkDeviceSize indexBufferSize = imDrawData->TotalIdxCount * sizeof(ImDrawIdx);
+
+	if ((vertexBufferSize == 0) || (indexBufferSize == 0)) 
+	{
+		return false;
+	}
+
+	if ((vkVertexBuffer.Buffer == VK_NULL_HANDLE) || (vkVertexCount != (uint32_t)imDrawData->TotalVtxCount)) 
+	{
+		vkVertexBuffer.UnMap();
+		vkVertexBuffer.Destroy();
+		vkVertexBuffer = CreateBuffer(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, vertexBufferSize);
+		vkVertexCount = imDrawData->TotalVtxCount;
+		vkVertexBuffer.UnMap();
+		vkVertexBuffer.Map();
+		updateCmdBuffers = true;
+	}
+
+	///VkDeviceSize indexSize = imDrawData->TotalIdxCount * sizeof(ImDrawIdx);
+	if ((vkIndexBuffer.Buffer == VK_NULL_HANDLE) || (vkIndexCount < (uint32_t)imDrawData->TotalIdxCount)) 
+	{
+		vkIndexBuffer.UnMap();
+		vkIndexBuffer.Destroy();
+		vkIndexBuffer = CreateBuffer(VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, indexBufferSize);
+		vkIndexCount = imDrawData->TotalIdxCount;
+		vkIndexBuffer.Map();
+		updateCmdBuffers = true;
+	}
+
+	ImDrawVert* vtxDst = (ImDrawVert*)vkVertexBuffer.MappedMemory;
+	ImDrawIdx* idxDst = (ImDrawIdx*)vkIndexBuffer.MappedMemory;
+
+	for (int n = 0; n < imDrawData->CmdListsCount; n++) 
+	{
+		const ImDrawList* cmd_list = imDrawData->CmdLists[n];
+		memcpy(vtxDst, cmd_list->VtxBuffer.Data, cmd_list->VtxBuffer.Size * sizeof(ImDrawVert));
+		memcpy(idxDst, cmd_list->IdxBuffer.Data, cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx));
+		vtxDst += cmd_list->VtxBuffer.Size;
+		idxDst += cmd_list->IdxBuffer.Size;
+	}
+
+	vkVertexBuffer.Flush();
+	vkIndexBuffer.Flush();
+
+	return updateCmdBuffers;
+}
+
+void RenderLoop()
+{
+	MSG msg;
+	bool quitMessageReceived = false;
+	while (!quitMessageReceived) 
+	{
+		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) 
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+			if (msg.message == WM_QUIT) 
+			{
+				quitMessageReceived = true;
+				break;
+			}
+		}
+
+		Frame();
+	}
+
+	check(vkDeviceWaitIdle(vkDevice));
 }

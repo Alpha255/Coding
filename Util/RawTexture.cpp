@@ -3,7 +3,7 @@
 #include <d3d11.h>
 #include "dds.h"
 #include "System.h"
-#include <vulkan/vulkan.h>
+#include <vulkan.h>
 
 size_t RawTexture::GetBitsPerPixel(uint32_t format)
 {

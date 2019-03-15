@@ -34,6 +34,7 @@ void ResourceFile::GetPath(const char *pFileName)
 		static const char* s_ResourcePath[eTypeCount] =
 		{
 			"\\Resource\\Shaders\\",
+			"\\Resource\\Shaders\\",
 			"\\Resource\\Textures\\",
 			"\\Resource\\SDKMeshs\\",
 			"\\Resource\\TxtMeshs\\",
@@ -59,6 +60,10 @@ ResourceFile::eType ResourceFile::GetType(const char *pFileName)
 	if (System::IsStrEndwith(pFileName, ".shader"))
 	{
 		return eShader;
+	}
+	if (System::IsStrEndwith(pFileName, ".bin"))
+	{
+		return eShaderBinary;
 	}
 	else if (System::IsStrEndwith(pFileName, ".dds") || System::IsStrEndwith(pFileName, ".bmp"))
 	{
@@ -101,7 +106,7 @@ uint8_t *ResourceFile::Load()
 		return nullptr;
 	}
 
-	std::ifstream file(m_Path, eTexture == m_Type ? std::ios::in | std::ios::binary : std::ios::in);
+	std::ifstream file(m_Path, (eTexture == m_Type || eShaderBinary == m_Type) ? std::ios::in | std::ios::binary : std::ios::in);
 	assert(file.good());
 
 	uint8_t *pData = new uint8_t[m_Size]();

@@ -15,34 +15,34 @@ extern VkDevice vkDevice;
 
 struct VkQueueFamilyIndex
 {
-	uint32_t Graphics;
-	uint32_t Compute;
-	uint32_t Transfer;
+	uint32_t Graphics = 0U;
+	uint32_t Compute = 0U;
+	uint32_t Transfer = 0U;
 };
 
 struct VkBackBuffer
 {
-	VkImage vkImage;
-	VkImageView vkImageView;
+	VkImage vkImage = VK_NULL_HANDLE;
+	VkImageView vkImageView = VK_NULL_HANDLE;
 };
 
 struct VkDepthStencilView
 {
-	VkImage vkImage;
-	VkDeviceMemory vkMemory;
-	VkImageView vkImageView;
+	VkImage vkImage = VK_NULL_HANDLE;
+	VkDeviceMemory vkMemory = VK_NULL_HANDLE;
+	VkImageView vkImageView = VK_NULL_HANDLE;
 };
 
 struct VkMemoryBuffer
 {
-	VkBuffer Buffer;
-	VkDeviceMemory Memory;
-	VkDescriptorBufferInfo DescriptorInfo;
-	VkDeviceSize Size;
-	VkDeviceSize Alignment;
-	void *MappedMemory;
-	VkBufferUsageFlags Usage;
-	VkMemoryPropertyFlags Property;
+	VkBuffer Buffer = VK_NULL_HANDLE;
+	VkDeviceMemory Memory = VK_NULL_HANDLE;
+	VkDescriptorBufferInfo DescriptorInfo = {};
+	VkDeviceSize Size = 0U;
+	VkDeviceSize Alignment = 0U;
+	void *MappedMemory = nullptr;
+	VkBufferUsageFlags Usage = 0U;
+	VkMemoryPropertyFlags Property = 0U;
 
 	inline void Map(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0U)
 	{
@@ -98,7 +98,7 @@ struct VkMemoryBuffer
 		check(vkInvalidateMappedMemoryRanges(vkDevice, 1, &mappedRange));
 	}
 
-	inline void destroy()
+	inline void Destroy()
 	{
 		if (Buffer)
 		{
@@ -147,3 +147,9 @@ void SetImageLayout(
 	VkPipelineStageFlags srcStageMask,
 	VkPipelineStageFlags dstStageMask);
 void FlushCommandBuffer(VkCommandBuffer commandBuffer, VkQueue queue, bool free = true);
+void BuildCommandBuffers();
+void DrawUI(VkCommandBuffer commandBuffer);
+void RenderLoop();
+void Frame();
+void UpdateUI();
+bool UpdateUIBuffer();

@@ -10,6 +10,7 @@ extern VkQueueFamilyIndex vkQueueFamilyIndex;
 extern VkSubmitInfo vkSubmitInfo;
 extern VkPipelineStageFlags vkSubmitPipelineStages;
 extern uint32_t vkQueueNodeIndex;
+extern bool vkPrepared;
 
 int32_t WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpCmdLine*/, int32_t /*nShow*/)
 {
@@ -26,6 +27,7 @@ int32_t WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR
 	check(vkCreateSemaphore(vkDevice, &semaphoreCreateInfo, nullptr, &vkSemaphoreComplete));
 	check(vkCreateSemaphore(vkDevice, &semaphoreCreateInfo, nullptr, &vkSemaphorePresent));
 
+	vkSubmitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 	vkSubmitInfo.pWaitDstStageMask = &vkSubmitPipelineStages;
 	vkSubmitInfo.waitSemaphoreCount = 1U;
 	vkSubmitInfo.pWaitSemaphores = &vkSemaphorePresent;
@@ -47,6 +49,12 @@ int32_t WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR
 	CreateShaders();
 
 	InitImGUI();
+
+	BuildCommandBuffers();
+
+	vkPrepared = true;
+
+	RenderLoop();
 
 	return 0;
 }

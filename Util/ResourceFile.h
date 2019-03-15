@@ -8,6 +8,7 @@ public:
 	enum eType
 	{
 		eShader,
+		eShaderBinary,
 		eTexture,
 		eSDKMesh,
 		eTxtMesh,
