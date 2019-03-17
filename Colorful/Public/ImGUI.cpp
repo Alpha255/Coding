@@ -1,5 +1,8 @@
 #include "ImGUI.h"
-#include "IApplication.h"
+#include "Geometry.h"
+#include "Definitions.h"
+#include "Colorful/D3D11/D3D11Types.h"
+#include "IRenderApplication.h"
 
 std::unique_ptr<ImGUI, std::function<void(ImGUI *)>> ImGUI::s_Instance;
 

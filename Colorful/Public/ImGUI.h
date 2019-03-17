@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Common.h"
+#include "Base/Base.h"
 #include "Definitions.h"
 #include <ImGUI/imgui.h>
 
-class ImGUI : public NoneCopyable
+class ImGUI : public Base::NoneCopyable
 {
 public:
 	static ImGUI &Instance()

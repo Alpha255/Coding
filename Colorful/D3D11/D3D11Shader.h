@@ -1,13 +1,12 @@
 #pragma once
 
 #include "D3D11Object.h"
-
-class D3D11Blob : public D3DObject<ID3DBlob> {};
+#include "Public/Geometry.h"
 
 class D3D11InputLayout : public D3DObject<ID3D11InputLayout>
 {
 public:
-	void Create(D3D11Blob &blob, const VertexLayout *pVertexLayout, size_t layoutCount);
+	void Create(D3D11Blob &blob, const std::vector<VertexLayout> &layouts);
 };
 
 class D3D11Shader

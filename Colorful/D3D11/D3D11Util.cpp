@@ -1,8 +1,8 @@
 #include "D3D11Util.h"
-#include "Util/dds.h"
-#include "Util/ResourceFile.h"
 #include "D3D11Engine.h"
 #include "D3D11Texture.h"
+#include <dds/dds.h>
+#include "Base/AssetFile.h"
 
 /// Helper functions for texture loaders and screen grabber
 ///
@@ -732,7 +732,7 @@ void CreateShaderResourceView(
 			desc.Texture1D.MipLevels = mipCount;
 		}
 
-		HRCheck(D3D11Engine::Instance().GetDevice()->CreateShaderResourceView(texture1D.Get(), &desc, ppShaderResourceView));
+		Check(D3D11Engine::Instance().GetDevice()->CreateShaderResourceView(texture1D.Get(), &desc, ppShaderResourceView));
 
 		if (autoGen)
 		{
@@ -774,7 +774,7 @@ void CreateShaderResourceView(
 			desc.Texture2D.MipLevels = mipCount;
 		}
 
-		HRCheck(D3D11Engine::Instance().GetDevice()->CreateShaderResourceView(texture2D.Get(), &desc, ppShaderResourceView));
+		Check(D3D11Engine::Instance().GetDevice()->CreateShaderResourceView(texture2D.Get(), &desc, ppShaderResourceView));
 
 		if (autoGen)
 		{
@@ -792,7 +792,7 @@ void CreateShaderResourceView(
 		desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE3D;
 		desc.Texture3D.MipLevels = mipCount;
 
-		HRCheck(D3D11Engine::Instance().GetDevice()->CreateShaderResourceView(texture3D.Get(), &desc, ppShaderResourceView));
+		Check(D3D11Engine::Instance().GetDevice()->CreateShaderResourceView(texture3D.Get(), &desc, ppShaderResourceView));
 
 		if (autoGen)
 		{
@@ -806,16 +806,15 @@ void CreateShaderResourceView(
 	}
 }
 
-void CreateShaderResourceViewFromDds(const char *pDdsName, _Out_ ID3D11ShaderResourceView **ppShaderResourceView, bool bSRGB)
+void CreateShaderResourceViewFromDds(const std::string &ddsName, _Out_ ID3D11ShaderResourceView **ppShaderResourceView, bool bSRGB)
 {
 	assert(ppShaderResourceView && *ppShaderResourceView == nullptr);
 
-	ResourceFile ddsFile(pDdsName);
-	assert(ddsFile.IsValid());
+	AssetFile ddsFile(ddsName);
 
 	assert(ddsFile.GetSize() >= sizeof(DirectX::DDS_HEADER) + sizeof(uint32_t));
 
-	auto ddsTexData = std::unique_ptr<uint8_t>(ddsFile.Load());
+	auto ddsTexData = ddsFile.Load();
 	const uint8_t *pData = ddsTexData.get();
 
 	assert(*reinterpret_cast<const uint32_t *>(pData) == DirectX::DDS_MAGIC);
@@ -946,7 +945,7 @@ void CreateShaderResourceViewFromDds(const char *pDdsName, _Out_ ID3D11ShaderRes
 	if (1U == mipCount && ppShaderResourceView)
 	{
 		uint32_t supportFmt = 0U;
-		HRCheck(D3D11Engine::Instance().GetDevice()->CheckFormatSupport(format, &supportFmt));
+		Check(D3D11Engine::Instance().GetDevice()->CheckFormatSupport(format, &supportFmt));
 
 		if (supportFmt & D3D11_FORMAT_SUPPORT_MIP_AUTOGEN)
 		{

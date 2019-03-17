@@ -1,10 +1,13 @@
 #pragma once
 
-///#define UsingD3D11
-#define UsingVulkan
+#include "Base/Resource.h"
+
+#define UsingD3D11
+///#define UsingVulkan
 
 #if defined(UsingD3D11)
 	#include "D3D11/D3D11Engine.h"
+	#define IconID IconDirectX 
 	typedef D3D11Engine REngine;
 	typedef D3D11VertexShader RVertexShader;
 	typedef D3D11PixelShader RPixelShader;
@@ -18,6 +21,7 @@
 	typedef D3D11SubResourceData RSubResourceData;
 #elif defined(UsingVulkan)
 	#include "Vulkan/VulkanEngine.h"
+	#define IconID IconVulkan 
 	typedef VulkanEngine REngine;
 	typedef VulkanVertexShader RVertexShader;
 	typedef VulkanPixelShader RPixelShader;
@@ -30,5 +34,5 @@
 	typedef VulkanStaticState RStaticState;
 	typedef VulkanSubResourceData RSubResourceData;
 #else
-	#error "Unknown Render Engine"
+	#error "Unknown Render Interface"
 #endif

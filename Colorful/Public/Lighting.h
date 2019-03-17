@@ -1,6 +1,6 @@
 #pragma once
 
-#include "D3DMath.h"
+#include "Base/Base.h"
 #include "Definitions.h"
 
 enum eLightType

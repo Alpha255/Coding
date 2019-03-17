@@ -1,14 +1,15 @@
 #include "Box.h"
+#include "D3D11/D3D11Engine.h"
 
-int32_t WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpCmdLine*/, int /*nShow*/)
+int32_t WINAPI wWinMain(HINSTANCE, HINSTANCE, LPWSTR, int32_t)
 {
-	AppBox box;
+	Box box;
 
-	box.Startup(L"Box");
+	box.Initialize("Box");
 
-	box.Running();
+	box.Loop();
 
-	box.ShutDown();
+	box.Finalize();
 
 	return 0;
 }

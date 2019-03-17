@@ -20,9 +20,9 @@ void D3D11SamplerState::Create(uint32_t filter, uint32_t addressMode, float LODB
 	}
 
 	ID3D11SamplerState *pSamplerState = nullptr;
-	HRCheck(D3D11Engine::Instance().GetDevice()->CreateSamplerState(&desc, &pSamplerState));
+	Check(D3D11Engine::Instance().GetDevice()->CreateSamplerState(&desc, &pSamplerState));
 
-	MakeObject(pSamplerState);
+	Reset(pSamplerState);
 }
 
 void D3D11DepthStencilState::Create(
@@ -60,9 +60,9 @@ void D3D11DepthStencilState::Create(
 	desc.BackFace.StencilFunc = (D3D11_COMPARISON_FUNC)stencilCompFuncBackFace;
 
 	ID3D11DepthStencilState *pDepthStencilState = nullptr;
-	HRCheck(D3D11Engine::Instance().GetDevice()->CreateDepthStencilState(&desc, &pDepthStencilState));
+	Check(D3D11Engine::Instance().GetDevice()->CreateDepthStencilState(&desc, &pDepthStencilState));
 
-	MakeObject(pDepthStencilState);
+	Reset(pDepthStencilState);
 }
 
 void D3D11BlendState::Create(
@@ -95,9 +95,9 @@ void D3D11BlendState::Create(
 	desc.RenderTarget[surfaceIndex].RenderTargetWriteMask = renderTargetWriteMask;
 
 	ID3D11BlendState *pBlendState = nullptr;
-	HRCheck(D3D11Engine::Instance().GetDevice()->CreateBlendState(&desc, &pBlendState));
+	Check(D3D11Engine::Instance().GetDevice()->CreateBlendState(&desc, &pBlendState));
 
-	MakeObject(pBlendState);
+	Reset(pBlendState);
 }
 
 void D3D11RasterizerState::Create(uint32_t fillMode, uint32_t cullMode, bool bFrontCCW, bool bDepthClip, bool bScissor)
@@ -117,9 +117,9 @@ void D3D11RasterizerState::Create(uint32_t fillMode, uint32_t cullMode, bool bFr
 	desc.DepthBiasClamp = 0.0f;
 
 	ID3D11RasterizerState *pRasterizerState = nullptr;
-	HRCheck(D3D11Engine::Instance().GetDevice()->CreateRasterizerState(&desc, &pRasterizerState));
+	Check(D3D11Engine::Instance().GetDevice()->CreateRasterizerState(&desc, &pRasterizerState));
 
-	MakeObject(pRasterizerState);
+	Reset(pRasterizerState);
 }
 
 D3D11SamplerState D3D11StaticState::PointSampler;

@@ -1,5 +1,4 @@
 #include "IApplication.h"
-#include "ImGUI.h"
 
 IApplication * IApplication::s_This = nullptr;
 
@@ -173,6 +172,8 @@ void IApplication::Loop()
 			if (m_bActive)
 			{
 				UpdateWindow();
+
+				RenterToWindow();
 			}
 			else
 			{

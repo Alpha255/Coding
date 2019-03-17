@@ -1,7 +1,5 @@
 #include "D3D11Texture.h"
 #include "D3D11Engine.h"
-#include "Util/System.h"
-#include "Util/D3DMath.h"
 
 void D3D11Texture1D::Create(
 	uint32_t fmt,
@@ -31,9 +29,9 @@ void D3D11Texture1D::Create(
 	/// System-memory-slice pitch is only used for 3D texture data as it has no meaning for the other resource types
 
 	ID3D11Texture1D *pTexture1D = nullptr;
-	HRCheck(D3D11Engine::Instance().GetDevice()->CreateTexture1D(&desc, pSubResourceData, &pTexture1D));
+	Check(D3D11Engine::Instance().GetDevice()->CreateTexture1D(&desc, pSubResourceData, &pTexture1D));
 
-	MakeObject(pTexture1D);
+	Reset(pTexture1D);
 }
 
 void D3D11Texture1D::CreateRandomTexture()
@@ -91,9 +89,9 @@ void D3D11Texture2D::Create(
 	desc.Usage = (D3D11_USAGE)usage;
 
 	ID3D11Texture2D *pTexture2D = nullptr;
-	HRCheck(D3D11Engine::Instance().GetDevice()->CreateTexture2D(&desc, pSubResourceData, &pTexture2D));
+	Check(D3D11Engine::Instance().GetDevice()->CreateTexture2D(&desc, pSubResourceData, &pTexture2D));
 
-	MakeObject(pTexture2D);
+	Reset(pTexture2D);
 }
 
 void D3D11Texture3D::Create(
@@ -122,7 +120,7 @@ void D3D11Texture3D::Create(
 	desc.Usage = (D3D11_USAGE)usage;
 
 	ID3D11Texture3D *pTexture3D = nullptr;
-	HRCheck(D3D11Engine::Instance().GetDevice()->CreateTexture3D(&desc, pSubResourceData, &pTexture3D));
+	Check(D3D11Engine::Instance().GetDevice()->CreateTexture3D(&desc, pSubResourceData, &pTexture3D));
 
-	MakeObject(pTexture3D);
+	Reset(pTexture3D);
 }

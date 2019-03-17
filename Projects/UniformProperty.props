@@ -11,7 +11,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)ThirdParty\;$(SolutionDir)ThirdParty\ImGUI\;$(SolutionDir)ThirdParty\freetype\include\;$(SolutionDir)ThirdParty\glm\;$(SolutionDir)ThirdParty\vcglib\;$(VK_SDK_PATH)\Include\vulkan\;$(VK_SDK_PATH)\glslang\;$(VK_SDK_PATH)\spirv-tools\;$(VK_SDK_PATH)\spirv-tools\include\;$(VK_SDK_PATH)\spirv-tools\external\spirv-headers\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)Colorful;$(SolutionDir)ThirdParty;$(SolutionDir)ThirdParty\ImGUI;$(SolutionDir)ThirdParty\freetype\include;$(VK_SDK_PATH)\Include;</AdditionalIncludeDirectories>
       <WarningLevel>Level4</WarningLevel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>

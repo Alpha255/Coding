@@ -24,7 +24,7 @@ public:
 class D3D11ShaderResourceView : public D3DObject<ID3D11ShaderResourceView>
 {
 public:
-	void Create(const char *pDdsName, bool bSRGB = false);
+	void Create(const std::string &ddsName, bool bSRGB = false);
 
 	void CreateAsBuffer();
 	void CreateAsBufferEx();

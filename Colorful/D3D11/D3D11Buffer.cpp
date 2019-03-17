@@ -28,9 +28,9 @@ void D3D11Buffer::Create(
 	srcData.SysMemSlicePitch = 0U;
 
 	ID3D11Buffer *pBuffer = nullptr;
-	HRCheck(D3D11Engine::Instance().GetDevice()->CreateBuffer(&bufDesc, ((nullptr == pData) ? nullptr : &srcData), &pBuffer));
+	Check(D3D11Engine::Instance().GetDevice()->CreateBuffer(&bufDesc, ((nullptr == pData) ? nullptr : &srcData), &pBuffer));
 
-	MakeObject(pBuffer);
+	Reset(pBuffer);
 }
 
 void D3D11Buffer::Update(const void *pData, size_t size)
@@ -38,7 +38,7 @@ void D3D11Buffer::Update(const void *pData, size_t size)
 	assert(pData && size && IsValid());
 
 	D3D11_MAPPED_SUBRESOURCE mapped = {};
-	HRCheck(D3D11Engine::Instance().GetIMContext()->Map(Get(), 0U, D3D11_MAP_WRITE_DISCARD, 0U, &mapped)); 	/// Map cannot be called with MAP_WRITE_DISCARD access
+	Check(D3D11Engine::Instance().GetIMContext()->Map(Get(), 0U, D3D11_MAP_WRITE_DISCARD, 0U, &mapped)); 	/// Map cannot be called with MAP_WRITE_DISCARD access
 	memcpy(mapped.pData, pData, size);
 	D3D11Engine::Instance().GetIMContext()->Unmap(Get(), 0U);
 }

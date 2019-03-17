@@ -9,7 +9,9 @@
 #include <string>
 #include <thread>
 #include <fstream>
+#include <unordered_map>
 #include <DirectXMath.h>
+#include <DirectXCollision.h>
 #include <Windows.h>
 
 ///#ifdef _WINDLL

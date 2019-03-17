@@ -1,11 +1,10 @@
 #pragma once
 
+#include "Public/IEngine.h"
 #include "D3D11Context.h"
+#include "D3D11Swapchain.h"
 
-#include <unordered_map>
-#include <thread>
-
-class D3D11Engine : public NoneCopyable
+class D3D11Engine : public IEngine
 {
 public:
 	static D3D11Engine &Instance()

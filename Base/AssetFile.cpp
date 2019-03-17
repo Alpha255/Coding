@@ -39,6 +39,7 @@ bool AssetFile::TryToFindAssetFile()
 
 	if (Base::IsFileExists(assetPath.c_str()))
 	{
+		m_Root = assetPath.substr(0U, assetPath.length() - m_Path.length() - 1U);
 		m_Path = assetPath;
 		return true;
 	}
@@ -100,9 +101,11 @@ std::shared_ptr<uint8_t> AssetFile::Load()
 	std::ifstream file(m_Path, (eTexture == m_Type || eShaderBinary == m_Type) ? std::ios::in | std::ios::binary : std::ios::in);
 	assert(file.good());
 
-	m_Data.reset(new uint8_t[m_Size]());
-	file.read((char *)&m_Data, m_Size);
+	auto pMemory = new uint8_t[m_Size]();
+	file.read((char *)pMemory, m_Size);
 	file.close();
+
+	m_Data.reset(pMemory);
 
 	return m_Data;
 }

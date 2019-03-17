@@ -41,8 +41,8 @@ void D3D11Engine::Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool 
 			nullptr, 
 			&pContext)))
 		{
-			m_Device.MakeObject(pDevice);
-			m_IMContext.MakeObject(pContext);
+			m_Device.Reset(pDevice);
+			m_IMContext.Reset(pContext);
 
 			m_SwapChain.Create(hWnd, width, height, bFullScreen);
 
@@ -66,9 +66,9 @@ void D3D11Engine::RecreateRenderTargetDepthStencil(uint32_t width, uint32_t heig
 	assert(m_SwapChain.IsValid());
 
 	ID3D11Texture2D *pTexture2D = nullptr;
-	HRCheck(m_SwapChain->GetBuffer(0U, __uuidof(ID3D11Texture2D), reinterpret_cast<void **>(&pTexture2D)));
+	Check(m_SwapChain->GetBuffer(0U, __uuidof(ID3D11Texture2D), reinterpret_cast<void **>(&pTexture2D)));
 	D3D11Resource surface;
-	surface.MakeObject(pTexture2D);
+	surface.Reset(pTexture2D);
 	m_RenderTargetView.Create(surface);
 
 	m_DepthStencilView.Create(eD24_UNorm_S8_UInt, width, height);

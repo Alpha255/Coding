@@ -1,4 +1,5 @@
 #include "D3D11Context.h"
+#include "D3D11Engine.h"
 
 void D3D11Context::SetRenderTargetView(const D3D11RenderTargetView &renderTarget, uint32_t slot)
 {
@@ -275,4 +276,13 @@ void D3D11Context::DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t
 	m_State.CommitState(*this);
 
 	m_Object->DrawIndexed(indexCount, startIndex, offset);
+}
+
+void D3D11Context::CreateAsDeferredContext()
+{
+	assert(!IsValid());
+
+	ID3D11DeviceContext *pContext = nullptr;
+	Check(D3D11Engine::Instance().GetDevice().Get()->CreateDeferredContext(0U, &pContext));
+	Reset(pContext);
 }

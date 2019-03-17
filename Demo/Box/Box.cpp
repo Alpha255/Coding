@@ -1,6 +1,6 @@
 #include "Box.h"
-#include "Util/ImGUI.h"
 
+#if 0
 void AppBox::InitScene()
 {
 	///m_BoxMesh.CreateAsCube(1.0f);
@@ -99,4 +99,5 @@ void AppBox::UpdateScene(float, float)
 
 	s_Update = true;
 }
+#endif
 #endif

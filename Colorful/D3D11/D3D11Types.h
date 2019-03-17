@@ -1,9 +1,10 @@
 #pragma once
 
+#include "Base/Base.h"
 #include <d3d11.h>
-#include <stdint.h>
+#include <d3dcompiler.h>
 
-#define HRCheck(func)  if (FAILED(func)) { assert(0); }
+#define Check(func)  if (FAILED(func)) { assert(0); }
 
 enum eRShaderType
 {

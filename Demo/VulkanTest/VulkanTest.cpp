@@ -1,5 +1,5 @@
 #include "VulkanTest.h"
-#include "Util/ResourceFile.h"
+#include "Base/AssetFile.h"
 #include <ImGUI/imgui.h>
 
 VkInstance vkInstance = VK_NULL_HANDLE;
@@ -875,18 +875,16 @@ void CreateFrameBuffers()
 
 VkShaderModule CreateShader(const char *fileName)
 {
-	ResourceFile shader(fileName);
-	uint8_t *pCode = shader.Load();
+	AssetFile shader(fileName);
+	auto pCode = shader.Load();
 
 	VkShaderModule shaderModule;
 	VkShaderModuleCreateInfo moduleCreateInfo{};
 	moduleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 	moduleCreateInfo.codeSize = shader.GetSize();
-	moduleCreateInfo.pCode = (uint32_t *)pCode;
+	moduleCreateInfo.pCode = (uint32_t *)&pCode;
 
 	check(vkCreateShaderModule(vkDevice, &moduleCreateInfo, NULL, &shaderModule));
-
-	delete[] pCode;
 
 	return shaderModule;
 }

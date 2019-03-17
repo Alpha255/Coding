@@ -1,18 +1,16 @@
 #pragma once
 
-#include "Definitions.h"
-#include "Lighting.h"
-#include "Camera.h"
-#include <DirectXCollision.h>
+#include "Base/Base.h"
 
 struct VertexLayout
 {
-	const char *Semantic = nullptr;
+	std::string Semantic;
 	size_t Stride = 0U;
 	uint32_t Offset = 0U;
 	uint32_t Format = 0U;
 };
 
+#if 0
 NamespaceBegin(Geometry)
 
 struct Vertex
@@ -338,3 +336,5 @@ private:
 };
 
 NamespaceEnd(Geometry)
+
+#endif

@@ -1,7 +1,6 @@
 #include "Geometry.h"
 
-#include <fstream>
-
+#if 0
 NamespaceBegin(Geometry)
 
 void Mesh::CreateRenderResource()
@@ -9,7 +8,7 @@ void Mesh::CreateRenderResource()
 	VertexCount = (uint32_t)m_Vertices.size();
 	IndexCount = (uint32_t)m_Indices.size();
 
-	const VertexLayout layout[] =
+	std::vector<VertexLayout> layout =
 	{
 		{ "POSITION", sizeof(Vertex::Position), 0, eRGB32_Float },
 		{ "NORMAL",   sizeof(Vertex::Normal),  12, eRGB32_Float },
@@ -19,7 +18,7 @@ void Mesh::CreateRenderResource()
 
 	RVertexShader vertexShader;
 	vertexShader.Create("Mesh.shader", "main");
-	InputLayout.Create(vertexShader.GetBlob(), layout, _countof(layout));
+	InputLayout.Create(vertexShader.GetBlob(), layout);
 
 	VertexBuffer.CreateAsVertexBuffer(sizeof(Vertex) * m_Vertices.size(), eGpuReadOnly, m_Vertices.data());
 	IndexBuffer.CreateAsIndexBuffer(sizeof(uint32_t) * m_Indices.size(), eGpuReadOnly, m_Indices.data());
@@ -702,3 +701,5 @@ void Mesh::Draw(const Material *pMaterial, uint32_t startIndex, int32_t vertexOf
 }
 
 NamespaceEnd(Geometry)
+
+#endif

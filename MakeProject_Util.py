@@ -33,14 +33,16 @@ class VcProject:
 	Folder = ''
 	IsLibrary = True
 	IsConsole = False
+	IsThirdParty = False
 	Dependencies = []
 	FileList = []
-	def __init__(self, _Name, _Foler, _IsLibrary, _IsConsole, _Directory, _ExcludeDirectory, _Dependencies, _Types):
+	def __init__(self, _Name, _Folder, _IsLibrary, _IsConsole, _Directory, _ExcludeDirectory, _Dependencies, _Types):
 		self.Name = _Name
 		self.GUID = MakeGUID(_Name)
-		self.Folder = _Foler
+		self.Folder = _Folder
 		self.IsLibrary = _IsLibrary
 		self.IsConsole = _IsConsole
+		self.IsThirdParty = (_Folder == 'ThirdParty')
 		self.Dependencies = _Dependencies
 		self.FileList = BuildFileList(_Directory, _ExcludeDirectory, _Types)
 
@@ -234,6 +236,11 @@ def MakeProject(_vcProject, _VersionInfo, _Configurations, _Platforms):
 	projectXML.append('\t<ImportGroup Label="PropertySheets">\n')
 	if _vcProject.IsConsole:
 		projectXML.append('\t\t<Import Project="UniformProperty_Console.props" />\n')
+	elif _vcProject.IsLibrary:
+		if _vcProject.IsThirdParty:
+			projectXML.append('\t\t<Import Project="UniformProperty_ThirdParty.props" />\n')
+		else:
+			projectXML.append('\t\t<Import Project="UniformProperty.props" />\n')
 	else:
 		projectXML.append('\t\t<Import Project="UniformProperty.props" />\n')
 	projectXML.append('\t\t<Import Project="$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props" Condition="exists(\'$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props\')" Label="LocalAppDataPlatform" />\n')
