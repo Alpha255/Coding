@@ -20,6 +20,10 @@ public:
 	void HandleWindowMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM lParam) override;
 
 	void HandleInput(uint32_t msg, ::WPARAM wParam, ::LPARAM lParam) override;
+
+	virtual void PrepareScene() = 0;
+	virtual void RenderScene() = 0;
+	virtual void UpdateScene(float, float) {}
 protected:
 	enum eMouseInput
 	{
@@ -30,8 +34,8 @@ protected:
 
 	void HandleMouseInput(::WPARAM wParam, ::LPARAM lParam, eMouseInput type);
 
-	Camera m_Camera;
+	Camera m_Camera = {};
 private:
-	std::pair<int32_t, int32_t> m_MousePos;
-	int16_t m_MouseWheel = 0;
+	std::pair<int32_t, int32_t> m_MousePos = { 0, 0 };
+	std::pair<float, float> m_CameraParams = { 1.0f, 3000.0f };
 };

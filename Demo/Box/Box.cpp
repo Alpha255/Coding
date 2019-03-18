@@ -1,7 +1,7 @@
 #include "Box.h"
+#include "Public/Definitions.h"
 
-#if 0
-void AppBox::InitScene()
+void Box::PrepareScene()
 {
 	///m_BoxMesh.CreateAsCube(1.0f);
 
@@ -9,7 +9,7 @@ void AppBox::InitScene()
 
 	///m_VertexShader.Create("Box.shader", "main");
 	///m_PixelShader[eNone].Create("Box.shader", "main");
-#if defined(UsingD3D11)
+#if 0
 	m_PixelShader[eInversion].Create("Box.shader", "main_Inversion");
 	m_PixelShader[eGrayscale].Create("Box.shader", "main_Grayscale");
 	m_PixelShader[eSharpen].Create("Box.shader", "main_Sharpen");
@@ -27,10 +27,10 @@ void AppBox::InitScene()
 #endif
 }
 
-void AppBox::RenderScene()
+void Box::RenderScene()
 {
 	REngine::Instance().ResetDefaultRenderSurfaces();
-#if defined(UsingD3D11)
+#if 0
 	REngine::Instance().SetViewport(RViewport(0.0f, 0.0f, (float)m_Width, (float)m_Height));
 
 	REngine::Instance().SetInputLayout(m_BoxMesh.InputLayout);
@@ -52,7 +52,7 @@ void AppBox::RenderScene()
 
 	///ImGui::Combo("SpecialEffect", &m_Effect, "None\0Inversion\0Grayscale\0Sharpen\0Blur\0EdgeDetection");
 	///ImGui::Checkbox("VSync", &m_bVSync);
-	ImGui::Text("\n%.2f FPS", m_FPS);
+	///ImGui::Text("\n%.2f FPS", m_FPS);
 #if 1
 
 #endif
@@ -99,5 +99,4 @@ void AppBox::UpdateScene(float, float)
 
 	s_Update = true;
 }
-#endif
 #endif

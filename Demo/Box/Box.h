@@ -8,6 +8,8 @@ public:
 	Box() = default;
 	~Box() = default;
 
+	void PrepareScene() override;
+	void RenderScene() override;
 protected:
 	enum eSpecialEffect
 	{

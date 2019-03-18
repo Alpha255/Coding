@@ -34,13 +34,13 @@ protected:
 
 	::HWND m_hWnd = nullptr;
 
-	std::pair<uint32_t, uint32_t> m_WindowSize;
+	std::pair<uint32_t, uint32_t> m_WindowSize = { 0U, 0U };
 
 	float m_FPS = 0.0f;
 	uint16_t m_IconID = UINT16_MAX;
 	bool m_bFullScreen = false;
 
-	Timer m_Timer;
+	Timer m_Timer = {};
 private:
 	bool m_bActive = false;
 	bool m_bNeedResize = false;

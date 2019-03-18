@@ -174,6 +174,8 @@ void IApplication::Loop()
 				UpdateWindow();
 
 				RenterToWindow();
+
+				UpdateFPS();
 			}
 			else
 			{
