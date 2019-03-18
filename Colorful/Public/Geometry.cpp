@@ -1,40 +1,12 @@
 #include "Geometry.h"
+#include "Base/AssetFile.h"
 
-#if 0
 NamespaceBegin(Geometry)
 
-void Mesh::CreateRenderResource()
-{
-	VertexCount = (uint32_t)m_Vertices.size();
-	IndexCount = (uint32_t)m_Indices.size();
-
-	std::vector<VertexLayout> layout =
-	{
-		{ "POSITION", sizeof(Vertex::Position), 0, eRGB32_Float },
-		{ "NORMAL",   sizeof(Vertex::Normal),  12, eRGB32_Float },
-		{ "TANGENT",  sizeof(Vertex::Tangent), 24, eRGB32_Float },
-		{ "TEXCOORD", sizeof(Vertex::UV),      36, eRG32_Float  }
-	};
-
-	RVertexShader vertexShader;
-	vertexShader.Create("Mesh.shader", "main");
-	InputLayout.Create(vertexShader.GetBlob(), layout);
-
-	VertexBuffer.CreateAsVertexBuffer(sizeof(Vertex) * m_Vertices.size(), eGpuReadOnly, m_Vertices.data());
-	IndexBuffer.CreateAsIndexBuffer(sizeof(uint32_t) * m_Indices.size(), eGpuReadOnly, m_Indices.data());
-
-	m_Created = true;
-}
-
-void Mesh::DrawNormal(const Camera &/*cam*/)
-{
-
-}
-
-void Mesh::SubDivide()
+void Model::SubDivide()
 {
 	/// Save a copy of the input geometry.
-	Mesh inputCopy = *this;
+	Model inputCopy = *this;
 
 	m_Vertices.resize(0);
 	m_Indices.resize(0);
@@ -98,7 +70,7 @@ void Mesh::SubDivide()
 	}
 }
 
-void Mesh::MakeCylinderTopBottomCap(bool bTop, float bottomRadius, float topRadius, float height, uint32_t slice)
+void Model::MakeCylinderTopBottomCap(bool bTop, float bottomRadius, float topRadius, float height, uint32_t slice)
 {
 	float y = bTop ? (0.5f * height) : (-0.5f * height);
 	float r = bTop ? topRadius : bottomRadius;
@@ -140,9 +112,9 @@ void Mesh::MakeCylinderTopBottomCap(bool bTop, float bottomRadius, float topRadi
 	}
 }
 
-void Mesh::CreateAsBox(float width, float height, float depth)
+void Model::CreateAsCube(float width, float height, float depth)
 {
-	assert(!m_Created);
+	assert(!m_Valid);
 
 	Vertex vertices[24];
 
@@ -204,17 +176,12 @@ void Mesh::CreateAsBox(float width, float height, float depth)
 
 	m_Indices.assign(&indices[0], &indices[36]);
 
-	CreateRenderResource();
+	m_Valid = true;
 }
 
-void Mesh::CreateAsCube(float width)
+void Model::CreateAsSphere(float radius, uint32_t slice, uint32_t stack)
 {
-	CreateAsBox(width, width, width);
-}
-
-void Mesh::CreateAsSphere(float radius, uint32_t slice, uint32_t stack)
-{
-	assert(!m_Created);
+	assert(!m_Valid);
 
 	m_Vertices.clear();
 	m_Indices.clear();
@@ -308,10 +275,229 @@ void Mesh::CreateAsSphere(float radius, uint32_t slice, uint32_t stack)
 		m_Indices.push_back(baseIndex + i + 1);
 	}
 
-	CreateRenderResource();
+	m_Valid = true;
 }
 
-void Mesh::CreateAsGeoSphere(float radius, uint32_t subDivisions)
+void Model::CreateAsCylinder(float bottomRadius, float topRadius, float height, uint32_t slice, uint32_t stack)
+{
+	assert(!m_Valid);
+
+	m_Vertices.clear();
+	m_Indices.clear();
+
+	float stackHeight = height / stack;
+
+	/// Amount to increment radius as we move up each stack level from bottom to top.
+	float radiusStep = (topRadius - bottomRadius) / stack;
+
+	uint32_t ring = stack + 1;
+
+	/// Compute vertices for each stack ring starting at the bottom and moving up.
+	for (uint32_t i = 0U; i < ring; ++i)
+	{
+		float y = -0.5f * height + i * stackHeight;
+		float r = bottomRadius + i * radiusStep;
+
+		/// Vertices of ring
+		float theta = 2.0f * DirectX::XM_PI / slice;
+		for (uint32_t j = 0U; j <= slice; ++j)
+		{
+			float c = cosf(j * theta);
+			float s = sinf(j * theta);
+
+			Vertex v;
+			v.Position = Vec3(r * c, y, r * s);
+
+			v.UV.x = (float)j / slice;
+			v.UV.y = 1.0f - (float)i / stack;
+
+			/// Cylinder can be parameterized as follows, where we introduce v
+			/// parameter that goes in the same direction as the v tex-coord
+			/// so that the bitangent goes in the same direction as the v tex-coord.
+			/// Let r0 be the bottom radius and let r1 be the top radius.
+			/// y(v) = h - hv for v in [0,1].
+			/// r(v) = r1 + (r0-r1)v
+			/// 
+			/// x(t, v) = r(v)*cos(t)
+			/// y(t, v) = h - hv
+			/// z(t, v) = r(v)*sin(t)
+			/// 
+			/// dx/dt = -r(v)*sin(t)
+			/// dy/dt = 0
+			/// dz/dt = +r(v)*cos(t)
+			/// 
+			/// dx/dv = (r0-r1)*cos(t)
+			/// dy/dv = -h
+			/// dz/dv = (r0-r1)*sin(t)
+
+			/// Unit length
+			v.Tangent = Vec3(-s, 0.0f, c);
+
+			float dR = bottomRadius - topRadius;
+			Vec3 binNormal(dR * c, -height, dR * s);
+
+			DirectX::XMVECTOR T = DirectX::XMLoadFloat3(&v.Tangent);
+			DirectX::XMVECTOR B = DirectX::XMLoadFloat3(&binNormal);
+			DirectX::XMVECTOR N = DirectX::XMVector3Cross(T, B);
+			DirectX::XMStoreFloat3(&v.Normal, N);
+
+			m_Vertices.push_back(v);
+		}
+	}
+
+	/// Add one because we duplicate the first and last vertex per ring
+	/// since the texture coordinates are different.
+	uint32_t ringVertexCount = slice + 1;
+
+	/// Compute indices for each stack.
+	for (uint32_t i = 0U; i < stack; ++i)
+	{
+		for (uint32_t j = 0U; j < slice; ++j)
+		{
+			m_Indices.push_back(i * ringVertexCount + j);
+			m_Indices.push_back((i + 1) * ringVertexCount + j);
+			m_Indices.push_back((i + 1) * ringVertexCount + j + 1);
+
+			m_Indices.push_back(i * ringVertexCount + j);
+			m_Indices.push_back((i + 1) * ringVertexCount + j + 1);
+			m_Indices.push_back(i * ringVertexCount + j + 1);
+		}
+	}
+
+	MakeCylinderTopBottomCap(true, bottomRadius, topRadius, height, slice);
+	MakeCylinderTopBottomCap(false, bottomRadius, topRadius, height, slice);
+
+	m_Valid = true;
+}
+
+void Model::CreateAsGrid(float width, float depth, uint32_t m, uint32_t n)
+{
+	assert(!m_Valid);
+
+	uint32_t vertexCount = m * n;
+	uint32_t faceCount = (m - 1) * (n - 1) * 2;
+
+	/// Create the vertices
+	float halfWidth = 0.5f * width;
+	float halfDepth = 0.5f * depth;
+
+	float dx = width / (n - 1);
+	float dz = depth / (m - 1);
+
+	float du = 1.0f / (n - 1);
+	float dv = 1.0f / (m - 1);
+
+	m_Vertices.resize(vertexCount);
+	for (uint32_t i = 0; i < m; ++i)
+	{
+		float z = halfDepth - i * dz;
+		for (uint32_t j = 0; j < n; ++j)
+		{
+			float x = -halfWidth + j * dx;
+
+			m_Vertices[i * n + j].Position = Vec3(x, 0.0f, z);
+			m_Vertices[i * n + j].Normal = Vec3(0.0f, 1.0f, 0.0f);
+			m_Vertices[i * n + j].Tangent = Vec3(1.0f, 0.0f, 0.0f);
+
+			m_Vertices[i * n + j].UV.x = j * du;
+			m_Vertices[i * n + j].UV.y = i * dv;
+		}
+	}
+
+	/// Create the indices
+	m_Indices.resize(faceCount * 3);
+
+	uint32_t k = 0;
+	for (uint32_t i = 0; i < m - 1; ++i)
+	{
+		for (uint32_t j = 0; j < n - 1; ++j)
+		{
+			m_Indices[k] = i * n + j;
+			m_Indices[k + 1] = i * n + j + 1;
+			m_Indices[k + 2] = (i + 1) * n + j;
+
+			m_Indices[k + 3] = (i + 1) * n + j;
+			m_Indices[k + 4] = i * n + j + 1;
+			m_Indices[k + 5] = (i + 1) * n + j + 1;
+
+			k += 6;
+		}
+	}
+
+	m_Valid = true;
+}
+
+void Model::CreateAsQuad(float left, float top, float width, float height)
+{
+	assert(!m_Valid);
+
+	m_Vertices.resize(4U);
+	m_Indices.resize(6U);
+
+	/// Position coordinates specified in NDC space.
+	m_Vertices[0] = Vertex(
+		left, top - height, 0.0f,
+		0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f,
+		0.0f, 1.0f);
+
+	m_Vertices[1] = Vertex(
+		left, top, 0.0f,
+		0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f);
+
+	m_Vertices[2] = Vertex(
+		left + width, top, 0.0f,
+		0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f);
+
+	m_Vertices[3] = Vertex(
+		left + width, top - height, 0.0f,
+		0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f,
+		1.0f, 1.0f);
+
+	m_Indices[0] = 0;
+	m_Indices[1] = 1;
+	m_Indices[2] = 2;
+
+	m_Indices[3] = 0;
+	m_Indices[4] = 2;
+	m_Indices[5] = 3;
+
+	m_Valid = true;
+}
+
+void Model::CreateFromFile(const std::string &fileName)
+{
+	assert(!m_Valid);
+
+	AssetFile modelFile(fileName);
+	auto data = modelFile.Load();
+
+	switch (modelFile.GetType())
+	{
+	case AssetFile::eTxtMesh:
+		CreateFromTxt((const uint8_t *)(*data));
+		break;
+	case AssetFile::eObjMesh:
+		CreateFromObj((const uint8_t *)(*data));
+		break;
+	case AssetFile::eSDKMesh:
+		CreateFromSDKMesh((const uint8_t *)(*data));
+		break;
+	default:
+		assert(0);
+		break;
+	}
+
+	m_Valid = true;
+}
+
+#if 0
+void Model::CreateAsGeoSphere(float radius, uint32_t subDivisions)
 {
 	assert(!m_Created);
 
@@ -416,153 +602,72 @@ void Mesh::CreateAsFlatGeoSphere(float radius, uint32_t subDivisions)
 	}
 }
 
-void Mesh::CreateAsCylinder(float bottomRadius, float topRadius, float height, uint32_t slice, uint32_t stack)
+void Mesh::CreateRenderResource()
 {
-	assert(!m_Created);
+	VertexCount = (uint32_t)m_Vertices.size();
+	IndexCount = (uint32_t)m_Indices.size();
 
-	m_Vertices.clear();
-	m_Indices.clear();
-
-	float stackHeight = height / stack;
-
-	/// Amount to increment radius as we move up each stack level from bottom to top.
-	float radiusStep = (topRadius - bottomRadius) / stack;
-
-	uint32_t ring = stack + 1;
-
-	/// Compute vertices for each stack ring starting at the bottom and moving up.
-	for (uint32_t i = 0U; i < ring; ++i)
+	std::vector<VertexLayout> layout =
 	{
-		float y = -0.5f * height + i * stackHeight;
-		float r = bottomRadius + i * radiusStep;
+		{ "POSITION", sizeof(Vertex::Position), 0, eRGB32_Float },
+		{ "NORMAL",   sizeof(Vertex::Normal),  12, eRGB32_Float },
+		{ "TANGENT",  sizeof(Vertex::Tangent), 24, eRGB32_Float },
+		{ "TEXCOORD", sizeof(Vertex::UV),      36, eRG32_Float  }
+	};
 
-		/// Vertices of ring
-		float theta = 2.0f * DirectX::XM_PI / slice;
-		for (uint32_t j = 0U; j <= slice; ++j)
-		{
-			float c = cosf(j * theta);
-			float s = sinf(j * theta);
+	RVertexShader vertexShader;
+	vertexShader.Create("Mesh.shader", "main");
+	InputLayout.Create(vertexShader.GetBlob(), layout);
 
-			Vertex v;
-			v.Position = Vec3(r * c, y, r * s);
+	VertexBuffer.CreateAsVertexBuffer(sizeof(Vertex) * m_Vertices.size(), eGpuReadOnly, m_Vertices.data());
+	IndexBuffer.CreateAsIndexBuffer(sizeof(uint32_t) * m_Indices.size(), eGpuReadOnly, m_Indices.data());
 
-			v.UV.x = (float)j / slice;
-			v.UV.y = 1.0f - (float)i / stack;
-
-			/// Cylinder can be parameterized as follows, where we introduce v
-			/// parameter that goes in the same direction as the v tex-coord
-			/// so that the bitangent goes in the same direction as the v tex-coord.
-			/// Let r0 be the bottom radius and let r1 be the top radius.
-			/// y(v) = h - hv for v in [0,1].
-			/// r(v) = r1 + (r0-r1)v
-			/// 
-			/// x(t, v) = r(v)*cos(t)
-			/// y(t, v) = h - hv
-			/// z(t, v) = r(v)*sin(t)
-			/// 
-			/// dx/dt = -r(v)*sin(t)
-			/// dy/dt = 0
-			/// dz/dt = +r(v)*cos(t)
-			/// 
-			/// dx/dv = (r0-r1)*cos(t)
-			/// dy/dv = -h
-			/// dz/dv = (r0-r1)*sin(t)
-
-			/// Unit length
-			v.Tangent = Vec3(-s, 0.0f, c);
-
-			float dR = bottomRadius - topRadius;
-			Vec3 binNormal(dR * c, -height, dR * s);
-
-			DirectX::XMVECTOR T = DirectX::XMLoadFloat3(&v.Tangent);
-			DirectX::XMVECTOR B = DirectX::XMLoadFloat3(&binNormal);
-			DirectX::XMVECTOR N = DirectX::XMVector3Cross(T, B);
-			DirectX::XMStoreFloat3(&v.Normal, N);
-
-			m_Vertices.push_back(v);
-		}
-	}
-
-	/// Add one because we duplicate the first and last vertex per ring
-	/// since the texture coordinates are different.
-	uint32_t ringVertexCount = slice + 1;
-
-	/// Compute indices for each stack.
-	for (uint32_t i = 0U; i < stack; ++i)
-	{
-		for (uint32_t j = 0U; j < slice; ++j)
-		{
-			m_Indices.push_back(i * ringVertexCount + j);
-			m_Indices.push_back((i + 1) * ringVertexCount + j);
-			m_Indices.push_back((i + 1) * ringVertexCount + j + 1);
-
-			m_Indices.push_back(i * ringVertexCount + j);
-			m_Indices.push_back((i + 1) * ringVertexCount + j + 1);
-			m_Indices.push_back(i * ringVertexCount + j + 1);
-		}
-	}
-
-	MakeCylinderTopBottomCap(true, bottomRadius, topRadius, height, slice);
-	MakeCylinderTopBottomCap(false, bottomRadius, topRadius, height, slice);
-
-	CreateRenderResource();
+	m_Created = true;
 }
 
-void Mesh::CreateAsGrid(float width, float depth, uint32_t m, uint32_t n)
+void Mesh::DrawNormal(const Camera &/*cam*/)
 {
-	assert(!m_Created);
 
-	uint32_t vertexCount = m * n;
-	uint32_t faceCount = (m - 1) * (n - 1) * 2;
+}
 
-	/// Create the vertices
-	float halfWidth = 0.5f * width;
-	float halfDepth = 0.5f * depth;
-
-	float dx = width / (n - 1);
-	float dz = depth / (m - 1);
-
-	float du = 1.0f / (n - 1);
-	float dv = 1.0f / (m - 1);
-
-	m_Vertices.resize(vertexCount);
-	for (uint32_t i = 0; i < m; ++i)
+void Mesh::ApplyMaterial(const Material *pMaterial)
+{
+	if (nullptr == pMaterial)
 	{
-		float z = halfDepth - i * dz;
-		for (uint32_t j = 0; j < n; ++j)
+		return;
+	}
+
+#if 0
+	uint32_t slot = 0U;
+	for (uint32_t i = 0U; i < Material::ePropertyCount; ++i)
+	{
+		if (pMaterial->Textures[i].IsValid())
 		{
-			float x = -halfWidth + j * dx;
-
-			m_Vertices[i * n + j].Position = Vec3(x, 0.0f, z);
-			m_Vertices[i * n + j].Normal = Vec3(0.0f, 1.0f, 0.0f);
-			m_Vertices[i * n + j].Tangent = Vec3(1.0f, 0.0f, 0.0f);
-
-			m_Vertices[i * n + j].UV.x = j * du;
-			m_Vertices[i * n + j].UV.y = i * dv;
+			REngine::Instance().SetShaderResourceView(pMaterial->Textures[i], slot, ePixelShader);
+			++slot;
 		}
 	}
 
-	/// Create the indices
-	m_Indices.resize(faceCount * 3);
+	REngine::Instance().SetSamplerState(RStaticState::LinearSampler, 0U, ePixelShader);
+#endif
+}
 
-	uint32_t k = 0;
-	for (uint32_t i = 0; i < m - 1; ++i)
-	{
-		for (uint32_t j = 0; j < n - 1; ++j)
-		{
-			m_Indices[k] = i * n + j;
-			m_Indices[k + 1] = i * n + j + 1;
-			m_Indices[k + 2] = (i + 1) * n + j;
+void Mesh::Bind(const Material *pMaterial)
+{
+	ApplyMaterial(pMaterial);
 
-			m_Indices[k + 3] = (i + 1) * n + j;
-			m_Indices[k + 4] = i * n + j + 1;
-			m_Indices[k + 5] = (i + 1) * n + j + 1;
+#if 0
+	REngine::Instance().SetInputLayout(InputLayout);
+	REngine::Instance().SetVertexBuffer(VertexBuffer, sizeof(Vertex), 0U, 0U);
+	REngine::Instance().SetIndexBuffer(IndexBuffer, eR32_UInt, 0U);
+#endif
+}
 
-			k += 6;
-		}
-	}
+void Mesh::Draw(const Material *pMaterial, uint32_t startIndex, int32_t vertexOffset)
+{
+	Bind(pMaterial);
 
-	CreateRenderResource();
+	REngine::Instance().DrawIndexed(IndexCount, startIndex, vertexOffset, eTriangleList);
 }
 
 void Mesh::CreateAsQuad(float length)
@@ -609,97 +714,8 @@ void Mesh::CreateAsQuad(float length)
 
 	CreateRenderResource();
 }
-
-void Mesh::CreateAsQuad(float left, float top, float width, float height)
-{
-	assert(!m_Created);
-
-	m_Vertices.resize(4U);
-	m_Indices.resize(6U);
-
-	/// Position coordinates specified in NDC space.
-	m_Vertices[0] = Vertex(
-		left, top - height, 0.0f,
-		0.0f, 0.0f, 1.0f,
-		1.0f, 0.0f, 0.0f,
-		0.0f, 1.0f);
-
-	m_Vertices[1] = Vertex(
-		left, top, 0.0f,
-		0.0f, 0.0f, 1.0f,
-		1.0f, 0.0f, 0.0f,
-		0.0f, 0.0f);
-
-	m_Vertices[2] = Vertex(
-		left + width, top, 0.0f,
-		0.0f, 0.0f, 1.0f,
-		1.0f, 0.0f, 0.0f,
-		1.0f, 0.0f);
-
-	m_Vertices[3] = Vertex(
-		left + width, top - height, 0.0f,
-		0.0f, 0.0f, 1.0f,
-		1.0f, 0.0f, 0.0f,
-		1.0f, 1.0f);
-
-	m_Indices[0] = 0;
-	m_Indices[1] = 1;
-	m_Indices[2] = 2;
-
-	m_Indices[3] = 0;
-	m_Indices[4] = 2;
-	m_Indices[5] = 3;
-
-	CreateRenderResource();
-}
-
-void Mesh::SaveAsObjFile(const char *pObjFileName)
-{
-	assert(0);
-
-	assert(m_Created && pObjFileName);
-}
-
-void Mesh::ApplyMaterial(const Material *pMaterial)
-{
-	if (nullptr == pMaterial)
-	{
-		return;
-	}
-
-#if 0
-	uint32_t slot = 0U;
-	for (uint32_t i = 0U; i < Material::ePropertyCount; ++i)
-	{
-		if (pMaterial->Textures[i].IsValid())
-		{
-			REngine::Instance().SetShaderResourceView(pMaterial->Textures[i], slot, ePixelShader);
-			++slot;
-		}
-	}
-
-	REngine::Instance().SetSamplerState(RStaticState::LinearSampler, 0U, ePixelShader);
 #endif
-}
-
-void Mesh::Bind(const Material *pMaterial)
-{
-	ApplyMaterial(pMaterial);
-
-#if 0
-	REngine::Instance().SetInputLayout(InputLayout);
-	REngine::Instance().SetVertexBuffer(VertexBuffer, sizeof(Vertex), 0U, 0U);
-	REngine::Instance().SetIndexBuffer(IndexBuffer, eR32_UInt, 0U);
-#endif
-}
-
-void Mesh::Draw(const Material *pMaterial, uint32_t startIndex, int32_t vertexOffset)
-{
-	Bind(pMaterial);
-
-	REngine::Instance().DrawIndexed(IndexCount, startIndex, vertexOffset, eTriangleList);
-}
 
 NamespaceEnd(Geometry)
 
-#endif
+#include "Geometry.hpp"

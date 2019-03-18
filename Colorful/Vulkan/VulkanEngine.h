@@ -1,8 +1,9 @@
 #pragma once
 
-#include "VulkanContext.h"
+#include "Public/IEngine.h"
+#include "VulkanDevice.h"
 
-class VulkanEngine : public NoneCopyable
+class VulkanEngine : public IEngine
 {
 public:
 	static VulkanEngine &Instance()
@@ -15,6 +16,7 @@ public:
 		return *s_Instance;
 	}
 
+#if 0
 	inline void Flush()
 	{
 		m_Swapchain.Flush();
@@ -131,26 +133,6 @@ public:
 		m_CommandPools[cmdBuffer.GetPoolType()].Free(cmdBuffer);
 	}
 
-	inline const VulkanPhysicalDevice &GetPhysicalDevice() const
-	{
-		return m_Device.GetPhysicalDevice();
-	}
-
-	inline VkDevice GetDevice() const
-	{
-		return m_Device.Get();
-	}
-
-	inline VkQueue GetQueue() const
-	{
-		return m_Device.GetQueue();
-	}
-
-	inline VkInstance GetInstance() const
-	{
-		return m_Instance.Get();
-	}
-
 	inline VulkanSwapchain &GetSwapchain()
 	{
 		return m_Swapchain;
@@ -161,18 +143,29 @@ public:
 		assert(m_DefaultRenderPass.IsValid());
 		return m_DefaultRenderPass;
 	}
-
-	inline void Resize(uint32_t width, uint32_t height) 
+#endif
+	inline void Resize(uint32_t width, uint32_t height)
 	{
-		m_Swapchain.Resize(width, height);
+		///m_Swapchain.Resize(width, height);
+	}
+
+	inline const VulkanInstance &GetInstance() const
+	{
+		return m_Instance;
+	}
+
+	inline const VulkanDevice &GetDevice() const
+	{
+		return m_Device;
 	}
 
 	void Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool bWindowed);
 
 protected:
 	VulkanEngine() = default;
-	~VulkanEngine();
+	~VulkanEngine() = default;
 
+#if 0
 	inline void RegisterCommandBuffer(VulkanCommandPool::ePoolType type, VulkanCommandBuffer &cmdBuffer)
 	{
 		m_CommandBuffers[type].insert(std::make_pair(m_CommandBufferCount, cmdBuffer));
@@ -190,12 +183,14 @@ protected:
 	}
 
 	void FreeCommandBuffers();
+#endif
 private:
 	static std::unique_ptr<VulkanEngine, std::function<void(VulkanEngine *)>> s_Instance;
 
-	VulkanDevice m_Device;
-	VulkanSwapchain m_Swapchain;
 	VulkanInstance m_Instance;
+	VulkanDevice m_Device;
+#if 0
+	VulkanSwapchain m_Swapchain;
 	VulkanRenderPass m_DefaultRenderPass;
 	VulkanContext m_Context;
 	std::array<VulkanCommandPool, VulkanCommandPool::ePoolTypeCount> m_CommandPools;
@@ -203,4 +198,5 @@ private:
 	uint32_t m_CommandBufferCount = 0U;
 
 	bool m_Inited = false;
+#endif
 };

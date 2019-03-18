@@ -1,82 +1,122 @@
 #include "VulkanBuffer.h"
-#include "VulkanTexture.h"
-#include "VulkanRenderPass.h"
 #include "VulkanEngine.h"
 
-uint32_t VulkanDeviceMemory::GetMemoryTypeIndex(uint32_t memoryTypeBits, uint32_t memoryPropertyFlagBits)
+//uint32_t VulkanDeviceMemory::GetMemoryTypeIndex(uint32_t memoryTypeBits, uint32_t memoryPropertyFlagBits)
+//{
+//	/// Search memtypes to find first index with those properties
+//	bool bValidMemoryType = false;
+//	auto &deviceMemoryProperties = VulkanEngine::Instance().GetPhysicalDevice().GetDeviceMemoryProperties();
+//	uint32_t memoryTypeIndex = 0U;
+//	for (uint32_t i = 0; i < deviceMemoryProperties.memoryTypeCount; ++i)
+//	{
+//		if (memoryTypeBits & 1)
+//		{
+//			/// Type is available, does it match user properties?
+//			if ((deviceMemoryProperties.memoryTypes[i].propertyFlags & memoryPropertyFlagBits) == memoryPropertyFlagBits)
+//			{
+//				memoryTypeIndex = i;
+//				bValidMemoryType = true;
+//				break;
+//			}
+//		}
+//		memoryTypeBits >>= 1;
+//	}
+//	assert(bValidMemoryType);
+//
+//	return memoryTypeIndex;
+//}
+
+void VulkanDeviceMemory::Create(size_t size, uint32_t memTypeBits, uint32_t memPropertyFlags)
 {
-	/// Search memtypes to find first index with those properties
-	bool bValidMemoryType = false;
-	auto &deviceMemoryProperties = VulkanEngine::Instance().GetPhysicalDevice().GetDeviceMemoryProperties();
-	uint32_t memoryTypeIndex = 0U;
-	for (uint32_t i = 0; i < deviceMemoryProperties.memoryTypeCount; ++i)
+	assert(!IsValid());
+
+	m_MemPropertyFlags = memPropertyFlags;
+
+	auto &deviceMemProperties = VulkanEngine::Instance().GetDevice().GetDeviceMemoryProperties();
+
+	uint32_t memTypeIndex = UINT32_MAX;
+	for (uint32_t i = 0; i < deviceMemProperties.memoryTypeCount; ++i)
 	{
-		if (memoryTypeBits & 1)
+		if ((memTypeBits & 1) == 1)
 		{
-			/// Type is available, does it match user properties?
-			if ((deviceMemoryProperties.memoryTypes[i].propertyFlags & memoryPropertyFlagBits) == memoryPropertyFlagBits)
+			if ((deviceMemProperties.memoryTypes[i].propertyFlags & memPropertyFlags) == memPropertyFlags)
 			{
-				memoryTypeIndex = i;
-				bValidMemoryType = true;
+				memTypeIndex = i;
 				break;
 			}
 		}
-		memoryTypeBits >>= 1;
+		memTypeBits >>= 1;
 	}
-	assert(bValidMemoryType);
 
-	return memoryTypeIndex;
-}
-
-void VulkanDeviceMemory::Create(size_t size, uint32_t memoryTypeIndex)
-{
-	assert(!IsValid());
+	assert(memTypeIndex != UINT32_MAX);
 
 	VkMemoryAllocateInfo allocInfo
 	{
 		VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
 		nullptr,
 		size,
-		memoryTypeIndex
+		memTypeIndex
 	};
-	VKCheck(vkAllocateMemory(VulkanEngine::Instance().GetDevice(), &allocInfo, nullptr, &m_Handle));
+	Check(vkAllocateMemory(VulkanEngine::Instance().GetDevice().Get(), &allocInfo, nullptr, &m_Handle));
 }
 
-void VulkanDeviceMemory::Update(const void *pMemory, size_t size, size_t offset, bool bDoFlush)
+void VulkanDeviceMemory::Update(const void *pMemory, size_t size, size_t offset)
 {
-	assert(IsValid() && pMemory && size);
+	assert(IsValid() && pMemory);
 
 	void *pDeviceMemory = nullptr;
-	VKCheck(vkMapMemory(VulkanEngine::Instance().GetDevice(), m_Handle, offset, size, 0U, &pDeviceMemory));
+	Check(vkMapMemory(VulkanEngine::Instance().GetDevice().Get(), m_Handle, offset, size, 0U, &pDeviceMemory));
 
 	memcpy(pDeviceMemory, pMemory, size);
 
-	if (bDoFlush)
+	if (!(m_MemPropertyFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT))
 	{
-		VkMappedMemoryRange memRange
-		{
-			VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE,
-			nullptr,
-			m_Handle,
-			offset,
-			size
-		};
-		VKCheck(vkFlushMappedMemoryRanges(VulkanEngine::Instance().GetDevice(), 1U, &memRange));
+		Flush(size, offset);
 	}
 
-	vkUnmapMemory(VulkanEngine::Instance().GetDevice(), m_Handle);
+	vkUnmapMemory(VulkanEngine::Instance().GetDevice().Get(), m_Handle);
+}
+
+void VulkanDeviceMemory::Flush(size_t size, size_t offset)
+{
+	assert(IsValid());
+
+	VkMappedMemoryRange memRange
+	{
+		VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE,
+		nullptr,
+		m_Handle,
+		offset,
+		size
+	};
+	Check(vkFlushMappedMemoryRanges(VulkanEngine::Instance().GetDevice().Get(), 1U, &memRange));
+}
+
+void VulkanDeviceMemory::Invalidate(size_t size, size_t offset)
+{
+	assert(IsValid());
+
+	VkMappedMemoryRange memRange
+	{
+		VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE,
+		nullptr,
+		m_Handle,
+		offset,
+		size
+	};
+	Check(vkFlushMappedMemoryRanges(VulkanEngine::Instance().GetDevice().Get(), 1, &memRange));
 }
 
 void VulkanDeviceMemory::Destory()
 {
 	assert(IsValid());
 
-	vkFreeMemory(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
+	vkFreeMemory(VulkanEngine::Instance().GetDevice().Get(), m_Handle, nullptr);
 
 	Reset();
 }
 
-void VulkanBuffer::Create(size_t size, uint32_t usage, uint32_t memoryPropertyFlags)
+void VulkanBuffer::Create(size_t size, uint32_t usage, uint32_t memPropertyFlags)
 {
 	assert(!IsValid());
 
@@ -91,25 +131,28 @@ void VulkanBuffer::Create(size_t size, uint32_t usage, uint32_t memoryPropertyFl
 		0U,
 		nullptr
 	};
-	VKCheck(vkCreateBuffer(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
+	Check(vkCreateBuffer(VulkanEngine::Instance().GetDevice().Get(), &createInfo, nullptr, &m_Handle));
 
 	VkMemoryRequirements memoryRequirements = {};
-	vkGetBufferMemoryRequirements(VulkanEngine::Instance().GetDevice(), m_Handle, &memoryRequirements);
+	vkGetBufferMemoryRequirements(VulkanEngine::Instance().GetDevice().Get(), m_Handle, &memoryRequirements);
 	
-	m_Memory.Create(size, VulkanDeviceMemory::GetMemoryTypeIndex(memoryRequirements.memoryTypeBits, memoryPropertyFlags));
+	m_Memory.Create(size, memoryRequirements.memoryTypeBits, memPropertyFlags);
 
-	VKCheck(vkBindBufferMemory(VulkanEngine::Instance().GetDevice(), m_Handle, m_Memory.Get(), 0));
+	Check(vkBindBufferMemory(VulkanEngine::Instance().GetDevice().Get(), m_Handle, m_Memory.Get(), 0U));
 }
 
 void VulkanBuffer::Destory()
 {
 	assert(IsValid());
 
-	vkDestroyBuffer(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
+	m_Memory.Destory();
+
+	vkDestroyBuffer(VulkanEngine::Instance().GetDevice().Get(), m_Handle, nullptr);
 
 	Reset();
 }
 
+#if 0
 void VulkanFrameBuffer::Create(const std::vector<VulkanImageView> &imageViews, const VulkanRenderPass &renderPass, uint32_t width, uint32_t height, uint32_t layers)
 {
 	assert(!IsValid());
@@ -145,3 +188,4 @@ void VulkanFrameBuffer::Destory()
 
 	Reset();
 }
+#endif

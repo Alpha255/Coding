@@ -2,7 +2,7 @@
 
 #include "VulkanObject.h"
 #include "VulkanBuffer.h"
-#include "Util/RawTexture.h"
+#include "Public/RawTexture.h"
 
 class VulkanImage : public VulkanObject<VkImage>
 {

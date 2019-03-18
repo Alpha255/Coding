@@ -104,6 +104,59 @@ void VulkanBlendState::Create(
 
 }
 
+void VulkanDescriptorSetLayout::Create(std::vector<VkSampler> &samplers, uint32_t targetShader)
+{
+	assert(!IsValid());
+
+	std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings;
+
+	VkShaderStageFlags shaderStage = VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM;
+	switch (targetShader)
+	{
+	case eVertexShader:
+		shaderStage = VK_SHADER_STAGE_VERTEX_BIT;
+		break;
+	case ePixelShader:
+		shaderStage = VK_SHADER_STAGE_FRAGMENT_BIT;
+		break;
+	default:
+		assert(0);
+		break;
+	}
+
+	for (uint32_t i = 0U; i < samplers.size(); ++i)
+	{
+		VkDescriptorSetLayoutBinding setLayoutBinding
+		{
+			i,
+			VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+			1U,
+			shaderStage,
+			&samplers[i]
+		};
+
+		setLayoutBindings.emplace_back(setLayoutBinding);
+	}
+
+	VkDescriptorSetLayoutCreateInfo createInfo
+	{
+		VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+		nullptr,
+		0U,
+		(uint32_t)setLayoutBindings.size(),
+		setLayoutBindings.data()
+	};
+
+	VKCheck(vkCreateDescriptorSetLayout(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
+}
+
+void VulkanDescriptorSetLayout::Destory()
+{
+	assert(IsValid());
+
+	vkDestroyDescriptorSetLayout(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
+}
+
 VulkanSamplerState VulkanStaticState::LinearSampler;
 VulkanDepthStencilState VulkanStaticState::DisableDepthStencil;
 VulkanRasterizerState VulkanStaticState::SolidNoneCulling;

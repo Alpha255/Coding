@@ -5,14 +5,17 @@
 class VulkanDeviceMemory : public VulkanObject<VkDeviceMemory>
 {
 public:
-	static uint32_t GetMemoryTypeIndex(uint32_t memoryTypeBits, uint32_t memoryPropertyFlagBits);
+	void Create(size_t size, uint32_t memTypeBits, uint32_t memPropertyFlags);
+	void Destory() override;
 
-	void Create(size_t size, uint32_t memoryTypeIndex);
-	void Destory();
+	void Update(const void *pMemory, size_t size = VK_WHOLE_SIZE, size_t offset = 0U);
 
-	void Update(const void *pMemory, size_t size, size_t offset, bool bDoFlush);
+	void Flush(size_t size = VK_WHOLE_SIZE, size_t offset = 0U);
+
+	void Invalidate(size_t size = VK_WHOLE_SIZE, size_t offset = 0U);
 protected:
 private:
+	uint32_t m_MemPropertyFlags = UINT32_MAX;
 };
 
 class VulkanBuffer : public VulkanObject<VkBuffer>
@@ -68,27 +71,26 @@ public:
 			GetMemoryProperty(usage));
 	}
 
-	inline void Update(const void *pMemory, size_t size, size_t offset = 0U, bool bDoFlush = false)
+	inline void Update(const void *pMemory, size_t size, size_t offset = 0U)
 	{
-		m_Memory.Update(pMemory, size, offset, bDoFlush);
+		m_Memory.Update(pMemory, size, offset);
 	}
 
-	void Destory();
+	void Destory() override;
 protected:
-	void Create(size_t size, uint32_t usage, uint32_t memoryPropertyFlags);
+	void Create(size_t size, uint32_t usage, uint32_t memPropertyFlags);
 	inline uint32_t GetMemoryProperty(uint32_t usage)
 	{
 		switch (usage)
 		{
 		case eGpuReadWrite:
-			return VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 		case eGpuReadOnly:
+			return VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;  /// Can't map
 		case eGpuReadCpuWrite:
 			return VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
 		case eGpuCopyToCpu:
 			return VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
 		default:
-			System::Log("Not supported yet!");
 			assert(0);
 			return 0U;
 		}
@@ -152,7 +154,7 @@ public:
 			nullptr
 		};
 
-		VKCheck(vkBeginCommandBuffer(m_Handle, &beginInfo));
+		Check(vkBeginCommandBuffer(m_Handle, &beginInfo));
 	}
 
 	inline void Execute(VulkanCommandBuffer &primaryCmdBuffer)
@@ -166,19 +168,20 @@ public:
 	{
 		assert(IsValid());
 
-		VKCheck(vkEndCommandBuffer(m_Handle));
+		Check(vkEndCommandBuffer(m_Handle));
 	}
 
 	inline void ResetCommand(uint32_t flags)
 	{
 		assert(IsValid());
 
-		VKCheck(vkResetCommandBuffer(m_Handle, (VkCommandBufferResetFlags)flags));
+		Check(vkResetCommandBuffer(m_Handle, (VkCommandBufferResetFlags)flags));
 	}
 protected:
 private:
 };
 
+#if 0
 class VulkanFrameBuffer : public VulkanObject<VkFramebuffer>
 {
 public:
@@ -187,3 +190,4 @@ public:
 protected:
 private:
 };
+#endif

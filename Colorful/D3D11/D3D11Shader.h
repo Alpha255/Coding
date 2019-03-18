@@ -6,7 +6,7 @@
 class D3D11InputLayout : public D3DObject<ID3D11InputLayout>
 {
 public:
-	void Create(D3D11Blob &blob, const std::vector<VertexLayout> &layouts);
+	void Create(D3D11Blob &blob, const std::vector<Geometry::VertexLayout> &layouts);
 };
 
 class D3D11Shader

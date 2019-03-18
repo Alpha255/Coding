@@ -1,12 +1,10 @@
 #pragma once
 
-#include "Util/Common.h"
-#include "Util/System.h"
-#include "Util/D3DMath.h"
-#include <vulkan.h>
-#include <vulkan_win32.h>
+#include "Base/Base.h"
+#include <vulkan/vulkan.h>
+#include <vulkan/vulkan_win32.h>
 
-#define VKCheck(func) if (VK_SUCCESS != (func)) { assert(0); }
+#define Check(func) if (VK_SUCCESS != (func)) { assert(0); }
 
 enum eRShaderType
 {

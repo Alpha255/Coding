@@ -4,7 +4,7 @@
 #include <d3d11.h>
 #include <d3dcompiler.h>
 
-#define Check(func)  if (FAILED(func)) { assert(0); }
+#define Check(func) if (FAILED(func)) { assert(0); }
 
 enum eRShaderType
 {

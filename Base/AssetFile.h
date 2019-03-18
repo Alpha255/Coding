@@ -36,6 +36,11 @@ public:
 		return m_Root;
 	}
 
+	inline eType GetType() const
+	{
+		return m_Type;
+	}
+
 	std::shared_ptr<uint8_t> Load();
 protected:
 	bool TryToFindAssetFile();

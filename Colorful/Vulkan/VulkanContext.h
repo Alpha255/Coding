@@ -10,6 +10,12 @@
 #include "VulkanRenderPass.h"
 #include "VulkanContextState.h"
 
+template <typename Left, typename Right>
+inline bool IsEqual(const Left &left, const Right &right)
+{
+	return memcmp(&left, &right, sizeof(Right)) == 0;
+}
+
 //class VulkanPipelineLayout : public VulkanObject<VkPipelineLayout>
 //{
 //public:

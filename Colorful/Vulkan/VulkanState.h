@@ -95,6 +95,22 @@ private:
 	VkPipelineColorBlendStateCreateInfo m_StateInfo = {};
 };
 
+class VulkanDescriptorSet : public VulkanObject<VkDescriptorSet>
+{
+public:
+protected:
+private:
+};
+
+class VulkanDescriptorSetLayout : public VulkanObject<VkDescriptorSetLayout>
+{
+public:
+	void Create(std::vector<VkSampler> &samplers, uint32_t targetShader);
+	void Destory();
+protected:
+private:
+};
+
 struct VulkanStaticState
 {
 	static void Initialize();

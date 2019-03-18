@@ -212,7 +212,7 @@ void CreateDevice()
 			queueInfo.queueFamilyIndex = vkQueueFamilyIndex.Transfer;
 			queueInfo.queueCount = 1;
 			queueInfo.pQueuePriorities = &defaultQueuePriority;
-			queueCreateInfos.push_back(queueInfo);
+			queueCreateInfos.emplace_back(queueInfo);
 		}
 	}
 	else

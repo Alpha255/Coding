@@ -8,6 +8,8 @@ void VulkanEngine::Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool
 
 	m_Device.Create();
 
+#if 0
+
 	for (uint32_t i = 0U; i < m_CommandPools.size(); ++i)
 	{
 		m_CommandPools[i].Create((VulkanCommandPool::ePoolType)i);
@@ -27,8 +29,10 @@ void VulkanEngine::Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool
 	m_Context.Initialize();
 
 	m_Inited = true;
+#endif
 }
 
+#if 0
 void VulkanEngine::FreeCommandBuffers()
 {
 	for each (auto &cmdBufferMap in m_CommandBuffers)
@@ -59,3 +63,4 @@ VulkanEngine::~VulkanEngine()
 
 	m_Instance.Destory();
 }
+#endif

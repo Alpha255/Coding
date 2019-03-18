@@ -29,8 +29,8 @@ void Box::PrepareScene()
 
 void Box::RenderScene()
 {
-	REngine::Instance().ResetDefaultRenderSurfaces();
 #if 0
+	REngine::Instance().ResetDefaultRenderSurfaces();
 	REngine::Instance().SetViewport(RViewport(0.0f, 0.0f, (float)m_Width, (float)m_Height));
 
 	REngine::Instance().SetInputLayout(m_BoxMesh.InputLayout);

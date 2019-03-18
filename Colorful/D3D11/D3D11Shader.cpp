@@ -2,7 +2,7 @@
 #include "D3D11Engine.h"
 #include "Base/AssetFile.h"
 
-void D3D11InputLayout::Create(D3D11Blob &blob, const std::vector<VertexLayout> &layouts)
+void D3D11InputLayout::Create(D3D11Blob &blob, const std::vector<Geometry::VertexLayout> &layouts)
 {
 	assert(blob.IsValid() && layouts.size() > 0U);
 

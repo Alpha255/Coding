@@ -2,6 +2,8 @@
 
 #include "Base/Base.h"
 
+NamespaceBegin(Geometry)
+
 struct VertexLayout
 {
 	std::string Semantic;
@@ -9,9 +11,6 @@ struct VertexLayout
 	uint32_t Offset = 0U;
 	uint32_t Format = 0U;
 };
-
-#if 0
-NamespaceBegin(Geometry)
 
 struct Vertex
 {
@@ -30,7 +29,8 @@ struct Vertex
 	{
 	}
 
-	Vertex(float px, float py, float pz,
+	Vertex(
+		float px, float py, float pz,
 		float nx, float ny, float nz,
 		float tx, float ty, float tz,
 		float u, float v)
@@ -42,50 +42,77 @@ struct Vertex
 	}
 };
 
-struct Mesh
+class Model
 {
 public:
-	void CreateAsBox(float width, float height, float depth);
-	void CreateAsCube(float width);
-	void CreateAsSphere(float radius, uint32_t slice, uint32_t stack);
-	void CreateAsGeoSphere(float radius, uint32_t subDivisions);
-	void CreateAsFlatGeoSphere(float radius, uint32_t subDivisions);
-	void CreateAsCylinder(float bottomRadius, float topRadius, float height, uint32_t slice, uint32_t stack);
-	void CreateAsGrid(float width, float depth, uint32_t m, uint32_t n);
-	void CreateAsQuad(float length);
-	void CreateAsQuad(float left, float top, float width, float height);
-	void SaveAsObjFile(const char *pObjFileName);
+	Model() = default;
+	~Model() = default;
 
-	void DrawNormal(const Camera &cam);
-
-	void Bind(const Material *pMaterial = nullptr);
-
-	void Draw(const Material *pMaterial = nullptr, uint32_t startIndex = 0U, int32_t vertexOffset = 0);
-
-	inline bool IsCreated() const
+	inline const std::vector<Vertex> &GetVertices() const
 	{
-		return m_Created;
+		assert(m_Valid);
+		return m_Vertices;
 	}
 
-	RInputLayout InputLayout;
-	RBuffer VertexBuffer;
-	RBuffer IndexBuffer;
-	uint32_t IndexCount = 0U;
-	uint32_t VertexCount = 0U;
-public:
-	std::vector<Vertex> m_Vertices;
-	std::vector<uint32_t> m_Indices;
+	inline const std::vector<uint32_t> &GetIndices() const
+	{
+		assert(m_Valid);
+		return m_Indices;
+	}
 
-	void CreateRenderResource();
+	inline const VertexLayout &GetVertexLayout() const
+	{
+		assert(m_Valid);
+		return m_VertexLayout;
+	}
 
+	void CreateAsCube(float width, float height, float depth);
+	void CreateAsSphere(float radius, uint32_t slice, uint32_t stack);
+	void CreateAsCylinder(float bottomRadius, float topRadius, float height, uint32_t slice, uint32_t stack);
+	void CreateAsGrid(float width, float depth, uint32_t m, uint32_t n);
+	void CreateAsQuad(float left, float top, float width, float height);
+	void CreateFromFile(const std::string &fileName);
+
+	///void DrawNormal(const Camera &cam);
+
+	///void Bind(const Material *pMaterial = nullptr);
+
+	///void Draw(const Material *pMaterial = nullptr, uint32_t startIndex = 0U, int32_t vertexOffset = 0);
+
+	//inline bool IsCreated() const
+	//{
+	//	return m_Created;
+	//}
+
+	//RInputLayout InputLayout;
+	//RBuffer VertexBuffer;
+	//RBuffer IndexBuffer;
+	//uint32_t IndexCount = 0U;
+	//uint32_t VertexCount = 0U;
+protected:
 	void SubDivide();
 	void MakeCylinderTopBottomCap(bool bTop, float bottomRadius, float topRadius, float height, uint32_t slice);
 
-	void ApplyMaterial(const Material *pMaterial);
+	void CreateFromObj(const uint8_t *pData);
+	void CreateFromTxt(const uint8_t *pData);
+	void CreateFromSDKMesh(const uint8_t *pData);
 private:
-	bool m_Created = false;
+	std::vector<Vertex> m_Vertices;
+	std::vector<uint32_t> m_Indices;
+
+	VertexLayout m_VertexLayout = {};
+
+	bool m_Valid = false;
+
+	///void CreateRenderResource();
+
+	///void SubDivide();
+	///void MakeCylinderTopBottomCap(bool bTop, float bottomRadius, float topRadius, float height, uint32_t slice);
+
+	///void ApplyMaterial(const Material *pMaterial);
 };
 
+#if 0
 struct ObjMesh : public Mesh
 {
 public:
@@ -334,7 +361,6 @@ private:
 
 	bool m_Created = false;
 };
+#endif
 
 NamespaceEnd(Geometry)
-
-#endif
