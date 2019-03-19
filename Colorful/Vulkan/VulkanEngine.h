@@ -2,6 +2,7 @@
 
 #include "Public/IEngine.h"
 #include "VulkanDevice.h"
+#include "VulkanPool.h"
 
 class VulkanEngine : public IEngine
 {
@@ -189,13 +190,11 @@ private:
 
 	VulkanInstance m_Instance;
 	VulkanDevice m_Device;
+	std::array<VulkanCommandPool, VulkanCommandPool::ePoolTypeCount> m_CommandPools;
 #if 0
 	VulkanSwapchain m_Swapchain;
 	VulkanRenderPass m_DefaultRenderPass;
 	VulkanContext m_Context;
-	std::array<VulkanCommandPool, VulkanCommandPool::ePoolTypeCount> m_CommandPools;
-	std::array<std::unordered_map<uint32_t, VulkanCommandBuffer>, VulkanCommandPool::ePoolTypeCount> m_CommandBuffers = {};
-	uint32_t m_CommandBufferCount = 0U;
 
 	bool m_Inited = false;
 #endif

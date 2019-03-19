@@ -1,53 +1,78 @@
 #include "VulkanBuffer.h"
 #include "VulkanEngine.h"
 
-//uint32_t VulkanDeviceMemory::GetMemoryTypeIndex(uint32_t memoryTypeBits, uint32_t memoryPropertyFlagBits)
-//{
-//	/// Search memtypes to find first index with those properties
-//	bool bValidMemoryType = false;
-//	auto &deviceMemoryProperties = VulkanEngine::Instance().GetPhysicalDevice().GetDeviceMemoryProperties();
-//	uint32_t memoryTypeIndex = 0U;
-//	for (uint32_t i = 0; i < deviceMemoryProperties.memoryTypeCount; ++i)
-//	{
-//		if (memoryTypeBits & 1)
-//		{
-//			/// Type is available, does it match user properties?
-//			if ((deviceMemoryProperties.memoryTypes[i].propertyFlags & memoryPropertyFlagBits) == memoryPropertyFlagBits)
-//			{
-//				memoryTypeIndex = i;
-//				bValidMemoryType = true;
-//				break;
-//			}
-//		}
-//		memoryTypeBits >>= 1;
-//	}
-//	assert(bValidMemoryType);
-//
-//	return memoryTypeIndex;
-//}
-
-void VulkanDeviceMemory::Create(size_t size, uint32_t memTypeBits, uint32_t memPropertyFlags)
+uint32_t VulkanDeviceMemory::GetMemoryTypeIndex(uint32_t memTypeBits, uint32_t usage)
 {
-	assert(!IsValid());
+	VkMemoryPropertyFlags required = 0;
+	VkMemoryPropertyFlags preferred = 0;
 
-	m_MemPropertyFlags = memPropertyFlags;
+	switch (usage) 
+	{
+	case eGpuReadWrite:
+	case eGpuReadOnly:
+		preferred |= VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+		break;
+	case eGpuReadCpuWrite:
+		required |= VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+		break;
+	case eGpuCopyToCpu:
+		required |= VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
+		preferred |= VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
+		break;
+	default:
+		assert(0);
+		break;
+	}
 
 	auto &deviceMemProperties = VulkanEngine::Instance().GetDevice().GetDeviceMemoryProperties();
 
-	uint32_t memTypeIndex = UINT32_MAX;
-	for (uint32_t i = 0; i < deviceMemProperties.memoryTypeCount; ++i)
+	for (uint32_t i = 0; i < deviceMemProperties.memoryTypeCount; ++i) 
 	{
-		if ((memTypeBits & 1) == 1)
+		if (((memTypeBits >> i) & 1) == 0) 
 		{
-			if ((deviceMemProperties.memoryTypes[i].propertyFlags & memPropertyFlags) == memPropertyFlags)
-			{
-				memTypeIndex = i;
-				break;
-			}
+			continue;
 		}
-		memTypeBits >>= 1;
+
+		const VkMemoryPropertyFlags properties = deviceMemProperties.memoryTypes[i].propertyFlags;
+		if ((properties & required) != required) 
+		{
+			continue;
+		}
+
+		if ((properties & preferred) != preferred) 
+		{
+			continue;
+		}
+
+		m_MemPropertyFlags = required | preferred;
+		return i;
 	}
 
+	for (uint32_t i = 0; i < deviceMemProperties.memoryTypeCount; ++i) 
+	{
+		if (((memTypeBits >> i) & 1) == 0) 
+		{
+			continue;
+		}
+
+		const VkMemoryPropertyFlags properties = deviceMemProperties.memoryTypes[i].propertyFlags;
+		if ((properties & required) != required) 
+		{
+			continue;
+		}
+
+		m_MemPropertyFlags = required;
+		return i;
+	}
+
+	return UINT32_MAX;
+}
+
+void VulkanDeviceMemory::Create(size_t size, uint32_t memTypeBits, uint32_t usage)
+{
+	assert(!IsValid());
+
+	uint32_t memTypeIndex = GetMemoryTypeIndex(memTypeBits, usage);
 	assert(memTypeIndex != UINT32_MAX);
 
 	VkMemoryAllocateInfo allocInfo
@@ -104,7 +129,7 @@ void VulkanDeviceMemory::Invalidate(size_t size, size_t offset)
 		offset,
 		size
 	};
-	Check(vkFlushMappedMemoryRanges(VulkanEngine::Instance().GetDevice().Get(), 1, &memRange));
+	Check(vkInvalidateMappedMemoryRanges(VulkanEngine::Instance().GetDevice().Get(), 1, &memRange));
 }
 
 void VulkanDeviceMemory::Destory()
@@ -116,7 +141,7 @@ void VulkanDeviceMemory::Destory()
 	Reset();
 }
 
-void VulkanBuffer::Create(size_t size, uint32_t usage, uint32_t memPropertyFlags)
+void VulkanBuffer::Create(size_t size, uint32_t bufferUsageFlags, uint32_t usage)
 {
 	assert(!IsValid());
 
@@ -126,7 +151,7 @@ void VulkanBuffer::Create(size_t size, uint32_t usage, uint32_t memPropertyFlags
 		nullptr,
 		0U,
 		size,
-		(VkBufferUsageFlags)usage,
+		(VkBufferUsageFlags)bufferUsageFlags,
 		VK_SHARING_MODE_EXCLUSIVE,
 		0U,
 		nullptr
@@ -136,7 +161,7 @@ void VulkanBuffer::Create(size_t size, uint32_t usage, uint32_t memPropertyFlags
 	VkMemoryRequirements memoryRequirements = {};
 	vkGetBufferMemoryRequirements(VulkanEngine::Instance().GetDevice().Get(), m_Handle, &memoryRequirements);
 	
-	m_Memory.Create(size, memoryRequirements.memoryTypeBits, memPropertyFlags);
+	m_Memory.Create(size, memoryRequirements.memoryTypeBits, usage);
 
 	Check(vkBindBufferMemory(VulkanEngine::Instance().GetDevice().Get(), m_Handle, m_Memory.Get(), 0U));
 }

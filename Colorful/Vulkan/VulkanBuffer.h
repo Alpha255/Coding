@@ -5,7 +5,7 @@
 class VulkanDeviceMemory : public VulkanObject<VkDeviceMemory>
 {
 public:
-	void Create(size_t size, uint32_t memTypeBits, uint32_t memPropertyFlags);
+	void Create(size_t size, uint32_t memTypeBits, uint32_t usage);
 	void Destory() override;
 
 	void Update(const void *pMemory, size_t size = VK_WHOLE_SIZE, size_t offset = 0U);
@@ -14,6 +14,7 @@ public:
 
 	void Invalidate(size_t size = VK_WHOLE_SIZE, size_t offset = 0U);
 protected:
+	uint32_t GetMemoryTypeIndex(uint32_t memTypeBits, uint32_t usage);
 private:
 	uint32_t m_MemPropertyFlags = UINT32_MAX;
 };
@@ -25,9 +26,9 @@ public:
 		size_t byteWidth,
 		uint32_t usage,
 		const void *pData,
-		uint32_t usageFlag = 0U)
+		uint32_t usageFlags = 0U)
 	{
-		Create(byteWidth, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | usageFlag, GetMemoryProperty(usage));
+		Create(byteWidth, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | usageFlags, usage);
 
 		if (pData)
 		{
@@ -39,9 +40,9 @@ public:
 		size_t byteWidth,
 		uint32_t usage,
 		const void *pData,
-		uint32_t usageFlag = 0U)
+		uint32_t usageFlags = 0U)
 	{
-		Create(byteWidth, VK_BUFFER_USAGE_INDEX_BUFFER_BIT | usageFlag, GetMemoryProperty(usage));
+		Create(byteWidth, VK_BUFFER_USAGE_INDEX_BUFFER_BIT | usageFlags, usage);
 
 		if (pData)
 		{
@@ -53,9 +54,9 @@ public:
 		size_t byteWidth,
 		uint32_t usage,
 		const void *pData,
-		uint32_t usageFlag = 0U)
+		uint32_t usageFlags = 0U)
 	{
-		Create(byteWidth, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | usageFlag, GetMemoryProperty(usage));
+		Create(byteWidth, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | usageFlags, usage);
 
 		if (pData)
 		{
@@ -63,122 +64,130 @@ public:
 		}
 	}
 
-	inline void CreateAsTransferBuffer(size_t byteWidth, uint32_t usage, bool bSource = true)
-	{
-		Create(
-			byteWidth, 
-			bSource ? VK_BUFFER_USAGE_TRANSFER_SRC_BIT : VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-			GetMemoryProperty(usage));
-	}
+	//inline void CreateAsTransferBuffer(size_t byteWidth, uint32_t usage, bool bSource = true)
+	//{
+	//	Create(
+	//		byteWidth, 
+	//		bSource ? VK_BUFFER_USAGE_TRANSFER_SRC_BIT : VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+	//		GetMemoryProperty(usage));
+	//}
 
-	inline void Update(const void *pMemory, size_t size, size_t offset = 0U)
+	inline void Update(const void *pMemory, size_t size = VK_WHOLE_SIZE, size_t offset = 0U)
 	{
 		m_Memory.Update(pMemory, size, offset);
 	}
 
 	void Destory() override;
 protected:
-	void Create(size_t size, uint32_t usage, uint32_t memPropertyFlags);
-	inline uint32_t GetMemoryProperty(uint32_t usage)
-	{
-		switch (usage)
-		{
-		case eGpuReadWrite:
-		case eGpuReadOnly:
-			return VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;  /// Can't map
-		case eGpuReadCpuWrite:
-			return VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-		case eGpuCopyToCpu:
-			return VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
-		default:
-			assert(0);
-			return 0U;
-		}
-	}
+	void Create(size_t size, uint32_t bufferUsageFlags, uint32_t usage);
 private:
 	VulkanDeviceMemory m_Memory;
 };
 
-class IVulkanCommandBuffer
+class VulkanCommandBuffer
 {
 public:
-protected:
-	friend class VulkanEngine;
-
-	inline void SetIndex(uint32_t index)
+	enum eCommandBufferUsage
 	{
-		assert(m_Index == UINT32_MAX);
-		m_Index = index;
+		eOneTimeSubmit = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
+		eRenderpassContinue = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT,
+		eSimultaneous = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,
+	};
+
+	enum eCommandBufferResetFlags
+	{
+		eResetReleaseResourceBit = VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT
+	};
+
+	VulkanCommandBuffer(uint32_t count)
+	{
+		m_CommandBuffers.resize(count);
+	}
+	~VulkanCommandBuffer() = default;
+
+	bool IsValid(uint32_t index = UINT32_MAX)
+	{
+		bool bValid = true;
+		if (index == UINT32_MAX)
+		{
+			for each (auto commandBuffer in m_CommandBuffers)
+			{
+				bValid &= (commandBuffer != VK_NULL_HANDLE);
+			}
+		}
+		else
+		{
+			if (index > m_CommandBuffers.size())
+			{
+				bValid &= false;
+			}
+			else
+			{
+				bValid &= (m_CommandBuffers[index] != VK_NULL_HANDLE);
+			}
+		}
+
+		return bValid;
 	}
 
-	inline void SetPoolType(uint32_t type)
+	inline VkCommandBuffer *operator &()
 	{
-		assert(m_PoolType == UINT32_MAX);
-		m_PoolType = type;
+		return m_CommandBuffers.data();
 	}
 
-	inline uint32_t GetIndex() const
+	inline const VkCommandBuffer *operator &() const
 	{
-		assert(m_Index != UINT32_MAX);
-		return m_Index;
+		return m_CommandBuffers.data();
 	}
 
-	inline uint32_t GetPoolType() const
+	inline uint32_t GetBufferCount() const
 	{
-		assert(m_PoolType != UINT32_MAX);
-		return m_PoolType;
+		return (uint32_t)m_CommandBuffers.size();
 	}
 
-	uint32_t m_Index = UINT32_MAX;
-	uint32_t m_PoolType = UINT32_MAX;
-};
-
-class VulkanCommandBuffer : public VulkanObject<VkCommandBuffer>, public IVulkanCommandBuffer
-{
-public:
-	inline VulkanCommandBuffer() = default;
-	inline VulkanCommandBuffer(VkCommandBuffer cmdBuffer)
-		: VulkanObject<VkCommandBuffer>(cmdBuffer)
+	inline void Begin(eCommandBufferUsage usage, uint32_t index)
 	{
-	}
-
-	inline void Begin(uint32_t flags)
-	{
-		assert(IsValid());
+		assert(IsValid(index));
 
 		VkCommandBufferBeginInfo beginInfo
 		{
 			VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
 			nullptr,
-			(VkCommandBufferUsageFlags)flags,
+			(VkCommandBufferUsageFlags)usage,
 			nullptr
 		};
 
-		Check(vkBeginCommandBuffer(m_Handle, &beginInfo));
+		Check(vkBeginCommandBuffer(m_CommandBuffers[index], &beginInfo));
 	}
 
-	inline void Execute(VulkanCommandBuffer &primaryCmdBuffer)
+	inline void Execute(VkCommandBuffer primaryBuffer)
 	{
-		assert(IsValid() && primaryCmdBuffer.IsValid());
+		assert(IsValid() && primaryBuffer != VK_NULL_HANDLE);
 
-		vkCmdExecuteCommands(primaryCmdBuffer.Get(), 1U, &m_Handle);
+		vkCmdExecuteCommands(primaryBuffer, (uint32_t)m_CommandBuffers.size(), m_CommandBuffers.data());
 	}
 
-	inline void End()
+	inline void End(uint32_t index)
 	{
-		assert(IsValid());
+		assert(IsValid(index));
 
-		Check(vkEndCommandBuffer(m_Handle));
+		Check(vkEndCommandBuffer(m_CommandBuffers[index]));
 	}
 
-	inline void ResetCommand(uint32_t flags)
+	inline void Reset(uint32_t index, uint32_t flags)
 	{
-		assert(IsValid());
+		assert(IsValid(index));
 
-		Check(vkResetCommandBuffer(m_Handle, (VkCommandBufferResetFlags)flags));
+		Check(vkResetCommandBuffer(m_CommandBuffers[index], (VkCommandBufferResetFlags)flags));
+	}
+
+	inline void Clear()
+	{
+		m_CommandBuffers.clear();
 	}
 protected:
 private:
+	std::vector<VkCommandBuffer> m_CommandBuffers;
 };
 
 #if 0

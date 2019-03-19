@@ -1,7 +1,6 @@
 #pragma once
 
 #include "VulkanBuffer.h"
-#include <unordered_map>
 
 class VulkanCommandPool : public VulkanObject<VkCommandPool>
 {
@@ -23,17 +22,17 @@ public:
 
 	void Create(ePoolType type);
 
-	VulkanCommandBuffer Alloc(eBufferType type);
+	VulkanCommandBuffer Alloc(eBufferType type, uint32_t count);
 
 	void Free(VulkanCommandBuffer &cmdBuffer);
 
-	void Destory();
+	void Destory() override;
 protected:
 private:
-	std::unordered_map<uint32_t, VkCommandBuffer> m_CommandBuffers;
 	uint32_t m_BufferCount = 0U;
 };
 
+#if 0
 class VulkanDescriptorPool : public VulkanObject<VkDescriptorPool>
 {
 public:
@@ -51,3 +50,4 @@ protected:
 	};
 private:
 };
+#endif

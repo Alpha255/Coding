@@ -98,12 +98,6 @@ public:
 		Reset();
 	}
 
-	inline const VulkanPhysicalDevice &GetPhysicalDevice() const
-	{
-		assert(m_PhysicalDevice.IsValid());
-		return m_PhysicalDevice;
-	}
-
 	inline const VulkanQueue &GetQueue()
 	{
 		assert(m_DeviceQueue.IsValid());
@@ -112,7 +106,14 @@ public:
 
 	inline const VkPhysicalDeviceMemoryProperties &GetDeviceMemoryProperties() const
 	{
+		assert(IsValid() && m_PhysicalDevice.IsValid());
 		return m_PhysicalDevice.GetDeviceMemoryProperties();
+	}
+
+	inline uint32_t GetQueueFamilyIndex() const
+	{
+		assert(IsValid() && m_PhysicalDevice.IsValid());
+		return m_PhysicalDevice.GetQueueFamilyIndex();
 	}
 protected:
 private:

@@ -8,12 +8,12 @@ void VulkanEngine::Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool
 
 	m_Device.Create();
 
-#if 0
-
 	for (uint32_t i = 0U; i < m_CommandPools.size(); ++i)
 	{
 		m_CommandPools[i].Create((VulkanCommandPool::ePoolType)i);
 	}
+
+#if 0
 
 	m_DefaultRenderPass.Create(
 		true,

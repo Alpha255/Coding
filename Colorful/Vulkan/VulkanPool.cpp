@@ -16,15 +16,16 @@ void VulkanCommandPool::Create(ePoolType type)
 		assert(0);
 		break;
 	}
+
 	VkCommandPoolCreateInfo createInfo
 	{
 		VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
 		nullptr,
 		flags,
-		VulkanEngine::Instance().GetPhysicalDevice().GetQueueFamilyIndex()
+		VulkanEngine::Instance().GetDevice().GetQueueFamilyIndex()
 	};
 
-	VKCheck(vkCreateCommandPool(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
+	Check(vkCreateCommandPool(VulkanEngine::Instance().GetDevice().Get(), &createInfo, nullptr, &m_Handle));
 }
 
 void VulkanCommandPool::Destory()
@@ -32,12 +33,14 @@ void VulkanCommandPool::Destory()
 	assert(IsValid());
 
 	/// When a pool is destroyed, all command buffers allocated from the pool are freed
-	vkDestroyCommandPool(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
+	vkDestroyCommandPool(VulkanEngine::Instance().GetDevice().Get(), m_Handle, nullptr);
+
+	m_BufferCount = 0U;
 
 	Reset();
 }
 
-VulkanCommandBuffer VulkanCommandPool::Alloc(eBufferType type)
+VulkanCommandBuffer VulkanCommandPool::Alloc(eBufferType type, uint32_t count)
 {
 	assert(IsValid());
 
@@ -47,24 +50,29 @@ VulkanCommandBuffer VulkanCommandPool::Alloc(eBufferType type)
 		nullptr,
 		m_Handle,
 		(VkCommandBufferLevel)type,
-		1U
+		count
 	};
 
-	VulkanCommandBuffer newCmdBuffer;
-	VKCheck(vkAllocateCommandBuffers(VulkanEngine::Instance().GetDevice(), &allocInfo, &newCmdBuffer));
+	VulkanCommandBuffer cmdBuffer(count);
+	Check(vkAllocateCommandBuffers(VulkanEngine::Instance().GetDevice().Get(), &allocInfo, &cmdBuffer));
 
-	return newCmdBuffer;
+	m_BufferCount += count;
+
+	return cmdBuffer;
 }
 
 void VulkanCommandPool::Free(VulkanCommandBuffer &cmdBuffer)
 {
 	assert(IsValid());
 
-	vkFreeCommandBuffers(VulkanEngine::Instance().GetDevice(), m_Handle, 1U, &cmdBuffer);
+	vkFreeCommandBuffers(VulkanEngine::Instance().GetDevice().Get(), m_Handle, cmdBuffer.GetBufferCount(), &cmdBuffer);
 
-	cmdBuffer.Reset();
+	m_BufferCount -= cmdBuffer.GetBufferCount();
+
+	cmdBuffer.Clear();
 }
 
+#if 0
 void VulkanDescriptorPool::Create()
 {
 	assert(!IsValid());
@@ -129,3 +137,4 @@ void VulkanDescriptorPool::Destory()
 
 	vkDestroyDescriptorPool(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
 }
+#endif
