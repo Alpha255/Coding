@@ -5,7 +5,7 @@
 class VulkanDeviceMemory : public VulkanObject<VkDeviceMemory>
 {
 public:
-	void Create(size_t size, uint32_t memTypeBits, uint32_t usage);
+	void Alloc(size_t size, uint32_t memTypeBits, uint32_t usage);
 	void Destory() override;
 
 	void Update(const void *pMemory, size_t size = VK_WHOLE_SIZE, size_t offset = 0U);

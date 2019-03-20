@@ -1,40 +1,38 @@
 #include "VulkanShader.h"
 #include "VulkanEngine.h"
-#include "Util/System.h"
-#include "Util/ResourceFile.h"
 
-void VulkanInputLayout::Create(const void *, const VertexLayout *pLayout, size_t layoutCount)
+void VulkanInputLayout::Create(const void *, const std::vector<Geometry::VertexLayout> &layouts)
 {
-	assert(!m_bValid && pLayout && layoutCount);
+	assert(!m_bValid && layouts.size() > 0U);
 
 	m_VertexInputAttrs.clear();
 
-	const VertexLayout *pVertexLayout = pLayout;
-	size_t stride = 0U;
+	///size_t stride = 0U;
 
-	for (uint32_t i = 0U; i < layoutCount; ++i, pVertexLayout++)
+	for (uint32_t i = 0U; i < layouts.size(); ++i)
 	{
 		VkVertexInputAttributeDescription inputAttrDesc
 		{
 			i,
 			0U,
-			(VkFormat)pVertexLayout->Format,
-			pVertexLayout->Offset
+			(VkFormat)layouts[i].Format,
+			layouts[i].Offset
 		};
 		m_VertexInputAttrs.emplace_back(inputAttrDesc);
 
-		stride += pVertexLayout->Stride;
+		///stride += layouts[i].Stride;
 	}
 
 	m_bValid = true;
 }
 
-void VulkanShader::Create(const char *pFileName, const char *pEntryPoint)
+void VulkanShader::Create(const std::string &, const std::string entryPoint)
 {
 	assert(!IsValid());
 
-	std::string shaderCode = System::GetShaderCode(pFileName, "#Vulkan", m_Type);
-
+	///std::string shaderCode = System::GetShaderCode(pFileName, "#Vulkan", m_Type);
+	std::string shaderCode("");
+	
 	///char workingDir[MAX_PATH] = {};
 	///::GetCurrentDirectoryA(MAX_PATH, workingDir);
 
@@ -48,16 +46,18 @@ void VulkanShader::Create(const char *pFileName, const char *pEntryPoint)
 		shaderCode.length(),
 		(uint32_t *)shaderCode.c_str()
 	};
-	VKCheck(vkCreateShaderModule(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
+	Check(vkCreateShaderModule(VulkanEngine::Instance().GetDevice().Get(), &createInfo, nullptr, &m_Handle));
 
-	m_ShaderStage.flags = 0;
-	m_ShaderStage.module = m_Handle;
-	m_ShaderStage.pName = pEntryPoint;
-	m_ShaderStage.pNext = nullptr;
-	m_ShaderStage.pSpecializationInfo = nullptr;
-	m_ShaderStage.stage = m_Stage;
-	m_ShaderStage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-
+	m_ShaderStage = VkPipelineShaderStageCreateInfo
+	{
+		VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+		nullptr,
+		0U,
+		m_Stage,
+		m_Handle,
+		entryPoint.c_str(),
+		nullptr
+	};
 	///::SetCurrentDirectoryA(workingDir);
 }
 
@@ -65,7 +65,7 @@ void VulkanShader::Destory()
 {
 	assert(IsValid());
 
-	vkDestroyShaderModule(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
+	vkDestroyShaderModule(VulkanEngine::Instance().GetDevice().Get(), m_Handle, nullptr);
 
 	Reset();
 }

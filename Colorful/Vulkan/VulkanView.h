@@ -2,7 +2,13 @@
 
 #include "VulkanObject.h"
 #include "VulkanBuffer.h"
-#include "Public/RawTexture.h"
+
+struct VulkanSubResourceData
+{
+	const void *Memory = nullptr;
+	uint32_t MemPitch = 0U;
+	uint32_t MemSlicePitch = 0U;
+};
 
 class VulkanImage : public VulkanObject<VkImage>
 {
@@ -14,23 +20,6 @@ public:
 		eImage3D = VK_IMAGE_TYPE_3D
 	};
 
-	struct ImageProperty
-	{
-		uint32_t Type = 0U;
-		uint32_t Width = 0U;
-		uint32_t Height = 0U;
-		uint32_t Format = 0U;
-		uint32_t MipLevels = 0U;
-		uint32_t Usage = 0U;
-		uint32_t Layout = 0U;
-	};
-
-	inline VulkanImage(VkImage image)
-		: VulkanObject<VkImage>(image)
-	{
-	}
-	inline VulkanImage() = default;
-
 	void Create(
 		uint32_t type,
 		uint32_t width, 
@@ -41,21 +30,14 @@ public:
 		uint32_t arraySize,
 		uint32_t usage,
 		uint32_t layout,
-		const struct VulkanSubResourceData *pSubResourceData = nullptr);
+		const VulkanSubResourceData *pSubResourceData = nullptr);
 
-	void Destory();
-
-	inline ImageProperty GetProperty() const
-	{
-		assert(IsValid());
-		return m_Property;
-	}
+	void Destory() override;
 protected:
 private:
-	ImageProperty m_Property = {};
 	VulkanDeviceMemory m_Memory;
-	VulkanBuffer m_Buffer;
-	VulkanCommandBuffer m_CommandBuffer;
+	///VulkanBuffer m_Buffer;
+	VkImageCreateInfo m_CreateInfo = {};
 };
 
 class VulkanImageView : public VulkanObject<VkImageView>
@@ -63,7 +45,7 @@ class VulkanImageView : public VulkanObject<VkImageView>
 public:
 	void Create(VulkanImage &image);
 	void CreateAsTexture(eRViewType type, VulkanImage &image, uint32_t fmt, uint32_t mipSlice, uint32_t aspectFlags);
-	void Destory();
+	void Destory() override;
 protected:
 private:
 };
@@ -82,7 +64,7 @@ private:
 class VulkanDepthStencilView : public VulkanImageView
 {
 public:
-	void Create(uint32_t fmt, uint32_t width, uint32_t height);
+	///void Create(uint32_t fmt, uint32_t width, uint32_t height);
 
 	inline void CreateAsTexture(eRViewType type, VulkanImage &image, uint32_t fmt, uint32_t, uint32_t mipSlice)
 	{
@@ -95,8 +77,8 @@ private:
 class VulkanShaderResourceView : public VulkanImageView
 {
 public:
-	void Create(const char *pFileName);
+	void Create(const std::string &fileName);
 protected:
-	RawTexture rawDds;
+	///RawTexture rawDds;
 private:
 };

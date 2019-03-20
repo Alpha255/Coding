@@ -68,7 +68,7 @@ uint32_t VulkanDeviceMemory::GetMemoryTypeIndex(uint32_t memTypeBits, uint32_t u
 	return UINT32_MAX;
 }
 
-void VulkanDeviceMemory::Create(size_t size, uint32_t memTypeBits, uint32_t usage)
+void VulkanDeviceMemory::Alloc(size_t size, uint32_t memTypeBits, uint32_t usage)
 {
 	assert(!IsValid());
 
@@ -161,7 +161,7 @@ void VulkanBuffer::Create(size_t size, uint32_t bufferUsageFlags, uint32_t usage
 	VkMemoryRequirements memoryRequirements = {};
 	vkGetBufferMemoryRequirements(VulkanEngine::Instance().GetDevice().Get(), m_Handle, &memoryRequirements);
 	
-	m_Memory.Create(size, memoryRequirements.memoryTypeBits, usage);
+	m_Memory.Alloc(size, memoryRequirements.memoryTypeBits, usage);
 
 	Check(vkBindBufferMemory(VulkanEngine::Instance().GetDevice().Get(), m_Handle, m_Memory.Get(), 0U));
 }

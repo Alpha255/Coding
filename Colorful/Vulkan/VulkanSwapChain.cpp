@@ -12,46 +12,39 @@ void VulkanSurface::Create(::HWND hWnd)
 		hWnd
 	};
 
-	VKCheck(vkCreateWin32SurfaceKHR(VulkanEngine::Instance().GetInstance(), &createInfo, nullptr, &m_Handle));
+	Check(vkCreateWin32SurfaceKHR(VulkanEngine::Instance().GetInstance().Get(), &createInfo, nullptr, &m_Handle));
 
-	VKCheck(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(VulkanEngine::Instance().GetPhysicalDevice().Get(), m_Handle, &m_Capabilities));
+	VkPhysicalDevice physicalDevice = VulkanEngine::Instance().GetDevice().GetPhysicalDevice().Get();
+
+	Check(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, m_Handle, &m_SurfaceCapabilities));
 
 	uint32_t count = 0U;
-	VKCheck(vkGetPhysicalDeviceSurfacePresentModesKHR(VulkanEngine::Instance().GetPhysicalDevice().Get(), m_Handle, &count, nullptr));
+	Check(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, m_Handle, &count, nullptr));
 	m_PresentModes.resize(count);
-	VKCheck(vkGetPhysicalDeviceSurfacePresentModesKHR(VulkanEngine::Instance().GetPhysicalDevice().Get(), m_Handle, &count, m_PresentModes.data()));
+	Check(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, m_Handle, &count, m_PresentModes.data()));
 
 	VkBool32 checkSupport = 0U;
-	VKCheck(vkGetPhysicalDeviceSurfaceSupportKHR(VulkanEngine::Instance().GetPhysicalDevice().Get(), VulkanEngine::Instance().GetPhysicalDevice().GetQueueFamilyIndex(), m_Handle, &checkSupport));
+	Check(vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, VulkanEngine::Instance().GetDevice().GetQueueFamilyIndex(), m_Handle, &checkSupport));
+	assert(checkSupport);
 
-	if (!checkSupport)
-	{
-		System::Log("Physical device dose not support WSI!!!");
-		assert(checkSupport);
-	}
-
-	VKCheck(vkGetPhysicalDeviceSurfaceFormatsKHR(VulkanEngine::Instance().GetPhysicalDevice().Get(), m_Handle, &count, nullptr));
-	m_Formats.resize(count);
-	VKCheck(vkGetPhysicalDeviceSurfaceFormatsKHR(VulkanEngine::Instance().GetPhysicalDevice().Get(), m_Handle, &count, m_Formats.data()));
+	Check(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, m_Handle, &count, nullptr));
+	m_SurfaceFormats.resize(count);
+	Check(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, m_Handle, &count, m_SurfaceFormats.data()));
 }
 
-void VulkanSurface::Destory()
+void VulkanSwapchain::Create(::HWND hWnd, uint32_t width, uint32_t height, bool bFullScreen)
 {
-	assert(IsValid());
-}
-
-void VulkanSwapchain::Create(::HWND hWnd, uint32_t uWidth, uint32_t uHeight, bool bFullScreen)
-{
-	VKCheck(vkDeviceWaitIdle(VulkanEngine::Instance().GetDevice()));
+	VulkanEngine::Instance().GetDevice().Wait();
 
 	m_bFullScreen = bFullScreen;
 
 	m_Surface.Create(hWnd);
 
+#if 0
 	auto &surfaceCapabilities = m_Surface.GetCapabilities();
 	assert(surfaceCapabilities.maxImageExtent.width && surfaceCapabilities.maxImageExtent.height);
-	m_Size.width = std::min<uint32_t>(uWidth, surfaceCapabilities.maxImageExtent.width);
-	m_Size.height = std::min<uint32_t>(uHeight, surfaceCapabilities.maxImageExtent.height);
+	m_Size.width = std::min<uint32_t>(width, surfaceCapabilities.maxImageExtent.width);
+	m_Size.height = std::min<uint32_t>(height, surfaceCapabilities.maxImageExtent.height);
 
 	m_ColorSurfaceFormat = (VkFormat)VulkanEngine::Instance().GetPhysicalDevice().GetOptimalSurfaceFormat(VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT, false);
 	m_DepthSurfaceFormat = (VkFormat)VulkanEngine::Instance().GetPhysicalDevice().GetOptimalSurfaceFormat(VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, true);
@@ -92,7 +85,7 @@ void VulkanSwapchain::Create(::HWND hWnd, uint32_t uWidth, uint32_t uHeight, boo
 		1U,
 		VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
 		VK_SHARING_MODE_EXCLUSIVE, /// exclusive or concurrent access resource
-		VulkanEngine::Instance().GetPhysicalDevice().GetQueueFamilyIndex(),
+		VulkanEngine::Instance().GetDevice().GetQueueFamilyIndex(),
 		nullptr,
 		surfaceCapabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR ? VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR : surfaceCapabilities.currentTransform,
 		VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,  /// Alpha = 1.0f
@@ -101,15 +94,14 @@ void VulkanSwapchain::Create(::HWND hWnd, uint32_t uWidth, uint32_t uHeight, boo
 		m_Handle
 	};
 
-	VKCheck(vkCreateSwapchainKHR(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
+	Check(vkCreateSwapchainKHR(VulkanEngine::Instance().GetDevice().Get(), &createInfo, nullptr, &m_Handle));
 
 	uint32_t count = 0U;
-	VKCheck(vkGetSwapchainImagesKHR(VulkanEngine::Instance().GetDevice(), m_Handle, &count, nullptr));
-
+	Check(vkGetSwapchainImagesKHR(VulkanEngine::Instance().GetDevice().Get(), m_Handle, &count, nullptr));
 	std::vector<VkImage> images(count);
-	VKCheck(vkGetSwapchainImagesKHR(VulkanEngine::Instance().GetDevice(), m_Handle, &count, images.data()));
+	Check(vkGetSwapchainImagesKHR(VulkanEngine::Instance().GetDevice().Get(), m_Handle, &count, images.data()));
 
-	m_DepthStencilImage.Create(VulkanImage::eImage2D, uWidth, uHeight, 1U, m_DepthSurfaceFormat, 1U, 1U, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_IMAGE_LAYOUT_UNDEFINED);
+	m_DepthStencilImage.Create(VulkanImage::eImage2D, width, height, 1U, m_DepthSurfaceFormat, 1U, 1U, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_IMAGE_LAYOUT_UNDEFINED);
 	m_DepthStencilView.CreateAsTexture(eTexture2D, m_DepthStencilImage, m_DepthSurfaceFormat, 0U, 1U);
 
 	m_BackBuffers.resize(count);
@@ -127,6 +119,7 @@ void VulkanSwapchain::Create(::HWND hWnd, uint32_t uWidth, uint32_t uHeight, boo
 		imageViews.emplace_back(m_DepthStencilView);
 		m_BackBuffers[i].FrameBuffer.Create(imageViews, VulkanEngine::Instance().GetDefaultRenderPass(), uWidth, uHeight, 1U);
 	}
+#endif
 }
 
 void VulkanSwapchain::Resize(uint32_t uWidth, uint32_t uHeight)
@@ -134,6 +127,7 @@ void VulkanSwapchain::Resize(uint32_t uWidth, uint32_t uHeight)
 	///Create(nullptr, uWidth, uHeight, m_bFullScreen);
 }
 
+#if 0
 void VulkanSwapchain::Begin()
 {
 	VKCheck(vkAcquireNextImageKHR(VulkanEngine::Instance().GetDevice(), m_Handle, UINT64_MAX, m_BackBuffers[m_CurBackBufferIndex].ImageAcquireSemaphore.Get(), VK_NULL_HANDLE, &m_CurBackBufferIndex));
@@ -247,6 +241,7 @@ void VulkanSwapchain::Flush()
 
 	//VKCheck(vkQueuePresentKHR(VulkanEngine::Instance().GetQueue(), &presentInfo));
 }
+#endif
 
 void VulkanSwapchain::Destory()
 {
@@ -262,7 +257,7 @@ void VulkanSwapchain::Destory()
 	}
 	m_BackBuffers.clear();
 
-	vkDestroySwapchainKHR(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
+	vkDestroySwapchainKHR(VulkanEngine::Instance().GetDevice().Get(), m_Handle, nullptr);
 
 	Reset();
 }

@@ -17,9 +17,9 @@ public:
 	{
 	}
 
-	virtual void Create(const char *pFileName, const char *pEntryPoint, const D3D_SHADER_MACRO *pMacros = nullptr, ID3DInclude *pInclude = nullptr) = 0;
+	virtual void Create(const std::string &fileName, const std::string &entryPoint, const D3D_SHADER_MACRO *pMacros = nullptr, ID3DInclude *pInclude = nullptr) = 0;
 protected:
-	D3D11Blob CompileShaderCode(const char *pFileName, const char *pEntryPoint, const D3D_SHADER_MACRO *pMacros, ID3DInclude *pInclude);
+	D3D11Blob CompileShaderCode(const std::string &fileName, const std::string &entryPoint, const D3D_SHADER_MACRO *pMacros, ID3DInclude *pInclude);
 	eRShaderType m_Type = eRShaderTypeCount;
 private:
 };
@@ -37,7 +37,7 @@ public:
 		return m_Blob;
 	}
 
-	virtual void Create(const char *pFileName, const char *pEntryPoint, const D3D_SHADER_MACRO *pMacros = nullptr, ID3DInclude *pInclude = nullptr) override;
+	virtual void Create(const std::string &fileName, const std::string &entryPoint, const D3D_SHADER_MACRO *pMacros = nullptr, ID3DInclude *pInclude = nullptr) override;
 protected:
 	D3D11Blob m_Blob;
 };
@@ -50,7 +50,7 @@ public:
 	{
 	}
 
-	virtual void Create(const char *pFileName, const char *pEntryPoint, const D3D_SHADER_MACRO *pMacros = nullptr, ID3DInclude *pInclude = nullptr) override;
+	virtual void Create(const std::string &fileName, const std::string &entryPoint, const D3D_SHADER_MACRO *pMacros = nullptr, ID3DInclude *pInclude = nullptr) override;
 };
 
 class D3D11DomainShader : public D3DObject<ID3D11DomainShader>, public D3D11Shader
@@ -61,7 +61,7 @@ public:
 	{
 	}
 
-	virtual void Create(const char *pFileName, const char *pEntryPoint, const D3D_SHADER_MACRO *pMacros = nullptr, ID3DInclude *pInclude = nullptr) override;
+	virtual void Create(const std::string &fileName, const std::string &entryPoint, const D3D_SHADER_MACRO *pMacros = nullptr, ID3DInclude *pInclude = nullptr) override;
 };
 
 class D3D11GeometryShader : public D3DObject<ID3D11GeometryShader>, public D3D11Shader
@@ -72,7 +72,7 @@ public:
 	{
 	}
 
-	virtual void Create(const char *pFileName, const char *pEntryPoint, const D3D_SHADER_MACRO *pMacros = nullptr, ID3DInclude *pInclude = nullptr) override;
+	virtual void Create(const std::string &fileName, const std::string &entryPoint, const D3D_SHADER_MACRO *pMacros = nullptr, ID3DInclude *pInclude = nullptr) override;
 };
 
 class D3D11PixelShader : public D3DObject<ID3D11PixelShader>, public D3D11Shader
@@ -83,7 +83,7 @@ public:
 	{
 	}
 
-	virtual void Create(const char *pFileName, const char *pEntryPoint, const D3D_SHADER_MACRO *pMacros = nullptr, ID3DInclude *pInclude = nullptr) override;
+	virtual void Create(const std::string &fileName, const std::string &entryPoint, const D3D_SHADER_MACRO *pMacros = nullptr, ID3DInclude *pInclude = nullptr) override;
 };
 
 class D3D11ComputeShader : public D3DObject<ID3D11ComputeShader>, public D3D11Shader
@@ -94,5 +94,5 @@ public:
 	{
 	}
 
-	virtual void Create(const char *pFileName, const char *pEntryPoint, const D3D_SHADER_MACRO *pMacros = nullptr, ID3DInclude *pInclude = nullptr) override;
+	virtual void Create(const std::string &fileName, const std::string &entryPoint, const D3D_SHADER_MACRO *pMacros = nullptr, ID3DInclude *pInclude = nullptr) override;
 };

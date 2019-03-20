@@ -75,6 +75,7 @@ class VulkanQueue : public VulkanObject<VkQueue>
 public:
 	void Destory() override
 	{
+		Reset();
 	}
 protected:
 private:
@@ -104,6 +105,12 @@ public:
 		return m_DeviceQueue;
 	}
 
+	inline const VulkanPhysicalDevice &GetPhysicalDevice() const
+	{
+		assert(m_PhysicalDevice.IsValid());
+		return m_PhysicalDevice;
+	}
+
 	inline const VkPhysicalDeviceMemoryProperties &GetDeviceMemoryProperties() const
 	{
 		assert(IsValid() && m_PhysicalDevice.IsValid());
@@ -114,6 +121,12 @@ public:
 	{
 		assert(IsValid() && m_PhysicalDevice.IsValid());
 		return m_PhysicalDevice.GetQueueFamilyIndex();
+	}
+
+	inline void Wait() const
+	{
+		assert(IsValid());
+		Check(vkDeviceWaitIdle(m_Handle));
 	}
 protected:
 private:

@@ -147,7 +147,7 @@ public:
 #endif
 	inline void Resize(uint32_t width, uint32_t height)
 	{
-		///m_Swapchain.Resize(width, height);
+		m_Swapchain.Resize(width, height);
 	}
 
 	inline const VulkanInstance &GetInstance() const
@@ -165,34 +165,14 @@ public:
 protected:
 	VulkanEngine() = default;
 	~VulkanEngine() = default;
-
-#if 0
-	inline void RegisterCommandBuffer(VulkanCommandPool::ePoolType type, VulkanCommandBuffer &cmdBuffer)
-	{
-		m_CommandBuffers[type].insert(std::make_pair(m_CommandBufferCount, cmdBuffer));
-		cmdBuffer.SetPoolType(type);
-		++m_CommandBufferCount;
-		cmdBuffer.SetIndex(m_CommandBufferCount);
-	}
-
-	inline void DeregisterCommandBuffer(VulkanCommandBuffer &cmdBuffer)
-	{
-		m_CommandBuffers[cmdBuffer.GetPoolType()].erase(cmdBuffer.GetIndex());
-		cmdBuffer.SetPoolType(UINT32_MAX);
-		cmdBuffer.SetIndex(UINT32_MAX);
-		--m_CommandBufferCount;
-	}
-
-	void FreeCommandBuffers();
-#endif
 private:
 	static std::unique_ptr<VulkanEngine, std::function<void(VulkanEngine *)>> s_Instance;
 
 	VulkanInstance m_Instance;
 	VulkanDevice m_Device;
+	VulkanSwapchain m_Swapchain;
 	std::array<VulkanCommandPool, VulkanCommandPool::ePoolTypeCount> m_CommandPools;
 #if 0
-	VulkanSwapchain m_Swapchain;
 	VulkanRenderPass m_DefaultRenderPass;
 	VulkanContext m_Context;
 

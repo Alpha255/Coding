@@ -11,29 +11,22 @@ void VulkanImage::Create(
 	uint32_t arraySize,
 	uint32_t usage,
 	uint32_t layout,
-	const VulkanSubResourceData *pSubResourceData)
+	const VulkanSubResourceData *)
 {
 	assert(!IsValid() && type <= VK_IMAGE_TYPE_END_RANGE);
 
-	m_Property = 
-	{ 
-		type,
-		width,
-		height,
-		format,
-		mipLevels,
-		usage,
-		layout
-	};
-
-	VkImageCreateInfo createInfo
+	m_CreateInfo = VkImageCreateInfo
 	{
 		VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
 		nullptr,
 		0U,
 		(VkImageType)type,
 		(VkFormat)format,
-		{ width, height, depth },
+		{ 
+			width, 
+			height, 
+			depth 
+		},
 		mipLevels,
 		arraySize,
 		VK_SAMPLE_COUNT_1_BIT,
@@ -45,14 +38,15 @@ void VulkanImage::Create(
 		(VkImageLayout)layout
 	};
 
-	VKCheck(vkCreateImage(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
+	Check(vkCreateImage(VulkanEngine::Instance().GetDevice().Get(), &m_CreateInfo, nullptr, &m_Handle));
 
-	VkMemoryRequirements memReq = {};
-	vkGetImageMemoryRequirements(VulkanEngine::Instance().GetDevice(), m_Handle, &memReq);
-	m_Memory.Create(memReq.size, VulkanDeviceMemory::GetMemoryTypeIndex(memReq.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
+	VkMemoryRequirements memRequirements = {};
+	vkGetImageMemoryRequirements(VulkanEngine::Instance().GetDevice().Get(), m_Handle, &memRequirements);
+	m_Memory.Alloc(memRequirements.size, memRequirements.memoryTypeBits, eGpuReadOnly);
 
-	VKCheck(vkBindImageMemory(VulkanEngine::Instance().GetDevice(), m_Handle, m_Memory.Get(), 0));
+	Check(vkBindImageMemory(VulkanEngine::Instance().GetDevice().Get(), m_Handle, m_Memory.Get(), 0));
 
+#if 0
 	if (pSubResourceData)
 	{
 		if (!m_CommandBuffer.IsValid())
@@ -120,19 +114,25 @@ void VulkanImage::Create(
 
 		VKCheck(vkDeviceWaitIdle(VulkanEngine::Instance().GetDevice()));
 	}
+#endif
 }
 
 void VulkanImage::Destory()
 {
 	assert(IsValid());
 
-	vkDestroyImage(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
+	vkDestroyImage(VulkanEngine::Instance().GetDevice().Get(), m_Handle, nullptr);
+
+	m_Memory.Destory();
+
+	m_CreateInfo = {};
 
 	Reset();
 }
 
-void VulkanImageView::Create(VulkanImage &image)
+void VulkanImageView::Create(VulkanImage &)
 {
+#if 0
 	assert(!IsValid() && image.IsValid());
 
 	auto imageProperty = image.GetProperty();
@@ -164,10 +164,12 @@ void VulkanImageView::Create(VulkanImage &image)
 	};
 
 	VKCheck(vkCreateImageView(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
+#endif
 }
 
-void VulkanImageView::CreateAsTexture(eRViewType type, VulkanImage &image, uint32_t fmt, uint32_t mipSlice, uint32_t aspectFlags)
+void VulkanImageView::CreateAsTexture(eRViewType, VulkanImage &, uint32_t, uint32_t, uint32_t)
 {
+#if 0
 	assert(!IsValid());
 
 	VkImageViewCreateInfo createInfo
@@ -183,19 +185,21 @@ void VulkanImageView::CreateAsTexture(eRViewType type, VulkanImage &image, uint3
 	};
 
 	VKCheck(vkCreateImageView(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
+#endif
 }
 
 void VulkanImageView::Destory()
 {
 	assert(IsValid());
 
-	vkDestroyImageView(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
+	vkDestroyImageView(VulkanEngine::Instance().GetDevice().Get(), m_Handle, nullptr);
 
 	Reset();
 }
 
-void VulkanShaderResourceView::Create(const char *pFileName)
+void VulkanShaderResourceView::Create(const std::string &)
 {
+#if 0
 	rawDds.CreateFromDds(pFileName, true);
 
 	//VulkanImage image;
@@ -298,4 +302,5 @@ void VulkanShaderResourceView::Create(const char *pFileName)
 	
 	VKCheck(vkQueueSubmit(VulkanEngine::Instance().GetQueue(), 1U, &submitInfo, fence.Get()));
 	VKCheck(vkWaitForFences(VulkanEngine::Instance().GetDevice(), 1U, &fence, VK_TRUE, UINT32_MAX));
+#endif
 }

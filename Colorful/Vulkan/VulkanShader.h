@@ -1,11 +1,12 @@
 #pragma once
 
 #include "VulkanObject.h"
+#include "Public/Geometry.h"
 
 class VulkanInputLayout
 {
 public:
-	void Create(const void *, const VertexLayout *pLayout, size_t layoutCount);
+	void Create(const void *, const std::vector<Geometry::VertexLayout> & layouts);
 
 	inline const std::vector<VkVertexInputAttributeDescription> &Get() const
 	{
@@ -29,11 +30,13 @@ public:
 
 	VkPipelineShaderStageCreateInfo GetShaderStage() const
 	{
+		assert(IsValid());
 		return m_ShaderStage;
 	}
 
-	void Create(const char *pFileName, const char *pEntryPoint);
-	void Destory();
+	void Create(const std::string &fileName, const std::string entryPoint);
+
+	void Destory() override;
 protected:
 	VkShaderStageFlagBits m_Stage = VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM;
 	VkPipelineShaderStageCreateInfo m_ShaderStage = {};

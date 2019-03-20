@@ -2,13 +2,6 @@
 
 #include "VulkanView.h"
 
-struct VulkanSubResourceData
-{
-	const void *Memory = nullptr;
-	uint32_t MemPitch = 0U;
-	uint32_t MemSlicePitch = 0U;
-};
-
 class VulkanTexture2D : public VulkanImage
 {
 public:
