@@ -99,7 +99,7 @@ public:
 		Reset();
 	}
 
-	inline const VulkanQueue &GetQueue()
+	inline const VulkanQueue &GetQueue() const
 	{
 		assert(m_DeviceQueue.IsValid());
 		return m_DeviceQueue;

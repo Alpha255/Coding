@@ -13,54 +13,34 @@ void VulkanEngine::Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool
 		m_CommandPools[i].Create((VulkanCommandPool::ePoolType)i);
 	}
 
-#if 0
+	m_Swapchain.Initialize(hWnd, width, height, bWindowed);
 
-	m_DefaultRenderPass.Create(
-		true,
-		m_Device.GetPhysicalDevice().GetOptimalSurfaceFormat(VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT, false),
-		m_Device.GetPhysicalDevice().GetOptimalSurfaceFormat(VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, true),
-		true,
-		VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+	m_RenderPass.Create();
 
-	m_Swapchain.Create(hWnd, width, height, bWindowed);
-
-	VulkanStaticState::Initialize();
+	m_Swapchain.Create();
 
 	m_Context.Initialize();
 
-	m_Inited = true;
-#endif
+	VulkanStaticState::Initialize();
 }
 
-#if 0
-void VulkanEngine::FreeCommandBuffers()
+void VulkanEngine::Finalize()
 {
-	for each (auto &cmdBufferMap in m_CommandBuffers)
-	{
-		for each (auto &cmdBuffer in cmdBufferMap)
-		{
-			VulkanCommandBuffer buffer(cmdBuffer.second);
-			FreeCommandBuffer(buffer);
-		}
-	}
-}
+	VulkanStaticState::Finalize();
 
-VulkanEngine::~VulkanEngine()
-{
+	m_Context.Finalize();
+
+	m_RenderPass.Destory();
 	m_Swapchain.Destory();
-	///m_DefaultRenderPass.Destory();
-
-	FreeCommandBuffers();
 
 	for (uint32_t i = 0U; i < m_CommandPools.size(); ++i)
 	{
 		m_CommandPools[i].Destory();
 	}
 
-	m_Context.Destory();
+	///m_Context.Destory();
 
 	m_Device.Destory();
 
 	m_Instance.Destory();
 }
-#endif

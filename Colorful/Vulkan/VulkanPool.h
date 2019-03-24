@@ -30,24 +30,62 @@ public:
 protected:
 private:
 	uint32_t m_BufferCount = 0U;
+	ePoolType m_Type = ePoolTypeCount;
 };
 
-#if 0
+class VulkanDescriptorSetLayout : public VulkanObject<VkDescriptorSetLayout>
+{
+public:
+	void Create(uint32_t targetShader, uint32_t slot, uint32_t count);
+	void Destory() override;
+protected:
+private:
+};
+
+class VulkanDescriptorSet : public VulkanObject<VkDescriptorSet>
+{
+public:
+	inline void CreateLayout(uint32_t targetShader, uint32_t slot, uint32_t count)
+	{
+		m_Layout.Create(targetShader, slot, count);
+	}
+
+	inline const VulkanDescriptorSetLayout &GetLayout() const
+	{
+		assert(m_Layout.IsValid());
+		return m_Layout;
+	}
+
+	void Update(const class VulkanSamplerState &sampler, const class VulkanImageView &imageView, uint32_t slot);
+
+	void Destory() override
+	{
+		m_Layout.Destory();
+
+		Reset();
+	}
+protected:
+private:
+	VulkanDescriptorSetLayout m_Layout;
+};
+
 class VulkanDescriptorPool : public VulkanObject<VkDescriptorPool>
 {
 public:
 	void Create();
 
-	VulkanDescriptorSet AllocDescriptorSet(VulkanDescriptorSetLayout &layout);
+	VulkanDescriptorSet Alloc(uint32_t targetShader, uint32_t slot, uint32_t count);
+
+	void Free(VulkanDescriptorSet &descriptorSet);
 
 	void ResetPool();
 
-	void Destory();
+	void Destory() override;
 protected:
 	enum eLimits
 	{
-		eMaxSetCount = 1024
+		///eMaxSetCount = 1024
 	};
 private:
+	VkDescriptorType m_Type = VK_DESCRIPTOR_TYPE_MAX_ENUM;
 };
-#endif

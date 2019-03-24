@@ -52,7 +52,7 @@ protected:
 	struct VulkanSamplerBindInfo
 	{
 		std::vector<VkSampler> Samplers;
-		VulkanDescriptorSet DescriptorSet = VK_NULL_HANDLE;
+		VulkanDescriptorSet DescriptorSet;
 		VulkanDescriptorSetLayout DescriptorSetLayout;
 	};
 

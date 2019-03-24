@@ -8,7 +8,7 @@
 #include "VulkanPool.h"
 #include "VulkanTexture.h"
 #include "VulkanRenderPass.h"
-#include "VulkanContextState.h"
+///#include "VulkanContextState.h"
 
 template <typename Left, typename Right>
 inline bool IsEqual(const Left &left, const Right &right)
@@ -16,26 +16,36 @@ inline bool IsEqual(const Left &left, const Right &right)
 	return memcmp(&left, &right, sizeof(Right)) == 0;
 }
 
-//class VulkanPipelineLayout : public VulkanObject<VkPipelineLayout>
-//{
-//public:
-//	void Create(bool bUseTex);
-//protected:
-//private:
-//};
-//
-class VulkanContextCache : public VulkanObject<VkPipelineCache>
+class VulkanPipelineLayout : public VulkanObject<VkPipelineLayout>
 {
 public:
 	void Create();
-	void Destory();
+	void Destory() override;
 protected:
 private:
 };
 
-class VulkanContext : public VulkanObject<VkPipeline>
+class VulkanPipelineCache : public VulkanObject<VkPipelineCache>
 {
 public:
+	void Create();
+	void Destory() override;
+protected:
+private:
+};
+
+class VulkanPipeline : public VulkanObject<VkPipeline>
+{
+public:
+	void Create(const VkGraphicsPipelineCreateInfo &createInfo, const VulkanPipelineCache &cache);
+	void Destory() override;
+
+	inline const VkGraphicsPipelineCreateInfo &GetPipelineInfo() const
+	{
+		assert(IsValid());
+		return m_CreateInfo;
+	}
+#if 0
 	inline void Initialize()
 	{
 		m_State.Initialize();
@@ -232,9 +242,28 @@ public:
 	{
 		return m_Layout;
 	}
+#endif
 protected:
 private:
-	VkPipelineLayout m_Layout = {};
-	VulkanContextState m_State;
-	VulkanContextCache m_Cache;
+	VulkanPipelineLayout m_Layout;
+	VkGraphicsPipelineCreateInfo m_CreateInfo = {};
+};
+
+class VulkanContext
+{
+public:
+	inline void Initialize()
+	{
+		m_Cache.Create();
+	}
+
+	void BuildPipline();
+
+	void Finalize();
+protected:
+private:
+	VkGraphicsPipelineCreateInfo m_CurPipelineInfo = {};
+	VulkanPipeline m_CurPipline;
+	VulkanPipelineCache m_Cache;
+	std::vector<VulkanPipeline> m_Pipelines;
 };

@@ -41,9 +41,13 @@ private:
 class VulkanSwapchain : public VulkanObject<VkSwapchainKHR>
 {
 public:
-	void Create(::HWND hWnd, uint32_t width, uint32_t height, bool bFullScreen);
+	void Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool bFullScreen);
+
+	void Create();
 
 	void Resize(uint32_t width, uint32_t height);
+
+	void Flush();
 
 	inline void SetVSync(bool bVSync)
 	{
@@ -57,20 +61,17 @@ public:
 		m_bFullScreen = bFullScreen;
 	}
 
-	//inline uint32_t GetColorSurfaceFormat() const
-	//{
-	//	return m_ColorSurfaceFormat;
-	//}
+	inline VkFormat GetColorFormat() const
+	{
+		assert(m_ColorFormat != VK_FORMAT_UNDEFINED);
+		return m_ColorFormat;
+	}
 
-	//inline uint32_t GetDepthSurfaceFormat() const
-	//{
-	//	return m_DepthSurfaceFormat;
-	//}
-
-	//inline VulkanCommandBuffer GetCurCommandBuffer() const
-	//{
-	//	return m_BackBuffers[m_CurBackBufferIndex].CommandBuffer;
-	//}
+	inline VkFormat GetDepthStencilFormat() const
+	{
+		assert(m_DepthStencilFormat != VK_FORMAT_UNDEFINED);
+		return m_DepthStencilFormat;
+	}
 
 	void Destory() override;
 protected:
@@ -78,21 +79,20 @@ protected:
 	{
 		VulkanRenderTargetView RenderTargetView;
 		VulkanFence PresentFence;
-		VulkanSemaphore ImageAcquireSemaphore;
-		VulkanSemaphore RenderCompleteSemaphore;
 		VulkanCommandBuffer CommandBuffer;
-		///VulkanFrameBuffer FrameBuffer;
+		VulkanFrameBuffer FrameBuffer;
 	};
 private:
 	VulkanSurface m_Surface;
 	VkExtent2D m_Size = {};
-	//VkPresentModeKHR m_PresentMode = VK_PRESENT_MODE_MAX_ENUM_KHR;
-	//VkFormat m_ColorSurfaceFormat = VK_FORMAT_UNDEFINED;
-	//VkFormat m_DepthSurfaceFormat = VK_FORMAT_UNDEFINED;
-	//VulkanDepthStencilView m_DepthStencilView;
+	VkPresentModeKHR m_PresentMode = VK_PRESENT_MODE_MAX_ENUM_KHR;
+	VkFormat m_ColorFormat = VK_FORMAT_UNDEFINED;
+	VkFormat m_DepthStencilFormat = VK_FORMAT_UNDEFINED;
 	std::vector<VulkanBackBuffer> m_BackBuffers;
-	//VulkanImage m_DepthStencilImage;
-	uint32_t m_Index = 0U;
+	VulkanSemaphore m_PresentSemaphore;
+	VulkanSemaphore m_WaitSemaphore;
+	VulkanDepthStencilView m_DepthStencilView;
+
 	bool m_bVSync = false;
 	bool m_bFullScreen = false;
 };

@@ -93,5 +93,5 @@ void IRenderApplication::RenterToWindow()
 
 void IRenderApplication::Finalize()
 {
-
+	REngine::Instance().Finalize();
 }

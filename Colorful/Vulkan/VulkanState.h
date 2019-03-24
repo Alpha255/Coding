@@ -37,7 +37,7 @@ class VulkanSamplerState : public VulkanObject<VkSampler>
 {
 public:
 	void Create(uint32_t filter, uint32_t addressMode, float LODBias, eRComparisonFunc compFunc, const float *pBorderClr, float minLOD, float maxLOD);
-	void Destory();
+	void Destory() override;
 protected:
 private:
 };
@@ -95,25 +95,10 @@ private:
 	VkPipelineColorBlendStateCreateInfo m_StateInfo = {};
 };
 
-class VulkanDescriptorSet : public VulkanObject<VkDescriptorSet>
-{
-public:
-protected:
-private:
-};
-
-class VulkanDescriptorSetLayout : public VulkanObject<VkDescriptorSetLayout>
-{
-public:
-	void Create(std::vector<VkSampler> &samplers, uint32_t targetShader);
-	void Destory();
-protected:
-private:
-};
-
 struct VulkanStaticState
 {
 	static void Initialize();
+	static void Finalize();
 
 	static VulkanSamplerState LinearSampler;
 	static VulkanDepthStencilState DisableDepthStencil;

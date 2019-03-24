@@ -1,7 +1,7 @@
 #include "VulkanState.h"
 #include "VulkanEngine.h"
 
-void VulkanSamplerState::Create(uint32_t filter, uint32_t addressMode, float LODBias, eRComparisonFunc compFunc, const float *pBorderClr, float minLOD, float maxLOD)
+void VulkanSamplerState::Create(uint32_t filter, uint32_t addressMode, float LODBias, eRComparisonFunc compFunc, const float *, float minLOD, float maxLOD)
 {
 	assert(!IsValid());
 
@@ -27,14 +27,14 @@ void VulkanSamplerState::Create(uint32_t filter, uint32_t addressMode, float LOD
 		false
 	};
 
-	VKCheck(vkCreateSampler(VulkanEngine::Instance().GetDevice(), &createInfo, 0, &m_Handle));
+	Check(vkCreateSampler(VulkanEngine::Instance().GetDevice().Get(), &createInfo, 0, &m_Handle));
 }
 
 void VulkanSamplerState::Destory()
 {
 	assert(IsValid());
 
-	vkDestroySampler(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
+	vkDestroySampler(VulkanEngine::Instance().GetDevice().Get(), m_Handle, nullptr);
 
 	Reset();
 }
@@ -88,74 +88,21 @@ void VulkanDepthStencilState::Create(
 	};
 }
 
-void VulkanBlendState::Create(
-	bool bAlphaToCoverage,
-	bool bIndependentBlend,
-	uint32_t surfaceIndex,
-	bool bBlend,
-	eRBlend srcColor,
-	eRBlend dstColor,
-	eRBlendOp colorOp,
-	eRBlend srcAlpha,
-	eRBlend dstAlpha,
-	eRBlendOp alphaOp,
-	uint8_t renderTargetWriteMask)
-{
-
-}
-
-void VulkanDescriptorSetLayout::Create(std::vector<VkSampler> &samplers, uint32_t targetShader)
-{
-	assert(!IsValid());
-
-	std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings;
-
-	VkShaderStageFlags shaderStage = VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM;
-	switch (targetShader)
-	{
-	case eVertexShader:
-		shaderStage = VK_SHADER_STAGE_VERTEX_BIT;
-		break;
-	case ePixelShader:
-		shaderStage = VK_SHADER_STAGE_FRAGMENT_BIT;
-		break;
-	default:
-		assert(0);
-		break;
-	}
-
-	for (uint32_t i = 0U; i < samplers.size(); ++i)
-	{
-		VkDescriptorSetLayoutBinding setLayoutBinding
-		{
-			i,
-			VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-			1U,
-			shaderStage,
-			&samplers[i]
-		};
-
-		setLayoutBindings.emplace_back(setLayoutBinding);
-	}
-
-	VkDescriptorSetLayoutCreateInfo createInfo
-	{
-		VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-		nullptr,
-		0U,
-		(uint32_t)setLayoutBindings.size(),
-		setLayoutBindings.data()
-	};
-
-	VKCheck(vkCreateDescriptorSetLayout(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
-}
-
-void VulkanDescriptorSetLayout::Destory()
-{
-	assert(IsValid());
-
-	vkDestroyDescriptorSetLayout(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
-}
+//void VulkanBlendState::Create(
+//	bool bAlphaToCoverage,
+//	bool bIndependentBlend,
+//	uint32_t surfaceIndex,
+//	bool bBlend,
+//	eRBlend srcColor,
+//	eRBlend dstColor,
+//	eRBlendOp colorOp,
+//	eRBlend srcAlpha,
+//	eRBlend dstAlpha,
+//	eRBlendOp alphaOp,
+//	uint8_t renderTargetWriteMask)
+//{
+//
+//}
 
 VulkanSamplerState VulkanStaticState::LinearSampler;
 VulkanDepthStencilState VulkanStaticState::DisableDepthStencil;
@@ -167,4 +114,9 @@ VulkanDepthStencilState VulkanStaticState::NoneDepthStencilState;
 void VulkanStaticState::Initialize()
 {
 	LinearSampler.Create(eLinear, eWrap, 0.0f, eRComparisonFunc::eNever, nullptr, 0.0f, FLT_MAX);
+}
+
+void VulkanStaticState::Finalize()
+{
+	LinearSampler.Destory();
 }

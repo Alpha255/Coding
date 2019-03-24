@@ -1239,6 +1239,7 @@ void InitImGUI()
 	descriptorSetAllocateInfo.pSetLayouts = &vkDescriptorSetLayout;
 	descriptorSetAllocateInfo.descriptorSetCount = 1U;
 	check(vkAllocateDescriptorSets(vkDevice, &descriptorSetAllocateInfo, &vkDescriptorSet));
+
 	VkDescriptorImageInfo descriptorImageInfo{};
 	descriptorImageInfo.sampler = vkSampler;
 	descriptorImageInfo.imageView = vkImageViewFont;

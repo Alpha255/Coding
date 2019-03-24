@@ -7,8 +7,6 @@ void VulkanInputLayout::Create(const void *, const std::vector<Geometry::VertexL
 
 	m_VertexInputAttrs.clear();
 
-	///size_t stride = 0U;
-
 	for (uint32_t i = 0U; i < layouts.size(); ++i)
 	{
 		VkVertexInputAttributeDescription inputAttrDesc
@@ -19,8 +17,6 @@ void VulkanInputLayout::Create(const void *, const std::vector<Geometry::VertexL
 			layouts[i].Offset
 		};
 		m_VertexInputAttrs.emplace_back(inputAttrDesc);
-
-		///stride += layouts[i].Stride;
 	}
 
 	m_bValid = true;

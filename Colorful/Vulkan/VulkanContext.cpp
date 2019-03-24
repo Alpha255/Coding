@@ -1,7 +1,16 @@
 #include "VulkanContext.h"
 #include "VulkanEngine.h"
 
-void VulkanContextCache::Create()
+void VulkanPipelineLayout::Destory()
+{
+	assert(IsValid());
+
+	vkDestroyPipelineLayout(VulkanEngine::Instance().GetDevice().Get(), m_Handle, nullptr);
+
+	Reset();
+}
+
+void VulkanPipelineCache::Create()
 {
 	assert(!IsValid());
 
@@ -14,18 +23,69 @@ void VulkanContextCache::Create()
 		nullptr
 	};
 
-	VKCheck(vkCreatePipelineCache(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
+	Check(vkCreatePipelineCache(VulkanEngine::Instance().GetDevice().Get(), &createInfo, nullptr, &m_Handle));
 }
 
-void VulkanContextCache::Destory()
+void VulkanPipelineCache::Destory()
 {
 	assert(IsValid());
 
-	vkDestroyPipelineCache(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
+	vkDestroyPipelineCache(VulkanEngine::Instance().GetDevice().Get(), m_Handle, nullptr);
 
 	Reset();
 }
 
+void VulkanPipeline::Create(const VkGraphicsPipelineCreateInfo &createInfo, const VulkanPipelineCache &cache)
+{
+	assert(!IsValid());
+
+	m_CreateInfo = createInfo;
+
+	Check(vkCreateGraphicsPipelines(VulkanEngine::Instance().GetDevice().Get(), cache.Get(), 1U, &m_CreateInfo, nullptr, &m_Handle));
+}
+
+void VulkanPipeline::Destory()
+{
+	assert(IsValid());
+
+	vkDestroyPipeline(VulkanEngine::Instance().GetDevice().Get(), m_Handle, nullptr);
+
+	Reset();
+}
+
+void VulkanContext::BuildPipline()
+{
+	for (uint32_t i = 0U; i < m_Pipelines.size(); ++i)
+	{
+		auto &pipelineInfo = m_Pipelines[i].GetPipelineInfo();
+		if (IsEqual(pipelineInfo, m_CurPipelineInfo))
+		{
+			m_CurPipline = m_Pipelines[i];
+			m_CurPipelineInfo = {};
+			return;
+		}
+	}
+
+	VulkanPipeline pipeline;
+	pipeline.Create(m_CurPipelineInfo, m_Cache);
+	m_Pipelines.emplace_back(pipeline);
+
+	m_CurPipline = pipeline;
+	m_CurPipelineInfo = {};
+}
+
+void VulkanContext::Finalize()
+{
+	for (uint32_t i = 0U; i < m_Pipelines.size(); ++i)
+	{
+		m_Pipelines[i].Destory();
+	}
+
+	m_Pipelines.clear();
+	m_Cache.Destory();
+}
+
+#if 0
 void VulkanContext::Recreate()
 {
 	if (IsValid())
@@ -157,20 +217,6 @@ void VulkanContext::DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_
 	m_State.CommitState(*this, indexCount, startIndex, offset);
 }
 
-void VulkanContext::Destory(bool bDestoryState)
-{
-	assert(IsValid());
-
-	if (bDestoryState)
-	{
-		m_State.Destory();
-	}
-
-	vkDestroyPipeline(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
-
-	Reset();
-}
-
 //void VulkanContext::SetVertexBuffer(const VulkanBuffer &vertexBuffer, uint32_t stride, uint32_t offset, uint32_t slot)
 //{
 //}
@@ -189,3 +235,4 @@ void VulkanContext::Destory(bool bDestoryState)
 //{
 //	///vkCmdDrawIndexed();
 //}
+#endif

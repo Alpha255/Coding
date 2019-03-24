@@ -1,15 +1,12 @@
 #pragma once
 
-#include "VulkanView.h"
-#include "VulkanBuffer.h"
+#include "VulkanObject.h"
 
 class VulkanRenderPass : public VulkanObject<VkRenderPass>
 {
 public:
-	void Create(bool depth, uint32_t colorFormat, uint32_t depthFormat, bool clear, uint32_t imageLayout);
-	void Destory();
+	void Create();
+	void Destory() override;
 protected:
 private:
-	///std::vector<VulkanImageView> m_Views;
-	///VulkanFrameBuffer m_FrameBuffer;
 };

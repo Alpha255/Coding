@@ -123,56 +123,58 @@ void VulkanImage::Destory()
 
 	vkDestroyImage(VulkanEngine::Instance().GetDevice().Get(), m_Handle, nullptr);
 
-	m_Memory.Destory();
+	if (m_Memory.IsValid())
+	{
+		m_Memory.Destory();
+	}
 
 	m_CreateInfo = {};
 
 	Reset();
 }
 
-void VulkanImageView::Create(VulkanImage &)
+void VulkanImageView::Create(const VulkanImage &image, bool bKeepImage)
 {
-#if 0
 	assert(!IsValid() && image.IsValid());
 
-	auto imageProperty = image.GetProperty();
+	auto &imageInfo = image.GetImageInfo();
+
 	VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_FLAG_BITS_MAX_ENUM;
-	if (VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT == imageProperty.Usage)
+	if (VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT & imageInfo.usage)
 	{
 		aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT;
 	}
-	else if (VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT == imageProperty.Usage)
+	else if (VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT & imageInfo.usage)
 	{
 		aspectFlags = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
 	}
-	else
+	assert(aspectFlags != VK_IMAGE_ASPECT_FLAG_BITS_MAX_ENUM);
+
+	VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_MAX_ENUM;
+	switch (imageInfo.imageType)
 	{
-		System::Log("Not supported yet!!");
+	case VK_IMAGE_TYPE_1D:
+		viewType = VK_IMAGE_VIEW_TYPE_1D;
+		break;
+	case VK_IMAGE_TYPE_2D:
+		viewType = VK_IMAGE_VIEW_TYPE_2D;
+		break;
+	case VK_IMAGE_TYPE_3D:
+		viewType = VK_IMAGE_VIEW_TYPE_3D;
+		break;
+	default:
 		assert(0);
+		break;
 	}
 
-	VkImageViewCreateInfo createInfo
-	{
-		VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-		nullptr,
-		0U,
-		image.Get(),
-		(VkImageViewType)imageProperty.Type,
-		(VkFormat)imageProperty.Format,
-		{ VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A },
-		{ aspectFlags, 0U, imageProperty.MipLevels, 0U, 1U }
-	};
-
-	VKCheck(vkCreateImageView(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
-#endif
+	CreateAsTexture((eRViewType)viewType, image, imageInfo.format, imageInfo.mipLevels, aspectFlags, bKeepImage);
 }
 
-void VulkanImageView::CreateAsTexture(eRViewType, VulkanImage &, uint32_t, uint32_t, uint32_t)
+void VulkanImageView::CreateAsTexture(eRViewType type, const VulkanImage &image, uint32_t fmt, uint32_t mipSlice, uint32_t aspectFlags, bool bKeepImage)
 {
-#if 0
-	assert(!IsValid());
+	assert(!IsValid() && image.IsValid());
 
-	VkImageViewCreateInfo createInfo
+	m_CreateInfo = VkImageViewCreateInfo
 	{
 		VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
 		nullptr,
@@ -180,12 +182,28 @@ void VulkanImageView::CreateAsTexture(eRViewType, VulkanImage &, uint32_t, uint3
 		image.Get(),
 		(VkImageViewType)type,
 		(VkFormat)fmt,
-		{ VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A },
-		{ aspectFlags, 0U, mipSlice, 0U, 1U }
+		{ 
+			VK_COMPONENT_SWIZZLE_R, 
+			VK_COMPONENT_SWIZZLE_G, 
+			VK_COMPONENT_SWIZZLE_B, 
+			VK_COMPONENT_SWIZZLE_A 
+		},
+
+		{ 
+			aspectFlags, 
+			0U, 
+			mipSlice, 
+			0U, 
+			1U 
+		}
 	};
 
-	VKCheck(vkCreateImageView(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
-#endif
+	Check(vkCreateImageView(VulkanEngine::Instance().GetDevice().Get(), &m_CreateInfo, nullptr, &m_Handle));
+
+	if (bKeepImage)
+	{
+		m_Image = image;
+	}
 }
 
 void VulkanImageView::Destory()
@@ -193,6 +211,11 @@ void VulkanImageView::Destory()
 	assert(IsValid());
 
 	vkDestroyImageView(VulkanEngine::Instance().GetDevice().Get(), m_Handle, nullptr);
+
+	if (m_Image.IsValid())
+	{
+		m_Image.Destory();
+	}
 
 	Reset();
 }

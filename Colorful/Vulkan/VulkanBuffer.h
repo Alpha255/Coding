@@ -99,6 +99,7 @@ public:
 		eResetReleaseResourceBit = VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT
 	};
 
+	VulkanCommandBuffer() = default;
 	VulkanCommandBuffer(uint32_t count)
 	{
 		m_CommandBuffers.resize(count);
@@ -145,6 +146,17 @@ public:
 		return (uint32_t)m_CommandBuffers.size();
 	}
 
+	inline uint32_t GetPoolType() const
+	{
+		assert(m_PoolType != UINT32_MAX);
+		return m_PoolType;
+	}
+
+	inline void SetPoolType(uint32_t type)
+	{
+		m_PoolType = type;
+	}
+
 	inline void Begin(eCommandBufferUsage usage, uint32_t index)
 	{
 		assert(IsValid(index));
@@ -188,15 +200,14 @@ public:
 protected:
 private:
 	std::vector<VkCommandBuffer> m_CommandBuffers;
+	uint32_t m_PoolType = UINT32_MAX;
 };
 
-#if 0
 class VulkanFrameBuffer : public VulkanObject<VkFramebuffer>
 {
 public:
-	void Create(const std::vector<class VulkanImageView> &imageViews, const class VulkanRenderPass &renderPass, uint32_t width, uint32_t height, uint32_t layers = 1U);
-	void Destory();
+	void Create(uint32_t width, uint32_t height, const std::vector<VkImageView> &views);
+	void Destory() override;
 protected:
 private:
 };
-#endif

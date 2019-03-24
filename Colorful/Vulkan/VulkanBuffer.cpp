@@ -177,40 +177,31 @@ void VulkanBuffer::Destory()
 	Reset();
 }
 
-#if 0
-void VulkanFrameBuffer::Create(const std::vector<VulkanImageView> &imageViews, const VulkanRenderPass &renderPass, uint32_t width, uint32_t height, uint32_t layers)
+void VulkanFrameBuffer::Create(uint32_t width, uint32_t height, const std::vector<VkImageView> &views)
 {
 	assert(!IsValid());
-
-	std::vector<VkImageView> vkViews(imageViews.size());
-	for (uint32_t i = 0U; i < imageViews.size(); ++i)
-	{
-		assert(imageViews[i].IsValid());
-		vkViews[i] = imageViews[i].Get();
-	}
 
 	VkFramebufferCreateInfo createInfo
 	{
 		VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
 		nullptr,
-		0U, /// Reserved for future use
-		renderPass.Get(),
-		(uint32_t)vkViews.size(),
-		vkViews.data(),
+		0U,
+		VulkanEngine::Instance().GetRenderPass().Get(),
+		(uint32_t)views.size(),
+		views.data(),
 		width,
 		height, 
-		layers
+		1U
 	};
 
-	VKCheck(vkCreateFramebuffer(VulkanEngine::Instance().GetDevice(), &createInfo, nullptr, &m_Handle));
+	Check(vkCreateFramebuffer(VulkanEngine::Instance().GetDevice().Get(), &createInfo, nullptr, &m_Handle));
 }
 
 void VulkanFrameBuffer::Destory()
 {
 	assert(IsValid());
 
-	vkDestroyFramebuffer(VulkanEngine::Instance().GetDevice(), m_Handle, nullptr);
+	vkDestroyFramebuffer(VulkanEngine::Instance().GetDevice().Get(), m_Handle, nullptr);
 
 	Reset();
 }
-#endif

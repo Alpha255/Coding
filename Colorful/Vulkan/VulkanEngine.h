@@ -2,7 +2,7 @@
 
 #include "Public/IEngine.h"
 #include "VulkanDevice.h"
-#include "VulkanPool.h"
+#include "VulkanContext.h"
 
 class VulkanEngine : public IEngine
 {
@@ -116,34 +116,6 @@ public:
 	//{
 
 	//}
-
-	inline VulkanCommandBuffer AllocCommandBuffer(VulkanCommandPool::ePoolType type, VulkanCommandPool::eBufferType bufferType)
-	{
-		assert(type < VulkanCommandPool::ePoolTypeCount && m_CommandPools[type].IsValid());
-		VulkanCommandBuffer newCmdBuffer = m_CommandPools[type].Alloc(bufferType);
-
-		RegisterCommandBuffer(type, newCmdBuffer);
-
-		return newCmdBuffer;
-	}
-
-	inline void FreeCommandBuffer(VulkanCommandBuffer &cmdBuffer)
-	{
-		DeregisterCommandBuffer(cmdBuffer);
-
-		m_CommandPools[cmdBuffer.GetPoolType()].Free(cmdBuffer);
-	}
-
-	inline VulkanSwapchain &GetSwapchain()
-	{
-		return m_Swapchain;
-	}
-
-	inline const VulkanRenderPass &GetDefaultRenderPass() const
-	{
-		assert(m_DefaultRenderPass.IsValid());
-		return m_DefaultRenderPass;
-	}
 #endif
 	inline void Resize(uint32_t width, uint32_t height)
 	{
@@ -160,8 +132,29 @@ public:
 		return m_Device;
 	}
 
-	void Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool bWindowed);
+	inline const VulkanRenderPass &GetRenderPass() const
+	{
+		return m_RenderPass;
+	}
 
+	inline const VulkanSwapchain &GetSwapchain() const
+	{
+		return m_Swapchain;
+	}
+
+	void Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool bWindowed);
+	void Finalize();
+
+	inline VulkanCommandBuffer AllocCommandBuffer(VulkanCommandPool::ePoolType type, VulkanCommandPool::eBufferType bufferType, uint32_t count)
+	{
+		assert(type < VulkanCommandPool::ePoolTypeCount && m_CommandPools[type].IsValid());
+		return m_CommandPools[type].Alloc(bufferType, count);
+	}
+
+	inline void FreeCommandBuffer(VulkanCommandBuffer &cmdBuffer)
+	{
+		m_CommandPools[cmdBuffer.GetPoolType()].Free(cmdBuffer);
+	}
 protected:
 	VulkanEngine() = default;
 	~VulkanEngine() = default;
@@ -171,11 +164,7 @@ private:
 	VulkanInstance m_Instance;
 	VulkanDevice m_Device;
 	VulkanSwapchain m_Swapchain;
-	std::array<VulkanCommandPool, VulkanCommandPool::ePoolTypeCount> m_CommandPools;
-#if 0
-	VulkanRenderPass m_DefaultRenderPass;
+	VulkanRenderPass m_RenderPass;
 	VulkanContext m_Context;
-
-	bool m_Inited = false;
-#endif
+	std::array<VulkanCommandPool, VulkanCommandPool::ePoolTypeCount> m_CommandPools;
 };
