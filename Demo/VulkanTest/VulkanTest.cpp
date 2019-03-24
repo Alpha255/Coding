@@ -876,13 +876,13 @@ void CreateFrameBuffers()
 VkShaderModule CreateShader(const char *fileName)
 {
 	AssetFile shader(fileName);
-	auto pCode = shader.Load();
+	auto pCode = shader.Load().get();
 
 	VkShaderModule shaderModule;
 	VkShaderModuleCreateInfo moduleCreateInfo{};
 	moduleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 	moduleCreateInfo.codeSize = shader.GetSize();
-	moduleCreateInfo.pCode = (uint32_t *)&pCode;
+	moduleCreateInfo.pCode = (uint32_t *)pCode;
 
 	check(vkCreateShaderModule(vkDevice, &moduleCreateInfo, NULL, &shaderModule));
 

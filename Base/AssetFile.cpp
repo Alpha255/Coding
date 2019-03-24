@@ -98,7 +98,13 @@ std::shared_ptr<uint8_t> AssetFile::Load()
 		return m_Data;
 	}
 
-	std::ifstream file(m_Path, (eTexture == m_Type || eShaderBinary == m_Type) ? std::ios::in | std::ios::binary : std::ios::in);
+	int32_t readMode = std::ios::in;
+	if (eTexture == m_Type || eShaderBinary == m_Type)
+	{
+		readMode |= std::ios::binary;
+	}
+
+	std::ifstream file(m_Path, readMode);
 	assert(file.good());
 
 	auto pMemory = new uint8_t[m_Size]();
