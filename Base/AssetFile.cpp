@@ -55,7 +55,7 @@ void AssetFile::GetAssetType()
 	{
 		m_Type = eShader;
 	}
-	else if (ext == ".bin")
+	else if (ext == ".bin" || ext == ".spv")
 	{
 		m_Type = eShaderBinary;
 	}

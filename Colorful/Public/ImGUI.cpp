@@ -1,14 +1,11 @@
 #include "ImGUI.h"
 #include "Geometry.h"
-#include "Definitions.h"
-#include "Colorful/D3D11/D3D11Types.h"
-#include "IRenderApplication.h"
 
 std::unique_ptr<ImGUI, std::function<void(ImGUI *)>> ImGUI::s_Instance;
 
 void ImGUI::Initialize(::HWND hWnd)
 {
-	assert(hWnd && !m_Inited);
+	assert(hWnd);
 
 	/// Init key map
 	IMGUI_CHECKVERSION();
@@ -36,34 +33,27 @@ void ImGUI::Initialize(::HWND hWnd)
 	io.RenderDrawListsFn = nullptr;
 	io.ImeWindowHandle = hWnd;
 
-	InitRenderResource();
-
-	m_Inited = true;
-}
-
-void ImGUI::InitRenderResource()
-{
-	const VertexLayout layout[] = 
+	std::vector<Geometry::VertexLayout> layout =
 	{
-		{ "POSITION", sizeof(ImDrawVert::pos), (size_t)(&((ImDrawVert*)0)->pos), eRG32_Float  },
-		{ "TEXCOORD", sizeof(ImDrawVert::uv),  (size_t)(&((ImDrawVert*)0)->uv),  eRG32_Float  },
-		{ "COLOR",    sizeof(ImDrawVert::col), (size_t)(&((ImDrawVert*)0)->col), eRGBA8_UNorm }
+		{ "POSITION", sizeof(ImDrawVert::pos), offsetof(ImDrawVert, pos), eRG32_Float  },
+		{ "TEXCOORD", sizeof(ImDrawVert::uv),  offsetof(ImDrawVert, uv),  eRG32_Float  },
+		{ "COLOR",    sizeof(ImDrawVert::col), offsetof(ImDrawVert, col), eRGBA8_UNorm }
 	};
 
-	m_Resource.VertexShader.Create("imGUI.shader", "main");
-	m_Resource.VertexLayout.Create(m_Resource.VertexShader.GetBlob(), layout, _countof(layout));
-	m_Resource.PixelShader.Create("imGUI.shader", "main");
+	m_Resource.VertexShader.Create("UIVertexShader.vert", "main");
+	m_Resource.VertexLayout.Create(m_Resource.VertexShader.GetBlob(), layout);
+	m_Resource.PixelShader.Create("UIFragmentShader.frag", "main");
 
 	m_Resource.ConstantBufferVS.CreateAsConstantBuffer(sizeof(Matrix), eGpuReadCpuWrite, nullptr);
 
-	m_Resource.ClrWriteBlend.Create(false, false, 0U, true, 
+	m_Resource.ClrWriteBlend.Create(false, false, 0U, true,
 		eRBlend::eSrcAlpha, eRBlend::eInvSrcAlpha, eRBlendOp::eAdd,
 		eRBlend::eInvSrcAlpha, eRBlend::eZero, eRBlendOp::eAdd,
 		eColorAll);
 
 	unsigned char *pPixels = nullptr;
-	int32_t width = 0, height = 0;
-	ImGuiIO &io = ImGui::GetIO();
+	int32_t width = 0;
+	int32_t height = 0;
 	io.Fonts->GetTexDataAsRGBA32(&pPixels, &width, &height);
 
 	RTexture2D fontTex;
@@ -78,11 +68,11 @@ void ImGUI::InitRenderResource()
 	io.Fonts->TexID = (void *)m_Resource.FontTexture.Get();
 }
 
-::LRESULT ImGUI::MessageProcFunc(::HWND hWnd, uint32_t uMsg, ::WPARAM wParam, ::LPARAM lParam)
+::LRESULT ImGUI::HandleWindowMessage(::HWND hWnd, uint32_t uMsg, ::WPARAM wParam, ::LPARAM lParam)
 {
 	ImGuiIO &io = ImGui::GetIO();
 
-	int mouseBtn = -1;
+	int32_t mouseBtn = -1;
 	if (WM_LBUTTONDOWN == uMsg || WM_LBUTTONUP == uMsg)
 	{
 		mouseBtn = 0;
@@ -120,8 +110,8 @@ void ImGUI::InitRenderResource()
 		io.MouseWheel += GET_WHEEL_DELTA_WPARAM(wParam) > 0 ? +1.0f : -1.0f;
 		return 0LL;
 	case WM_MOUSEMOVE:
-		io.MousePos.x = (signed short)(lParam);
-		io.MousePos.y = (signed short)(lParam >> 16);
+		io.MousePos.x = (int16_t)(lParam);
+		io.MousePos.y = (int16_t)(lParam >> 16);
 		return 0LL;
 	case WM_KEYDOWN:
 	case WM_SYSKEYDOWN:
@@ -138,10 +128,10 @@ void ImGUI::InitRenderResource()
 		}
 		return 0LL;
 	case WM_CHAR:
-		// You can also use ToAscii()+GetKeyboardState() to retrieve characters.
+		/// You can also use ToAscii()+GetKeyboardState() to retrieve characters.
 		if (wParam > 0 && wParam < 0x10000)
 		{
-			io.AddInputCharacter((unsigned short)wParam);
+			io.AddInputCharacter((uint16_t)wParam);
 		}
 		return 0LL;
 	}
@@ -149,13 +139,8 @@ void ImGUI::InitRenderResource()
 	return 0LL;
 }
 
-void ImGUI::RenderBegin(bool bDraw, const char *pPanelName)
+void ImGUI::RenderBegin(const char *pPanelName)
 {
-	if (!bDraw)
-	{
-		return;
-	}
-
 	ImGuiIO &io = ImGui::GetIO();
 	::HWND hWnd = (::HWND)io.ImeWindowHandle;
 	assert(hWnd);
@@ -194,13 +179,8 @@ void ImGUI::RenderBegin(bool bDraw, const char *pPanelName)
 	ImGui::Begin(pPanelName);
 }
 
-void ImGUI::RenderEnd(bool bDraw)
+void ImGUI::RenderEnd()
 {
-	if (!bDraw)
-	{
-		return;
-	}
-
 	ImGui::End();
 
 	ImGui::Render();
@@ -278,6 +258,7 @@ void ImGUI::Update()
 		vOffset += pDrawList->VtxBuffer.Size;
 	}
 
+#if 0
 	/// Restore D3D state
 	::HWND hWnd = (::HWND)ImGui::GetIO().ImeWindowHandle;
 	::RECT rect = {};
@@ -289,6 +270,7 @@ void ImGUI::Update()
 	REngine::Instance().SetRasterizerState(RStaticState::Solid);
 	REngine::Instance().SetBlendState(RStaticState::NoneBlendState);
 	REngine::Instance().SetDepthStencilState(RStaticState::NoneDepthStencilState, 0U);
+#endif
 }
 
 void ImGUI::UpdateDrawData(bool bRecreateVB, bool bRecreateIB, const ImDrawData *pDrawData)

@@ -50,7 +50,74 @@ void VulkanPipeline::Destory()
 
 	vkDestroyPipeline(VulkanEngine::Instance().GetDevice().Get(), m_Handle, nullptr);
 
+	m_Layout.Destory();
+
 	Reset();
+}
+
+bool VulkanContext::IsSamePipelineState(const VkGraphicsPipelineCreateInfo &left, const VkGraphicsPipelineCreateInfo &right)
+{
+	if (!IsEqual(left.stageCount, right.stageCount))
+	{
+		return false;
+	}
+
+	if (!IsEqual(*left.pStages, *right.pStages))
+	{
+		return false;
+	}
+
+	if (!IsEqual(*left.pVertexInputState, *right.pVertexInputState))
+	{
+		return false;
+	}
+
+	if (!IsEqual(*left.pInputAssemblyState, *right.pInputAssemblyState))
+	{
+		return false;
+	}
+
+	if (!IsEqual(*left.pTessellationState, *right.pTessellationState))
+	{
+		return false;
+	}
+
+	if (!IsEqual(*left.pViewportState, *right.pViewportState))
+	{
+		return false;
+	}
+
+	if (!IsEqual(*left.pRasterizationState, *right.pRasterizationState))
+	{
+		return false;
+	}
+
+	if (!IsEqual(*left.pMultisampleState, *right.pMultisampleState))
+	{
+		return false;
+	}
+
+	if (!IsEqual(*left.pDepthStencilState, *right.pDepthStencilState))
+	{
+		return false;
+	}
+
+	if (!IsEqual(*left.pColorBlendState, *right.pColorBlendState))
+	{
+		return false;
+	}
+
+	if (!IsEqual(*left.pDynamicState, *right.pDynamicState))
+	{
+		return false;
+	}
+
+	if (!IsEqual(left.subpass, right.subpass))
+	{
+		return false;
+	}
+
+	return true;
 }
 
 void VulkanContext::BuildPipline()
@@ -58,10 +125,9 @@ void VulkanContext::BuildPipline()
 	for (uint32_t i = 0U; i < m_Pipelines.size(); ++i)
 	{
 		auto &pipelineInfo = m_Pipelines[i].GetPipelineInfo();
-		if (IsEqual(pipelineInfo, m_CurPipelineInfo))
+		if (IsSamePipelineState(pipelineInfo, m_CurPipelineInfo))
 		{
 			m_CurPipline = m_Pipelines[i];
-			m_CurPipelineInfo = {};
 			return;
 		}
 	}
@@ -71,7 +137,32 @@ void VulkanContext::BuildPipline()
 	m_Pipelines.emplace_back(pipeline);
 
 	m_CurPipline = pipeline;
-	m_CurPipelineInfo = {};
+
+	m_StateInfos.ShaderStageInfos.clear();
+	m_StateInfos.ShaderStageInfoArray.fill(std::make_pair(VkPipelineShaderStageCreateInfo(), false));
+}
+
+void VulkanContext::DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, uint32_t primitive)
+{
+	m_StateInfos.InputAssemblyInfo = VkPipelineInputAssemblyStateCreateInfo
+	{
+		VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
+		nullptr,
+		0U,
+		(VkPrimitiveTopology)primitive,
+		VK_FALSE
+	};
+
+
+	for each (auto &shaderStage in m_StateInfos.ShaderStageInfoArray)
+	{
+		if (shaderStage.second)
+		{
+			m_StateInfos.ShaderStageInfos.emplace_back(shaderStage.first);
+		}
+	}
+
+	BuildPipline();
 }
 
 void VulkanContext::Finalize()

@@ -8,14 +8,16 @@ class VulkanInputLayout
 public:
 	void Create(const void *, const std::vector<Geometry::VertexLayout> & layouts);
 
-	inline const std::vector<VkVertexInputAttributeDescription> &Get() const
+	inline const VkPipelineVertexInputStateCreateInfo &Get() const
 	{
 		assert(m_bValid);
-		return m_VertexInputAttrs;
+		return m_CreateInfo;
 	}
 protected:
 private:
 	std::vector<VkVertexInputAttributeDescription> m_VertexInputAttrs;
+	VkPipelineVertexInputStateCreateInfo m_CreateInfo = {};
+	VkVertexInputBindingDescription m_InputBinding = {};
 	bool m_bValid = false;
 };
 

@@ -17,7 +17,6 @@ public:
 		return *s_Instance;
 	}
 
-#if 0
 	inline void Flush()
 	{
 		m_Swapchain.Flush();
@@ -103,20 +102,11 @@ public:
 		m_Context.SetScissorRect(rect, slot);
 	}
 
-	//inline void Draw(uint32_t vertexCount, uint32_t startVertex, uint32_t primitive)
-	//{
-	//}
-
 	inline void DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, uint32_t primitive)
 	{
 		m_Context.DrawIndexed(indexCount, startIndex, offset, primitive);
 	}
 
-	//inline void ClearRenderSurface(const Vec4 &color = Color::DarkBlue)
-	//{
-
-	//}
-#endif
 	inline void Resize(uint32_t width, uint32_t height)
 	{
 		m_Swapchain.Resize(width, height);

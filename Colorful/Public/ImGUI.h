@@ -18,17 +18,17 @@ public:
 		return *s_Instance;
 	}
 
-	static void Destroy()
+	inline void Finalize()
 	{
 		ImGui::DestroyContext();
 	}
 
 	void Initialize(::HWND hWnd);
 
-	::LRESULT MessageProcFunc(::HWND hWnd, uint32_t uMsg, ::WPARAM wParam, ::LPARAM lParam);
+	::LRESULT HandleWindowMessage(::HWND hWnd, uint32_t uMsg, ::WPARAM wParam, ::LPARAM lParam);
 
-	void RenderBegin(bool bDraw = true, const char *pPanelName = "imGUI");
-	void RenderEnd(bool bDraw = true);
+	void RenderBegin(const char *pPanelName = "imGUI");
+	void RenderEnd();
 
 	inline bool IsFocus() const 
 	{
@@ -82,7 +82,6 @@ private:
 
 	std::shared_ptr<ImDrawVert> m_Vertices;
 	std::shared_ptr<ImDrawIdx> m_Indices;
-	bool m_Inited = false;
 
 	RenderResource m_Resource;
 };

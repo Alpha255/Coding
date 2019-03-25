@@ -1,5 +1,6 @@
 #include "IRenderApplication.h"
 #include "Definitions.h"
+#include "Public/ImGUI.h"
 
 void IRenderApplication::Initialize(const std::string &title, uint32_t width, uint32_t height, bool bFullScreen, uint32_t extraWindowStyle)
 {
@@ -7,6 +8,8 @@ void IRenderApplication::Initialize(const std::string &title, uint32_t width, ui
 	Base::Initialize(title, width, height, bFullScreen, extraWindowStyle);
 
 	REngine::Instance().Initialize(m_hWnd, width, height, bFullScreen);
+
+	ImGUI::Instance().Initialize(m_hWnd);
 
 	PrepareScene();
 
@@ -55,13 +58,11 @@ void IRenderApplication::HandleMouseInput(::WPARAM wParam, ::LPARAM lParam, eMou
 		break;
 	case eMouseWheel:
 	{
-		int16_t mouseWheelDelta = (int16_t)HIWORD(wParam);
-
 		/// Not perfect 
 		float radius = m_Camera.GetViewRadius();
 		float radiusCopy = radius;
 
-		radius -= mouseWheelDelta * radius * 0.1f / 120.0f;
+		radius -= GET_WHEEL_DELTA_WPARAM(wParam) * radius * 0.1f / 120.0f;
 		radius = Math::Clamp(radius, radiusCopy / 2.0f, radiusCopy * 2.0f);
 
 		m_Camera.SetViewRadius(radius);
@@ -94,4 +95,6 @@ void IRenderApplication::RenterToWindow()
 void IRenderApplication::Finalize()
 {
 	REngine::Instance().Finalize();
+
+	ImGUI::Instance().Finalize();
 }

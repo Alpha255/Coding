@@ -23,16 +23,16 @@
 	#include "Vulkan/VulkanEngine.h"
 	#define IconID IconVulkan 
 	typedef VulkanEngine REngine;
-	///typedef VulkanVertexShader RVertexShader;
-	///typedef VulkanPixelShader RPixelShader;
-	///typedef VulkanBuffer RBuffer;
-	///typedef VulkanShaderResourceView RShaderResourceView;
-	///typedef VulkanViewport RViewport;
-	///typedef VulkanInputLayout RInputLayout;
-	///typedef VulkanBlendState RBlendState;
-	///typedef VulkanTexture2D RTexture2D;
-	///typedef VulkanStaticState RStaticState;
-	///typedef VulkanSubResourceData RSubResourceData;
+	typedef VulkanVertexShader RVertexShader;
+	typedef VulkanPixelShader RPixelShader;
+	typedef VulkanBuffer RBuffer;
+	typedef VulkanShaderResourceView RShaderResourceView;
+	typedef VulkanViewport RViewport;
+	typedef VulkanInputLayout RInputLayout;
+	typedef VulkanBlendState RBlendState;
+	typedef VulkanTexture2D RTexture2D;
+	typedef VulkanStaticState RStaticState;
+	typedef VulkanSubResourceData RSubResourceData;
 #else
 	#error "Unknown Render Interface"
 #endif

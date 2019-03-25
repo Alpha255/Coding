@@ -38,7 +38,7 @@ void VulkanEngine::Finalize()
 		m_CommandPools[i].Destory();
 	}
 
-	///m_Context.Destory();
+	m_Context.Finalize();
 
 	m_Device.Destory();
 
