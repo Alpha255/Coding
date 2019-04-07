@@ -2,6 +2,7 @@
 
 #include "VulkanObject.h"
 #include "VulkanBuffer.h"
+#include "VulkanState.h"
 
 struct VulkanSubResourceData
 {
@@ -40,6 +41,13 @@ public:
 		return m_CreateInfo;
 	}
 protected:
+	void SetImageLayout(
+		VkCommandBuffer cmdbuffer,
+		VkImageAspectFlags aspectMask,
+		VkImageLayout oldImageLayout,
+		VkImageLayout newImageLayout,
+		VkPipelineStageFlags srcStageMask,
+		VkPipelineStageFlags dstStageMask);
 private:
 	VulkanDeviceMemory m_Memory;
 	VkImageCreateInfo m_CreateInfo = {};
@@ -57,10 +65,21 @@ public:
 		assert(IsValid());
 		return m_CreateInfo;
 	}
+
+	inline const VulkanSamplerState &GetSampler() const
+	{
+		return m_Sampler;
+	}
+
+	inline void BindSampler(const VulkanSamplerState &sampler)
+	{
+		m_Sampler = sampler;
+	}
 protected:
 private:
 	VkImageViewCreateInfo m_CreateInfo = {};
 	VulkanImage m_Image;
+	VulkanSamplerState m_Sampler;
 };
 
 class VulkanRenderTargetView : public VulkanImageView

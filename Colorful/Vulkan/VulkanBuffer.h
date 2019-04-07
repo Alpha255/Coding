@@ -50,7 +50,7 @@ public:
 		}
 	}
 
-	inline void CreateAsConstantBuffer(
+	inline void CreateAsUniformBuffer(
 		size_t byteWidth,
 		uint32_t usage,
 		const void *pData,
@@ -64,17 +64,24 @@ public:
 		}
 	}
 
-	//inline void CreateAsTransferBuffer(size_t byteWidth, uint32_t usage, bool bSource = true)
-	//{
-	//	Create(
-	//		byteWidth, 
-	//		bSource ? VK_BUFFER_USAGE_TRANSFER_SRC_BIT : VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-	//		GetMemoryProperty(usage));
-	//}
+	inline void CreateAsTransferBuffer(size_t byteWidth, uint32_t usage, const void *pData)
+	{
+		Create(byteWidth, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, usage);
+
+		if (pData)
+		{
+			Update(pData, byteWidth, 0U);
+		}
+	}
 
 	inline void Update(const void *pMemory, size_t size = VK_WHOLE_SIZE, size_t offset = 0U)
 	{
 		m_Memory.Update(pMemory, size, offset);
+	}
+
+	inline VkDescriptorBufferInfo GetDescriptorInfo() const
+	{
+		return m_DescriptorInfo;
 	}
 
 	void Destory() override;
@@ -82,6 +89,7 @@ protected:
 	void Create(size_t size, uint32_t bufferUsageFlags, uint32_t usage);
 private:
 	VulkanDeviceMemory m_Memory;
+	VkDescriptorBufferInfo m_DescriptorInfo = {};
 };
 
 class VulkanCommandBuffer
@@ -89,6 +97,7 @@ class VulkanCommandBuffer
 public:
 	enum eCommandBufferUsage
 	{
+		eDefault = 0U,
 		eOneTimeSubmit = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
 		eRenderpassContinue = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT,
 		eSimultaneous = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,
@@ -144,6 +153,12 @@ public:
 	inline uint32_t GetBufferCount() const
 	{
 		return (uint32_t)m_CommandBuffers.size();
+	}
+
+	inline VkCommandBuffer Get(uint32_t index) const
+	{
+		///assert(IsValid(index));
+		return m_CommandBuffers[index];
 	}
 
 	inline uint32_t GetPoolType() const

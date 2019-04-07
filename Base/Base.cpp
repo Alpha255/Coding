@@ -11,6 +11,64 @@ inline void ToLower(std::string &str)
 	});
 }
 
+void Replace(std::string &str, const char src, const char dst)
+{
+	std::transform(str.begin(), str.end(), str.begin(),
+		[src, dst](char c)
+	{
+		return (c == src ? dst : c);
+	});
+}
+
+void Split(const std::string &src, const char token, std::vector<std::string> &result)
+{
+	std::string srcStr(src);
+	size_t index = srcStr.find(token);
+
+	while (index != std::string::npos)
+	{
+		std::string split = srcStr.substr(0U, index);
+		if (split.length() > 0U)
+		{
+			result.emplace_back(split);
+		}
+		srcStr = srcStr.substr(index + 1U);
+		index = srcStr.find(token);
+	}
+
+	if (srcStr.length() > 0U)
+	{
+		result.emplace_back(srcStr);
+	}
+}
+
+std::string FormatString(const char *pStr, ...)
+{
+	std::unique_ptr<char> pResult = nullptr;
+	if (nullptr != pStr)
+	{
+		va_list list = nullptr;
+		va_start(list, pStr);
+		size_t size = (size_t)_vscprintf(pStr, list) + 1;
+		pResult = std::unique_ptr<char>(new char[size]());
+		_vsnprintf_s(pResult.get(), size, size, pStr, list);
+		va_end(list);
+	}
+
+	return std::string(pResult.get());
+}
+
+std::string GetFileName(const std::string &src)
+{
+	size_t index = src.rfind('/');
+	if (index == std::string::npos)
+	{
+		index = src.rfind('\\');
+	}
+
+	return index == std::string::npos ? src : src.substr(index + 1U);
+}
+
 std::string GetFileExtension(const std::string &filePath, bool bToLower)
 {
 	size_t index = filePath.rfind(".");
@@ -32,7 +90,7 @@ std::string GetFileExtension(const std::string &filePath, bool bToLower)
 void BuildFileList(
 	std::vector<std::string> &outFileList, 
 	const std::string &targetPath, 
-	const std::vector<std::string> filters, 
+	const std::vector<std::string> &filters, 
 	bool bToLower)
 {
 	std::string rootDir = targetPath + "\\*.*";
@@ -82,6 +140,36 @@ void BuildFileList(
 	}
 }
 
+void BuildFolderTree(Tree<std::string> &outTree, const std::string &targetPath, bool bToLower, bool bFullPath)
+{
+	std::string rootDir = targetPath + "\\*.*";
+
+	::WIN32_FIND_DATAA findData = {};
+	::HANDLE hFileHandle = ::FindFirstFileA(rootDir.c_str(), &findData);
+
+	while (true)
+	{
+		if (findData.cFileName[0] != '.')
+		{
+			if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+			{
+				std::string subDir = targetPath + "\\" + findData.cFileName;
+
+				std::shared_ptr<Tree<std::string>> subTree(new Tree<std::string>);
+				subTree->Name = bFullPath ? subDir : findData.cFileName;
+				outTree.Children.emplace_back(subTree);
+
+				BuildFolderTree(*subTree, subDir, bToLower, bFullPath);
+			}
+		}
+
+		if (!::FindNextFileA(hFileHandle, &findData))
+		{
+			break;
+		}
+	}
+}
+
 bool IsValidDirectory(const std::string &targetPath)
 {
 	::WIN32_FIND_DATAA fileData = {};
@@ -105,18 +193,48 @@ bool IsFileExists(const std::string &filePath)
 		!(attri & FILE_ATTRIBUTE_DIRECTORY));
 }
 
-void Log(const char *pFormatMsg, ...)
+::FILETIME GetFileLastWriteTime(const std::string &filePath)
 {
-	static const size_t s_MsgLength = MAX_PATH * 5U;
-	static char message[s_MsgLength] = {};
+	::FILETIME time = {};
 
-	va_list ap = nullptr;
-	va_start(ap, pFormatMsg);
-	_vsnprintf_s(message, s_MsgLength, pFormatMsg, ap);
-	va_end(ap);
+	::HANDLE fileHandle = ::CreateFileA(
+		filePath.c_str(),
+		0,
+		FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+		nullptr,
+		OPEN_EXISTING,
+		FILE_FLAG_OVERLAPPED | FILE_FLAG_BACKUP_SEMANTICS,
+		nullptr);
 
-	strcat_s(message, "\n");
-	OutputDebugStringA(message);
+	if (fileHandle != INVALID_HANDLE_VALUE)
+	{
+		if (::GetFileTime(fileHandle, nullptr, nullptr, &time) != 0)
+		{
+			::CloseHandle(fileHandle);
+			return time;
+		}
+	}
+
+	::CloseHandle(fileHandle);
+
+	return time;
+}
+
+void Log(const char *pMessage, ...)
+{
+	std::unique_ptr<char> message = nullptr;
+	if (nullptr != pMessage)
+	{
+		va_list list = nullptr;
+		va_start(list, pMessage);
+		size_t size = (size_t)_vscprintf(pMessage, list) + 1;
+		message = std::unique_ptr<char>(new char[size]());
+		_vsnprintf_s(message.get(), size, size, pMessage, list);
+		va_end(list);
+	}
+
+	OutputDebugStringA(message.get());
+	OutputDebugStringA("\n");
 }
 
 #if 0

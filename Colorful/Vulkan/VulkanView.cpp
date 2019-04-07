@@ -11,7 +11,7 @@ void VulkanImage::Create(
 	uint32_t arraySize,
 	uint32_t usage,
 	uint32_t layout,
-	const VulkanSubResourceData *)
+	const VulkanSubResourceData *pSubResourceData)
 {
 	assert(!IsValid() && type <= VK_IMAGE_TYPE_END_RANGE);
 
@@ -46,59 +46,56 @@ void VulkanImage::Create(
 
 	Check(vkBindImageMemory(VulkanEngine::Instance().GetDevice().Get(), m_Handle, m_Memory.Get(), 0));
 
-#if 0
+#if 1
 	if (pSubResourceData)
 	{
-		if (!m_CommandBuffer.IsValid())
+		VulkanBuffer stagingBuffer;
+		stagingBuffer.CreateAsTransferBuffer(pSubResourceData->MemPitch * height, eGpuReadCpuWrite, pSubResourceData->Memory);
+
+		auto copyCommand = VulkanEngine::Instance().AllocCommandBuffer(VulkanCommandPool::eGeneral, VulkanCommandPool::ePrimary, 1U);
+
+		copyCommand.Begin(VulkanCommandBuffer::eDefault, 0U);
+
+		SetImageLayout(
+			copyCommand.Get(0U),
+			VK_IMAGE_ASPECT_COLOR_BIT,
+			VK_IMAGE_LAYOUT_UNDEFINED,
+			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+			VK_PIPELINE_STAGE_HOST_BIT,
+			VK_PIPELINE_STAGE_TRANSFER_BIT);
+
+		VkBufferImageCopy bufferCopy
 		{
-			m_CommandBuffer = VulkanEngine::Instance().AllocCommandBuffer(VulkanCommandPool::eGeneral, VulkanCommandPool::ePrimary);
-		}
+			0U,
+			0U,
+			0U,
+			{
+				VK_IMAGE_ASPECT_COLOR_BIT,
+				0U,
+				0U,
+				1U
+			},
+			VkOffset3D(),
+			{
+				width,
+				height,
+				1U
+			}
+		};
 
-		m_CommandBuffer.Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+		vkCmdCopyBufferToImage(copyCommand.Get(0U), stagingBuffer.Get(), m_Handle, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1U, &bufferCopy);
 
-		/// Upload to Buffer
-		m_Buffer.CreateAsTransferBuffer(memReq.size, eGpuCopyToCpu, true);
-		m_Buffer.Update(pSubResourceData->Memory, memReq.size, 0U, true);
+		SetImageLayout(
+			copyCommand.Get(0U),
+			VK_IMAGE_ASPECT_COLOR_BIT,
+			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+			VK_PIPELINE_STAGE_TRANSFER_BIT,
+			VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
 
-		/// Copy to Image
-		VkImageMemoryBarrier copy_barrier[1] = {};
-		copy_barrier[0].sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-		copy_barrier[0].dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-		copy_barrier[0].oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		copy_barrier[0].newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-		copy_barrier[0].srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		copy_barrier[0].dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		copy_barrier[0].image = m_Handle;
-		copy_barrier[0].subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		copy_barrier[0].subresourceRange.levelCount = 1;
-		copy_barrier[0].subresourceRange.layerCount = 1;
-		vkCmdPipelineBarrier(m_CommandBuffer.Get(), VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, NULL, 0, NULL, 1, copy_barrier);
+		copyCommand.End(0U);
 
-		VkBufferImageCopy region = {};
-		region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		region.imageSubresource.layerCount = 1;
-		region.imageExtent.width = width;
-		region.imageExtent.height = height;
-		region.imageExtent.depth = 1;
-		vkCmdCopyBufferToImage(m_CommandBuffer.Get(), m_Buffer.Get(), m_Handle, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-
-		VkImageMemoryBarrier use_barrier[1] = {};
-		use_barrier[0].sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-		use_barrier[0].srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-		use_barrier[0].dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-		use_barrier[0].oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-		use_barrier[0].newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		use_barrier[0].srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		use_barrier[0].dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		use_barrier[0].image = m_Handle;
-		use_barrier[0].subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		use_barrier[0].subresourceRange.levelCount = 1;
-		use_barrier[0].subresourceRange.layerCount = 1;
-		vkCmdPipelineBarrier(m_CommandBuffer.Get(), VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, NULL, 0, NULL, 1, use_barrier);
-
-		m_CommandBuffer.End();
-
-		VkSubmitInfo info
+		VkSubmitInfo submitInfo
 		{
 			VK_STRUCTURE_TYPE_SUBMIT_INFO,
 			nullptr,
@@ -106,15 +103,115 @@ void VulkanImage::Create(
 			nullptr,
 			nullptr,
 			1U,
-			&m_CommandBuffer,
+			&copyCommand,
 			0U,
 			nullptr
 		};
-		VKCheck(vkQueueSubmit(VulkanEngine::Instance().GetQueue(), 1U, &info, VK_NULL_HANDLE));
 
-		VKCheck(vkDeviceWaitIdle(VulkanEngine::Instance().GetDevice()));
+		VulkanFence fence;
+		fence.Create();
+		Check(vkQueueSubmit(VulkanEngine::Instance().GetDevice().GetQueue().Get(), 1U, &submitInfo, fence.Get()));
+		Check(vkWaitForFences(VulkanEngine::Instance().GetDevice().Get(), 1U, &fence, VK_TRUE, 100000000000U));
+
+		fence.Destory();
+		VulkanEngine::Instance().FreeCommandBuffer(copyCommand);
+
+		stagingBuffer.Destory();
 	}
 #endif
+}
+
+void VulkanImage::SetImageLayout(
+	VkCommandBuffer cmdbuffer,
+	VkImageAspectFlags aspectMask,
+	VkImageLayout oldImageLayout,
+	VkImageLayout newImageLayout,
+	VkPipelineStageFlags srcStageMask,
+	VkPipelineStageFlags dstStageMask)
+{
+	VkImageMemoryBarrier imageMemoryBarrier
+	{
+		VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+		nullptr,
+		0U,
+		0U,
+		oldImageLayout,
+		newImageLayout,
+		VK_QUEUE_FAMILY_IGNORED,
+		VK_QUEUE_FAMILY_IGNORED,
+		m_Handle,
+		{
+			aspectMask,
+			0U,
+			1U,
+			0U,
+			1U
+		}
+	};
+
+	switch (oldImageLayout)
+	{
+	case VK_IMAGE_LAYOUT_UNDEFINED:
+		imageMemoryBarrier.srcAccessMask = 0;
+		break;
+	case VK_IMAGE_LAYOUT_PREINITIALIZED:
+		imageMemoryBarrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT;
+		break;
+	case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
+		imageMemoryBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		break;
+	case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
+		imageMemoryBarrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+		break;
+	case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
+		imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+		break;
+	case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
+		imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+		break;
+	case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
+		imageMemoryBarrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+		break;
+	default:
+		break;
+	}
+
+	switch (newImageLayout)
+	{
+	case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
+		imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+		break;
+	case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
+		imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+		break;
+	case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
+		imageMemoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		break;
+	case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
+		imageMemoryBarrier.dstAccessMask = imageMemoryBarrier.dstAccessMask | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+		break;
+	case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
+		if (imageMemoryBarrier.srcAccessMask == 0)
+		{
+			imageMemoryBarrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
+		}
+		imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+		break;
+	default:
+		break;
+	}
+
+	vkCmdPipelineBarrier(
+		cmdbuffer,
+		srcStageMask,
+		dstStageMask,
+		0,
+		0, 
+		nullptr,
+		0, 
+		nullptr,
+		1, 
+		&imageMemoryBarrier);
 }
 
 void VulkanImage::Destory()

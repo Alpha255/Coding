@@ -19,6 +19,8 @@ void IRenderApplication::Initialize(const std::string &title, uint32_t width, ui
 void IRenderApplication::HandleWindowMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM lParam)
 {
 	Base::HandleWindowMessage(msg, wParam, lParam);
+
+	ImGUI::Instance().HandleWindowMessage(m_hWnd, msg, wParam, lParam);
 }
 
 void IRenderApplication::HandleInput(uint32_t msg, ::WPARAM wParam, ::LPARAM lParam)
@@ -89,7 +91,16 @@ void IRenderApplication::RenterToWindow()
 
 	UpdateScene(m_Timer.GetDeltaTime(), m_Timer.GetTotalTime());
 
+	ImGUI::Instance().RenderBegin();
+
 	RenderScene();
+
+	ImGUI::Instance().RenderEnd();
+
+	if (ImGUI::Instance().Update())
+	{
+		REngine::Instance().Flush();
+	}
 }
 
 void IRenderApplication::Finalize()

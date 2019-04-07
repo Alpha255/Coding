@@ -894,13 +894,13 @@ void CreateShaders()
 	VkPipelineShaderStageCreateInfo shaderStage = {};
 	shaderStage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	shaderStage.stage = VK_SHADER_STAGE_VERTEX_BIT;
-	shaderStage.module = CreateShader("UIVertexShader.bin");
+	shaderStage.module = CreateShader("UIVertexShader_1.vert.spv");
 	shaderStage.pName = "main"; 
 
 	vkShaderStates.emplace_back(shaderStage);
 
 	shaderStage.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-	shaderStage.module = CreateShader("UIFragmentShader.bin");
+	shaderStage.module = CreateShader("UIFragmentShader.frag.spv");
 	vkShaderStates.emplace_back(shaderStage);
 }
 

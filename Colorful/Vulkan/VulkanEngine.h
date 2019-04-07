@@ -34,7 +34,7 @@ public:
 
 	inline void ResetDefaultRenderSurfaces(const Vec4 &clearClr = Color::DarkBlue)
 	{
-
+		m_Context.SetClearColor(clearClr);
 	}
 
 	inline void SetViewport(const VulkanViewport &viewport, uint32_t slot = 0U)
@@ -57,9 +57,9 @@ public:
 		m_Context.SetPixelShader(pixelShader);
 	}
 
-	inline void SetConstantBuffer(const VulkanBuffer &constantBuffer, uint32_t slot, eRShaderType targetShader)
+	inline void SetUniformBuffer(const VulkanBuffer &uniformBuffer, uint32_t slot, eRShaderType targetShader)
 	{
-		m_Context.SetConstantBuffer(constantBuffer, slot, targetShader);
+		m_Context.SetUniformBuffer(uniformBuffer, slot, targetShader);
 	}
 
 	inline void SetVertexBuffer(const VulkanBuffer &vertexBuffer, uint32_t stride, uint32_t offset, uint32_t slot = 0U)
@@ -70,11 +70,6 @@ public:
 	inline void SetIndexBuffer(const VulkanBuffer &indexBuffer, uint32_t fmt, uint32_t offset)
 	{
 		m_Context.SetIndexBuffer(indexBuffer, fmt, offset);
-	}
-
-	inline void SetSamplerState(const VulkanSamplerState &samplerState, uint32_t slot, eRShaderType targetShader)
-	{
-		m_Context.SetSamplerState(samplerState, slot, targetShader);
 	}
 
 	inline void SetRasterizerState(const VulkanRasterizerState &rasterizerState)

@@ -88,21 +88,43 @@ void VulkanDepthStencilState::Create(
 	};
 }
 
-//void VulkanBlendState::Create(
-//	bool bAlphaToCoverage,
-//	bool bIndependentBlend,
-//	uint32_t surfaceIndex,
-//	bool bBlend,
-//	eRBlend srcColor,
-//	eRBlend dstColor,
-//	eRBlendOp colorOp,
-//	eRBlend srcAlpha,
-//	eRBlend dstAlpha,
-//	eRBlendOp alphaOp,
-//	uint8_t renderTargetWriteMask)
-//{
-//
-//}
+void VulkanBlendState::Create(
+	bool bAlphaToCoverage,
+	bool bIndependentBlend,
+	uint32_t surfaceIndex,
+	bool bBlend,
+	eRBlend srcColor,
+	eRBlend dstColor,
+	eRBlendOp colorOp,
+	eRBlend srcAlpha,
+	eRBlend dstAlpha,
+	eRBlendOp alphaOp,
+	uint8_t renderTargetWriteMask)
+{
+	m_AttachmentState = VkPipelineColorBlendAttachmentState
+	{
+		bBlend,
+		(VkBlendFactor)srcColor,
+		(VkBlendFactor)dstColor,
+		(VkBlendOp)colorOp,
+		(VkBlendFactor)srcAlpha,
+		(VkBlendFactor)dstAlpha,
+		(VkBlendOp)alphaOp,
+		renderTargetWriteMask
+	};
+
+	m_StateInfo = VkPipelineColorBlendStateCreateInfo
+	{
+		VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
+		nullptr,
+		0U,
+		bBlend,
+		VK_LOGIC_OP_CLEAR,
+		1U,
+		&m_AttachmentState,
+		{ 0.0f, 0.0f, 0.0f, 0.0f }
+	};
+}
 
 VulkanSamplerState VulkanStaticState::LinearSampler;
 VulkanDepthStencilState VulkanStaticState::DisableDepthStencil;

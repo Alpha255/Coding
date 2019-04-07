@@ -218,8 +218,7 @@ void VulkanSwapchain::End()
 
 void VulkanSwapchain::Flush()
 {
-	uint32_t index = 0U;
-	Check(vkAcquireNextImageKHR(VulkanEngine::Instance().GetDevice().Get(), m_Handle, UINT64_MAX, m_PresentSemaphore.Get(), VK_NULL_HANDLE, &index));
+	Check(vkAcquireNextImageKHR(VulkanEngine::Instance().GetDevice().Get(), m_Handle, UINT64_MAX, m_PresentSemaphore.Get(), VK_NULL_HANDLE, &m_CurrentBackBufferIndex));
 
 	VkQueue deviceQueue = VulkanEngine::Instance().GetDevice().GetQueue().Get();
 
@@ -232,7 +231,7 @@ void VulkanSwapchain::Flush()
 		&m_PresentSemaphore,
 		&pipelineStageFlags,
 		1U,
-		&m_BackBuffers[index].CommandBuffer,
+		&m_BackBuffers[m_CurrentBackBufferIndex].CommandBuffer,
 		1U,
 		&m_WaitSemaphore
 	};
@@ -246,7 +245,7 @@ void VulkanSwapchain::Flush()
 		&m_WaitSemaphore,
 		1U,
 		&m_Handle,
-		&index,
+		&m_CurrentBackBufferIndex,
 		nullptr
 	};
 

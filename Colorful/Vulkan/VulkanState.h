@@ -94,6 +94,8 @@ public:
 protected:
 private:
 	VkPipelineColorBlendStateCreateInfo m_StateInfo = {};
+	VkPipelineColorBlendAttachmentState m_AttachmentState = {};
+	Vec4 m_BlendConstants;
 };
 
 struct VulkanStaticState

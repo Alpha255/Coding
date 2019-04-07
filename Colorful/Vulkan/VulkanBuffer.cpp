@@ -161,9 +161,16 @@ void VulkanBuffer::Create(size_t size, uint32_t bufferUsageFlags, uint32_t usage
 	VkMemoryRequirements memoryRequirements = {};
 	vkGetBufferMemoryRequirements(VulkanEngine::Instance().GetDevice().Get(), m_Handle, &memoryRequirements);
 	
-	m_Memory.Alloc(size, memoryRequirements.memoryTypeBits, usage);
+	m_Memory.Alloc(memoryRequirements.size, memoryRequirements.memoryTypeBits, usage);
 
 	Check(vkBindBufferMemory(VulkanEngine::Instance().GetDevice().Get(), m_Handle, m_Memory.Get(), 0U));
+
+	m_DescriptorInfo = VkDescriptorBufferInfo
+	{
+		m_Handle,
+		0U,
+		VK_WHOLE_SIZE
+	};
 }
 
 void VulkanBuffer::Destory()

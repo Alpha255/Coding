@@ -1,5 +1,6 @@
 #include "Box.h"
 #include "Public/Definitions.h"
+#include "Public/ImGUI.h"
 
 void Box::PrepareScene()
 {
@@ -29,8 +30,8 @@ void Box::PrepareScene()
 
 void Box::RenderScene()
 {
-#if 0
 	REngine::Instance().ResetDefaultRenderSurfaces();
+#if 0
 	REngine::Instance().SetViewport(RViewport(0.0f, 0.0f, (float)m_Width, (float)m_Height));
 
 	REngine::Instance().SetInputLayout(m_BoxMesh.InputLayout);
@@ -52,7 +53,7 @@ void Box::RenderScene()
 
 	///ImGui::Combo("SpecialEffect", &m_Effect, "None\0Inversion\0Grayscale\0Sharpen\0Blur\0EdgeDetection");
 	///ImGui::Checkbox("VSync", &m_bVSync);
-	///ImGui::Text("\n%.2f FPS", m_FPS);
+	ImGui::Text("\n%.2f FPS", m_FPS);
 #if 1
 
 #endif

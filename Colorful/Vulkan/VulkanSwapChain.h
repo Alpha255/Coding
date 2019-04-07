@@ -41,6 +41,14 @@ private:
 class VulkanSwapchain : public VulkanObject<VkSwapchainKHR>
 {
 public:
+	struct VulkanBackBuffer
+	{
+		VulkanRenderTargetView RenderTargetView;
+		VulkanFence PresentFence;
+		VulkanCommandBuffer CommandBuffer;
+		VulkanFrameBuffer FrameBuffer;
+	};
+
 	void Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool bFullScreen);
 
 	void Create();
@@ -73,15 +81,19 @@ public:
 		return m_DepthStencilFormat;
 	}
 
+	inline VkExtent2D GetSize() const
+	{
+		assert(IsValid());
+		return m_Size;
+	}
+
+	inline std::vector<VulkanBackBuffer> GetBackBuffers() const
+	{
+		return m_BackBuffers;
+	}
+
 	void Destory() override;
 protected:
-	struct VulkanBackBuffer
-	{
-		VulkanRenderTargetView RenderTargetView;
-		VulkanFence PresentFence;
-		VulkanCommandBuffer CommandBuffer;
-		VulkanFrameBuffer FrameBuffer;
-	};
 private:
 	VulkanSurface m_Surface;
 	VkExtent2D m_Size = {};
@@ -92,6 +104,7 @@ private:
 	VulkanSemaphore m_PresentSemaphore;
 	VulkanSemaphore m_WaitSemaphore;
 	VulkanDepthStencilView m_DepthStencilView;
+	uint32_t m_CurrentBackBufferIndex = 0U;
 
 	bool m_bVSync = false;
 	bool m_bFullScreen = false;

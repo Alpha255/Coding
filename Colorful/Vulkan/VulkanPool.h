@@ -36,7 +36,7 @@ private:
 class VulkanDescriptorSetLayout : public VulkanObject<VkDescriptorSetLayout>
 {
 public:
-	void Create(uint32_t targetShader, uint32_t slot, uint32_t count);
+	void Create(const std::vector<VkDescriptorSetLayoutBinding> &layoutBindings);
 	void Destory() override;
 protected:
 private:
@@ -45,9 +45,9 @@ private:
 class VulkanDescriptorSet : public VulkanObject<VkDescriptorSet>
 {
 public:
-	inline void CreateLayout(uint32_t targetShader, uint32_t slot, uint32_t count)
+	inline void CreateLayout(const std::vector<VkDescriptorSetLayoutBinding> &layoutBindings)
 	{
-		m_Layout.Create(targetShader, slot, count);
+		m_Layout.Create(layoutBindings);
 	}
 
 	inline const VulkanDescriptorSetLayout &GetLayout() const
@@ -56,7 +56,8 @@ public:
 		return m_Layout;
 	}
 
-	void Update(const class VulkanSamplerState &sampler, const class VulkanImageView &imageView, uint32_t slot);
+	void SetupCombinedImage(const class VulkanImageView &image, uint32_t slot);
+	void SetupUniformBuffer(const class VulkanBuffer &uniformBuffer, uint32_t slot);
 
 	void Destory() override
 	{
@@ -72,9 +73,23 @@ private:
 class VulkanDescriptorPool : public VulkanObject<VkDescriptorPool>
 {
 public:
+	enum eDescriptorType
+	{
+		eCombinedImage = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+		eUniformBuffer = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+		ePoolTypeCount = 2U
+	};
+
+	enum eLimits
+	{
+		eMaxSamplers = 16U,
+		eMaxUniformBuffers = 32U,
+		eMasDescriptorSets = 64U
+	};
+
 	void Create();
 
-	VulkanDescriptorSet Alloc(uint32_t targetShader, uint32_t slot, uint32_t count);
+	VulkanDescriptorSet Alloc(const std::vector<VkDescriptorSetLayoutBinding> &layoutBindings);
 
 	void Free(VulkanDescriptorSet &descriptorSet);
 
@@ -82,10 +97,5 @@ public:
 
 	void Destory() override;
 protected:
-	enum eLimits
-	{
-		///eMaxSetCount = 1024
-	};
 private:
-	VkDescriptorType m_Type = VK_DESCRIPTOR_TYPE_MAX_ENUM;
 };

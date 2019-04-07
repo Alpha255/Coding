@@ -7,7 +7,7 @@ void ImGUI::Initialize(::HWND hWnd)
 {
 	assert(hWnd);
 
-	/// Init key map
+	/// Init key mapping
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO &io = ImGui::GetIO();
@@ -44,14 +44,14 @@ void ImGUI::Initialize(::HWND hWnd)
 	m_Resource.VertexLayout.Create(m_Resource.VertexShader.GetBlob(), layout);
 	m_Resource.PixelShader.Create("UIFragmentShader.frag", "main");
 
-	m_Resource.ConstantBufferVS.CreateAsConstantBuffer(sizeof(Matrix), eGpuReadCpuWrite, nullptr);
+	m_Resource.ConstantBufferVS.CreateAsUniformBuffer(sizeof(Matrix), eGpuReadCpuWrite, nullptr);
 
 	m_Resource.ClrWriteBlend.Create(false, false, 0U, true,
 		eRBlend::eSrcAlpha, eRBlend::eInvSrcAlpha, eRBlendOp::eAdd,
 		eRBlend::eInvSrcAlpha, eRBlend::eZero, eRBlendOp::eAdd,
 		eColorAll);
 
-	unsigned char *pPixels = nullptr;
+	byte *pPixels = nullptr;
 	int32_t width = 0;
 	int32_t height = 0;
 	io.Fonts->GetTexDataAsRGBA32(&pPixels, &width, &height);
@@ -60,16 +60,24 @@ void ImGUI::Initialize(::HWND hWnd)
 	RSubResourceData subResData
 	{
 		(const void *)pPixels,
-		(uint32_t)width * 4U,
-		0U
+		(uint32_t)width * 4U * sizeof(byte),
+		0U,
 	};
 	fontTex.Create(eRGBA8_UNorm, (uint32_t)width, (uint32_t)height, eBindAsShaderResource, 1U, 1U, 0U, 0U, eGpuReadWrite, &subResData);
 	m_Resource.FontTexture.CreateAsTexture(eTexture2D, fontTex, eRGBA8_UNorm, 1U, 1U);
+	m_Resource.FontTexture.BindSampler(RStaticState::LinearSampler);
 	io.Fonts->TexID = (void *)m_Resource.FontTexture.Get();
+
+	m_Ready = true;
 }
 
 ::LRESULT ImGUI::HandleWindowMessage(::HWND hWnd, uint32_t uMsg, ::WPARAM wParam, ::LPARAM lParam)
 {
+	if (!m_Ready)
+	{
+		return 0LL;
+	}
+
 	ImGuiIO &io = ImGui::GetIO();
 
 	int32_t mouseBtn = -1;
@@ -169,14 +177,13 @@ void ImGUI::RenderBegin(const char *pPanelName)
 		::SetCursor(nullptr);
 	}
 
-	ImVec2 pos(10.0f, 10.0f);
-	ImGui::SetNextWindowPos(pos, ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f), ImGuiCond_FirstUseEver);
 
 	/// Start the frame. This call will update the io.WantCaptureMouse, 
 	/// io.WantCaptureKeyboard flag that you can use to dispatch inputs (or not) to your application.
 	ImGui::NewFrame();
 
-	ImGui::Begin(pPanelName);
+	Verify(ImGui::Begin(pPanelName) == true);
 }
 
 void ImGUI::RenderEnd()
@@ -184,22 +191,17 @@ void ImGUI::RenderEnd()
 	ImGui::End();
 
 	ImGui::Render();
-
-	Update();
 }
 
-void ImGUI::Update()
+bool ImGUI::Update()
 {
 	ImDrawData *pDrawData = ImGui::GetDrawData();
-	if (!pDrawData)
+	if (!pDrawData || pDrawData->CmdListsCount == 0U)
 	{
-		return;
+		return false;
 	}
 
-	UpdateDrawData(
-		(!m_Resource.VertexBuffer.IsValid()) || (m_VertexCount < pDrawData->TotalVtxCount),
-		(!m_Resource.IndexBuffer.IsValid()) || (m_IndexCount < pDrawData->TotalIdxCount), 
-			pDrawData);
+	UpdateDrawData(pDrawData);
 
 	float L = 0.0f;
 	float R = ImGui::GetIO().DisplaySize.x;
@@ -221,8 +223,8 @@ void ImGUI::Update()
 	REngine::Instance().SetInputLayout(m_Resource.VertexLayout);
 	REngine::Instance().SetVertexBuffer(m_Resource.VertexBuffer, sizeof(ImDrawVert), 0U);
 	REngine::Instance().SetIndexBuffer(m_Resource.IndexBuffer, sizeof(ImDrawIdx) == 2U ? eR16_UInt : eR32_UInt, 0U);
-	REngine::Instance().SetConstantBuffer(m_Resource.ConstantBufferVS, 0U, eVertexShader);
-	REngine::Instance().SetSamplerState(RStaticState::LinearSampler, 0U, ePixelShader);
+	REngine::Instance().SetShaderResourceView(m_Resource.FontTexture, 0U, ePixelShader);
+	REngine::Instance().SetUniformBuffer(m_Resource.ConstantBufferVS, 0U, eVertexShader);
 	REngine::Instance().SetBlendState(m_Resource.ClrWriteBlend);
 	REngine::Instance().SetDepthStencilState(RStaticState::DisableDepthStencil, 0U);
 	REngine::Instance().SetRasterizerState(RStaticState::SolidNoneCulling);
@@ -247,7 +249,6 @@ void ImGUI::Update()
 					(long)pDrawCmd->ClipRect.w
 				};
 
-				REngine::Instance().SetShaderResourceView(m_Resource.FontTexture, 0U, ePixelShader);
 				REngine::Instance().SetScissorRect(scissorRect);
 				REngine::Instance().DrawIndexed(pDrawCmd->ElemCount, iOffset, vOffset, eTriangleList);
 			}
@@ -258,6 +259,7 @@ void ImGUI::Update()
 		vOffset += pDrawList->VtxBuffer.Size;
 	}
 
+	return true;
 #if 0
 	/// Restore D3D state
 	::HWND hWnd = (::HWND)ImGui::GetIO().ImeWindowHandle;
@@ -273,27 +275,33 @@ void ImGUI::Update()
 #endif
 }
 
-void ImGUI::UpdateDrawData(bool bRecreateVB, bool bRecreateIB, const ImDrawData *pDrawData)
+void ImGUI::UpdateDrawData(ImDrawData *pDrawData)
 {
-	if (bRecreateVB)
-	{
-		m_VertexCount = pDrawData->TotalVtxCount + 5000;
-		
-		m_Vertices.reset(new ImDrawVert[m_VertexCount]());
+	assert(pDrawData);
 
-		m_Resource.VertexBuffer.Reset();
-		m_Resource.VertexBuffer.CreateAsVertexBuffer(m_VertexCount * sizeof(ImDrawVert), eGpuReadCpuWrite, nullptr);
+	size_t vertexBufferSize = pDrawData->TotalVtxCount * sizeof(ImDrawVert);
+	size_t indexBufferSize = pDrawData->TotalIdxCount * sizeof(ImDrawIdx);
+
+	if (0U == vertexBufferSize || 0U == indexBufferSize)
+	{
+		return;
 	}
 
-	if (bRecreateIB)
+	m_VertexCount = pDrawData->TotalVtxCount;
+	m_Vertices.reset(new ImDrawVert[m_VertexCount]());
+	if (m_Resource.VertexBuffer.IsValid())
 	{
-		m_IndexCount = pDrawData->TotalIdxCount + 10000;
-
-		m_Indices.reset(new ImDrawIdx[m_IndexCount]());
-
-		m_Resource.IndexBuffer.Reset();
-		m_Resource.IndexBuffer.CreateAsIndexBuffer(m_IndexCount * sizeof(ImDrawIdx), eGpuReadCpuWrite, nullptr);
+		m_Resource.VertexBuffer.Destory();
 	}
+	m_Resource.VertexBuffer.CreateAsVertexBuffer(m_VertexCount * sizeof(ImDrawVert), eGpuReadCpuWrite, nullptr);
+
+	m_IndexCount = pDrawData->TotalIdxCount;
+	m_Indices.reset(new ImDrawIdx[m_IndexCount]());
+	if (m_Resource.IndexBuffer.IsValid())
+	{
+		m_Resource.IndexBuffer.Destory();
+	}
+	m_Resource.IndexBuffer.CreateAsIndexBuffer(m_IndexCount * sizeof(ImDrawIdx), eGpuReadCpuWrite, nullptr);
 
 	/// Update vertices and indices
 	for (int i = 0, totalVertices = 0, totalIndices = 0; i < pDrawData->CmdListsCount; ++i)

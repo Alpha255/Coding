@@ -6,11 +6,11 @@ void VulkanTexture2D::Create(
 	uint32_t fmt,
 	uint32_t width,
 	uint32_t height,
-	uint32_t bindFlags,
+	uint32_t,
 	uint32_t mipLevels,
 	uint32_t arraySize,
-	uint32_t cpuFlags,
-	uint32_t miscFlags,
+	uint32_t,
+	uint32_t,
 	uint32_t usage,
 	const VulkanSubResourceData *pSubResourceData)
 {
@@ -22,7 +22,7 @@ void VulkanTexture2D::Create(
 		fmt,
 		mipLevels,
 		arraySize,
-		usage,
+		usage | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
 		VK_IMAGE_LAYOUT_UNDEFINED,
 		pSubResourceData);
 }

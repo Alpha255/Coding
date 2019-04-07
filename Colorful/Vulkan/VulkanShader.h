@@ -36,13 +36,14 @@ public:
 		return m_ShaderStage;
 	}
 
-	void Create(const std::string &fileName, const std::string entryPoint);
+	void Create(const std::string &fileName, const std::string &entryPoint);
 
 	void Destory() override;
 protected:
 	VkShaderStageFlagBits m_Stage = VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM;
 	VkPipelineShaderStageCreateInfo m_ShaderStage = {};
 	eRShaderType m_Type = eRShaderTypeCount;
+	std::string m_EntryName;
 private:
 };
 

@@ -44,9 +44,11 @@ void VulkanInputLayout::Create(const void *, const std::vector<Geometry::VertexL
 	m_bValid = true;
 }
 
-void VulkanShader::Create(const std::string &fileName, const std::string entryPoint)
+void VulkanShader::Create(const std::string &fileName, const std::string &entryPoint)
 {
 	assert(!IsValid());
+
+	m_EntryName = entryPoint;
 
 	AssetFile shaderFile(fileName + ".spv");
 	auto shaderCode = shaderFile.Load();
@@ -68,7 +70,7 @@ void VulkanShader::Create(const std::string &fileName, const std::string entryPo
 		0U,
 		m_Stage,
 		m_Handle,
-		entryPoint.c_str(),
+		m_EntryName.c_str(),
 		nullptr
 	};
 }

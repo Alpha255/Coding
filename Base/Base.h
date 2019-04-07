@@ -48,17 +48,42 @@ protected:
 private:
 };
 
+template <typename T> struct Tree
+{
+	T Name;
+	std::vector<std::shared_ptr<Tree>> Children;
+};
+
+template <typename Left, typename Right>
+inline bool IsEqual(const Left &left, const Right &right)
+{
+	assert(sizeof(Left) == sizeof(Right));
+	return memcmp(&left, &right, sizeof(Right)) == 0;
+}
+
+void ToLower(std::string &str);
+
+void Replace(std::string &str, const char src, const char dst);
+
+void Split(const std::string &src, const char token, std::vector<std::string> &result);
+
+std::string FormatString(const char *pStr, ...);
+
+std::string GetFileName(const std::string &src);
+
 std::string GetFileExtension(const std::string &filePath, bool bToLower);
 
-void BuildFileList(std::vector<std::string> &outFileList, const std::string &targetPath, const std::vector<std::string> filters, bool bToLower);
+void BuildFileList(std::vector<std::string> &outFileList, const std::string &targetPath, const std::vector<std::string> &filters, bool bToLower);
+
+void BuildFolderTree(Tree<std::string> &outTree, const std::string &targetPath, bool bToLower, bool bFullPath = false);
 
 bool IsValidDirectory(const std::string &targetPath);
 
 bool IsFileExists(const std::string &filePath);
 
-void Log(const char *pFormatMsg, ...);
+::FILETIME GetFileLastWriteTime(const std::string &filePath);
 
-///std::string GetShaderCode(const char *pFileName, const char *pRenderTag, uint32_t shaderType);
+void Log(const char *pMessage, ...);
 
 NamespaceEnd(Base)
 

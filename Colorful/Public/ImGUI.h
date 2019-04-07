@@ -29,6 +29,7 @@ public:
 
 	void RenderBegin(const char *pPanelName = "imGUI");
 	void RenderEnd();
+	bool Update();
 
 	inline bool IsFocus() const 
 	{
@@ -40,10 +41,8 @@ protected:
 	~ImGUI() = default;
 
 	void InitRenderResource();
-
-	void Update();
 	
-	void UpdateDrawData(bool bRecreateVB, bool bRecreateIB, const ImDrawData *pDrawData);
+	void UpdateDrawData(ImDrawData *pDrawData);
 
 	bool IsMouseBtnDown()
 	{
@@ -84,4 +83,6 @@ private:
 	std::shared_ptr<ImDrawIdx> m_Indices;
 
 	RenderResource m_Resource;
+
+	bool m_Ready = false;
 };

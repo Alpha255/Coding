@@ -84,43 +84,17 @@ void VulkanCommandPool::Free(VulkanCommandBuffer &cmdBuffer)
 	cmdBuffer.Clear();
 }
 
-void VulkanDescriptorSetLayout::Create(uint32_t targetShader, uint32_t slot, uint32_t count)
+void VulkanDescriptorSetLayout::Create(const std::vector<VkDescriptorSetLayoutBinding> &layoutBindings)
 {
-	/// For test
-	assert(!IsValid() && count == 1U);
-
-	VkShaderStageFlags shaderStage = VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM;
-	switch (targetShader)
-	{
-	case eVertexShader:
-		shaderStage = VK_SHADER_STAGE_VERTEX_BIT;
-		break;
-	case ePixelShader:
-		shaderStage = VK_SHADER_STAGE_FRAGMENT_BIT;
-		break;
-	default:
-		assert(0);
-		break;
-	}
-
-	std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings = 
-	{
-		{
-			slot,
-			VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-			1U,
-			shaderStage,
-			nullptr
-		}
-	};
+	assert(!IsValid());
 
 	VkDescriptorSetLayoutCreateInfo createInfo
 	{
 		VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
 		nullptr,
 		0U,
-		(uint32_t)setLayoutBindings.size(),
-		setLayoutBindings.data()
+		(uint32_t)layoutBindings.size(),
+		layoutBindings.data()
 	};
 
 	Check(vkCreateDescriptorSetLayout(VulkanEngine::Instance().GetDevice().Get(), &createInfo, nullptr, &m_Handle));
@@ -135,14 +109,15 @@ void VulkanDescriptorSetLayout::Destory()
 	Reset();
 }
 
-void VulkanDescriptorSet::Update(const VulkanSamplerState &sampler, const VulkanImageView &imageView, uint32_t slot)
+void VulkanDescriptorSet::SetupCombinedImage(const VulkanImageView &image, uint32_t slot)
 {
 	assert(IsValid());
 
+	/// Members of VkDescriptorImageInfo that are not used in an update(as described above) are ignored.
 	VkDescriptorImageInfo descriptorImageInfo
 	{
-		sampler.Get(),
-		imageView.Get(),
+		image.GetSampler().Get(),
+		image.Get(),
 		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
 	};
 
@@ -163,16 +138,42 @@ void VulkanDescriptorSet::Update(const VulkanSamplerState &sampler, const Vulkan
 	vkUpdateDescriptorSets(VulkanEngine::Instance().GetDevice().Get(), 1U, &writeDescriptorSet, 0U, nullptr);
 }
 
+void VulkanDescriptorSet::SetupUniformBuffer(const VulkanBuffer &uniformBuffer, uint32_t slot)
+{
+	assert(IsValid());
+
+	VkDescriptorBufferInfo bufferInfo = uniformBuffer.GetDescriptorInfo();
+	VkWriteDescriptorSet writeDescriptorSet
+	{
+		VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+		nullptr,
+		m_Handle,
+		slot,
+		0U,
+		1U,
+		VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+		nullptr,
+		&bufferInfo,
+		nullptr
+	};
+
+	vkUpdateDescriptorSets(VulkanEngine::Instance().GetDevice().Get(), 1U, &writeDescriptorSet, 0U, nullptr);
+}
+
 void VulkanDescriptorPool::Create()
 {
 	assert(!IsValid());
 
-	m_Type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-
-	VkDescriptorPoolSize descriptorPoolSize
+	std::vector<VkDescriptorPoolSize> descriptorPoolSize
 	{
-		m_Type,
-		1U
+		{
+			(VkDescriptorType)eCombinedImage,
+			eMaxSamplers
+		},
+		{
+			(VkDescriptorType)eUniformBuffer,
+			eMaxUniformBuffers
+		},
 	};
 
 	VkDescriptorPoolCreateInfo createInfo
@@ -180,17 +181,17 @@ void VulkanDescriptorPool::Create()
 		VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
 		nullptr,
 		0U,
-		2U,
-		1U,
-		&descriptorPoolSize
+		eMasDescriptorSets,
+		(uint32_t)descriptorPoolSize.size(),
+		descriptorPoolSize.data()
 	};
 	Check(vkCreateDescriptorPool(VulkanEngine::Instance().GetDevice().Get(), &createInfo, nullptr, &m_Handle));
 }
 
-VulkanDescriptorSet VulkanDescriptorPool::Alloc(uint32_t targetShader, uint32_t slot, uint32_t count)
+VulkanDescriptorSet VulkanDescriptorPool::Alloc(const std::vector<VkDescriptorSetLayoutBinding> &layoutBindings)
 {
 	VulkanDescriptorSet descriptorSet;
-	descriptorSet.CreateLayout(targetShader, slot, count);
+	descriptorSet.CreateLayout(layoutBindings);
 
 	VkDescriptorSetAllocateInfo allocInfo
 	{

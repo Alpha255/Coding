@@ -1,6 +1,24 @@
 #include "VulkanContext.h"
 #include "VulkanEngine.h"
 
+void VulkanPipelineLayout::Create(const VulkanDescriptorSetLayout &descriptorSetLayout)
+{
+	assert(!IsValid());
+
+	VkPipelineLayoutCreateInfo createInfo
+	{
+		VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+		nullptr,
+		0U,
+		1U,
+		&descriptorSetLayout,
+		0U,
+		nullptr
+	};
+
+	Check(vkCreatePipelineLayout(VulkanEngine::Instance().GetDevice().Get(), &createInfo, nullptr, &m_Handle));
+}
+
 void VulkanPipelineLayout::Destory()
 {
 	assert(IsValid());
@@ -37,7 +55,7 @@ void VulkanPipelineCache::Destory()
 
 void VulkanPipeline::Create(const VkGraphicsPipelineCreateInfo &createInfo, const VulkanPipelineCache &cache)
 {
-	assert(!IsValid());
+	assert(!IsValid() && createInfo.layout != VK_NULL_HANDLE);
 
 	m_CreateInfo = createInfo;
 
@@ -47,77 +65,123 @@ void VulkanPipeline::Create(const VkGraphicsPipelineCreateInfo &createInfo, cons
 void VulkanPipeline::Destory()
 {
 	assert(IsValid());
+	
+	m_Layout.Destory();
 
 	vkDestroyPipeline(VulkanEngine::Instance().GetDevice().Get(), m_Handle, nullptr);
-
-	m_Layout.Destory();
 
 	Reset();
 }
 
 bool VulkanContext::IsSamePipelineState(const VkGraphicsPipelineCreateInfo &left, const VkGraphicsPipelineCreateInfo &right)
 {
-	if (!IsEqual(left.stageCount, right.stageCount))
+	if (!Base::IsEqual(left.stageCount, right.stageCount))
 	{
 		return false;
 	}
 
-	if (!IsEqual(*left.pStages, *right.pStages))
+	if (!Base::IsEqual(*left.pStages, *right.pStages))
 	{
 		return false;
 	}
 
-	if (!IsEqual(*left.pVertexInputState, *right.pVertexInputState))
+	if (!Base::IsEqual(*left.pVertexInputState, *right.pVertexInputState))
 	{
 		return false;
 	}
 
-	if (!IsEqual(*left.pInputAssemblyState, *right.pInputAssemblyState))
+	if (!Base::IsEqual(*left.pInputAssemblyState, *right.pInputAssemblyState))
 	{
 		return false;
 	}
 
-	if (!IsEqual(*left.pTessellationState, *right.pTessellationState))
+	if (!Base::IsEqual(*left.pTessellationState, *right.pTessellationState))
 	{
 		return false;
 	}
 
-	if (!IsEqual(*left.pViewportState, *right.pViewportState))
+	if (!Base::IsEqual(*left.pViewportState, *right.pViewportState))
 	{
 		return false;
 	}
 
-	if (!IsEqual(*left.pRasterizationState, *right.pRasterizationState))
+	if (!Base::IsEqual(*left.pRasterizationState, *right.pRasterizationState))
 	{
 		return false;
 	}
 
-	if (!IsEqual(*left.pMultisampleState, *right.pMultisampleState))
+	if (!Base::IsEqual(*left.pMultisampleState, *right.pMultisampleState))
 	{
 		return false;
 	}
 
-	if (!IsEqual(*left.pDepthStencilState, *right.pDepthStencilState))
+	if (!Base::IsEqual(*left.pDepthStencilState, *right.pDepthStencilState))
 	{
 		return false;
 	}
 
-	if (!IsEqual(*left.pColorBlendState, *right.pColorBlendState))
+	if (!Base::IsEqual(*left.pColorBlendState, *right.pColorBlendState))
 	{
 		return false;
 	}
 
-	if (!IsEqual(*left.pDynamicState, *right.pDynamicState))
+	if (!Base::IsEqual(*left.pDynamicState, *right.pDynamicState))
 	{
 		return false;
 	}
 
-	if (!IsEqual(left.subpass, right.subpass))
+	if (!Base::IsEqual(left.subpass, right.subpass))
 	{
 		return false;
 	}
 
 	return true;
+}
+
+void VulkanContext::SetImageView(const VulkanImageView &imageView, uint32_t slot, eRShaderType targetShader)
+{
+	if (m_ImageViews[targetShader][slot] == imageView)
+	{
+		return;
+	}
+
+	m_ImageViews[targetShader][slot] = imageView;
+	
+	VulkanDescriptorSetInfos descriptorSetInfo
+	{
+		VulkanDescriptorPool::eCombinedImage,
+		m_DescriptorSetLayoutBindingIndex++,
+		imageView,
+		VulkanBuffer(),
+		targetShader
+	};
+
+	m_DescriptorSetInfos.emplace_back(descriptorSetInfo);
+
+	m_Dirty = true;
+}
+
+void VulkanContext::SetUniformBuffer(const VulkanBuffer &uniformBuffer, uint32_t slot, eRShaderType targetShader)
+{
+	if (m_UniformBuffers[targetShader][slot] == uniformBuffer)
+	{
+		return;
+	}
+
+	m_UniformBuffers[targetShader][slot] = uniformBuffer;
+
+	VulkanDescriptorSetInfos descriptorSetInfo
+	{
+		VulkanDescriptorPool::eUniformBuffer,
+		m_DescriptorSetLayoutBindingIndex++,
+		VulkanImageView(),
+		uniformBuffer,
+		targetShader
+	};
+
+	m_DescriptorSetInfos.emplace_back(descriptorSetInfo);
+
+	m_Dirty = true;
 }
 
 void VulkanContext::BuildPipline()
@@ -132,14 +196,68 @@ void VulkanContext::BuildPipline()
 		}
 	}
 
+#if 1
+	m_CurPipelineInfo.stageCount = (uint32_t)m_StateInfos.ShaderStageInfos.size();
+	m_CurPipelineInfo.pStages = m_StateInfos.ShaderStageInfos.data();
+	m_CurPipelineInfo.renderPass = VulkanEngine::Instance().GetRenderPass().Get();
+#endif
+
 	VulkanPipeline pipeline;
 	pipeline.Create(m_CurPipelineInfo, m_Cache);
+	pipeline.SetLayout(m_PipelineLayouts[0]);
 	m_Pipelines.emplace_back(pipeline);
 
 	m_CurPipline = pipeline;
 
 	m_StateInfos.ShaderStageInfos.clear();
 	m_StateInfos.ShaderStageInfoArray.fill(std::make_pair(VkPipelineShaderStageCreateInfo(), false));
+}
+
+void VulkanContext::BuildDescriptorSet()
+{
+	assert(m_DescriptorSetLayoutBindingIndex == m_DescriptorSetInfos.size());
+
+	std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
+	for (uint32_t i = 0U; i < m_DescriptorSetLayoutBindingIndex; ++i)
+	{
+		VkDescriptorSetLayoutBinding descriptorSetLayoutBinding
+		{
+			m_DescriptorSetInfos[i].Slot,
+			(VkDescriptorType)m_DescriptorSetInfos[i].Type,
+			1U,
+			GetShaderStage(m_DescriptorSetInfos[i].ShaderType),
+			nullptr
+		};
+		descriptorSetLayoutBindings.emplace_back(descriptorSetLayoutBinding);
+	}
+	VulkanDescriptorSet descriptorSet = m_DescriptorPool.Alloc(descriptorSetLayoutBindings);
+	m_DescriptorSets.emplace_back(descriptorSet);
+
+	VulkanPipelineLayout pipelineLayout;
+	pipelineLayout.Create(descriptorSet.GetLayout());
+	m_PipelineLayouts.emplace_back(pipelineLayout);
+
+	m_CurPipelineInfo.layout = pipelineLayout.Get();
+
+	for (uint32_t i = 0U; i < m_DescriptorSetLayoutBindingIndex; ++i)
+	{
+		auto &descriptorSetInfo = m_DescriptorSetInfos[i];
+		switch (descriptorSetInfo.Type)
+		{
+		case VulkanDescriptorPool::eCombinedImage:
+			descriptorSet.SetupCombinedImage(descriptorSetInfo.Image, descriptorSetInfo.Slot);
+			break;
+		case VulkanDescriptorPool::eUniformBuffer:
+			descriptorSet.SetupUniformBuffer(descriptorSetInfo.UniformBuffer, descriptorSetInfo.Slot);
+			break;
+		default:
+			assert(0);
+			break;
+		}
+	}
+
+	m_DescriptorSetLayoutBindingIndex = 0U;
+	m_DescriptorSetInfos.clear();
 }
 
 void VulkanContext::DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, uint32_t primitive)
@@ -162,18 +280,104 @@ void VulkanContext::DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_
 		}
 	}
 
-	BuildPipline();
+	if (m_Dirty)
+	{
+		BuildDescriptorSet();
+
+		BuildPipline();
+
+		m_Dirty = false;
+	}
+
+	auto size = VulkanEngine::Instance().GetSwapchain().GetSize();
+
+	VkRenderPassBeginInfo renderPassBeginInfo
+	{
+		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
+		nullptr,
+		VulkanEngine::Instance().GetRenderPass().Get(),
+		VK_NULL_HANDLE,
+		{
+			{
+				0, 0
+			},
+			{
+				size.width,
+				size.height
+			}
+		},
+		_countof(m_ClearColor),
+		m_ClearColor
+	};
+
+	VkCommandBufferBeginInfo commandBufferBeginInfo
+	{
+		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+		nullptr,
+		0U,
+		nullptr
+	};
+
+	auto backBuffers = VulkanEngine::Instance().GetSwapchain().GetBackBuffers();
+	for (uint32_t i = 0U; i < backBuffers.size(); ++i)
+	{
+		VkCommandBuffer commandBuffer = backBuffers[i].CommandBuffer.Get(0U);
+		VkFramebuffer frameBuffer = backBuffers[i].FrameBuffer.Get();
+
+		renderPassBeginInfo.framebuffer = frameBuffer;
+
+		Check(vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo));
+
+		vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_CurPipline.Get());
+
+		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayouts[0].Get(), 0U, 1U, &m_DescriptorSets[0], 0U, nullptr);
+
+		for (uint32_t j = 0U; j < eMaxViewports; ++j)
+		{
+			if (m_Viewports[j].GetSlot() != UINT32_MAX)
+			{
+				vkCmdSetViewport(commandBuffer, 0U, 1U, &m_Viewports[j]);
+			}
+		}
+
+		for (uint32_t j = 0U; j < eMaxScissors; ++j)
+		{
+			if (m_Scissors[j].GetSlot() != UINT32_MAX)
+			{
+				vkCmdSetScissor(commandBuffer, 0U, 1U, &m_Scissors[j]);
+			}
+		}
+
+		vkCmdBindIndexBuffer(commandBuffer, m_IndexBuffer.Buffer.Get(), m_IndexBuffer.Offset, m_IndexBuffer.Format);
+		VkDeviceSize offsets[] = { (VkDeviceSize)offset };
+		for (uint32_t j = 0U; j < eMaxVertexBuffers; ++j)
+		{
+			if (m_VertexBuffers[j].Buffer.IsValid())
+			{
+				vkCmdBindVertexBuffers(commandBuffer, j, 1U, &m_VertexBuffers[j].Buffer, offsets);
+				vkCmdDrawIndexed(commandBuffer, indexCount, 0U, startIndex, m_VertexBuffers[j].Offset, 0U);
+			}
+		}
+
+		vkCmdEndRenderPass(commandBuffer);
+
+		Check(vkEndCommandBuffer(commandBuffer));
+	}
 }
 
 void VulkanContext::Finalize()
 {
+	m_Cache.Destory();
+	m_DescriptorPool.Destory();
+
 	for (uint32_t i = 0U; i < m_Pipelines.size(); ++i)
 	{
 		m_Pipelines[i].Destory();
 	}
 
 	m_Pipelines.clear();
-	m_Cache.Destory();
 }
 
 #if 0

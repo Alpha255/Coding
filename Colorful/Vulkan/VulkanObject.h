@@ -28,7 +28,7 @@ public:
 
 	inline void operator=(const VulkanObject &other)
 	{
-		assert(!IsValid());
+		///assert(!IsValid());
 		m_Handle = other.m_Handle;
 	}
 
@@ -88,13 +88,15 @@ private:
 class VulkanViewport : public VkViewport
 {
 public:
+	inline VulkanViewport() = default;
+
 	inline VulkanViewport(
+		float left,
+		float top,
 		float w,
 		float h,
 		float depthMin = 0.0f,
-		float depthMax = 1.0f,
-		float left = 0.0f,
-		float top = 0.0f)
+		float depthMax = 1.0f)
 	{
 		width = w;
 		height = h;
@@ -103,8 +105,21 @@ public:
 		minDepth = depthMin;
 		maxDepth = depthMax;
 	}
+
+	inline void SetSlot(uint32_t slot)
+	{
+		assert(slot != UINT32_MAX);
+		m_Slot = slot;
+	}
+
+	inline uint32_t GetSlot() const
+	{
+		///assert(m_Slot != UINT32_MAX);
+		return m_Slot;
+	}
 protected:
 private:
+	uint32_t m_Slot = UINT32_MAX;
 };
 
 class VulkanRect : public VkRect2D
@@ -120,4 +135,29 @@ public:
 		extent.width = (uint32_t)(rect.right - rect.left);
 		extent.height = (uint32_t)(rect.bottom - rect.top);
 	}
+
+	inline void SetSlot(uint32_t slot)
+	{
+		assert(slot != UINT32_MAX);
+		m_Slot = slot;
+	}
+
+	inline uint32_t GetSlot() const
+	{
+		///assert(m_Slot != UINT32_MAX);
+		return m_Slot;
+	}
+protected:
+private:
+	uint32_t m_Slot = UINT32_MAX;
 };
+
+inline bool operator !=(const VulkanViewport &left, const VulkanViewport &right)
+{
+	return !Base::IsEqual(left, right);
+}
+
+inline bool operator !=(const VulkanRect &left, const VulkanRect &right)
+{
+	return !Base::IsEqual(left, right);
+}
