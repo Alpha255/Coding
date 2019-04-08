@@ -23,4 +23,5 @@ protected:
 	};
 private:
 	int32_t m_Effect = eNone;
+	bool m_bVSync = false;
 };

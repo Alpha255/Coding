@@ -6,7 +6,8 @@ layout (location = 2) in vec4 inColor;
 
 layout (binding = 1) uniform PushConstants 
 {
-	mat4x4 wvp;
+	vec2 scale;
+	vec2 translate;
 } pushConstants;
 
 layout (location = 0) out vec2 outUV;
@@ -22,6 +23,5 @@ void main()
 	outUV = inUV;
 	outColor = inColor;
 
-	vec4 pos = vec4(inPos, 0.0f, 1.0f);
-	gl_Position = pushConstants.wvp * pos;
+	gl_Position = vec4(inPos * pushConstants.scale + pushConstants.translate, 0.0, 1.0);
 }

@@ -334,32 +334,31 @@ void VulkanContext::DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_
 
 		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayouts[0].Get(), 0U, 1U, &m_DescriptorSets[0], 0U, nullptr);
 
-		for (uint32_t j = 0U; j < eMaxViewports; ++j)
-		{
-			if (m_Viewports[j].GetSlot() != UINT32_MAX)
-			{
-				vkCmdSetViewport(commandBuffer, 0U, 1U, &m_Viewports[j]);
-			}
-		}
+		vkCmdSetViewport(commandBuffer, 0U, 1U, &m_Viewports[0U]);
+		//for (uint32_t j = 0U; j < eMaxViewports; ++j)
+		//{
+		//	if (m_Viewports[j].GetSlot() != UINT32_MAX)
+		//	{
+		//	}
+		//}
+		vkCmdSetScissor(commandBuffer, 0U, 1U, &m_Scissors[0U]);
+		//for (uint32_t j = 0U; j < eMaxScissors; ++j)
+		//{
+		//	if (m_Scissors[j].GetSlot() != UINT32_MAX)
+		//	{
+		//	}
+		//}
 
-		for (uint32_t j = 0U; j < eMaxScissors; ++j)
-		{
-			if (m_Scissors[j].GetSlot() != UINT32_MAX)
-			{
-				vkCmdSetScissor(commandBuffer, 0U, 1U, &m_Scissors[j]);
-			}
-		}
-
+		VkDeviceSize offsets = 0U;
 		vkCmdBindIndexBuffer(commandBuffer, m_IndexBuffer.Buffer.Get(), m_IndexBuffer.Offset, m_IndexBuffer.Format);
-		VkDeviceSize offsets[] = { (VkDeviceSize)offset };
-		for (uint32_t j = 0U; j < eMaxVertexBuffers; ++j)
-		{
-			if (m_VertexBuffers[j].Buffer.IsValid())
-			{
-				vkCmdBindVertexBuffers(commandBuffer, j, 1U, &m_VertexBuffers[j].Buffer, offsets);
-				vkCmdDrawIndexed(commandBuffer, indexCount, 0U, startIndex, m_VertexBuffers[j].Offset, 0U);
-			}
-		}
+		vkCmdBindVertexBuffers(commandBuffer, 0U, 1U, &m_VertexBuffers[0U].Buffer, &offsets);
+		vkCmdDrawIndexed(commandBuffer, indexCount, 1U, startIndex, offset, 0U);
+		//for (uint32_t j = 0U; j < eMaxVertexBuffers; ++j)
+		//{
+		//	if (m_VertexBuffers[j].Buffer.IsValid())
+		//	{
+		//	}
+		//}
 
 		vkCmdEndRenderPass(commandBuffer);
 

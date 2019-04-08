@@ -166,7 +166,7 @@ enum eRBlendWriteMask : uint8_t
 	eColorGreen,
 	eColorBlue,
 	eColorAlpha,
-	eColorAll
+	eColorAll = 0xF
 };
 
 enum eRDepthWriteMask

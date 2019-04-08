@@ -3,6 +3,14 @@
 
 std::unique_ptr<ImGUI, std::function<void(ImGUI *)>> ImGUI::s_Instance;
 
+struct VkPushConstBlock
+{
+	Vec2 Scale;
+	Vec2 Translate;
+};
+
+VkPushConstBlock vkPushConstBlock;
+
 void ImGUI::Initialize(::HWND hWnd)
 {
 	assert(hWnd);
@@ -44,7 +52,7 @@ void ImGUI::Initialize(::HWND hWnd)
 	m_Resource.VertexLayout.Create(m_Resource.VertexShader.GetBlob(), layout);
 	m_Resource.PixelShader.Create("UIFragmentShader.frag", "main");
 
-	m_Resource.ConstantBufferVS.CreateAsUniformBuffer(sizeof(Matrix), eGpuReadCpuWrite, nullptr);
+	m_Resource.ConstantBufferVS.CreateAsUniformBuffer(sizeof(VkPushConstBlock), eGpuReadCpuWrite, nullptr);
 
 	m_Resource.ClrWriteBlend.Create(false, false, 0U, true,
 		eRBlend::eSrcAlpha, eRBlend::eInvSrcAlpha, eRBlendOp::eAdd,
@@ -214,7 +222,11 @@ bool ImGUI::Update()
 		(R + L) / (L - R), (T + B) / (B - T), 0.5f, 1.0f
 	);
 
-	m_Resource.ConstantBufferVS.Update(&wvp, sizeof(Matrix));
+	vkPushConstBlock.Scale = Vec2(2.0f / R, 2.0f / B);
+	vkPushConstBlock.Translate = Vec2(-1.0f, -1.0f);
+
+	///m_Resource.ConstantBufferVS.Update(&wvp, sizeof(Matrix));
+	m_Resource.ConstantBufferVS.Update(&vkPushConstBlock, sizeof(VkPushConstBlock));
 
 	RViewport vp(0.0f, 0.0f, ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y);
 	REngine::Instance().SetViewport(vp);
@@ -229,10 +241,11 @@ bool ImGUI::Update()
 	REngine::Instance().SetDepthStencilState(RStaticState::DisableDepthStencil, 0U);
 	REngine::Instance().SetRasterizerState(RStaticState::SolidNoneCulling);
 
-	for (int i = 0, vOffset = 0, iOffset = 0; i < pDrawData->CmdListsCount; ++i)
+	for (int32_t i = 0, vOffset = 0, iOffset = 0; i < pDrawData->CmdListsCount; ++i)
 	{
 		const ImDrawList *pDrawList = pDrawData->CmdLists[i];
-		for (int j = 0; j < pDrawList->CmdBuffer.Size; ++j)
+		///for (int j = 0; j < pDrawList->CmdBuffer.Size; ++j)
+		for (int j = 0; j < 1U; ++j)
 		{
 			const ImDrawCmd *pDrawCmd = &pDrawList->CmdBuffer[j];
 			if (pDrawCmd->UserCallback)

@@ -759,6 +759,13 @@ void CreateDepthStencilView()
 	depthStencilView.subresourceRange.levelCount = 1;
 	depthStencilView.subresourceRange.baseArrayLayer = 0;
 	depthStencilView.subresourceRange.layerCount = 1;
+	depthStencilView.components = 
+	{ 
+		VK_COMPONENT_SWIZZLE_R,
+		VK_COMPONENT_SWIZZLE_G,
+		VK_COMPONENT_SWIZZLE_B,
+		VK_COMPONENT_SWIZZLE_A
+	};
 
 	VkMemoryRequirements memReqs;
 
@@ -1148,6 +1155,13 @@ void InitImGUI()
 	viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 	viewInfo.subresourceRange.levelCount = 1;
 	viewInfo.subresourceRange.layerCount = 1;
+	viewInfo.components = 
+	{
+		VK_COMPONENT_SWIZZLE_R,
+		VK_COMPONENT_SWIZZLE_G,
+		VK_COMPONENT_SWIZZLE_B,
+		VK_COMPONENT_SWIZZLE_A
+	};
 	check(vkCreateImageView(vkDevice, &viewInfo, nullptr, &vkImageViewFont));
 
 	VkMemoryBuffer stagingBuffer = CreateBuffer(
@@ -1413,14 +1427,14 @@ void BuildCommandBuffers()
 
 		const VkViewport viewport = 
 		{
-			0.0f, 0.0f, (float)vkWidth, (float)vkHeight, 0.0f, 1.0f 
+			0.0f, 0.0f, (float)ImGui::GetIO().DisplaySize.x, (float)ImGui::GetIO().DisplaySize.y, 0.0f, 1.0f
 		};
 		const VkRect2D scissor = 
 		{
 			0, 0, vkWidth, vkHeight,
 		};
 		vkCmdSetViewport(vkDrawCmdBuffers[i], 0, 1, &viewport);
-		vkCmdSetScissor(vkDrawCmdBuffers[i], 0, 1, &scissor);
+		///vkCmdSetScissor(vkDrawCmdBuffers[i], 0, 1, &scissor);
 
 		DrawUI(vkDrawCmdBuffers[i]);
 

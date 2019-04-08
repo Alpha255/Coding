@@ -118,7 +118,7 @@ void VulkanBlendState::Create(
 		VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
 		nullptr,
 		0U,
-		bBlend,
+		false,
 		VK_LOGIC_OP_CLEAR,
 		1U,
 		&m_AttachmentState,
@@ -135,7 +135,7 @@ VulkanDepthStencilState VulkanStaticState::NoneDepthStencilState;
 
 void VulkanStaticState::Initialize()
 {
-	LinearSampler.Create(eLinear, eWrap, 0.0f, eRComparisonFunc::eNever, nullptr, 0.0f, FLT_MAX);
+	LinearSampler.Create(eLinear, eClamp, 0.0f, eRComparisonFunc::eNever, nullptr, 0.0f, 0.0f);
 }
 
 void VulkanStaticState::Finalize()

@@ -325,7 +325,7 @@ protected:
 	{
 		eMaxViewports = 16U,
 		eMaxScissors = 16U,
-		eMaxVertexBuffers
+		eMaxVertexBuffers = 2U
 	};
 
 	bool IsSamePipelineState(const VkGraphicsPipelineCreateInfo &left, const VkGraphicsPipelineCreateInfo &right);
