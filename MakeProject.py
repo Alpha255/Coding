@@ -26,8 +26,8 @@ libProjects = [
 	VcProject('Base', 'Library', True, False, ['Base'], [], [], [FileType.eHeader, FileType.eCpp]),
 	VcProject('Colorful', 'Library', True, False, ['Colorful'], [], [], [FileType.eHeader, FileType.eCpp]),
 	VcProject('ImGUI', 'ThirdParty', True, False, ['ThirdParty\\ImGUI'], ['ThirdParty\\ImGUI\\examples'], [], [FileType.eHeader, FileType.eCpp]),
-	#VcProject('vcglib', 'ThirdParty', True, False, ['ThirdParty\\vcglib'], ['ThirdParty\\vcglib\\apps', 'ThirdParty\\vcglib\\eigenlib\\unsupported', 'ThirdParty\\vcglib\\wrap\\nanoply'], [], [FileType.eHeader, FileType.eCpp]),
-]
+	#VcProject('vcglib', 'ThirdParty', True, False, ['ThirdParty\\vcglib'], ['ThirdParty\\vcglib\\apps', 'ThirdParty\\vcglib\\eigenlib\\unsupported', 'ThirdParty\\vcglib\\wrap'], [], [FileType.eHeader, FileType.eCpp]),
+	]
 
 demoProjects = [
 	#VCProject('AdaptiveTessellation', 'Demo\\D3D11\\AdaptiveTessellation\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
