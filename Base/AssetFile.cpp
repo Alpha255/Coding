@@ -51,7 +51,7 @@ void AssetFile::GetAssetType()
 {
 	std::string ext = Base::GetFileExtension(m_Path, true);
 
-	if (ext == ".shader")
+	if (ext == ".shader" || ext == ".vert" || ext == ".frag")
 	{
 		m_Type = eShader;
 	}
