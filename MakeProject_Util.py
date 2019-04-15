@@ -27,21 +27,26 @@ class File:
 		self.Filter = GetFileFilter(_FullPath, _RootDir)
 		self.Type = GetFileType(_FullPath)
 
+class ProjectType(enum.Enum):
+	eWinApp = 0
+	eConsole = 1
+	eLibrary = 2
+	eDll = 3
+	eProjectTypeCount = 4
+
 class VcProject:
 	Name = ''
 	GUID = ''
 	Folder = ''
-	IsLibrary = True
-	IsConsole = False
+	Type = ProjectType.eProjectTypeCount
 	IsThirdParty = False
 	Dependencies = []
 	FileList = []
-	def __init__(self, _Name, _Folder, _IsLibrary, _IsConsole, _Directory, _ExcludeDirectory, _Dependencies, _Types):
+	def __init__(self, _Name, _Folder, _Type, _Directory, _ExcludeDirectory, _Dependencies, _Types):
 		self.Name = _Name
 		self.GUID = MakeGUID(_Name)
 		self.Folder = _Folder
-		self.IsLibrary = _IsLibrary
-		self.IsConsole = _IsConsole
+		self.Type = _Type
 		self.IsThirdParty = (_Folder == 'ThirdParty')
 		self.Dependencies = _Dependencies
 		self.FileList = BuildFileList(_Directory, _ExcludeDirectory, _Types)
@@ -217,7 +222,12 @@ def MakeProject(_vcProject, _VersionInfo, _Configurations, _Platforms):
 	for config in _Configurations:
 		for platform in _Platforms:
 			projectXML.append('\t<PropertyGroup Condition="\'$(Configuration)|$(Platform)\'==\'%s|%s\'" Label="Configuration">\n' % (config, platform))
-			projectType = 'StaticLibrary' if _vcProject.IsLibrary else 'Application'
+			if _vcProject.Type == ProjectType.eLibrary:
+				projectType = 'StaticLibrary'
+			elif _vcProject.Type == ProjectType.eDll:
+				projectType = 'DynamicLibrary'
+			else:
+				projectType = 'Application'
 			projectXML.append('\t\t<ConfigurationType>%s</ConfigurationType>\n' % projectType)
 			useDebugLib = 'true' if 'debug' in config.lower() else 'false'
 			projectXML.append('\t\t<UseDebugLibraries>%s</UseDebugLibraries>\n' % useDebugLib)
@@ -234,13 +244,8 @@ def MakeProject(_vcProject, _VersionInfo, _Configurations, _Platforms):
 	projectXML.append('\t</ImportGroup>\n')
 
 	projectXML.append('\t<ImportGroup Label="PropertySheets">\n')
-	if _vcProject.IsConsole:
+	if _vcProject.Type == ProjectType.eConsole:
 		projectXML.append('\t\t<Import Project="UniformProperty_Console.props" />\n')
-	elif _vcProject.IsLibrary:
-		if _vcProject.IsThirdParty:
-			projectXML.append('\t\t<Import Project="UniformProperty_ThirdParty.props" />\n')
-		else:
-			projectXML.append('\t\t<Import Project="UniformProperty.props" />\n')
 	else:
 		projectXML.append('\t\t<Import Project="UniformProperty.props" />\n')
 	projectXML.append('\t\t<Import Project="$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props" Condition="exists(\'$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props\')" Label="LocalAppDataPlatform" />\n')
@@ -320,7 +325,7 @@ def MakeProjectFilter(_vcProject, _IncludeType):
 
 def MakeFilterList(_vcProject):
 	filterList = []
-	bResource = not _vcProject.IsLibrary
+	bResource = (_vcProject.Type != ProjectType.eLibrary and _vcProject.Type != ProjectType.eDll)
 	bShader = False
 
 	for fileType in FileType:

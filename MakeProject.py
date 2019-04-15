@@ -9,31 +9,32 @@ Configurations = [
 ]
 
 Platforms = [
-	'Win32',
+	#'Win32',
 	'x64',
 ]
 
 SolutionFolders = [
 	'Library',
 	'Demo',
+	'Tool',
 	#'Vulkan',
 	'ThirdParty',
 	#'JustForFun',
 	#'Fort'
 ]
 
-libProjects = [
-	VcProject('Base', 'Library', True, False, ['Base'], [], [], [FileType.eHeader, FileType.eCpp]),
-	VcProject('Colorful', 'Library', True, False, ['Colorful'], [], [], [FileType.eHeader, FileType.eCpp]),
-	VcProject('ImGUI', 'ThirdParty', True, False, ['ThirdParty\\ImGUI'], ['ThirdParty\\ImGUI\\examples'], [], [FileType.eHeader, FileType.eCpp]),
-	#VcProject('vcglib', 'ThirdParty', True, False, ['ThirdParty\\vcglib'], ['ThirdParty\\vcglib\\apps', 'ThirdParty\\vcglib\\eigenlib\\unsupported', 'ThirdParty\\vcglib\\wrap'], [], [FileType.eHeader, FileType.eCpp]),
-	]
+ImGUIProject = VcProject('ImGUI', 'ThirdParty', ProjectType.eLibrary, ['ThirdParty\\ImGUI'], ['ThirdParty\\ImGUI\\examples'], [], [FileType.eHeader, FileType.eCpp])
+BaseProject = VcProject('Base', 'Library', ProjectType.eLibrary, ['Base'], [], [], [FileType.eHeader, FileType.eCpp])
+ColorfulProject = VcProject('Colorful', 'Library', ProjectType.eLibrary, ['Colorful'], [], [], [FileType.eHeader, FileType.eCpp])
+AssetToolProject = VcProject('AssetTool', 'Tool', ProjectType.eDll, ['Tool\\AssetTool'], [], [BaseProject], [FileType.eHeader, FileType.eCpp])
+#VcProject('vcglib', 'ThirdParty', True, False, ['ThirdParty\\vcglib'], ['ThirdParty\\vcglib\\apps', 'ThirdParty\\vcglib\\eigenlib\\unsupported', 'ThirdParty\\vcglib\\wrap'], [], [FileType.eHeader, FileType.eCpp]),
+DemoProjectDependency = [BaseProject, ImGUIProject, ColorfulProject, AssetToolProject]
 
 demoProjects = [
+	VcProject('Box', 'Demo', ProjectType.eWinApp, ['Demo\\Box', 'Assets'], [], DemoProjectDependency, [FileType.eHeader, FileType.eCpp, FileType.eIcon, FileType.eResource, FileType.eShader]),
+	#VcProject('VulkanTest', 'Demo', ProjectType.eWinApp, ['Demo\\VulkanTest', 'Assets'], [], DemoProjectDependency, [FileType.eHeader, FileType.eCpp, FileType.eIcon, FileType.eResource, FileType.eShader]),
 	#VCProject('AdaptiveTessellation', 'Demo\\D3D11\\AdaptiveTessellation\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
 	#VCProject('AlphaBlend', 'Demo\\D3D11\\AlphaBlend\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
-	VcProject('Box', 'Demo', False, False, ['Demo\\Box', 'Assets'], [], libProjects, [FileType.eHeader, FileType.eCpp, FileType.eIcon, FileType.eResource, FileType.eShader]),
-	VcProject('VulkanTest', 'Demo', False, False, ['Demo\\VulkanTest', 'Assets'], [], libProjects, [FileType.eHeader, FileType.eCpp, FileType.eIcon, FileType.eResource, FileType.eShader]),
 	#VcProject('VulkanShaderCompiler', 'Demo', False, True, ['Demo\\VulkanShaderCompiler', 'Application'], [], libProjects, [FileType.eHeader, FileType.eCpp, FileType.eIcon, FileType.eResource, FileType.eShader]),
 	#VCProject('Cubemap', 'Demo\\D3D11\\Cubemap\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
 	#VCProject('DepthStencilTest', 'Demo\\D3D11\\DepthStencilTest\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
@@ -50,16 +51,14 @@ demoProjects = [
 	#VCProject('ParticleSystem', 'Demo\\D3D11\\ParticleSystem\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
 	#VCProject('RayCast', 'Demo\\D3D11\\RayCast\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
 	#VCProject('Shadow', 'Demo\\D3D11\\Shadow\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
-
 	#VCProject('VulkanBox', 'Demo\\Vulkan\\VulkanBox\\', 'Vulkan', False, ResourceDirectory, [], [], libProjects),
-
 	#VCProject('DataStructures', 'Fort\\DataStructures\\', 'Fort', False, [], [], [], [], True),
 	#VCProject('Mario', 'JustForFun\\Mario\\', 'JustForFun', False, ResourceDirectory, [], [], libProjects),
 	#VCProject('UEStatConverter', 'JustForFun\\UEStatConverter\\', 'JustForFun', False, [], [], [], [libProjects[1]], True),
 ]
 
 def _main_(_argv):
-	allMyProjects = libProjects + demoProjects
+	allMyProjects = DemoProjectDependency + demoProjects
 	versionInfo = MakeSolution('Miscellaneous', 'vs2017', allMyProjects, Configurations, Platforms, SolutionFolders)
 
 	if not os.path.exists('Projects'):

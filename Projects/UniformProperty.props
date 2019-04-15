@@ -5,6 +5,7 @@
   <PropertyGroup>
     <OutDir Condition="'$(ConfigurationType)'=='StaticLibrary'">$(SolutionDir)Out\Intermediate\Libs\</OutDir>
     <OutDir Condition="'$(ConfigurationType)'=='Application'">$(SolutionDir)Out\</OutDir>
+    <OutDir Condition="'$(ConfigurationType)'=='DynamicLibrary'">$(SolutionDir)Out\</OutDir>
     <IntDir>$(SolutionDir)Out\Intermediate\$(ProjectName)\</IntDir>
     <TargetExt>$(TargetExt)</TargetExt>
     <LinkIncremental>false</LinkIncremental>
@@ -16,6 +17,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4244;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;windowscodecs.lib;Usp10.lib;Comctl32.lib;vulkan-1.lib;SPIRV.lib;glslang.lib;SPVRemapper.lib;glslang-default-resource-limits.lib;OGLCompiler.lib;OSDependent.lib;HLSL.lib;SPIRV-Tools-opt.lib;SPIRV-Tools.lib;%(AdditionalDependencies)</AdditionalDependencies>
