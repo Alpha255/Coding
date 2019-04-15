@@ -14,17 +14,8 @@
 #include <DirectXCollision.h>
 #include <Windows.h>
 
-///#ifdef _WINDLL
-///	/// Use Dynamic Link
-///	#ifdef _EXPORT_DLL_
-///		#define Export __declspec(dllexport)
-///	#else
-///		#define Export __declspec(dllimport)
-///	#endif
-///#else
-///	/// Use Static Lib
-///	#define Export
-///#endif
+#define Export __declspec(dllexport)
+/// #define Export __declspec(dllimport)
 
 #define SafeRelease(ptr)      { if((ptr) != nullptr) (ptr)->Release(); (ptr) = nullptr; }
 #define SafeDelete(ptr)       { if((ptr) != nullptr) delete (ptr); (ptr) = nullptr; }

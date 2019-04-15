@@ -40,8 +40,6 @@ public:
 
 	void Destory() override;
 protected:
-	std::vector<uint32_t> Compile(const std::string &fileName, const std::string &entryPoint);
-
 	VkShaderStageFlagBits m_Stage = VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM;
 	VkPipelineShaderStageCreateInfo m_ShaderStage = {};
 	eRShaderType m_Type = eRShaderTypeCount;
