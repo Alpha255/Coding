@@ -33,9 +33,6 @@ D3D11Blob D3D11Shader::CompileShaderCode(const std::string &fileName, const std:
 {
 	assert(m_Type != eRShaderTypeCount);
 
-	///std::string shaderCode = Base::GetShaderCode(pFileName, "#D3D11", m_Type);
-	std::string shaderCode("");
-
 	const char *const models[eRShaderTypeCount] =
 	{
 		"vs_5_0",
@@ -52,6 +49,7 @@ D3D11Blob D3D11Shader::CompileShaderCode(const std::string &fileName, const std:
 	ID3DBlob *pErrMsg = nullptr;
 
 	AssetFile shaderFile(fileName);
+	auto shaderCode = shaderFile.Load();
 
 #if defined(DEBUG) || defined(_DEBUG)
 	uint32_t flags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG;
@@ -64,8 +62,8 @@ D3D11Blob D3D11Shader::CompileShaderCode(const std::string &fileName, const std:
 	::SetCurrentDirectoryA(shaderFile.GetRoot().c_str());
 	ID3DInclude* pIncludeInfo = (nullptr == pInclude ? D3D_COMPILE_STANDARD_FILE_INCLUDE : pInclude);
 	if (FAILED(D3DCompile(
-		(const void *)shaderCode.c_str(), 
-		shaderCode.length(), 
+		(const void *)shaderCode.get(), 
+		shaderFile.GetSize(),
 		fileName.c_str(), 
 		pMacros, 
 		pIncludeInfo, 

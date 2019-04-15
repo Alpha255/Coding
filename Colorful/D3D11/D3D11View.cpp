@@ -141,7 +141,7 @@ void D3D11DepthStencilView::CreateAsTextureArray(eRViewType type, D3D11Resource 
 	Reset(pDepthStencilView);
 }
 
-void D3D11ShaderResourceView::CreateAsTexture(eRViewType type, D3D11Resource &resource, uint32_t fmt, uint32_t mostDetailedMip, uint32_t mipLevels)
+void D3D11ShaderResourceView::CreateAsTexture(eRViewType type, D3D11Resource &resource, uint32_t fmt, uint32_t mipLevels, uint32_t)
 {
 	assert(resource.IsValid() && !IsValid());
 
@@ -151,22 +151,22 @@ void D3D11ShaderResourceView::CreateAsTexture(eRViewType type, D3D11Resource &re
 	{
 	case eTexture1D:
 		desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE1D;
-		desc.Texture1D.MostDetailedMip = mostDetailedMip;
+		desc.Texture1D.MostDetailedMip = 0U;
 		desc.Texture1D.MipLevels = mipLevels;
 		break;
 	case eTexture2D:
 		desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-		desc.Texture2D.MostDetailedMip = mostDetailedMip;
+		desc.Texture2D.MostDetailedMip = 0U;
 		desc.Texture2D.MipLevels = mipLevels;
 		break;
 	case eTexture3D:
 		desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE3D;
-		desc.Texture3D.MostDetailedMip = mostDetailedMip;
+		desc.Texture3D.MostDetailedMip = 0U;
 		desc.Texture3D.MipLevels = mipLevels;
 		break;
 	case eTextureCube:
 		desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
-		desc.TextureCube.MostDetailedMip = mostDetailedMip;
+		desc.TextureCube.MostDetailedMip = 0U;
 		desc.TextureCube.MipLevels = mipLevels;
 		break;
 	default:
@@ -179,7 +179,7 @@ void D3D11ShaderResourceView::CreateAsTexture(eRViewType type, D3D11Resource &re
 	Reset(pShaderResourceView);
 }
 
-void D3D11ShaderResourceView::CreateAsTextureArray(eRViewType type, D3D11Resource &resource, uint32_t fmt, uint32_t mostDetailedMip, uint32_t mipLevels, uint32_t firstArraySlice, uint32_t arraySize)
+void D3D11ShaderResourceView::CreateAsTextureArray(eRViewType type, D3D11Resource &resource, uint32_t fmt, uint32_t mipLevels, uint32_t firstArraySlice, uint32_t arraySize)
 {
 	assert(resource.IsValid() && !IsValid());
 
@@ -189,21 +189,21 @@ void D3D11ShaderResourceView::CreateAsTextureArray(eRViewType type, D3D11Resourc
 	{
 	case eTexture1DArray:
 		desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE1DARRAY;
-		desc.Texture1DArray.MostDetailedMip = mostDetailedMip;
+		desc.Texture1DArray.MostDetailedMip = 0U;
 		desc.Texture1DArray.MipLevels = mipLevels;
 		desc.Texture1DArray.FirstArraySlice = firstArraySlice;
 		desc.Texture1DArray.ArraySize = arraySize;
 		break;
 	case eTexture2DArray:
 		desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
-		desc.Texture2DArray.MostDetailedMip = mostDetailedMip;
+		desc.Texture2DArray.MostDetailedMip = 0U;
 		desc.Texture2DArray.MipLevels = mipLevels;
 		desc.Texture2DArray.FirstArraySlice = firstArraySlice;
 		desc.Texture2DArray.ArraySize = arraySize;
 		break;
 	case eTextureCubeArray:
 		desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBEARRAY;
-		desc.TextureCubeArray.MostDetailedMip = mostDetailedMip;
+		desc.TextureCubeArray.MostDetailedMip = 0U;
 		desc.TextureCubeArray.MipLevels = mipLevels;
 		desc.TextureCubeArray.First2DArrayFace = firstArraySlice;
 		desc.TextureCubeArray.NumCubes = arraySize;

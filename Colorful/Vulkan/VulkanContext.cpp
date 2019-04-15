@@ -138,6 +138,30 @@ bool VulkanContext::IsSamePipelineState(const VkGraphicsPipelineCreateInfo &left
 	return true;
 }
 
+void VulkanContext::SetSampler(const VulkanSamplerState &sampler, uint32_t slot, eRShaderType targetShader)
+{
+	if (m_Samplers[targetShader][slot] == sampler)
+	{
+		return;
+	}
+
+	m_Samplers[targetShader][slot] = sampler;
+
+	VulkanDescriptorSetInfos descriptorSetInfo
+	{
+		VulkanDescriptorPool::eSampler,
+		m_ResourceBinding++,
+		VulkanImageView(),
+		sampler,
+		VulkanBuffer(),
+		targetShader
+	};
+
+	m_DescriptorSetInfos.emplace_back(descriptorSetInfo);
+
+	m_Dirty = true;
+}
+
 void VulkanContext::SetImageView(const VulkanImageView &imageView, uint32_t slot, eRShaderType targetShader)
 {
 	if (m_ImageViews[targetShader][slot] == imageView)
@@ -149,9 +173,10 @@ void VulkanContext::SetImageView(const VulkanImageView &imageView, uint32_t slot
 	
 	VulkanDescriptorSetInfos descriptorSetInfo
 	{
-		VulkanDescriptorPool::eCombinedImage,
-		m_DescriptorSetLayoutBindingIndex++,
+		VulkanDescriptorPool::eImage,
+		m_ResourceBinding++,
 		imageView,
+		VulkanSamplerState(),
 		VulkanBuffer(),
 		targetShader
 	};
@@ -173,8 +198,9 @@ void VulkanContext::SetUniformBuffer(const VulkanBuffer &uniformBuffer, uint32_t
 	VulkanDescriptorSetInfos descriptorSetInfo
 	{
 		VulkanDescriptorPool::eUniformBuffer,
-		m_DescriptorSetLayoutBindingIndex++,
+		m_ResourceBinding++,
 		VulkanImageView(),
+		VulkanSamplerState(),
 		uniformBuffer,
 		targetShader
 	};
@@ -215,10 +241,10 @@ void VulkanContext::BuildPipline()
 
 void VulkanContext::BuildDescriptorSet()
 {
-	assert(m_DescriptorSetLayoutBindingIndex == m_DescriptorSetInfos.size());
+	assert(m_ResourceBinding == m_DescriptorSetInfos.size());
 
 	std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
-	for (uint32_t i = 0U; i < m_DescriptorSetLayoutBindingIndex; ++i)
+	for (uint32_t i = 0U; i < m_ResourceBinding; ++i)
 	{
 		VkDescriptorSetLayoutBinding descriptorSetLayoutBinding
 		{
@@ -239,12 +265,18 @@ void VulkanContext::BuildDescriptorSet()
 
 	m_CurPipelineInfo.layout = pipelineLayout.Get();
 
-	for (uint32_t i = 0U; i < m_DescriptorSetLayoutBindingIndex; ++i)
+	for (uint32_t i = 0U; i < m_ResourceBinding; ++i)
 	{
 		auto &descriptorSetInfo = m_DescriptorSetInfos[i];
 		switch (descriptorSetInfo.Type)
 		{
-		case VulkanDescriptorPool::eCombinedImage:
+		case VulkanDescriptorPool::eImage:
+			descriptorSet.SetupImage(descriptorSetInfo.Image, descriptorSetInfo.Slot);
+			break;
+		case VulkanDescriptorPool::eSampler:
+			descriptorSet.SetupSampler(descriptorSetInfo.Sampler, descriptorSetInfo.Slot);
+			break;
+		case VulkanDescriptorPool::eCombinedImageSampler:
 			descriptorSet.SetupCombinedImage(descriptorSetInfo.Image, descriptorSetInfo.Slot);
 			break;
 		case VulkanDescriptorPool::eUniformBuffer:
@@ -256,7 +288,7 @@ void VulkanContext::BuildDescriptorSet()
 		}
 	}
 
-	m_DescriptorSetLayoutBindingIndex = 0U;
+	m_ResourceBinding = 0U;
 	m_DescriptorSetInfos.clear();
 }
 

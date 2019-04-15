@@ -149,7 +149,7 @@ bool CompileShader(
 	glslang::FinalizeProcess();    /// also test reference counting of users
 	glslang::FinalizeProcess();    /// also test reference counting of users
 
-	EShMessages message = (EShMessages)(EShMsgSpvRules | EShMsgVulkanRules/* | EShMsgReadHlsl*/);
+	EShMessages message = (EShMessages)(EShMsgSpvRules | EShMsgVulkanRules | EShMsgReadHlsl);
 	const char *pShaderCodes[] = { (const char *)(shaderCode.get()) };
 
 	glslang::TShader shader(language);

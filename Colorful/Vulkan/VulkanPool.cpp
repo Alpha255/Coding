@@ -109,6 +109,64 @@ void VulkanDescriptorSetLayout::Destory()
 	Reset();
 }
 
+void VulkanDescriptorSet::SetupImage(const VulkanImageView &image, uint32_t slot)
+{
+	assert(IsValid());
+
+	/// Members of VkDescriptorImageInfo that are not used in an update(as described above) are ignored.
+	VkDescriptorImageInfo descriptorImageInfo
+	{
+		VK_NULL_HANDLE,
+		image.Get(),
+		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+	};
+
+	VkWriteDescriptorSet writeDescriptorSet
+	{
+		VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+		nullptr,
+		m_Handle,
+		slot,
+		0U,
+		1U,
+		VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+		&descriptorImageInfo,
+		nullptr,
+		nullptr
+	};
+
+	vkUpdateDescriptorSets(VulkanEngine::Instance().GetDevice().Get(), 1U, &writeDescriptorSet, 0U, nullptr);
+}
+
+void VulkanDescriptorSet::SetupSampler(const VulkanSamplerState &sampler, uint32_t slot)
+{
+	assert(IsValid());
+
+	/// Members of VkDescriptorImageInfo that are not used in an update(as described above) are ignored.
+	VkDescriptorImageInfo descriptorImageInfo
+	{
+		sampler.Get(),
+		VK_NULL_HANDLE,
+		VK_IMAGE_LAYOUT_UNDEFINED
+	};
+
+	VkWriteDescriptorSet writeDescriptorSet
+	{
+		VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+		nullptr,
+		m_Handle,
+		slot,
+		0U,
+		1U,
+		VK_DESCRIPTOR_TYPE_SAMPLER,
+		&descriptorImageInfo,
+		nullptr,
+		nullptr
+	};
+
+	vkUpdateDescriptorSets(VulkanEngine::Instance().GetDevice().Get(), 1U, &writeDescriptorSet, 0U, nullptr);
+}
+
 void VulkanDescriptorSet::SetupCombinedImage(const VulkanImageView &image, uint32_t slot)
 {
 	assert(IsValid());
@@ -167,7 +225,17 @@ void VulkanDescriptorPool::Create()
 	std::vector<VkDescriptorPoolSize> descriptorPoolSize
 	{
 		{
-			(VkDescriptorType)eCombinedImage,
+			(VkDescriptorType)eImage,
+			eMaxSamplers
+		},
+
+		{
+			(VkDescriptorType)eSampler,
+			eMaxSamplers
+		},
+
+		{
+			(VkDescriptorType)eCombinedImageSampler,
 			eMaxSamplers
 		},
 		{

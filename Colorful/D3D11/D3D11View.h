@@ -28,8 +28,8 @@ public:
 
 	void CreateAsBuffer();
 	void CreateAsBufferEx();
-	void CreateAsTexture(eRViewType type, D3D11Resource &resource, uint32_t fmt, uint32_t mostDetailedMip, uint32_t mipLevels);
-	void CreateAsTextureArray(eRViewType type, D3D11Resource &resource, uint32_t fmt, uint32_t mostDetailedMip, uint32_t mipLevels, uint32_t firstArraySlice, uint32_t arraySize);
+	void CreateAsTexture(eRViewType type, D3D11Resource &resource, uint32_t fmt, uint32_t mipLevels, uint32_t);
+	void CreateAsTextureArray(eRViewType type, D3D11Resource &resource, uint32_t fmt, uint32_t mipLevels, uint32_t firstArraySlice, uint32_t arraySize);
 protected:
 };
 

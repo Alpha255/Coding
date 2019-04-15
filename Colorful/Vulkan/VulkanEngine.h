@@ -87,6 +87,11 @@ public:
 		m_Context.SetBlendState(blendState, blendFactor, mask);
 	}
 
+	inline void SetSamplerState(const VulkanSamplerState &sampler, uint32_t slot, eRShaderType targetShader)
+	{
+		m_Context.SetSamplerState(sampler, slot, targetShader);
+	}
+
 	inline void SetShaderResourceView(const VulkanShaderResourceView &shaderResourceView, uint32_t slot, eRShaderType targetShader)
 	{
 		m_Context.SetShaderResourceView(shaderResourceView, slot, targetShader);

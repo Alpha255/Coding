@@ -22,7 +22,7 @@ public:
 		Create(eBindAsIndexBuffer, byteWidth, usage, pData, GetCpuAccessFlag(usage));
 	}
 
-	inline void CreateAsConstantBuffer(
+	inline void CreateAsUniformBuffer(
 		size_t byteWidth,
 		uint32_t usage,
 		const void *pData = nullptr)
@@ -39,6 +39,11 @@ public:
 	{
 		assert(byteStride);
 		Create(bindFlags | eBindAsShaderResource | eBindAsUnorderedAccess, byteWidth, usage, nullptr, 0U, miscFlags, byteStride, 0U);
+	}
+
+	inline void Destory()
+	{
+		Reset();
 	}
 
 	void Update(const void *pData, size_t size);

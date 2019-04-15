@@ -56,6 +56,8 @@ public:
 		return m_Layout;
 	}
 
+	void SetupImage(const class VulkanImageView &image, uint32_t slot);
+	void SetupSampler(const class VulkanSamplerState &sampler, uint32_t slot);
 	void SetupCombinedImage(const class VulkanImageView &image, uint32_t slot);
 	void SetupUniformBuffer(const class VulkanBuffer &uniformBuffer, uint32_t slot);
 
@@ -75,7 +77,9 @@ class VulkanDescriptorPool : public VulkanObject<VkDescriptorPool>
 public:
 	enum eDescriptorType
 	{
-		eCombinedImage = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+		eImage = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+		eSampler = VK_DESCRIPTOR_TYPE_SAMPLER,
+		eCombinedImageSampler = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
 		eUniformBuffer = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
 		ePoolTypeCount = 2U
 	};

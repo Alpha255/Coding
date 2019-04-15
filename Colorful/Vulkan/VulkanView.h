@@ -57,7 +57,7 @@ class VulkanImageView : public VulkanObject<VkImageView>
 {
 public:
 	void Create(const VulkanImage &image, bool bKeepImage = true);
-	void CreateAsTexture(eRViewType type, const VulkanImage &image, uint32_t fmt, uint32_t mipSlice, uint32_t aspectFlags, bool bKeepImage = true);
+	void CreateAsTexture(eRViewType type, const VulkanImage &image, uint32_t fmt, uint32_t mipLevel, uint32_t aspectMask, bool bKeepImage = true);
 	void Destory() override;
 
 	inline const VkImageViewCreateInfo &GetImageViewInfo() const
@@ -85,9 +85,9 @@ private:
 class VulkanRenderTargetView : public VulkanImageView
 {
 public:
-	inline void CreateAsTexture(eRViewType type, const VulkanImage &image, uint32_t fmt, uint32_t mipSlice, bool bKeepImage = true)
+	inline void CreateAsTexture(eRViewType type, const VulkanImage &image, uint32_t fmt, uint32_t mipLevel, bool bKeepImage = true)
 	{
-		VulkanImageView::CreateAsTexture(type, image, fmt, mipSlice, VK_IMAGE_ASPECT_COLOR_BIT, bKeepImage);
+		VulkanImageView::CreateAsTexture(type, image, fmt, mipLevel, VK_IMAGE_ASPECT_COLOR_BIT, bKeepImage);
 	}
 protected:
 private:
@@ -98,9 +98,9 @@ class VulkanDepthStencilView : public VulkanImageView
 public:
 	///void Create(uint32_t fmt, uint32_t width, uint32_t height);
 
-	inline void CreateAsTexture(eRViewType type, const VulkanImage &image, uint32_t fmt, uint32_t, uint32_t mipSlice, bool bKeepImage = true)
+	inline void CreateAsTexture(eRViewType type, const VulkanImage &image, uint32_t fmt, uint32_t, uint32_t mipLevel, bool bKeepImage = true)
 	{
-		VulkanImageView::CreateAsTexture(type, image, fmt, mipSlice, VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT, bKeepImage);
+		VulkanImageView::CreateAsTexture(type, image, fmt, mipLevel, VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT, bKeepImage);
 	}
 protected:
 private:

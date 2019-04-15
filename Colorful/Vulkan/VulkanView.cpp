@@ -267,7 +267,7 @@ void VulkanImageView::Create(const VulkanImage &image, bool bKeepImage)
 	CreateAsTexture((eRViewType)viewType, image, imageInfo.format, imageInfo.mipLevels, aspectFlags, bKeepImage);
 }
 
-void VulkanImageView::CreateAsTexture(eRViewType type, const VulkanImage &image, uint32_t fmt, uint32_t mipSlice, uint32_t aspectFlags, bool bKeepImage)
+void VulkanImageView::CreateAsTexture(eRViewType type, const VulkanImage &image, uint32_t fmt, uint32_t mipLevel, uint32_t aspectMask, bool bKeepImage)
 {
 	assert(!IsValid() && image.IsValid());
 
@@ -287,9 +287,9 @@ void VulkanImageView::CreateAsTexture(eRViewType type, const VulkanImage &image,
 		},
 
 		{ 
-			aspectFlags, 
-			0U, 
-			mipSlice, 
+			aspectMask,
+			0U,
+			mipLevel,
 			0U, 
 			1U 
 		}

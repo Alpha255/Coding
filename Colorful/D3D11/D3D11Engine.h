@@ -134,7 +134,7 @@ public:
 		GetThreadContext().SetComputeShader(computeShader);
 	}
 
-	inline void SetConstantBuffer(const D3D11Buffer &constantBuffer, uint32_t slot, eRShaderType targetShader)
+	inline void SetUniformBuffer(const D3D11Buffer &constantBuffer, uint32_t slot, eRShaderType targetShader)
 	{
 		GetThreadContext().SetConstantBuffer(constantBuffer, slot, targetShader);
 	}
@@ -206,7 +206,7 @@ public:
 	///void DrawAuto();
 
 	///void DrawTextInPos(const char *pTextContent, uint32_t left = 10U, uint32_t top = 10U, uint32_t fontSize = 1U);
-
+	inline void Finalize() {}
 protected:
 	D3D11Engine() = default;
 	~D3D11Engine() = default;

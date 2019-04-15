@@ -130,6 +130,11 @@ public:
 		m_StateInfos.ColorBlendInfo = blendState.Get();
 	}
 
+	inline void SetSamplerState(const VulkanSamplerState &sampler, uint32_t slot, eRShaderType targetShader)
+	{
+		SetSampler(sampler, slot, targetShader);
+	}
+
 	inline void SetInputLayout(const VulkanInputLayout &inputLayout)
 	{
 		m_StateInfos.VertexInputInfo = inputLayout.Get();
@@ -303,6 +308,7 @@ protected:
 		VulkanDescriptorPool::eDescriptorType Type = VulkanDescriptorPool::ePoolTypeCount;
 		uint32_t Slot = 0U;
 		VulkanImageView Image;
+		VulkanSamplerState Sampler;
 		VulkanBuffer UniformBuffer;
 		eRShaderType ShaderType;
 	};
@@ -331,6 +337,7 @@ protected:
 	bool IsSamePipelineState(const VkGraphicsPipelineCreateInfo &left, const VkGraphicsPipelineCreateInfo &right);
 
 	void SetImageView(const VulkanImageView &imageView, uint32_t slot, eRShaderType targetShader);
+	void SetSampler(const VulkanSamplerState &sampler, uint32_t slot, eRShaderType targetShader);
 
 	inline VkShaderStageFlags GetShaderStage(eRShaderType type) const
 	{
@@ -351,7 +358,6 @@ protected:
 		return shaderStage;
 	}
 private:
-	uint32_t m_DescriptorSetLayoutBindingIndex = 0U;
 	VkGraphicsPipelineCreateInfo m_CurPipelineInfo = {};
 	VulkanPipeline m_CurPipline;
 	VulkanPipelineCache m_Cache;
@@ -366,7 +372,9 @@ private:
 	std::array<VulkanRect, eMaxScissors> m_Scissors;
 	std::array<VulkanVertexBuffer, eMaxVertexBuffers> m_VertexBuffers;
 	std::array<std::array<VulkanImageView, VulkanDescriptorPool::eMaxSamplers>, eRShaderTypeCount> m_ImageViews;
+	std::array<std::array<VulkanSamplerState, VulkanDescriptorPool::eMaxSamplers>, eRShaderTypeCount> m_Samplers;
 	std::array<std::array<VulkanBuffer, VulkanDescriptorPool::eMaxUniformBuffers>, eRShaderTypeCount> m_UniformBuffers;
+	uint32_t m_ResourceBinding = 0U;
 	VulkanStateInfos m_StateInfos = {};
 	bool m_Dirty = false;
 };

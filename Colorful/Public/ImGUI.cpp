@@ -3,14 +3,6 @@
 
 std::unique_ptr<ImGUI, std::function<void(ImGUI *)>> ImGUI::s_Instance;
 
-struct VkPushConstBlock
-{
-	Vec2 Scale;
-	Vec2 Translate;
-};
-
-VkPushConstBlock vkPushConstBlock;
-
 void ImGUI::Initialize(::HWND hWnd)
 {
 	assert(hWnd);
@@ -48,11 +40,17 @@ void ImGUI::Initialize(::HWND hWnd)
 		{ "COLOR",    sizeof(ImDrawVert::col), offsetof(ImDrawVert, col), eRGBA8_UNorm }
 	};
 
+#if 0
 	m_Resource.VertexShader.Create("UIVertexShader.vert", "main");
 	m_Resource.VertexLayout.Create(m_Resource.VertexShader.GetBlob(), layout);
 	m_Resource.PixelShader.Create("UIFragmentShader.frag", "main");
+#else
+	m_Resource.VertexShader.Create("ImGUI.shader", "VS_Main");
+	m_Resource.VertexLayout.Create(m_Resource.VertexShader.GetBlob(), layout);
+	m_Resource.PixelShader.Create("ImGUI.shader", "PS_Main");
+#endif
 
-	m_Resource.ConstantBufferVS.CreateAsUniformBuffer(sizeof(VkPushConstBlock), eGpuReadCpuWrite, nullptr);
+	m_Resource.ConstantBufferVS.CreateAsUniformBuffer(sizeof(Matrix), eGpuReadCpuWrite, nullptr);
 
 	m_Resource.ClrWriteBlend.Create(false, false, 0U, true,
 		eRBlend::eSrcAlpha, eRBlend::eInvSrcAlpha, eRBlendOp::eAdd,
@@ -73,7 +71,7 @@ void ImGUI::Initialize(::HWND hWnd)
 	};
 	fontTex.Create(eRGBA8_UNorm, (uint32_t)width, (uint32_t)height, eBindAsShaderResource, 1U, 1U, 0U, 0U, eGpuReadWrite, &subResData);
 	m_Resource.FontTexture.CreateAsTexture(eTexture2D, fontTex, eRGBA8_UNorm, 1U, 1U);
-	m_Resource.FontTexture.BindSampler(RStaticState::LinearSampler);
+	///m_Resource.FontTexture.BindSampler(RStaticState::LinearSampler);
 	io.Fonts->TexID = (void *)m_Resource.FontTexture.Get();
 
 	m_Ready = true;
@@ -191,7 +189,7 @@ void ImGUI::RenderBegin(const char *pPanelName)
 	/// io.WantCaptureKeyboard flag that you can use to dispatch inputs (or not) to your application.
 	ImGui::NewFrame();
 
-	Verify(ImGui::Begin(pPanelName) == true);
+	ImGui::Begin(pPanelName);
 }
 
 void ImGUI::RenderEnd()
@@ -211,22 +209,19 @@ bool ImGUI::Update()
 
 	UpdateDrawData(pDrawData);
 
-	float L = 0.0f;
-	float R = ImGui::GetIO().DisplaySize.x;
-	float B = ImGui::GetIO().DisplaySize.y;
-	float T = 0.0f;
+	float L = pDrawData->DisplayPos.x;
+	float R = pDrawData->DisplayPos.x + pDrawData->DisplaySize.x;
+	float B = pDrawData->DisplayPos.y + pDrawData->DisplaySize.y;
+	float T = pDrawData->DisplayPos.y;
 	Matrix wvp(
-		2.0f / (R - L), 0.0f, 0.0f, 0.0f,
-		0.0f, 2.0f / (T - B), 0.0f, 0.0f,
-		0.0f, 0.0f, 0.5f, 0.0f,
+		2.0f / (R - L),    0.0f,              0.0f, 0.0f,
+		0.0f,              2.0f / (T - B),    0.0f, 0.0f,
+		0.0f,              0.0f,              0.5f, 0.0f,
 		(R + L) / (L - R), (T + B) / (B - T), 0.5f, 1.0f
 	);
+	///wvp = Matrix::Transpose(wvp);
 
-	vkPushConstBlock.Scale = Vec2(2.0f / R, 2.0f / B);
-	vkPushConstBlock.Translate = Vec2(-1.0f, -1.0f);
-
-	///m_Resource.ConstantBufferVS.Update(&wvp, sizeof(Matrix));
-	m_Resource.ConstantBufferVS.Update(&vkPushConstBlock, sizeof(VkPushConstBlock));
+	m_Resource.ConstantBufferVS.Update(&wvp, sizeof(Matrix));
 
 	RViewport vp(0.0f, 0.0f, ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y);
 	REngine::Instance().SetViewport(vp);
@@ -235,8 +230,9 @@ bool ImGUI::Update()
 	REngine::Instance().SetInputLayout(m_Resource.VertexLayout);
 	REngine::Instance().SetVertexBuffer(m_Resource.VertexBuffer, sizeof(ImDrawVert), 0U);
 	REngine::Instance().SetIndexBuffer(m_Resource.IndexBuffer, sizeof(ImDrawIdx) == 2U ? eR16_UInt : eR32_UInt, 0U);
-	REngine::Instance().SetShaderResourceView(m_Resource.FontTexture, 0U, ePixelShader);
 	REngine::Instance().SetUniformBuffer(m_Resource.ConstantBufferVS, 0U, eVertexShader);
+	REngine::Instance().SetSamplerState(RStaticState::LinearSampler, 0U, ePixelShader);
+	REngine::Instance().SetShaderResourceView(m_Resource.FontTexture, 0U, ePixelShader);
 	REngine::Instance().SetBlendState(m_Resource.ClrWriteBlend);
 	REngine::Instance().SetDepthStencilState(RStaticState::DisableDepthStencil, 0U);
 	REngine::Instance().SetRasterizerState(RStaticState::SolidNoneCulling);
