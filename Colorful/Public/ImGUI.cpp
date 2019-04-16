@@ -213,13 +213,21 @@ bool ImGUI::Update()
 	float R = pDrawData->DisplayPos.x + pDrawData->DisplaySize.x;
 	float B = pDrawData->DisplayPos.y + pDrawData->DisplaySize.y;
 	float T = pDrawData->DisplayPos.y;
+#if defined(UsingVulkan)
 	Matrix wvp(
-		2.0f / (R - L),    0.0f,              0.0f, 0.0f,
-		0.0f,              2.0f / (T - B),    0.0f, 0.0f,
-		0.0f,              0.0f,              0.5f, 0.0f,
+		2.0f / (R - L),    0.0f,               0.0f, 0.0f,
+		0.0f,              -2.0f / (T - B),    0.0f, 0.0f,
+		0.0f,              0.0f,               1.0f, 0.0f,
+		(R + L) / (L - R), -(T + B) / (B - T), 0.0f, 1.0f
+	);
+#elif defined(UsingD3D11)
+	Matrix wvp(
+		2.0f / (R - L), 0.0f, 0.0f, 0.0f,
+		0.0f, 2.0f / (T - B), 0.0f, 0.0f,
+		0.0f, 0.0f, 0.5f, 0.0f,
 		(R + L) / (L - R), (T + B) / (B - T), 0.5f, 1.0f
 	);
-	///wvp = Matrix::Transpose(wvp);
+#endif
 
 	m_Resource.ConstantBufferVS.Update(&wvp, sizeof(Matrix));
 

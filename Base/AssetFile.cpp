@@ -32,8 +32,8 @@ bool AssetFile::TryToFindAssetFile()
 	char curPath[MAX_PATH] = {};
 	Verify(::GetCurrentDirectoryA(MAX_PATH, curPath) != 0);
 
-	std::string assetPath(curPath);
-	assetPath += "\\..\\";
+	std::string assetPath = Base::GetRootDirectory(curPath);
+	assetPath += "\\";
 	assetPath += s_AssetsPath[m_Type];
 	assetPath += m_Path;
 

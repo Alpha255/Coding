@@ -64,6 +64,8 @@ std::string GetFileName(const std::string &src);
 
 std::string GetFileExtension(const std::string &filePath, bool bToLower);
 
+std::string GetRootDirectory(const std::string &path);
+
 void BuildFileList(std::vector<std::string> &outFileList, const std::string &targetPath, const std::vector<std::string> &filters, bool bToLower);
 
 void BuildFolderTree(Tree<std::string> &outTree, const std::string &targetPath, bool bToLower, bool bFullPath = false);

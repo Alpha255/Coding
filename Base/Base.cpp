@@ -87,6 +87,21 @@ std::string GetFileExtension(const std::string &filePath, bool bToLower)
 	return ext;
 }
 
+std::string GetRootDirectory(const std::string &path)
+{
+	size_t index = path.find("\\");
+	if (index != std::string::npos)
+	{
+		index = path.find("\\", index + 1U);
+		if (index != std::string::npos)
+		{
+			return path.substr(0U, index);
+		}
+	}
+
+	return "";
+}
+
 void BuildFileList(
 	std::vector<std::string> &outFileList, 
 	const std::string &targetPath, 
