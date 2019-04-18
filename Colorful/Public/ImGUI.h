@@ -67,7 +67,7 @@ private:
 
 		RBuffer VertexBuffer;
 		RBuffer IndexBuffer;
-		RBuffer ConstantBufferVS;
+		RBuffer UniformBufferVS;
 
 		RBlendState ClrWriteBlend;
 

@@ -51,10 +51,9 @@ void Box::RenderScene()
 	REngine::Instance().DrawIndexed(m_BoxMesh.IndexCount, 0U, 0, eTriangleList);
 #endif
 
-	///ImGui::Combo("SpecialEffect", &m_Effect, "None\0Inversion\0Grayscale\0Sharpen\0Blur\0EdgeDetection");
+	ImGui::Combo("SpecialEffect", &m_Effect, "None\0Inversion\0Grayscale\0Sharpen\0Blur\0EdgeDetection");
 	ImGui::Checkbox("VSync", &m_bVSync);
 	ImGui::Text("\n%.2f FPS", m_FPS);
-	ImGui::Text("VulkanTest");
 #if 1
 
 #endif

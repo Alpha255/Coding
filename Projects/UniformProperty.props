@@ -12,12 +12,12 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)Colorful;$(SolutionDir)ThirdParty;$(SolutionDir)ThirdParty\ImGUI;$(SolutionDir)ThirdParty\freetype\include;$(VK_SDK_PATH);$(VK_SDK_PATH)\Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)Colorful;$(SolutionDir)ThirdParty;$(SolutionDir)ThirdParty\ImGUI;$(SolutionDir)ThirdParty\freetype\include;$(SolutionDir)ThirdParty\vcglib;$(VK_SDK_PATH);$(VK_SDK_PATH)\Include</AdditionalIncludeDirectories>
       <WarningLevel>Level4</WarningLevel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4244;</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4244;4267;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;windowscodecs.lib;Usp10.lib;Comctl32.lib;vulkan-1.lib;SPIRV.lib;glslang.lib;SPVRemapper.lib;glslang-default-resource-limits.lib;OGLCompiler.lib;OSDependent.lib;HLSL.lib;SPIRV-Tools-opt.lib;SPIRV-Tools.lib;%(AdditionalDependencies)</AdditionalDependencies>

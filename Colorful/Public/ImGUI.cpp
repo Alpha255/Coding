@@ -40,17 +40,11 @@ void ImGUI::Initialize(::HWND hWnd)
 		{ "COLOR",    sizeof(ImDrawVert::col), offsetof(ImDrawVert, col), eRGBA8_UNorm }
 	};
 
-#if 0
-	m_Resource.VertexShader.Create("UIVertexShader.vert", "main");
-	m_Resource.VertexLayout.Create(m_Resource.VertexShader.GetBlob(), layout);
-	m_Resource.PixelShader.Create("UIFragmentShader.frag", "main");
-#else
 	m_Resource.VertexShader.Create("ImGUI.shader", "VS_Main");
 	m_Resource.VertexLayout.Create(m_Resource.VertexShader.GetBlob(), layout);
 	m_Resource.PixelShader.Create("ImGUI.shader", "PS_Main");
-#endif
 
-	m_Resource.ConstantBufferVS.CreateAsUniformBuffer(sizeof(Matrix), eGpuReadCpuWrite, nullptr);
+	m_Resource.UniformBufferVS.CreateAsUniformBuffer(sizeof(Matrix), eGpuReadCpuWrite, nullptr);
 
 	m_Resource.ClrWriteBlend.Create(false, false, 0U, true,
 		eRBlend::eSrcAlpha, eRBlend::eInvSrcAlpha, eRBlendOp::eAdd,
@@ -229,7 +223,7 @@ bool ImGUI::Update()
 	);
 #endif
 
-	m_Resource.ConstantBufferVS.Update(&wvp, sizeof(Matrix));
+	m_Resource.UniformBufferVS.Update(&wvp, sizeof(Matrix));
 
 	RViewport vp(0.0f, 0.0f, ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y);
 	REngine::Instance().SetViewport(vp);
@@ -238,7 +232,7 @@ bool ImGUI::Update()
 	REngine::Instance().SetInputLayout(m_Resource.VertexLayout);
 	REngine::Instance().SetVertexBuffer(m_Resource.VertexBuffer, sizeof(ImDrawVert), 0U);
 	REngine::Instance().SetIndexBuffer(m_Resource.IndexBuffer, sizeof(ImDrawIdx) == 2U ? eR16_UInt : eR32_UInt, 0U);
-	REngine::Instance().SetUniformBuffer(m_Resource.ConstantBufferVS, 0U, eVertexShader);
+	REngine::Instance().SetUniformBuffer(m_Resource.UniformBufferVS, 0U, eVertexShader);
 	REngine::Instance().SetSamplerState(RStaticState::LinearSampler, 0U, ePixelShader);
 	REngine::Instance().SetShaderResourceView(m_Resource.FontTexture, 0U, ePixelShader);
 	REngine::Instance().SetBlendState(m_Resource.ClrWriteBlend);
@@ -248,8 +242,8 @@ bool ImGUI::Update()
 	for (int32_t i = 0, vOffset = 0, iOffset = 0; i < pDrawData->CmdListsCount; ++i)
 	{
 		const ImDrawList *pDrawList = pDrawData->CmdLists[i];
-		///for (int j = 0; j < pDrawList->CmdBuffer.Size; ++j)
-		for (int j = 0; j < 1U; ++j)
+		for (int j = 0; j < pDrawList->CmdBuffer.Size; ++j)
+		///for (int j = 0; j < 1U; ++j)
 		{
 			const ImDrawCmd *pDrawCmd = &pDrawList->CmdBuffer[j];
 			if (pDrawCmd->UserCallback)

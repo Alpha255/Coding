@@ -1,5 +1,6 @@
 #include "Geometry.h"
 #include "Base/AssetFile.h"
+#include "Tool/AssetTool/AssetTool.h"
 
 NamespaceBegin(Geometry)
 
@@ -475,18 +476,15 @@ void Model::CreateFromFile(const std::string &fileName)
 	assert(!m_Valid);
 
 	AssetFile modelFile(fileName);
-	auto data = modelFile.Load();
 
 	switch (modelFile.GetType())
 	{
 	case AssetFile::eTxtMesh:
-		CreateFromTxt((const uint8_t *)(*data));
 		break;
 	case AssetFile::eObjMesh:
-		CreateFromObj((const uint8_t *)(*data));
+		AssetTool::LoadOBJ(modelFile.GetPath(), m_Vertices, m_Indices);
 		break;
 	case AssetFile::eSDKMesh:
-		CreateFromSDKMesh((const uint8_t *)(*data));
 		break;
 	default:
 		assert(0);
