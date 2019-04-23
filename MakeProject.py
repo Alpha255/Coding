@@ -24,13 +24,15 @@ SolutionFolders = [
 ]
 
 ImGUIProject = VcProject('ImGUI', 'ThirdParty', ProjectType.eLibrary, ['ThirdParty\\ImGUI'], ['ThirdParty\\ImGUI\\examples'], [], [FileType.eHeader, FileType.eCpp])
+DirectXTKProject = VcProject('DirectXTK', 'ThirdParty', ProjectType.eLibrary, ['ThirdParty\\DirectXTK'], ['ThirdParty\\DirectXTK\\Bin', 'ThirdParty\\DirectXTK\\MakeSpriteFont', 'ThirdParty\\DirectXTK\\XWBTool'], [], [FileType.eHeader, FileType.eCpp], ['XboxDDSTextureLoader.cpp', 'XboxDDSTextureLoader.h', 'pch.cpp'])
 BaseProject = VcProject('Base', 'Library', ProjectType.eLibrary, ['Base'], [], [], [FileType.eHeader, FileType.eCpp])
 ColorfulProject = VcProject('Colorful', 'Library', ProjectType.eLibrary, ['Colorful'], [], [], [FileType.eHeader, FileType.eCpp])
-AssetToolProject = VcProject('AssetTool', 'Tool', ProjectType.eDll, ['Tool\\AssetTool'], [], [BaseProject], [FileType.eHeader, FileType.eCpp])
-#VcProject('vcglib', 'ThirdParty', True, False, ['ThirdParty\\vcglib'], ['ThirdParty\\vcglib\\apps', 'ThirdParty\\vcglib\\eigenlib\\unsupported', 'ThirdParty\\vcglib\\wrap'], [], [FileType.eHeader, FileType.eCpp]),
+AssetToolProject = VcProject('AssetTool', 'Tool', ProjectType.eDll, ['Tool\\AssetTool'], [], [BaseProject, DirectXTKProject], [FileType.eHeader, FileType.eCpp])
 DemoProjectDependency = [BaseProject, ImGUIProject, ColorfulProject, AssetToolProject]
 
-demoProjects = [
+OtherProjects = [DirectXTKProject]
+
+DemoProjects = [
 	VcProject('Box', 'Demo', ProjectType.eWinApp, ['Demo\\Box', 'Assets'], [], DemoProjectDependency, [FileType.eHeader, FileType.eCpp, FileType.eIcon, FileType.eResource, FileType.eShader]),
 	#VcProject('VulkanTest', 'Demo', ProjectType.eWinApp, ['Demo\\VulkanTest', 'Assets'], [], DemoProjectDependency, [FileType.eHeader, FileType.eCpp, FileType.eIcon, FileType.eResource, FileType.eShader]),
 	#VCProject('AdaptiveTessellation', 'Demo\\D3D11\\AdaptiveTessellation\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
@@ -58,7 +60,7 @@ demoProjects = [
 ]
 
 def _main_(_argv):
-	allMyProjects = DemoProjectDependency + demoProjects
+	allMyProjects = DemoProjectDependency + DemoProjects + OtherProjects
 	versionInfo = MakeSolution('Miscellaneous', 'vs2017', allMyProjects, Configurations, Platforms, SolutionFolders)
 
 	if not os.path.exists('Projects'):

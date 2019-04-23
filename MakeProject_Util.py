@@ -42,14 +42,14 @@ class VcProject:
 	IsThirdParty = False
 	Dependencies = []
 	FileList = []
-	def __init__(self, _Name, _Folder, _Type, _Directory, _ExcludeDirectory, _Dependencies, _Types):
+	def __init__(self, _Name, _Folder, _Type, _Directory, _ExcludeDirectory, _Dependencies, _Types, _ExcludeFiles = []):
 		self.Name = _Name
 		self.GUID = MakeGUID(_Name)
 		self.Folder = _Folder
 		self.Type = _Type
 		self.IsThirdParty = (_Folder == 'ThirdParty')
 		self.Dependencies = _Dependencies
-		self.FileList = BuildFileList(_Directory, _ExcludeDirectory, _Types)
+		self.FileList = BuildFileList(_Directory, _ExcludeDirectory, _Types, _ExcludeFiles)
 
 class VSVersionInfo:
 	WinSDKVersion = ''
@@ -107,7 +107,7 @@ def GetFileFilter(_FilePath, _RootDir):
 	fileFilter = fileFilter[0 : (len(fileFilter) - len(fileName) - 1)]
 	return fileFilter
 
-def BuildFileList(_TargetDirs, _ExcludeDirs, _Types):
+def BuildFileList(_TargetDirs, _ExcludeDirs, _Types, _ExcludeFiles):
 	filelist = {}
 	for fileType in FileType:
 		filelist[fileType] = []
@@ -126,6 +126,10 @@ def BuildFileList(_TargetDirs, _ExcludeDirs, _Types):
 				for excludeDir in _ExcludeDirs:
 					exDir = rootDir + '\\' + excludeDir
 					if newFile.RootPath.lower().find(exDir.lower()) != -1:
+						bSkip = True
+						break
+				for excludeFile in _ExcludeFiles:
+					if file.lower() == excludeFile.lower():
 						bSkip = True
 						break
 				if not bSkip:

@@ -1,5 +1,14 @@
 #include "Colorful/Public/Geometry.h"
 
+namespace gli
+{
+	class texture;
+}
+
+struct ID3D11Device;
+struct ID3D11Resource;
+struct ID3D11ShaderResourceView;
+
 NamespaceBegin(AssetTool)
 
 Export bool CompileShader(
@@ -12,5 +21,13 @@ Export bool LoadOBJ(
 	const std::string &filePath,
 	__out std::vector<Geometry::Vertex> &vertices,
 	__out std::vector<uint32_t> &indices);
+
+Export void CreateTextureFromFile(
+	ID3D11Device* pD3DDevice,
+	const std::string &fileName,
+	__out ID3D11Resource **pTexture,
+	__out ID3D11ShaderResourceView **pTextureView);
+
+Export gli::texture *CreateTextureFromFile(const std::string &fileName);
 
 NamespaceEnd(AssetTool)
