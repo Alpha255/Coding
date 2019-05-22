@@ -20,7 +20,7 @@ SolutionFolders = [
 	#'Vulkan',
 	'ThirdParty',
 	#'JustForFun',
-	#'Fort'
+	'Fort'
 ]
 
 ImGUIProject = VcProject('ImGUI', 'ThirdParty', ProjectType.eLibrary, ['ThirdParty\\ImGUI'], ['ThirdParty\\ImGUI\\examples'], [], [FileType.eHeader, FileType.eCpp])
@@ -54,7 +54,7 @@ DemoProjects = [
 	#VCProject('RayCast', 'Demo\\D3D11\\RayCast\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
 	#VCProject('Shadow', 'Demo\\D3D11\\Shadow\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
 	#VCProject('VulkanBox', 'Demo\\Vulkan\\VulkanBox\\', 'Vulkan', False, ResourceDirectory, [], [], libProjects),
-	#VCProject('DataStructures', 'Fort\\DataStructures\\', 'Fort', False, [], [], [], [], True),
+	VcProject('Learner', 'Fort', ProjectType.eConsole, ['Fort\\Learner'], [], [], [FileType.eHeader, FileType.eCpp]),
 	#VCProject('Mario', 'JustForFun\\Mario\\', 'JustForFun', False, ResourceDirectory, [], [], libProjects),
 	#VCProject('UEStatConverter', 'JustForFun\\UEStatConverter\\', 'JustForFun', False, [], [], [], [libProjects[1]], True),
 ]
