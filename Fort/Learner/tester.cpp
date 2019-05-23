@@ -1,7 +1,10 @@
 #include "linearlist.h"
 #include "linkedlist.h"
 
-#define TestLinearList
+#include <list>
+
+///#define TestLinearList
+#define TestLinkedList
 
 int main()
 {
@@ -17,14 +20,16 @@ int main()
 
 	test.set(0, -40);
 
-	test.remove(6);
+	test.erase(6);
 
 	linearlist<int32_t> testMove(std::move(test));
 	linearlist<int32_t> testCopy(testMove);
 #endif
 
 #if defined(TestLinkedList)
-
+	linkedlist<int32_t> test;
+	test.push_back(3);
+	test.clear();
 #endif
 	
 	return 0;

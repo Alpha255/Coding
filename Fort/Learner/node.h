@@ -6,8 +6,14 @@
 
 template<typename T> struct node
 {
-	T *Next = nullptr;
-	T *Prev = nullptr;
+	inline node() = default;
+	inline node(const T &value)
+		: Data(value)
+	{
+	}
+
+	node *Prev = nullptr;
+	node *Next = nullptr;
 
 	T Data = 0;
 };

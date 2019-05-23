@@ -15,6 +15,11 @@ public:
 		: m_Size(other.m_Size)
 		, m_MaxSize(other.m_MaxSize)
 	{
+		if (!m_Data)
+		{
+			m_Data.reset(new T[m_MaxSize]());
+		}
+
 		if (other.m_Data != m_Data)
 		{
 			memcpy(m_Data.get(), other.m_Data.get(), sizeof(T) * other.m_MaxSize);
@@ -35,10 +40,16 @@ public:
 
 	inline void operator= (const linearlist &other)
 	{
+		m_Size = other.m_Size;
+		m_MaxSize = other.m_MaxSize;
+
+		if (!m_Data)
+		{
+			m_Data.reset(new T[m_MaxSize]());
+		}
+
 		if (other.m_Data != m_Data)
 		{
-			m_Size = other.m_Size;
-			m_MaxSize = other.m_MaxSize;
 			memcpy(m_Data.get(), other->m_Data.get(), sizeof(T) * other.m_MaxSize);
 		}
 	}
@@ -82,7 +93,7 @@ public:
 		m_Data.get()[index] = elem;
 	}
 
-	inline T remove(size_t index)
+	inline T erase(size_t index)
 	{
 		assert(index < m_Size);
 
