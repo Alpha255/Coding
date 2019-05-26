@@ -1,8 +1,20 @@
 #include "Geometry.h"
 #include "Base/AssetFile.h"
 #include "Tool/AssetTool/AssetTool.h"
+#include "Colorful/Public/Definitions.h"
 
 NamespaceBegin(Geometry)
+
+Model::Model()
+{
+	m_VertexLayout = std::vector<VertexLayout>
+	{
+		{ "POSITION", sizeof(Vertex::Position), offsetof(Vertex, Position), eRGB32_Float  },
+		{ "NORMAL",   sizeof(Vertex::Normal),   offsetof(Vertex, Normal),   eRGB32_Float  },
+		{ "TANGENT",  sizeof(Vertex::Tangent),  offsetof(Vertex, Tangent),  eRGB32_Float  },
+		{ "TEXCOORD", sizeof(Vertex::UV),       offsetof(Vertex, UV),       eRG32_Float   },
+	};
+}
 
 void Model::SubDivide()
 {
@@ -482,9 +494,10 @@ void Model::CreateFromFile(const std::string &fileName)
 	case AssetFile::eTxtMesh:
 		break;
 	case AssetFile::eObjMesh:
-		AssetTool::LoadOBJ(modelFile.GetPath(), m_Vertices, m_Indices);
+		Verify(AssetTool::LoadOBJ(modelFile.GetPath(), m_Vertices, m_Indices));
 		break;
 	case AssetFile::eSDKMesh:
+		Verify(AssetTool::LoadSDKMesh(modelFile.GetPath(), m_Vertices, m_Indices));
 		break;
 	default:
 		assert(0);
@@ -715,5 +728,3 @@ void Mesh::CreateAsQuad(float length)
 #endif
 
 NamespaceEnd(Geometry)
-
-#include "Geometry.hpp"

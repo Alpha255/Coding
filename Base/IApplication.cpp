@@ -7,6 +7,8 @@ IApplication * IApplication::s_This = nullptr;
 {
 	s_This->HandleWindowMessage(msg, wParam, lParam);
 
+	s_This->HandleInput(msg, wParam, lParam);
+
 	return ::DefWindowProcW(hWnd, msg, wParam, lParam);
 }
 

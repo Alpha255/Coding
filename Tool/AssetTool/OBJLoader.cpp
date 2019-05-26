@@ -7,6 +7,7 @@
 
 #include <vcg/complex/complex.h>
 #include <vcg/complex/used_types.h>
+#include <vcg/complex/algorithms/update/topology.h>
 #include <vcglib/wrap/io_trimesh/import_obj.h>
 
 NamespaceBegin(AssetTool)
@@ -61,6 +62,12 @@ class PMesh : public vcg::tri::TriMesh<std::vector<PVertex>, std::vector<PFace>,
 
 typedef vcg::tri::io::ImporterOBJ<PMesh> OBJImpoter;
 
+bool LoadingCallback(const int32_t progress, const char *pMessage)
+{
+	Base::Log("Loading obj mesh in progress-%s %d%%", pMessage, progress);
+	return true;
+}
+
 bool LoadOBJ(
 	const std::string &filePath,
 	__out std::vector<Geometry::Vertex> &vertices,
@@ -68,14 +75,67 @@ bool LoadOBJ(
 {
 	PMesh mesh;
 	int32_t loadMask = 0;
-	auto err = OBJImpoter::Open(mesh, filePath.c_str(), loadMask);
+	std::vector<OBJImpoter::ObjIndexedFace> indexedFace;
+
+	auto err = OBJImpoter::Open(mesh, filePath.c_str(), loadMask, indexedFace, LoadingCallback);
 	if (err != OBJImpoter::E_NOERROR)
 	{
 		Base::Log("Failed to load obj- %s, error= %s.", filePath.c_str(), OBJImpoter::ErrorMsg(err));
 		assert(0);
 	}
 
-	return false;
+	///vcg::tri::UpdateTopology<PMesh>::VertexFace(mesh);
+
+	vertices.resize((size_t)mesh.vn);
+	size_t index = 0U;
+	for (auto it = mesh.vert.cbegin(); it != mesh.vert.cend(); ++it)
+	{
+		if (it->HasCoord())
+		{
+			auto &position = it->P();
+			vertices[index].Position = Vec3(position.X(), position.Y(), position.Z());
+		}
+
+		if (it->HasNormal())
+		{
+			auto &normal = it->N();
+			vertices[index].Normal = Vec3(normal.X(), normal.Y(), normal.Z());
+		}
+
+		///if (it->HasTexCoord())
+		///{
+		///	///auto &uv = it->T();
+		///	vertices[index].UV = Vec2();
+		///}
+
+		++index;
+	}
+
+	index = 0U;
+	indices.resize(indexedFace.size() * 3U);
+	for (auto it = indexedFace.cbegin(); it < indexedFace.cend(); ++it)
+	{
+		assert(it->v.size() == 3U);
+		indices[index++] = it->v[0];
+		indices[index++] = it->v[1];
+		indices[index++] = it->v[2];
+	}
+
+	///for (auto it = mesh.face.cbegin(); it < mesh.face.cend(); ++it)
+	///{
+	///	for (int32_t i = 0; i < it->VN(); ++i)
+	///	{
+	///		const auto vertex = it->V(i);
+	///		auto point = vertex->P();
+	
+	///		if (it->HasNormal())
+	///		{
+	///			auto normal = vertex->N();
+	///		}
+	///	}
+	///}
+
+	return true;
 }
 
 NamespaceEnd(AssetTool)

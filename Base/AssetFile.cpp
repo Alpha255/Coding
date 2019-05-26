@@ -12,6 +12,10 @@ AssetFile::AssetFile(const std::string &fileName)
 		m_Size = (size_t)file.tellg();
 		file.close();
 	}
+	else
+	{
+		assert(0);
+	}
 }
 
 bool AssetFile::TryToFindAssetFile()
@@ -51,7 +55,7 @@ void AssetFile::GetAssetType()
 {
 	std::string ext = Base::GetFileExtension(m_Path, true);
 
-	if (ext == ".shader" || ext == ".vert" || ext == ".frag")
+	if (ext == ".shader" || ext == ".vert" || ext == ".frag" || ext == ".hlsl")
 	{
 		m_Type = eShader;
 	}

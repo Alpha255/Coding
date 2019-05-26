@@ -1,9 +1,8 @@
 #include "ForwardLighting.h"
-#include "D3DEngine.h"
-#include "ImGUI.h"
-#include "D3DLighting.h"
-#include "Camera.h"
+#include "Colorful/Public/ImGUI.h"
+#include "Colorful/Public/Lighting.h"
 
+#if 0
 struct ConstantBufferVS
 {
 	Matrix WVP;
@@ -72,11 +71,27 @@ Vec4 g_AmbientLowerClr = Vec4(0.1f, 0.5f, 0.1f, 1.0f);
 Vec4 g_AmbientUpperClr = Vec4(0.1f, 0.2f, 0.5f, 1.0f);
 ConstantBufferPS g_CBufferPS;
 ConstantBufferVS g_CBufferVS;
+#else
 
-void AppForwardLighting::Initialize()
+#endif
+
+void ForwardLighting::PrepareScene()
 {
-	m_StanfordBunnyMesh.Create("bunny.sdkmesh");
+	m_Bunny.CreateFromFile("bun_zipper_res2.obj");
 
+#if 1
+	m_TestVS.Create("Mesh.shader", "VSMain");
+	m_TestPS.Create("Mesh.shader", "PSMain");
+	m_TestLayout.Create(m_TestVS.GetBlob(), m_Bunny.GetVertexLayout());
+
+	m_TestCBVS.CreateAsUniformBuffer(sizeof(Matrix), eGpuReadCpuWrite);
+
+	auto &vertices = m_Bunny.GetVertices();
+	auto &indices = m_Bunny.GetIndices();
+	m_TestVB.CreateAsVertexBuffer(vertices.size() * sizeof(Geometry::Vertex), eGpuReadWrite, vertices.data());
+	m_TestIB.CreateAsIndexBuffer(indices.size() * sizeof(uint32_t), eGpuReadWrite, indices.data());
+	m_Camera.SetViewRadius(1.0f);
+#else
 	m_VertexShader.Create("ForwardLighting.hlsl", "VSMain");
 	m_PixelShader[eHemisphericAmbient].Create("ForwardLighting.hlsl", "PSMain_HemisphericAmbient");
 	m_PixelShader[eDirectional].Create("ForwardLighting.hlsl", "PSMain_Directional");
@@ -84,56 +99,45 @@ void AppForwardLighting::Initialize()
 	m_PixelShader[eSpot].Create("ForwardLighting.hlsl", "PSMain_Spot");
 	m_PixelShader[eCapsule].Create("ForwardLighting.hlsl", "PSMain_Capsule");
 
-	m_CBufferVS.CreateAsConstantBuffer(sizeof(ConstantBufferVS), D3DBuffer::eGpuReadCpuWrite);
-	m_CBufferPS.CreateAsConstantBuffer(sizeof(ConstantBufferPS), D3DBuffer::eGpuReadCpuWrite);
+	m_CBufferVS.CreateAsUniformBuffer(sizeof(ConstantBufferVS), eGpuReadCpuWrite);
+	m_CBufferPS.CreateAsUniformBuffer(sizeof(ConstantBufferPS), eGpuReadCpuWrite);
 
-	m_BunnyMaterial.Set(Material::eDiffuse, Vec4(0.85f, 0.8f, 0.5f, 1.0f));
-	m_BunnyMaterial.Set(Material::eSpecular, Vec4(0.25f, 0.25f, 0.25f, 1.0f));
-
-	m_Camera->SetViewRadius(100.0f);
-	m_Camera->Move(0, -100);
-
-	const D3D11_INPUT_ELEMENT_DESC VertexLayout[] =
-	{
-		{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT,   0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL",    0, DXGI_FORMAT_R32G32B32_FLOAT,   0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,      0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-	};
-	m_Layout.Create(m_VertexShader.GetBlob(), VertexLayout, _countof(VertexLayout));
-	m_StanfordBunnyMesh.SetInputLayout(m_Layout);
+	///m_BunnyMaterial.Set(Material::eDiffuse, Vec4(0.85f, 0.8f, 0.5f, 1.0f));
+	///m_BunnyMaterial.Set(Material::eSpecular, Vec4(0.25f, 0.25f, 0.25f, 1.0f));
+	m_Layout.Create(m_VertexShader.GetBlob(), m_Bunny.GetVertexLayout());
+#endif
 }
 
-void AppForwardLighting::RenderScene()
+void ForwardLighting::RenderScene()
 {
-	D3DEngine::Instance().ResetDefaultRenderSurfaces();
-	D3DEngine::Instance().SetViewport(D3DViewport(0.0f, 0.0f, (float)m_Width, (float)m_Height));
-
 	if (m_Wireframe)
 	{
-		D3DEngine::Instance().SetRasterizerState(D3DStaticState::Wireframe);
+		REngine::Instance().SetRasterizerState(RStaticState::Wireframe);
 	}
 
-	D3DEngine::Instance().SetVertexShader(m_VertexShader);
-	D3DEngine::Instance().SetPixelShader(m_PixelShader[m_LightingType]);
+	REngine::Instance().ResetDefaultRenderSurfaces();
+	REngine::Instance().SetViewport(RViewport(0.0f, 0.0f, (float)m_WindowSize.first, (float)m_WindowSize.second));
 
-	D3DEngine::Instance().SetConstantBuffer(m_CBufferPS, 0U, D3DShader::ePixelShader);
-	D3DEngine::Instance().SetConstantBuffer(m_CBufferVS, 0U, D3DShader::eVertexShader);
+#if 0
+	REngine::Instance().SetVertexShader(m_VertexShader);
+	REngine::Instance().SetPixelShader(m_PixelShader[m_LightingType]);
 
-	Matrix world = m_Camera->GetWorldMatrix();
-	g_CBufferVS.WVP = Matrix::Transpose(world * m_Camera->GetViewMatrix() * m_Camera->GetProjMatrix());
+	REngine::Instance().SetUniformBuffer(m_CBufferPS, 0U, ePixelShader);
+	REngine::Instance().SetUniformBuffer(m_CBufferVS, 0U, eVertexShader);
+
+	Matrix world = m_Camera.GetWorldMatrix();
+	g_CBufferVS.WVP = Matrix::Transpose(world * m_Camera.GetViewMatrix() * m_Camera.GetProjMatrix());
 	g_CBufferVS.World = Matrix::Transpose(world);
 	g_CBufferVS.WorldInverse = Matrix::InverseTranspose(world);
 	m_CBufferVS.Update(&g_CBufferVS, sizeof(ConstantBufferVS));
 
 	g_CBufferPS.AmbientLowerClr = GammaToLinear(g_AmbientLowerClr);
 	g_CBufferPS.AmbientRange = GammaToLinear(g_AmbientUpperClr) - GammaToLinear(g_AmbientLowerClr);
-	g_CBufferPS.EyePos = m_Camera->GetEyePos();
-	g_CBufferPS.RawMat = m_BunnyMaterial.RawValue;
+	g_CBufferPS.EyePos = m_Camera.GetEyePos();
+	///g_CBufferPS.RawMat = m_BunnyMaterial.RawValue;
 	m_CBufferPS.Update(&g_CBufferPS, sizeof(ConstantBufferPS));
 
-	m_StanfordBunnyMesh.Draw(false, true);
-
-	ImGui::Checkbox("Wireframe", &m_Wireframe);
+	///m_StanfordBunnyMesh.Draw(false, true);
 	if (eHemisphericAmbient == m_LightingType)
 	{
 		g_AmbientLowerClr = Vec4(0.1f, 0.5f, 0.1f, 1.0f);
@@ -161,4 +165,23 @@ void AppForwardLighting::RenderScene()
 		}
 	}
 	ImGui::Combo("LightingType", &m_LightingType, "HemisphericAmbient\0DirectionalLight\0PointLight\0Spot\0Capsule");
+#else
+	Matrix scale = Matrix::Scaling(3.0);
+	Matrix trans = Matrix::Translation(0.0f, -0.1f, 0.0f);
+	Matrix wvp = Matrix::Transpose(m_Camera.GetWorldMatrix() * trans * scale * m_Camera.GetViewMatrix() * m_Camera.GetProjMatrix());
+	m_TestCBVS.Update(&wvp, sizeof(Matrix));
+
+	REngine::Instance().SetInputLayout(m_TestLayout);
+	REngine::Instance().SetVertexBuffer(m_TestVB, sizeof(Geometry::Vertex), 0U, 0U);
+	REngine::Instance().SetIndexBuffer(m_TestIB, eR32_UInt, 0U);
+
+	REngine::Instance().SetVertexShader(m_TestVS);
+	REngine::Instance().SetPixelShader(m_TestPS);
+
+	REngine::Instance().SetUniformBuffer(m_TestCBVS, 0U, eVertexShader);
+
+	REngine::Instance().DrawIndexed(m_Bunny.GetIndices().size(), 0U, 0, eTriangleList);
+#endif
+
+	ImGui::Checkbox("Wireframe", &m_Wireframe);
 }

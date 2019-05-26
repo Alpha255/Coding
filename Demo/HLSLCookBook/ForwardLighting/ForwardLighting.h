@@ -1,18 +1,16 @@
 #pragma once
 
-#include "RenderApp.h"
-#include "D3DGeometry.h"
-#include "D3DView.h"
-#include "D3DLighting.h"
+#include "Public/IRenderApplication.h"
+#include "Colorful/Public/Definitions.h"
 
-class AppForwardLighting : public RenderApp
+class ForwardLighting : public IRenderApplication
 {
 public:
-	AppForwardLighting() = default;
-	~AppForwardLighting() = default;
+	ForwardLighting() = default;
+	~ForwardLighting() = default;
 
-	virtual void Initialize() override;
-	virtual void RenderScene() override;
+	void PrepareScene() override;
+	void RenderScene() override;
 protected:
 	inline Vec4 GammaToLinear(const Vec4 &color)
 	{
@@ -30,15 +28,24 @@ private:
 		eCount
 	};
 
-	Geometry::SDKMesh m_StanfordBunnyMesh;
+	Geometry::Model m_Bunny;
 
-	D3DVertexShader m_VertexShader;
-	D3DPixelShader m_PixelShader[eCount];
-	D3DBuffer m_CBufferVS;
-	D3DBuffer m_CBufferPS;
-	D3DInputLayout m_Layout;
+	RVertexShader m_VertexShader;
+	RPixelShader m_PixelShader[eCount];
+	RBuffer m_CBufferVS;
+	RBuffer m_CBufferPS;
+	RInputLayout m_Layout;
 
-	Material m_BunnyMaterial;
+#if 1
+	RVertexShader m_TestVS;
+	RPixelShader m_TestPS;
+	RInputLayout m_TestLayout;
+	RBuffer m_TestCBVS;
+	RBuffer m_TestVB;
+	RBuffer m_TestIB;
+#endif
+
+	///Material m_BunnyMaterial;
 
 	int32_t m_LightingType = eHemisphericAmbient;
 	bool m_Wireframe = false;

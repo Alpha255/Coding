@@ -22,6 +22,11 @@ Export bool LoadOBJ(
 	__out std::vector<Geometry::Vertex> &vertices,
 	__out std::vector<uint32_t> &indices);
 
+Export bool LoadSDKMesh(
+	const std::string &filePath,
+	__out std::vector<Geometry::Vertex> &vertices,
+	__out std::vector<uint32_t> &indices);
+
 Export void CreateTextureFromFile(
 	ID3D11Device* pD3DDevice,
 	const std::string &fileName,

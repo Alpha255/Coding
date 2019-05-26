@@ -2,7 +2,7 @@ import sys
 import getopt
 import os
 
-def MakeDemo(_DemoName, _DemoDirectory, _ShaderFileDirectory):
+def MakeDemo(_DemoName, _DemoDirectory, _ShaderDir):
 	folders = os.listdir(_DemoDirectory)
 	folders = [item.lower() for item in folders]
 	if _DemoName.lower() not in folders:
@@ -42,7 +42,7 @@ def MakeDemo(_DemoName, _DemoDirectory, _ShaderFileDirectory):
 def _main_(_argv):
 	
 	DemoDirectory = './Demo/'
-	ShaderDirectory = './Application/Resource/Shaders/'
+	ShaderDirectory = './Assets/Shaders/'
 
 	try:
 		opts, args = getopt.getopt(_argv, "d:", ["demo="])

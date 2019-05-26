@@ -45,7 +45,7 @@ struct Vertex
 class Model
 {
 public:
-	Model() = default;
+	Model();
 	~Model() = default;
 
 	inline const std::vector<Vertex> &GetVertices() const
@@ -60,7 +60,7 @@ public:
 		return m_Indices;
 	}
 
-	inline const VertexLayout &GetVertexLayout() const
+	inline const std::vector<VertexLayout> &GetVertexLayout() const
 	{
 		assert(m_Valid);
 		return m_VertexLayout;
@@ -92,15 +92,11 @@ public:
 protected:
 	void SubDivide();
 	void MakeCylinderTopBottomCap(bool bTop, float bottomRadius, float topRadius, float height, uint32_t slice);
-
-	void CreateFromObj(const uint8_t *pData);
-	void CreateFromTxt(const uint8_t *pData);
-	void CreateFromSDKMesh(const uint8_t *pData);
 private:
 	std::vector<Vertex> m_Vertices;
 	std::vector<uint32_t> m_Indices;
 
-	VertexLayout m_VertexLayout = {};
+	std::vector<VertexLayout> m_VertexLayout = {};
 
 	bool m_Valid = false;
 

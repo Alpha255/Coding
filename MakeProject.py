@@ -20,7 +20,8 @@ SolutionFolders = [
 	#'Vulkan',
 	'ThirdParty',
 	#'JustForFun',
-	'Fort'
+	'Fort',
+	'HLSLCookbook'
 ]
 
 ImGUIProject = VcProject('ImGUI', 'ThirdParty', ProjectType.eLibrary, ['ThirdParty\\ImGUI'], ['ThirdParty\\ImGUI\\examples'], [], [FileType.eHeader, FileType.eCpp])
@@ -34,6 +35,9 @@ OtherProjects = [DirectXTKProject]
 
 DemoProjects = [
 	VcProject('Box', 'Demo', ProjectType.eWinApp, ['Demo\\Box', 'Assets'], [], DemoProjectDependency, [FileType.eHeader, FileType.eCpp, FileType.eIcon, FileType.eResource, FileType.eShader]),
+	VcProject('DeferredShading', 'HLSLCookbook', ProjectType.eWinApp, ['Demo\\HLSLCookbook\\DeferredShading', 'Assets'], [], DemoProjectDependency, [FileType.eHeader, FileType.eCpp, FileType.eIcon, FileType.eResource, FileType.eShader]),
+	VcProject('ForwardLighting', 'HLSLCookbook', ProjectType.eWinApp, ['Demo\\HLSLCookbook\\ForwardLighting', 'Assets'], [], DemoProjectDependency, [FileType.eHeader, FileType.eCpp, FileType.eIcon, FileType.eResource, FileType.eShader]),
+	VcProject('ShadowMapping', 'HLSLCookbook', ProjectType.eWinApp, ['Demo\\HLSLCookbook\\ShadowMapping', 'Assets'], [], DemoProjectDependency, [FileType.eHeader, FileType.eCpp, FileType.eIcon, FileType.eResource, FileType.eShader]),
 	#VcProject('VulkanTest', 'Demo', ProjectType.eWinApp, ['Demo\\VulkanTest', 'Assets'], [], DemoProjectDependency, [FileType.eHeader, FileType.eCpp, FileType.eIcon, FileType.eResource, FileType.eShader]),
 	#VCProject('AdaptiveTessellation', 'Demo\\D3D11\\AdaptiveTessellation\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
 	#VCProject('AlphaBlend', 'Demo\\D3D11\\AlphaBlend\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
@@ -43,8 +47,6 @@ DemoProjects = [
 	#VCProject('DisplacementMapping', 'Demo\\D3D11\\DisplacementMapping\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
 	#VCProject('GammaCorrection', 'Demo\\D3D11\\GammaCorrection\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
 	#VCProject('HDRLighting', 'Demo\\D3D11\\HDRLighting\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
-	#VCProject('DeferredShading', 'Demo\\D3D11\\HLSLCookBook\\DeferredShading\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
-	#VCProject('ForwardLighting', 'Demo\\D3D11\\HLSLCookBook\\ForwardLighting\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
 	#VCProject('Lighting', 'Demo\\D3D11\\Lighting\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
 	#VCProject('MultithreadedRendering', 'Demo\\D3D11\\MultithreadedRendering\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
 	#VCProject('FXAA', 'Demo\\D3D11\\Nvidia\\FXAA\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
@@ -52,7 +54,6 @@ DemoProjects = [
 	#VCProject('ParallaxMapping', 'Demo\\D3D11\\ParallaxMapping\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
 	#VCProject('ParticleSystem', 'Demo\\D3D11\\ParticleSystem\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
 	#VCProject('RayCast', 'Demo\\D3D11\\RayCast\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
-	#VCProject('Shadow', 'Demo\\D3D11\\Shadow\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
 	#VCProject('VulkanBox', 'Demo\\Vulkan\\VulkanBox\\', 'Vulkan', False, ResourceDirectory, [], [], libProjects),
 	VcProject('Learner', 'Fort', ProjectType.eConsole, ['Fort\\Learner'], [], [], [FileType.eHeader, FileType.eCpp]),
 	#VCProject('Mario', 'JustForFun\\Mario\\', 'JustForFun', False, ResourceDirectory, [], [], libProjects),
