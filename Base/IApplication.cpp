@@ -1,4 +1,5 @@
 #include "IApplication.h"
+#include <ShellScalingApi.h>
 
 IApplication * IApplication::s_This = nullptr;
 
@@ -127,6 +128,9 @@ void IApplication::UpdateWindow()
 
 void IApplication::Initialize(const std::string &title, uint32_t width, uint32_t height, bool bFullScreen, uint32_t extraWindowStyle)
 {
+	///::GetDpiForMonitor();
+	Verify(::SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE) == S_OK);
+
 	s_This = this;
 
 	m_bFullScreen = bFullScreen;

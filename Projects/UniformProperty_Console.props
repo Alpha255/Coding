@@ -18,7 +18,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;windowscodecs.lib;Usp10.lib;Comctl32.lib;vulkan-1.lib;SPIRV.lib;glslang.lib;SPVRemapper.lib;glslang-default-resource-limits.lib;OGLCompiler.lib;OSDependent.lib;HLSL.lib;SPIRV-Tools-opt.lib;SPIRV-Tools.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;windowscodecs.lib;Usp10.lib;Comctl32.lib;vulkan-1.lib;SPIRV.lib;glslang.lib;SPVRemapper.lib;glslang-default-resource-limits.lib;OGLCompiler.lib;OSDependent.lib;HLSL.lib;SPIRV-Tools-opt.lib;SPIRV-Tools.lib;Shcore.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories Condition="'$(Platform)'=='Win32'">$(SolutionDir)ThirdParty\freetype\win32\;$(VK_SDK_PATH)\Lib32\;$(VK_SDK_PATH)\glslang\Lib32\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalLibraryDirectories Condition="'$(Platform)'=='x64'">$(SolutionDir)ThirdParty\freetype\win64\;$(VK_SDK_PATH)\Lib\;$(VK_SDK_PATH)\glslang\Lib\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <TargetMachine Condition="'$(Platform)'=='Win32'">MachineX86</TargetMachine>
