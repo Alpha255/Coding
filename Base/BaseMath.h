@@ -135,6 +135,28 @@ public:
 
 		return result;
 	}
+
+	inline void Normalize()
+	{
+		DirectX::XMVECTOR tmp = DirectX::XMLoadFloat3(this);
+
+		DirectX::XMVECTOR normalized = DirectX::XMVector3Normalize(tmp);
+
+		DirectX::XMStoreFloat3(this, normalized);
+	}
+
+	inline float LengthSq()
+	{
+		DirectX::XMVECTOR tmp = DirectX::XMLoadFloat3(this);
+		DirectX::XMVECTOR lengthSq = DirectX::XMVector3LengthSq(tmp);
+
+		Vec3 result;
+		DirectX::XMStoreFloat3(&result, lengthSq);
+
+		return result.x;
+	}
+
+	static Vec3 TransformCoord(const Vec3 &v, const class Matrix &m);
 };
 
 class Vec4 : public DirectX::XMFLOAT4
@@ -471,6 +493,16 @@ public:
 		return returnValue;
 	}
 
+	inline static Matrix RotateRollPitchYaw(float pitch, float yaw, float roll)
+	{
+		DirectX::XMMATRIX result = DirectX::XMMatrixRotationRollPitchYaw(pitch, yaw, roll);
+
+		Matrix returnValue;
+		DirectX::XMStoreFloat4x4A(&returnValue, result);
+
+		return returnValue;
+	}
+
 	inline void operator*=(const Matrix &right)
 	{
 		DirectX::XMMATRIX lMatrix = DirectX::XMLoadFloat4x4A(this);
@@ -491,6 +523,19 @@ public:
 		return returnValue;
 	}
 };
+
+Vec3 Vec3::TransformCoord(const Vec3 &v, const Matrix &m)
+{
+	DirectX::XMVECTOR tmpV = DirectX::XMLoadFloat3(&v);
+	DirectX::XMMATRIX tmpM = DirectX::XMLoadFloat4x4A(&m);
+
+	DirectX::XMVECTOR tmpResult = DirectX::XMVector3TransformCoord(tmpV, tmpM);
+
+	Vec3 result;
+	DirectX::XMStoreFloat3(&result, tmpResult);
+
+	return result;
+}
 
 NamespaceBegin(Math)
 
