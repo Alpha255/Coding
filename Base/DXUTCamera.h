@@ -8,7 +8,13 @@ public:
 	DXUTCamera();
 	~DXUTCamera() = default;
 
-	void HandleWindowMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM lParam);
+	inline void HandleWindowMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM lParam)
+	{
+		m_KeyAction.HandleWindowMessage(msg, wParam, lParam);
+
+		m_MouseAction.HandleWindowMessage(msg, wParam, lParam);
+	}
+
 	void SetViewParams(const Vec3 &eye, const Vec3 &lookAt);
 	void SetProjParams(float fov, float aspect, float nearPlane, float farPlane);
 	void Update(float elapsedTime);
@@ -16,7 +22,7 @@ protected:
 
 	struct MouseAction
 	{
-		enum eMouseKeyActionMask
+		enum eButtonMask
 		{
 			eLeftButton = 0x01,
 			eMiddleButton = 0x02,
@@ -24,10 +30,18 @@ protected:
 			eWheel = 0x08
 		};
 
-		inline void SetRotateButton(eMouseKeyActionMask mask)
+		inline void SetRotateButton(eButtonMask mask)
 		{
 			RotateButtonMask = (int32_t)mask;
 		}
+
+		inline bool IsRotateButtonActive()
+		{
+			return ButtonMask & RotateButtonMask;
+		}
+
+		void HandleWindowMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM lParam);
+		void UpdateInput();
 
 		bool LButtonDown = false;
 		bool MButtonDown = false;
@@ -61,26 +75,29 @@ protected:
 
 		eKeyAction GetKeyAction(WPARAM wParam);
 
-		inline bool IsKeyDown(eKeyAction action) const
+		inline bool IsKeyActive(eKeyAction action) const
 		{
-			return Keys[action];
+			return ActiveKeys[action];
 		}
 
-		inline void KeyDown(eKeyAction action)
+		inline void ActiveKey(eKeyAction action)
 		{
-			Keys[action] = true;
+			ActiveKeys[action] = true;
 			++KeysDown;
 		}
 
-		inline void KeyUp(eKeyAction action)
+		inline void InactiveKey(eKeyAction action)
 		{
-			Keys[action] = false;
+			ActiveKeys[action] = false;
 			--KeysDown;
 		}
 
+		void HandleWindowMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM lParam);
+		void UpdateInput();
+
 		Vec3 KeyDirection;
 		bool EnableYAxisMovement = true;
-		bool Keys[eMaxKeys] = {};
+		bool ActiveKeys[eMaxKeys] = {};
 		uint32_t KeysDown = 0;
 	};
 
@@ -88,8 +105,14 @@ protected:
 	{
 		SetViewParams(m_DefaultEye, m_DefaultLookAt);
 	}
+	
+	inline void UpdateInput()
+	{
+		m_KeyAction.UpdateInput();
 
-	void UpdateInput();
+		m_MouseAction.UpdateInput();
+	}
+
 	void UpdateVelocity(float elapsedTime);
 private:
 	MouseAction m_MouseAction;

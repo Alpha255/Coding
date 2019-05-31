@@ -8,65 +8,122 @@ DXUTCamera::DXUTCamera()
 	::GetCursorPos((::LPPOINT)&m_MouseAction.LastPosition);
 }
 
-void DXUTCamera::HandleWindowMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM)
+void DXUTCamera::KeyboardAction::HandleWindowMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM)
+{
+	auto keyAction = GetKeyAction(wParam);
+	if (keyAction != KeyboardAction::eOther)
+	{
+		switch (msg)
+		{
+		case WM_KEYDOWN:
+			ActiveKey(keyAction);
+		break;
+		case WM_KEYUP:
+			InactiveKey(keyAction);
+		break;
+		}
+	}
+}
+
+void DXUTCamera::MouseAction::HandleWindowMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM)
 {
 	switch (msg)
 	{
-	case WM_KEYDOWN:
-	{
-		auto keyAction = m_KeyAction.GetKeyAction(wParam);
-		if (keyAction != KeyboardAction::eOther)
-		{
-			m_KeyAction.KeyDown(keyAction);
-		}
-	} 
-		break;
-	case WM_KEYUP:
-	{
-		auto keyAction = m_KeyAction.GetKeyAction(wParam);
-		if (keyAction != KeyboardAction::eOther)
-		{
-			m_KeyAction.KeyUp(keyAction);
-		}
-	}
-		break;
 	case WM_RBUTTONDOWN:
 	case WM_RBUTTONDBLCLK:
-		m_MouseAction.RButtonDown = true;
-		m_MouseAction.ButtonMask |= MouseAction::eRightButton;
+		RButtonDown = true;
+		ButtonMask |= eRightButton;
 		break;
 	case WM_MBUTTONDOWN:
 	case WM_MBUTTONDBLCLK:
-		m_MouseAction.MButtonDown = true;
-		m_MouseAction.ButtonMask |= MouseAction::eMiddleButton;
+		MButtonDown = true;
+		ButtonMask |= eMiddleButton;
 		break;
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONDBLCLK:
-		m_MouseAction.LButtonDown = true;
-		m_MouseAction.ButtonMask |= MouseAction::eLeftButton;
+		LButtonDown = true;
+		ButtonMask |= eLeftButton;
 		break;
 	case WM_RBUTTONUP:
-		m_MouseAction.RButtonDown = false;
-		m_MouseAction.ButtonMask &= (~MouseAction::eRightButton);
+		RButtonDown = false;
+		ButtonMask &= ~eRightButton;
 		break;
 	case WM_MBUTTONUP:
-		m_MouseAction.MButtonDown = false;
-		m_MouseAction.ButtonMask &= (~MouseAction::eMiddleButton);
+		MButtonDown = false;
+		ButtonMask &= ~eMiddleButton;
 		break;
 	case WM_LBUTTONUP:
-		m_MouseAction.LButtonDown = false;
-		m_MouseAction.ButtonMask &= (~MouseAction::eLeftButton);
+		LButtonDown = false;
+		ButtonMask &= ~eLeftButton;
 		break;
 	case WM_CAPTURECHANGED:
-		break; 
+		break;
 	case WM_MOUSEWHEEL:
-		m_MouseAction.WheelDelta += (int32_t)HIWORD(wParam);
+		WheelDelta += (int32_t)HIWORD(wParam);
 		break;
 	}
 
-	if (m_MouseAction.RButtonDown || m_MouseAction.MButtonDown || m_MouseAction.LButtonDown)
+	if (RButtonDown || MButtonDown || LButtonDown)
 	{
-		::GetCursorPos((LPPOINT)m_MouseAction.LastPosition);
+		::GetCursorPos((LPPOINT)LastPosition);
+	}
+}
+
+void DXUTCamera::KeyboardAction::UpdateInput()
+{
+	KeyDirection = Vec3(0.0f, 0.0f, 0.0f);
+
+	if (IsKeyActive(eStrafeRight))
+	{
+		KeyDirection.x += 1.0f;
+	}
+	if (IsKeyActive(KeyboardAction::eStrafeLeft))
+	{
+		KeyDirection.x -= 1.0f;
+	}
+
+	if (EnableYAxisMovement)
+	{
+		if (IsKeyActive(KeyboardAction::eMoveUp))
+		{
+			KeyDirection.y += 1.0f;
+		}
+		if (IsKeyActive(KeyboardAction::eMoveDown))
+		{
+			KeyDirection.y -= 1.0f;
+		}
+	}
+
+	if (IsKeyActive(KeyboardAction::eMoveForward))
+	{
+		KeyDirection.z += 1.0f;
+	}
+	if (IsKeyActive(KeyboardAction::eMoveBackward))
+	{
+		KeyDirection.z -= 1.0f;
+	}
+}
+
+void DXUTCamera::MouseAction::UpdateInput()
+{
+	if (ButtonMask & RotateButtonMask)
+	{
+		int32_t curPos[2U] = {};
+		int32_t deltaPos[2U] = {};
+		::GetCursorPos((LPPOINT)curPos);
+		deltaPos[0] = curPos[0] - LastPosition[0];
+		deltaPos[1] = curPos[1] - LastPosition[1];
+
+		LastPosition[0] = curPos[0];
+		LastPosition[1] = curPos[1];
+
+		float percentNew = 1.0f / FrameCountToSmoothMouseData;
+		float percentOld = 1.0f - percentNew;
+
+		Delta.x = Delta.x * percentOld + deltaPos[0] * percentNew;
+		Delta.y = Delta.y * percentOld + deltaPos[1] * percentNew;
+
+		RotateVelocity = Delta * RotateScaler;
 	}
 }
 
@@ -127,61 +184,6 @@ DXUTCamera::KeyboardAction::eKeyAction DXUTCamera::KeyboardAction::GetKeyAction(
 	return eOther;
 }
 
-void DXUTCamera::UpdateInput()
-{
-	m_KeyAction.KeyDirection = Vec3(0.0f, 0.0f, 0.0f);
-
-	if (m_KeyAction.IsKeyDown(KeyboardAction::eStrafeRight))
-	{
-		m_KeyAction.KeyDirection.x += 1.0f;
-	}
-	if (m_KeyAction.IsKeyDown(KeyboardAction::eStrafeLeft))
-	{
-		m_KeyAction.KeyDirection.x -= 1.0f;
-	}
-
-	if (m_KeyAction.EnableYAxisMovement)
-	{
-		if (m_KeyAction.IsKeyDown(KeyboardAction::eMoveUp))
-		{
-			m_KeyAction.KeyDirection.y += 1.0f;
-		}
-		if (m_KeyAction.IsKeyDown(KeyboardAction::eMoveDown))
-		{
-			m_KeyAction.KeyDirection.y -= 1.0f;
-		}
-	}
-
-	if (m_KeyAction.IsKeyDown(KeyboardAction::eMoveForward))
-	{
-		m_KeyAction.KeyDirection.z += 1.0f;
-	}
-	if (m_KeyAction.IsKeyDown(KeyboardAction::eMoveBackward))
-	{
-		m_KeyAction.KeyDirection.z -= 1.0f;
-	}
-
-	if (m_MouseAction.ButtonMask & m_MouseAction.RotateButtonMask)
-	{
-		int32_t curPos[2U] = {};
-		int32_t deltaPos[2U] = {};
-		::GetCursorPos((LPPOINT)curPos);
-		deltaPos[0] = curPos[0] - m_MouseAction.LastPosition[0];
-		deltaPos[1] = curPos[1] - m_MouseAction.LastPosition[1];
-
-		m_MouseAction.LastPosition[0] = curPos[0];
-		m_MouseAction.LastPosition[1] = curPos[1];
-
-		float percentNew = 1.0f / m_MouseAction.FrameCountToSmoothMouseData;
-		float percentOld = 1.0f - percentNew;
-
-		m_MouseAction.Delta.x = m_MouseAction.Delta.x * percentOld + deltaPos[0] * percentNew;
-		m_MouseAction.Delta.y = m_MouseAction.Delta.y * percentOld + deltaPos[1] * percentNew;
-
-		m_MouseAction.RotateVelocity = m_MouseAction.Delta * m_MouseAction.RotateScaler;
-	}
-}
-
 void DXUTCamera::UpdateVelocity(float elapsedTime)
 {
 	Vec3 accel = m_KeyAction.KeyDirection;
@@ -210,7 +212,7 @@ void DXUTCamera::UpdateVelocity(float elapsedTime)
 
 void DXUTCamera::Update(float elapsedTime)
 {
-	if (m_KeyAction.IsKeyDown(KeyboardAction::eReset))
+	if (m_KeyAction.IsKeyActive(KeyboardAction::eReset))
 	{
 		Reset();
 	}
@@ -221,7 +223,7 @@ void DXUTCamera::Update(float elapsedTime)
 
 	Vec3 deltaPos = m_Velocity * elapsedTime;
 
-	if (m_MouseAction.ButtonMask & m_MouseAction.RotateButtonMask)
+	if (m_MouseAction.IsRotateButtonActive())
 	{
 		float deltaYaw = m_MouseAction.RotateVelocity.x;
 		float deltaPitch = m_MouseAction.RotateVelocity.y;
