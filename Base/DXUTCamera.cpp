@@ -2,6 +2,8 @@
 
 DXUTCamera::DXUTCamera()
 {
+	m_World.Identity();
+
 	SetViewParams(Vec3(0.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f));
 	SetProjParams(DirectX::XM_PIDIV4, 1.0f, 1.0f, 1000.0f);
 
@@ -240,10 +242,10 @@ void DXUTCamera::Update(float elapsedTime)
 	Vec3 up(0.0f, 1.0f, 0.0f);
 	Vec3 forward(0.0f, 0.0f, 1.0f);
 
-	Vec3 worldUp = Vec3::TransformCoord(up, rotate);
-	Vec3 worldForward = Vec3::TransformCoord(forward, rotate);
+	Vec3 worldUp = TransformCoord(up, rotate);
+	Vec3 worldForward = TransformCoord(forward, rotate);
 
-	Vec3 deltaWorld = Vec3::TransformCoord(deltaPos, rotate);
+	Vec3 deltaWorld = TransformCoord(deltaPos, rotate);
 
 	m_Eye += deltaWorld;
 
@@ -252,5 +254,5 @@ void DXUTCamera::Update(float elapsedTime)
 	m_LookAt = m_Eye + worldForward;
 
 	m_View = Matrix::LookAtLH(m_Eye, m_LookAt, worldUp);
-	m_View.Inverse();
+	m_World = Matrix::Inverse(m_View);
 }

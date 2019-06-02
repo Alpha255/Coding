@@ -2,6 +2,7 @@
 
 #include "Base/IApplication.h"
 #include "Base/Camera.h"
+#include "Base/DXUTCamera.h"
 
 class IRenderApplication : public IApplication
 {
@@ -25,6 +26,7 @@ public:
 	virtual void RenderScene() = 0;
 	virtual void UpdateScene(float, float) {}
 protected:
+#if 0
 	enum eMouseInput
 	{
 		eMouseMove,
@@ -33,9 +35,13 @@ protected:
 	};
 
 	void HandleMouseInput(::WPARAM wParam, ::LPARAM lParam, eMouseInput type);
-
 	Camera m_Camera = {};
+#else
+	DXUTCamera m_Camera;
+#endif
 private:
+	std::pair<float, float> m_CameraParams = { 0.1f, 500.0f };
+#if 0
 	std::pair<int32_t, int32_t> m_MousePos = { 0, 0 };
-	std::pair<float, float> m_CameraParams = { 1.0f, 3000.0f };
+#endif
 };

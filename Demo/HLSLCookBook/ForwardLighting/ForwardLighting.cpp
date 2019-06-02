@@ -90,7 +90,6 @@ void ForwardLighting::PrepareScene()
 	auto &indices = m_Bunny.GetIndices();
 	m_TestVB.CreateAsVertexBuffer(vertices.size() * sizeof(Geometry::Vertex), eGpuReadWrite, vertices.data());
 	m_TestIB.CreateAsIndexBuffer(indices.size() * sizeof(uint32_t), eGpuReadWrite, indices.data());
-	m_Camera.SetViewRadius(1.0f);
 #else
 	m_VertexShader.Create("ForwardLighting.hlsl", "VSMain");
 	m_PixelShader[eHemisphericAmbient].Create("ForwardLighting.hlsl", "PSMain_HemisphericAmbient");
@@ -166,9 +165,13 @@ void ForwardLighting::RenderScene()
 	}
 	ImGui::Combo("LightingType", &m_LightingType, "HemisphericAmbient\0DirectionalLight\0PointLight\0Spot\0Capsule");
 #else
-	Matrix scale = Matrix::Scaling(3.0);
-	Matrix trans = Matrix::Translation(0.0f, -0.1f, 0.0f);
-	Matrix wvp = Matrix::Transpose(m_Camera.GetWorldMatrix() * trans * scale * m_Camera.GetViewMatrix() * m_Camera.GetProjMatrix());
+	static Vec3 s_Params(71.0f, 41.0f, 71.0f);
+
+	m_Camera.SetViewParams(s_Params, Vec3(0.0f, 0.0f, 0.0f));
+
+	///Matrix scale = Matrix::Scaling(3.0);
+	///Matrix trans = Matrix::Translation(0.0f, -0.1f, 0.0f);
+	Matrix wvp = Matrix::Transpose(m_Camera.GetWVPMatrix());
 	m_TestCBVS.Update(&wvp, sizeof(Matrix));
 
 	REngine::Instance().SetInputLayout(m_TestLayout);
@@ -184,4 +187,5 @@ void ForwardLighting::RenderScene()
 #endif
 
 	ImGui::Checkbox("Wireframe", &m_Wireframe);
+	ImGui::SliderFloat3("Params", (float *)&s_Params, -10.0f, 100.0f);
 }

@@ -155,8 +155,6 @@ public:
 
 		return result.x;
 	}
-
-	static Vec3 TransformCoord(const Vec3 &v, const class Matrix &m);
 };
 
 class Vec4 : public DirectX::XMFLOAT4
@@ -524,7 +522,7 @@ public:
 	}
 };
 
-Vec3 Vec3::TransformCoord(const Vec3 &v, const Matrix &m)
+inline Vec3 TransformCoord(const Vec3 &v, const Matrix &m)
 {
 	DirectX::XMVECTOR tmpV = DirectX::XMLoadFloat3(&v);
 	DirectX::XMMATRIX tmpM = DirectX::XMLoadFloat4x4A(&m);

@@ -18,6 +18,27 @@ public:
 	void SetViewParams(const Vec3 &eye, const Vec3 &lookAt);
 	void SetProjParams(float fov, float aspect, float nearPlane, float farPlane);
 	void Update(float elapsedTime);
+
+	inline Matrix GetWorldMatrix()
+	{
+		return m_World;
+	}
+
+	inline Matrix GetViewMatrix()
+	{
+		return m_View;
+	}
+
+	inline Matrix GetProjMatrix()
+	{
+		return m_Proj;
+	}
+
+	inline Matrix GetWVPMatrix()
+	{
+		Matrix scale = Matrix::Scaling(90.0);
+		return scale * m_View * m_Proj;
+	}
 protected:
 
 	struct MouseAction
@@ -137,6 +158,7 @@ private:
 
 	float m_DragTimer = 0.0f;
 
+	Matrix m_World;
 	Matrix m_View;
 	Matrix m_Proj;
 };

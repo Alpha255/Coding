@@ -13,6 +13,7 @@ void IRenderApplication::Initialize(const std::string &title, uint32_t width, ui
 
 	PrepareScene();
 
+	m_Camera.SetViewParams(Vec3(71.0f, 41.0f, 71.0f), Vec3(0.0f, 0.0f, 0.0f));
 	m_Camera.SetProjParams(DirectX::XM_PIDIV4, (float)width / height, m_CameraParams.first, m_CameraParams.second);
 }
 
@@ -27,6 +28,7 @@ void IRenderApplication::HandleInput(uint32_t msg, ::WPARAM wParam, ::LPARAM lPa
 {
 	Base::HandleInput(msg, wParam, lParam);
 
+#if 0
 	switch (msg)
 	{
 	case WM_LBUTTONDOWN:
@@ -41,8 +43,12 @@ void IRenderApplication::HandleInput(uint32_t msg, ::WPARAM wParam, ::LPARAM lPa
 		HandleMouseInput(wParam, lParam, eMouseWheel);
 		break;
 	}
+#else
+	m_Camera.HandleWindowMessage(msg, wParam, lParam);
+#endif
 }
 
+#if 0
 void IRenderApplication::HandleMouseInput(::WPARAM wParam, ::LPARAM lParam, eMouseInput type)
 {
 	int32_t xPos = (int32_t)(LOWORD(lParam));
@@ -75,6 +81,7 @@ void IRenderApplication::HandleMouseInput(::WPARAM wParam, ::LPARAM lParam, eMou
 	m_MousePos.first = xPos;
 	m_MousePos.second = yPos;
 }
+#endif
 
 void IRenderApplication::ResizeWindow(uint32_t width, uint32_t height)
 {
@@ -87,7 +94,7 @@ void IRenderApplication::ResizeWindow(uint32_t width, uint32_t height)
 
 void IRenderApplication::RenterToWindow()
 {
-	m_Camera.Update();
+	m_Camera.Update(m_Timer.GetDeltaTime());
 
 	UpdateScene(m_Timer.GetDeltaTime(), m_Timer.GetTotalTime());
 
