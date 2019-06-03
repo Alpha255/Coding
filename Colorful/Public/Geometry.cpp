@@ -494,7 +494,7 @@ void Model::CreateFromFile(const std::string &fileName)
 	case AssetFile::eTxtMesh:
 		break;
 	case AssetFile::eObjMesh:
-		Verify(AssetTool::LoadOBJ(modelFile.GetPath(), m_Vertices, m_Indices));
+		Verify(AssetTool::LoadOBJ(modelFile.GetPath(), m_Vertices, m_Indices, m_BoundingBox));
 		break;
 	case AssetFile::eSDKMesh:
 		Verify(AssetTool::LoadSDKMesh(modelFile.GetPath(), m_Vertices, m_Indices));
@@ -505,6 +505,36 @@ void Model::CreateFromFile(const std::string &fileName)
 	}
 
 	m_Valid = true;
+	m_HasBoundingBox = true;
+}
+
+Box::Box(const Vec3 &min, const Vec3 &max)
+{
+	m_Center = (min + max) * 0.5f;
+	m_Size = max - min;
+
+	m_Vertices.resize(8U);
+	m_Indices.resize(36U);
+
+	m_Vertices[0].Position = min;
+	m_Vertices[1].Position = Vec3(min.x, min.y, max.z);
+	m_Vertices[2].Position = Vec3(max.x, min.y, max.z);
+	m_Vertices[3].Position = Vec3(max.x, min.y, min.z);
+
+	m_Vertices[4].Position = Vec3(min.x, max.y, min.z);
+	m_Vertices[5].Position = Vec3(min.x, max.y, max.z);
+	m_Vertices[6].Position = max;
+	m_Vertices[7].Position = Vec3(max.x, max.y, min.z);
+
+	m_Indices =
+	{
+		0, 4, 7, 0, 7, 3, 	/// front
+		1, 5, 6, 1, 6, 2,  	/// back
+		4, 5, 6, 4, 6, 7,	/// top
+		0, 1, 2, 0, 2, 3,	/// bottom
+		0, 4, 5, 0, 5, 1,	/// left
+		3, 7, 6, 3, 6, 2	/// right
+	};
 }
 
 #if 0

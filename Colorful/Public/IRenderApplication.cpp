@@ -83,6 +83,24 @@ void IRenderApplication::HandleMouseInput(::WPARAM wParam, ::LPARAM lParam, eMou
 }
 #endif
 
+void IRenderApplication::AutoFocus(const Geometry::Model &model)
+{
+	if (model.HasBoundingBox())
+	{
+		Geometry::Box boundingBox = model.GetBoundingBox();
+		Vec3 center = boundingBox.GetCenter();
+		Vec3 size = boundingBox.GetSize();
+
+		m_CameraParams = { 0.01f, size.z + 0.1f };
+		m_Camera.SetProjParams(DirectX::XM_PIDIV4, (float)m_WindowSize.first / m_WindowSize.second, m_CameraParams.first, m_CameraParams.second);
+		m_Camera.SetViewParams(Vec3(center.x, center.y, center.z - size.z + 3.0f), Vec3(0.0f, 0.0f, 0.0f));
+	}
+	else
+	{
+
+	}
+}
+
 void IRenderApplication::ResizeWindow(uint32_t width, uint32_t height)
 {
 	Base::ResizeWindow(width, height);

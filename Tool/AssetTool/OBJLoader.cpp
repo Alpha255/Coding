@@ -5,9 +5,14 @@
 	#undef max
 #endif
 
+#if defined min
+	#undef min
+#endif
+
 #include <vcg/complex/complex.h>
 #include <vcg/complex/used_types.h>
 #include <vcg/complex/algorithms/update/topology.h>
+#include <vcg/complex/algorithms/update/bounding.h>
 #include <vcglib/wrap/io_trimesh/import_obj.h>
 
 NamespaceBegin(AssetTool)
@@ -71,7 +76,8 @@ bool LoadingCallback(const int32_t progress, const char *pMessage)
 bool LoadOBJ(
 	const std::string &filePath,
 	__out std::vector<Geometry::Vertex> &vertices,
-	__out std::vector<uint32_t> &indices)
+	__out std::vector<uint32_t> &indices,
+	__out Geometry::Box &boundingBox)
 {
 	PMesh mesh;
 	int32_t loadMask = 0;
@@ -85,6 +91,10 @@ bool LoadOBJ(
 	}
 
 	///vcg::tri::UpdateTopology<PMesh>::VertexFace(mesh);
+	vcg::tri::UpdateBounding<PMesh>::Box(mesh);
+	Vec3 min(mesh.bbox.min.X(), mesh.bbox.min.Y(), mesh.bbox.min.Z());
+	Vec3 max(mesh.bbox.max.X(), mesh.bbox.max.Y(), mesh.bbox.max.Z());
+	boundingBox = Geometry::Box(min, max);
 
 	vertices.resize((size_t)mesh.vn);
 	size_t index = 0U;

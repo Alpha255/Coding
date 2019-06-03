@@ -4,6 +4,10 @@
 #include "Base/Camera.h"
 #include "Base/DXUTCamera.h"
 
+NamespaceBegin(Geometry)
+	class Model;
+NamespaceEnd(Geometry)
+
 class IRenderApplication : public IApplication
 {
 public:
@@ -39,6 +43,8 @@ protected:
 #else
 	DXUTCamera m_Camera;
 #endif
+
+	void AutoFocus(const Geometry::Model &model);
 private:
 	std::pair<float, float> m_CameraParams = { 0.1f, 500.0f };
 #if 0

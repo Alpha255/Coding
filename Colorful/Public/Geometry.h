@@ -42,6 +42,32 @@ struct Vertex
 	}
 };
 
+class Box
+{
+public:
+	Box() = default;
+	Box(const Vec3 &min, const Vec3 &max);
+
+	inline Vec3 GetCenter() const
+	{
+		return m_Center;
+	}
+
+	inline Vec3 GetSize() const
+	{
+		return m_Size;
+	}
+protected:
+private:
+	Vec3 m_Center;
+	Vec3 m_Min;
+	Vec3 m_Max;
+	Vec3 m_Size;
+
+	std::vector<Vertex> m_Vertices;
+	std::vector<uint32_t> m_Indices;
+};
+
 class Model
 {
 public:
@@ -64,6 +90,16 @@ public:
 	{
 		assert(m_Valid);
 		return m_VertexLayout;
+	}
+
+	inline bool HasBoundingBox() const
+	{
+		return m_HasBoundingBox;
+	}
+
+	inline Box GetBoundingBox() const
+	{
+		return m_BoundingBox;
 	}
 
 	void CreateAsCube(float width, float height, float depth);
@@ -98,7 +134,10 @@ private:
 
 	std::vector<VertexLayout> m_VertexLayout = {};
 
+	Box m_BoundingBox;
+
 	bool m_Valid = false;
+	bool m_HasBoundingBox = false;
 
 	///void CreateRenderResource();
 

@@ -79,6 +79,8 @@ void ForwardLighting::PrepareScene()
 {
 	m_Bunny.CreateFromFile("bun_zipper_res2.obj");
 
+	AutoFocus(m_Bunny);
+
 #if 1
 	m_TestVS.Create("Mesh.shader", "VSMain");
 	m_TestPS.Create("Mesh.shader", "PSMain");
@@ -165,9 +167,9 @@ void ForwardLighting::RenderScene()
 	}
 	ImGui::Combo("LightingType", &m_LightingType, "HemisphericAmbient\0DirectionalLight\0PointLight\0Spot\0Capsule");
 #else
-	static Vec3 s_Params(71.0f, 41.0f, 71.0f);
+	///static Vec3 s_Params(71.0f, 41.0f, 71.0f);
 
-	m_Camera.SetViewParams(s_Params, Vec3(0.0f, 0.0f, 0.0f));
+	///m_Camera.SetViewParams(s_Params, Vec3(0.0f, 0.0f, 0.0f));
 
 	///Matrix scale = Matrix::Scaling(3.0);
 	///Matrix trans = Matrix::Translation(0.0f, -0.1f, 0.0f);
@@ -187,5 +189,5 @@ void ForwardLighting::RenderScene()
 #endif
 
 	ImGui::Checkbox("Wireframe", &m_Wireframe);
-	ImGui::SliderFloat3("Params", (float *)&s_Params, -10.0f, 100.0f);
+	///ImGui::SliderFloat3("Params", (float *)&s_Params, -10.0f, 100.0f);
 }

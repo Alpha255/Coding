@@ -20,7 +20,8 @@ Export bool CompileShader(
 Export bool LoadOBJ(
 	const std::string &filePath,
 	__out std::vector<Geometry::Vertex> &vertices,
-	__out std::vector<uint32_t> &indices);
+	__out std::vector<uint32_t> &indices,
+	__out Geometry::Box &boundingBox);
 
 Export bool LoadSDKMesh(
 	const std::string &filePath,
