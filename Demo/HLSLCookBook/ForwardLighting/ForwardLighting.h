@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Public/IRenderApplication.h"
-#include "Colorful/Public/Definitions.h"
+#include "Colorful/Public/Model.h"
 
 class ForwardLighting : public IRenderApplication
 {
@@ -39,10 +39,7 @@ private:
 #if 1
 	RVertexShader m_TestVS;
 	RPixelShader m_TestPS;
-	RInputLayout m_TestLayout;
 	RBuffer m_TestCBVS;
-	RBuffer m_TestVB;
-	RBuffer m_TestIB;
 #endif
 
 	///Material m_BunnyMaterial;

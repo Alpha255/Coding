@@ -1,6 +1,7 @@
 #include "IRenderApplication.h"
 #include "Definitions.h"
-#include "Public/ImGUI.h"
+#include "ImGUI.h"
+#include "Model.h"
 
 void IRenderApplication::Initialize(const std::string &title, uint32_t width, uint32_t height, bool bFullScreen, uint32_t extraWindowStyle)
 {
@@ -13,8 +14,8 @@ void IRenderApplication::Initialize(const std::string &title, uint32_t width, ui
 
 	PrepareScene();
 
-	m_Camera.SetViewParams(Vec3(71.0f, 41.0f, 71.0f), Vec3(0.0f, 0.0f, 0.0f));
-	m_Camera.SetProjParams(DirectX::XM_PIDIV4, (float)width / height, m_CameraParams.first, m_CameraParams.second);
+	//m_Camera.SetViewParams(Vec3(71.0f, 41.0f, 71.0f), Vec3(0.0f, 0.0f, 0.0f));
+	//m_Camera.SetProjParams(DirectX::XM_PIDIV4, (float)width / height, m_CameraParams.first, m_CameraParams.second);
 }
 
 void IRenderApplication::HandleWindowMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM lParam)
@@ -91,9 +92,9 @@ void IRenderApplication::AutoFocus(const Geometry::Model &model)
 		Vec3 center = boundingBox.GetCenter();
 		Vec3 size = boundingBox.GetSize();
 
-		m_CameraParams = { 0.01f, size.z + 0.1f };
+		///m_CameraParams = { 0.1f, size.z * 2.0f };
 		m_Camera.SetProjParams(DirectX::XM_PIDIV4, (float)m_WindowSize.first / m_WindowSize.second, m_CameraParams.first, m_CameraParams.second);
-		m_Camera.SetViewParams(Vec3(center.x, center.y, center.z - size.z + 3.0f), Vec3(0.0f, 0.0f, 0.0f));
+		m_Camera.SetViewParams(Vec3(0.0f, 0.0f, center.z * 2.0f), Vec3(0.0f, 0.0f, 0.0f));
 	}
 	else
 	{

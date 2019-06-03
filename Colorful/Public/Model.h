@@ -1,182 +1,315 @@
-//#pragma once
-//
-//#include "D3DMath.h"
-//#include "Definitions.h"
-//#include "Lighting.h"
-//#include <DirectXTK/Inc/Effects.h>
-//#include <DirectXTK/Inc/Model.h>
-//#include <DirectXTK/Inc/CommonStates.h>
-//
-//class Model
-//{
-//public:
-//	Model();
-//	~Model();
-//
-//	void CreateFromSDKMesh(const wchar_t* pName);
-//
-//	void Draw(const class Camera& camera, bool bWireframe = false);
-//
-//	uint32_t GetVertexStride(uint32_t index) const;
-//	uint32_t GetIndexFormat(uint32_t index) const;
-//protected:
-//private:
-//	DirectX::EffectFactory* m_EffectFactory;
-//	DirectX::CommonStates* m_States;
-//
-//	std::unique_ptr<DirectX::Model> m_Model;
-//};
-//
-//class SDKMesh
-//{
-//public:
-//	struct Vertex
-//	{
-//		Vec3 Position;
-//		Vec3 Normal;
-//	};
-//
-//	SDKMesh()
-//	{
-//		m_World.Identity();
-//	}
-//	~SDKMesh() = default;
-//
-//	void CreateFromTxt(const char *pName);
-//
-//	inline void SetMaterial(const Material &mat)
-//	{
-//		memcpy(&m_CBufferPS.Mat, &mat, sizeof(Material));
-//	}
-//
-//	inline void SetLightCount(uint32_t litCount)
-//	{
-//		assert(litCount <= 3U);  /// Not safety
-//		m_CBufferPS.LightCount = litCount;
-//	}
-//
-//	inline void SetLight(uint32_t index, const DirectionalLight &lit)
-//	{
-//		assert(index < 3U);  /// Not safety
-//		memcpy(&m_CBufferPS.DirLight[index], &lit, sizeof(DirectionalLight));
-//	}
-//
-//	inline void SetWorldMatrix(const Matrix& world)
-//	{
-//		m_World = world;
-//	}
-//
-//	void Draw(const class Camera &cam, bool bWireframe = false);
-//protected:
-//	struct ConstantsBufferVS
-//	{
-//		Matrix World;
-//		Matrix WorldInverseTrans;
-//		Matrix WVP;
-//
-//		ConstantsBufferVS()
-//		{
-//			World.Identity();
-//			WorldInverseTrans.Identity();
-//			WVP.Identity();
-//		}
-//	};
-//
-//	struct ConstantsBufferPS
-//	{
-//		Vec3 ViewPoint;
-//		uint32_t LightCount = 0U;
-//
-//		DirectionalLight DirLight[3];
-//
-//		Material Mat;
-//
-//		ConstantsBufferPS()
-//		{
-//			ViewPoint = Vec3(0.0f, 0.0f, 0.0f);
-//			
-//			DirLight[0].Ambient = Vec4(0.2f, 0.2f, 0.2f, 1.0f);
-//			DirLight[0].Diffuse = Vec4(0.5f, 0.5f, 0.5f, 1.0f);
-//			DirLight[0].Specular = Vec4(0.5f, 0.5f, 0.5f, 1.0f);
-//			DirLight[0].Direction = Vec4(0.57735f, -0.57735f, 0.57735f, 0.0f);
-//
-//			DirLight[1].Ambient = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
-//			DirLight[1].Diffuse = Vec4(0.20f, 0.20f, 0.20f, 1.0f);
-//			DirLight[1].Specular = Vec4(0.25f, 0.25f, 0.25f, 1.0f);
-//			DirLight[1].Direction = Vec4(-0.57735f, -0.57735f, 0.57735f, 0.0f);
-//
-//			DirLight[2].Ambient = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
-//			DirLight[2].Diffuse = Vec4(0.2f, 0.2f, 0.2f, 1.0f);
-//			DirLight[2].Specular = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
-//			DirLight[2].Direction = Vec4(0.0f, -0.707f, -0.707f, 0.0f);
-//
-//			Mat.Ambient = Vec4(0.8f, 0.8f, 0.8f, 1.0f);
-//			Mat.Diffuse = Vec4(0.8f, 0.8f, 0.8f, 1.0f);
-//			Mat.Specular = Vec4(0.8f, 0.8f, 0.8f, 16.0f);
-//		}
-//	};
-//
-//	struct D3DObject
-//	{
-//		Ref<ID3D11VertexShader> VertexShader;
-//		Ref<ID3D11PixelShader> PixelShader;
-//
-//		Ref<ID3D11InputLayout> InputLayout;
-//		Ref<ID3D11Buffer> IndexBuffer;
-//		Ref<ID3D11Buffer> VertexBuffer;
-//		Ref<ID3D11RasterizerState> WireframeMode;
-//		Ref<ID3D11RasterizerState> BackFaceCulling;
-//
-//		Ref<ID3D11Buffer> CBufferVS;
-//		Ref<ID3D11Buffer> CBufferPS;
-//	};
-//private:
-//	ConstantsBufferVS m_CBufferVS;
-//	ConstantsBufferPS m_CBufferPS;
-//
-//	D3DObject m_D3DRes;
-//
-//	Matrix m_World;
-//
-//	uint32_t m_VertexCount = 0U;
-//	uint32_t m_IndexCount = 0U;
-//
-//	bool m_Created = false;
-//};
-//
-//class ObjMesh
-//{
-//public:
-//	ObjMesh() = default;
-//	~ObjMesh() = default;
-//
-//	void Create(const char *pFileName);
-//
-//	inline const std::vector<Math::Geometry::BasicVertex> &GetVertices() const
-//	{
-//		assert(m_Vertices.size());
-//		return m_Vertices;
-//	}
-//
-//	inline const std::vector<uint32_t> &GetIndices() const
-//	{
-//		assert(m_Indices.size());
-//		return m_Indices;
-//	}
-//protected:
-//	struct ObjIndex
-//	{
-//		uint32_t i = 0U;
-//		uint32_t t = 0U;
-//		uint32_t n = 0U;
-//	};
-//
-//	void ObjMesh::CreateVI(
-//		const std::vector<Vec3> &srcVertices,
-//		const std::vector<ObjIndex> &objIndices,
-//		const std::vector<Vec3> &normals,
-//		const std::vector<Vec2> &uvs);
-//private:
-//	std::vector<Math::Geometry::BasicVertex> m_Vertices;
-//	std::vector<uint32_t> m_Indices;
-//};
+#pragma once
+
+#include "Base/Base.h"
+#include "Definitions.h"
+#include "Geometry.h"
+
+NamespaceBegin(Geometry)
+
+class Model
+{
+public:
+	Model() = default;
+	~Model() = default;
+
+	inline bool HasBoundingBox() const
+	{
+		return m_HasBoundingBox;
+	}
+
+	inline Box GetBoundingBox() const
+	{
+		return m_BoundingBox;
+	}
+
+	void CreateAsCube(float width, float height, float depth);
+	void CreateAsSphere(float radius, uint32_t slice, uint32_t stack);
+	void CreateAsCylinder(float bottomRadius, float topRadius, float height, uint32_t slice, uint32_t stack);
+	void CreateAsGrid(float width, float depth, uint32_t m, uint32_t n);
+	void CreateAsQuad(float left, float top, float width, float height);
+	void CreateFromFile(const std::string &fileName);
+
+	void Bind(uint32_t slot);
+
+	inline uint32_t GetVertexCount() const
+	{
+		return m_VertexCount;
+	}
+
+	inline uint32_t GetIndexCount() const
+	{
+		return m_IndexCount;
+	}
+protected:
+	void SubDivide();
+	void MakeCylinderTopBottomCap(bool bTop, float bottomRadius, float topRadius, float height, uint32_t slice);
+	void CreateRenderResource();
+private:
+	std::vector<Vertex> m_Vertices;
+	std::vector<uint32_t> m_Indices;
+
+	Box m_BoundingBox;
+
+	uint32_t m_VertexCount = 0U;
+	uint32_t m_IndexCount = 0U;
+
+	bool m_Valid = false;
+	bool m_HasBoundingBox = false;
+
+	RInputLayout m_InputLayout;
+	RBuffer m_VertexBuffer;
+	RBuffer m_IndexBuffer;
+};
+
+#if 0
+struct ObjMesh : public Mesh
+{
+public:
+	void Create(const char *pFileName);
+
+	struct ObjIndex
+	{
+		int32_t i = 0U;
+		int32_t t = 0U;
+		int32_t n = 0U;
+	};
+protected:
+	///void TokenizeNextLine(std::ifstream &fs, std::vector<std::string> &tokens);
+
+	void CreateVertexData(
+		const std::vector<Vec3> &srcVertices,
+		const std::vector<std::vector<ObjIndex>> &indexCollector,
+		const std::vector<Vec3> &normals,
+		const std::vector<Vec2> &uvs);
+
+	void ComputeTangent();
+};
+
+struct SDKMesh : public Mesh
+{
+public:
+	void Create(const char *pMeshName, bool ccw = false, bool alpha = false);
+
+	void Draw(bool bAlphaParts, bool bDisableMaterial = false);
+
+	inline void SetInputLayout(const RInputLayout &layout)
+	{
+		m_VertexLayout = layout;
+	}
+protected:
+	enum eSDKMeshFileInfo
+	{
+		eFileVersion = 101U,
+		eMaxVertexElements = 32U,
+		eMaxMeshName = 100U,
+		eMaxSubsetName = 100U,
+		eMaxMaterialName = 100U,
+		eMaxMaterialPath = 260U, 
+		eMaxTextureName = 260U,
+		eMaxVertexStreams = 16U,
+	};
+
+	enum eSDKMeshIndexType
+	{
+		eIndexType_16Bit = 0U,
+		eIndexType_32Bit = 1U,
+	};
+
+	enum eSDKMeshPrimitiveType
+	{
+		eTriangle_List = 0,
+		eTriangle_Strip,
+		eLine_List,
+		eLine_Strip,
+		ePoint_List,
+		eTriangle_List_Adj,
+		eTriangle_Strip_Adj,
+		eLine_List_Adj,
+		eLine_Strip_Adj
+	};
+
+	struct SDKMeshVertexElement
+	{
+		uint16_t Stream;     // Stream index
+		uint16_t Offset;     // Offset in the stream in bytes
+		uint8_t  Type;       // Data type
+		uint8_t  Method;     // Processing method
+		uint8_t  Usage;      // Semantics
+		uint8_t  UsageIndex; // Semantic index
+	};
+
+	struct SDKMeshHeader
+	{
+		/// Basic Info and sizes
+		uint32_t Version;
+		uint8_t  IsBigEndian;
+		uint64_t HeaderSize;
+		uint64_t NonBufferDataSize;
+		uint64_t BufferDataSize;
+
+		/// Stats
+		uint32_t NumVertexBuffers;
+		uint32_t NumIndexBuffers;
+		uint32_t NumMeshes;
+		uint32_t NumTotalSubsets;
+		uint32_t NumFrames;
+		uint32_t NumMaterials;
+
+		/// Offsets to Data
+		uint64_t VertexStreamHeadersOffset;
+		uint64_t IndexStreamHeadersOffset;
+		uint64_t MeshDataOffset;
+		uint64_t SubsetDataOffset;
+		uint64_t FrameDataOffset;
+		uint64_t MaterialDataOffset;
+	};
+
+	struct SDKMeshVertexBufferHeader
+	{
+		uint64_t NumVertices;
+		uint64_t SizeBytes;
+		uint64_t StrideBytes;
+		SDKMeshVertexElement Decl[eMaxVertexElements];
+		union
+		{
+			uint64_t DataOffset;
+		};
+	};
+
+	struct SDKMeshIndexBufferHeader
+	{
+		uint64_t NumIndices;
+		uint64_t SizeBytes;
+		uint32_t IndexType;
+		union
+		{
+			uint64_t DataOffset;
+		};
+	};
+
+	struct SDKMeshMesh
+	{
+		char Name[eMaxMeshName];
+		uint8_t NumVertexBuffers;
+		uint32_t VertexBuffers[eMaxVertexStreams];
+		uint32_t IndexBuffer;
+		uint32_t NumSubsets;
+		uint32_t NumFrameInfluences; //aka bones
+
+		Vec3 BoundingBoxCenter;
+		Vec3 BoundingBoxExtents;
+
+		union
+		{
+			uint64_t SubsetOffset;
+			int32_t *Subsets;
+		};
+		union
+		{
+			uint64_t FrameInfluenceOffset;
+			uint32_t *FrameInfluences;
+		};
+	};
+
+	struct SDKMeshSubset
+	{
+		char Name[eMaxSubsetName];
+		uint32_t MaterialID;
+		uint32_t PrimitiveType;
+		uint64_t IndexStart;
+		uint64_t IndexCount;
+		uint64_t VertexStart;
+		uint64_t VertexCount;
+	};
+
+	struct ModelMesh
+	{
+		struct MeshPart
+		{
+			uint32_t  IndexCount;
+			uint32_t  StartIndex;
+			uint32_t  VertexOffset;
+			uint32_t  VertexStride;
+			eRPrimitiveTopology PrimitiveType;
+			uint32_t IndexFormat;
+			RBuffer IndexBuffer;
+			RBuffer VertexBuffer;
+			bool IsAlpha;
+
+			Material *Mt = nullptr;
+
+			~MeshPart();
+		};
+
+		DirectX::BoundingBox MeshBoundingBox;
+
+		bool CCW;
+		bool Alpha;
+
+		std::vector<std::unique_ptr<MeshPart>> MeshParts;
+	};
+
+	struct SDKMeshMaterial
+	{
+		char    Name[eMaxMaterialName];
+
+		/// Use MaterialInstancePath
+		char    MaterialInstancePath[eMaxMaterialPath];
+
+		/// Or fall back to d3d8-type materials
+		char    DiffuseTexture[eMaxTextureName];
+		char    NormalTexture[eMaxTextureName];
+		char    SpecularTexture[eMaxTextureName];
+
+		Vec4 Diffuse;
+		Vec4 Ambient;
+		Vec4 Specular;
+		Vec4 Emissive;
+		float Power;
+
+		union
+		{
+			uint64_t Force64_1;			/// Force the union to 64bits
+		};
+		union
+		{
+			uint64_t Force64_2;			/// Force the union to 64bits
+		};
+		union
+		{
+			uint64_t Force64_3;			/// Force the union to 64bits
+		};
+
+		union
+		{
+			uint64_t Force64_4;			/// Force the union to 64bits
+		};
+		union
+		{
+			uint64_t Force64_5;		    /// Force the union to 64bits
+		};
+		union
+		{
+			uint64_t Force64_6;			/// Force the union to 64bits
+		};
+	};
+
+	SDKMeshHeader LoadHeader(const uint8_t *pData, size_t dataSize);
+	void LoadVertexBuffers(const uint8_t *pData, size_t dataSize, const SDKMeshHeader &header);
+	void LoadIndexBuffers(const uint8_t *pData, size_t dataSize, const SDKMeshHeader &header);
+	void LoadMeshs(const uint8_t *pData, size_t dataSize, const SDKMeshHeader &header, bool ccw, bool alpha);
+	bool LoadMaterial(const SDKMeshMaterial &sdkmt, Material &mt);
+
+private:
+	std::vector<std::shared_ptr<ModelMesh>> m_Meshs;
+
+	std::vector<RBuffer> m_VertexBuffers;
+	std::vector<RBuffer> m_IndexBuffers;
+
+	RInputLayout m_VertexLayout;
+
+	bool m_Created = false;
+};
+#endif
+
+NamespaceEnd(Geometry)

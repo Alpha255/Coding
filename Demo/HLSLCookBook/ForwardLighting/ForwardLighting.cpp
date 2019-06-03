@@ -84,14 +84,8 @@ void ForwardLighting::PrepareScene()
 #if 1
 	m_TestVS.Create("Mesh.shader", "VSMain");
 	m_TestPS.Create("Mesh.shader", "PSMain");
-	m_TestLayout.Create(m_TestVS.GetBlob(), m_Bunny.GetVertexLayout());
 
 	m_TestCBVS.CreateAsUniformBuffer(sizeof(Matrix), eGpuReadCpuWrite);
-
-	auto &vertices = m_Bunny.GetVertices();
-	auto &indices = m_Bunny.GetIndices();
-	m_TestVB.CreateAsVertexBuffer(vertices.size() * sizeof(Geometry::Vertex), eGpuReadWrite, vertices.data());
-	m_TestIB.CreateAsIndexBuffer(indices.size() * sizeof(uint32_t), eGpuReadWrite, indices.data());
 #else
 	m_VertexShader.Create("ForwardLighting.hlsl", "VSMain");
 	m_PixelShader[eHemisphericAmbient].Create("ForwardLighting.hlsl", "PSMain_HemisphericAmbient");
@@ -176,16 +170,13 @@ void ForwardLighting::RenderScene()
 	Matrix wvp = Matrix::Transpose(m_Camera.GetWVPMatrix());
 	m_TestCBVS.Update(&wvp, sizeof(Matrix));
 
-	REngine::Instance().SetInputLayout(m_TestLayout);
-	REngine::Instance().SetVertexBuffer(m_TestVB, sizeof(Geometry::Vertex), 0U, 0U);
-	REngine::Instance().SetIndexBuffer(m_TestIB, eR32_UInt, 0U);
-
 	REngine::Instance().SetVertexShader(m_TestVS);
 	REngine::Instance().SetPixelShader(m_TestPS);
 
 	REngine::Instance().SetUniformBuffer(m_TestCBVS, 0U, eVertexShader);
 
-	REngine::Instance().DrawIndexed(m_Bunny.GetIndices().size(), 0U, 0, eTriangleList);
+	m_Bunny.Bind(0U);
+	REngine::Instance().DrawIndexed(m_Bunny.GetIndexCount(), 0U, 0, eTriangleList);
 #endif
 
 	ImGui::Checkbox("Wireframe", &m_Wireframe);

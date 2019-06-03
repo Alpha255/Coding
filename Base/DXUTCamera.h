@@ -36,8 +36,7 @@ public:
 
 	inline Matrix GetWVPMatrix()
 	{
-		Matrix scale = Matrix::Scaling(90.0);
-		return scale * m_View * m_Proj;
+		return m_View * m_Proj;
 	}
 protected:
 
