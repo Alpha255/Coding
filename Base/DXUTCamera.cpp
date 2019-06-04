@@ -19,10 +19,10 @@ void DXUTCamera::KeyboardAction::HandleWindowMessage(uint32_t msg, ::WPARAM wPar
 		{
 		case WM_KEYDOWN:
 			ActiveKey(keyAction);
-		break;
+			break;
 		case WM_KEYUP:
 			InactiveKey(keyAction);
-		break;
+			break;
 		}
 	}
 }
@@ -33,30 +33,24 @@ void DXUTCamera::MouseAction::HandleWindowMessage(uint32_t msg, ::WPARAM wParam,
 	{
 	case WM_RBUTTONDOWN:
 	case WM_RBUTTONDBLCLK:
-		RButtonDown = true;
-		ButtonMask |= eRightButton;
+		ButtonDown[eRightButton] = true;
 		break;
 	case WM_MBUTTONDOWN:
 	case WM_MBUTTONDBLCLK:
-		MButtonDown = true;
-		ButtonMask |= eMiddleButton;
+		ButtonDown[eMiddleButton] = true;
 		break;
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONDBLCLK:
-		LButtonDown = true;
-		ButtonMask |= eLeftButton;
+		ButtonDown[eLeftButton] = true;
 		break;
 	case WM_RBUTTONUP:
-		RButtonDown = false;
-		ButtonMask &= ~eRightButton;
+		ButtonDown[eRightButton] = false;
 		break;
 	case WM_MBUTTONUP:
-		MButtonDown = false;
-		ButtonMask &= ~eMiddleButton;
+		ButtonDown[eMiddleButton] = false;
 		break;
 	case WM_LBUTTONUP:
-		LButtonDown = false;
-		ButtonMask &= ~eLeftButton;
+		ButtonDown[eLeftButton] = false;
 		break;
 	case WM_CAPTURECHANGED:
 		break;
@@ -65,7 +59,7 @@ void DXUTCamera::MouseAction::HandleWindowMessage(uint32_t msg, ::WPARAM wParam,
 		break;
 	}
 
-	if (RButtonDown || MButtonDown || LButtonDown)
+	if (ButtonDown[eLeftButton] || ButtonDown[eRightButton] || ButtonDown[eMiddleButton])
 	{
 		::GetCursorPos((LPPOINT)LastPosition);
 	}
@@ -108,7 +102,7 @@ void DXUTCamera::KeyboardAction::UpdateInput()
 
 void DXUTCamera::MouseAction::UpdateInput()
 {
-	if (ButtonMask & RotateButtonMask)
+	if (IsRotateButtonDown())
 	{
 		int32_t curPos[2U] = {};
 		int32_t deltaPos[2U] = {};
@@ -143,6 +137,13 @@ void DXUTCamera::SetViewParams(const Vec3 &eye, const Vec3 &lookAt)
 	m_Yaw = atan2f(zBasis.x, zBasis.z);
 	float len = sqrtf(zBasis.z * zBasis.z + zBasis.x * zBasis.x);
 	m_Pitch = -atan2f(zBasis.y, len);
+
+#if 0
+	if (m_Pitch <= -0.00f)
+	{
+		m_Pitch = 0.3f;
+	}
+#endif
 }
 
 void DXUTCamera::SetProjParams(float fov, float aspect, float nearPlane, float farPlane)
@@ -225,7 +226,7 @@ void DXUTCamera::Update(float elapsedTime)
 
 	Vec3 deltaPos = m_Velocity * elapsedTime;
 
-	if (m_MouseAction.IsRotateButtonActive())
+	if (m_MouseAction.IsRotateButtonDown())
 	{
 		float deltaYaw = m_MouseAction.RotateVelocity.x;
 		float deltaPitch = m_MouseAction.RotateVelocity.y;
@@ -233,8 +234,11 @@ void DXUTCamera::Update(float elapsedTime)
 		m_Pitch += deltaPitch;
 		m_Yaw += deltaYaw;
 
+		/// Limit pitch to straight up or straight down
 		m_Pitch = std::max<float>(-DirectX::XM_PIDIV2, m_Pitch);
 		m_Pitch = std::min<float>(DirectX::XM_PIDIV2, m_Pitch);
+
+		Base::Log("Camera Pitch = %.2f, Yaw = %.2f", m_Pitch, m_Yaw);
 	}
 
 	Matrix rotate = Matrix::RotateRollPitchYaw(m_Pitch, m_Yaw, 0.0f);

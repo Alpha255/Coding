@@ -47,22 +47,24 @@ protected:
 
 	struct MouseAction
 	{
-		enum eButtonMask
+		enum eButton
 		{
-			eLeftButton = 0x01,
-			eMiddleButton = 0x02,
-			eRightButton = 0x04,
-			eWheel = 0x08
+			eLeftButton,
+			eMiddleButton,
+			eRightButton,
+			eButtonCount
 		};
 
-		inline void SetRotateButton(eButtonMask mask)
+		inline void SetRotateButton(eButton button)
 		{
-			RotateButtonMask = (int32_t)mask;
+			assert(RotateButton != eButtonCount);
+			RotateButton = button;
 		}
 
-		inline bool IsRotateButtonActive()
+		inline bool IsRotateButtonDown()
 		{
-			return ButtonMask & RotateButtonMask;
+			assert(RotateButton != eButtonCount);
+			return ButtonDown[RotateButton];
 		}
 
 		inline void SetScalers(float rotateScaler, float moveScaler)
@@ -74,13 +76,10 @@ protected:
 		void HandleWindowMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM lParam);
 		void UpdateInput();
 
-		bool LButtonDown = false;
-		bool MButtonDown = false;
-		bool RButtonDown = false;
+		bool ButtonDown[eButtonCount] = {};
 		int32_t WheelDelta = 0;
-		int32_t ButtonMask = 0;
+		eButton RotateButton = eLeftButton;
 		int32_t LastPosition[2U] = {};
-		int32_t RotateButtonMask = eLeftButton;
 		uint32_t FrameCountToSmoothMouseData = 2U;
 		float RotateScaler = 0.01f;
 		float MoveScaler = 5.0f;
@@ -114,13 +113,11 @@ protected:
 		inline void ActiveKey(eKeyAction action)
 		{
 			ActiveKeys[action] = true;
-			++KeysDown;
 		}
 
 		inline void InactiveKey(eKeyAction action)
 		{
 			ActiveKeys[action] = false;
-			--KeysDown;
 		}
 
 		void HandleWindowMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM lParam);
@@ -129,7 +126,6 @@ protected:
 		Vec3 KeyDirection;
 		bool EnableYAxisMovement = true;
 		bool ActiveKeys[eMaxKeys] = {};
-		uint32_t KeysDown = 0;
 	};
 
 	inline void Reset()
