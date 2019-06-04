@@ -38,6 +38,11 @@ public:
 	{
 		return m_View * m_Proj;
 	}
+
+	inline void SetScalers(float rotateScaler = 0.01f, float moveScaler = 5.0f)
+	{
+		m_MouseAction.SetScalers(rotateScaler, moveScaler);
+	}
 protected:
 
 	struct MouseAction
@@ -58,6 +63,12 @@ protected:
 		inline bool IsRotateButtonActive()
 		{
 			return ButtonMask & RotateButtonMask;
+		}
+
+		inline void SetScalers(float rotateScaler, float moveScaler)
+		{
+			RotateScaler = rotateScaler;
+			MoveScaler = moveScaler;
 		}
 
 		void HandleWindowMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM lParam);

@@ -24,6 +24,11 @@ void Box::RenderScene()
 {
 	REngine::Instance().ResetDefaultRenderSurfaces();
 
+	if (m_bWireframe)
+	{
+		REngine::Instance().SetRasterizerState(RStaticState::Wireframe);
+	}
+
 	REngine::Instance().SetViewport(RViewport(0.0f, 0.0f, (float)m_WindowSize.first, (float)m_WindowSize.second));
 
 	REngine::Instance().SetVertexShader(m_VS);
@@ -41,5 +46,6 @@ void Box::RenderScene()
 
 	ImGui::Combo("SpecialEffect", &m_Effect, "None\0Inversion\0Grayscale\0Sharpen\0Blur\0EdgeDetection");
 	ImGui::Checkbox("VSync", &m_bVSync);
+	ImGui::Checkbox("Wireframe", &m_bWireframe);
 	ImGui::Text("\n%.2f FPS", m_FPS);
 }

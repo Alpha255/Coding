@@ -32,4 +32,5 @@ private:
 
 	int32_t m_Effect = eNone;
 	bool m_bVSync = false;
+	bool m_bWireframe = false;
 };

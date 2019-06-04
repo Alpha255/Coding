@@ -92,9 +92,12 @@ void IRenderApplication::AutoFocus(const Geometry::Model &model)
 		Vec3 center = boundingBox.GetCenter();
 		Vec3 size = boundingBox.GetSize();
 
-		///m_CameraParams = { 0.1f, size.z * 2.0f };
 		m_Camera.SetProjParams(DirectX::XM_PIDIV4, (float)m_WindowSize.first / m_WindowSize.second, m_CameraParams.first, m_CameraParams.second);
-		m_Camera.SetViewParams(Vec3(0.0f, 0.0f, center.z * 2.0f), Vec3(0.0f, 0.0f, 0.0f));
+		m_Camera.SetViewParams(Vec3(center.x, center.y, size.z * 2.0f), Vec3(center.x, center.y, size.z * -3.0f));
+
+		float min = std::min<float>(size.x, size.y);
+		min = std::min<float>(min, size.z);
+		m_Camera.SetScalers(min * 2.0f, min / 3.0f);
 	}
 	else
 	{

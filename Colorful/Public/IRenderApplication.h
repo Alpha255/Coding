@@ -46,7 +46,7 @@ protected:
 
 	void AutoFocus(const Geometry::Model &model);
 private:
-	std::pair<float, float> m_CameraParams = { 0.1f, 500.0f };
+	std::pair<float, float> m_CameraParams = { 0.1f, 1000.0f };
 #if 0
 	std::pair<int32_t, int32_t> m_MousePos = { 0, 0 };
 #endif
