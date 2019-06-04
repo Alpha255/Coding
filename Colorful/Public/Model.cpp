@@ -530,6 +530,50 @@ void Model::Bind(uint32_t slot)
 	REngine::Instance().SetIndexBuffer(m_IndexBuffer, eR32_UInt, 0U);
 }
 
+void Model::DrawBoundingBox(const DXUTCamera &camera)
+{
+	if (!m_HasBoundingBox)
+	{
+		return;
+	}
+
+	static RBuffer s_VB;
+	static RBuffer s_IB;
+	static RBuffer s_CB;
+	static RVertexShader s_VS;
+	static RPixelShader s_PS;
+	static uint32_t s_IndexCount = 0U;
+
+	if (!s_VB.IsValid())
+	{
+		const auto &vertices = m_BoundingBox.GetVertices();
+		const auto &indices = m_BoundingBox.GetIndices();
+		s_IndexCount = indices.size();
+		s_VB.CreateAsVertexBuffer(sizeof(Vertex) * vertices.size(), eGpuReadOnly, vertices.data());
+		s_IB.CreateAsIndexBuffer(sizeof(uint32_t) * indices.size(), eGpuReadOnly, indices.data());
+		s_CB.CreateAsUniformBuffer(sizeof(Matrix), eGpuReadCpuWrite, nullptr);
+
+		s_VS.Create("Mesh.shader", "VSMain");
+		s_PS.Create("Mesh.shader", "PSMain");
+	}
+
+	Matrix wvp = Matrix::Transpose(camera.GetWVPMatrix());
+	s_CB.Update(&wvp, sizeof(Matrix));
+
+	REngine::Instance().SetInputLayout(m_InputLayout);
+	REngine::Instance().SetVertexShader(s_VS);
+	REngine::Instance().SetPixelShader(s_PS);
+
+	REngine::Instance().SetVertexBuffer(s_VB, sizeof(Vertex), 0U, 0U);
+	REngine::Instance().SetIndexBuffer(s_IB, eR32_UInt, 0U);
+
+	REngine::Instance().SetUniformBuffer(s_CB, 0U, eVertexShader);
+
+	REngine::Instance().SetRasterizerState(RStaticState::WireframeNoneCulling);
+
+	REngine::Instance().DrawIndexed(s_IndexCount, 0U, 0, eTriangleList);
+}
+
 void Model::CreateRenderResource()
 {
 	m_VertexCount = (uint32_t)m_Vertices.size();

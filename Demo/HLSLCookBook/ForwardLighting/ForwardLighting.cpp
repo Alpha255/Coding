@@ -171,7 +171,13 @@ void ForwardLighting::RenderScene()
 
 	m_Bunny.Bind(0U);
 	REngine::Instance().DrawIndexed(m_Bunny.GetIndexCount(), 0U, 0, eTriangleList);
+
+	if (m_DrawBoundingBox)
+	{
+		m_Bunny.DrawBoundingBox(m_Camera);
+	}
 #endif
 
 	ImGui::Checkbox("Wireframe", &m_Wireframe);
+	ImGui::Checkbox("BoundingBox", &m_DrawBoundingBox);
 }

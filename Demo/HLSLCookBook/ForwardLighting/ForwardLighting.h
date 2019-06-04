@@ -46,4 +46,5 @@ private:
 
 	int32_t m_LightingType = eHemisphericAmbient;
 	bool m_Wireframe = false;
+	bool m_DrawBoundingBox = false;
 };

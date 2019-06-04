@@ -19,22 +19,22 @@ public:
 	void SetProjParams(float fov, float aspect, float nearPlane, float farPlane);
 	void Update(float elapsedTime);
 
-	inline Matrix GetWorldMatrix()
+	inline Matrix GetWorldMatrix() const 
 	{
 		return m_World;
 	}
 
-	inline Matrix GetViewMatrix()
+	inline Matrix GetViewMatrix() const 
 	{
 		return m_View;
 	}
 
-	inline Matrix GetProjMatrix()
+	inline Matrix GetProjMatrix() const 
 	{
 		return m_Proj;
 	}
 
-	inline Matrix GetWVPMatrix()
+	inline Matrix GetWVPMatrix() const 
 	{
 		return m_View * m_Proj;
 	}

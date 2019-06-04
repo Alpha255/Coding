@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Base/Base.h"
+#include "Base/DXUTCamera.h"
 #include "Definitions.h"
 #include "Geometry.h"
 
@@ -30,6 +31,8 @@ public:
 	void CreateFromFile(const std::string &fileName);
 
 	void Bind(uint32_t slot);
+
+	void DrawBoundingBox(const DXUTCamera &camera);
 
 	inline uint32_t GetVertexCount() const
 	{

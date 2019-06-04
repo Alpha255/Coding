@@ -57,6 +57,16 @@ public:
 	{
 		return m_Size;
 	}
+
+	inline const std::vector<Vertex> &GetVertices() const
+	{
+		return m_Vertices;
+	}
+
+	inline const std::vector<uint32_t> &GetIndices() const
+	{
+		return m_Indices;
+	}
 protected:
 private:
 	Vec3 m_Center;
