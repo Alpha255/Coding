@@ -2,6 +2,7 @@
 #include "D3D11Texture.h"
 #include "D3D11Engine.h"
 #include "D3D11Util.h"
+#include "Tool/AssetTool/AssetTool.h"
 
 void D3D11RenderTargetView::Create(D3D11Resource &resource)
 {
@@ -218,12 +219,12 @@ void D3D11ShaderResourceView::CreateAsTextureArray(eRViewType type, D3D11Resourc
 	Reset(pShaderResourceView);
 }
 
-void D3D11ShaderResourceView::Create(const std::string &ddsName, bool bSRGB)
+void D3D11ShaderResourceView::Create(const std::string &ddsName, bool sRGB)
 {
 	assert(!IsValid() && Base::GetFileExtension(ddsName, true) == ".dds");
 
 	ID3D11ShaderResourceView *pShaderResourceView = nullptr;
-	D3DUtil::CreateShaderResourceViewFromDds(ddsName, &pShaderResourceView, bSRGB);
+	AssetTool::CreateTextureFromFile(D3D11Engine::Instance().GetDevice().Get(), ddsName, nullptr, &pShaderResourceView);
 	
 	Reset(pShaderResourceView);
 }

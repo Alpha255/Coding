@@ -77,7 +77,7 @@ ConstantBufferVS g_CBufferVS;
 
 void ForwardLighting::PrepareScene()
 {
-	m_Bunny.CreateFromFile("bun_zipper_res2.obj");
+	m_Bunny.CreateFromFile("bunny.sdkmesh");
 
 	AutoFocus(m_Bunny);
 
@@ -169,13 +169,7 @@ void ForwardLighting::RenderScene()
 
 	REngine::Instance().SetUniformBuffer(m_TestCBVS, 0U, eVertexShader);
 
-	m_Bunny.Bind(0U);
-	REngine::Instance().DrawIndexed(m_Bunny.GetIndexCount(), 0U, 0, eTriangleList);
-
-	if (m_DrawBoundingBox)
-	{
-		m_Bunny.DrawBoundingBox(m_Camera);
-	}
+	m_Bunny.Draw(m_Camera, m_DrawBoundingBox);
 #endif
 
 	ImGui::Checkbox("Wireframe", &m_Wireframe);
