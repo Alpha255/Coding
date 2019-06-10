@@ -39,6 +39,11 @@ public:
 		return m_View * m_Proj;
 	}
 
+	inline Vec3 GetEyePos() const
+	{
+		return m_Eye;
+	}
+
 	inline void SetScalers(float rotateScaler = 0.01f, float moveScaler = 5.0f)
 	{
 		m_MouseAction.SetScalers(rotateScaler, moveScaler);

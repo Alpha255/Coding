@@ -14,8 +14,9 @@
 #include <DirectXCollision.h>
 #include <Windows.h>
 
-#define Export __declspec(dllexport)
+///#define Export __declspec(dllexport)
 /// #define Export __declspec(dllimport)
+#define Export
 
 #define SafeRelease(ptr)      { if((ptr) != nullptr) (ptr)->Release(); (ptr) = nullptr; }
 #define SafeDelete(ptr)       { if((ptr) != nullptr) delete (ptr); (ptr) = nullptr; }
@@ -65,6 +66,8 @@ std::string GetFileName(const std::string &src);
 std::string GetFileExtension(const std::string &filePath, bool bToLower);
 
 std::string GetRootDirectory(const std::string &path);
+
+std::string GetParentDirectory(const std::string &path);
 
 void BuildFileList(std::vector<std::string> &outFileList, const std::string &targetPath, const std::vector<std::string> &filters, bool bToLower);
 

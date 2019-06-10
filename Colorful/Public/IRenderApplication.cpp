@@ -101,7 +101,12 @@ void IRenderApplication::AutoFocus(const Geometry::Model &model)
 	}
 	else
 	{
-
+#if 1
+		m_CameraParams.second = 500.0f;
+		m_Camera.SetProjParams(DirectX::XM_PIDIV4, (float)m_WindowSize.first / m_WindowSize.second, m_CameraParams.first, m_CameraParams.second);
+		m_Camera.SetViewParams(Vec3(71.0f, 41.0f, 71.0f), Vec3());
+		m_Camera.SetScalers(0.01f, 15.0f);
+#endif
 	}
 }
 

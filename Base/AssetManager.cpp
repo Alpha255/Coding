@@ -15,10 +15,11 @@ void AssetManager::Initialize()
 
 	for (auto it = assetList.cbegin(); it != assetList.cend(); ++it)
 	{
-		AssetFile asset(*it);
-		if (AssetFile::eTypeCount != asset.GetType())
-		{
-			m_Assets.insert(std::make_pair(asset.GetName(), asset));
-		}
+		m_Assets.insert(std::make_pair(Base::GetFileName(*it), *it));
 	}
+}
+
+void AssetManager::Finalize()
+{
+	m_Assets.clear();
 }

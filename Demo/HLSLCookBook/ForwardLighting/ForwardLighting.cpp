@@ -2,7 +2,7 @@
 #include "Colorful/Public/ImGUI.h"
 #include "Colorful/Public/Lighting.h"
 
-#if 0
+#if 1
 struct ConstantBufferVS
 {
 	Matrix WVP;
@@ -81,7 +81,7 @@ void ForwardLighting::PrepareScene()
 
 	AutoFocus(m_Bunny);
 
-#if 1
+#if 0
 	m_TestVS.Create("Mesh.shader", "VSMain");
 	m_TestPS.Create("Mesh.shader", "PSMain");
 
@@ -99,7 +99,6 @@ void ForwardLighting::PrepareScene()
 
 	///m_BunnyMaterial.Set(Material::eDiffuse, Vec4(0.85f, 0.8f, 0.5f, 1.0f));
 	///m_BunnyMaterial.Set(Material::eSpecular, Vec4(0.25f, 0.25f, 0.25f, 1.0f));
-	m_Layout.Create(m_VertexShader.GetBlob(), m_Bunny.GetVertexLayout());
 #endif
 }
 
@@ -113,7 +112,7 @@ void ForwardLighting::RenderScene()
 	REngine::Instance().ResetDefaultRenderSurfaces();
 	REngine::Instance().SetViewport(RViewport(0.0f, 0.0f, (float)m_WindowSize.first, (float)m_WindowSize.second));
 
-#if 0
+#if 1
 	REngine::Instance().SetVertexShader(m_VertexShader);
 	REngine::Instance().SetPixelShader(m_PixelShader[m_LightingType]);
 
@@ -121,18 +120,18 @@ void ForwardLighting::RenderScene()
 	REngine::Instance().SetUniformBuffer(m_CBufferVS, 0U, eVertexShader);
 
 	Matrix world = m_Camera.GetWorldMatrix();
-	g_CBufferVS.WVP = Matrix::Transpose(world * m_Camera.GetViewMatrix() * m_Camera.GetProjMatrix());
+	g_CBufferVS.WVP = Matrix::Transpose(m_Camera.GetWVPMatrix());
 	g_CBufferVS.World = Matrix::Transpose(world);
 	g_CBufferVS.WorldInverse = Matrix::InverseTranspose(world);
 	m_CBufferVS.Update(&g_CBufferVS, sizeof(ConstantBufferVS));
 
 	g_CBufferPS.AmbientLowerClr = GammaToLinear(g_AmbientLowerClr);
 	g_CBufferPS.AmbientRange = GammaToLinear(g_AmbientUpperClr) - GammaToLinear(g_AmbientLowerClr);
-	g_CBufferPS.EyePos = m_Camera.GetEyePos();
+	g_CBufferPS.EyePos = Vec4((float *)&m_Camera.GetEyePos());
 	///g_CBufferPS.RawMat = m_BunnyMaterial.RawValue;
 	m_CBufferPS.Update(&g_CBufferPS, sizeof(ConstantBufferPS));
 
-	///m_StanfordBunnyMesh.Draw(false, true);
+	m_Bunny.Draw(m_Camera, m_DrawBoundingBox);
 	if (eHemisphericAmbient == m_LightingType)
 	{
 		g_AmbientLowerClr = Vec4(0.1f, 0.5f, 0.1f, 1.0f);

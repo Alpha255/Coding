@@ -18,7 +18,7 @@ public:
 		eTypeCount
 	};
 
-	AssetFile(const std::string &filePath);
+	AssetFile(const std::string &fileName);
 	~AssetFile() = default;
 
 	inline size_t GetSize() const

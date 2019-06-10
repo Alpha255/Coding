@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AssetFile.h"
+#include "Base.h"
 
 class AssetManager
 {
@@ -16,7 +16,9 @@ public:
 
 	void Initialize();
 
-	inline AssetFile Get(const std::string &assetName)
+	void Finalize();
+
+	inline std::string Get(const std::string &assetName)
 	{
 		auto it = m_Assets.find(assetName);
 		if (it != m_Assets.end())
@@ -25,10 +27,10 @@ public:
 		}
 
 		assert(0);
-		return AssetFile("");
+		return "";
 	}
 protected:
 private:
 	static std::unique_ptr<AssetManager> s_Instance;
-	std::unordered_map<std::string, AssetFile> m_Assets;
+	std::unordered_map<std::string, std::string> m_Assets;
 };

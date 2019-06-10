@@ -102,6 +102,17 @@ std::string GetRootDirectory(const std::string &path)
 	return "";
 }
 
+std::string GetParentDirectory(const std::string &path)
+{
+	size_t index = path.rfind("\\");
+	if (index != std::string::npos)
+	{
+		return path.substr(0U, index);
+	}
+
+	return "";
+}
+
 void BuildFileList(
 	std::vector<std::string> &outFileList, 
 	const std::string &targetPath, 

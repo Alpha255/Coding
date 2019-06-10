@@ -53,7 +53,8 @@ void VulkanShader::Create(const std::string &fileName, const std::string &entryP
 
 	std::vector<uint32_t> spv;
 
-	Verify(AssetTool::CompileShader(fileName, entryPoint, m_Type, spv) == true);
+	AssetFile shaderFile(fileName);
+	Verify(AssetTool::CompileShader(shaderFile, entryPoint, m_Type, spv) == true);
 
 	VkShaderModuleCreateInfo createInfo =
 	{

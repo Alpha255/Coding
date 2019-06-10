@@ -1,11 +1,23 @@
 #include "AssetFile.h"
+#include "AssetManager.h"
 
-AssetFile::AssetFile(const std::string &filePath)
-	: m_Path(filePath)
+AssetFile::AssetFile(const std::string &fileName)
+	: m_Name(fileName)
 {
-	m_Name = Base::GetFileName(filePath);
-	m_Root = Base::GetRootDirectory(filePath);
+	std::string name(fileName);
+	Base::ToLower(name);
+	m_Path = AssetManager::Instance().Get(name);
+
+	assert(m_Path.length() > 0U);
+	m_Root = Base::GetParentDirectory(m_Path);
 	GetAssetType();
+
+	std::ifstream file(m_Path, eTexture == m_Type ? std::ios::in | std::ios::binary : std::ios::in);
+	assert(file.good());
+
+	file.seekg(0U, std::ios::end);
+	m_Size = (size_t)file.tellg();
+	file.close();
 }
 
 void AssetFile::GetAssetType()
@@ -44,6 +56,10 @@ void AssetFile::GetAssetType()
 	{
 		m_Type = eLevelData;
 	}
+	else
+	{
+		assert(0);
+	}
 }
 
 std::shared_ptr<uint8_t> AssetFile::Load()
@@ -56,7 +72,7 @@ std::shared_ptr<uint8_t> AssetFile::Load()
 	}
 
 	int32_t readMode = std::ios::in;
-	if (eTexture == m_Type || eShaderBinary == m_Type)
+	if (eTexture == m_Type || eShaderBinary == m_Type || eSDKMesh == m_Type)
 	{
 		readMode |= std::ios::binary;
 	}

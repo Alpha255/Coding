@@ -74,7 +74,7 @@ bool LoadingCallback(const int32_t progress, const char *pMessage)
 }
 
 bool LoadOBJ(
-	const std::string &filePath,
+	AssetFile &asset,
 	__out std::vector<Geometry::Vertex> &vertices,
 	__out std::vector<uint32_t> &indices,
 	__out Geometry::Box &boundingBox)
@@ -83,10 +83,10 @@ bool LoadOBJ(
 	int32_t loadMask = 0;
 	std::vector<OBJImpoter::ObjIndexedFace> indexedFace;
 
-	auto err = OBJImpoter::Open(mesh, filePath.c_str(), loadMask, indexedFace, LoadingCallback);
+	auto err = OBJImpoter::Open(mesh, asset.GetPath().c_str(), loadMask, indexedFace, LoadingCallback);
 	if (err != OBJImpoter::E_NOERROR)
 	{
-		Base::Log("Failed to load obj- %s, error= %s.", filePath.c_str(), OBJImpoter::ErrorMsg(err));
+		Base::Log("Failed to load obj- %s, error= %s.", asset.GetPath().c_str(), OBJImpoter::ErrorMsg(err));
 		assert(0);
 	}
 

@@ -120,7 +120,7 @@ const static TBuiltInResource s_DefaultTBuiltInResource =
 };
 
 bool CompileShader(
-	const std::string &fileName,
+	AssetFile &asset,
 	const std::string &entryPoint,
 	const uint32_t shaderStage,
 	__out std::vector<uint32_t> &binary)
@@ -139,8 +139,7 @@ bool CompileShader(
 		break;
 	}
 
-	AssetFile shaderFile(fileName);
-	auto shaderCode = shaderFile.Load();
+	auto shaderCode = asset.Load();
 
 	/// WTF ???
 	glslang::InitializeProcess();
@@ -159,7 +158,7 @@ bool CompileShader(
 	const int32_t defaultVersion = 100U; /// use 100 for ES environment, 110 for desktop
 	if (!shader.parse(&s_DefaultTBuiltInResource, defaultVersion, false, message))
 	{
-		Base::Log("Compile failed- %s.", fileName.c_str());
+		Base::Log("Compile failed- %s.", asset.GetName().c_str());
 		Base::Log(shader.getInfoLog());
 		Base::Log(shader.getInfoDebugLog());
 		return false;
@@ -170,7 +169,7 @@ bool CompileShader(
 
 	if (!program.link(message))
 	{
-		Base::Log("Link failed- %s.", fileName.c_str());
+		Base::Log("Link failed- %s.", asset.GetName().c_str());
 		Base::Log(shader.getInfoLog());
 		Base::Log(shader.getInfoDebugLog());
 		return false;

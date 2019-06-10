@@ -17,7 +17,7 @@ public:
 
 		uint32_t IndexCount = 0U;
 		uint32_t StartIndex = 0U;
-		uint32_t VertexOffset = 0U;
+		int32_t VertexOffset = 0;
 	
 		eRPrimitiveTopology PrimitiveType = eTriangleList;
 

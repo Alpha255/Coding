@@ -396,16 +396,15 @@ void LoadIndexData(std::vector<uint32_t> &indices, const uint8_t *pData)
 }
 
 bool LoadSDKMesh(
-	const std::string &fileName,
+	AssetFile &asset,
 	__out Geometry::Model &model)
 {
 	assert(!model.IsValid());
-	AssetFile file(fileName);
 
-	auto pData = file.Load().get();
+	auto pData = asset.Load().get();
 	auto pHeader = (const DXUT::SDKMESH_HEADER *)(pData);
 
-	assert(IsValid(file.GetSize(), pHeader));
+	assert(IsValid(asset.GetSize(), pHeader));
 	assert(pHeader->NumVertexBuffers == pHeader->NumIndexBuffers); ///
 
 	/// Subsets
@@ -416,10 +415,10 @@ bool LoadSDKMesh(
 		auto &mesh = pSDKMesh[i];
 
 		assert(mesh.NumSubsets && mesh.NumVertexBuffers && mesh.IndexBuffer < pHeader->NumIndexBuffers && mesh.VertexBuffers[0] < pHeader->NumVertexBuffers);
-		assert(file.GetSize() >= mesh.SubsetOffset && (file.GetSize() >= (mesh.SubsetOffset + sizeof(uint32_t) * mesh.NumSubsets)));
+		assert(asset.GetSize() >= mesh.SubsetOffset && (asset.GetSize() >= (mesh.SubsetOffset + sizeof(uint32_t) * mesh.NumSubsets)));
 		if (mesh.NumFrameInfluences > 0U)
 		{
-			assert(file.GetSize() >= mesh.FrameInfluenceOffset && (file.GetSize() >= (mesh.FrameInfluenceOffset + sizeof(uint32_t) * mesh.NumFrameInfluences)));
+			assert(asset.GetSize() >= mesh.FrameInfluenceOffset && (asset.GetSize() >= (mesh.FrameInfluenceOffset + sizeof(uint32_t) * mesh.NumFrameInfluences)));
 		}
 
 		auto subsets = reinterpret_cast<const uint32_t*>(pData + mesh.SubsetOffset);
@@ -485,7 +484,7 @@ bool LoadSDKMesh(
 
 			subModel.IndexCount = (uint32_t)subset.IndexCount;
 			subModel.StartIndex = (uint32_t)subset.IndexStart;
-			subModel.VertexOffset = (uint32_t)subset.VertexStart;
+			subModel.VertexOffset = (int32_t)subset.VertexStart;
 			subModel.IndexBuffer = mesh.IndexBuffer;
 			subModel.VertexBuffer = mesh.VertexBuffers[0];
 			model.AppendSubModel(subModel);
@@ -502,10 +501,10 @@ bool LoadSDKMesh(
 		auto &ibHeader = pIndexBufferHeaders[i];
 
 		assert(vbHeader.SizeBytes <= (D3D11_REQ_RESOURCE_SIZE_IN_MEGABYTES_EXPRESSION_A_TERM * 1024U * 1024U));
-		assert(file.GetSize() >= vbHeader.DataOffset && file.GetSize() >= (vbHeader.DataOffset + vbHeader.SizeBytes));
+		assert(asset.GetSize() >= vbHeader.DataOffset && asset.GetSize() >= (vbHeader.DataOffset + vbHeader.SizeBytes));
 
 		assert(ibHeader.SizeBytes <= (D3D11_REQ_RESOURCE_SIZE_IN_MEGABYTES_EXPRESSION_A_TERM * 1024U * 1024U));
-		assert(file.GetSize() >= ibHeader.DataOffset && file.GetSize() >= (ibHeader.DataOffset + ibHeader.SizeBytes));
+		assert(asset.GetSize() >= ibHeader.DataOffset && asset.GetSize() >= (ibHeader.DataOffset + ibHeader.SizeBytes));
 
 		std::vector<InputElementDesc> inputDesc;
 		GetInputElementDesc(vbHeader.Decl, inputDesc);

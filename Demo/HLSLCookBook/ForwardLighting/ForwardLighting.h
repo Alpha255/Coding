@@ -34,8 +34,6 @@ private:
 	RPixelShader m_PixelShader[eCount];
 	RBuffer m_CBufferVS;
 	RBuffer m_CBufferPS;
-	RInputLayout m_Layout;
-
 #if 1
 	RVertexShader m_TestVS;
 	RPixelShader m_TestPS;

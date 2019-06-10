@@ -238,7 +238,7 @@ void DXUTCamera::Update(float elapsedTime)
 		m_Pitch = std::max<float>(-DirectX::XM_PIDIV2, m_Pitch);
 		m_Pitch = std::min<float>(DirectX::XM_PIDIV2, m_Pitch);
 
-		Base::Log("Camera Pitch = %.2f, Yaw = %.2f", m_Pitch, m_Yaw);
+		///Base::Log("Camera Pitch = %.2f, Yaw = %.2f", m_Pitch, m_Yaw);
 	}
 
 	Matrix rotate = Matrix::RotateRollPitchYaw(m_Pitch, m_Yaw, 0.0f);

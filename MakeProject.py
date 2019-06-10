@@ -28,7 +28,7 @@ ImGUIProject = VcProject('ImGUI', 'ThirdParty', ProjectType.eLibrary, ['ThirdPar
 DirectXTKProject = VcProject('DirectXTK', 'ThirdParty', ProjectType.eLibrary, ['ThirdParty\\DirectXTK'], ['ThirdParty\\DirectXTK\\Bin', 'ThirdParty\\DirectXTK\\MakeSpriteFont', 'ThirdParty\\DirectXTK\\XWBTool'], [], [FileType.eHeader, FileType.eCpp], ['XboxDDSTextureLoader.cpp', 'XboxDDSTextureLoader.h', 'pch.cpp'])
 BaseProject = VcProject('Base', 'Library', ProjectType.eLibrary, ['Base'], [], [], [FileType.eHeader, FileType.eCpp])
 ColorfulProject = VcProject('Colorful', 'Library', ProjectType.eLibrary, ['Colorful'], [], [], [FileType.eHeader, FileType.eCpp])
-AssetToolProject = VcProject('AssetTool', 'Tool', ProjectType.eDll, ['Tool\\AssetTool'], [], [BaseProject, DirectXTKProject, ColorfulProject], [FileType.eHeader, FileType.eCpp])
+AssetToolProject = VcProject('AssetTool', 'Tool', ProjectType.eLibrary, ['Tool\\AssetTool'], [], [], [FileType.eHeader, FileType.eCpp])
 DemoProjectDependency = [BaseProject, ImGUIProject, ColorfulProject, AssetToolProject]
 
 OtherProjects = [DirectXTKProject]

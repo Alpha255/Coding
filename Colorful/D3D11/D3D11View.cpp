@@ -224,7 +224,8 @@ void D3D11ShaderResourceView::Create(const std::string &ddsName, bool sRGB)
 	assert(!IsValid() && Base::GetFileExtension(ddsName, true) == ".dds");
 
 	ID3D11ShaderResourceView *pShaderResourceView = nullptr;
-	AssetTool::CreateTextureFromFile(D3D11Engine::Instance().GetDevice().Get(), ddsName, nullptr, &pShaderResourceView);
+	AssetFile textureFile(ddsName);
+	AssetTool::CreateTextureFromFile(D3D11Engine::Instance().GetDevice().Get(), textureFile, nullptr, &pShaderResourceView);
 	
 	Reset(pShaderResourceView);
 }

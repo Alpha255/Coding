@@ -10,9 +10,9 @@ void Model::CreateAsCube(float width, float height, float depth)
 
 	std::vector<Vertex> vertices(24);
 
-	float w = width  * 0.5f;
+	float w = width * 0.5f;
 	float h = height * 0.5f;
-	float d = depth  * 0.5f;
+	float d = depth * 0.5f;
 
 	vertices[0] = Vertex(-w, -h, -d, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
 	vertices[1] = Vertex(-w, h, -d, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
@@ -44,14 +44,14 @@ void Model::CreateAsCube(float width, float height, float depth)
 	vertices[22] = Vertex(w, h, d, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
 	vertices[23] = Vertex(w, -h, d, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
 
-	std::vector<uint32_t> indices = 
+	std::vector<uint32_t> indices =
 	{
 		/// front
 		0, 1, 2, 0, 2, 3,
 		/// back
 		4, 5, 6, 4, 6, 7,
 		/// top
-		8, 9, 10, 8, 10, 11, 
+		8, 9, 10, 8, 10, 11,
 		/// bottom
 		12, 13, 14, 12, 14, 15,
 		/// left
@@ -295,21 +295,21 @@ void Model::CreateFromFile(const std::string &fileName)
 	{
 		std::vector<Vertex> vertices;
 		std::vector<uint32_t> indices;
-		Verify(AssetTool::LoadOBJ(modelFile.GetPath(), vertices, indices, m_BoundingBox));
+		Verify(AssetTool::LoadOBJ(modelFile, vertices, indices, m_BoundingBox));
 
 		AddBuffer(vertices, indices);
 		AppendSubModel(SubModel{ 0U, 0U, (uint32_t)indices.size() });
+
+		m_HasBoundingBox = true;
 	}
-		break;
+	break;
 	case AssetFile::eSDKMesh:
-		Verify(AssetTool::LoadSDKMesh(fileName, *this));
+		Verify(AssetTool::LoadSDKMesh(modelFile, *this));
 		break;
 	default:
 		assert(0);
 		break;
 	}
-
-	m_HasBoundingBox = true;
 
 	m_Valid = true;
 }
@@ -345,72 +345,6 @@ Box::Box(const Vec3 &min, const Vec3 &max)
 
 void Model::Draw(const DXUTCamera &camera, bool bDrawBoundingBox)
 {
-	//	REngine::Instance().SetInputLayout(m_InputLayout);
-//	REngine::Instance().SetVertexBuffer(m_VertexBuffer, sizeof(Vertex), 0U, slot);
-//	REngine::Instance().SetIndexBuffer(m_IndexBuffer, eR32_UInt, 0U);
-
-	if (bDrawBoundingBox && m_HasBoundingBox)
-	{
-		DrawBoundingBox(camera);
-	}
-
-	for (auto it = m_SubModels.cbegin(); it != m_SubModels.cend(); ++it)
-	{
-
-	}
-}
-
-void Model::DrawBoundingBox(const DXUTCamera &camera)
-{
-	static RBuffer s_VB;
-	static RBuffer s_IB;
-	static RBuffer s_CB;
-	static RVertexShader s_VS;
-	static RPixelShader s_PS;
-	static RInputLayout s_InputLayout;
-	static uint32_t s_IndexCount = 0U;
-
-	if (!s_VB.IsValid())
-	{
-		const auto &vertices = m_BoundingBox.GetVertices();
-		const auto &indices = m_BoundingBox.GetIndices();
-		s_IndexCount = indices.size();
-		s_VB.CreateAsVertexBuffer(sizeof(Vertex) * vertices.size(), eGpuReadOnly, vertices.data());
-		s_IB.CreateAsIndexBuffer(sizeof(uint32_t) * indices.size(), eGpuReadOnly, indices.data());
-		s_CB.CreateAsUniformBuffer(sizeof(Matrix), eGpuReadCpuWrite, nullptr);
-
-		s_VS.Create("Mesh.shader", "VSMain");
-		s_PS.Create("Mesh.shader", "PSMain");
-
-		std::vector<VertexLayout> vertexLayout =
-		{
-			{ "POSITION", sizeof(Vertex::Position), offsetof(Vertex, Position), eRGB32_Float  },
-			{ "NORMAL",   sizeof(Vertex::Normal),   offsetof(Vertex, Normal),   eRGB32_Float  },
-			{ "TANGENT",  sizeof(Vertex::Tangent),  offsetof(Vertex, Tangent),  eRGB32_Float  },
-			{ "TEXCOORD", sizeof(Vertex::UV),       offsetof(Vertex, UV),       eRG32_Float   },
-		};
-		s_InputLayout.Create(s_VS.GetBlob(), vertexLayout);
-	}
-
-	Matrix wvp = Matrix::Transpose(camera.GetWVPMatrix());
-	s_CB.Update(&wvp, sizeof(Matrix));
-
-	REngine::Instance().SetInputLayout(s_InputLayout);
-	REngine::Instance().SetVertexShader(s_VS);
-	REngine::Instance().SetPixelShader(s_PS);
-
-	REngine::Instance().SetVertexBuffer(s_VB, sizeof(Vertex), 0U, 0U);
-	REngine::Instance().SetIndexBuffer(s_IB, eR32_UInt, 0U);
-
-	REngine::Instance().SetUniformBuffer(s_CB, 0U, eVertexShader);
-
-	REngine::Instance().SetRasterizerState(RStaticState::WireframeNoneCulling);
-
-	REngine::Instance().DrawIndexed(s_IndexCount, 0U, 0, eTriangleList);
-}
-
-void Model::AddBuffer(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices)
-{
 	if (!m_InputLayout.IsValid())
 	{
 		std::vector<VertexLayout> vertexLayout =
@@ -426,6 +360,62 @@ void Model::AddBuffer(const std::vector<Vertex> &vertices, const std::vector<uin
 		m_InputLayout.Create(vertexShader.GetBlob(), vertexLayout);
 	}
 
+	REngine::Instance().SetInputLayout(m_InputLayout);
+
+	for (auto it = m_SubModels.cbegin(); it != m_SubModels.cend(); ++it)
+	{
+		const SubModel &subModel = *it;
+		REngine::Instance().SetVertexBuffer(m_VertexBuffers[subModel.VertexBuffer], sizeof(Vertex), 0U, 0U);
+		REngine::Instance().SetIndexBuffer(m_IndexBuffers[subModel.IndexBuffer], eR32_UInt, 0U);
+		REngine::Instance().DrawIndexed(subModel.IndexCount, subModel.StartIndex, subModel.VertexOffset, subModel.PrimitiveType);
+	}
+
+	if (bDrawBoundingBox && m_HasBoundingBox)
+	{
+		DrawBoundingBox(camera);
+	}
+}
+
+void Model::DrawBoundingBox(const DXUTCamera &camera)
+{
+	static RBuffer s_VB;
+	static RBuffer s_IB;
+	static RBuffer s_CB;
+	static RVertexShader s_VS;
+	static RPixelShader s_PS;
+	static uint32_t s_IndexCount = 0U;
+
+	if (!s_VB.IsValid())
+	{
+		const auto &vertices = m_BoundingBox.GetVertices();
+		const auto &indices = m_BoundingBox.GetIndices();
+		s_IndexCount = indices.size();
+		s_VB.CreateAsVertexBuffer(sizeof(Vertex) * vertices.size(), eGpuReadOnly, vertices.data());
+		s_IB.CreateAsIndexBuffer(sizeof(uint32_t) * indices.size(), eGpuReadOnly, indices.data());
+		s_CB.CreateAsUniformBuffer(sizeof(Matrix), eGpuReadCpuWrite, nullptr);
+
+		s_VS.Create("Mesh.shader", "VSMain");
+		s_PS.Create("Mesh.shader", "PSMain");
+	}
+
+	Matrix wvp = Matrix::Transpose(camera.GetWVPMatrix());
+	s_CB.Update(&wvp, sizeof(Matrix));
+
+	REngine::Instance().SetVertexShader(s_VS);
+	REngine::Instance().SetPixelShader(s_PS);
+
+	REngine::Instance().SetVertexBuffer(s_VB, sizeof(Vertex), 0U, 0U);
+	REngine::Instance().SetIndexBuffer(s_IB, eR32_UInt, 0U);
+
+	REngine::Instance().SetUniformBuffer(s_CB, 0U, eVertexShader);
+
+	REngine::Instance().SetRasterizerState(RStaticState::WireframeNoneCulling);
+
+	REngine::Instance().DrawIndexed(s_IndexCount, 0U, 0, eTriangleList);
+}
+
+void Model::AddBuffer(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices)
+{
 	RBuffer vertexBuffer;
 	vertexBuffer.CreateAsVertexBuffer(sizeof(Vertex) * vertices.size(), eGpuReadOnly, vertices.data());
 	m_VertexBuffers.emplace_back(vertexBuffer);
