@@ -126,23 +126,36 @@ void BuildFileList(
 			else
 			{
 				std::string fileName(findData.cFileName);
-				std::string fileExt = GetFileExtension(fileName, true);
 
-				for (auto it = filters.begin(); it != filters.end(); ++it)
+				if (filters.size() == 0U)
 				{
-					std::string filter = *it;
-					ToLower(filter);
-
-					if (fileExt == filter)
+					std::string filePath = targetPath + "\\" + fileName;
+					if (bToLower)
 					{
-						std::string filePath = targetPath + "\\" + fileName;
-						if (bToLower)
-						{
-							ToLower(filePath);
-						}
+						ToLower(filePath);
+					}
 
-						outFileList.emplace_back(filePath);
-						break;
+					outFileList.emplace_back(filePath);
+				}
+				else
+				{
+					std::string fileExt = GetFileExtension(fileName, true);
+					for (auto it = filters.cbegin(); it != filters.cend(); ++it)
+					{
+						std::string filter = *it;
+						ToLower(filter);
+
+						if (fileExt == filter)
+						{
+							std::string filePath = targetPath + "\\" + fileName;
+							if (bToLower)
+							{
+								ToLower(filePath);
+							}
+
+							outFileList.emplace_back(filePath);
+							break;
+						}
 					}
 				}
 			}

@@ -1,4 +1,5 @@
 #include "IApplication.h"
+#include "AssetManager.h"
 #include <ShellScalingApi.h>
 
 IApplication * IApplication::s_This = nullptr;
@@ -140,6 +141,8 @@ void IApplication::Initialize(const std::string &title, uint32_t width, uint32_t
 	m_bFullScreen = bFullScreen;
 
 	MakeWindow(title, width, height, extraWindowStyle);
+
+	AssetManager::Instance().Initialize();
 }
 
 void IApplication::UpdateFPS()

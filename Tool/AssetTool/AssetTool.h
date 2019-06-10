@@ -1,11 +1,11 @@
 #include "Colorful/Public/Geometry.h"
 
 NamespaceBegin(gli)
-class texture;
+	class texture;
 NamespaceEnd(gli)
 
 NamespaceBegin(Geometry)
-class Model;
+	class Model;
 NamespaceEnd(Geometry)
 
 struct ID3D11Device;
