@@ -2,7 +2,6 @@
 #include "Colorful/Public/ImGUI.h"
 #include "Colorful/Public/Lighting.h"
 
-#if 1
 struct ConstantBufferVS
 {
 	Matrix WVP;
@@ -71,9 +70,6 @@ Vec4 g_AmbientLowerClr = Vec4(0.1f, 0.5f, 0.1f, 1.0f);
 Vec4 g_AmbientUpperClr = Vec4(0.1f, 0.2f, 0.5f, 1.0f);
 ConstantBufferPS g_CBufferPS;
 ConstantBufferVS g_CBufferVS;
-#else
-
-#endif
 
 void ForwardLighting::PrepareScene()
 {
@@ -81,45 +77,32 @@ void ForwardLighting::PrepareScene()
 
 	AutoFocus(m_Bunny);
 
-#if 0
-	m_TestVS.Create("Mesh.shader", "VSMain");
-	m_TestPS.Create("Mesh.shader", "PSMain");
-
-	m_TestCBVS.CreateAsUniformBuffer(sizeof(Matrix), eGpuReadCpuWrite);
-#else
-	m_VertexShader.Create("ForwardLighting.hlsl", "VSMain");
-	m_PixelShader[eHemisphericAmbient].Create("ForwardLighting.hlsl", "PSMain_HemisphericAmbient");
-	m_PixelShader[eDirectional].Create("ForwardLighting.hlsl", "PSMain_Directional");
-	m_PixelShader[ePoint].Create("ForwardLighting.hlsl", "PSMain_Point");
-	m_PixelShader[eSpot].Create("ForwardLighting.hlsl", "PSMain_Spot");
-	m_PixelShader[eCapsule].Create("ForwardLighting.hlsl", "PSMain_Capsule");
+	m_VertexShader.Create("ForwardLighting.shader", "VSMain");
+	m_PixelShader[eHemisphericAmbient].Create("ForwardLighting.shader", "PSMain_HemisphericAmbient");
+	m_PixelShader[eDirectional].Create("ForwardLighting.shader", "PSMain_Directional");
+	m_PixelShader[ePoint].Create("ForwardLighting.shader", "PSMain_Point");
+	m_PixelShader[eSpot].Create("ForwardLighting.shader", "PSMain_Spot");
+	m_PixelShader[eCapsule].Create("ForwardLighting.shader", "PSMain_Capsule");
 
 	m_CBufferVS.CreateAsUniformBuffer(sizeof(ConstantBufferVS), eGpuReadCpuWrite);
 	m_CBufferPS.CreateAsUniformBuffer(sizeof(ConstantBufferPS), eGpuReadCpuWrite);
 
-	///m_BunnyMaterial.Set(Material::eDiffuse, Vec4(0.85f, 0.8f, 0.5f, 1.0f));
-	///m_BunnyMaterial.Set(Material::eSpecular, Vec4(0.25f, 0.25f, 0.25f, 1.0f));
-#endif
+	m_BunnyMaterial.Set(Material::eDiffuse, Vec4(0.85f, 0.8f, 0.5f, 1.0f));
+	m_BunnyMaterial.Set(Material::eSpecular, Vec4(0.25f, 0.25f, 0.25f, 1.0f));
 }
 
 void ForwardLighting::RenderScene()
 {
-	if (m_Wireframe)
-	{
-		REngine::Instance().SetRasterizerState(RStaticState::Wireframe);
-	}
-
 	REngine::Instance().ResetDefaultRenderSurfaces();
 	REngine::Instance().SetViewport(RViewport(0.0f, 0.0f, (float)m_WindowSize.first, (float)m_WindowSize.second));
 
-#if 1
 	REngine::Instance().SetVertexShader(m_VertexShader);
 	REngine::Instance().SetPixelShader(m_PixelShader[m_LightingType]);
 
-	REngine::Instance().SetUniformBuffer(m_CBufferPS, 0U, ePixelShader);
 	REngine::Instance().SetUniformBuffer(m_CBufferVS, 0U, eVertexShader);
+	REngine::Instance().SetUniformBuffer(m_CBufferPS, 0U, ePixelShader);
 
-	Matrix world = m_Camera.GetWorldMatrix();
+	Matrix world = Matrix::IdentityMatrix();
 	g_CBufferVS.WVP = Matrix::Transpose(m_Camera.GetWVPMatrix());
 	g_CBufferVS.World = Matrix::Transpose(world);
 	g_CBufferVS.WorldInverse = Matrix::InverseTranspose(world);
@@ -127,11 +110,22 @@ void ForwardLighting::RenderScene()
 
 	g_CBufferPS.AmbientLowerClr = GammaToLinear(g_AmbientLowerClr);
 	g_CBufferPS.AmbientRange = GammaToLinear(g_AmbientUpperClr) - GammaToLinear(g_AmbientLowerClr);
-	g_CBufferPS.EyePos = Vec4((float *)&m_Camera.GetEyePos());
-	///g_CBufferPS.RawMat = m_BunnyMaterial.RawValue;
+	Vec3 eyePos = m_Camera.GetEyePos();
+	g_CBufferPS.EyePos = Vec4(eyePos.x, eyePos.y, eyePos.z, 0.0f);
+	g_CBufferPS.RawMat = m_BunnyMaterial.RawValue;
 	m_CBufferPS.Update(&g_CBufferPS, sizeof(ConstantBufferPS));
 
+	if (m_Wireframe)
+	{
+		REngine::Instance().SetRasterizerState(RStaticState::Wireframe);
+	}
+	else
+	{
+		REngine::Instance().SetRasterizerState(RStaticState::Solid);
+	}
+
 	m_Bunny.Draw(m_Camera, m_DrawBoundingBox);
+
 	if (eHemisphericAmbient == m_LightingType)
 	{
 		g_AmbientLowerClr = Vec4(0.1f, 0.5f, 0.1f, 1.0f);
@@ -158,19 +152,8 @@ void ForwardLighting::RenderScene()
 			g_CBufferPS.CLights[i].Range = s_CLightRange;
 		}
 	}
+
 	ImGui::Combo("LightingType", &m_LightingType, "HemisphericAmbient\0DirectionalLight\0PointLight\0Spot\0Capsule");
-#else
-	Matrix wvp = Matrix::Transpose(m_Camera.GetWVPMatrix());
-	m_TestCBVS.Update(&wvp, sizeof(Matrix));
-
-	REngine::Instance().SetVertexShader(m_TestVS);
-	REngine::Instance().SetPixelShader(m_TestPS);
-
-	REngine::Instance().SetUniformBuffer(m_TestCBVS, 0U, eVertexShader);
-
-	m_Bunny.Draw(m_Camera, m_DrawBoundingBox);
-#endif
-
 	ImGui::Checkbox("Wireframe", &m_Wireframe);
-	ImGui::Checkbox("BoundingBox", &m_DrawBoundingBox);
+	///ImGui::Checkbox("BoundingBox", &m_DrawBoundingBox);
 }

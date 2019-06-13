@@ -34,13 +34,8 @@ private:
 	RPixelShader m_PixelShader[eCount];
 	RBuffer m_CBufferVS;
 	RBuffer m_CBufferPS;
-#if 1
-	RVertexShader m_TestVS;
-	RPixelShader m_TestPS;
-	RBuffer m_TestCBVS;
-#endif
 
-	///Material m_BunnyMaterial;
+	Material m_BunnyMaterial;
 
 	int32_t m_LightingType = eHemisphericAmbient;
 	bool m_Wireframe = false;

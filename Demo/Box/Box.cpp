@@ -41,8 +41,7 @@ void Box::RenderScene()
 	REngine::Instance().SetShaderResourceView(m_DiffuseTex, 0U, ePixelShader);
 	REngine::Instance().SetSamplerState(RStaticState::LinearSampler, 0U, ePixelShader);
 
-	m_Box.Bind(0U);
-	REngine::Instance().DrawIndexed(m_Box.GetIndexCount(), 0U, 0, eTriangleList);
+	m_Box.Draw(m_Camera);
 
 	ImGui::Combo("SpecialEffect", &m_Effect, "None\0Inversion\0Grayscale\0Sharpen\0Blur\0EdgeDetection");
 	ImGui::Checkbox("VSync", &m_bVSync);

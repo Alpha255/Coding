@@ -64,7 +64,7 @@ float4 PSMain_Directional(VSOutput psInput) : SV_Target
 
 float4 PSMain_Point(VSOutput psInput) : SV_Target
 {
-	float3 ambientClr = HemisphericAmbientLighting(normalize(psInput.NormalW), float3(1.0f, 1.0f, 1.0f), AmbientLowerClr.rgb, AmbientRange.xyz);
+    float3 ambientClr = HemisphericAmbientLighting(normalize(psInput.NormalW), float3(1.0f, 1.0f, 1.0f), AmbientLowerClr.rgb, AmbientRange.xyz);
 
     float3 pointClr = float3(0.0f, 0.0f, 0.0f);
 

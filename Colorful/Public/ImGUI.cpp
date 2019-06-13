@@ -243,7 +243,6 @@ bool ImGUI::Update()
 	{
 		const ImDrawList *pDrawList = pDrawData->CmdLists[i];
 		for (int j = 0; j < pDrawList->CmdBuffer.Size; ++j)
-		///for (int j = 0; j < 1U; ++j)
 		{
 			const ImDrawCmd *pDrawCmd = &pDrawList->CmdBuffer[j];
 			if (pDrawCmd->UserCallback)
@@ -270,8 +269,6 @@ bool ImGUI::Update()
 		vOffset += pDrawList->VtxBuffer.Size;
 	}
 
-	return true;
-#if 0
 	/// Restore D3D state
 	::HWND hWnd = (::HWND)ImGui::GetIO().ImeWindowHandle;
 	::RECT rect = {};
@@ -283,7 +280,8 @@ bool ImGUI::Update()
 	REngine::Instance().SetRasterizerState(RStaticState::Solid);
 	REngine::Instance().SetBlendState(RStaticState::NoneBlendState);
 	REngine::Instance().SetDepthStencilState(RStaticState::NoneDepthStencilState, 0U);
-#endif
+
+	return true;
 }
 
 void ImGUI::UpdateDrawData(ImDrawData *pDrawData)
