@@ -45,7 +45,10 @@ void IRenderApplication::HandleInput(uint32_t msg, ::WPARAM wParam, ::LPARAM lPa
 		break;
 	}
 #else
-	m_Camera.HandleWindowMessage(msg, wParam, lParam);
+	if (ImGUI::Instance().IsInitialized() && !ImGUI::Instance().IsFocus())
+	{
+		m_Camera.HandleWindowMessage(msg, wParam, lParam);
+	}
 #endif
 }
 
@@ -86,20 +89,26 @@ void IRenderApplication::HandleMouseInput(::WPARAM wParam, ::LPARAM lParam, eMou
 
 void IRenderApplication::AutoFocus(const Geometry::Model &model)
 {
+#if 1
 	if (model.HasBoundingBox())
 	{
 		Geometry::Box boundingBox = model.GetBoundingBox();
 		Vec3 center = boundingBox.GetCenter();
 		Vec3 size = boundingBox.GetSize();
+		if (size.z > 500.0f)
+		{
+			m_CameraParams.second = size.z * 2.0f;
+		}
 
 		m_Camera.SetProjParams(DirectX::XM_PIDIV4, (float)m_WindowSize.first / m_WindowSize.second, m_CameraParams.first, m_CameraParams.second);
 		m_Camera.SetViewParams(Vec3(center.x, center.y, size.z * 2.0f), Vec3(center.x, center.y, size.z * -3.0f));
 
 		float min = std::min<float>(size.x, size.y);
 		min = std::min<float>(min, size.z);
-		m_Camera.SetScalers(min * 2.0f, min / 3.0f);
+		m_Camera.SetScalers(0.01f, min / 3.0f);
 	}
 	else
+#endif
 	{
 #if 1
 		m_CameraParams.second = 500.0f;
@@ -121,9 +130,9 @@ void IRenderApplication::ResizeWindow(uint32_t width, uint32_t height)
 
 void IRenderApplication::RenterToWindow()
 {
-	m_Camera.Update(m_Timer.GetDeltaTime());
+	m_Camera.Update(m_Timer.GetElapsedTime());
 
-	UpdateScene(m_Timer.GetDeltaTime(), m_Timer.GetTotalTime());
+	UpdateScene(m_Timer.GetElapsedTime(), m_Timer.GetTotalTime());
 
 	ImGUI::Instance().RenderBegin();
 

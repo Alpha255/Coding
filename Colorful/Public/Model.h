@@ -37,6 +37,15 @@ public:
 		return m_BoundingBox;
 	}
 
+	inline void SetBoundingBox(const Vec3 &min, const Vec3 &max)
+	{
+		if (!m_HasBoundingBox)
+		{
+			m_BoundingBox = Box(min, max);
+			m_HasBoundingBox = true;
+		}
+	}
+
 	inline bool IsValid() const
 	{
 		return m_Valid;

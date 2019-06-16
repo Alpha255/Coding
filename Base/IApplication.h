@@ -44,5 +44,7 @@ protected:
 private:
 	bool m_bActive = false;
 	bool m_bNeedResize = false;
+	uint32_t m_FrameCount = 0U;
+	float m_LastUpdateTime = 0.0f;
 	static IApplication *s_This;
 };

@@ -36,11 +36,14 @@ public:
 		const ImGuiIO &io = ImGui::GetIO();
 		return io.WantCaptureMouse || io.WantCaptureKeyboard;
 	}
+
+	inline bool IsInitialized() const
+	{
+		return m_Ready;
+	}
 protected:
 	ImGUI() = default;
 	~ImGUI() = default;
-
-	void InitRenderResource();
 	
 	void UpdateDrawData(ImDrawData *pDrawData);
 

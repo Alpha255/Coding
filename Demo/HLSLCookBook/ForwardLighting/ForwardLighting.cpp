@@ -155,5 +155,6 @@ void ForwardLighting::RenderScene()
 
 	ImGui::Combo("LightingType", &m_LightingType, "HemisphericAmbient\0DirectionalLight\0PointLight\0Spot\0Capsule");
 	ImGui::Checkbox("Wireframe", &m_Wireframe);
-	///ImGui::Checkbox("BoundingBox", &m_DrawBoundingBox);
+	ImGui::Checkbox("BoundingBox", &m_DrawBoundingBox);
+	ImGui::Text("FPS=%.2f", m_FPS);
 }

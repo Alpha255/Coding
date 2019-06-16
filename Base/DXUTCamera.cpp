@@ -7,7 +7,7 @@ DXUTCamera::DXUTCamera()
 	SetViewParams(Vec3(0.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f));
 	SetProjParams(DirectX::XM_PIDIV4, 1.0f, 1.0f, 1000.0f);
 
-	::GetCursorPos((::LPPOINT)&m_MouseAction.LastPosition);
+	::GetCursorPos((LPPOINT)m_MouseAction.LastPosition);
 }
 
 void DXUTCamera::KeyboardAction::HandleWindowMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM)
@@ -34,14 +34,17 @@ void DXUTCamera::MouseAction::HandleWindowMessage(uint32_t msg, ::WPARAM wParam,
 	case WM_RBUTTONDOWN:
 	case WM_RBUTTONDBLCLK:
 		ButtonDown[eRightButton] = true;
+		::GetCursorPos((LPPOINT)LastPosition);
 		break;
 	case WM_MBUTTONDOWN:
 	case WM_MBUTTONDBLCLK:
 		ButtonDown[eMiddleButton] = true;
+		::GetCursorPos((LPPOINT)LastPosition);
 		break;
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONDBLCLK:
 		ButtonDown[eLeftButton] = true;
+		::GetCursorPos((LPPOINT)LastPosition);
 		break;
 	case WM_RBUTTONUP:
 		ButtonDown[eRightButton] = false;
@@ -58,11 +61,6 @@ void DXUTCamera::MouseAction::HandleWindowMessage(uint32_t msg, ::WPARAM wParam,
 		WheelDelta += (int32_t)HIWORD(wParam);
 		break;
 	}
-
-	if (ButtonDown[eLeftButton] || ButtonDown[eRightButton] || ButtonDown[eMiddleButton])
-	{
-		::GetCursorPos((LPPOINT)LastPosition);
-	}
 }
 
 void DXUTCamera::KeyboardAction::UpdateInput()
@@ -73,28 +71,28 @@ void DXUTCamera::KeyboardAction::UpdateInput()
 	{
 		KeyDirection.x += 1.0f;
 	}
-	if (IsKeyActive(KeyboardAction::eStrafeLeft))
+	if (IsKeyActive(eStrafeLeft))
 	{
 		KeyDirection.x -= 1.0f;
 	}
 
 	if (EnableYAxisMovement)
 	{
-		if (IsKeyActive(KeyboardAction::eMoveUp))
+		if (IsKeyActive(eMoveUp))
 		{
 			KeyDirection.y += 1.0f;
 		}
-		if (IsKeyActive(KeyboardAction::eMoveDown))
+		if (IsKeyActive(eMoveDown))
 		{
 			KeyDirection.y -= 1.0f;
 		}
 	}
 
-	if (IsKeyActive(KeyboardAction::eMoveForward))
+	if (IsKeyActive(eMoveForward))
 	{
 		KeyDirection.z += 1.0f;
 	}
-	if (IsKeyActive(KeyboardAction::eMoveBackward))
+	if (IsKeyActive(eMoveBackward))
 	{
 		KeyDirection.z -= 1.0f;
 	}
@@ -137,13 +135,6 @@ void DXUTCamera::SetViewParams(const Vec3 &eye, const Vec3 &lookAt)
 	m_Yaw = atan2f(zBasis.x, zBasis.z);
 	float len = sqrtf(zBasis.z * zBasis.z + zBasis.x * zBasis.x);
 	m_Pitch = -atan2f(zBasis.y, len);
-
-#if 0
-	if (m_Pitch <= -0.00f)
-	{
-		m_Pitch = 0.3f;
-	}
-#endif
 }
 
 void DXUTCamera::SetProjParams(float fov, float aspect, float nearPlane, float farPlane)
@@ -193,7 +184,7 @@ void DXUTCamera::UpdateVelocity(float elapsedTime)
 	accel.Normalize();
 	accel *= m_MouseAction.MoveScaler;
 
-	if (accel.LengthSq() > 0.0f)
+	if (accel * accel > 0.0f)
 	{
 		m_Velocity = accel;
 		m_DragTimer = 0.25f;
@@ -237,8 +228,6 @@ void DXUTCamera::Update(float elapsedTime)
 		/// Limit pitch to straight up or straight down
 		m_Pitch = std::max<float>(-DirectX::XM_PIDIV2, m_Pitch);
 		m_Pitch = std::min<float>(DirectX::XM_PIDIV2, m_Pitch);
-
-		///Base::Log("Camera Pitch = %.2f, Yaw = %.2f", m_Pitch, m_Yaw);
 	}
 
 	Matrix rotate = Matrix::RotateRollPitchYaw(m_Pitch, m_Yaw, 0.0f);

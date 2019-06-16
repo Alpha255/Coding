@@ -147,19 +147,15 @@ void IApplication::Initialize(const std::string &title, uint32_t width, uint32_t
 
 void IApplication::UpdateFPS()
 {
-	static uint32_t s_FrameNumber = 0U;
-	static float s_LastUpdateTime = 0.0f;
-
 	float totalTime = m_Timer.GetTotalTime();
-	s_FrameNumber++;
+	++m_FrameCount;
 
-	float elapseTime = totalTime - s_LastUpdateTime;
-	if (elapseTime > 1.0f)
+	float elapsedTime = totalTime - m_LastUpdateTime;
+	if (elapsedTime > 1.0f)
 	{
-		m_FPS = s_FrameNumber / elapseTime;
-
-		s_LastUpdateTime = totalTime;
-		s_FrameNumber = 0U;
+		m_FPS = m_FrameCount / elapsedTime;
+		m_LastUpdateTime = totalTime;
+		m_FrameCount = 0U;
 	}
 }
 

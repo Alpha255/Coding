@@ -410,6 +410,7 @@ bool LoadSDKMesh(
 	/// Subsets
 	auto pSDKMesh = reinterpret_cast<const DXUT::SDKMESH_MESH*>(pData + pHeader->MeshDataOffset);
 	auto pSubsets = reinterpret_cast<const DXUT::SDKMESH_SUBSET*>(pData + pHeader->SubsetDataOffset);
+
 	for (uint32_t i = 0U; i < pHeader->NumMeshes; ++i)
 	{
 		auto &mesh = pSDKMesh[i];
@@ -419,6 +420,13 @@ bool LoadSDKMesh(
 		if (mesh.NumFrameInfluences > 0U)
 		{
 			assert(asset.GetSize() >= mesh.FrameInfluenceOffset && (asset.GetSize() >= (mesh.FrameInfluenceOffset + sizeof(uint32_t) * mesh.NumFrameInfluences)));
+		}
+
+		if (pHeader->NumMeshes == 1U)
+		{
+			Vec3 center(mesh.BoundingBoxCenter.x, mesh.BoundingBoxCenter.y, mesh.BoundingBoxCenter.z);
+			Vec3 extents(mesh.BoundingBoxExtents.x, mesh.BoundingBoxExtents.y, mesh.BoundingBoxExtents.z);
+			model.SetBoundingBox(center - extents, center + extents);
 		}
 
 		auto subsets = reinterpret_cast<const uint32_t*>(pData + mesh.SubsetOffset);

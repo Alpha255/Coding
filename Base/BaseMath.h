@@ -144,17 +144,6 @@ public:
 
 		DirectX::XMStoreFloat3(this, normalized);
 	}
-
-	inline float LengthSq()
-	{
-		DirectX::XMVECTOR tmp = DirectX::XMLoadFloat3(this);
-		DirectX::XMVECTOR lengthSq = DirectX::XMVector3LengthSq(tmp);
-
-		Vec3 result;
-		DirectX::XMStoreFloat3(&result, lengthSq);
-
-		return result.x;
-	}
 };
 
 class Vec4 : public DirectX::XMFLOAT4

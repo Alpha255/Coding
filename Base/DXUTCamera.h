@@ -104,7 +104,6 @@ protected:
 			eMoveUp,
 			eMoveDown,
 			eControlDown,
-			eMaxKeys,
 			eOther
 		};
 
@@ -130,7 +129,7 @@ protected:
 
 		Vec3 KeyDirection;
 		bool EnableYAxisMovement = true;
-		bool ActiveKeys[eMaxKeys] = {};
+		bool ActiveKeys[eOther] = {};
 	};
 
 	inline void Reset()
