@@ -78,4 +78,41 @@ private:
 	std::vector<uint32_t> m_Indices;
 };
 
+class Sphere
+{
+public:
+	Sphere() = default;
+	Sphere(const Vec3 &center, float radius);
+
+	inline Vec3 GetCenter() const
+	{
+		return m_Center;
+	}
+
+	inline float GetRadius() const
+	{
+		return m_Radius;
+	}
+
+	inline const std::vector<Vertex> &GetVertices() const
+	{
+		return m_Vertices;
+	}
+
+	inline const std::vector<uint32_t> &GetIndices() const
+	{
+		return m_Indices;
+	}
+protected:
+private:
+	std::vector<Vertex> m_Vertices;
+	std::vector<uint32_t> m_Indices;
+
+	Vec3 m_Center;
+	float m_Radius = 0.0f;
+};
+
+Box ComputeBoundingBox(const std::vector<Vertex> &vertices);
+Sphere ComputeBoundingBoundingSphere(const std::vector<Vertex> &vertices);
+
 NamespaceEnd(Geometry)

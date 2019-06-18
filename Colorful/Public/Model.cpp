@@ -343,6 +343,38 @@ Box::Box(const Vec3 &min, const Vec3 &max)
 	};
 }
 
+Sphere::Sphere(const Vec3 &center, float radius)
+	: m_Center(center)
+	, m_Radius(radius)
+{
+
+}
+
+Box ComputeBoundingBox(const std::vector<Vertex> &vertices)
+{
+	DirectX::XMVECTOR vecMin = {}, vecMax = {};
+
+	for (auto it = vertices.cbegin(); it != vertices.cend(); ++it)
+	{
+		auto vec = DirectX::XMLoadFloat3(&it->Position);
+		vecMin = DirectX::XMVectorMin(vecMin, vec);
+		vecMax = DirectX::XMVectorMax(vecMax, vec);
+	}
+
+	DirectX::XMFLOAT3 min = {};
+	DirectX::XMStoreFloat3(&min, vecMin);
+
+	DirectX::XMFLOAT3 max = {};
+	DirectX::XMStoreFloat3(&min, vecMax);
+
+	return Box(Vec3(min.x, min.y, min.z), Vec3(max.x, max.y, max.z));
+}
+
+Sphere ComputeBoundingBoundingSphere(const std::vector<Vertex> &vertices)
+{
+	return Sphere();
+}
+
 void Model::Draw(const DXUTCamera &camera, bool bDrawBoundingBox)
 {
 	if (!m_InputLayout.IsValid())
