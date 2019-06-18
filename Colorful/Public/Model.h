@@ -37,13 +37,10 @@ public:
 		return m_BoundingBox;
 	}
 
-	inline void SetBoundingBox(const Vec3 &min, const Vec3 &max)
+	inline void UpdateBoundingBox(const Vec3 &min, const Vec3 &max)
 	{
-		if (!m_HasBoundingBox)
-		{
-			m_BoundingBox = Box(min, max);
-			m_HasBoundingBox = true;
-		}
+		m_BoundingBox = Box(Vec3::Min(min, m_BoundingBox.GetMin()), Vec3::Max(max, m_BoundingBox.GetMax()));
+		m_HasBoundingBox = true;
 	}
 
 	inline bool IsValid() const

@@ -136,6 +136,30 @@ public:
 		return result;
 	}
 
+	inline static Vec3 Min(const Vec3 &v0, const Vec3 &v1)
+	{
+		DirectX::XMVECTOR xv0 = DirectX::XMLoadFloat3(&v0);
+
+		DirectX::XMVECTOR xv1 = DirectX::XMLoadFloat3(&v1);
+
+		Vec3 result;
+		DirectX::XMStoreFloat3(&result, DirectX::XMVectorMin(xv0, xv1));
+
+		return result;
+	}
+
+	inline static Vec3 Max(const Vec3 &v0, const Vec3 &v1)
+	{
+		DirectX::XMVECTOR xv0 = DirectX::XMLoadFloat3(&v0);
+
+		DirectX::XMVECTOR xv1 = DirectX::XMLoadFloat3(&v1);
+
+		Vec3 result;
+		DirectX::XMStoreFloat3(&result, DirectX::XMVectorMax(xv0, xv1));
+
+		return result;
+	}
+
 	inline void Normalize()
 	{
 		DirectX::XMVECTOR tmp = DirectX::XMLoadFloat3(this);

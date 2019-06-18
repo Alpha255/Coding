@@ -45,12 +45,26 @@ struct Vertex
 class Box
 {
 public:
-	Box() = default;
+	Box()
+		: m_Max(FLT_MIN, FLT_MIN, FLT_MIN)
+		, m_Min(FLT_MAX, FLT_MAX, FLT_MAX)
+	{
+	}
 	Box(const Vec3 &min, const Vec3 &max);
 
 	inline Vec3 GetCenter() const
 	{
 		return m_Center;
+	}
+
+	inline Vec3 GetMin() const
+	{
+		return m_Min;
+	}
+
+	inline Vec3 GetMax() const
+	{
+		return m_Max;
 	}
 
 	inline Vec3 GetSize() const

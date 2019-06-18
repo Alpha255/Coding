@@ -13,12 +13,16 @@
 	typedef D3D11PixelShader RPixelShader;
 	typedef D3D11Buffer RBuffer;
 	typedef D3D11ShaderResourceView RShaderResourceView;
+	typedef D3D11RenderTargetView RRenderTargetView;
 	typedef D3D11Viewport RViewport;
 	typedef D3D11InputLayout RInputLayout;
 	typedef D3D11BlendState RBlendState;
 	typedef D3D11Texture2D RTexture2D;
 	typedef D3D11StaticState RStaticState;
 	typedef D3D11SubResourceData RSubResourceData;
+	typedef D3D11DepthStencilState RDepthStencilState;
+	typedef D3D11RasterizerState RRasterizerState;
+	typedef D3D11DepthStencilView RDepthStencilView;
 #elif defined(UsingVulkan)
 	#include "Vulkan/VulkanEngine.h"
 	#define IconID IconVulkan 

@@ -13,9 +13,6 @@ void IRenderApplication::Initialize(const std::string &title, uint32_t width, ui
 	ImGUI::Instance().Initialize(m_hWnd);
 
 	PrepareScene();
-
-	//m_Camera.SetViewParams(Vec3(71.0f, 41.0f, 71.0f), Vec3(0.0f, 0.0f, 0.0f));
-	//m_Camera.SetProjParams(DirectX::XM_PIDIV4, (float)width / height, m_CameraParams.first, m_CameraParams.second);
 }
 
 void IRenderApplication::HandleWindowMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM lParam)
@@ -29,67 +26,14 @@ void IRenderApplication::HandleInput(uint32_t msg, ::WPARAM wParam, ::LPARAM lPa
 {
 	Base::HandleInput(msg, wParam, lParam);
 
-#if 0
-	switch (msg)
-	{
-	case WM_LBUTTONDOWN:
-	case WM_RBUTTONDOWN:
-	case WM_MBUTTONDOWN:
-		HandleMouseInput(wParam, lParam, eMouseButtonDown);
-		break;
-	case WM_MOUSEMOVE:
-		HandleMouseInput(wParam, lParam, eMouseMove);
-		break;
-	case WM_MOUSEWHEEL:
-		HandleMouseInput(wParam, lParam, eMouseWheel);
-		break;
-	}
-#else
 	if (ImGUI::Instance().IsInitialized() && !ImGUI::Instance().IsFocus())
 	{
 		m_Camera.HandleWindowMessage(msg, wParam, lParam);
 	}
-#endif
 }
 
-#if 0
-void IRenderApplication::HandleMouseInput(::WPARAM wParam, ::LPARAM lParam, eMouseInput type)
+void IRenderApplication::AutoFocus(const Geometry::Model &model, float scale)
 {
-	int32_t xPos = (int32_t)(LOWORD(lParam));
-	int32_t yPos = (int32_t)(HIWORD(lParam));
-
-	switch (type)
-	{
-	case eMouseMove:
-		if ((wParam & MK_LBUTTON) != 0)
-		{
-			m_Camera.Move(xPos - m_MousePos.first, yPos - m_MousePos.second);
-		}
-		break;
-	case eMouseButtonDown:
-		break;
-	case eMouseWheel:
-	{
-		/// Not perfect 
-		float radius = m_Camera.GetViewRadius();
-		float radiusCopy = radius;
-
-		radius -= GET_WHEEL_DELTA_WPARAM(wParam) * radius * 0.1f / 120.0f;
-		radius = Math::Clamp(radius, radiusCopy / 2.0f, radiusCopy * 2.0f);
-
-		m_Camera.SetViewRadius(radius);
-	}
-		break;
-	}
-
-	m_MousePos.first = xPos;
-	m_MousePos.second = yPos;
-}
-#endif
-
-void IRenderApplication::AutoFocus(const Geometry::Model &model)
-{
-#if 1
 	if (model.HasBoundingBox())
 	{
 		Geometry::Box boundingBox = model.GetBoundingBox();
@@ -97,25 +41,24 @@ void IRenderApplication::AutoFocus(const Geometry::Model &model)
 		Vec3 size = boundingBox.GetSize();
 		if (size.z > 500.0f)
 		{
-			m_CameraParams.second = size.z * 2.0f;
+			m_CameraParams.y = size.z * 2.0f;
 		}
 
-		m_Camera.SetProjParams(DirectX::XM_PIDIV4, (float)m_WindowSize.first / m_WindowSize.second, m_CameraParams.first, m_CameraParams.second);
-		m_Camera.SetViewParams(Vec3(center.x, center.y, size.z * 2.0f), Vec3(center.x, center.y, size.z * -3.0f));
+		assert(scale > 0.0f);
+
+		m_Camera.SetProjParams(DirectX::XM_PIDIV4, (float)m_WindowSize.first / m_WindowSize.second, m_CameraParams.x, m_CameraParams.y);
+		m_Camera.SetViewParams(Vec3(center.x + size.x * scale, center.y + size.y * scale, center.z + size.z * scale), Vec3(center.x, center.y, center.z));
 
 		float min = std::min<float>(size.x, size.y);
 		min = std::min<float>(min, size.z);
 		m_Camera.SetScalers(0.01f, min / 3.0f);
 	}
 	else
-#endif
 	{
-#if 1
-		m_CameraParams.second = 500.0f;
-		m_Camera.SetProjParams(DirectX::XM_PIDIV4, (float)m_WindowSize.first / m_WindowSize.second, m_CameraParams.first, m_CameraParams.second);
+		m_CameraParams.y = 500.0f;
+		m_Camera.SetProjParams(DirectX::XM_PIDIV4, (float)m_WindowSize.first / m_WindowSize.second, m_CameraParams.x, m_CameraParams.y);
 		m_Camera.SetViewParams(Vec3(71.0f, 41.0f, 71.0f), Vec3());
 		m_Camera.SetScalers(0.01f, 15.0f);
-#endif
 	}
 }
 
@@ -125,7 +68,7 @@ void IRenderApplication::ResizeWindow(uint32_t width, uint32_t height)
 
 	REngine::Instance().Resize(width, height);
 
-	m_Camera.SetProjParams(DirectX::XM_PIDIV4, (float)width / height, m_CameraParams.first, m_CameraParams.second);
+	m_Camera.SetProjParams(DirectX::XM_PIDIV4, (float)width / height, m_CameraParams.x, m_CameraParams.y);
 }
 
 void IRenderApplication::RenterToWindow()

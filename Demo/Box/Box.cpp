@@ -17,7 +17,7 @@ void Box::PrepareScene()
 	m_PS[eBlur].Create("Box.shader", "PSMain_Blur");
 	m_PS[eEdgeDetection].Create("Box.shader", "PSMain_EdgeDetection");
 
-	AutoFocus(m_Box);
+	AutoFocus(m_Box, 2.0f);
 }
 
 void Box::RenderScene()

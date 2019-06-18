@@ -29,7 +29,7 @@ DirectXTKProject = VcProject('DirectXTK', 'ThirdParty', ProjectType.eLibrary, ['
 BaseProject = VcProject('Base', 'Library', ProjectType.eLibrary, ['Base'], [], [], [FileType.eHeader, FileType.eCpp])
 ColorfulProject = VcProject('Colorful', 'Library', ProjectType.eLibrary, ['Colorful'], [], [], [FileType.eHeader, FileType.eCpp])
 AssetToolProject = VcProject('AssetTool', 'Tool', ProjectType.eLibrary, ['Tool\\AssetTool'], [], [], [FileType.eHeader, FileType.eCpp])
-DemoProjectDependency = [BaseProject, ImGUIProject, ColorfulProject, AssetToolProject]
+DemoProjectDependency = [BaseProject, ImGUIProject, ColorfulProject, AssetToolProject, DirectXTKProject]
 
 OtherProjects = [DirectXTKProject]
 
@@ -37,7 +37,8 @@ DemoProjects = [
 	VcProject('Box', 'Demo', ProjectType.eWinApp, ['Demo\\Box', 'Assets'], [], DemoProjectDependency, [FileType.eHeader, FileType.eCpp, FileType.eIcon, FileType.eResource, FileType.eShader]),
 	VcProject('DeferredShading', 'HLSLCookbook', ProjectType.eWinApp, ['Demo\\HLSLCookbook\\DeferredShading', 'Assets'], [], DemoProjectDependency, [FileType.eHeader, FileType.eCpp, FileType.eIcon, FileType.eResource, FileType.eShader]),
 	VcProject('ForwardLighting', 'HLSLCookbook', ProjectType.eWinApp, ['Demo\\HLSLCookbook\\ForwardLighting', 'Assets'], [], DemoProjectDependency, [FileType.eHeader, FileType.eCpp, FileType.eIcon, FileType.eResource, FileType.eShader]),
-	VcProject('ShadowMapping', 'HLSLCookbook', ProjectType.eWinApp, ['Demo\\HLSLCookbook\\ShadowMapping', 'Assets'], [], DemoProjectDependency, [FileType.eHeader, FileType.eCpp, FileType.eIcon, FileType.eResource, FileType.eShader]),
+	#VcProject('ShadowMapping', 'HLSLCookbook', ProjectType.eWinApp, ['Demo\\HLSLCookbook\\ShadowMapping', 'Assets'], [], DemoProjectDependency, [FileType.eHeader, FileType.eCpp, FileType.eIcon, FileType.eResource, FileType.eShader]),
+	VcProject('MultithreadedRendering', 'Demo', ProjectType.eWinApp, ['Demo\\MultithreadedRendering', 'Assets'], [], DemoProjectDependency, [FileType.eHeader, FileType.eCpp, FileType.eIcon, FileType.eResource, FileType.eShader]),
 	#VcProject('VulkanTest', 'Demo', ProjectType.eWinApp, ['Demo\\VulkanTest', 'Assets'], [], DemoProjectDependency, [FileType.eHeader, FileType.eCpp, FileType.eIcon, FileType.eResource, FileType.eShader]),
 	#VCProject('AdaptiveTessellation', 'Demo\\D3D11\\AdaptiveTessellation\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
 	#VCProject('AlphaBlend', 'Demo\\D3D11\\AlphaBlend\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
@@ -48,7 +49,6 @@ DemoProjects = [
 	#VCProject('GammaCorrection', 'Demo\\D3D11\\GammaCorrection\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
 	#VCProject('HDRLighting', 'Demo\\D3D11\\HDRLighting\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
 	#VCProject('Lighting', 'Demo\\D3D11\\Lighting\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
-	#VCProject('MultithreadedRendering', 'Demo\\D3D11\\MultithreadedRendering\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
 	#VCProject('FXAA', 'Demo\\D3D11\\Nvidia\\FXAA\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
 	#VCProject('OceanFFT', 'Demo\\D3D11\\Nvidia\\OceanFFT\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),
 	#VCProject('ParallaxMapping', 'Demo\\D3D11\\ParallaxMapping\\', 'D3D11', False, ResourceDirectory, [], [], libProjects),

@@ -75,7 +75,7 @@ void ForwardLighting::PrepareScene()
 {
 	m_Bunny.CreateFromFile("bunny.sdkmesh");
 
-	AutoFocus(m_Bunny);
+	AutoFocus(m_Bunny, 0.7f);
 
 	m_VertexShader.Create("ForwardLighting.shader", "VSMain");
 	m_PixelShader[eHemisphericAmbient].Create("ForwardLighting.shader", "PSMain_HemisphericAmbient");

@@ -1,21 +1,19 @@
 #pragma once
 
-#include "RenderApp.h"
-#include "D3DGeometry.h"
-#include "D3DView.h"
-#include "D3DState.h"
-#include "D3DRenderThread.h"
+#include "Public/IRenderApplication.h"
+#include "Public/Definitions.h"
+#include "Public/Model.h"
 
-class AppMultithreadedRendering : public RenderApp
+class MultithreadedRendering : public IRenderApplication
 {
 public:
-	AppMultithreadedRendering() = default;
-	~AppMultithreadedRendering() = default;
+	MultithreadedRendering() = default;
+	~MultithreadedRendering() = default;
 
-	virtual void Initialize() override;
-	virtual void RenderScene() override;
-	virtual void Update(float deltaTime, float totalTime) override;
-	virtual void ResizeWindow(uint32_t width, uint32_t height) override;
+	void PrepareScene() override;
+	void RenderScene() override;
+	void UpdateScene(float elapsedTime, float totalTime) override;
+	void ResizeWindow(uint32_t width, uint32_t height) override;
 
 	enum eRenderingMode
 	{
@@ -33,13 +31,13 @@ public:
 protected:
 	struct StaticParams
 	{
-		D3DDepthStencilState DepthStencilState;
+		RDepthStencilState DepthStencilState;
 		uint8_t StencilRef = 0U;
 
-		D3DRasterizerState RasterizerState;
+		RRasterizerState RasterizerState;
 
-		D3DDepthStencilView DepthStencilView;
-		D3DViewport Viewport;
+		RDepthStencilView DepthStencilView;
+		RViewport Viewport;
 
 		Vec4 TintColor = {};
 		Vec4 MirrorPlane = {};
@@ -70,23 +68,23 @@ protected:
 private:
 	int32_t m_RenderingMode = eST;
 
-	D3DVertexShader m_VertexShader;
-	D3DPixelShader m_PixelShader;
-	D3DBuffer m_CBufferVS;
-	D3DBuffer m_CBufferPS;
+	RVertexShader m_VertexShader;
+	RPixelShader m_PixelShader;
+	RBuffer m_CBufferVS;
+	RBuffer m_CBufferPS;
 
-	D3DInputLayout m_Layout;
-	D3DInputLayout m_LayoutMirror;
+	RInputLayout m_Layout;
+	RInputLayout m_LayoutMirror;
 
-	D3DShaderResourceView m_ShadowSRV[eNumShadows];
+	RShaderResourceView m_ShadowSRV[eNumShadows];
 
-	D3DDepthStencilState m_NoStencil;
-	D3DDepthStencilState m_DepthTestStencilOverwrite;
-	D3DDepthStencilState m_DepthOverwriteStencilTest;
-	D3DDepthStencilState m_DepthWriteStencilTest;
-	D3DDepthStencilState m_DepthOverwriteStencilClear;
+	RDepthStencilState m_NoStencil;
+	RDepthStencilState m_DepthTestStencilOverwrite;
+	RDepthStencilState m_DepthOverwriteStencilTest;
+	RDepthStencilState m_DepthWriteStencilTest;
+	RDepthStencilState m_DepthOverwriteStencilClear;
 
-	D3DBuffer m_VertexBufferMirror;
+	RBuffer m_VertexBufferMirror;
 
 	StaticParams m_StaticParamsDirectly;
 	StaticParams m_StaticParamsShadows[eNumShadows];
@@ -95,7 +93,7 @@ private:
 	MirrorRect m_MirrorRect[eNumMirrors];
 	Matrix m_MirrorWorld[eNumMirrors];
 
-	D3DRenderThread m_RenderThreads[eNumScenes];
+	///RRenderThread m_RenderThreads[eNumScenes];
 
-	Geometry::SDKMesh m_SquidRoom;
+	Geometry::Model m_SquidRoom;
 };

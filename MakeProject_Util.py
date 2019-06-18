@@ -49,7 +49,7 @@ class VcProject:
 		self.Type = _Type
 		self.IsThirdParty = (_Folder == 'ThirdParty')
 		self.Dependencies = _Dependencies
-		self.FileList = BuildFileList(_Directory, _ExcludeDirectory, _Types, _ExcludeFiles)
+		self.FileList = BuildFileList(_Name, _Directory, _ExcludeDirectory, _Types, _ExcludeFiles)
 
 class VSVersionInfo:
 	WinSDKVersion = ''
@@ -107,7 +107,7 @@ def GetFileFilter(_FilePath, _RootDir):
 	fileFilter = fileFilter[0 : (len(fileFilter) - len(fileName) - 1)]
 	return fileFilter
 
-def BuildFileList(_TargetDirs, _ExcludeDirs, _Types, _ExcludeFiles):
+def BuildFileList(_ProjectName, _TargetDirs, _ExcludeDirs, _Types, _ExcludeFiles):
 	filelist = {}
 	for fileType in FileType:
 		filelist[fileType] = []
@@ -135,7 +135,11 @@ def BuildFileList(_TargetDirs, _ExcludeDirs, _Types, _ExcludeFiles):
 				if not bSkip:
 					for validType in _Types:
 						if validType == newFile.Type:
-							filelist[newFile.Type].append(newFile)
+							if newFile.Type == FileType.eShader:
+								if _ProjectName in newFile.Name:
+									filelist[newFile.Type].append(newFile)									
+							else:
+								filelist[newFile.Type].append(newFile)
 							break
 
 	return filelist
