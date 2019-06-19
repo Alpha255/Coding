@@ -346,11 +346,43 @@ inline size_t GetVertexStride(DXGI_FORMAT format)
 		return sizeof(uint32_t);
 	case DXGI_FORMAT_R8G8B8A8_UNORM:
 		return sizeof(uint32_t);
+	case DXGI_FORMAT_R10G10B10A2_UNORM:
+		return sizeof(float);
+	case DXGI_FORMAT_R16G16_FLOAT:
+		return sizeof(uint16_t) * 2U;
 	}
 
 	assert(0);
 
 	return 0U;
+}
+
+inline Vec3 Unpack_RGB10A2_UNorm(uint32_t value)
+{
+	Vec3 result;
+	result.x = (float)(value & 0x000003FF) / 1023;
+	result.y = (float)(((value >> 10U) & 0x000003FF)) / 1023;
+	result.z = (float)(((value >> 20U) & 0x000003FF)) / 1023;
+
+	return result;
+}
+
+inline Vec2 UnpackRG16_UNorm(uint32_t value)
+{
+	Vec2 result;
+	result.x = (float)(value & 0x0000FFFF) / 65535;
+	result.y = (float)(value >> 16) / 65535;
+
+	return result;
+}
+
+inline Vec2 UnpackRG16_Float(uint32_t value)
+{
+	Vec2 result;
+	result.x = (float)(value & 0x0000FFFF) / 65535;
+	result.y = (float)(value >> 16) / 65535;
+
+	return result;
 }
 
 void LoadVertexData(std::vector<Geometry::Vertex> &vertices, const std::vector<InputElementDesc> &inputDesc, const uint8_t *pData)
@@ -368,16 +400,49 @@ void LoadVertexData(std::vector<Geometry::Vertex> &vertices, const std::vector<I
 				vertices[i].Position = Vec3((const float *)pVertexData);
 				break;
 			case InputElementDesc::eNormal:
-				assert(inputDesc[j].Format == DXGI_FORMAT_R32G32B32_FLOAT);
-				vertices[i].Normal = Vec3((const float *)pVertexData);
+				if (inputDesc[j].Format == DXGI_FORMAT_R32G32B32_FLOAT)
+				{
+					vertices[i].Normal = Vec3((const float *)pVertexData);
+				}
+				else if (inputDesc[j].Format == DXGI_FORMAT_R10G10B10A2_UNORM)
+				{
+					uint32_t value = *((const uint32_t *)pVertexData);
+					vertices[i].Normal = Unpack_RGB10A2_UNorm(value);
+				}
+				else
+				{
+					assert(0);
+				}
 				break;
 			case InputElementDesc::eTangent:
-				assert(inputDesc[j].Format == DXGI_FORMAT_R32G32B32_FLOAT);
-				vertices[i].Tangent = Vec3((const float *)pVertexData);
+				if (inputDesc[j].Format == DXGI_FORMAT_R32G32B32_FLOAT)
+				{
+					vertices[i].Tangent = Vec3((const float *)pVertexData);
+				}
+				else if (inputDesc[j].Format == DXGI_FORMAT_R10G10B10A2_UNORM)
+				{
+					uint32_t value = *((const uint32_t *)pVertexData);
+					vertices[i].Tangent = Unpack_RGB10A2_UNorm(value);
+				}
+				else
+				{
+					assert(0);
+				}
 				break;
 			case InputElementDesc::eTexcoord:
-				assert(inputDesc[j].Format == DXGI_FORMAT_R32G32_FLOAT);
-				vertices[i].UV = Vec2((const float *)pVertexData);
+				if (inputDesc[j].Format == DXGI_FORMAT_R32G32_FLOAT)
+				{
+					vertices[i].UV = Vec2((const float *)pVertexData);
+				}
+				else if (inputDesc[j].Format == DXGI_FORMAT_R16G16_FLOAT)
+				{
+					uint32_t value = *((const uint32_t *)pVertexData);
+					vertices[i].UV = UnpackRG16_UNorm(value);
+				}
+				else
+				{
+					assert(0);
+				}
 				break;
 			}
 			pVertexData += GetVertexStride(inputDesc[j].Format);
@@ -422,12 +487,9 @@ bool LoadSDKMesh(
 			assert(asset.GetSize() >= mesh.FrameInfluenceOffset && (asset.GetSize() >= (mesh.FrameInfluenceOffset + sizeof(uint32_t) * mesh.NumFrameInfluences)));
 		}
 
-		if (pHeader->NumMeshes == 1U)
-		{
-			Vec3 center(mesh.BoundingBoxCenter.x, mesh.BoundingBoxCenter.y, mesh.BoundingBoxCenter.z);
-			Vec3 extents(mesh.BoundingBoxExtents.x, mesh.BoundingBoxExtents.y, mesh.BoundingBoxExtents.z);
-			model.SetBoundingBox(center - extents, center + extents);
-		}
+		Vec3 center(mesh.BoundingBoxCenter.x, mesh.BoundingBoxCenter.y, mesh.BoundingBoxCenter.z);
+		Vec3 extents(mesh.BoundingBoxExtents.x, mesh.BoundingBoxExtents.y, mesh.BoundingBoxExtents.z);
+		model.UpdateBoundingBox(center - extents, center + extents);
 
 		auto subsets = reinterpret_cast<const uint32_t*>(pData + mesh.SubsetOffset);
 		for (uint32_t j = 0U; j < mesh.NumSubsets; ++j)
@@ -540,6 +602,7 @@ bool LoadSDKMesh(
 		{
 			std::vector<uint32_t> indices(ibHeader.NumIndices);
 			LoadIndexData(indices, pData + ibHeader.DataOffset);
+			indexBuffer.CreateAsIndexBuffer(indices.size() * sizeof(uint32_t), eGpuReadOnly, indices.data());
 		}
 		else
 		{
