@@ -194,8 +194,16 @@ void MultithreadedRendering::PrepareScene()
 {
 	m_SquidRoom.CreateFromFile("SquidRoom.sdkmesh");
 
+#if 0
 	m_VertexShader.Create("MultithreadedRendering.shader", "VSMain");
 	m_PixelShader.Create("MultithreadedRendering.shader", "PSMain");
+#else
+	m_VertexShader.Create("Mesh.shader", "VSMain");
+	m_PixelShader.Create("Mesh.shader", "PSMain");
+	m_CBufferVS.CreateAsUniformBuffer(sizeof(Matrix), eGpuReadCpuWrite);
+
+	AutoFocus(m_SquidRoom, 0.3f);
+#endif
 
 #if 0
 	const D3D11_INPUT_ELEMENT_DESC UncompressedLayout[] =
@@ -448,6 +456,19 @@ void MultithreadedRendering::RenderScene()
 
 	ImGui::Text("%.2f FPS", m_FPS);
 	ImGui::Combo("RenderingMode", &m_RenderingMode, "SingleThread\0MultithreadedPerScene\0MultithreadedPerChunk");
+#else
+	REngine::Instance().ResetDefaultRenderSurfaces();
+	REngine::Instance().SetViewport(RViewport(0.0f, 0.0f, (float)m_WindowSize.first, (float)m_WindowSize.second));
+
+	REngine::Instance().SetVertexShader(m_VertexShader);
+	REngine::Instance().SetPixelShader(m_PixelShader);
+	REngine::Instance().SetUniformBuffer(m_CBufferVS, 0U, eVertexShader);
+	Matrix wvp = Matrix::Transpose(m_Camera.GetWVPMatrix());
+	m_CBufferVS.Update(&wvp, sizeof(Matrix));
+
+	REngine::Instance().SetRasterizerState(RStaticState::Wireframe);
+
+	m_SquidRoom.Draw(m_Camera, true);
 #endif
 }
 
