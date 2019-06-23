@@ -2,9 +2,9 @@
 #include "D3D11Engine.h"
 #include "Base/AssetFile.h"
 
-void D3D11InputLayout::Create(D3D11Blob &blob, const std::vector<Geometry::VertexLayout> &layouts)
+void D3D11InputLayout::Create(const void *pByteCode, const size_t byteSize, const std::vector<Geometry::VertexLayout> &layouts)
 {
-	assert(blob.IsValid() && layouts.size() > 0U);
+	assert(pByteCode && byteSize > 0U);
 
 	std::vector<D3D11_INPUT_ELEMENT_DESC> inputDesc;
 	for each (auto &layout in layouts)
@@ -16,15 +16,17 @@ void D3D11InputLayout::Create(D3D11Blob &blob, const std::vector<Geometry::Verte
 			0U,
 			(DXGI_FORMAT)layout.Format,
 			0U,
-			layout.Offset,
+			D3D11_APPEND_ALIGNED_ELEMENT,
 			D3D11_INPUT_PER_VERTEX_DATA,
 			0U
 		};
 		inputDesc.emplace_back(desc);
+
+		m_VertexStride += layout.Stride;
 	}
 
 	ID3D11InputLayout *pInputLayout = nullptr;
-	Check(D3D11Engine::Instance().GetDevice()->CreateInputLayout(inputDesc.data(), (uint32_t)layouts.size(), blob->GetBufferPointer(), blob->GetBufferSize(), &pInputLayout));
+	Check(D3D11Engine::Instance().GetDevice()->CreateInputLayout(inputDesc.data(), (uint32_t)layouts.size(), pByteCode, byteSize, &pInputLayout));
 
 	Reset(pInputLayout);
 }

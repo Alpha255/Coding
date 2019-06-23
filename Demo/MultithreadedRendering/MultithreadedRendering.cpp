@@ -1,5 +1,6 @@
 #include "MultithreadedRendering.h"
 #include "ImGUI.h"
+#include <DirectXTK/Inc/CommonStates.h>
 
 Matrix g_LightVP[4];
 
@@ -198,8 +199,8 @@ void MultithreadedRendering::PrepareScene()
 	m_VertexShader.Create("MultithreadedRendering.shader", "VSMain");
 	m_PixelShader.Create("MultithreadedRendering.shader", "PSMain");
 #else
-	m_VertexShader.Create("Mesh.shader", "VSMain");
-	m_PixelShader.Create("Mesh.shader", "PSMain");
+	m_VertexShader.Create("MultithreadedRendering.shader", "VSMain");
+	m_PixelShader.Create("MultithreadedRendering.shader", "PSMain");
 	m_CBufferVS.CreateAsUniformBuffer(sizeof(Matrix), eGpuReadCpuWrite);
 
 	AutoFocus(m_SquidRoom, 0.3f);
@@ -460,15 +461,25 @@ void MultithreadedRendering::RenderScene()
 	REngine::Instance().ResetDefaultRenderSurfaces();
 	REngine::Instance().SetViewport(RViewport(0.0f, 0.0f, (float)m_WindowSize.first, (float)m_WindowSize.second));
 
+#if 1
 	REngine::Instance().SetVertexShader(m_VertexShader);
 	REngine::Instance().SetPixelShader(m_PixelShader);
 	REngine::Instance().SetUniformBuffer(m_CBufferVS, 0U, eVertexShader);
 	Matrix wvp = Matrix::Transpose(m_Camera.GetWVPMatrix());
 	m_CBufferVS.Update(&wvp, sizeof(Matrix));
 
-	REngine::Instance().SetRasterizerState(RStaticState::Wireframe);
+	///REngine::Instance().SetRasterizerState(RStaticState::Wireframe);
 
-	m_SquidRoom.Draw(m_Camera, true);
+	m_SquidRoom.Draw(m_Camera, false);
+#else
+	Matrix world = m_Camera.GetWorldMatrix();
+	Matrix view = m_Camera.GetViewMatrix();
+	Matrix proj = m_Camera.GetProjMatrix();
+	DirectX::CommonStates state(REngine::Instance().GetDevice().Get());
+
+	REngine::Instance().ForceCommitState();
+	m_SquidRoom.pModel->Draw(REngine::Instance().GetIMContext().Get(), state, *(DirectX::XMMATRIX *)&world, *(DirectX::XMMATRIX *)&view, *(DirectX::XMMATRIX *)&proj);
+#endif
 #endif
 }
 

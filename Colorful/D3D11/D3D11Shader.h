@@ -6,7 +6,21 @@
 class D3D11InputLayout : public D3DObject<ID3D11InputLayout>
 {
 public:
-	void Create(D3D11Blob &blob, const std::vector<Geometry::VertexLayout> &layouts);
+	inline void Create(D3D11Blob &blob, const std::vector<Geometry::VertexLayout> &layouts)
+	{
+		assert(blob.IsValid() && layouts.size() > 0U);
+
+		Create(blob->GetBufferPointer(), blob->GetBufferSize(), layouts);
+	}
+
+	void Create(const void *pByteCode, const size_t byteSize, const std::vector<Geometry::VertexLayout> &layouts);
+
+	inline uint32_t GetVertexStride() const
+	{
+		return m_VertexStride;
+	}
+private:
+	uint32_t m_VertexStride = 0U;
 };
 
 class D3D11Shader

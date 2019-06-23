@@ -99,4 +99,5 @@ struct Material
 
 	RawMaterial RawValue;
 	RShaderResourceView Textures[ePropertyCount];
+	bool Valid = false;
 };

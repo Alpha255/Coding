@@ -4,6 +4,26 @@
 
 NamespaceBegin(Geometry)
 
+void Model::AppendSubModel(const SubModel &subModel, bool bUseDefaultLayout)
+{
+	if (bUseDefaultLayout && !m_InputLayouts[0].IsValid())
+	{
+		std::vector<VertexLayout> vertexLayout =
+		{
+			{ "POSITION", sizeof(Vertex::Position), offsetof(Vertex, Position), eRGB32_Float  },
+			{ "NORMAL",   sizeof(Vertex::Normal),   offsetof(Vertex, Normal),   eRGB32_Float  },
+			{ "TANGENT",  sizeof(Vertex::Tangent),  offsetof(Vertex, Tangent),  eRGB32_Float  },
+			{ "TEXCOORD", sizeof(Vertex::UV),       offsetof(Vertex, UV),       eRG32_Float   },
+		};
+
+		RVertexShader vertexShader;
+		vertexShader.Create("Mesh.shader", "VSMain");
+		m_InputLayouts[0].Create(vertexShader.GetBlob(), vertexLayout);
+	}
+
+	m_SubModels.emplace_back(subModel);
+}
+
 void Model::CreateAsCube(float width, float height, float depth)
 {
 	assert(!m_Valid);
@@ -63,8 +83,9 @@ void Model::CreateAsCube(float width, float height, float depth)
 	m_BoundingBox = Box(vertices[0].Position, vertices[22].Position);
 	m_HasBoundingBox = true;
 
-	AddBuffer(vertices, indices);
-	AppendSubModel(SubModel{ 0U, 0U, (uint32_t)indices.size() });
+	AddBuffer(vertices);
+	AddBuffer(indices);
+	AppendSubModel(SubModel{ 0U, 0U, 0U, (uint32_t)indices.size(), 0U, 0 });
 
 	m_Valid = true;
 }
@@ -165,8 +186,9 @@ void Model::CreateAsSphere(float radius, uint32_t slice, uint32_t stack)
 		indices.emplace_back(baseIndex + i + 1);
 	}
 
-	AddBuffer(vertices, indices);
-	AppendSubModel(SubModel{ 0U, 0U, (uint32_t)indices.size() });
+	AddBuffer(vertices);
+	AddBuffer(indices);
+	AppendSubModel(SubModel{ 0U, 0U, 0U, (uint32_t)indices.size(), 0U, 0 });
 
 	m_Valid = true;
 }
@@ -228,8 +250,9 @@ void Model::CreateAsGrid(float width, float depth, uint32_t m, uint32_t n)
 		}
 	}
 
-	AddBuffer(vertices, indices);
-	AppendSubModel(SubModel{ 0U, 0U, (uint32_t)indices.size() });
+	AddBuffer(vertices);
+	AddBuffer(indices);
+	AppendSubModel(SubModel{ 0U, 0U, 0U, (uint32_t)indices.size(), 0U, 0 });
 
 	m_Valid = true;
 }
@@ -274,8 +297,9 @@ void Model::CreateAsQuad(float left, float top, float width, float height)
 	indices[4] = 2;
 	indices[5] = 3;
 
-	AddBuffer(vertices, indices);
-	AppendSubModel(SubModel{ 0U, 0U, (uint32_t)indices.size() });
+	AddBuffer(vertices);
+	AddBuffer(indices);
+	AppendSubModel(SubModel{ 0U, 0U, (uint32_t)indices.size(), 0U, 0 });
 
 	m_Valid = true;
 }
@@ -297,8 +321,9 @@ void Model::CreateFromFile(const std::string &fileName)
 		std::vector<uint32_t> indices;
 		Verify(AssetTool::LoadOBJ(modelFile, vertices, indices, m_BoundingBox));
 
-		AddBuffer(vertices, indices);
-		AppendSubModel(SubModel{ 0U, 0U, (uint32_t)indices.size() });
+		AddBuffer(vertices);
+		AddBuffer(indices);
+		AppendSubModel(SubModel{ 0U, 0U, (uint32_t)indices.size(), 0U, 0 });
 
 		m_HasBoundingBox = true;
 	}
@@ -377,28 +402,24 @@ Sphere ComputeBoundingBoundingSphere(const std::vector<Vertex> &vertices)
 
 void Model::Draw(const DXUTCamera &camera, bool bDrawBoundingBox)
 {
-	if (!m_InputLayout.IsValid())
-	{
-		std::vector<VertexLayout> vertexLayout =
-		{
-			{ "POSITION", sizeof(Vertex::Position), offsetof(Vertex, Position), eRGB32_Float  },
-			{ "NORMAL",   sizeof(Vertex::Normal),   offsetof(Vertex, Normal),   eRGB32_Float  },
-			{ "TANGENT",  sizeof(Vertex::Tangent),  offsetof(Vertex, Tangent),  eRGB32_Float  },
-			{ "TEXCOORD", sizeof(Vertex::UV),       offsetof(Vertex, UV),       eRG32_Float   },
-		};
-
-		RVertexShader vertexShader;
-		vertexShader.Create("Mesh.shader", "VSMain");
-		m_InputLayout.Create(vertexShader.GetBlob(), vertexLayout);
-	}
-
-	REngine::Instance().SetInputLayout(m_InputLayout);
-
 	for (auto it = m_SubModels.cbegin(); it != m_SubModels.cend(); ++it)
 	{
 		const SubModel &subModel = *it;
-		REngine::Instance().SetVertexBuffer(m_VertexBuffers[subModel.VertexBuffer], sizeof(Vertex), 0U, 0U);
-		REngine::Instance().SetIndexBuffer(m_IndexBuffers[subModel.IndexBuffer], eR32_UInt, 0U);
+		REngine::Instance().SetInputLayout(m_InputLayouts[subModel.InputLayout]);
+		REngine::Instance().SetVertexBuffer(m_VertexBuffers[subModel.VertexBuffer], m_InputLayouts[subModel.InputLayout].GetVertexStride(), 0U, 0U);
+		REngine::Instance().SetIndexBuffer(m_IndexBuffers[subModel.IndexBuffer], subModel.IndexFormat, 0U);
+
+		if (subModel.MaterialIndex != UINT32_MAX)
+		{
+			REngine::Instance().SetSamplerState(RStaticState::LinearSampler, 0U, ePixelShader);
+
+			const Material &mat = m_Materials[subModel.MaterialIndex];
+			if (mat.Textures[Material::eDiffuse].IsValid())
+			{
+				REngine::Instance().SetShaderResourceView(mat.Textures[Material::eDiffuse], 0U, ePixelShader);
+			}
+		}
+
 		REngine::Instance().DrawIndexed(subModel.IndexCount, subModel.StartIndex, subModel.VertexOffset, subModel.PrimitiveType);
 	}
 
@@ -446,15 +467,18 @@ void Model::DrawBoundingBox(const DXUTCamera &camera)
 	REngine::Instance().DrawIndexed(s_IndexCount, 0U, 0, eTriangleList);
 }
 
-void Model::AddBuffer(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices)
+void Model::AddBuffer(const std::vector<Vertex> &vertices)
 {
-	RBuffer vertexBuffer;
-	vertexBuffer.CreateAsVertexBuffer(sizeof(Vertex) * vertices.size(), eGpuReadOnly, vertices.data());
-	m_VertexBuffers.emplace_back(vertexBuffer);
+	RBuffer buffer;
+	buffer.CreateAsVertexBuffer(sizeof(Vertex) * vertices.size(), eGpuReadOnly, vertices.data());
+	m_VertexBuffers.emplace_back(buffer);
+}
 
-	RBuffer indexBuffer;
-	indexBuffer.CreateAsIndexBuffer(sizeof(uint32_t) * indices.size(), eGpuReadOnly, indices.data());
-	m_IndexBuffers.emplace_back(indexBuffer);
+void Model::AddBuffer(const std::vector<uint32_t> &indices)
+{
+	RBuffer buffer;
+	buffer.CreateAsIndexBuffer(sizeof(uint32_t) * indices.size(), eGpuReadOnly, indices.data());
+	m_IndexBuffers.emplace_back(buffer);
 }
 
 NamespaceEnd(Geometry)

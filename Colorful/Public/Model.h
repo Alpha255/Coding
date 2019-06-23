@@ -4,24 +4,36 @@
 #include "Definitions.h"
 #include "Geometry.h"
 #include "Lighting.h"
+#include <DirectXTK/Inc/Model.h>
 
 NamespaceBegin(Geometry)
 
 class Model
 {
 public:
+#if 0
+	std::unique_ptr<DirectX::Model> pModel;
+#endif
+	enum eBufferType
+	{
+		eVertexBuffer,
+		eIndexBuffer,
+		eTypeCount
+	};
+
 	struct SubModel
 	{
-		uint32_t VertexBuffer = 0U;
-		uint32_t IndexBuffer = 0U;
+		uint32_t VertexBuffer = UINT32_MAX;
+		uint32_t IndexBuffer = UINT32_MAX;
+		uint32_t InputLayout = UINT32_MAX;
 
-		uint32_t IndexCount = 0U;
-		uint32_t StartIndex = 0U;
-		int32_t VertexOffset = 0;
+		uint32_t IndexCount = UINT32_MAX;
+		uint32_t StartIndex = UINT32_MAX;
+		int32_t VertexOffset = INT32_MAX;
 	
+		uint32_t MaterialIndex = UINT32_MAX;
 		eRPrimitiveTopology PrimitiveType = eTriangleList;
-
-		Material Mat;
+		eRFormat IndexFormat = eR32_UInt;
 	};
 
 	Model() = default;
@@ -54,19 +66,38 @@ public:
 	void CreateAsQuad(float left, float top, float width, float height);
 	void CreateFromFile(const std::string &fileName);
 
-	void AddBuffer(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices);
+	void AddBuffer(const std::vector<Vertex> &vertices);
+	void AddBuffer(const std::vector<uint32_t> &indices);
 
-	inline void AddBuffer(const RBuffer &vertexBuffer, const RBuffer &indexBuffer)
+	inline void AddBuffer(const RBuffer &buffer, eBufferType type)
 	{
-		assert(vertexBuffer.IsValid() && indexBuffer.IsValid());
-		m_VertexBuffers.emplace_back(vertexBuffer);
-		m_IndexBuffers.emplace_back(indexBuffer);
+		assert(buffer.IsValid() && type < eTypeCount);
+		if (type == eVertexBuffer)
+		{
+			m_VertexBuffers.emplace_back(buffer);
+		}
+		else if (type == eIndexBuffer)
+		{
+			m_IndexBuffers.emplace_back(buffer);
+		}
 	}
 
-	inline void AppendSubModel(const SubModel &subModel)
+	inline void AddMaterial(const Material &mat)
 	{
-		m_SubModels.emplace_back(subModel);
+		m_Materials.emplace_back(mat);
 	}
+
+	inline void AddMaterials(const std::vector<Material> &mats)
+	{
+		m_Materials.insert(m_Materials.end(), mats.cbegin(), mats.cend());
+	}
+
+	inline void AddInputLayout(const RInputLayout &layout)
+	{
+		m_InputLayouts.emplace_back(layout);
+	}
+
+	void AppendSubModel(const SubModel &subModel, bool bUseDefaultLayout = true);
 
 	void Draw(const DXUTCamera &camera, bool bDrawBoundingBox = false);
 protected:
@@ -76,7 +107,8 @@ private:
 	std::vector<SubModel> m_SubModels;
 	std::vector<RBuffer> m_VertexBuffers;
 	std::vector<RBuffer> m_IndexBuffers;
-	RInputLayout m_InputLayout;
+	std::vector<RInputLayout> m_InputLayouts;
+	std::vector<Material> m_Materials;
 
 	Box m_BoundingBox;
 

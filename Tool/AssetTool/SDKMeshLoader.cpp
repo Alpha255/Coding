@@ -2,9 +2,48 @@
 #include "Base/AssetFile.h"
 #include "Colorful/Public/Model.h"
 #include <dxgiformat.h>
+#include <DirectXTK/Inc/Effects.h>
+#include <DirectXTK/Inc/Model.h>
 #include <DirectXTK/Src/SDKMesh.h>
+#include <DirectXTK/Src/Shaders/Compiled/BasicEffect_VSBasic.inc>
+#include <DirectXTK/Src/Shaders/Compiled/BasicEffect_VSBasicNoFog.inc>
+#include <DirectXTK/Src/Shaders/Compiled/BasicEffect_VSBasicVcNoFog.inc>
+#include <DirectXTK/Src/Shaders/Compiled/BasicEffect_VSBasicTxNoFog.inc>
+#include <DirectXTK/Src/Shaders/Compiled/BasicEffect_VSBasicTxVcNoFog.inc>
+#include <DirectXTK/Src/Shaders/Compiled/NormalMapEffect_VSNormalPixelLightingTx.inc>
+#include <DirectXTK/Src/Shaders/Compiled/NormalMapEffect_VSNormalPixelLightingTxVc.inc>
 
 NamespaceBegin(AssetTool)
+
+enum eMaterialFlags
+{
+	ePerVertexColor = 0x1,
+	eSkinning = 0x2,
+	eDualTexture = 0x4,
+	eNormalMaps = 0x8,
+	eBiasedVertexNormals = 0x10,
+	eUsesObsoleteDEC3N = 0x20
+};
+
+enum eEffectType
+{
+	eSkinned,
+	eDualTex,
+	eNormalMap,
+	eBasic
+};
+
+struct VertexLayout
+{
+	uint32_t BufferIndex = 0U;
+	std::vector<Geometry::VertexLayout> Layout;
+};
+
+struct ShaderBlob
+{
+	const byte *ByteCode = nullptr;
+	size_t Size = 0U;
+};
 
 bool IsValid(size_t size, const DXUT::SDKMESH_HEADER *pHeader)
 {
@@ -78,42 +117,165 @@ bool IsValid(size_t size, const DXUT::SDKMESH_HEADER *pHeader)
 	return true;
 }
 
-struct InputElementDesc
+inline uint32_t GetVertexStride(uint32_t format)
 {
-	enum eType
+	switch (format)
 	{
-		ePosition,
-		eNormal,
-		eColor,
-		eTangent,
-		eBinNormal,
-		eTexcoord,
-		eBlendIndices,
-		eBlendWeight,
-		eTypeCount
-	};
+	case eRGBA32_Float:
+		return (uint32_t)(sizeof(float) * 4U);
+	case eRGB32_Float:
+		return (uint32_t)(sizeof(float) * 3U);
+	case eBGRA8_UNorm:
+	case eRGBA8_UInt:
+	case eRGBA8_UNorm:
+		return (uint32_t)(sizeof(uint32_t));
+	case eRG32_Float:
+		return (uint32_t)(sizeof(float) * 2U);
+	case eRGB10A2_UNorm:
+	case eRG11B10_Float:
+	case eR32_Float:
+		return (uint32_t)(sizeof(float));
+	case eRG16_Float:
+		return (uint32_t)(sizeof(uint16_t) * 2U);
+	case eRGBA16_SNorm:
+	case eRGBA16_Float:
+		return (uint32_t)(sizeof(uint16_t) * 3U);
+	}
 
-	eType Type = eTypeCount;
-	DXGI_FORMAT Format = DXGI_FORMAT_UNKNOWN;
-};
+	assert(0);
 
-void GetInputElementDesc(_In_reads_(32) const DXUT::D3DVERTEXELEMENT9 decl[], std::vector<InputElementDesc>& inputDesc)
+	return 0U;
+}
+
+ShaderBlob GetShaderByteCode(const uint32_t flags, const Material &mat)
+{
+	uint32_t permutation = 1U;
+
+	if (flags & ePerVertexColor)
+	{
+		permutation += 2U;
+	}
+
+	eEffectType type = eBasic;
+	if (flags & eSkinning)
+	{
+		assert(0);
+		type = eSkinned;
+	}
+	if (flags & eDualTexture)
+	{
+		assert(0);
+		type = eDualTex;
+	}
+	if (flags & eNormalMaps || flags & eBiasedVertexNormals)
+	{
+		type = eNormalMap;
+	}
+
+	if (mat.Textures[Material::eDiffuse].IsValid())
+	{
+		permutation += 4U;
+	}
+
+	/// VertexShaderIndices
+	ShaderBlob blob;
+	switch (permutation)
+	{
+	case 1U:
+		if (type == eBasic)
+		{
+			blob.ByteCode = BasicEffect_VSBasicNoFog;
+			blob.Size = sizeof(BasicEffect_VSBasicNoFog);
+		}
+		else if (type == eNormalMap)
+		{
+			blob.ByteCode = NormalMapEffect_VSNormalPixelLightingTx;
+			blob.Size = sizeof(NormalMapEffect_VSNormalPixelLightingTx);
+		}
+		break;
+	case 3U:
+		if (type == eBasic)
+		{
+			blob.ByteCode = BasicEffect_VSBasicVcNoFog;
+			blob.Size = sizeof(BasicEffect_VSBasicVcNoFog);
+		}
+		else if (type == eNormalMap)
+		{
+			blob.ByteCode = NormalMapEffect_VSNormalPixelLightingTxVc;
+			blob.Size = sizeof(NormalMapEffect_VSNormalPixelLightingTxVc);
+		}
+		break;
+	case 5U:
+		if (type == eBasic)
+		{
+			blob.ByteCode = BasicEffect_VSBasicTxNoFog;
+			blob.Size = sizeof(BasicEffect_VSBasicTxNoFog);
+		}
+		else if (type == eNormalMap)
+		{
+			blob.ByteCode = NormalMapEffect_VSNormalPixelLightingTx;
+			blob.Size = sizeof(NormalMapEffect_VSNormalPixelLightingTx);
+		}
+		break;
+	case 7U:
+		if (type == eBasic)
+		{
+			blob.ByteCode = BasicEffect_VSBasicTxVcNoFog;
+			blob.Size = sizeof(BasicEffect_VSBasicTxVcNoFog);
+		}
+		else if (type == eNormalMap)
+		{
+			blob.ByteCode = NormalMapEffect_VSNormalPixelLightingTxVc;
+			blob.Size = sizeof(NormalMapEffect_VSNormalPixelLightingTxVc);
+		}
+		break;
+	default:
+		assert(0);
+		break;
+	}
+
+	return blob;
+}
+
+bool CompareVertexLayout(const std::vector<Geometry::VertexLayout> &left, const std::vector<Geometry::VertexLayout> &right)
+{
+	if (left.size() != right.size())
+	{
+		return false;
+	}
+
+	bool bSame = true;
+	for (uint32_t i = 0U; i < left.size(); ++i)
+	{
+		if (left[i].Format != right[i].Format)
+		{
+			bSame = false;
+			break;
+		}
+	}
+
+	return bSame;
+}
+
+uint32_t GetVertexLayouts(_In_reads_(32) const DXUT::D3DVERTEXELEMENT9 decl[], std::vector<Geometry::VertexLayout>& vertexLayouts)
 {
 	static_assert(D3D11_IA_VERTEX_INPUT_STRUCTURE_ELEMENT_COUNT >= 32, "SDKMESH supports decls up to 32 entries");
 
-	static const InputElementDesc s_Elements[] =
+	static const std::vector<Geometry::VertexLayout> s_VertexLayouts =
 	{
-		{ InputElementDesc::ePosition,     DXGI_FORMAT_R32G32B32_FLOAT },
-		{ InputElementDesc::eNormal,       DXGI_FORMAT_R32G32B32_FLOAT },
-		{ InputElementDesc::eColor,        DXGI_FORMAT_B8G8R8A8_UNORM  },
-		{ InputElementDesc::eTangent,      DXGI_FORMAT_R32G32B32_FLOAT },
-		{ InputElementDesc::eBinNormal,    DXGI_FORMAT_R32G32B32_FLOAT },
-		{ InputElementDesc::eTexcoord,     DXGI_FORMAT_R32G32_FLOAT    },
-		{ InputElementDesc::eBlendIndices, DXGI_FORMAT_R8G8B8A8_UINT   },
-		{ InputElementDesc::eBlendWeight,  DXGI_FORMAT_R8G8B8A8_UNORM  },
+		{ "SV_POSITION",  0U, 0U, eRGB32_Float },
+		{ "NORMAL",       0U, 0U, eRGB32_Float },
+		{ "COLOR",        0U, 0U, eRGBA8_UNorm },
+		{ "TANGENT",      0U, 0U, eRGB32_Float },
+		{ "BINNORMAl",    0U, 0U, eRGB32_Float },
+		{ "TEXCOORD",     0U, 0U, eRG32_Float  },
+		{ "BLENDINDICES", 0U, 0U, eRGBA8_UInt  },
+		{ "BLENDWEIGHT",  0U, 0U, eRGBA8_UNorm },
 	};
 
-	uint32_t offset = 0;
+	uint32_t offset = 0U;
+	uint32_t texcoords = 0U;
+	uint32_t flags = 0U;
 
 	bool posfound = false;
 
@@ -138,8 +300,10 @@ void GetInputElementDesc(_In_reads_(32) const DXUT::D3DVERTEXELEMENT9 decl[], st
 		{
 			if (decl[index].Type == DXUT::D3DDECLTYPE_FLOAT3)
 			{
-				inputDesc.emplace_back(s_Elements[0]);
-				offset += 12;
+				Geometry::VertexLayout layout = s_VertexLayouts[0];
+				layout.Stride = GetVertexStride(layout.Format);
+				vertexLayouts.emplace_back(layout);
+				offset += layout.Stride;
 				posfound = true;
 			}
 			else
@@ -161,42 +325,38 @@ void GetInputElementDesc(_In_reads_(32) const DXUT::D3DVERTEXELEMENT9 decl[], st
 				base = 4;
 			}
 
-			InputElementDesc desc = s_Elements[base];
+			Geometry::VertexLayout layout = s_VertexLayouts[base];
 
 			bool unk = false;
 			switch (decl[index].Type)
 			{
 			case DXUT::D3DDECLTYPE_FLOAT3:
-				assert(desc.Format == DXGI_FORMAT_R32G32B32_FLOAT); 
-				offset += 12; 
+				assert(layout.Format == eRGB32_Float);
 				break;
 			case DXUT::D3DDECLTYPE_UBYTE4N:
-				desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; 
-				offset += 4; 
+				layout.Format = eRGBA8_UNorm;
+				flags |= eBiasedVertexNormals;
 				break;
 			case DXUT::D3DDECLTYPE_SHORT4N:
-				desc.Format = DXGI_FORMAT_R16G16B16A16_SNORM; 
-				offset += 8; 
+				layout.Format = eRGBA16_SNorm;
 				break;
 			case DXUT::D3DDECLTYPE_FLOAT16_4:
-				desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT; 
-				offset += 8; 
+				layout.Format = eRGBA16_Float;
 				break;
 			case DXUT::D3DDECLTYPE_DXGI_R10G10B10A2_UNORM:
-				desc.Format = DXGI_FORMAT_R10G10B10A2_UNORM; 
-				offset += 4; 
+				layout.Format = eRGB10A2_UNorm;
+				flags |= eBiasedVertexNormals;
 				break;
 			case DXUT::D3DDECLTYPE_DXGI_R11G11B10_FLOAT:
-				desc.Format = DXGI_FORMAT_R11G11B10_FLOAT; 
-				offset += 4; 
+				layout.Format = eRG11B10_Float;
+				flags |= eBiasedVertexNormals;
 				break;
 			case DXUT::D3DDECLTYPE_DXGI_R8G8B8A8_SNORM:
-				desc.Format = DXGI_FORMAT_R8G8B8A8_SNORM; 
-				offset += 4; 
+				layout.Format = eRGBA8_SNorm;
 				break;
 			case DXUT::D3DDECLTYPE_DEC3N:
-				desc.Format = DXGI_FORMAT_R10G10B10A2_UNORM; 
-				offset += 4; 
+				layout.Format = eRGB10A2_UNorm;
+				flags |= eUsesObsoleteDEC3N;
 				break;
 			default:
 				unk = true;
@@ -208,38 +368,39 @@ void GetInputElementDesc(_In_reads_(32) const DXUT::D3DVERTEXELEMENT9 decl[], st
 				break;
 			}
 
-			inputDesc.emplace_back(desc);
+			if (decl[index].Usage == DXUT::D3DDECLUSAGE_TANGENT)
+			{
+				flags |= eNormalMaps;
+			}
+
+			layout.Stride = GetVertexStride(layout.Format);
+			offset += layout.Stride;
+			vertexLayouts.emplace_back(layout);
 		}
 		else if (decl[index].Usage == DXUT::D3DDECLUSAGE_COLOR)
 		{
-			InputElementDesc desc = s_Elements[2];
+			Geometry::VertexLayout layout = s_VertexLayouts[2];
 
 			bool unk = false;
 			switch (decl[index].Type)
 			{
 			case DXUT::D3DDECLTYPE_FLOAT4:
-				desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT; 
-				offset += 16; 
+				layout.Format = eRGBA32_Float;
 				break;
 			case DXUT::D3DDECLTYPE_D3DCOLOR:
-				assert(desc.Format == DXGI_FORMAT_B8G8R8A8_UNORM); 
-				offset += 4; 
+				assert(layout.Format == eBGRA8_UNorm);
 				break;
 			case DXUT::D3DDECLTYPE_UBYTE4N:
-				desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; 
-				offset += 4; 
+				layout.Format = eRGBA8_UNorm;
 				break;
 			case DXUT::D3DDECLTYPE_FLOAT16_4:
-				desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT; 
-				offset += 8; 
+				layout.Format = eRGBA16_Float;
 				break;
 			case DXUT::D3DDECLTYPE_DXGI_R10G10B10A2_UNORM:
-				desc.Format = DXGI_FORMAT_R10G10B10A2_UNORM; 
-				offset += 4; 
+				layout.Format = eRGB10A2_UNorm;
 				break;
 			case DXUT::D3DDECLTYPE_DXGI_R11G11B10_FLOAT:
-				desc.Format = DXGI_FORMAT_R11G11B10_FLOAT; 
-				offset += 4; 
+				layout.Format = eRG11B10_Float;
 				break;
 
 			default:
@@ -252,39 +413,37 @@ void GetInputElementDesc(_In_reads_(32) const DXUT::D3DVERTEXELEMENT9 decl[], st
 				break;
 			}
 
-			inputDesc.emplace_back(desc);
+			flags |= ePerVertexColor;
+
+			layout.Stride = GetVertexStride(layout.Format);
+			offset += layout.Stride;
+			vertexLayouts.emplace_back(layout);
 		}
 		else if (decl[index].Usage == DXUT::D3DDECLUSAGE_TEXCOORD)
 		{
-			InputElementDesc desc = s_Elements[5];
+			Geometry::VertexLayout layout = s_VertexLayouts[5];
 			assert(decl[index].UsageIndex == 0U);
 
 			bool unk = false;
 			switch (decl[index].Type)
 			{
 			case DXUT::D3DDECLTYPE_FLOAT1:
-				desc.Format = DXGI_FORMAT_R32_FLOAT; 
-				offset += 4; 
+				layout.Format = eR32_Float;
 				break;
 			case DXUT::D3DDECLTYPE_FLOAT2:
-				assert(desc.Format == DXGI_FORMAT_R32G32_FLOAT); 
-				offset += 8; 
+				assert(layout.Format == eRG32_Float);
 				break;
 			case DXUT::D3DDECLTYPE_FLOAT3:
-				desc.Format = DXGI_FORMAT_R32G32B32_FLOAT; 
-				offset += 12; 
+				layout.Format = eRGB32_Float;
 				break;
 			case DXUT::D3DDECLTYPE_FLOAT4:
-				desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT; 
-				offset += 16; 
+				layout.Format = eRGBA32_Float;
 				break;
 			case DXUT::D3DDECLTYPE_FLOAT16_2:
-				desc.Format = DXGI_FORMAT_R16G16_FLOAT; 
-				offset += 4; 
+				layout.Format = eRG16_Float;
 				break;
 			case DXUT::D3DDECLTYPE_FLOAT16_4:
-				desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT; 
-				offset += 8; 
+				layout.Format = eRGBA16_Float;
 				break;
 
 			default:
@@ -297,14 +456,22 @@ void GetInputElementDesc(_In_reads_(32) const DXUT::D3DVERTEXELEMENT9 decl[], st
 				break;
 			}
 
-			inputDesc.emplace_back(desc);
+			layout.Stride = GetVertexStride(layout.Format);
+			offset += layout.Stride;
+			vertexLayouts.emplace_back(layout);
+
+			++texcoords;
 		}
 		else if (decl[index].Usage == DXUT::D3DDECLUSAGE_BLENDINDICES)
 		{
 			if (decl[index].Type == DXUT::D3DDECLTYPE_UBYTE4)
 			{
-				inputDesc.emplace_back(s_Elements[6]);
-				offset += 4;
+				Geometry::VertexLayout layout = s_VertexLayouts[6];
+				layout.Stride = GetVertexStride(layout.Format);
+				vertexLayouts.emplace_back(layout);
+				offset += layout.Stride;
+
+				flags |= eSkinning;
 			}
 			else
 			{
@@ -315,8 +482,12 @@ void GetInputElementDesc(_In_reads_(32) const DXUT::D3DVERTEXELEMENT9 decl[], st
 		{
 			if (decl[index].Type == DXUT::D3DDECLTYPE_UBYTE4N)
 			{
-				inputDesc.emplace_back(s_Elements[7]);
-				offset += 4;
+				Geometry::VertexLayout layout = s_VertexLayouts[7];
+				layout.Stride = GetVertexStride(layout.Format);
+				vertexLayouts.emplace_back(layout);
+				offset += layout.Stride;
+
+				flags |= eSkinning;
 			}
 			else
 			{
@@ -330,134 +501,13 @@ void GetInputElementDesc(_In_reads_(32) const DXUT::D3DVERTEXELEMENT9 decl[], st
 	}
 
 	assert(posfound);
-}
 
-inline size_t GetVertexStride(DXGI_FORMAT format)
-{
-	switch (format)
+	if (texcoords == 2U)
 	{
-	case DXGI_FORMAT_R32G32B32_FLOAT:
-		return sizeof(float) * 3U;
-	case DXGI_FORMAT_B8G8R8A8_UNORM:
-		return sizeof(uint32_t);
-	case DXGI_FORMAT_R32G32_FLOAT:
-		return sizeof(float) * 2U;
-	case DXGI_FORMAT_R8G8B8A8_UINT:
-		return sizeof(uint32_t);
-	case DXGI_FORMAT_R8G8B8A8_UNORM:
-		return sizeof(uint32_t);
-	case DXGI_FORMAT_R10G10B10A2_UNORM:
-		return sizeof(float);
-	case DXGI_FORMAT_R16G16_FLOAT:
-		return sizeof(uint16_t) * 2U;
+		flags |= eDualTexture;
 	}
 
-	assert(0);
-
-	return 0U;
-}
-
-inline Vec3 Unpack_RGB10A2_UNorm(uint32_t value)
-{
-	Vec3 result;
-	result.x = (float)(value & 0x000003FF) / 1023;
-	result.y = (float)(((value >> 10U) & 0x000003FF)) / 1023;
-	result.z = (float)(((value >> 20U) & 0x000003FF)) / 1023;
-
-	return result;
-}
-
-inline Vec2 UnpackRG16_UNorm(uint32_t value)
-{
-	Vec2 result;
-	result.x = (float)(value & 0x0000FFFF) / 65535;
-	result.y = (float)(value >> 16) / 65535;
-
-	return result;
-}
-
-inline Vec2 UnpackRG16_Float(uint32_t value)
-{
-	Vec2 result;
-	result.x = (float)(value & 0x0000FFFF) / 65535;
-	result.y = (float)(value >> 16) / 65535;
-
-	return result;
-}
-
-void LoadVertexData(std::vector<Geometry::Vertex> &vertices, const std::vector<InputElementDesc> &inputDesc, const uint8_t *pData)
-{
-	const uint8_t *pVertexData = pData;
-
-	for (uint32_t i = 0U; i < vertices.size(); ++i)
-	{
-		for (uint32_t j = 0U; j < inputDesc.size(); ++j)
-		{
-			switch (inputDesc[j].Type)
-			{
-			case InputElementDesc::ePosition:
-				assert(inputDesc[j].Format == DXGI_FORMAT_R32G32B32_FLOAT);
-				vertices[i].Position = Vec3((const float *)pVertexData);
-				break;
-			case InputElementDesc::eNormal:
-				if (inputDesc[j].Format == DXGI_FORMAT_R32G32B32_FLOAT)
-				{
-					vertices[i].Normal = Vec3((const float *)pVertexData);
-				}
-				else if (inputDesc[j].Format == DXGI_FORMAT_R10G10B10A2_UNORM)
-				{
-					uint32_t value = *((const uint32_t *)pVertexData);
-					vertices[i].Normal = Unpack_RGB10A2_UNorm(value);
-				}
-				else
-				{
-					assert(0);
-				}
-				break;
-			case InputElementDesc::eTangent:
-				if (inputDesc[j].Format == DXGI_FORMAT_R32G32B32_FLOAT)
-				{
-					vertices[i].Tangent = Vec3((const float *)pVertexData);
-				}
-				else if (inputDesc[j].Format == DXGI_FORMAT_R10G10B10A2_UNORM)
-				{
-					uint32_t value = *((const uint32_t *)pVertexData);
-					vertices[i].Tangent = Unpack_RGB10A2_UNorm(value);
-				}
-				else
-				{
-					assert(0);
-				}
-				break;
-			case InputElementDesc::eTexcoord:
-				if (inputDesc[j].Format == DXGI_FORMAT_R32G32_FLOAT)
-				{
-					vertices[i].UV = Vec2((const float *)pVertexData);
-				}
-				else if (inputDesc[j].Format == DXGI_FORMAT_R16G16_FLOAT)
-				{
-					uint32_t value = *((const uint32_t *)pVertexData);
-					vertices[i].UV = UnpackRG16_UNorm(value);
-				}
-				else
-				{
-					assert(0);
-				}
-				break;
-			}
-			pVertexData += GetVertexStride(inputDesc[j].Format);
-		}
-	}
-}
-
-void LoadIndexData(std::vector<uint32_t> &indices, const uint8_t *pData)
-{
-	const uint16_t *pIndexData = (const uint16_t *)pData;
-	for (uint32_t i = 0U; i < indices.size(); ++i)
-	{
-		indices[i] = (uint32_t)*pIndexData;
-		++pIndexData;
-	}
+	return flags;
 }
 
 bool LoadSDKMesh(
@@ -470,11 +520,79 @@ bool LoadSDKMesh(
 	auto pHeader = (const DXUT::SDKMESH_HEADER *)(pData);
 
 	assert(IsValid(asset.GetSize(), pHeader));
-	assert(pHeader->NumVertexBuffers == pHeader->NumIndexBuffers); ///
+
+#if 0
+	std::string path(asset.GetPath());
+	std::wstring wpath(path.cbegin(), path.cend());
+	DirectX::EffectFactory factory(REngine::Instance().GetDevice().Get());
+	::SetCurrentDirectoryA("H:\\Coding\\Assets\\SDKMeshs\\SquidRoom");
+	model.pModel = DirectX::Model::CreateFromSDKMESH(REngine::Instance().GetDevice().Get(), wpath.c_str(), factory);
+#endif
+
+	/// Vertex Buffer
+	std::vector<uint32_t> materialFlags(pHeader->NumVertexBuffers);
+	std::vector<uint32_t> layoutIndex(pHeader->NumVertexBuffers);
+	std::vector<uint32_t> materialIDs(pHeader->NumVertexBuffers);
+	std::vector<VertexLayout> vertexLayouts;
+	auto pVertexBufferHeaders = reinterpret_cast<const DXUT::SDKMESH_VERTEX_BUFFER_HEADER*>(pData + pHeader->VertexStreamHeadersOffset);
+	for (uint32_t i = 0U; i < pHeader->NumVertexBuffers; ++i)
+	{
+		auto &vbHeader = pVertexBufferHeaders[i];
+
+		assert(vbHeader.SizeBytes <= (D3D11_REQ_RESOURCE_SIZE_IN_MEGABYTES_EXPRESSION_A_TERM * 1024U * 1024U));
+		assert(asset.GetSize() >= vbHeader.DataOffset && asset.GetSize() >= (vbHeader.DataOffset + vbHeader.SizeBytes));
+
+		VertexLayout vertexLayout;
+		materialFlags[i] = GetVertexLayouts(vbHeader.Decl, vertexLayout.Layout);
+		if (materialFlags[i] & eSkinning)
+		{
+			materialFlags[i] &= ~(eDualTexture | eNormalMaps);
+		}
+		if (materialFlags[i] & eDualTexture)
+		{
+			materialFlags[i] &= ~eNormalMaps;
+		}
+
+		uint32_t index = 0U;
+		for (; index < vertexLayouts.size(); ++index)
+		{
+			if (CompareVertexLayout(vertexLayouts[index].Layout, vertexLayout.Layout))
+			{
+				break;
+			}
+		}
+		if (index == vertexLayouts.size())
+		{
+			vertexLayout.BufferIndex = i;
+			vertexLayouts.emplace_back(vertexLayout);
+		}
+		layoutIndex[i] = index;
+
+		RBuffer vertexBuffer;
+		vertexBuffer.CreateAsVertexBuffer(vbHeader.SizeBytes, eGpuReadOnly, pData + vbHeader.DataOffset);
+
+		model.AddBuffer(vertexBuffer, Geometry::Model::eVertexBuffer);
+	}
+
+	/// Index Buffer
+	auto pIndexBufferHeaders = reinterpret_cast<const DXUT::SDKMESH_INDEX_BUFFER_HEADER*>(pData + pHeader->IndexStreamHeadersOffset);
+	for (uint32_t i = 0U; i < pHeader->NumIndexBuffers; ++i)
+	{
+		auto &ibHeader = pIndexBufferHeaders[i];
+
+		assert(ibHeader.SizeBytes <= (D3D11_REQ_RESOURCE_SIZE_IN_MEGABYTES_EXPRESSION_A_TERM * 1024U * 1024U));
+		assert(asset.GetSize() >= ibHeader.DataOffset && asset.GetSize() >= (ibHeader.DataOffset + ibHeader.SizeBytes));
+
+		RBuffer indexBuffer;
+		indexBuffer.CreateAsIndexBuffer(ibHeader.SizeBytes, eGpuReadOnly, pData + ibHeader.DataOffset);
+
+		model.AddBuffer(indexBuffer, Geometry::Model::eIndexBuffer);
+	}
 
 	/// Subsets
 	auto pSDKMesh = reinterpret_cast<const DXUT::SDKMESH_MESH*>(pData + pHeader->MeshDataOffset);
 	auto pSubsets = reinterpret_cast<const DXUT::SDKMESH_SUBSET*>(pData + pHeader->SubsetDataOffset);
+	std::vector<Material> materials(pHeader->NumMaterials);
 
 	for (uint32_t i = 0U; i < pHeader->NumMeshes; ++i)
 	{
@@ -536,81 +654,71 @@ bool LoadSDKMesh(
 				break;
 			}
 
-			assert(subset.MaterialID < pHeader->NumMaterials);
-			auto pMaterials = reinterpret_cast<const DXUT::SDKMESH_MATERIAL*>(pData + pHeader->MaterialDataOffset);
-			auto &material = pMaterials[subset.MaterialID];
-			if (strlen(material.DiffuseTexture) > 0U)
-			{
-				subModel.Mat.Set(Material::eDiffuse, material.DiffuseTexture);
-			}
-			if (strlen(material.NormalTexture) > 0U)
-			{
-				subModel.Mat.Set(Material::eNormal, material.NormalTexture);
-			}
-			if (strlen(material.SpecularTexture) > 0U)
-			{
-				subModel.Mat.Set(Material::eSpecular, material.SpecularTexture);
-			}
-
 			subModel.IndexCount = (uint32_t)subset.IndexCount;
 			subModel.StartIndex = (uint32_t)subset.IndexStart;
 			subModel.VertexOffset = (int32_t)subset.VertexStart;
+			subModel.IndexFormat = (pIndexBufferHeaders[mesh.IndexBuffer].IndexType == DXUT::IT_32BIT ? eR32_UInt : eR16_UInt);
 			subModel.IndexBuffer = mesh.IndexBuffer;
 			subModel.VertexBuffer = mesh.VertexBuffers[0];
-			model.AppendSubModel(subModel);
+			subModel.InputLayout = layoutIndex[subModel.VertexBuffer];
+			subModel.MaterialIndex = subset.MaterialID;
+			materialIDs[subModel.VertexBuffer] = subModel.MaterialIndex;
+
+			assert(subset.MaterialID < pHeader->NumMaterials);
+			auto pMaterials = reinterpret_cast<const DXUT::SDKMESH_MATERIAL*>(pData + pHeader->MaterialDataOffset);
+			auto &material = pMaterials[subset.MaterialID];
+			if (!materials[subset.MaterialID].Valid)
+			{
+				if (strlen(material.DiffuseTexture) > 0U)
+				{
+					materials[subset.MaterialID].Set(Material::eDiffuse, material.DiffuseTexture);
+				}
+
+				if (strlen(material.NormalTexture) > 0U)
+				{
+					if (materialFlags[subModel.VertexBuffer] & eNormalMaps)
+					{
+						materials[subset.MaterialID].Set(Material::eNormal, material.NormalTexture);
+					}
+					else
+					{
+						assert(0);
+					}
+				}
+				else
+				{
+					if (materialFlags[subModel.VertexBuffer] & eNormalMaps)
+					{
+						materialFlags[subModel.VertexBuffer] &= ~eNormalMaps;
+					}
+				}
+
+				if (strlen(material.SpecularTexture) > 0U)
+				{
+					materials[subset.MaterialID].Set(Material::eSpecular, material.SpecularTexture);
+				}
+				else
+				{
+					if (materialFlags[subModel.VertexBuffer] & eDualTexture)
+					{
+						materialFlags[subModel.VertexBuffer] &= ~eDualTexture;
+					}
+				}
+				materials[subset.MaterialID].Valid = true;
+			}
+
+			model.AppendSubModel(subModel, false);
 		}
 	}
 
-
-	/// Vertex-Index
-	auto pVertexBufferHeaders = reinterpret_cast<const DXUT::SDKMESH_VERTEX_BUFFER_HEADER*>(pData + pHeader->VertexStreamHeadersOffset);
-	auto pIndexBufferHeaders = reinterpret_cast<const DXUT::SDKMESH_INDEX_BUFFER_HEADER*>(pData + pHeader->IndexStreamHeadersOffset);
-	for (uint32_t i = 0U; i < pHeader->NumVertexBuffers; ++i)
+	for (uint32_t i = 0U; i < vertexLayouts.size(); ++i)
 	{
-		auto &vbHeader = pVertexBufferHeaders[i];
-		auto &ibHeader = pIndexBufferHeaders[i];
-
-		assert(vbHeader.SizeBytes <= (D3D11_REQ_RESOURCE_SIZE_IN_MEGABYTES_EXPRESSION_A_TERM * 1024U * 1024U));
-		assert(asset.GetSize() >= vbHeader.DataOffset && asset.GetSize() >= (vbHeader.DataOffset + vbHeader.SizeBytes));
-
-		assert(ibHeader.SizeBytes <= (D3D11_REQ_RESOURCE_SIZE_IN_MEGABYTES_EXPRESSION_A_TERM * 1024U * 1024U));
-		assert(asset.GetSize() >= ibHeader.DataOffset && asset.GetSize() >= (ibHeader.DataOffset + ibHeader.SizeBytes));
-
-		std::vector<InputElementDesc> inputDesc;
-		GetInputElementDesc(vbHeader.Decl, inputDesc);
-
-		size_t stride = 0U;
-		for (uint32_t j = 0U; j < inputDesc.size(); ++j)
-		{
-			stride += GetVertexStride(inputDesc[j].Format);
-		}
-
-		assert(stride == vbHeader.StrideBytes);
-		assert(vbHeader.NumVertices * stride == vbHeader.SizeBytes);
-
-		std::vector<Geometry::Vertex> vertices(vbHeader.NumVertices);
-		LoadVertexData(vertices, inputDesc, pData + vbHeader.DataOffset);
-		RBuffer vertexBuffer;
-		vertexBuffer.CreateAsVertexBuffer(sizeof(Geometry::Vertex) * vbHeader.NumVertices, eGpuReadOnly, vertices.data());
-
-		RBuffer indexBuffer;
-		if (ibHeader.IndexType == DXUT::IT_32BIT)
-		{
-			indexBuffer.CreateAsIndexBuffer(ibHeader.SizeBytes, eGpuReadOnly, pData + ibHeader.DataOffset);
-		}
-		else if (ibHeader.IndexType == DXUT::IT_16BIT)
-		{
-			std::vector<uint32_t> indices(ibHeader.NumIndices);
-			LoadIndexData(indices, pData + ibHeader.DataOffset);
-			indexBuffer.CreateAsIndexBuffer(indices.size() * sizeof(uint32_t), eGpuReadOnly, indices.data());
-		}
-		else
-		{
-			assert(0);
-		}
-
-		model.AddBuffer(vertexBuffer, indexBuffer);
+		RInputLayout layout;
+		ShaderBlob blob = GetShaderByteCode(materialFlags[vertexLayouts[i].BufferIndex], materials[materialIDs[vertexLayouts[i].BufferIndex]]);
+		layout.Create(blob.ByteCode, blob.Size, vertexLayouts[i].Layout);
+		model.AddInputLayout(layout);
 	}
+	model.AddMaterials(materials);
 
 	return true;
 }
