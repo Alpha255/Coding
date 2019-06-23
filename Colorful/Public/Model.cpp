@@ -4,9 +4,9 @@
 
 NamespaceBegin(Geometry)
 
-void Model::AppendSubModel(const SubModel &subModel, bool bUseDefaultLayout)
+void Model::AppendSubModel(const SubModel &subModel)
 {
-	if (bUseDefaultLayout && !m_InputLayouts[0].IsValid())
+	if (!m_DefaultLayout.IsValid())
 	{
 		std::vector<VertexLayout> vertexLayout =
 		{
@@ -18,7 +18,7 @@ void Model::AppendSubModel(const SubModel &subModel, bool bUseDefaultLayout)
 
 		RVertexShader vertexShader;
 		vertexShader.Create("Mesh.shader", "VSMain");
-		m_InputLayouts[0].Create(vertexShader.GetBlob(), vertexLayout);
+		m_DefaultLayout.Create(vertexShader.GetBlob(), vertexLayout);
 	}
 
 	m_SubModels.emplace_back(subModel);
@@ -79,9 +79,6 @@ void Model::CreateAsCube(float width, float height, float depth)
 		/// right
 		20, 21, 22, 20, 22, 23
 	};
-
-	m_BoundingBox = Box(vertices[0].Position, vertices[22].Position);
-	m_HasBoundingBox = true;
 
 	AddBuffer(vertices);
 	AddBuffer(indices);
@@ -340,6 +337,8 @@ void Model::CreateFromFile(const std::string &fileName)
 }
 
 Box::Box(const Vec3 &min, const Vec3 &max)
+	: m_Min(min)
+	, m_Max(max)
 {
 	m_Center = (min + max) * 0.5f;
 	m_Size = max - min;
@@ -454,6 +453,7 @@ void Model::DrawBoundingBox(const DXUTCamera &camera)
 	Matrix wvp = Matrix::Transpose(camera.GetWVPMatrix());
 	s_CB.Update(&wvp, sizeof(Matrix));
 
+	REngine::Instance().SetInputLayout(m_DefaultLayout);
 	REngine::Instance().SetVertexShader(s_VS);
 	REngine::Instance().SetPixelShader(s_PS);
 

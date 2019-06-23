@@ -97,7 +97,7 @@ public:
 		m_InputLayouts.emplace_back(layout);
 	}
 
-	void AppendSubModel(const SubModel &subModel, bool bUseDefaultLayout = true);
+	void AppendSubModel(const SubModel &subModel);
 
 	void Draw(const DXUTCamera &camera, bool bDrawBoundingBox = false);
 protected:
@@ -109,6 +109,8 @@ private:
 	std::vector<RBuffer> m_IndexBuffers;
 	std::vector<RInputLayout> m_InputLayouts;
 	std::vector<Material> m_Materials;
+
+	RInputLayout m_DefaultLayout;
 
 	Box m_BoundingBox;
 

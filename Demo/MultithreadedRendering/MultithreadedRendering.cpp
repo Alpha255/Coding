@@ -470,7 +470,9 @@ void MultithreadedRendering::RenderScene()
 
 	///REngine::Instance().SetRasterizerState(RStaticState::Wireframe);
 
-	m_SquidRoom.Draw(m_Camera, false);
+	m_SquidRoom.Draw(m_Camera, true);
+
+	ImGui::Text("FPS: %.2f", m_FPS);
 #else
 	Matrix world = m_Camera.GetWorldMatrix();
 	Matrix view = m_Camera.GetViewMatrix();
