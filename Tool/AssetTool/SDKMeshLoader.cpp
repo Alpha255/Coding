@@ -707,7 +707,7 @@ bool LoadSDKMesh(
 				materials[subset.MaterialID].Valid = true;
 			}
 
-			model.AppendSubModel(subModel);
+			model.AppendSubModel(subModel, false);
 		}
 	}
 

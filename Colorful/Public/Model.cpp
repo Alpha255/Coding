@@ -4,7 +4,7 @@
 
 NamespaceBegin(Geometry)
 
-void Model::AppendSubModel(const SubModel &subModel)
+void Model::AppendSubModel(const SubModel &subModel, bool bUseDefaultLayout)
 {
 	if (!m_DefaultLayout.IsValid())
 	{
@@ -19,6 +19,10 @@ void Model::AppendSubModel(const SubModel &subModel)
 		RVertexShader vertexShader;
 		vertexShader.Create("Mesh.shader", "VSMain");
 		m_DefaultLayout.Create(vertexShader.GetBlob(), vertexLayout);
+		if (bUseDefaultLayout)
+		{
+			m_InputLayouts.emplace_back(m_DefaultLayout);
+		}
 	}
 
 	m_SubModels.emplace_back(subModel);
@@ -83,6 +87,8 @@ void Model::CreateAsCube(float width, float height, float depth)
 	AddBuffer(vertices);
 	AddBuffer(indices);
 	AppendSubModel(SubModel{ 0U, 0U, 0U, (uint32_t)indices.size(), 0U, 0 });
+
+	UpdateBoundingBox(vertices[0].Position, vertices[22].Position);
 
 	m_Valid = true;
 }

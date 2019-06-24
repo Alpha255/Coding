@@ -97,7 +97,7 @@ public:
 		m_InputLayouts.emplace_back(layout);
 	}
 
-	void AppendSubModel(const SubModel &subModel);
+	void AppendSubModel(const SubModel &subModel, bool bUseDefaultLayout = true);
 
 	void Draw(const DXUTCamera &camera, bool bDrawBoundingBox = false);
 protected:
