@@ -38,8 +38,9 @@ cbuffer cbPS
 
 struct VSInput
 {
-    float4 Pos : SV_POSITION;
+    float4 Pos : POSITION;
     float3 Normal : NORMAL;
+    float3 Tangent : TANGENT;
 	float2 UV : TEXCOORD;
 };
 

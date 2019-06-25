@@ -15,34 +15,12 @@
 
 NamespaceBegin(AssetTool)
 
-enum eMaterialFlags
+enum eLayoutType
 {
-	ePerVertexColor = 0x1,
-	eSkinning = 0x2,
-	eDualTexture = 0x4,
-	eNormalMaps = 0x8,
-	eBiasedVertexNormals = 0x10,
-	eUsesObsoleteDEC3N = 0x20
-};
-
-enum eEffectType
-{
-	eSkinned,
-	eDualTex,
-	eNormalMap,
-	eBasic
-};
-
-struct VertexLayout
-{
-	uint32_t BufferIndex = 0U;
-	std::vector<Geometry::VertexLayout> Layout;
-};
-
-struct ShaderBlob
-{
-	const byte *ByteCode = nullptr;
-	size_t Size = 0U;
+	ePos     = 0x00000001,
+	eNormal  = 0x00000010,
+	eUV      = 0x00000100,
+	eTangent = 0x00001000
 };
 
 bool IsValid(size_t size, const DXUT::SDKMESH_HEADER *pHeader)
@@ -147,94 +125,54 @@ inline uint32_t GetVertexStride(uint32_t format)
 	return 0U;
 }
 
-ShaderBlob GetShaderByteCode(const uint32_t flags, const Material &mat)
+RVertexShader GetVertexShader(const std::vector<Geometry::VertexLayout> &layouts)
 {
-	uint32_t permutation = 1U;
+	RVertexShader shader;
 
-	if (flags & ePerVertexColor)
+	uint32_t flags = 0U;
+	for (uint32_t i = 0U; i < layouts.size(); ++i)
 	{
-		permutation += 2U;
-	}
-
-	eEffectType type = eBasic;
-	if (flags & eSkinning)
-	{
-		assert(0);
-		type = eSkinned;
-	}
-	if (flags & eDualTexture)
-	{
-		assert(0);
-		type = eDualTex;
-	}
-	if (flags & eNormalMaps || flags & eBiasedVertexNormals)
-	{
-		type = eNormalMap;
-	}
-
-	if (mat.Textures[Material::eDiffuse].IsValid())
-	{
-		permutation += 4U;
-	}
-
-	/// VertexShaderIndices
-	ShaderBlob blob;
-	switch (permutation)
-	{
-	case 1U:
-		if (type == eBasic)
+		if (layouts[i].Semantic == "POSITION")
 		{
-			blob.ByteCode = BasicEffect_VSBasicNoFog;
-			blob.Size = sizeof(BasicEffect_VSBasicNoFog);
+			flags |= ePos;
 		}
-		else if (type == eNormalMap)
+		else if (layouts[i].Semantic == "NORMAL")
 		{
-			blob.ByteCode = NormalMapEffect_VSNormalPixelLightingTx;
-			blob.Size = sizeof(NormalMapEffect_VSNormalPixelLightingTx);
+			flags |= eNormal;
 		}
+		else if (layouts[i].Semantic == "TANGENT")
+		{
+			flags |= eTangent;
+		}
+		else if (layouts[i].Semantic == "TEXCOORD")
+		{
+			flags |= eUV;
+		}
+	}
+
+	switch (flags)
+	{
+	case ePos:
+		shader.Create("SDKMesh.shader", "VSMain_Pos");
 		break;
-	case 3U:
-		if (type == eBasic)
-		{
-			blob.ByteCode = BasicEffect_VSBasicVcNoFog;
-			blob.Size = sizeof(BasicEffect_VSBasicVcNoFog);
-		}
-		else if (type == eNormalMap)
-		{
-			blob.ByteCode = NormalMapEffect_VSNormalPixelLightingTxVc;
-			blob.Size = sizeof(NormalMapEffect_VSNormalPixelLightingTxVc);
-		}
+	case ePos | eNormal:
+		shader.Create("SDKMesh.shader", "VSMain_PosNormal");
 		break;
-	case 5U:
-		if (type == eBasic)
-		{
-			blob.ByteCode = BasicEffect_VSBasicTxNoFog;
-			blob.Size = sizeof(BasicEffect_VSBasicTxNoFog);
-		}
-		else if (type == eNormalMap)
-		{
-			blob.ByteCode = NormalMapEffect_VSNormalPixelLightingTx;
-			blob.Size = sizeof(NormalMapEffect_VSNormalPixelLightingTx);
-		}
+	case ePos | eUV:
+		shader.Create("SDKMesh.shader", "VSMain_PosUV");
 		break;
-	case 7U:
-		if (type == eBasic)
-		{
-			blob.ByteCode = BasicEffect_VSBasicTxVcNoFog;
-			blob.Size = sizeof(BasicEffect_VSBasicTxVcNoFog);
-		}
-		else if (type == eNormalMap)
-		{
-			blob.ByteCode = NormalMapEffect_VSNormalPixelLightingTxVc;
-			blob.Size = sizeof(NormalMapEffect_VSNormalPixelLightingTxVc);
-		}
+	case ePos | eNormal | eUV:
+		shader.Create("SDKMesh.shader", "VSMain_PosNormalUV");
+		break;
+	case ePos | eNormal | eTangent | eUV:
+		shader.Create("SDKMesh.shader", "VSMain_PosNormalTangentUV");
 		break;
 	default:
 		assert(0);
 		break;
 	}
 
-	return blob;
+	return shader;
 }
 
 bool CompareVertexLayout(const std::vector<Geometry::VertexLayout> &left, const std::vector<Geometry::VertexLayout> &right)
@@ -257,13 +195,13 @@ bool CompareVertexLayout(const std::vector<Geometry::VertexLayout> &left, const 
 	return bSame;
 }
 
-uint32_t GetVertexLayouts(_In_reads_(32) const DXUT::D3DVERTEXELEMENT9 decl[], std::vector<Geometry::VertexLayout>& vertexLayouts)
+void GetVertexLayouts(_In_reads_(32) const DXUT::D3DVERTEXELEMENT9 decl[], std::vector<Geometry::VertexLayout>& vertexLayouts)
 {
 	static_assert(D3D11_IA_VERTEX_INPUT_STRUCTURE_ELEMENT_COUNT >= 32, "SDKMESH supports decls up to 32 entries");
 
 	static const std::vector<Geometry::VertexLayout> s_VertexLayouts =
 	{
-		{ "SV_POSITION",  0U, 0U, eRGB32_Float },
+		{ "POSITION",  0U, 0U, eRGB32_Float },
 		{ "NORMAL",       0U, 0U, eRGB32_Float },
 		{ "COLOR",        0U, 0U, eRGBA8_UNorm },
 		{ "TANGENT",      0U, 0U, eRGB32_Float },
@@ -274,8 +212,6 @@ uint32_t GetVertexLayouts(_In_reads_(32) const DXUT::D3DVERTEXELEMENT9 decl[], s
 	};
 
 	uint32_t offset = 0U;
-	uint32_t texcoords = 0U;
-	uint32_t flags = 0U;
 
 	bool posfound = false;
 
@@ -335,7 +271,6 @@ uint32_t GetVertexLayouts(_In_reads_(32) const DXUT::D3DVERTEXELEMENT9 decl[], s
 				break;
 			case DXUT::D3DDECLTYPE_UBYTE4N:
 				layout.Format = eRGBA8_UNorm;
-				flags |= eBiasedVertexNormals;
 				break;
 			case DXUT::D3DDECLTYPE_SHORT4N:
 				layout.Format = eRGBA16_SNorm;
@@ -345,18 +280,15 @@ uint32_t GetVertexLayouts(_In_reads_(32) const DXUT::D3DVERTEXELEMENT9 decl[], s
 				break;
 			case DXUT::D3DDECLTYPE_DXGI_R10G10B10A2_UNORM:
 				layout.Format = eRGB10A2_UNorm;
-				flags |= eBiasedVertexNormals;
 				break;
 			case DXUT::D3DDECLTYPE_DXGI_R11G11B10_FLOAT:
 				layout.Format = eRG11B10_Float;
-				flags |= eBiasedVertexNormals;
 				break;
 			case DXUT::D3DDECLTYPE_DXGI_R8G8B8A8_SNORM:
 				layout.Format = eRGBA8_SNorm;
 				break;
 			case DXUT::D3DDECLTYPE_DEC3N:
 				layout.Format = eRGB10A2_UNorm;
-				flags |= eUsesObsoleteDEC3N;
 				break;
 			default:
 				unk = true;
@@ -366,11 +298,6 @@ uint32_t GetVertexLayouts(_In_reads_(32) const DXUT::D3DVERTEXELEMENT9 decl[], s
 			if (unk)
 			{
 				break;
-			}
-
-			if (decl[index].Usage == DXUT::D3DDECLUSAGE_TANGENT)
-			{
-				flags |= eNormalMaps;
 			}
 
 			layout.Stride = GetVertexStride(layout.Format);
@@ -412,8 +339,6 @@ uint32_t GetVertexLayouts(_In_reads_(32) const DXUT::D3DVERTEXELEMENT9 decl[], s
 			{
 				break;
 			}
-
-			flags |= ePerVertexColor;
 
 			layout.Stride = GetVertexStride(layout.Format);
 			offset += layout.Stride;
@@ -459,8 +384,6 @@ uint32_t GetVertexLayouts(_In_reads_(32) const DXUT::D3DVERTEXELEMENT9 decl[], s
 			layout.Stride = GetVertexStride(layout.Format);
 			offset += layout.Stride;
 			vertexLayouts.emplace_back(layout);
-
-			++texcoords;
 		}
 		else if (decl[index].Usage == DXUT::D3DDECLUSAGE_BLENDINDICES)
 		{
@@ -470,8 +393,6 @@ uint32_t GetVertexLayouts(_In_reads_(32) const DXUT::D3DVERTEXELEMENT9 decl[], s
 				layout.Stride = GetVertexStride(layout.Format);
 				vertexLayouts.emplace_back(layout);
 				offset += layout.Stride;
-
-				flags |= eSkinning;
 			}
 			else
 			{
@@ -486,8 +407,6 @@ uint32_t GetVertexLayouts(_In_reads_(32) const DXUT::D3DVERTEXELEMENT9 decl[], s
 				layout.Stride = GetVertexStride(layout.Format);
 				vertexLayouts.emplace_back(layout);
 				offset += layout.Stride;
-
-				flags |= eSkinning;
 			}
 			else
 			{
@@ -501,13 +420,6 @@ uint32_t GetVertexLayouts(_In_reads_(32) const DXUT::D3DVERTEXELEMENT9 decl[], s
 	}
 
 	assert(posfound);
-
-	if (texcoords == 2U)
-	{
-		flags |= eDualTexture;
-	}
-
-	return flags;
 }
 
 bool LoadSDKMesh(
@@ -530,10 +442,8 @@ bool LoadSDKMesh(
 #endif
 
 	/// Vertex Buffer
-	std::vector<uint32_t> materialFlags(pHeader->NumVertexBuffers);
 	std::vector<uint32_t> layoutIndex(pHeader->NumVertexBuffers);
-	std::vector<uint32_t> materialIDs(pHeader->NumVertexBuffers);
-	std::vector<VertexLayout> vertexLayouts;
+	std::vector<std::vector<Geometry::VertexLayout>> vertexLayouts;
 	auto pVertexBufferHeaders = reinterpret_cast<const DXUT::SDKMESH_VERTEX_BUFFER_HEADER*>(pData + pHeader->VertexStreamHeadersOffset);
 	for (uint32_t i = 0U; i < pHeader->NumVertexBuffers; ++i)
 	{
@@ -542,28 +452,19 @@ bool LoadSDKMesh(
 		assert(vbHeader.SizeBytes <= (D3D11_REQ_RESOURCE_SIZE_IN_MEGABYTES_EXPRESSION_A_TERM * 1024U * 1024U));
 		assert(asset.GetSize() >= vbHeader.DataOffset && asset.GetSize() >= (vbHeader.DataOffset + vbHeader.SizeBytes));
 
-		VertexLayout vertexLayout;
-		materialFlags[i] = GetVertexLayouts(vbHeader.Decl, vertexLayout.Layout);
-		if (materialFlags[i] & eSkinning)
-		{
-			materialFlags[i] &= ~(eDualTexture | eNormalMaps);
-		}
-		if (materialFlags[i] & eDualTexture)
-		{
-			materialFlags[i] &= ~eNormalMaps;
-		}
+		std::vector<Geometry::VertexLayout> vertexLayout;
+		GetVertexLayouts(vbHeader.Decl, vertexLayout);
 
 		uint32_t index = 0U;
 		for (; index < vertexLayouts.size(); ++index)
 		{
-			if (CompareVertexLayout(vertexLayouts[index].Layout, vertexLayout.Layout))
+			if (CompareVertexLayout(vertexLayouts[index], vertexLayout))
 			{
 				break;
 			}
 		}
 		if (index == vertexLayouts.size())
 		{
-			vertexLayout.BufferIndex = i;
 			vertexLayouts.emplace_back(vertexLayout);
 		}
 		layoutIndex[i] = index;
@@ -573,6 +474,7 @@ bool LoadSDKMesh(
 
 		model.AddBuffer(vertexBuffer, Geometry::Model::eVertexBuffer);
 	}
+	assert(vertexLayouts.size() == 1U);
 
 	/// Index Buffer
 	auto pIndexBufferHeaders = reinterpret_cast<const DXUT::SDKMESH_INDEX_BUFFER_HEADER*>(pData + pHeader->IndexStreamHeadersOffset);
@@ -662,7 +564,6 @@ bool LoadSDKMesh(
 			subModel.VertexBuffer = mesh.VertexBuffers[0];
 			subModel.InputLayout = layoutIndex[subModel.VertexBuffer];
 			subModel.MaterialIndex = subset.MaterialID;
-			materialIDs[subModel.VertexBuffer] = subModel.MaterialIndex;
 
 			assert(subset.MaterialID < pHeader->NumMaterials);
 			auto pMaterials = reinterpret_cast<const DXUT::SDKMESH_MATERIAL*>(pData + pHeader->MaterialDataOffset);
@@ -673,36 +574,13 @@ bool LoadSDKMesh(
 				{
 					materials[subset.MaterialID].Set(Material::eDiffuse, material.DiffuseTexture);
 				}
-
 				if (strlen(material.NormalTexture) > 0U)
 				{
-					if (materialFlags[subModel.VertexBuffer] & eNormalMaps)
-					{
-						materials[subset.MaterialID].Set(Material::eNormal, material.NormalTexture);
-					}
-					else
-					{
-						assert(0);
-					}
+					materials[subset.MaterialID].Set(Material::eNormal, material.NormalTexture);
 				}
-				else
-				{
-					if (materialFlags[subModel.VertexBuffer] & eNormalMaps)
-					{
-						materialFlags[subModel.VertexBuffer] &= ~eNormalMaps;
-					}
-				}
-
 				if (strlen(material.SpecularTexture) > 0U)
 				{
 					materials[subset.MaterialID].Set(Material::eSpecular, material.SpecularTexture);
-				}
-				else
-				{
-					if (materialFlags[subModel.VertexBuffer] & eDualTexture)
-					{
-						materialFlags[subModel.VertexBuffer] &= ~eDualTexture;
-					}
 				}
 				materials[subset.MaterialID].Valid = true;
 			}
@@ -714,8 +592,8 @@ bool LoadSDKMesh(
 	for (uint32_t i = 0U; i < vertexLayouts.size(); ++i)
 	{
 		RInputLayout layout;
-		ShaderBlob blob = GetShaderByteCode(materialFlags[vertexLayouts[i].BufferIndex], materials[materialIDs[vertexLayouts[i].BufferIndex]]);
-		layout.Create(blob.ByteCode, blob.Size, vertexLayouts[i].Layout);
+		RVertexShader shader = GetVertexShader(vertexLayouts[0]);
+		layout.Create(shader.GetBlob(), vertexLayouts[i]);
 		model.AddInputLayout(layout);
 	}
 	model.AddMaterials(materials);
