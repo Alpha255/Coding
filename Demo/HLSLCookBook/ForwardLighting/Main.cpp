@@ -1,14 +1,14 @@
 #include "ForwardLighting.h"
 
-int32_t WINAPI wWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpCmdLine*/, int /*nShow*/)
+int32_t WINAPI wWinMain(HINSTANCE, HINSTANCE, LPWSTR, int32_t)
 {
-	AppForwardLighting forwardLighting;
+	ForwardLighting forwardLighting;
 
-	forwardLighting.Startup(L"ForwardLighting", 1024U, 768U);
+	forwardLighting.Initialize("ForwardLighting");
 
-	forwardLighting.Running();
+	forwardLighting.Loop();
 
-	forwardLighting.ShutDown();
+	forwardLighting.Finalize();
 
 	return 0;
 }

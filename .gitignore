@@ -25,12 +25,15 @@
 *.opendb
 *.iobj
 *.ipdb
+*.sln
+*.spv
 
 Debug/
 Release/
 obj/
 Temp/
 .hg/
+.vs/
 Intermediate/
 ThirdParty/GUI/AntTweakBar/src/TwDirect3D11_LineRectCstColorVS.h
 ThirdParty/GUI/AntTweakBar/src/TwDirect3D11_LineRectPS.h
@@ -39,3 +42,6 @@ ThirdParty/GUI/AntTweakBar/src/TwDirect3D11_TextCstColorVS.h
 ThirdParty/GUI/AntTweakBar/src/TwDirect3D11_TextPS.h
 ThirdParty/GUI/AntTweakBar/src/TwDirect3D11_TextVS.h
 JustForFun/MarioMapEditor/GeneratedFiles/
+Application/
+Projects/
+__pycache__/

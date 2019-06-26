@@ -1,19 +1,17 @@
 #pragma once
 
-#include "RenderApp.h"
-#include "D3DGeometry.h"
-#include "D3DView.h"
+#include "Public/IRenderApplication.h"
+#include "Public/Definitions.h"
+#include "Public/Model.h"
 
-///#define ColorMask
-
-class AppBox : public RenderApp
+class Box : public IRenderApplication
 {
 public:
-	AppBox() = default;
-	~AppBox() = default;
+	Box() = default;
+	~Box() = default;
 
-	virtual void Initialize() override;
-	virtual void RenderScene() override;
+	void PrepareScene() override;
+	void RenderScene() override;
 protected:
 	enum eSpecialEffect
 	{
@@ -26,27 +24,13 @@ protected:
 		eEffectCount
 	};
 private:
-#if !defined (ColorMask)
-	Geometry::Mesh m_BoxMesh;
-
-	D3DVertexShader m_VertexShader;
-	D3DPixelShader m_PixelShader[eEffectCount];
-	D3DBuffer m_CBufferVS;
-	D3DShaderResourceView m_DiffuseTex;
+	Geometry::Model m_Box;
+	RBuffer m_CBufferVS;
+	RVertexShader m_VS;
+	RPixelShader m_PS[eEffectCount];
+	RShaderResourceView m_DiffuseTex;
 
 	int32_t m_Effect = eNone;
-#else
-	Geometry::Mesh m_Mesh;
-
-	D3DVertexShader m_VertexShader;
-	D3DPixelShader m_PixelShader;
-
-	D3DBuffer m_CBufferVS;
-	D3DBuffer m_CBufferPS;
-
-	D3DShaderResourceView m_DiffuseTexMiddle;
-	D3DShaderResourceView m_DiffuseTexPoor;
-
-	int32_t m_TexIndex = 0U;
-#endif
+	bool m_bVSync = false;
+	bool m_bWireframe = false;
 };

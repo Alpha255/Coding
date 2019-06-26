@@ -56,5 +56,5 @@ private:
 	D3DBuffer m_CBufferPS;
 
 	D3DVertexShader m_VertexShader;
-	D3DPixelShader m_PixelShader;
+	D3DPixelShader m_PSm_PixelShader;
 };

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "D3DApplication.h"
+#include "RenderApp.h"
 
-class AppAdaptiveTessellation : public D3DApplication
+class AppAdaptiveTessellation : public RenderApp
 {
 public:
 	AppAdaptiveTessellation() = default;

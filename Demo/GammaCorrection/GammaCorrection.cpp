@@ -1,7 +1,7 @@
 #include "GammaCorrection.h"
 #include "Camera.h"
 #include "D3DEngine.h"
-#include "D3DGUI_imGui.h"
+#include "ImGui.h"
 
 struct ConstantBufferVS
 {

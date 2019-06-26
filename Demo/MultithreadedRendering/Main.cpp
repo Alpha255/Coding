@@ -1,15 +1,15 @@
 
 #include "MultithreadedRendering.h"
 
-int32_t WINAPI wWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpCmdLine*/, int /*nShow*/)
+int32_t WINAPI wWinMain(HINSTANCE, HINSTANCE, LPWSTR, int32_t)
 {
-	AppMultithreadedRendering MultithreadedRendering;
+	MultithreadedRendering multithreadedRendering;
 
-	MultithreadedRendering.Startup(L"MultithreadedRendering", 1280U, 720U);
+	multithreadedRendering.Initialize("MultithreadedRendering");
 
-	MultithreadedRendering.Running();
+	multithreadedRendering.Loop();
 
-	MultithreadedRendering.ShutDown();
+	multithreadedRendering.Finalize();
 
 	return 0;
 }
