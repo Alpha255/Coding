@@ -51,8 +51,7 @@ struct ConstantBufferPS
 		const Vec4 SceneCenter = Vec4(0.0f, 350.0f, 0.0f, 1.0f);
 		const float FOV[4] = { Math::XM_PI / 4.0f , 65.0f * (Math::XM_PI / 180.0f), 65.0f * (Math::XM_PI / 180.0f), 65.0f * (Math::XM_PI / 180.0f) };
 
-		///LightParams[0].Color = Vec4(3.0f * 0.160f, 3.0f * 0.341f, 3.0f * 1.000f, 1.0f);
-		LightParams[0].Color = Vec4(1.0f, 0.8f, 1.0f, 1.0f);
+		LightParams[0].Color = Vec4(0.8f, 0.8f, 0.8f, 1.0f);
 		LightParams[0].Direction = Vec4(-0.67f, -0.71f, +0.21f, 0.0);
 		LightParams[0].Position = SceneCenter - LightParams[0].Direction * SceneRadius;
 		
@@ -195,40 +194,15 @@ void MultithreadedRendering::PrepareScene()
 {
 	m_SquidRoom.CreateFromFile("SquidRoom.sdkmesh");
 
-#if 0
 	m_VertexShader.Create("MultithreadedRendering.shader", "VSMain");
 	m_PixelShader.Create("MultithreadedRendering.shader", "PSMain");
-#else
-	m_VertexShader.Create("MultithreadedRendering.shader", "VSMain");
-	m_PixelShader.Create("MultithreadedRendering.shader", "PSMain");
-	m_CBufferVS.CreateAsUniformBuffer(sizeof(Matrix), eGpuReadCpuWrite);
+	m_CBufferVS.CreateAsUniformBuffer(sizeof(ConstantBufferVS), eGpuReadCpuWrite);
+	m_CBufferPS.CreateAsUniformBuffer(sizeof(ConstantBufferPS), eGpuReadCpuWrite);
 
 	AutoFocus(m_SquidRoom, 0.3f);
-#endif
 
 #if 0
-	const D3D11_INPUT_ELEMENT_DESC UncompressedLayout[] =
-	{
-		{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT,   0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL",    0, DXGI_FORMAT_R32G32B32_FLOAT,   0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,      0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TANGENT",   0, DXGI_FORMAT_R32G32B32_FLOAT,   0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
-	const D3D11_INPUT_ELEMENT_DESC CompressedLayout[] =
-	{
-		{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT,   0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL",    0, DXGI_FORMAT_R10G10B10A2_UNORM, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD",  0, DXGI_FORMAT_R16G16_FLOAT,      0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TANGENT",   0, DXGI_FORMAT_R10G10B10A2_UNORM, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
-	m_Layout.Create(m_VertexShader.GetBlob(), CompressedLayout, _countof(CompressedLayout));
 	m_LayoutMirror.Create(m_VertexShader.GetBlob(), UncompressedLayout, _countof(UncompressedLayout));
-	m_SquidRoom.SetInputLayout(m_Layout);
-
-	m_CBufferVS.CreateAsConstantBuffer(sizeof(ConstantBufferVS), D3DBuffer::eGpuReadCpuWrite);
-	m_CBufferPS.CreateAsConstantBuffer(sizeof(ConstantBufferPS), D3DBuffer::eGpuReadCpuWrite);
-
-	m_Camera->SetViewRadius(400.0f);
 
 	m_NoStencil.Create(
 		true, D3DState::eDepthMaskAll, D3DState::eLessEqual,
@@ -461,34 +435,27 @@ void MultithreadedRendering::RenderScene()
 	REngine::Instance().ResetDefaultRenderSurfaces();
 	REngine::Instance().SetViewport(RViewport(0.0f, 0.0f, (float)m_WindowSize.first, (float)m_WindowSize.second));
 
-#if 1
 	REngine::Instance().SetVertexShader(m_VertexShader);
 	REngine::Instance().SetPixelShader(m_PixelShader);
 	REngine::Instance().SetUniformBuffer(m_CBufferVS, 0U, eVertexShader);
-	Matrix wvp = Matrix::Transpose(m_Camera.GetWVPMatrix());
-	m_CBufferVS.Update(&wvp, sizeof(Matrix));
+	REngine::Instance().SetUniformBuffer(m_CBufferPS, 0U, ePixelShader);
 
-	///REngine::Instance().SetRasterizerState(RStaticState::Wireframe);
+	///Matrix world = m_Camera.GetWorldMatrix();
+	g_CBufferVS.World = Matrix::Transpose(Matrix::IdentityMatrix());
+	g_CBufferVS.WorldInverse = Matrix::InverseTranspose(Matrix::IdentityMatrix());
+	g_CBufferVS.VP = Matrix::Transpose(m_Camera.GetWVPMatrix());
+	m_CBufferVS.Update(&g_CBufferVS, sizeof(ConstantBufferVS));
+	m_CBufferPS.Update(&g_CBufferPS, sizeof(ConstantBufferPS));
 
 	m_SquidRoom.Draw(m_Camera, true);
 
 	ImGui::Text("FPS: %.2f", m_FPS);
-#else
-	Matrix world = m_Camera.GetWorldMatrix();
-	Matrix view = m_Camera.GetViewMatrix();
-	Matrix proj = m_Camera.GetProjMatrix();
-	DirectX::CommonStates state(REngine::Instance().GetDevice().Get());
-
-	REngine::Instance().ForceCommitState();
-	m_SquidRoom.pModel->Draw(REngine::Instance().GetIMContext().Get(), state, *(DirectX::XMMATRIX *)&world, *(DirectX::XMMATRIX *)&view, *(DirectX::XMMATRIX *)&proj);
-#endif
 #endif
 }
 
 void MultithreadedRendering::UpdateScene(float elapsedTime, float totalTime)
 {
 	Vec4 Down(0.0f, -1.0f, 0.0f, 0.0f);
-	totalTime += elapsedTime;
 
 	float fCycle1X = 0.0f;
 	float fCycle1Z = 0.20f * sinf(2.0f * (totalTime + 0.0f * Math::XM_PI));
@@ -503,16 +470,16 @@ void MultithreadedRendering::UpdateScene(float elapsedTime, float totalTime)
 	g_CBufferPS.LightParams[3].Direction = Down + Vec4(fCycle3X, 0.0f, fCycle3Z, 0.0f);
 }
 
-void MultithreadedRendering::ResizeWindow(uint32_t width, uint32_t height)
-{
-	Base::ResizeWindow(width, height);
-
-	m_StaticParamsDirectly.Viewport.Width = (float)width;
-	m_StaticParamsDirectly.Viewport.Height = (float)height;
-
-	for (uint32_t i = 0U; i < eNumMirrors; ++i)
-	{
-		m_StaticParamsMirrors[i].Viewport.Width = (float)width;
-		m_StaticParamsMirrors[i].Viewport.Height = (float)height;
-	}
-}
+//void MultithreadedRendering::ResizeWindow(uint32_t width, uint32_t height)
+//{
+//	Base::ResizeWindow(width, height);
+//
+//	//m_StaticParamsDirectly.Viewport.Width = (float)width;
+//	//m_StaticParamsDirectly.Viewport.Height = (float)height;
+//
+//	//for (uint32_t i = 0U; i < eNumMirrors; ++i)
+//	//{
+//	//	m_StaticParamsMirrors[i].Viewport.Width = (float)width;
+//	//	m_StaticParamsMirrors[i].Viewport.Height = (float)height;
+//	//}
+//}

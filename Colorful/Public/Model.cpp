@@ -419,9 +419,14 @@ void Model::Draw(const DXUTCamera &camera, bool bDrawBoundingBox)
 			REngine::Instance().SetSamplerState(RStaticState::LinearSampler, 0U, ePixelShader);
 
 			const Material &mat = m_Materials[subModel.MaterialIndex];
-			if (mat.Textures[Material::eDiffuse].IsValid())
+			uint32_t slot = 0U;
+
+			for (uint32_t i = 0U; i < Material::ePropertyCount; ++i)
 			{
-				REngine::Instance().SetShaderResourceView(mat.Textures[Material::eDiffuse], 0U, ePixelShader);
+				if (mat.Textures[i].IsValid())
+				{
+					REngine::Instance().SetShaderResourceView(mat.Textures[i], slot++, ePixelShader);
+				}
 			}
 		}
 

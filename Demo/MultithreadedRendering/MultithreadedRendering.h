@@ -13,7 +13,7 @@ public:
 	void PrepareScene() override;
 	void RenderScene() override;
 	void UpdateScene(float elapsedTime, float totalTime) override;
-	void ResizeWindow(uint32_t width, uint32_t height) override;
+	///void ResizeWindow(uint32_t width, uint32_t height) override;
 
 	enum eRenderingMode
 	{
@@ -57,7 +57,6 @@ protected:
 
 	void InitShadowResource();
 	void InitMirrorResource();
-	void InitWorkerThreads();
 
 	void SetupScene(const StaticParams &params, const Matrix &world, const Matrix &vp);
 	void SetupMirror(uint32_t iMirror);
@@ -92,8 +91,6 @@ private:
 
 	MirrorRect m_MirrorRect[eNumMirrors];
 	Matrix m_MirrorWorld[eNumMirrors];
-
-	///RRenderThread m_RenderThreads[eNumScenes];
 
 	Geometry::Model m_SquidRoom;
 };

@@ -21,10 +21,9 @@ struct LightParams
 
 cbuffer cbVS
 {
-    ///matrix World;
-	///matrix WorldInverse;
-    ///matrix VP;
-    matrix WVP;
+    matrix World;
+    matrix WorldInverse;
+    matrix VP;
 };
 
 cbuffer cbPS
@@ -116,29 +115,20 @@ float4 CalcUnshadowedAmountPCF2x2(int iShadow, float4 vertexPos)
 
 VSOut VSMain(VSInput vsInput)
 {
-#if 0
 	matrix wvp = mul(World, VP);
 
     VSOut output;
 	output.PosH = mul(vsInput.Pos, wvp);
     output.PosW = mul(vsInput.Pos, World);
     output.NormalW = mul(vsInput.Normal, (float3x3)WorldInverse);
-    ///output.TangentW = mul(vsInput.Tangent, (float3x3)World);
+    output.TangentW = mul(vsInput.Tangent, (float3x3)World);
     output.UV = vsInput.UV;
 
     return output;
-#else
-    VSOut output;
-    output.PosH = mul(vsInput.Pos, WVP);
-    output.UV = vsInput.UV;
-
-    return output;
-#endif
 }
 
 float4 PSMain(VSOut psInput) : SV_Target
 {
-#if 0
 	/// Manual clip test, so that objects which are behind the mirror 
     /// don't show up in the mirror.
     clip(dot(MirrorPlane.xyz, psInput.PosW.xyz) + MirrorPlane.w);
@@ -154,16 +144,13 @@ float4 PSMain(VSOut psInput) : SV_Target
 	{
         float4 lightingClr = LightingColor(i, psInput.PosW.xyz, normalize(normal));
 
-        if (i == 0 && any(lightingClr) > 0.0f)
-        {
-            lightingClr *= CalcUnshadowedAmountPCF2x2(i, psInput.PosW);
-        }
+        //if (i == 0 && any(lightingClr) > 0.0f)
+        //{
+        //    lightingClr *= CalcUnshadowedAmountPCF2x2(i, psInput.PosW);
+        //}
 
         result += lightingClr;
     }
 
     return diffuse * TintColor * result;
-#else
-    return DiffuseMap.Sample(LinearSampler, psInput.UV);
-#endif
 }
