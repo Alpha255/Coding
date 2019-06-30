@@ -23,6 +23,7 @@
 	typedef D3D11DepthStencilState RDepthStencilState;
 	typedef D3D11RasterizerState RRasterizerState;
 	typedef D3D11DepthStencilView RDepthStencilView;
+	typedef D3D11Event REvent;
 #elif defined(UsingVulkan)
 	#include "Vulkan/VulkanEngine.h"
 	#define IconID IconVulkan 

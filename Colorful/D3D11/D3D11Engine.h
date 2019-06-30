@@ -3,6 +3,7 @@
 #include "Public/IEngine.h"
 #include "D3D11Context.h"
 #include "D3D11Swapchain.h"
+#include "D3D11Profile.h"
 
 class D3D11Engine : public IEngine
 {
