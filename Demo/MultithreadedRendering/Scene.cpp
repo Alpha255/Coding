@@ -39,10 +39,8 @@ Scene::ConstantsBufferPS::ConstantsBufferPS()
 
 void Scene::Shadow::Initialize()
 {
-	const uint32_t ShadowMapSize = 2048U;
-
 	RTexture2D shadowMap;
-	shadowMap.Create(eR32_Typeless, ShadowMapSize, ShadowMapSize, eBindAsShaderResource | eBindAsDepthStencil, 1U);
+	shadowMap.Create(eR32_Typeless, eShadowMapSize, eShadowMapSize, eBindAsShaderResource | eBindAsDepthStencil, 1U);
 
 	ShadowMap.CreateAsTexture(eTexture2D, shadowMap, eR32_Float, 1U, 1U);
 	DepthMap.CreateAsTexture(eTexture2D, shadowMap, eD32_Float, 0U, 0U);
@@ -236,7 +234,7 @@ void Scene::DrawMirror(const DXUTCamera &camera, uint32_t index)
 	Matrix reflection = Matrix::Reflect(MirrorRes.Params[index].MirrorPlane);
 	REngine::Instance().SetDepthStencilState(DepthWriteStencilTest, 0x01U);
 	REngine::Instance().SetRasterizerState(RStaticState::SolidFrontCCW);
-	DrawScene(camera, MirrorRes.Params[index], Matrix::IdentityMatrix(), reflection * vp);
+	DrawScene(camera, MirrorRes.Params[index], Matrix::IdentityMatrix(), reflection * vp, false);
 	Marker.End();
 
 	Marker.Begin("Darw Mirror Rect-DepthOverwriteStencilClear");
@@ -246,11 +244,15 @@ void Scene::DrawMirror(const DXUTCamera &camera, uint32_t index)
 	Marker.End();
 }
 
-void Scene::DrawShadow()
+void Scene::DrawShadow(const DXUTCamera &camera)
 {
+	REngine::Instance().SetViewport(RViewport{ 0.0f, 0.0f, Shadow::eShadowMapSize, Shadow::eShadowMapSize });
+	REngine::Instance().SetDepthStencilState(NoStencil, 0U);
+
+	DrawScene(camera, Params, Matrix::IdentityMatrix(), CBuffer_VS.LightVP[0], true);
 }
 
-void Scene::DrawScene(const DXUTCamera &camera, const StaticParams &params, const Matrix &world, const Matrix &vp)
+void Scene::DrawScene(const DXUTCamera &camera, const StaticParams &params, const Matrix &world, const Matrix &vp, bool bShadow)
 {
 	REngine::Instance().SetVertexShader(VertexShader);
 	REngine::Instance().SetSamplerState(RStaticState::LinearSampler, 0U, ePixelShader);
@@ -262,16 +264,35 @@ void Scene::DrawScene(const DXUTCamera &camera, const StaticParams &params, cons
 	CBuffer_VS.Memory.VP = Matrix::Transpose(vp);
 	CBuffer_VS.Buffer.Update(&CBuffer_VS.Memory, sizeof(ConstantsBufferVS));
 
-	REngine::Instance().SetPixelShader(PixelShader);
-
-	REngine::Instance().SetUniformBuffer(CBuffer_PS.Buffer, 0U, ePixelShader);
-	for (uint32_t i = 0U; i < eLightCount; ++i)
+	if (bShadow)
 	{
-		CBuffer_PS.Memory.LightParams[i].VP = Matrix::Transpose(CBuffer_VS.LightVP[i]);
+		RPixelShader NullPixelShader;
+		REngine::Instance().SetPixelShader(NullPixelShader);
+
+		RRenderTargetView NullRenderTarget;
+		REngine::Instance().SetRenderTargetView(NullRenderTarget, 0U);
+		REngine::Instance().SetDepthStencilView(ShadowRes.DepthMap);
+
+		RShaderResourceView NullTexture;
+		REngine::Instance().SetShaderResourceView(NullTexture, 2U, ePixelShader);
+
+		REngine::Instance().ClearDepthStencilView(ShadowRes.DepthMap, eClearDepthStencil, 1.0f, 0U);
 	}
-	CBuffer_PS.Memory.MirrorPlane = params.MirrorPlane;
-	CBuffer_PS.Memory.TintColor = params.TintColor;
-	CBuffer_PS.Buffer.Update(&CBuffer_PS.Memory, sizeof(ConstantsBufferPS));
+	else
+	{
+		REngine::Instance().SetPixelShader(PixelShader);
+
+		REngine::Instance().SetUniformBuffer(CBuffer_PS.Buffer, 0U, ePixelShader);
+		for (uint32_t i = 0U; i < eLightCount; ++i)
+		{
+			CBuffer_PS.Memory.LightParams[i].VP = Matrix::Transpose(CBuffer_VS.LightVP[i]);
+		}
+		CBuffer_PS.Memory.MirrorPlane = params.MirrorPlane;
+		CBuffer_PS.Memory.TintColor = params.TintColor;
+		CBuffer_PS.Buffer.Update(&CBuffer_PS.Memory, sizeof(ConstantsBufferPS));
+
+		REngine::Instance().SetShaderResourceView(ShadowRes.ShadowMap, 2U, ePixelShader);
+	}
 
 	SquidRoom.Draw(camera, false);
 }
@@ -280,12 +301,12 @@ void Scene::Draw(const DXUTCamera &camera, uint32_t width, uint32_t height)
 {
 	REvent Marker;
 
+	Marker.Begin("Draw Shadow");
+	DrawShadow(camera);
+	Marker.End();
+
 	REngine::Instance().ResetDefaultRenderSurfaces();
 	REngine::Instance().SetViewport(RViewport(0.0f, 0.0f, (float)width, (float)height));
-
-	Marker.Begin("Draw Shadow");
-	DrawShadow();
-	Marker.End();
 
 	Marker.Begin("Draw Mirrors");
 	for (uint32_t i = 0U; i < eMirrorCount; ++i)
@@ -299,7 +320,7 @@ void Scene::Draw(const DXUTCamera &camera, uint32_t width, uint32_t height)
 	Marker.Begin("Draw Scene Normally");
 	REngine::Instance().SetRasterizerState(RStaticState::Solid);
 	REngine::Instance().SetDepthStencilState(NoStencil, 0U);
-	DrawScene(camera, Params, Matrix::IdentityMatrix(), camera.GetWVPMatrix());
+	DrawScene(camera, Params, Matrix::IdentityMatrix(), camera.GetWVPMatrix(), false);
 	Marker.End();
 }
 

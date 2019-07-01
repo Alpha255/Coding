@@ -63,6 +63,11 @@ public:
 
 	struct Shadow
 	{
+		enum eConfig
+		{
+			eShadowMapSize = 2048U
+		};
+
 		RShaderResourceView ShadowMap;
 		RDepthStencilView DepthMap;
 
@@ -92,8 +97,8 @@ public:
 protected:
 	void SetMirror(const DXUTCamera &camera, uint32_t index);
 	void DrawMirror(const DXUTCamera &camera, uint32_t index);
-	void DrawShadow();
-	void DrawScene(const DXUTCamera &camera, const StaticParams &params, const Matrix &world, const Matrix &vp);
+	void DrawShadow(const DXUTCamera &camera);
+	void DrawScene(const DXUTCamera &camera, const StaticParams &params, const Matrix &world, const Matrix &vp, bool bShadow);
 
 public:
 	RVertexShader VertexShader;

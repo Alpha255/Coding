@@ -144,10 +144,10 @@ float4 PSMain(VSOut psInput) : SV_Target
 	{
         float4 lightingClr = LightingColor(i, psInput.PosW.xyz, normalize(normal));
 
-        //if (i == 0 && any(lightingClr) > 0.0f)
-        //{
-        //    lightingClr *= CalcUnshadowedAmountPCF2x2(i, psInput.PosW);
-        //}
+        if (i == 0 && any(lightingClr) > 0.0f)
+        {
+            lightingClr *= CalcUnshadowedAmountPCF2x2(i, psInput.PosW);
+        }
 
         result += lightingClr;
     }
