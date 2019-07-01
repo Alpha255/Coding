@@ -2,32 +2,49 @@
 
 #include "Base.h"
 
-class D3DRenderThread
+class Event
 {
 public:
-	D3DRenderThread() = default;
-	~D3DRenderThread()
-	{
-		if (m_Thread.joinable())
-		{
-			m_Thread.join();
-		}
-	}
+	Event() = default;
+	~Event() = default;
 
-	inline std::thread::id GetThreadID() const
-	{
-		///assert(m_Thread.get_id() != std::thread::id());
-		return m_Thread.get_id();
-	}
-
-	inline void Start(std::thread &&workerThread)
-	{
-		m_Thread = std::move(workerThread);
-
-		Register();
-	}
+	void Reset();
+	void Wait(uint32_t microsecond);
+	void Signal();
 protected:
-	void Register();
 private:
+	bool m_Signaled = false;
+	std::condition_variable m_Signal;
+	std::mutex m_Mutex;
+};
+
+class IThread
+{
+public:
+	IThread();
+	virtual ~IThread();
+
+	inline void Start()
+	{
+		m_Suspend = false;
+	}
+
+	inline void Suspend()
+	{
+		m_Suspend = true;
+	}
+
+	inline void Stop()
+	{
+		m_Stop = true;
+	}
+
+	virtual void ThreadFunc() = 0;
+protected:
+private:
+	std::atomic<bool> m_Stop = false;
+	std::atomic<bool> m_Suspend = true;
+
+	Event m_Signal;
 	std::thread m_Thread;
 };

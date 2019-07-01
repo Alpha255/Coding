@@ -6,6 +6,8 @@ void MultithreadedRendering::PrepareScene()
 	m_Scene.Initialize();
 
 	AutoFocus(m_Scene.SquidRoom, 0.3f);
+
+	m_ThreadTest.Start();
 }
 
 void MultithreadedRendering::RenderScene()

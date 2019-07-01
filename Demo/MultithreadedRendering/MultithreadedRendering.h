@@ -3,6 +3,7 @@
 #include "Public/IRenderApplication.h"
 #include "Public/Model.h"
 #include "Scene.h"
+#include "RenderThread.h"
 
 class MultithreadedRendering : public IRenderApplication
 {
@@ -30,4 +31,6 @@ private:
 	int32_t m_RenderingMode = eSingelThread;
 
 	Scene m_Scene;
+
+	RenderThread m_ThreadTest;
 };

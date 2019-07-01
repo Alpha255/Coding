@@ -8,6 +8,8 @@
 #include <vector>
 #include <string>
 #include <thread>
+#include <atomic>
+#include <condition_variable>
 #include <fstream>
 #include <unordered_map>
 #include <DirectXMath.h>
