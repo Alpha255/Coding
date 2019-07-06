@@ -3,7 +3,7 @@
 #include "Public/IRenderApplication.h"
 #include "Public/Model.h"
 #include "Scene.h"
-#include "RenderThread.h"
+#include "Base/TaskThread.h"
 
 class MultithreadedRendering : public IRenderApplication
 {
@@ -19,11 +19,12 @@ public:
 	}
 	///void ResizeWindow(uint32_t width, uint32_t height) override;
 
+	void RenderThreadFunc(void *pParams);
+
 	enum eRenderingMode
 	{
 		eSingelThread,          /// Traditional rendering, one thread, immediate device context
 		eMultiThreadByScene,    /// Multiple threads, one per scene, each with one deferred device context 
-		eMultiThreadByChunk,    /// Multiple threads, one per physical processor, each with one deferred device context
 	};
 
 protected:
@@ -32,5 +33,5 @@ private:
 
 	Scene m_Scene;
 
-	RenderThread m_ThreadTest;
+	TaskThread m_Thread;
 };

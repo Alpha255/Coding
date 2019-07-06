@@ -1,4 +1,4 @@
-#include "IThread.h"
+#include "TaskThread.h"
 
 void Event::Reset()
 {
@@ -36,31 +36,36 @@ void Event::Signal()
 	m_Signal.notify_all();
 }
 
-IThread::IThread()
+void TaskThread::Start(void *pParams)
 {
-	m_Thread = std::thread([=]()
+	assert(m_Functor);
+
+	m_Suspend = false;
+
+	if (!m_Thread)
 	{
-		while (!m_Stop)
-		{
-			if (m_Suspend)
+		m_Thread.reset(new std::thread([this, pParams]() {
+			while (!m_Stop)
 			{
-				m_Signal.Wait(100U);
+				if (m_Suspend)
+				{
+					std::this_thread::yield();
+				}
+				else
+				{
+					m_Functor(pParams);
+				}
 			}
-			else
-			{
-				ThreadFunc();
-			}
-		}
-	});
+		}));
+	}
 }
 
-IThread::~IThread()
+TaskThread::~TaskThread()
 {
 	Stop();
-	m_Signal.Signal();
 
-	if (m_Thread.joinable())
+	if (m_Thread && m_Thread->joinable())
 	{
-		m_Thread.join();
+		m_Thread->join();
 	}
 }

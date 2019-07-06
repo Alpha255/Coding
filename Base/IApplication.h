@@ -27,7 +27,7 @@ public:
 
 	static ::LRESULT MessageProcFunc(::HWND hWnd, uint32_t msg, ::WPARAM wParam, ::LPARAM lParam);
 protected:
-	typedef IApplication Base;
+	typedef IApplication BaseClass;
 
 	void MakeWindow(const std::string &title, uint32_t width, uint32_t height, uint32_t extraWindowStyle);
 	void UpdateFPS();

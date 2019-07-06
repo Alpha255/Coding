@@ -18,16 +18,28 @@ private:
 	std::mutex m_Mutex;
 };
 
-class IThread
+class TaskThread
 {
 public:
-	IThread();
-	virtual ~IThread();
+	typedef void(ThreadFunc)(void *);
 
-	inline void Start()
+	TaskThread() = default;
+	virtual ~TaskThread();
+
+	template<typename Functor>
+	inline void Bind(Functor functor)
 	{
-		m_Suspend = false;
+		if (nullptr == m_Functor)
+		{
+			m_Functor = functor;
+		}
+		else
+		{
+			assert(0);
+		}
 	}
+
+	void Start(void *pParams);
 
 	inline void Suspend()
 	{
@@ -38,13 +50,11 @@ public:
 	{
 		m_Stop = true;
 	}
-
-	virtual void ThreadFunc() = 0;
 protected:
 private:
 	std::atomic<bool> m_Stop = false;
 	std::atomic<bool> m_Suspend = true;
 
-	Event m_Signal;
-	std::thread m_Thread;
+	std::unique_ptr<std::thread> m_Thread;
+	std::function<ThreadFunc> m_Functor;
 };
