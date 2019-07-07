@@ -1,19 +1,11 @@
 #include "MultithreadedRendering.h"
 #include "ImGUI.h"
 
-void MultithreadedRendering::RenderThreadFunc(void *pParams)
+void MultithreadedRendering::RenderThreadFunc(const Scene::eDrawType &drawType)
 {
-	uint32_t *param = (uint32_t *)(pParams);
-	if (*param == 128U)
-	{
-		Base::Log("Yes!");
-	}
-	else
-	{
-		Base::Log("No!\n");
-	}
+	m_Scene.DrawByPart(m_Camera, m_WindowSize.first, m_WindowSize.second, drawType, m_Context[drawType]);
 
-	::Sleep(1000);
+	m_Context[drawType].FinishCommandList(true, m_CommandList[drawType]);
 }
 
 void MultithreadedRendering::PrepareScene()
@@ -22,23 +14,52 @@ void MultithreadedRendering::PrepareScene()
 
 	AutoFocus(m_Scene.SquidRoom, 0.3f);
 
-	m_Thread.Bind(std::bind(&MultithreadedRendering::RenderThreadFunc, this, std::placeholders::_1));
+	for (uint32_t i = 0U; i < Scene::eTypeCount; ++i)
+	{
+		m_Threads[i].Bind(std::bind(&MultithreadedRendering::RenderThreadFunc, this, std::placeholders::_1));
+		m_Context[i].CreateAsDeferredContext();
+	}
 }
 
 void MultithreadedRendering::RenderScene()
 {
-	m_Scene.Draw(m_Camera, m_WindowSize.first, m_WindowSize.second);
+	if (m_RenderingMode == eSingelThread)
+	{
+		for (uint32_t i = 0U; i < Scene::eTypeCount; ++i)
+		{
+			m_Threads[i].Suspend();
+		}
+
+		m_Scene.Draw(m_Camera, m_WindowSize.first, m_WindowSize.second);
+	}
+	else if (m_RenderingMode == eMultiThreadByScene && m_bActive)
+	{
+		if (m_ThreadTaskDone)
+		{
+			for (uint32_t i = 0U; i < Scene::eTypeCount; ++i)
+			{
+				m_Threads[i].Start((Scene::eDrawType)i);
+			}
+		}
+
+		bool bTaskDone = true;
+		for (uint32_t i = 0U; i < Scene::eTypeCount; ++i)
+		{
+			bTaskDone &= m_Threads[i].IsDone();
+		}
+		m_ThreadTaskDone = bTaskDone;
+
+		if (m_ThreadTaskDone)
+		{
+			for (uint32_t i = 0U; i < Scene::eTypeCount; ++i)
+			{
+				REngine::Instance().ExecuteCommandList(true, m_CommandList[i]);
+			}
+		}
+
+		REngine::Instance().ResetDefaultRenderSurfaces(Color::DarkBlue, nullptr, false);
+	}
 
 	ImGui::Text("FPS: %.2f", m_FPS);
 	ImGui::Combo("RenderingMode", &m_RenderingMode, "SingleThread\0Multithread");
-
-	if (m_RenderingMode == eSingelThread)
-	{
-		m_Thread.Suspend();
-	}
-	else if (m_RenderingMode == eMultiThreadByScene)
-	{
-		static uint32_t s_Param = 128U;
-		m_Thread.Start(&s_Param);
-	}
 }

@@ -39,10 +39,10 @@ protected:
 	float m_FPS = 0.0f;
 	uint16_t m_IconID = UINT16_MAX;
 	bool m_bFullScreen = false;
+	bool m_bActive = false;
 
 	Timer m_Timer = {};
 private:
-	bool m_bActive = false;
 	bool m_bNeedResize = false;
 	uint32_t m_FrameCount = 0U;
 	float m_LastUpdateTime = 0.0f;

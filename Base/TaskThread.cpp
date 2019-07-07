@@ -35,37 +35,3 @@ void Event::Signal()
 	m_Signaled = true;
 	m_Signal.notify_all();
 }
-
-void TaskThread::Start(void *pParams)
-{
-	assert(m_Functor);
-
-	m_Suspend = false;
-
-	if (!m_Thread)
-	{
-		m_Thread.reset(new std::thread([this, pParams]() {
-			while (!m_Stop)
-			{
-				if (m_Suspend)
-				{
-					std::this_thread::yield();
-				}
-				else
-				{
-					m_Functor(pParams);
-				}
-			}
-		}));
-	}
-}
-
-TaskThread::~TaskThread()
-{
-	Stop();
-
-	if (m_Thread && m_Thread->joinable())
-	{
-		m_Thread->join();
-	}
-}

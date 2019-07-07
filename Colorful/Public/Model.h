@@ -99,7 +99,7 @@ public:
 
 	void AppendSubModel(const SubModel &subModel, bool bUseDefaultLayout = true);
 
-	void Draw(const DXUTCamera &camera, bool bDrawBoundingBox = false);
+	void Draw(const DXUTCamera &camera, bool bDrawBoundingBox = false, RContext *pContext = nullptr);
 protected:
 	void DrawBoundingBox(const DXUTCamera &camera);
 

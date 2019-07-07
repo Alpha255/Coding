@@ -102,7 +102,7 @@ void D3D11Context::SetSamplerState(const D3D11SamplerState &samplerState, uint32
 	}
 }
 
-void D3D11Context::SetConstantBuffer(const D3D11Buffer &constantBuffer, uint32_t slot, eRShaderType targetShader)
+void D3D11Context::SetUniformBuffer(const D3D11Buffer &constantBuffer, uint32_t slot, eRShaderType targetShader)
 {
 	assert(slot < D3D11ContextState::eMaxConstantBuffers && targetShader < eRShaderTypeCount);
 
@@ -285,4 +285,6 @@ void D3D11Context::CreateAsDeferredContext()
 	ID3D11DeviceContext *pContext = nullptr;
 	Check(D3D11Engine::Instance().GetDevice().Get()->CreateDeferredContext(0U, &pContext));
 	Reset(pContext);
+
+	m_bDeferred = true;
 }

@@ -12,7 +12,15 @@ public:
 		eLightCount = 4U
 	};
 
-	struct LightParams
+	enum eDrawType
+	{
+		eMirror,
+		eShadow = eMirror + eMirrorCount,
+		eScene,
+		eTypeCount
+	};
+
+	struct LightParam
 	{
 		Matrix VP;
 
@@ -35,7 +43,7 @@ public:
 		Vec4 TintColor = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
 		Vec4 AmbientColor = Vec4(0.04f * 0.760f, 0.04f * 0.793f, 0.04f * 0.822f, 1.0f);
-		LightParams LightParams[eLightCount];
+		LightParam LightParams[eLightCount];
 
 		ConstantsBufferPS();
 
@@ -47,12 +55,33 @@ public:
 		ConstantsBufferVS Memory;
 		Matrix LightVP[eLightCount];
 		RBuffer Buffer;
+		std::mutex Mutex;
+
+		void Update(const Matrix &world, const Matrix &vp, RContext &context);
 	};
 
 	struct CBufferPS
 	{
 		ConstantsBufferPS Memory;
 		RBuffer Buffer;
+		std::mutex Mutex;
+
+		inline void SetMirror(const Vec4 &mirrorPlane, const Vec4 &tintColor)
+		{
+			std::lock_guard<std::mutex> locker(Mutex);
+
+			Memory.MirrorPlane = mirrorPlane;
+			Memory.TintColor = tintColor;
+		}
+
+		inline void SetLight(const LightParam &lightParam, uint32_t index)
+		{
+			std::lock_guard<std::mutex> locker(Mutex);
+
+			Memory.LightParams[index] = lightParam;
+		}
+
+		void Update(RContext &context);
 	};
 
 	struct StaticParams
@@ -92,13 +121,15 @@ public:
 
 	void Initialize();
 	void Draw(const DXUTCamera &camera, uint32_t width, uint32_t height);
+	void DrawByPart(const DXUTCamera &camera, uint32_t width, uint32_t height, eDrawType type, RContext &context);
 	void Update(float elapsedTime, float totalTime);
 
 protected:
-	void SetMirror(const DXUTCamera &camera, uint32_t index);
-	void DrawMirror(const DXUTCamera &camera, uint32_t index);
-	void DrawShadow(const DXUTCamera &camera);
-	void DrawScene(const DXUTCamera &camera, const StaticParams &params, const Matrix &world, const Matrix &vp, bool bShadow);
+	void SetMirror(const DXUTCamera &camera, uint32_t index, RContext &context);
+	void DrawMirror(const DXUTCamera &camera, uint32_t index, RContext &context);
+	void DrawShadow(const DXUTCamera &camera, uint32_t width, uint32_t height, RContext &context);
+	void DrawScene(const DXUTCamera &camera, const StaticParams &params, const Matrix &world, const Matrix &vp, bool bShadow, RContext &context);
+	void DrawSceneNormally(const DXUTCamera &camera, RContext &context);
 
 public:
 	RVertexShader VertexShader;

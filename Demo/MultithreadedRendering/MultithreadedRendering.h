@@ -17,9 +17,8 @@ public:
 	{
 		m_Scene.Update(elapsedTime, totalTime);
 	}
-	///void ResizeWindow(uint32_t width, uint32_t height) override;
 
-	void RenderThreadFunc(void *pParams);
+	void RenderThreadFunc(const Scene::eDrawType &drawType);
 
 	enum eRenderingMode
 	{
@@ -29,9 +28,12 @@ public:
 
 protected:
 private:
+	bool m_ThreadTaskDone = true;
 	int32_t m_RenderingMode = eSingelThread;
 
 	Scene m_Scene;
 
-	TaskThread m_Thread;
+	TaskThread<Scene::eDrawType> m_Threads[Scene::eTypeCount];
+	RCommandList m_CommandList[Scene::eTypeCount];
+	RContext m_Context[Scene::eTypeCount];
 };
