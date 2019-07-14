@@ -1,8 +1,12 @@
 #include "MultithreadedRendering.h"
 #include "ImGUI.h"
 
-void MultithreadedRendering::RenderThreadFunc(const Scene::eDrawType &drawType)
+static std::mutex s_Mutex;
+
+void MultithreadedRendering::RenderThreadFunc(Scene::eDrawType drawType)
 {
+	assert(drawType < Scene::eTypeCount);
+
 	m_Scene.DrawByPart(m_Camera, m_WindowSize.first, m_WindowSize.second, drawType, m_Context[drawType]);
 
 	m_Context[drawType].FinishCommandList(true, m_CommandList[drawType]);
@@ -14,9 +18,10 @@ void MultithreadedRendering::PrepareScene()
 
 	AutoFocus(m_Scene.SquidRoom, 0.3f);
 
+	TaskScheduler::Instance().Initialize(Scene::eTypeCount);
+
 	for (uint32_t i = 0U; i < Scene::eTypeCount; ++i)
 	{
-		m_Threads[i].Bind(std::bind(&MultithreadedRendering::RenderThreadFunc, this, std::placeholders::_1));
 		m_Context[i].CreateAsDeferredContext();
 	}
 }
@@ -25,36 +30,22 @@ void MultithreadedRendering::RenderScene()
 {
 	if (m_RenderingMode == eSingelThread)
 	{
-		for (uint32_t i = 0U; i < Scene::eTypeCount; ++i)
-		{
-			m_Threads[i].Suspend();
-		}
-
 		m_Scene.Draw(m_Camera, m_WindowSize.first, m_WindowSize.second);
 	}
 	else if (m_RenderingMode == eMultiThreadByScene && m_bActive)
 	{
-		if (m_ThreadTaskDone)
-		{
-			for (uint32_t i = 0U; i < Scene::eTypeCount; ++i)
-			{
-				m_Threads[i].Start((Scene::eDrawType)i);
-			}
-		}
-
-		bool bTaskDone = true;
 		for (uint32_t i = 0U; i < Scene::eTypeCount; ++i)
 		{
-			bTaskDone &= m_Threads[i].IsDone();
+			TaskScheduler::Instance().AddTask([=] {
+				RenderThreadFunc((Scene::eDrawType)i);
+			});
 		}
-		m_ThreadTaskDone = bTaskDone;
 
-		if (m_ThreadTaskDone)
+		TaskScheduler::Instance().WaitUntilDone();
+
+		for (uint32_t i = 0U; i < Scene::eTypeCount; ++i)
 		{
-			for (uint32_t i = 0U; i < Scene::eTypeCount; ++i)
-			{
-				REngine::Instance().ExecuteCommandList(true, m_CommandList[i]);
-			}
+			REngine::Instance().ExecuteCommandList(true, m_CommandList[i]);
 		}
 
 		REngine::Instance().ResetDefaultRenderSurfaces(Color::DarkBlue, nullptr, false);

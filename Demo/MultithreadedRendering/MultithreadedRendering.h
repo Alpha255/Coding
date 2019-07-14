@@ -3,7 +3,7 @@
 #include "Public/IRenderApplication.h"
 #include "Public/Model.h"
 #include "Scene.h"
-#include "Base/TaskThread.h"
+#include "Base/TaskScheduler.h"
 
 class MultithreadedRendering : public IRenderApplication
 {
@@ -18,7 +18,7 @@ public:
 		m_Scene.Update(elapsedTime, totalTime);
 	}
 
-	void RenderThreadFunc(const Scene::eDrawType &drawType);
+	void RenderThreadFunc(Scene::eDrawType drawType);
 
 	enum eRenderingMode
 	{
@@ -28,12 +28,10 @@ public:
 
 protected:
 private:
-	bool m_ThreadTaskDone = true;
 	int32_t m_RenderingMode = eSingelThread;
 
 	Scene m_Scene;
 
-	TaskThread<Scene::eDrawType> m_Threads[Scene::eTypeCount];
 	RCommandList m_CommandList[Scene::eTypeCount];
 	RContext m_Context[Scene::eTypeCount];
 };

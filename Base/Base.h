@@ -9,6 +9,7 @@
 #include <string>
 #include <thread>
 #include <atomic>
+#include <queue>
 #include <condition_variable>
 #include <fstream>
 #include <unordered_map>

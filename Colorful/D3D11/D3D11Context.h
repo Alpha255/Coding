@@ -60,7 +60,10 @@ public:
 	{
 		assert(!m_bDeferred);
 
-		m_Object->ExecuteCommandList(commandList.Get(), bRestore);
+		if (commandList.IsValid())
+		{
+			m_Object->ExecuteCommandList(commandList.Get(), bRestore);
+		}
 	}
 
 	inline void ClearRenderTargetView(D3D11RenderTargetView &renderTarget, const Vec4 &color) const
