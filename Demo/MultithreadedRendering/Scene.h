@@ -57,7 +57,7 @@ public:
 		RBuffer Buffer;
 		std::mutex Mutex;
 
-		void Update(const Matrix &world, const Matrix &vp, RContext &context);
+		void Update(const Matrix &world, const Matrix &vp, RContext &context, bool bUpdateIM = false);
 	};
 
 	struct CBufferPS

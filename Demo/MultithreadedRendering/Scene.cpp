@@ -121,13 +121,17 @@ void Scene::Mirror::Initialize(RVertexShader &vertexShader)
 	Layout.Create(vertexShader.GetBlob(), vertexLayout);
 }
 
-void Scene::CBufferVS::Update(const Matrix &world, const Matrix &vp, RContext &context)
+void Scene::CBufferVS::Update(const Matrix &world, const Matrix &vp, RContext &context, bool bUpdateIM)
 {
 	std::lock_guard<std::mutex> locker(Mutex);
 
-	Memory.World = Matrix::Transpose(world);
-	Memory.WorldInverse = Matrix::InverseTranspose(world);
-	Memory.VP = Matrix::Transpose(vp);
+	if (!bUpdateIM)
+	{
+		Memory.World = Matrix::Transpose(world);
+		Memory.WorldInverse = Matrix::InverseTranspose(world);
+		Memory.VP = Matrix::Transpose(vp);
+	}
+
 	Buffer.Update(&Memory, sizeof(ConstantsBufferVS), &context);
 }
 
@@ -236,12 +240,12 @@ void Scene::DrawMirror(const DXUTCamera &camera, uint32_t index, RContext &conte
 
 	Marker.Begin("Darw Mirror Rect-DepthOverwriteStencilTest");
 	Matrix vp = camera.GetWVPMatrix();
-	Matrix srcVp = CBuffer_VS.Memory.VP;
+	Matrix &srcVp = CBuffer_VS.Memory.VP;
 	srcVp._31 = vp._14;
 	srcVp._32 = vp._24;
 	srcVp._33 = vp._34;
 	srcVp._34 = vp._44;
-	CBuffer_VS.Update(CBuffer_VS.Memory.World, srcVp, context);
+	CBuffer_VS.Update(CBuffer_VS.Memory.World, srcVp, context, true);
 	context.SetDepthStencilState(DepthOverwriteStencilTest, 0x01U);
 	context.Draw(4U, 0U, eTriangleStrip);
 	Marker.End();
