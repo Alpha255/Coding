@@ -1,20 +1,19 @@
-
 #pragma once
 
-#include "RenderApp.h"
-#include "D3DGeometry.h"
+#include "Public/IRenderApplication.h"
+#include "Colorful/Public/Model.h"
 #include "D3DGeometryBuffer.h"
 #include "LightController.h"
 
-class AppDeferredShading : public RenderApp
+class DeferredShading : public IRenderApplication
 {
 public:
-	AppDeferredShading() = default;
-	~AppDeferredShading() = default;
+	DeferredShading() = default;
+	~DeferredShading() = default;
 
-	virtual void Initialize() override;
-	virtual void RenderScene() override;
-	virtual void ResizeWindow(uint32_t width, uint32_t height) override;
+	void PrepareScene() override;
+	void RenderScene() override;
+	void ResizeWindow(uint32_t width, uint32_t height) override;
 protected:
 	struct ConstantBufferVS
 	{
@@ -30,16 +29,14 @@ private:
 	D3DGeometryBuffer m_GBuffer;
 	LightController m_LightController;
 
-	D3DVertexShader m_VertexShader;
-	D3DPixelShader m_PixelShader;
+	RVertexShader m_VertexShader;
+	RPixelShader m_PixelShader;
 
-	D3DBuffer m_CBufferVS;
-	D3DBuffer m_CBufferPS;
+	RBuffer m_CBufferVS;
+	RBuffer m_CBufferPS;
 
-	D3DInputLayout m_Layout;
+	Geometry::Model m_Bunny;
 
-	Geometry::SDKMesh m_Bunny;
-
-	int32_t m_LightingType = Light::eDirectional;
+	int32_t m_LightingType = eDirectionalLight;
 	bool m_bVisualizeGBuffer = true;
 };

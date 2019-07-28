@@ -1,63 +1,50 @@
 #include "DeferredShading.h"
-#include "Camera.h"
-#include "D3DEngine.h"
+#include "Base/DXUTCamera.h"
 #include "ImGUI.h"
 
-void AppDeferredShading::Initialize()
+void DeferredShading::PrepareScene()
 {
-	m_Bunny.Create("bunny.sdkmesh");
+	m_Bunny.CreateFromFile("bunny.sdkmesh");
 
-	m_GBuffer.Init(m_Width, m_Height);
+	m_GBuffer.Init(m_WindowSize.first, m_WindowSize.second);
 	m_LightController.Init();
 
 	m_VertexShader.Create("DeferredShading\\DeferredShading.hlsl", "VSMain");
 	m_PixelShader.Create("DeferredShading\\DeferredShading.hlsl", "PSMain");
 
-	m_CBufferVS.CreateAsConstantBuffer(sizeof(ConstantBufferVS), D3DBuffer::eGpuReadCpuWrite);
-	m_CBufferPS.CreateAsConstantBuffer(sizeof(ConstantBufferPS), D3DBuffer::eGpuReadCpuWrite);
-
-	m_Camera->SetViewRadius(100.0f);
-	m_Camera->Move(0, -100);
-
-	const D3D11_INPUT_ELEMENT_DESC VertexLayout[] =
-	{
-		{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT,   0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL",    0, DXGI_FORMAT_R32G32B32_FLOAT,   0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,      0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-	};
-	m_Layout.Create(m_VertexShader.GetBlob(), VertexLayout, _countof(VertexLayout));
-	m_Bunny.SetInputLayout(m_Layout);
+	m_CBufferVS.CreateAsUniformBuffer(sizeof(ConstantBufferVS), eGpuReadCpuWrite);
+	m_CBufferPS.CreateAsUniformBuffer(sizeof(ConstantBufferPS), eGpuReadCpuWrite);
 }
 
-void AppDeferredShading::RenderScene()
+void DeferredShading::RenderScene()
 {
 	ConstantBufferVS CBufferVS;
 	ConstantBufferPS CBufferPS;
 
-    D3DEngine::Instance().SetViewport(D3DViewport(0.0f, 0.0f, (float)m_Width, (float)m_Height));
+    REngine::Instance().SetViewport(RViewport(0.0f, 0.0f, (float)m_WindowSize.first, (float)m_WindowSize.second));
 
-	CBufferVS.World = Matrix::Transpose(m_Camera->GetWorldMatrix());
-	CBufferVS.WVP = Matrix::Transpose(m_Camera->GetWVPMatrix());
+	CBufferVS.World = Matrix::Transpose(m_Camera.GetWorldMatrix());
+	CBufferVS.WVP = Matrix::Transpose(m_Camera.GetWVPMatrix());
 	m_CBufferVS.Update(&CBufferVS, sizeof(ConstantBufferVS));
 
-	CBufferPS.LightSpecular = m_LightController.GetLightSpecular((Light::eLightType)m_LightingType);
+	CBufferPS.LightSpecular = m_LightController.GetLightSpecular((eLightType)m_LightingType);
 	m_CBufferPS.Update(&CBufferPS, sizeof(ConstantBufferPS));
 
-	D3DEngine::Instance().SetVertexShader(m_VertexShader);
-	D3DEngine::Instance().SetPixelShader(m_PixelShader);
-	D3DEngine::Instance().SetConstantBuffer(m_CBufferVS, 0U, D3DShader::eVertexShader);
-	D3DEngine::Instance().SetConstantBuffer(m_CBufferPS, 0U, D3DShader::ePixelShader);
+	REngine::Instance().SetVertexShader(m_VertexShader);
+	REngine::Instance().SetPixelShader(m_PixelShader);
+	REngine::Instance().SetUniformBuffer(m_CBufferVS, 0U, eVertexShader);
+	REngine::Instance().SetUniformBuffer(m_CBufferPS, 0U, ePixelShader);
 
 	m_GBuffer.Bind();
-	m_Bunny.Draw(false);
+	m_Bunny.Draw(m_Camera);
 	m_GBuffer.UnBind();
 
-	D3DEngine::Instance().ResetDefaultRenderTargetView();
+	REngine::Instance().ResetDefaultRenderTargetView();
 
-	Matrix proj = m_Camera->GetProjMatrix();
+	Matrix proj = m_Camera.GetProjMatrix();
 	Vec4 perspective = Vec4(1.0f / proj._11, 1.0f / proj._22, proj._43, -proj._33);
 
-	m_LightController.TurnonTheLights((Light::eLightType)m_LightingType, m_GBuffer, perspective, m_Camera->GetViewMatrix());
+	m_LightController.TurnonTheLights((eLightType)m_LightingType, m_GBuffer, perspective, m_Camera.GetViewMatrix());
 
 	m_GBuffer.VisulizeGBuffer(m_bVisualizeGBuffer, perspective);
 
@@ -65,9 +52,9 @@ void AppDeferredShading::RenderScene()
 	ImGui::Combo("LightingType", &m_LightingType, "Point\0Directional\0Spot\0Capsule");
 }
 
-void AppDeferredShading::ResizeWindow(uint32_t width, uint32_t height)
+void DeferredShading::ResizeWindow(uint32_t width, uint32_t height)
 {
-	Base::ResizeWindow(width, height);
+	BaseClass::ResizeWindow(width, height);
 
 	m_GBuffer.Resize(width, height);
 }

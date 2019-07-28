@@ -1,15 +1,14 @@
-
 #include "DeferredShading.h"
 
-int32_t WINAPI wWinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpCmdLine*/, int /*nShow*/)
+int32_t WINAPI wWinMain(HINSTANCE, HINSTANCE, LPWSTR, int32_t)
 {
-	AppDeferredShading DeferredShading;
+	DeferredShading deferredShading;
 
-	DeferredShading.Startup(L"DeferredShading", 1280U,720U);
+	deferredShading.Initialize("DeferredShading");
 
-	DeferredShading.Running();
+	deferredShading.Loop();
 
-	DeferredShading.ShutDown();
+	deferredShading.Finalize();
 
 	return 0;
 }
