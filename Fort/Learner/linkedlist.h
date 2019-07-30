@@ -63,6 +63,7 @@ public:
 			pNode = pNextNode;
 		}
 
+		m_Root = nullptr;
 		m_Size = 0;
 	}
 protected:
