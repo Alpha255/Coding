@@ -28,7 +28,14 @@ int main()
 
 #if defined(TestLinkedList)
 	linkedlist<int32_t> test;
-	test.push_back(3);
+	for (uint32_t i = 0U; i < 10; ++i)
+	{
+		test.push_back(i);
+	}
+
+	test.remove(7U);
+	test.insert(7U, 155);
+
 	test.clear();
 #endif
 	

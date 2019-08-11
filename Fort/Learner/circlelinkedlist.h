@@ -2,41 +2,21 @@
 
 #include "Node.h"
 
-template<typename T> class linkedlist
+template<typename T> class circlelinkedlist
 {
 public:
 	typedef node<T> *iterator;
 	typedef const iterator const_iterator;
 
-	linkedlist() = default;
-	virtual ~linkedlist()
+	circlelinkedlist() = default;
+	virtual ~circlelinkedlist()
 	{
 		clear();
 	}
 
-	inline iterator begin()
-	{
-		return m_Begin;
-	}
-
-	inline const_iterator begin() const
-	{
-		return m_Begin;
-	}
-
-	inline iterator end()
-	{
-		return m_End;
-	}
-
-	inline const_iterator end() const
-	{
-		return m_End;
-	}
-
 	inline bool empty() const
 	{
-		return m_Begin == nullptr;
+		return m_Root->Next == m_Root;
 	}
 
 	inline size_t size() const
@@ -49,7 +29,7 @@ public:
 		assert(pos < m_Size && m_Size != 0U);
 
 		uint32_t counter = 0U;
-		iterator it = m_Begin;
+		iterator it = m_Root;
 		while (counter < pos)
 		{
 			it = it->Next;
@@ -60,11 +40,6 @@ public:
 		pNewNode->Next = it->Next;
 		it->Next = pNewNode;
 
-		if (it == m_End)
-		{
-			m_End = pNewNode;
-		}
-
 		++m_Size;
 	}
 
@@ -73,7 +48,7 @@ public:
 		assert(pos < m_Size);
 
 		uint32_t counter = 0U;
-		iterator it = m_Begin;
+		iterator it = m_Root;
 		iterator itPrev = it;
 		while (counter < pos)
 		{
@@ -84,13 +59,10 @@ public:
 
 		T value = it->Data;
 
-		if (it == m_Begin)
+		if (it == m_Root)
 		{
-			m_Begin = m_Begin->Next;
-		}
-		if (it == m_End)
-		{
-			m_End = itPrev;
+			m_Root = m_Root->Next;
+			itPrev->Next = m_Root;
 		}
 
 		itPrev->Next = it->Next;
@@ -100,26 +72,9 @@ public:
 		return value;
 	}
 
-	inline void push_back(const T &value)
-	{
-		if (!m_Begin)
-		{
-			m_Begin = new node<T>(value);
-			m_End = m_Begin;
-		}
-		else
-		{
-			node<T> *pNewNode = new node<T>(value);
-			m_End->Next = pNewNode;
-			m_End = pNewNode;
-		}
-
-		++m_Size;
-	}
-
 	void clear()
 	{
-		node<T> *pNode = m_Begin;
+		node<T> *pNode = m_Root;
 		while (pNode)
 		{
 			node<T> *pNextNode = pNode->Next;
@@ -127,13 +82,11 @@ public:
 			pNode = pNextNode;
 		}
 
-		m_Begin = nullptr;
-		m_End = nullptr;
+		m_Root = nullptr;
 		m_Size = 0;
 	}
 protected:
 private:
-	iterator m_Begin = nullptr;
-	iterator m_End = nullptr;
+	iterator m_Root = nullptr;
 	size_t m_Size = 0U;
 };
