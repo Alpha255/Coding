@@ -302,7 +302,7 @@ void Model::CreateAsQuad(float left, float top, float width, float height)
 
 	AddBuffer(vertices);
 	AddBuffer(indices);
-	AppendSubModel(SubModel{ 0U, 0U, (uint32_t)indices.size(), 0U, 0 });
+	AppendSubModel(SubModel{ 0U, 0U, 0U, (uint32_t)indices.size(), 0U, 0 });
 
 	m_Valid = true;
 }
