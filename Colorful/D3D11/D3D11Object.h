@@ -125,5 +125,36 @@ public:
 class D3D11Device : public D3DObject<ID3D11Device> {};
 class DXGIFactory : public D3DObject<IDXGIFactory> {};
 class D3D11Resource : public D3DObject<ID3D11Resource> {};
-class D3D11CommandList : public D3DObject<ID3D11CommandList> {};
 class D3D11Blob : public D3DObject<ID3DBlob> {};
+
+class D3D11CommandList
+{
+public:
+	inline bool IsValid() const
+	{
+		return m_CommandList != nullptr;
+	}
+
+	ID3D11CommandList *Get()
+	{
+		return m_CommandList;
+	}
+
+	ID3D11CommandList **operator &()
+	{
+		return &m_CommandList;
+	}
+
+	inline void Release()
+	{
+		SafeRelease(m_CommandList);
+	}
+
+	~D3D11CommandList()
+	{
+		Release();
+	}
+protected:
+private:
+	ID3D11CommandList *m_CommandList = nullptr;
+};

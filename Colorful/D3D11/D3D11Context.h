@@ -45,10 +45,8 @@ public:
 	{
 		if (m_bDeferred)
 		{
-			auto pCommandList = commandList.Get();
-			m_Object->FinishCommandList(bRestore, &pCommandList);
-			assert(pCommandList);
-			commandList.Reset(pCommandList);
+			Verify(m_Object->FinishCommandList(bRestore, &commandList) == S_OK);
+			assert(commandList.IsValid());
 		}
 		else
 		{

@@ -32,7 +32,7 @@ void MultithreadedRendering::RenderScene()
 	{
 		m_Scene.Draw(m_Camera, m_WindowSize.first, m_WindowSize.second);
 	}
-	else if (m_RenderingMode == eMultiThreadByScene && m_bActive)
+	else if (m_RenderingMode == eMultiThreadByScene)
 	{
 		for (uint32_t i = 0U; i < Scene::eTypeCount; ++i)
 		{
@@ -46,6 +46,7 @@ void MultithreadedRendering::RenderScene()
 		for (uint32_t i = 0U; i < Scene::eTypeCount; ++i)
 		{
 			REngine::Instance().ExecuteCommandList(true, m_CommandList[i]);
+			m_CommandList[i].Release();
 		}
 
 		REngine::Instance().ResetDefaultRenderSurfaces(Color::DarkBlue, nullptr, false);
