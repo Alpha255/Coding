@@ -96,6 +96,8 @@ void IApplication::HandleWindowMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM /
 		m_bActive = true;
 		break;
 	case WM_DESTROY:
+		m_bActive = false;
+		m_Timer.Stop();
 		::PostQuitMessage(0);
 		break;
 	case WM_NCLBUTTONDBLCLK:

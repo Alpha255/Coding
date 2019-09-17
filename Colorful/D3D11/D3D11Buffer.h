@@ -46,7 +46,7 @@ public:
 		Reset();
 	}
 
-	void Update(const void *pData, size_t size);
+	void Update(const void *pData, size_t size, class D3D11Context *pContext = nullptr);
 
 protected:
 	void Create(

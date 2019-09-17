@@ -23,6 +23,9 @@
 	typedef D3D11DepthStencilState RDepthStencilState;
 	typedef D3D11RasterizerState RRasterizerState;
 	typedef D3D11DepthStencilView RDepthStencilView;
+	typedef D3D11Event REvent;
+	typedef D3D11CommandList RCommandList;
+	typedef D3D11Context RContext;
 #elif defined(UsingVulkan)
 	#include "Vulkan/VulkanEngine.h"
 	#define IconID IconVulkan 
@@ -40,3 +43,6 @@
 #else
 	#error "Unknown Render Interface"
 #endif
+
+#define GpuMarkerBegin(Name) REvent GpuMarker; GpuMarker.Begin(Name);
+#define GpuMarkerEnd() GpuMarker.End();

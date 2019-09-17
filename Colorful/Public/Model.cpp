@@ -302,7 +302,7 @@ void Model::CreateAsQuad(float left, float top, float width, float height)
 
 	AddBuffer(vertices);
 	AddBuffer(indices);
-	AppendSubModel(SubModel{ 0U, 0U, (uint32_t)indices.size(), 0U, 0 });
+	AppendSubModel(SubModel{ 0U, 0U, 0U, (uint32_t)indices.size(), 0U, 0 });
 
 	m_Valid = true;
 }
@@ -405,27 +405,42 @@ Sphere ComputeBoundingBoundingSphere(const std::vector<Vertex> &vertices)
 	return Sphere();
 }
 
-void Model::Draw(const DXUTCamera &camera, bool bDrawBoundingBox)
+void Model::Draw(const DXUTCamera &camera, bool bDrawBoundingBox, RContext *pContext)
 {
+	RContext *pCtx = nullptr;
+	if (pContext && pContext->IsValid())
+	{
+		pCtx = pContext;
+	}
+	else
+	{
+		pCtx = &REngine::Instance().GetIMContext();
+	}
+
 	for (auto it = m_SubModels.cbegin(); it != m_SubModels.cend(); ++it)
 	{
 		const SubModel &subModel = *it;
-		REngine::Instance().SetInputLayout(m_InputLayouts[subModel.InputLayout]);
-		REngine::Instance().SetVertexBuffer(m_VertexBuffers[subModel.VertexBuffer], m_InputLayouts[subModel.InputLayout].GetVertexStride(), 0U, 0U);
-		REngine::Instance().SetIndexBuffer(m_IndexBuffers[subModel.IndexBuffer], subModel.IndexFormat, 0U);
+		pCtx->SetInputLayout(m_InputLayouts[subModel.InputLayout]);
+		pCtx->SetVertexBuffer(m_VertexBuffers[subModel.VertexBuffer], m_InputLayouts[subModel.InputLayout].GetVertexStride(), 0U, 0U);
+		pCtx->SetIndexBuffer(m_IndexBuffers[subModel.IndexBuffer], subModel.IndexFormat, 0U);
 
 		if (subModel.MaterialIndex != UINT32_MAX)
 		{
-			REngine::Instance().SetSamplerState(RStaticState::LinearSampler, 0U, ePixelShader);
+			pCtx->SetSamplerState(RStaticState::LinearSampler, 0U, ePixelShader);
 
 			const Material &mat = m_Materials[subModel.MaterialIndex];
-			if (mat.Textures[Material::eDiffuse].IsValid())
+			uint32_t slot = 0U;
+
+			for (uint32_t i = 0U; i < Material::ePropertyCount; ++i)
 			{
-				REngine::Instance().SetShaderResourceView(mat.Textures[Material::eDiffuse], 0U, ePixelShader);
+				if (mat.Textures[i].IsValid())
+				{
+					pCtx->SetShaderResourceView(mat.Textures[i], slot++, ePixelShader);
+				}
 			}
 		}
 
-		REngine::Instance().DrawIndexed(subModel.IndexCount, subModel.StartIndex, subModel.VertexOffset, subModel.PrimitiveType);
+		pCtx->DrawIndexed(subModel.IndexCount, subModel.StartIndex, subModel.VertexOffset, subModel.PrimitiveType);
 	}
 
 	if (bDrawBoundingBox && m_HasBoundingBox)

@@ -17,6 +17,7 @@ public:
 
 	inline uint32_t GetVertexStride() const
 	{
+		assert(m_VertexStride > 0U);
 		return m_VertexStride;
 	}
 private:

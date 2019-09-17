@@ -33,13 +33,36 @@ public:
 	void SetGeometryShader(const D3D11GeometryShader &geometryShader);
 	void SetComputeShader(const D3D11ComputeShader &computeShader);
 
-	void SetConstantBuffer(const D3D11Buffer &constantBuffer, uint32_t slot, eRShaderType targetShader);
+	void SetUniformBuffer(const D3D11Buffer &constantBuffer, uint32_t slot, eRShaderType targetShader);
 
 	void SetViewport(const D3D11Viewport &viewport, uint32_t slot = 0U);
 	void SetScissorRect(const D3D11Rect &rect, uint32_t slot = 0U);
 
 	void Draw(uint32_t vertexCount, uint32_t startVertex, uint32_t primitive);
 	void DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_t offset, uint32_t primitive);
+
+	inline void FinishCommandList(bool bRestore, D3D11CommandList &commandList)
+	{
+		if (m_bDeferred)
+		{
+			Verify(m_Object->FinishCommandList(bRestore, &commandList) == S_OK);
+			assert(commandList.IsValid());
+		}
+		else
+		{
+			assert(0);
+		}
+	}
+
+	inline void ExecuteCommandList(bool bRestore, D3D11CommandList &commandList)
+	{
+		assert(!m_bDeferred);
+
+		if (commandList.IsValid())
+		{
+			m_Object->ExecuteCommandList(commandList.Get(), bRestore);
+		}
+	}
 
 	inline void ClearRenderTargetView(D3D11RenderTargetView &renderTarget, const Vec4 &color) const
 	{
@@ -61,7 +84,13 @@ public:
 
 		m_State.CommitState(*this);
 	}
+
+	inline bool IsDeferred() const
+	{
+		return m_bDeferred;
+	}
 protected:
 private:
 	D3D11ContextState m_State;
+	bool m_bDeferred = false;
 };
