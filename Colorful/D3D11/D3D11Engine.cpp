@@ -50,8 +50,6 @@ void D3D11Engine::Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool 
 
 			D3D11StaticState::Initialize();
 
-			m_ContextsMap.emplace(std::make_pair(std::this_thread::get_id(), m_IMContext));
-
 			m_Inited = true;
 
 			return;
@@ -90,13 +88,4 @@ void D3D11Engine::Resize(uint32_t width, uint32_t height)
 	m_SwapChain.Resize(width, height);
 
 	RecreateRenderTargetDepthStencil(width, height);
-}
-
-void D3D11Engine::RegisterRenderThread(std::thread::id workerThreadID)
-{
-	uint32_t workerThreadsLimit = std::thread::hardware_concurrency();
-	assert(m_ContextsMap.size() < workerThreadsLimit);
-
-	m_ContextsMap.emplace(std::make_pair(workerThreadID, D3D11Context()));
-	m_ContextsMap[workerThreadID].CreateAsDeferredContext();
 }

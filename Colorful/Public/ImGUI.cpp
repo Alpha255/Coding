@@ -40,17 +40,11 @@ void ImGUI::Initialize(::HWND hWnd)
 		{ "COLOR",    sizeof(ImDrawVert::col), offsetof(ImDrawVert, col), eRGBA8_UNorm }
 	};
 
-#if 0
-	m_Resource.VertexShader.Create("UIVertexShader.vert", "main");
-	m_Resource.VertexLayout.Create(m_Resource.VertexShader.GetBlob(), layout);
-	m_Resource.PixelShader.Create("UIFragmentShader.frag", "main");
-#else
 	m_Resource.VertexShader.Create("ImGUI.shader", "VS_Main");
 	m_Resource.VertexLayout.Create(m_Resource.VertexShader.GetBlob(), layout);
 	m_Resource.PixelShader.Create("ImGUI.shader", "PS_Main");
-#endif
 
-	m_Resource.ConstantBufferVS.CreateAsUniformBuffer(sizeof(Matrix), eGpuReadCpuWrite, nullptr);
+	m_Resource.UniformBufferVS.CreateAsUniformBuffer(sizeof(Matrix), eGpuReadCpuWrite, nullptr);
 
 	m_Resource.ClrWriteBlend.Create(false, false, 0U, true,
 		eRBlend::eSrcAlpha, eRBlend::eInvSrcAlpha, eRBlendOp::eAdd,
@@ -201,6 +195,8 @@ void ImGUI::RenderEnd()
 
 bool ImGUI::Update()
 {
+	REvent Marker;
+
 	ImDrawData *pDrawData = ImGui::GetDrawData();
 	if (!pDrawData || pDrawData->CmdListsCount == 0U)
 	{
@@ -213,15 +209,24 @@ bool ImGUI::Update()
 	float R = pDrawData->DisplayPos.x + pDrawData->DisplaySize.x;
 	float B = pDrawData->DisplayPos.y + pDrawData->DisplaySize.y;
 	float T = pDrawData->DisplayPos.y;
+#if defined(UsingVulkan)
 	Matrix wvp(
-		2.0f / (R - L),    0.0f,              0.0f, 0.0f,
-		0.0f,              2.0f / (T - B),    0.0f, 0.0f,
-		0.0f,              0.0f,              0.5f, 0.0f,
+		2.0f / (R - L),    0.0f,               0.0f, 0.0f,
+		0.0f,              -2.0f / (T - B),    0.0f, 0.0f,
+		0.0f,              0.0f,               1.0f, 0.0f,
+		(R + L) / (L - R), -(T + B) / (B - T), 0.0f, 1.0f
+	);
+#elif defined(UsingD3D11)
+	Matrix wvp(
+		2.0f / (R - L), 0.0f, 0.0f, 0.0f,
+		0.0f, 2.0f / (T - B), 0.0f, 0.0f,
+		0.0f, 0.0f, 0.5f, 0.0f,
 		(R + L) / (L - R), (T + B) / (B - T), 0.5f, 1.0f
 	);
-	///wvp = Matrix::Transpose(wvp);
+#endif
+	Marker.Begin("ImGui");
 
-	m_Resource.ConstantBufferVS.Update(&wvp, sizeof(Matrix));
+	m_Resource.UniformBufferVS.Update(&wvp, sizeof(Matrix));
 
 	RViewport vp(0.0f, 0.0f, ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y);
 	REngine::Instance().SetViewport(vp);
@@ -230,7 +235,7 @@ bool ImGUI::Update()
 	REngine::Instance().SetInputLayout(m_Resource.VertexLayout);
 	REngine::Instance().SetVertexBuffer(m_Resource.VertexBuffer, sizeof(ImDrawVert), 0U);
 	REngine::Instance().SetIndexBuffer(m_Resource.IndexBuffer, sizeof(ImDrawIdx) == 2U ? eR16_UInt : eR32_UInt, 0U);
-	REngine::Instance().SetUniformBuffer(m_Resource.ConstantBufferVS, 0U, eVertexShader);
+	REngine::Instance().SetUniformBuffer(m_Resource.UniformBufferVS, 0U, eVertexShader);
 	REngine::Instance().SetSamplerState(RStaticState::LinearSampler, 0U, ePixelShader);
 	REngine::Instance().SetShaderResourceView(m_Resource.FontTexture, 0U, ePixelShader);
 	REngine::Instance().SetBlendState(m_Resource.ClrWriteBlend);
@@ -240,8 +245,7 @@ bool ImGUI::Update()
 	for (int32_t i = 0, vOffset = 0, iOffset = 0; i < pDrawData->CmdListsCount; ++i)
 	{
 		const ImDrawList *pDrawList = pDrawData->CmdLists[i];
-		///for (int j = 0; j < pDrawList->CmdBuffer.Size; ++j)
-		for (int j = 0; j < 1U; ++j)
+		for (int j = 0; j < pDrawList->CmdBuffer.Size; ++j)
 		{
 			const ImDrawCmd *pDrawCmd = &pDrawList->CmdBuffer[j];
 			if (pDrawCmd->UserCallback)
@@ -268,8 +272,6 @@ bool ImGUI::Update()
 		vOffset += pDrawList->VtxBuffer.Size;
 	}
 
-	return true;
-#if 0
 	/// Restore D3D state
 	::HWND hWnd = (::HWND)ImGui::GetIO().ImeWindowHandle;
 	::RECT rect = {};
@@ -281,7 +283,10 @@ bool ImGUI::Update()
 	REngine::Instance().SetRasterizerState(RStaticState::Solid);
 	REngine::Instance().SetBlendState(RStaticState::NoneBlendState);
 	REngine::Instance().SetDepthStencilState(RStaticState::NoneDepthStencilState, 0U);
-#endif
+
+	Marker.End();
+
+	return true;
 }
 
 void ImGUI::UpdateDrawData(ImDrawData *pDrawData)

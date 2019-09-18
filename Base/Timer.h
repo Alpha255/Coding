@@ -8,7 +8,10 @@ public:
 	Timer();
 
 	float GetTotalTime() const;
-	float GetDeltaTime() const;
+	inline float GetElapsedTime() const
+	{
+		return (float)m_ElapsedTime;
+	}
 
 	void Reset();
 	void Start();
@@ -16,13 +19,13 @@ public:
 	void Tick();
 protected:
 private:
-	double  m_SecondsPerCount = 0.0;
-	double  m_DeltaTime = 0.0;
+	double m_SecondsPerTick = 0.0;
+	double m_ElapsedTime = 0.0;
 
 	int64_t m_BaseTime = 0; 
 	int64_t m_PausedTime = 0;
 	int64_t m_StopTime = 0;
-	int64_t m_PrevTime = 0;
+	int64_t m_LastTime = 0;
 	int64_t m_CurTime = 0;
 
 	bool m_bStopped = false;

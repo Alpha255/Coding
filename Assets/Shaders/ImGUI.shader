@@ -1,6 +1,6 @@
 /// #pragma pack_matrix( column_major )
 
-cbuffer cbVS : register(b0)
+cbuffer cbVS
 {
 	matrix WVP;
 };
@@ -29,8 +29,8 @@ VSOutput VS_Main(VSInput input)
 	return output;
 }
 
-sampler SamplerLinear : register(s1);
-Texture2D FontTexture : register(t2);
+sampler SamplerLinear;
+Texture2D FontTexture;
 
 float4 PS_Main(VSOutput input) : SV_Target
 {

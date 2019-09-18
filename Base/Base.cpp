@@ -87,6 +87,32 @@ std::string GetFileExtension(const std::string &filePath, bool bToLower)
 	return ext;
 }
 
+std::string GetRootDirectory(const std::string &path)
+{
+	size_t index = path.find("\\");
+	if (index != std::string::npos)
+	{
+		index = path.find("\\", index + 1U);
+		if (index != std::string::npos)
+		{
+			return path.substr(0U, index);
+		}
+	}
+
+	return "";
+}
+
+std::string GetParentDirectory(const std::string &path)
+{
+	size_t index = path.rfind("\\");
+	if (index != std::string::npos)
+	{
+		return path.substr(0U, index);
+	}
+
+	return "";
+}
+
 void BuildFileList(
 	std::vector<std::string> &outFileList, 
 	const std::string &targetPath, 
@@ -111,23 +137,36 @@ void BuildFileList(
 			else
 			{
 				std::string fileName(findData.cFileName);
-				std::string fileExt = GetFileExtension(fileName, true);
 
-				for (auto it = filters.begin(); it != filters.end(); ++it)
+				if (filters.size() == 0U)
 				{
-					std::string filter = *it;
-					ToLower(filter);
-
-					if (fileExt == filter)
+					std::string filePath = targetPath + "\\" + fileName;
+					if (bToLower)
 					{
-						std::string filePath = targetPath + "\\" + fileName;
-						if (bToLower)
-						{
-							ToLower(filePath);
-						}
+						ToLower(filePath);
+					}
 
-						outFileList.emplace_back(filePath);
-						break;
+					outFileList.emplace_back(filePath);
+				}
+				else
+				{
+					std::string fileExt = GetFileExtension(fileName, true);
+					for (auto it = filters.cbegin(); it != filters.cend(); ++it)
+					{
+						std::string filter = *it;
+						ToLower(filter);
+
+						if (fileExt == filter)
+						{
+							std::string filePath = targetPath + "\\" + fileName;
+							if (bToLower)
+							{
+								ToLower(filePath);
+							}
+
+							outFileList.emplace_back(filePath);
+							break;
+						}
 					}
 				}
 			}

@@ -33,12 +33,22 @@ void D3D11Buffer::Create(
 	Reset(pBuffer);
 }
 
-void D3D11Buffer::Update(const void *pData, size_t size)
+void D3D11Buffer::Update(const void *pData, size_t size, D3D11Context *pContext)
 {
 	assert(pData && size && IsValid());
 
+	D3D11Context *pCtx = nullptr;
+	if (pContext && pContext->IsValid())
+	{
+		pCtx = pContext;
+	}
+	else
+	{
+		pCtx = &D3D11Engine::Instance().GetIMContext();
+	}
+
 	D3D11_MAPPED_SUBRESOURCE mapped = {};
-	Check(D3D11Engine::Instance().GetIMContext()->Map(Get(), 0U, D3D11_MAP_WRITE_DISCARD, 0U, &mapped)); 	/// Map cannot be called with MAP_WRITE_DISCARD access
+	Check(pCtx->Get()->Map(Get(), 0U, D3D11_MAP_WRITE_DISCARD, 0U, &mapped)); 	/// Map cannot be called with MAP_WRITE_DISCARD access
 	memcpy(mapped.pData, pData, size);
-	D3D11Engine::Instance().GetIMContext()->Unmap(Get(), 0U);
+	pCtx->Get()->Unmap(Get(), 0U);
 }

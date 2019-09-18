@@ -91,14 +91,13 @@ struct Material
 		RawValue.Porperties[target] = value;
 	}
 
-	inline void Set(eProperty target, const char *pTextureName, bool bFromCurDir = false)
+	inline void Set(eProperty target, const std::string &textureName)
 	{
-#if 0
 		assert(target < ePropertyCount);
-		Textures[target].Create(pTextureName, bFromCurDir);
-#endif
+		Textures[target].Create(textureName);
 	}
 
 	RawMaterial RawValue;
 	RShaderResourceView Textures[ePropertyCount];
+	bool Valid = false;
 };

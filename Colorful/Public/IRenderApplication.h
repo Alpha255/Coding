@@ -2,6 +2,11 @@
 
 #include "Base/IApplication.h"
 #include "Base/Camera.h"
+#include "Base/DXUTCamera.h"
+
+NamespaceBegin(Geometry)
+	class Model;
+NamespaceEnd(Geometry)
 
 class IRenderApplication : public IApplication
 {
@@ -25,17 +30,9 @@ public:
 	virtual void RenderScene() = 0;
 	virtual void UpdateScene(float, float) {}
 protected:
-	enum eMouseInput
-	{
-		eMouseMove,
-		eMouseButtonDown,
-		eMouseWheel
-	};
+	DXUTCamera m_Camera;
 
-	void HandleMouseInput(::WPARAM wParam, ::LPARAM lParam, eMouseInput type);
-
-	Camera m_Camera = {};
+	void AutoFocus(const Geometry::Model &model, float scale);
 private:
-	std::pair<int32_t, int32_t> m_MousePos = { 0, 0 };
-	std::pair<float, float> m_CameraParams = { 1.0f, 3000.0f };
+	Vec2 m_CameraParams = { 0.1f, 500.0f };
 };

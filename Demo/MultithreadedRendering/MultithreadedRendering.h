@@ -1,101 +1,37 @@
 #pragma once
 
-#include "RenderApp.h"
-#include "D3DGeometry.h"
-#include "D3DView.h"
-#include "D3DState.h"
-#include "D3DRenderThread.h"
+#include "Public/IRenderApplication.h"
+#include "Public/Model.h"
+#include "Scene.h"
+#include "Base/TaskScheduler.h"
 
-class AppMultithreadedRendering : public RenderApp
+class MultithreadedRendering : public IRenderApplication
 {
 public:
-	AppMultithreadedRendering() = default;
-	~AppMultithreadedRendering() = default;
+	MultithreadedRendering() = default;
+	~MultithreadedRendering() = default;
 
-	virtual void Initialize() override;
-	virtual void RenderScene() override;
-	virtual void Update(float deltaTime, float totalTime) override;
-	virtual void ResizeWindow(uint32_t width, uint32_t height) override;
+	void PrepareScene() override;
+	void RenderScene() override;
+	inline void UpdateScene(float elapsedTime, float totalTime) override
+	{
+		m_Scene.Update(elapsedTime, totalTime);
+	}
+
+	void RenderThreadFunc(Scene::eDrawType drawType);
 
 	enum eRenderingMode
 	{
-		eST,             /// Traditional rendering, one thread, immediate device context
-		eMT_PerScene,    /// Multiple threads, one per scene, each with one deferred device context 
-		eMT_PerChunk,    /// Multiple threads, one per physical processor, each with one deferred device context
+		eSingelThread,          /// Traditional rendering, one thread, immediate device context
+		eMultiThreadByScene,    /// Multiple threads, one per scene, each with one deferred device context 
 	};
 
-	enum eConstants
-	{
-		eNumShadows = 1U,
-		eNumMirrors = 4U,
-		eNumScenes = 1U + eNumShadows + eNumMirrors
-	};
 protected:
-	struct StaticParams
-	{
-		D3DDepthStencilState DepthStencilState;
-		uint8_t StencilRef = 0U;
-
-		D3DRasterizerState RasterizerState;
-
-		D3DDepthStencilView DepthStencilView;
-		D3DViewport Viewport;
-
-		Vec4 TintColor = {};
-		Vec4 MirrorPlane = {};
-	};
-
-	struct MirrorVertex
-	{
-		Vec3 Position;
-		Vec3 Normal;
-		Vec2 Texcoord;
-		Vec3 Tangent;
-	};
-	typedef MirrorVertex MirrorRect[4];
-
-	void PerSceneRenderTask(uint32_t taskID);
-	void PerChunkRenderTask();
-
-	void InitShadowResource();
-	void InitMirrorResource();
-	void InitWorkerThreads();
-
-	void SetupScene(const StaticParams &params, const Matrix &world, const Matrix &vp);
-	void SetupMirror(uint32_t iMirror);
-
-	void DrawScene(const StaticParams &params, const Matrix &world, const Matrix &vp);
-	void DrawShadow(uint32_t iShadow);
-	void DrawMirror(uint32_t iMirror);
 private:
-	int32_t m_RenderingMode = eST;
+	int32_t m_RenderingMode = eSingelThread;
 
-	D3DVertexShader m_VertexShader;
-	D3DPixelShader m_PixelShader;
-	D3DBuffer m_CBufferVS;
-	D3DBuffer m_CBufferPS;
+	Scene m_Scene;
 
-	D3DInputLayout m_Layout;
-	D3DInputLayout m_LayoutMirror;
-
-	D3DShaderResourceView m_ShadowSRV[eNumShadows];
-
-	D3DDepthStencilState m_NoStencil;
-	D3DDepthStencilState m_DepthTestStencilOverwrite;
-	D3DDepthStencilState m_DepthOverwriteStencilTest;
-	D3DDepthStencilState m_DepthWriteStencilTest;
-	D3DDepthStencilState m_DepthOverwriteStencilClear;
-
-	D3DBuffer m_VertexBufferMirror;
-
-	StaticParams m_StaticParamsDirectly;
-	StaticParams m_StaticParamsShadows[eNumShadows];
-	StaticParams m_StaticParamsMirrors[eNumMirrors];
-
-	MirrorRect m_MirrorRect[eNumMirrors];
-	Matrix m_MirrorWorld[eNumMirrors];
-
-	D3DRenderThread m_RenderThreads[eNumScenes];
-
-	Geometry::SDKMesh m_SquidRoom;
+	RCommandList m_CommandList[Scene::eTypeCount];
+	RContext m_Context[Scene::eTypeCount];
 };

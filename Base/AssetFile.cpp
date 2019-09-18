@@ -1,57 +1,30 @@
 #include "AssetFile.h"
+#include "AssetManager.h"
 
 AssetFile::AssetFile(const std::string &fileName)
-	: m_Path(fileName)
+	: m_Name(fileName)
 {
-	if (TryToFindAssetFile())
-	{
-		std::ifstream file(m_Path, eTexture == m_Type ? std::ios::in | std::ios::binary : std::ios::in);
-		assert(file.good());
+	std::string name(fileName);
+	Base::ToLower(name);
+	m_Path = AssetManager::Instance().Get(name);
 
-		file.seekg(0U, std::ios::end);
-		m_Size = (size_t)file.tellg();
-		file.close();
-	}
-}
-
-bool AssetFile::TryToFindAssetFile()
-{
+	assert(m_Path.length() > 0U);
+	m_Root = Base::GetParentDirectory(m_Path);
 	GetAssetType();
 
-	static std::string s_AssetsPath[eTypeCount] =
-	{
-		"Assets\\Shaders\\",
-		"Assets\\Shaders\\",
-		"Assets\\Textures\\",
-		"Assets\\SDKMeshs\\",
-		"Assets\\TxtMeshs\\",
-		"Assets\\ObjMeshs\\",
-		"Assets\\Sounds\\",
-		"Assets\\LevelData\\",
-	};
-	char curPath[MAX_PATH] = {};
-	Verify(::GetCurrentDirectoryA(MAX_PATH, curPath) != 0);
+	std::ifstream file(m_Path, eTexture == m_Type ? std::ios::in | std::ios::binary : std::ios::in);
+	assert(file.good());
 
-	std::string assetPath(curPath);
-	assetPath += "\\..\\";
-	assetPath += s_AssetsPath[m_Type];
-	assetPath += m_Path;
-
-	if (Base::IsFileExists(assetPath.c_str()))
-	{
-		m_Root = assetPath.substr(0U, assetPath.length() - m_Path.length() - 1U);
-		m_Path = assetPath;
-		return true;
-	}
-
-	return false;
+	file.seekg(0U, std::ios::end);
+	m_Size = (size_t)file.tellg();
+	file.close();
 }
 
 void AssetFile::GetAssetType()
 {
-	std::string ext = Base::GetFileExtension(m_Path, true);
+	std::string ext = Base::GetFileExtension(m_Name, true);
 
-	if (ext == ".shader" || ext == ".vert" || ext == ".frag")
+	if (ext == ".shader" || ext == ".vert" || ext == ".frag" || ext == ".hlsl")
 	{
 		m_Type = eShader;
 	}
@@ -85,7 +58,7 @@ void AssetFile::GetAssetType()
 	}
 	else
 	{
-		assert(!"Unknown asset type!");
+		assert(0);
 	}
 }
 
@@ -99,7 +72,7 @@ std::shared_ptr<uint8_t> AssetFile::Load()
 	}
 
 	int32_t readMode = std::ios::in;
-	if (eTexture == m_Type || eShaderBinary == m_Type)
+	if (eTexture == m_Type || eShaderBinary == m_Type || eSDKMesh == m_Type)
 	{
 		readMode |= std::ios::binary;
 	}

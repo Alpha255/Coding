@@ -1,10 +1,14 @@
 #include "IApplication.h"
+#include "AssetManager.h"
+#include <ShellScalingApi.h>
 
 IApplication * IApplication::s_This = nullptr;
 
 ::LRESULT IApplication::MessageProcFunc(::HWND hWnd, uint32_t msg, ::WPARAM wParam, ::LPARAM lParam)
 {
 	s_This->HandleWindowMessage(msg, wParam, lParam);
+
+	s_This->HandleInput(msg, wParam, lParam);
 
 	return ::DefWindowProcW(hWnd, msg, wParam, lParam);
 }
@@ -92,6 +96,8 @@ void IApplication::HandleWindowMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM /
 		m_bActive = true;
 		break;
 	case WM_DESTROY:
+		m_bActive = false;
+		m_Timer.Stop();
 		::PostQuitMessage(0);
 		break;
 	case WM_NCLBUTTONDBLCLK:
@@ -127,28 +133,31 @@ void IApplication::UpdateWindow()
 
 void IApplication::Initialize(const std::string &title, uint32_t width, uint32_t height, bool bFullScreen, uint32_t extraWindowStyle)
 {
+	///::GetDpiForMonitor();
+#if _WIN32_WINNT >= _WIN32_WINNT_WIN10
+	Verify(::SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE) == S_OK);
+#endif
+
 	s_This = this;
 
 	m_bFullScreen = bFullScreen;
 
 	MakeWindow(title, width, height, extraWindowStyle);
+
+	AssetManager::Instance().Initialize();
 }
 
 void IApplication::UpdateFPS()
 {
-	static uint32_t s_FrameNumber = 0U;
-	static float s_LastUpdateTime = 0.0f;
-
 	float totalTime = m_Timer.GetTotalTime();
-	s_FrameNumber++;
+	++m_FrameCount;
 
-	float elapseTime = totalTime - s_LastUpdateTime;
-	if (elapseTime > 1.0f)
+	float elapsedTime = totalTime - m_LastUpdateTime;
+	if (elapsedTime > 1.0f)
 	{
-		m_FPS = s_FrameNumber / elapseTime;
-
-		s_LastUpdateTime = totalTime;
-		s_FrameNumber = 0U;
+		m_FPS = m_FrameCount / elapsedTime;
+		m_LastUpdateTime = totalTime;
+		m_FrameCount = 0U;
 	}
 }
 

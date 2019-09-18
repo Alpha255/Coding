@@ -31,6 +31,11 @@ public:
 		return m_Path;
 	}
 
+	inline std::string GetName() const
+	{
+		return m_Name;
+	}
+
 	inline std::string GetRoot() const
 	{
 		return m_Root;
@@ -43,12 +48,12 @@ public:
 
 	std::shared_ptr<uint8_t> Load();
 protected:
-	bool TryToFindAssetFile();
 	void GetAssetType();
 private:
 	size_t m_Size = 0U;
 	eType m_Type = eTypeCount;
 	std::string m_Path;
 	std::string m_Root;
+	std::string m_Name;
 	std::shared_ptr<uint8_t> m_Data;
 };

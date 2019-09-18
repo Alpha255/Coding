@@ -1,7 +1,3 @@
-#D3D11
-
-#VertexShader
-
 cbuffer cbVS
 {
     matrix WVP;
@@ -21,7 +17,7 @@ struct VSOutput
     float2 UV : TEXCOORD;
 };
 
-VSOutput main(VSInput vsInput)
+VSOutput VSMain(VSInput vsInput)
 {
     VSOutput output;
     output.Pos = mul(float4(vsInput.Pos, 1.0f), WVP);
@@ -30,33 +26,7 @@ VSOutput main(VSInput vsInput)
     return output;
 }
 
-#VertexShader
-
-#PixelShader
-
-struct VSOutput
-{
-    float4 Pos : SV_POSITION;
-    float2 UV : TEXCOORD;
-};
-
-float4 main(VSOutput psInput) : SV_Target
+float4 PSMain(VSOutput psInput) : SV_Target
 {
     return float4(0.84f, 0.84f, 0.84f, 1.0f);
 }
-
-#PixelShader
-
-#D3D11
-
-#Vulkan
-
-#VertexShader
-
-#VertexShader
-
-#PixelShader
-
-#PixelShader
-
-#Vulkan

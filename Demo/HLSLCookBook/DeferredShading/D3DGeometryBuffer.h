@@ -1,11 +1,6 @@
 #pragma once
 
-#include "D3DTexture.h"
-#include "D3DView.h"
-#include "D3DBuffer.h"
-#include "D3DState.h"
-#include "D3DShader.h"
-#include "D3DMath.h"
+#include "Colorful/Public/Definitions.h"
 
 class D3DGeometryBuffer
 {
@@ -32,7 +27,7 @@ public:
 
 	void VisulizeGBuffer(bool bVisulize, const Vec4 &camPerspective);
 
-	inline D3DShaderResourceView GetShaderResourceView(eBufferType type) const
+	inline RShaderResourceView GetShaderResourceView(eBufferType type) const
 	{
 		assert(type < eBufferTypeCount);
 		return m_ShaderResourceViews[type];
@@ -43,18 +38,18 @@ protected:
 		Vec4 Perspective;
 	};
 private:
-	std::array<D3DShaderResourceView, eBufferTypeCount> m_ShaderResourceViews;
+	std::array<RShaderResourceView, eBufferTypeCount> m_ShaderResourceViews;
 
-	D3DRenderTargetView m_SurfaceColorSpecIntensity;
-	D3DRenderTargetView m_SurfaceNormal;
-	D3DRenderTargetView m_SurfaceSpecPower;
+	RRenderTargetView m_SurfaceColorSpecIntensity;
+	RRenderTargetView m_SurfaceNormal;
+	RRenderTargetView m_SurfaceSpecPower;
 
-	D3DDepthStencilView m_SurfaceDepthStencil;
-	D3DDepthStencilView m_SurfaceDepthStencilReadonly;
+	RDepthStencilView m_SurfaceDepthStencil;
+	RDepthStencilView m_SurfaceDepthStencilReadonly;
 
-	D3DDepthStencilState m_DepthStencilState;
-	D3DBuffer m_CBufferPS;
+	RDepthStencilState m_DepthStencilState;
+	RBuffer m_CBufferPS;
 
-	D3DVertexShader m_VertexShader;
-	D3DPixelShader m_PixelShader;
+	RVertexShader m_VertexShader;
+	RPixelShader m_PixelShader;
 };

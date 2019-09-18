@@ -23,3 +23,8 @@ https://learnopengl-cn.github.io
 
 https://free3d.com
 https://software.intel.com/en-us/articles/sample-distribution-shadow-maps
+
+https://software.intel.com/en-us/articles/early-z-rejection-sample
+https://www.3dgep.com/forward-plus/
+
+https://github.com/SourMesen/Mesen.git
