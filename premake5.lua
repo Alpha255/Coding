@@ -9,8 +9,6 @@ function includeCommon()
 		"$(SolutionDir)ThirdParty\\glm",
 		"$(SolutionDir)ThirdParty\\gli",
 		"$(SolutionDir)ThirdParty\\DirectXTK\\Inc",
-		"$(SolutionDir)ThirdParty\\DirectXTK\\Src",
-		"$(SolutionDir)ThirdParty\\DirectXTK\\Audio",
 		"$(VK_SDK_PATH)", 
 		"$(VK_SDK_PATH)\\Include" 
 	}
@@ -46,6 +44,16 @@ function linkLibsCommon()
 		"Colorful",
 		"AssetTool",
 		"ImGui",
+		"DirectXTK"
+	}
+end
+
+function resourceInclude()
+	files { 
+		"./Assets/Icon/Resource.rc",
+		"./Assets/Icon/directx.ico",
+		"./Assets/Icon/vulkan.ico",
+		"./Base/Resource.h",
 	}
 end
 
@@ -58,6 +66,7 @@ workspace "Miscellaneous"
 	platforms "x64"
 	targetname "$(ProjectName)"
 	warnings "Extra"
+	dpiawareness "High"
 	systemversion "latest"
 	symbolspath "$(IntDir)PDB\\$(TargetName).pdb"
 	flags { "MultiProcessorCompile" }
@@ -172,7 +181,17 @@ workspace "Miscellaneous"
 			kind "WindowedApp"
 			language "C++"
 			location "./Projects"
+			vpaths {
+				["Resource"] = { 
+					"./Assets/Icon/Resource.rc", 
+					"./Assets/Icon/directx.ico", 
+					"./Assets/Icon/vulkan.ico",
+					"./Base/Resource.h"
+					},
+				[""] = { "./Demo/Box/**" },
+			}
 			files { "./Demo/Box/**" }
+			resourceInclude()
 			includeCommon()
 			linkLibsCommon()
 
@@ -180,7 +199,17 @@ workspace "Miscellaneous"
 			kind "WindowedApp"
 			language "C++"
 			location "./Projects"
+			vpaths {
+				["Resource"] = { 
+					"./Assets/Icon/Resource.rc", 
+					"./Assets/Icon/directx.ico", 
+					"./Assets/Icon/vulkan.ico",
+					"./Base/Resource.h"
+					},
+				[""] = { "./Demo/MultithreadedRendering/**" },
+			}
 			files { "./Demo/MultithreadedRendering/**" }
+			resourceInclude()
 			includeCommon()
 			linkLibsCommon()
 
@@ -189,7 +218,17 @@ workspace "Miscellaneous"
 				kind "WindowedApp"
 				language "C++"
 				location "./Projects"
+				vpaths {
+					["Resource"] = { 
+						"./Assets/Icon/Resource.rc", 
+						"./Assets/Icon/directx.ico", 
+						"./Assets/Icon/vulkan.ico",
+						"./Base/Resource.h"
+						},
+					[""] = { "./Demo/HLSLCookBook/ForwardLighting/**" },
+				}
 				files { "./Demo/HLSLCookBook/ForwardLighting/**" }
+				resourceInclude()
 				includeCommon()
 				linkLibsCommon()
 
@@ -197,7 +236,17 @@ workspace "Miscellaneous"
 				kind "WindowedApp"
 				language "C++"
 				location "./Projects"
+				vpaths {
+					["Resource"] = { 
+						"./Assets/Icon/Resource.rc", 
+						"./Assets/Icon/directx.ico", 
+						"./Assets/Icon/vulkan.ico",
+						"./Base/Resource.h"
+						},
+					[""] = { "./Demo/HLSLCookBook/DeferredShading/**" },
+				}
 				files { "./Demo/HLSLCookBook/DeferredShading/**" }
+				resourceInclude()
 				includeCommon()
 				linkLibsCommon()
 

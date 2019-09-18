@@ -1,7 +1,7 @@
 #include "D3D11Util.h"
 #include "D3D11Engine.h"
 #include "D3D11Texture.h"
-#include <dds/dds.h>
+#include <ThirdParty/DirectXTK/Src/dds.h>
 #include "Base/AssetFile.h"
 
 /// Helper functions for texture loaders and screen grabber
