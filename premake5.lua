@@ -49,7 +49,7 @@ function linkLibsCommon()
 	}
 end
 
-workspace "Test"
+workspace "Miscellaneous"
 	location "./"
 	configurations { "Debug", "Release" }
 	objdir "$(SolutionDir)Out\\Intermediate\\"
@@ -109,7 +109,7 @@ workspace "Test"
 			language "C++"
 			location "./Projects"
 			files { "./ThirdParty/ImGUI/**.h", "./ThirdParty/ImGUI/**.cpp" }
-			removefiles { "./ThirdParty/ImGUI/examples/**" }
+			removefiles { "./ThirdParty/ImGUI/examples/**", "./ThirdParty/ImGUI/misc/fonts/**" }
 			targetdir "$(SolutionDir)Out\\Libs\\"
 			includeCommon()
 
@@ -118,19 +118,33 @@ workspace "Test"
 			language "C++"
 			location "./Projects"
 			pchheader "pch.h"
-			pchsource "pch.cpp"
+			pchsource "./ThirdParty/DirectXTK/Src/pch.cpp"
+			floatingpoint "Fast"
 			files { 
 				"./ThirdParty/DirectXTK/**.h", 
 				"./ThirdParty/DirectXTK/**.cpp", 
 				"./ThirdParty/DirectXTK/**.fx", 
 				"./ThirdParty/DirectXTK/**.fxh",
 				"./ThirdParty/DirectXTK/**.hlsl", 
-				"./ThirdParty/DirectXTK/**.hlsli", 
+				"./ThirdParty/DirectXTK/**.hlsli",
+				"./ThirdParty/DirectXTK/**.inc",
+				"./ThirdParty/DirectXTK/**.inl",
+				"./ThirdParty/DirectXTK/**.cmd",
+				"./ThirdParty/DirectXTK/**.txt", 
+			}
+			removefiles { 
+				"./ThirdParty/DirectXTK/Audio/**",
+				"./ThirdParty/DirectXTK/Inc/Audio.h",
+				"./ThirdParty/DirectXTK/Inc/XboxDDSTextureLoader.h",
+				"./ThirdParty/DirectXTK/Src/XboxDDSTextureLoader.cpp",
+				"./ThirdParty/DirectXTK/XWBTool/XWBTool.cpp", 
 			}
 			targetdir "$(SolutionDir)Out\\Libs\\"
 			includeCommon()
-			excludes  { "**.hlsl", "**.hlsli" }
-  				--flags { "ExcludeFromBuild" }
+
+			filter { "files:**.hlsl" }
+  				flags { "ExcludeFromBuild" }
+
   			filter { "configurations:Debug" }
   				defines { 
   					"_WIN32_WINNT=0x0601",
@@ -151,6 +165,8 @@ workspace "Test"
   					"_CRT_STDIO_ARBITRARY_WIDE_SPECIFIERS",
   				}
 
+  			filter {}
+
 	group "Colorful"
 		project "Box"
 			kind "WindowedApp"
@@ -159,5 +175,31 @@ workspace "Test"
 			files { "./Demo/Box/**" }
 			includeCommon()
 			linkLibsCommon()
+
+		project "MultithreadedRendering"
+			kind "WindowedApp"
+			language "C++"
+			location "./Projects"
+			files { "./Demo/MultithreadedRendering/**" }
+			includeCommon()
+			linkLibsCommon()
+
+		group "Colorful/HLSLCookBook"
+			project "ForwardLighting"
+				kind "WindowedApp"
+				language "C++"
+				location "./Projects"
+				files { "./Demo/HLSLCookBook/ForwardLighting/**" }
+				includeCommon()
+				linkLibsCommon()
+
+			project "DeferredShading"
+				kind "WindowedApp"
+				language "C++"
+				location "./Projects"
+				files { "./Demo/HLSLCookBook/DeferredShading/**" }
+				includeCommon()
+				linkLibsCommon()
+
 
 
