@@ -3,12 +3,9 @@ function includeCommon()
 		"$(SolutionDir)", 
 		"$(SolutionDir)Colorful", 
 		"$(SolutionDir)ThirdParty",
-		"$(SolutionDir)ThirdParty\\ImGUI",
-		"$(SolutionDir)ThirdParty\\freetype\\include",
 		"$(SolutionDir)ThirdParty\\vcglib",
 		"$(SolutionDir)ThirdParty\\glm",
 		"$(SolutionDir)ThirdParty\\gli",
-		"$(SolutionDir)ThirdParty\\DirectXTK\\Inc",
 		"$(VK_SDK_PATH)", 
 		"$(VK_SDK_PATH)\\Include" 
 	}
@@ -44,7 +41,8 @@ function linkLibsCommon()
 		"Colorful",
 		"AssetTool",
 		"ImGui",
-		"DirectXTK"
+		"DirectXTK",
+		--"assimp"
 	}
 end
 
@@ -67,7 +65,7 @@ workspace "Miscellaneous"
 	targetname "$(ProjectName)"
 	warnings "Extra"
 	dpiawareness "High"
-	systemversion "latest"
+	--systemversion "latest"
 	symbolspath "$(IntDir)PDB\\$(TargetName).pdb"
 	flags { "MultiProcessorCompile" }
 	filter { "configurations:Debug" }
@@ -103,6 +101,7 @@ workspace "Miscellaneous"
 			files "./Tool/AssetTool/**"
 			targetdir "$(SolutionDir)Out\\Libs\\"
 			includeCommon()
+			disablewarnings { "4100", "4201", "4458", "4244", "4267", }
 	
 	group "Fort"
 		project "Learner"
@@ -120,7 +119,10 @@ workspace "Miscellaneous"
 			files { "./ThirdParty/ImGUI/**.h", "./ThirdParty/ImGUI/**.cpp" }
 			removefiles { "./ThirdParty/ImGUI/examples/**", "./ThirdParty/ImGUI/misc/fonts/**" }
 			targetdir "$(SolutionDir)Out\\Libs\\"
-			includeCommon()
+			includedirs { 
+				"$(SolutionDir)ThirdParty\\ImGUI",
+				"$(SolutionDir)ThirdParty\\freetype\\include",
+			}
 
 		project "DirectXTK"
 			kind "StaticLib"
@@ -149,14 +151,14 @@ workspace "Miscellaneous"
 				"./ThirdParty/DirectXTK/XWBTool/XWBTool.cpp", 
 			}
 			targetdir "$(SolutionDir)Out\\Libs\\"
-			includeCommon()
+			includedirs { "$(SolutionDir)ThirdParty\\DirectXTK\\Inc", }
 
 			filter { "files:**.hlsl" }
   				flags { "ExcludeFromBuild" }
 
   			filter { "configurations:Debug" }
   				defines { 
-  					"_WIN32_WINNT=0x0601",
+  					"_WIN32_WINNT=0x0600",
   					"_WIN7_PLATFORM_UPDATE",
   					"WIN32",
   					"_DEBUG",
@@ -166,15 +168,54 @@ workspace "Miscellaneous"
 
   			filter { "configurations:Release" }
   				defines { 
-  					"_WIN32_WINNT=0x0601",
+  					"_WIN32_WINNT=0x0600",
   					"_WIN7_PLATFORM_UPDATE",
   					"WIN32",
   					"NDEBUG",
   					"_LIB",
   					"_CRT_STDIO_ARBITRARY_WIDE_SPECIFIERS",
   				}
+--[[
+  		project "assimp"
+  			kind "StaticLib"
+			language "C++"
+			location "./Projects"
+			targetdir "$(SolutionDir)Out\\Libs\\"
+			files {
+				"./ThirdParty/assimp/code/**",
+				"./ThirdParty/assimp/include/**",
+				"./ThirdParty/assimp/contrib/irrXML/**",
+				"./ThirdParty/assimp/contrib/unzip/**",
+				"./ThirdParty/assimp/contrib/zip/src/**",
+				"./ThirdParty/assimp/contrib/zlib/**.c",
+				"./ThirdParty/assimp/contrib/zlib/**.h",
+			}
+			removefiles { 
+				"./ThirdParty/assimp/contrib/zlib/contrib/inflate86/**",
+				--"./ThirdParty/assimp/code/Common/Assimp.cpp",
+				--"./ThirdParty/assimp/code/Common/Importer.cpp",
+				--"./ThirdParty/assimp/code/Common/Exporter.cpp",
+				--"./ThirdParty/assimp/code/Common/ziparchiveiosystem.cpp",
+				--"./ThirdParty/assimp/code/Common/Version.cpp",
+				--"./ThirdParty/assimp/code/Common/ImporterRegistry.cpp",
+				--"./ThirdParty/assimp/code/Common/PostStepRegistry.cpp"
+			}
+			includedirs { 
+				"$(SolutionDir)ThirdParty/assimp",
+				"$(SolutionDir)ThirdParty/assimp/include",
+				"$(SolutionDir)ThirdParty/assimp/code",
+				"$(SolutionDir)ThirdParty/assimp/contrib/irrXML",
+				"$(SolutionDir)ThirdParty/assimp/contrib/zlib",
+				"$(SolutionDir)ThirdParty/assimp/contrib/unzip",
+				"$(SolutionDir)ThirdParty/assimp/build",
+				"$(SolutionDir)ThirdParty/assimp/build/include",
+				"$(SolutionDir)ThirdParty/assimp/build/contrib/zlib",
+				"$(SolutionDir)ThirdParty/assimp/contrib/rapidjson/include"
+			}
+			warnings "Off"
+			defines { "ASSIMP_BUILD_NO_IFC_IMPORTER", "ASSIMP_BUILD_NO_C4D_IMPORTER", "ASSIMP_BUILD_NO_OPENGEX_IMPORTER", "ASSIMP_BUILD_NO_STEP_IMPORTER" }
+--]]
 
-  			filter {}
 
 	group "Colorful"
 		project "Box"

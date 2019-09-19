@@ -201,7 +201,7 @@ void GetVertexLayouts(_In_reads_(32) const DXUT::D3DVERTEXELEMENT9 decl[], std::
 
 	static const std::vector<Geometry::VertexLayout> s_VertexLayouts =
 	{
-		{ "POSITION",  0U, 0U, eRGB32_Float },
+		{ "POSITION",     0U, 0U, eRGB32_Float },
 		{ "NORMAL",       0U, 0U, eRGB32_Float },
 		{ "COLOR",        0U, 0U, eRGBA8_UNorm },
 		{ "TANGENT",      0U, 0U, eRGB32_Float },
@@ -211,7 +211,7 @@ void GetVertexLayouts(_In_reads_(32) const DXUT::D3DVERTEXELEMENT9 decl[], std::
 		{ "BLENDWEIGHT",  0U, 0U, eRGBA8_UNorm },
 	};
 
-	uint32_t offset = 0U;
+	size_t offset = 0U;
 
 	bool posfound = false;
 

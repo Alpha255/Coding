@@ -154,7 +154,7 @@ inline size_t GetBitsPerPixel(DXGI_FORMAT fmt)
 	case DXGI_FORMAT_BC7_UNORM_SRGB:
 		return 8;
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_WIN10)
+#if defined(_WIN32_WINNT_WIN10)
 	case DXGI_FORMAT_V408:
 		return 24U;
 
@@ -487,7 +487,7 @@ inline void GetSurfaceInfo(
 		break;
 	case DXGI_FORMAT_NV12:
 	case DXGI_FORMAT_420_OPAQUE:
-#if (_WIN32_WINNT >= _WIN32_WINNT_WIN10)
+#if defined(_WIN32_WINNT_WIN10)
 	case DXGI_FORMAT_P208:
 #endif
 		planar = true;
