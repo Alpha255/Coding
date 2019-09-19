@@ -13,7 +13,7 @@
 #include <vcg/complex/used_types.h>
 #include <vcg/complex/algorithms/update/topology.h>
 #include <vcg/complex/algorithms/update/bounding.h>
-#include <vcglib/wrap/io_trimesh/import_obj.h>
+#include "vcgOBJImporter.hpp"
 
 NamespaceBegin(AssetTool)
 
@@ -83,7 +83,7 @@ bool LoadOBJ(
 	int32_t loadMask = 0;
 	std::vector<OBJImpoter::ObjIndexedFace> indexedFace;
 
-	auto err = OBJImpoter::Open(mesh, asset.GetPath().c_str(), loadMask, LoadingCallback);
+	auto err = OBJImpoter::Open(mesh, asset.GetPath().c_str(), loadMask, indexedFace, LoadingCallback);
 	if (err != OBJImpoter::E_NOERROR)
 	{
 		Base::Log("Failed to load obj- %s, error= %s.", asset.GetPath().c_str(), OBJImpoter::ErrorMsg(err));
