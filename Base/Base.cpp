@@ -2,7 +2,7 @@
 
 NamespaceBegin(Base)
 
-inline void ToLower(std::string &str)
+void ToLower(std::string &str)
 {
 	std::transform(str.begin(), str.end(), str.begin(), 
 		[](char c) 

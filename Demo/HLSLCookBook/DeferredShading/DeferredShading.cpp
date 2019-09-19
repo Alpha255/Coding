@@ -1,6 +1,6 @@
 #include "DeferredShading.h"
 #include "Base/DXUTCamera.h"
-#include "ImGUI.h"
+#include "Colorful/Public/ImGUI.h"
 
 void DeferredShading::PrepareScene()
 {

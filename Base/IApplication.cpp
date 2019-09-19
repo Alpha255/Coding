@@ -133,9 +133,10 @@ void IApplication::UpdateWindow()
 
 void IApplication::Initialize(const std::string &title, uint32_t width, uint32_t height, bool bFullScreen, uint32_t extraWindowStyle)
 {
-	///::GetDpiForMonitor();
 #if defined(_WIN32_WINNT_WIN10)
-	Verify(::SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE) == S_OK);
+	/// "DpiAwareness" already enabled in project file
+	///::GetDpiForMonitor();
+	///Verify(::SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE) == S_OK);
 #endif
 
 	s_This = this;
