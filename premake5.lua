@@ -67,7 +67,7 @@ workspace "Miscellaneous"
 	dpiawareness "High"
 	--systemversion "latest"
 	symbolspath "$(IntDir)PDB\\$(TargetName).pdb"
-	flags { "MultiProcessorCompile" }
+	flags { "MultiProcessorCompile", "NoIncrementalLink" }
 	filter { "configurations:Debug" }
 		symbols "On"
 		optimize "Debug"
