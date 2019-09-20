@@ -20,12 +20,29 @@ public:
 
 	inline vec2(const float32_t* pArray)
 		: DirectX::XMFLOAT2A(pArray)
-	{
+	{                               
 	}
 
-#if !defined(UsingSSE)
+#if defined(UsingSSE)
 	vecMemberFuncsA(2)
 #else
+	inline float32_t lengthSq()
+	{
+		return x * x + y * y;
+	}
+
+	inline float32_t length()
+	{
+		return ::sqrtf(lengthSq());
+	}
+
+	inline void normalize()
+	{
+		float32_t factor = 1.0f / length();
+		x *= factor;
+		y *= factor;
+	}
+
 	inline void operator+=(const vec2 &right)
 	{
 		x += right.x;
@@ -51,7 +68,7 @@ public:
 #endif
 };
 
-#if !defined(UsingSSE)
+#if defined(UsingSSE)
 	vecPublicFuncsA(2)
 #else
 inline vec2 operator*(const vec2 &left, const float32_t right)

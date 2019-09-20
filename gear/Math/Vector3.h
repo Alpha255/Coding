@@ -23,17 +23,35 @@ public:
 	{
 	}
 
-#if !defined(UsingSSE)
+#if defined(UsingSSE)
 	vecMemberFuncsA(3)
 #else
-	inline void operator+=(const Vec3 &right)
+	inline float32_t lengthSq()
+	{
+		return x * x + y * y + z * z;
+	}
+
+	inline float32_t length()
+	{
+		return ::sqrtf(lengthSq());
+	}
+
+	inline void normalize()
+	{
+		float32_t factor = 1.0f / length();
+		x *= factor;
+		y *= factor;
+		z *= factor;
+	}
+
+	inline void operator+=(const vec3 &right)
 	{
 		x += right.x;
 		y += right.y;
 		z += right.z;
 	}
 
-	inline void operator-=(const Vec3 &right)
+	inline void operator-=(const vec3 &right)
 	{
 		x -= right.x;
 		y -= right.y;
@@ -47,14 +65,14 @@ public:
 		z *= right;
 	}
 
-	inline float32_t operator*=(const Vec3 &right)
+	inline float32_t operator*=(const vec3 &right)
 	{
 		return x * right.x + y * right.y + z * right.z;
 	}
 #endif
 };
 
-#if !defined(UsingSSE)
+#if defined(UsingSSE)
 	vecPublicFuncsA(3)
 #else
 inline vec3 operator+(const vec3 &left, const vec3 &right)
