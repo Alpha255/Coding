@@ -87,6 +87,14 @@ workspace "Miscellaneous"
 			files "./Base/**"
 			targetdir "$(SolutionDir)Out\\Libs\\"
 
+		project "gear"
+			kind "StaticLib"
+			language "C++"
+			location "./Projects"
+			files "./gear/**"
+			includedirs { "$(SolutionDir)" }
+			targetdir "$(SolutionDir)Out\\Libs\\"
+
 		project "Colorful"
 			kind "StaticLib"
 			language "C++"
