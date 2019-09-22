@@ -51,7 +51,7 @@
 {                                                             \
 	if (!(condition))                                         \
 	{                                                         \
-		gear::Log("gear: Error code = %d", ::GetLastError()); \
+		gear::log("gear: Error code = %d", ::GetLastError()); \
 		assert(0);                                            \
 	}                                                         \
 }
@@ -60,4 +60,6 @@ typedef char char8_t;
 typedef unsigned char uchar8_t;
 typedef float float32_t;
 typedef double double64_t;
+typedef bool bool8_t;
+typedef long long32_t;
 

@@ -22,14 +22,14 @@ public:
 
 	void Read(eRead readType = eText);
 
-	std::shared_ptr<byte> getData() const
+	std::shared_ptr<byte> data() const
 	{
 		assert(m_Data);
 		return m_Data;
 	}
 protected:
-private:
 	std::unique_ptr<file> m_File;
+private:
 	std::shared_ptr<byte> m_Data;
 };
 

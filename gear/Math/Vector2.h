@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Vector.h"
+#include "Functions.h"
 
 namespaceStart(gear)
 namespaceStart(math)
@@ -10,6 +11,11 @@ class vec2 : public DirectX::XMFLOAT2A
 public:
 	inline vec2()
 		: DirectX::XMFLOAT2A(0.0f, 0.0f)
+	{
+	}
+
+	inline vec2(float32_t value)
+		: DirectX::XMFLOAT2A(value, value)
 	{
 	}
 
@@ -43,6 +49,23 @@ public:
 		y *= factor;
 	}
 
+	inline vec2 cross(const vec2 &right)
+	{
+		float32_t value = x * right.y - y * right.x;
+		x = y = value;
+	}
+
+	inline float32_t dot(const vec2 &right)
+	{
+		return x * right.x + y * right.y;
+	}
+
+	inline void negate()
+	{
+		x = -x;
+		y = -y;
+	}
+
 	inline void operator+=(const vec2 &right)
 	{
 		x += right.x;
@@ -55,15 +78,16 @@ public:
 		y -= right.y;
 	}
 
-	inline void operator*=(const float32_t right)
+	inline void operator*=(float32_t right)
 	{
 		x *= right;
 		y *= right;
 	}
 
-	inline float32_t operator*=(const vec2 &right)
+	inline void operator*=(const vec2 &right)
 	{
-		return x * right.x + y * right.y;
+		x *= right.x;
+		y *= right.y;
 	}
 #endif
 };
@@ -71,16 +95,6 @@ public:
 #if defined(UsingSSE)
 	vecPublicFuncsA(2)
 #else
-inline vec2 operator*(const vec2 &left, const float32_t right)
-{
-	return vec2(left.x * right, left.y * right);
-}
-
-inline float32_t operator*(const vec2 &left, const vec2 &right)
-{
-	return left.x * right.x + left.y * right.y;
-}
-
 inline vec2 operator+(const vec2 &left, const vec2 &right)
 {
 	return vec2(left.x + right.x, left.y + right.y);
@@ -89,6 +103,77 @@ inline vec2 operator+(const vec2 &left, const vec2 &right)
 inline vec2 operator-(const vec2 &left, const vec2 &right)
 {
 	return vec2(left.x - right.x, left.y - right.y);
+}
+
+inline vec2 operator*(const vec2 &left, float32_t right)
+{
+	return vec2(left.x * right, left.y * right);
+}
+
+inline vec2 operator*(const vec2 &left, const vec2 &right)
+{
+	return vec2(left.x * right.x, left.y * right.y);
+}
+
+inline bool operator==(const vec2 &left, const vec2 &right)
+{
+	return (
+		((left.x - right.x) <= g_epsilon) &&
+		((left.y - right.y) <= g_epsilon)
+		);
+}
+
+inline bool operator>=(const vec2 &left, const vec2 &right)
+{
+	return (
+		((left.x - right.x) >= g_epsilon) &&
+		((left.y - right.y) >= g_epsilon)
+		);
+}
+
+inline bool operator>(const vec2 &left, const vec2 &right)
+{
+	return (
+		((left.x - right.x) > g_epsilon) &&
+		((left.y - right.y) > g_epsilon)
+		);
+}
+
+inline vec2 getMin(const vec2 &left, const vec2 &right)
+{
+	return left >= right ? right : left;
+}
+
+inline vec2 getMax(const vec2 &left, const vec2 &right)
+{
+	return left >= right ? left : right;
+}
+
+inline vec2 normalize(const vec2 &targetVec)
+{
+	vec2 result(targetVec);
+	result.normalize();
+
+	return result;
+}
+
+inline float32_t dot(const vec2 &left, const vec2 &right)
+{
+	return left.x * right.x + left.y * right.y;
+}
+
+inline vec2 cross(const vec2 &left, const vec2 &right)
+{
+	float32_t value = left.x * right.y - left.y * right.x;
+	return vec2(value, value);
+}
+
+inline vec2 negate(const vec2 &targetVec)
+{
+	vec2 result(targetVec);
+	result.negate();
+
+	return result;
 }
 #endif
 

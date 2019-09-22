@@ -160,9 +160,11 @@ inline void normalize()                                                       \
 {                                                                             \
 	vecNormalize(Dimension, this)                                             \
 }                                                                             \
-inline void scale(const float32_t factor)                                     \
+inline void negate()                                                          \
 {                                                                             \
-	vecScale(Dimension, this, factor, this)                                   \
+	DirectX::XMVECTOR temp = DirectX::XMLoadFloat##Dimension(this);           \
+	DirectX::XMVECTOR vResult = DirectX::XMVectorNegate(temp);                \
+	DirectX::XMStoreFloat##Dimension(this, vResult);                          \
 }                                                                             \
 inline float32_t length()                                                     \
 {                                                                             \
@@ -200,9 +202,11 @@ inline void normalize()                                                       \
 {                                                                             \
 	vecNormalizeA(Dimension, this)                                            \
 }                                                                             \
-inline void scale(const float32_t factor)                                     \
+inline void negate()                                                          \
 {                                                                             \
-	vecScaleA(Dimension, this, factor, this)                                  \
+	DirectX::XMVECTOR temp = DirectX::XMLoadFloat##Dimension##A(this);        \
+	DirectX::XMVECTOR vResult = DirectX::XMVectorNegate(temp);                \
+	DirectX::XMStoreFloat##Dimension##A(this, vResult);                       \
 }                                                                             \
 inline float32_t length()                                                     \
 {                                                                             \
@@ -236,6 +240,24 @@ inline vec##Dimension operator*(const vec##Dimension &left, const vec##Dimension
 	vecMultiply(Dimension, &left, &right, &result)                                       \
 	return result;                                                                       \
 }                                                                                        \
+inline bool operator==(const vec##Dimension &left, const vec##Dimension &right)          \
+{                                                                                        \
+	DirectX::XMVECTOR vLeft = DirectX::XMLoadFloat##Dimension(&left);                    \
+	DirectX::XMVECTOR vRight = DirectX::XMLoadFloat##Dimension(&right);                  \
+	return DirectX::XMVector##Dimension##Equal(vLeft, vRight);                           \
+}                                                                                        \
+inline bool operator>=(const vec##Dimension &left, const vec##Dimension &right)          \
+{                                                                                        \
+	DirectX::XMVECTOR vLeft = DirectX::XMLoadFloat##Dimension(&left);                    \
+	DirectX::XMVECTOR vRight = DirectX::XMLoadFloat##Dimension(&right);                  \
+	return DirectX::XMVector##Dimension##GreaterOrEqual(vLeft, vRight);                  \
+}                                                                                        \
+inline bool operator>(const vec##Dimension &left, const vec##Dimension &right)           \
+{                                                                                        \
+	DirectX::XMVECTOR vLeft = DirectX::XMLoadFloat##Dimension(&left);                    \
+	DirectX::XMVECTOR vRight = DirectX::XMLoadFloat##Dimension(&right);                  \
+	return DirectX::XMVector##Dimension##Greater(vLeft, vRight);                         \
+}                                                                                        \
 inline vec##Dimension cross(const vec##Dimension &left, const vec##Dimension &right)     \
 {                                                                                        \
 	vec##Dimension result;                                                               \
@@ -248,14 +270,18 @@ inline vec##Dimension dot(const vec##Dimension &left, const vec##Dimension &righ
 	vecDot(Dimension, &left, &right, &result)                                            \
 	return result;                                                                       \
 }                                                                                        \
-inline void normalize(vec##Dimension &targetVec)                                         \
+inline vec##Dimension normalize(const vec##Dimension &targetVec)                         \
 {                                                                                        \
+	vec##Dimension result(targetVec);                                                    \
 	vecNormalize(Dimension, &targetVec)                                                  \
+	return result;                                                                       \
 }                                                                                        \
-inline vec##Dimension scale(const vec##Dimension &left, const float32_t factor)          \
+inline vec##Dimension negate(vec##Dimension &targetVec)                                  \
 {                                                                                        \
 	vec##Dimension result;                                                               \
-	vecScale(Dimension, &left, factor, &result)                                          \
+	DirectX::XMVECTOR temp = DirectX::XMLoadFloat##Dimension(&targetVec);                \
+	DirectX::XMVECTOR vResult = DirectX::XMVectorNegate(temp);                           \
+	DirectX::XMStoreFloat##Dimension(&result, vResult);                                  \
 	return result;                                                                       \
 }                                                                                        \
 inline float32_t length(const vec##Dimension &targeVec)                                  \
@@ -308,6 +334,23 @@ inline vec##Dimension operator*(const vec##Dimension &left, const vec##Dimension
 	vecMultiplyA(Dimension, &left, &right, &result)                                      \
 	return result;                                                                       \
 }                                                                                        \
+inline bool operator==(const vec##Dimension &left, const vec##Dimension &right)          \
+{                                                                                        \
+	DirectX::XMVECTOR vLeft = DirectX::XMLoadFloat##Dimension##A(&left);                 \
+	DirectX::XMVECTOR vRight = DirectX::XMLoadFloat##Dimension##A(&right);               \
+	return DirectX::XMVector##Dimension##Equal(vLeft, vRight);                           \
+}                                                                                        \
+inline bool operator>=(const vec##Dimension &left, const vec##Dimension &right)          \
+{                                                                                        \
+	DirectX::XMVECTOR vLeft = DirectX::XMLoadFloat##Dimension##A(&left);                 \
+	DirectX::XMVECTOR vRight = DirectX::XMLoadFloat##Dimension##A(&right);               \
+	return DirectX::XMVector##Dimension##GreaterOrEqual(vLeft, vRight);                  \
+}                                                                                        \
+inline bool operator>(const vec##Dimension &left, const vec##Dimension &right)           \
+{                                                                                        \
+	DirectX::XMVECTOR vLeft = DirectX::XMLoadFloat##Dimension##A(&left);			     \
+	DirectX::XMVECTOR vRight = DirectX::XMLoadFloat##Dimension##A(&right);               \
+	return DirectX::XMVector##Dimension##Greater(vLeft, vRight);                         \
 inline vec##Dimension cross(const vec##Dimension &left, const vec##Dimension &right)     \
 {                                                                                        \
 	vec##Dimension result;                                                               \
@@ -320,14 +363,18 @@ inline vec##Dimension dot(const vec##Dimension &left, const vec##Dimension &righ
 	vecDotA(Dimension, &left, &right, &result)                                           \
 	return result;                                                                       \
 }                                                                                        \
-inline void normalize(vec##Dimension &targetVec)                                         \
+inline vec##Dimension normalize(const vec##Dimension &targetVec)                         \
 {                                                                                        \
+	vec##Dimension result(targetVec);                                                    \
 	vecNormalizeA(Dimension, &targetVec)                                                 \
+	return result;                                                                       \
 }                                                                                        \
-inline vec##Dimension scale(const vec##Dimension &left, const float32_t factor)          \
+inline vec##Dimension negate(vec##Dimension &targetVec)                                  \
 {                                                                                        \
 	vec##Dimension result;                                                               \
-	vecScaleA(Dimension, &left, factor, &result)                                         \
+	DirectX::XMVECTOR temp = DirectX::XMLoadFloat##Dimension##A(&targetVec);             \
+	DirectX::XMVECTOR vResult = DirectX::XMVectorNegate(temp);                           \
+	DirectX::XMStoreFloat##Dimension##A(&result, vResult);                               \
 	return result;                                                                       \
 }                                                                                        \
 inline float32_t length(const vec##Dimension &targeVec)                                  \
