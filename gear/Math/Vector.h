@@ -13,14 +13,6 @@ namespaceStart(math)
 	DirectX::XMVECTOR vResult = DirectX::XMVector##Dimension##Normalize(temp);\
 	DirectX::XMStoreFloat##Dimension(Vec, vResult);                           \
 }
-
-#define vecNormalizeA(Dimension, Vec)                                         \
-{                                                                             \
-	DirectX::XMVECTOR temp = DirectX::XMLoadFloat##Dimension##A(Vec);         \
-	DirectX::XMVECTOR vResult = DirectX::XMVector##Dimension##Normalize(temp);\
-	DirectX::XMStoreFloat##Dimension##A(Vec, vResult);                        \
-}
-
 #define vecAdd(Dimension, VecLeft, VecRight, VecResult)                       \
 {                                                                             \
 	DirectX::XMVECTOR v0 = DirectX::XMLoadFloat##Dimension(VecLeft);          \
@@ -28,15 +20,6 @@ namespaceStart(math)
 	DirectX::XMVECTOR vResult = DirectX::XMVectorAdd(v0, v1);                 \
 	DirectX::XMStoreFloat##Dimension(VecResult, vResult);                     \
 }
-
-#define vecAddA(Dimension, VecLeft, VecRight, VecResult)                      \
-{                                                                             \
-	DirectX::XMVECTOR v0 = DirectX::XMLoadFloat##Dimension##A(VecLeft);       \
-	DirectX::XMVECTOR v1 = DirectX::XMLoadFloat##Dimension##A(VecRight);      \
-	DirectX::XMVECTOR vResult = DirectX::XMVectorAdd(v0, v1);                 \
-	DirectX::XMStoreFloat##Dimension##A(VecResult, vResult);                  \
-}
-
 #define vecSub(Dimension, VecLeft, VecRight, VecResult)                       \
 {                                                                             \
 	DirectX::XMVECTOR v0 = DirectX::XMLoadFloat##Dimension(VecLeft);          \
@@ -45,7 +28,53 @@ namespaceStart(math)
 	DirectX::XMVECTOR vResult = DirectX::XMVectorAdd(v0, v1);                 \
 	DirectX::XMStoreFloat##Dimension(VecResult, vResult);                     \
 }
+#define vecMultiply(Dimension, VecLeft, VecRight, VecResult)                  \
+{                                                                             \
+	DirectX::XMVECTOR v0 = DirectX::XMLoadFloat##Dimension(VecLeft);          \
+	DirectX::XMVECTOR v1 = DirectX::XMLoadFloat##Dimension(VecRight);         \
+	DirectX::XMVECTOR vResult = DirectX::XMVectorMultiply(v0, v1);            \
+	DirectX::XMStoreFloat##Dimension(VecResult, vResult);                     \
+}
+#define vecCross(Dimension, VecLeft, VecRight, VecResult)                     \
+{                                                                             \
+	DirectX::XMVECTOR v0 = DirectX::XMLoadFloat##Dimension(VecLeft);          \
+	DirectX::XMVECTOR v1 = DirectX::XMLoadFloat##Dimension(VecRight);         \
+	DirectX::XMVECTOR vResult = DirectX::XMVector3Cross(v0, v1);              \
+	DirectX::XMStoreFloat##Dimension(VecResult, vResult);                     \
+}
+#define vecScale(Dimension, Vec, Factor, VecResult)                           \
+{                                                                             \
+	DirectX::XMVECTOR temp = DirectX::XMLoadFloat##Dimension(Vec);            \
+	DirectX::XMVECTOR vResult = DirectX::XMVectorScale(temp, Factor);         \
+	DirectX::XMStoreFloat##Dimension(VecResult, vResult);                     \
+}
+#define vecDot(Dimension, VecLeft, VecRight, VecResult)                       \
+{                                                                             \
+	DirectX::XMVECTOR v0 = DirectX::XMLoadFloat##Dimension(VecLeft);          \
+	DirectX::XMVECTOR v1 = DirectX::XMLoadFloat##Dimension(VecRight);         \
+	DirectX::XMVECTOR vResult = DirectX::XMVector##Dimension##Dot(v0, v1);    \
+	DirectX::XMStoreFloat##Dimension(VecResult, vResult);                     \
+}
+#define vecLength(Dimension, Vec, Result)                                     \
+{                                                                             \
+	DirectX::XMVECTOR temp = DirectX::XMLoadFloat##Dimension(Vec);            \
+	DirectX::XMVECTOR vResult = DirectX::XMVector##Dimension##Length(temp);   \
+	DirectX::XMStoreFloat(Result, vResult);                                   \
+}
 
+#define vecNormalizeA(Dimension, Vec)                                         \
+{                                                                             \
+	DirectX::XMVECTOR temp = DirectX::XMLoadFloat##Dimension##A(Vec);         \
+	DirectX::XMVECTOR vResult = DirectX::XMVector##Dimension##Normalize(temp);\
+	DirectX::XMStoreFloat##Dimension##A(Vec, vResult);                        \
+}
+#define vecAddA(Dimension, VecLeft, VecRight, VecResult)                      \
+{                                                                             \
+	DirectX::XMVECTOR v0 = DirectX::XMLoadFloat##Dimension##A(VecLeft);       \
+	DirectX::XMVECTOR v1 = DirectX::XMLoadFloat##Dimension##A(VecRight);      \
+	DirectX::XMVECTOR vResult = DirectX::XMVectorAdd(v0, v1);                 \
+	DirectX::XMStoreFloat##Dimension##A(VecResult, vResult);                  \
+}
 #define vecSubA(Dimension, VecLeft, VecRight, VecResult)                      \
 {                                                                             \
 	DirectX::XMVECTOR v0 = DirectX::XMLoadFloat##Dimension##A(VecLeft);       \
@@ -54,15 +83,6 @@ namespaceStart(math)
 	DirectX::XMVECTOR vResult = DirectX::XMVectorAdd(v0, v1);                 \
 	DirectX::XMStoreFloat##Dimension##A(VecResult, vResult);                  \
 }
-
-#define vecMultiply(Dimension, VecLeft, VecRight, VecResult)                  \
-{                                                                             \
-	DirectX::XMVECTOR v0 = DirectX::XMLoadFloat##Dimension(VecLeft);          \
-	DirectX::XMVECTOR v1 = DirectX::XMLoadFloat##Dimension(VecRight);         \
-	DirectX::XMVECTOR vResult = DirectX::XMVectorMultiply(v0, v1);            \
-	DirectX::XMStoreFloat##Dimension(VecResult, vResult);                     \
-}
-
 #define vecMultiplyA(Dimension, VecLeft, VecRight, VecResult)                 \
 {                                                                             \
 	DirectX::XMVECTOR v0 = DirectX::XMLoadFloat##Dimension##A(VecLeft);       \
@@ -70,15 +90,6 @@ namespaceStart(math)
 	DirectX::XMVECTOR vResult = DirectX::XMVectorMultiply(v0, v1);            \
 	DirectX::XMStoreFloat##Dimension##A(VecResult, vResult);                  \
 }
-
-#define vecCross(Dimension, VecLeft, VecRight, VecResult)                     \
-{                                                                             \
-	DirectX::XMVECTOR v0 = DirectX::XMLoadFloat##Dimension(VecLeft);          \
-	DirectX::XMVECTOR v1 = DirectX::XMLoadFloat##Dimension(VecRight);         \
-	DirectX::XMVECTOR vResult = DirectX::XMVector3Cross(v0, v1);              \
-	DirectX::XMStoreFloat##Dimension(VecResult, vResult);                     \
-}
-
 #define vecCrossA(Dimension, VecLeft, VecRight, VecResult)                    \
 {                                                                             \
 	DirectX::XMVECTOR v0 = DirectX::XMLoadFloat##Dimension##A(VecLeft);       \
@@ -86,29 +97,12 @@ namespaceStart(math)
 	DirectX::XMVECTOR vResult = DirectX::XMVector3Cross(v0, v1);              \
 	DirectX::XMStoreFloat##Dimension##A(VecResult, vResult);                  \
 }
-
-#define vecScale(Dimension, Vec, Factor, VecResult)                           \
-{                                                                             \
-	DirectX::XMVECTOR temp = DirectX::XMLoadFloat##Dimension(Vec);            \
-	DirectX::XMVECTOR vResult = DirectX::XMVectorScale(temp, Factor);         \
-	DirectX::XMStoreFloat##Dimension(VecResult, vResult);                     \
-}
-
 #define vecScaleA(Dimension, Vec, Factor, VecResult)                          \
 {                                                                             \
 	DirectX::XMVECTOR temp = DirectX::XMLoadFloat##Dimension##A(Vec);         \
 	DirectX::XMVECTOR vResult = DirectX::XMVectorScale(temp, Factor);         \
 	DirectX::XMStoreFloat##Dimension##A(VecResult, vResult);                  \
 }
-
-#define vecDot(Dimension, VecLeft, VecRight, VecResult)                       \
-{                                                                             \
-	DirectX::XMVECTOR v0 = DirectX::XMLoadFloat##Dimension(VecLeft);          \
-	DirectX::XMVECTOR v1 = DirectX::XMLoadFloat##Dimension(VecRight);         \
-	DirectX::XMVECTOR vResult = DirectX::XMVector##Dimension##Dot(v0, v1);    \
-	DirectX::XMStoreFloat##Dimension(VecResult, vResult);                     \
-}
-
 #define vecDotA(Dimension, VecLeft, VecRight, VecResult)                      \
 {                                                                             \
 	DirectX::XMVECTOR v0 = DirectX::XMLoadFloat##Dimension##A(VecLeft);       \
@@ -116,14 +110,6 @@ namespaceStart(math)
 	DirectX::XMVECTOR vResult = DirectX::XMVector##Dimension##Dot(v0, v1);    \
 	DirectX::XMStoreFloat##Dimension##A(VecResult, vResult);                  \
 }
-
-#define vecLength(Dimension, Vec, Result)                                     \
-{                                                                             \
-	DirectX::XMVECTOR temp = DirectX::XMLoadFloat##Dimension(Vec);            \
-	DirectX::XMVECTOR vResult = DirectX::XMVector##Dimension##Length(temp);   \
-	DirectX::XMStoreFloat(Result, vResult);                                   \
-}
-
 #define vecLengthA(Dimension, Vec, Result)                                    \
 {                                                                             \
 	DirectX::XMVECTOR temp = DirectX::XMLoadFloat##Dimension##A(Vec);         \

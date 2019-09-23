@@ -198,11 +198,31 @@ public:
 		return result;
 	}
 
+	inline static matrix perspectiveOffCenterLH(float32_t left, float32_t right, float32_t bottom, float32_t top, float32_t nearPlane, float32_t farPlane)
+	{
+		matrix result;
+
+		DirectX::XMMATRIX vResult = DirectX::XMMatrixPerspectiveOffCenterLH(left, right, bottom, top, nearPlane, farPlane);
+		DirectX::XMStoreFloat4x4A(&result, vResult);
+
+		return result;
+	}
+
 	inline static matrix OrthographicLH(float32_t width, float32_t height, float32_t nearPlane, float32_t farPlane)
 	{
 		matrix result;
 
 		DirectX::XMMATRIX vResult = DirectX::XMMatrixOrthographicLH(width, height, nearPlane, farPlane);
+		DirectX::XMStoreFloat4x4A(&result, vResult);
+
+		return result;
+	}
+
+	inline static matrix OrthographicOffCenterLH(float32_t left, float32_t right, float32_t bottom, float32_t top, float32_t nearPlane, float32_t farPlane)
+	{
+		matrix result;
+
+		DirectX::XMMATRIX vResult = DirectX::XMMatrixOrthographicOffCenterLH(left, right, bottom, top, nearPlane, farPlane);
 		DirectX::XMStoreFloat4x4A(&result, vResult);
 
 		return result;
@@ -283,8 +303,9 @@ public:
 		vec3 axis(x, y, z);
 		axis.normalize();
 
-		float32_t cosTheta = ::cosf(angle * 180.0f / DirectX::XM_PI);
-		float32_t sinTheta = ::sinf(angle * 180.0f / DirectX::XM_PI);
+		float32_t radian = angle * DirectX::XM_PI / 180.0f;
+		float32_t cosTheta = ::cosf(radian);
+		float32_t sinTheta = ::sinf(radian);
 
 		_11 = axis.x * axis.x * (1.0f - cosTheta) + cosTheta;
 		_12 = axis.x * axis.y * (1.0f - cosTheta) + axis.z * sinTheta;
@@ -314,8 +335,9 @@ public:
 
 	inline void rotateX(float32_t angle)
 	{
-		float32_t cosTheta = ::cosf(angle * 180.0f / DirectX::XM_PI);
-		float32_t sinTheta = ::sinf(angle * 180.0f / DirectX::XM_PI);
+		float32_t radian = angle * DirectX::XM_PI / 180.0f;
+		float32_t cosTheta = ::cosf(radian);
+		float32_t sinTheta = ::sinf(radian);
 
 		_11 = 1.0f; _12 = 0.0f;      _13 = 0.0f;     _14 = 0.0f;
 		_12 = 0.0f; _22 = cosTheta;  _23 = sinTheta; _24 = 0.0f;
@@ -325,8 +347,9 @@ public:
 
 	inline void rotateY(float32_t angle)
 	{
-		float32_t cosTheta = ::cosf(angle * 180.0f / DirectX::XM_PI);
-		float32_t sinTheta = ::sinf(angle * 180.0f / DirectX::XM_PI);
+		float32_t radian = angle * DirectX::XM_PI / 180.0f;
+		float32_t cosTheta = ::cosf(radian);
+		float32_t sinTheta = ::sinf(radian);
 
 		_11 = cosTheta; _12 = 0.0f; _13 = -sinTheta; _14 = 0.0f;
 		_12 = 0.0f;     _22 = 1.0f; _23 = 0.0f;      _24 = 0.0f;
@@ -336,8 +359,9 @@ public:
 
 	inline void rotateZ(float32_t angle)
 	{
-		float32_t cosTheta = ::cosf(angle * 180.0f / DirectX::XM_PI);
-		float32_t sinTheta = ::sinf(angle * 180.0f / DirectX::XM_PI);
+		float32_t radian = angle * DirectX::XM_PI / 180.0f;
+		float32_t cosTheta = ::cosf(radian);
+		float32_t sinTheta = ::sinf(radian);
 
 		_11 = cosTheta;  _12 = sinTheta; _13 = 0.0f; _14 = 0.0f;
 		_12 = -sinTheta; _22 = cosTheta; _23 = 0.0f; _24 = 0.0f;
@@ -422,30 +446,82 @@ public:
 
 	inline static matrix perspectiveFovLH(float32_t fov, float32_t aspect, float32_t nearPlane, float32_t farPlane)
 	{
-		matrix result;
+		float32_t radian = fov * DirectX::XM_PI / 180.0f;
+		float32_t cosTheta = ::cosf(radian);
+		float32_t sinTheta = ::sinf(radian);
+		float32_t height = cosTheta / sinTheta;
+		float32_t width = height / aspect;
+		float32_t range = farPlane / (farPlane - nearPlane);
 
+		matrix result(
+			vec4(width, 0.0f,   0.0f,               0.0f),
+			vec4(0.0f,  height, 0.0f,               0.0f),
+			vec4(0.0f,  0.0f,   range,              1.0f),
+			vec4(0.0f,  0.0f,   -range * nearPlane, 0.0f)
+		);
 		return result;
 	}
 
-	inline static matrix OrthographicLH(float32_t width, float32_t height, float32_t nearPlane, float32_t farPlane)
+	inline static matrix perspectiveOffCenterLH(float32_t left, float32_t right, float32_t bottom, float32_t top, float32_t nearPlane, float32_t farPlane)
 	{
-		matrix result;
+		float32_t reciprocalWidth = 1.0f / (right - left);
+		float32_t reciprocalHeight = 1.0f / (top - bottom);
+		float32_t range = farPlane / (farPlane - nearPlane);
 
+		matrix result(
+			vec4(2.0f * nearPlane * reciprocalWidth, 0.0f,                                0.0f,               0.0f),
+			vec4(0.0f,                               2.0f * nearPlane * reciprocalHeight, 0.0f,               0.0f),
+			vec4(-(left + right) * reciprocalWidth,  -(top + bottom) * reciprocalHeight,  range,              1.0f),
+			vec4(0.0f,                               0.0f,                                -range * nearPlane, 0.0f)
+		);
+		return result;
+	}
+
+	inline static matrix orthographicLH(float32_t width, float32_t height, float32_t nearPlane, float32_t farPlane)
+	{
+		float32_t range = 1.0f / (farPlane - nearPlane);
+		matrix result(
+			vec4(2.0f / width, 0.0f,          0.0f,               0.0f),
+			vec4(0.0f,         2.0f / height, 0.0f,               0.0f),
+			vec4(0.0f,         0.0f,          range,              0.0f),
+			vec4(0.0f,         0.0f,          -range * nearPlane, 1.0f)
+		);
+		return result;
+	}
+
+	inline static matrix orthographicOffCenterLH(float32_t left, float32_t right, float32_t bottom, float32_t top, float32_t nearPlane, float32_t farPlane)
+	{
+		float32_t reciprocalWidth = 1.0f / (right - left);
+		float32_t reciprocalHeight = 1.0f / (top - bottom);
+		float32_t range = 1.0f / (farPlane - nearPlane);
+		matrix result(
+			vec4(2.0f * reciprocalWidth,            0.0f,                               0.0f,               0.0f),
+			vec4(0.0f,                              2.0f * reciprocalHeight,            0.0f,               0.0f),
+			vec4(0.0f,                              0.0f,                               range,              0.0f),
+			vec4(-(left + right) * reciprocalWidth, -(top + bottom) * reciprocalHeight, -range * nearPlane, 1.0f)
+		);
 		return result;
 	}
 
 	inline static matrix lookAtLH(const vec3 &eye, const vec3 &lookAt, const vec3 &up)
 	{
-		vec3 dir = normalize(lookAt - eye);
-		vec3 right = cross(normalize(up), dir);
-		vec3 newUp = cross(dir, right);
+		/********************************************************************
+		|  1      0      0    0  |      |  xAxis.x   yAxis.x   zAxis.x   0  |
+		|  0      1      0    0  |  *   |  xAxis.y	 yAxis.y   zAxis.y   0  |
+		|  0      0      1    0  |      |  xAxis.z	 yAxis.z   zAxis.z   0  |
+		|-eye.x -eye.y -eye.z 1  |      |     0         0         0      1  |
+		********************************************************************/
+		vec3 zAxis = normalize(lookAt - eye);
+		vec3 xAxis = normalize(cross(up, zAxis));
+		vec3 yAxis = cross(zAxis, xAxis);
 
 		matrix result(
-			vec4(right.x, newUp.x, dir.x, eye.x), 
-			vec4(right.y, newUp.y, dir.y, eye.y), 
-			vec4(right.z, newUp.z, dir.z, eye.z), 
-			vec4(0.0f, 0.0f, 0.0f, 1.0f)
+			vec4(xAxis.x, yAxis.x, zAxis.x, 0.0f), 
+			vec4(xAxis.y, yAxis.y, zAxis.y, 0.0f),
+			vec4(xAxis.z, yAxis.z, zAxis.z, 0.0f),
+			vec4(-dot(yAxis, eye), -dot(yAxis, eye), -dot(zAxis, eye), 1.0f)
 		);
+
 		return result;
 	}
 #endif
