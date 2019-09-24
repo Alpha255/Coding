@@ -5,41 +5,41 @@
 namespaceStart(gear)
 namespaceStart(math)
 
-class vec4 : public DirectX::XMFLOAT4A
+class vec4 : public DirectX::XMFLOAT4
 {
 public:
 	inline vec4()
-		: DirectX::XMFLOAT4A(0.0f, 0.0f, 0.0f, 0.0f)
+		: DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f)
 	{
 	}
 
 	inline vec4(float32_t x, float32_t y, float32_t z, float32_t w)
-		: DirectX::XMFLOAT4A(x, y, z, w)
+		: DirectX::XMFLOAT4(x, y, z, w)
 	{
 	}
 
 	inline vec4(float32_t value)
-		: DirectX::XMFLOAT4A(value, value, value, value)
+		: DirectX::XMFLOAT4(value, value, value, value)
 	{
 	}
 
 	inline vec4(const float32_t* pArray)
-		: DirectX::XMFLOAT4A(pArray)
+		: DirectX::XMFLOAT4(pArray)
 	{
 	}
 
 	inline vec4(const vec2 &other, float32_t z = 0.0f, float32_t w = 0.0f)
-		: DirectX::XMFLOAT4A(other.x, other.y, z, w)
+		: DirectX::XMFLOAT4(other.x, other.y, z, w)
 	{
 	}
 
 	inline vec4(const vec3 &other, float32_t w = 0.0f)
-		: DirectX::XMFLOAT4A(other.x, other.y, other.z, w)
+		: DirectX::XMFLOAT4(other.x, other.y, other.z, w)
 	{
 	}
 
 #if defined(UsingSSE)
-	vecMemberFuncsA(4)
+	vecMemberFuncs(4)
 #else
 	inline float32_t lengthSq()
 	{
@@ -120,7 +120,7 @@ public:
 };
 
 #if defined(UsingSSE)
-	vecPublicFuncsA(4)
+	vecPublicFuncs(4)
 #else
 inline vec4 operator+(const vec4 &left, const vec4 &right)
 {

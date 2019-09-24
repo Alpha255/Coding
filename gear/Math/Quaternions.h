@@ -6,12 +6,11 @@
 namespaceStart(gear)
 namespaceStart(math)
 
-class quaternions
+class quaternions : public vec4
 {
 public:
 protected:
 private:
-	vec4 m_Value;
 };
 
 namespaceEnd(math)

@@ -3,7 +3,7 @@
 #include "Functions.h"
 #include "Matrix.h"
 #include "Euler.h"
-#include "Quater.h"
+#include "Quaternions.h"
 
 namespaceStart(gear)
 namespaceStart(math)
@@ -15,61 +15,62 @@ public:
 	{
 		m_Scalling = vec3(0.0f, 0.0f, 0.0f);
 		m_Translation = vec3(0.0f, 0.0f, 0.0f);
-		m_Matrix.identity();
+		m_Rotation = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+		m_mMatrix.identity();
 	}
 
 	inline matrix get()
 	{
 		build();
-		return m_Matrix;
+		return m_mMatrix;
 	}
 
-	inline void setScale(const vec3 &scale)
+	inline void scale(const vec3 &scale)
 	{
 		m_Scalling *= scale;
 	}
 
-	inline void setScale(const float32_t x, const float32_t y, const float32_t z)
+	inline void scale(const float32_t x, const float32_t y, const float32_t z)
 	{
 		m_Scalling *= vec3(x, y, z);
 	}
 
-	inline void setScale(const float32_t factor)
+	inline void scale(const float32_t factor)
 	{
 		m_Scalling *= vec3(factor, factor, factor);
 	}
 
-	inline void setTranslate(const vec3 &translate)
+	inline void translate(const vec3 &translate)
 	{
 		m_Translation += translate;
 	}
 
-	inline void setTranslate(const float32_t x, const float32_t y, const float32_t z)
+	inline void translate(const float32_t x, const float32_t y, const float32_t z)
 	{
 		m_Translation += vec3(x, y, z);
 	}
 
-	inline void setRotateX(const float32_t angle)
+	inline void rotateX(const float32_t angle)
 	{
 		m_Rotation += vec4(1.0f, 0.0f, 0.0f, angle);
 	}
 
-	inline void setRotateY(const float32_t angle)
+	inline void rotateY(const float32_t angle)
 	{
 		m_Rotation += vec4(0.0f, 1.0f, 0.0f, angle);
 	}
 
-	inline void setRotateZ(const float32_t angle)
+	inline void rotateZ(const float32_t angle)
 	{
 		m_Rotation += vec4(0.0f, 1.0f, 0.0f, angle);
 	}
 
-	inline void setRotate(const float32_t x, const float32_t y, const float32_t z, const float32_t angle)
+	inline void rotate(const float32_t x, const float32_t y, const float32_t z, const float32_t angle)
 	{
 		m_Rotation += vec4(x, y, z, angle);
 	}
 
-	inline void setRotate(const vec3 &axis, const float32_t angle)
+	inline void rotate(const vec3 &axis, const float32_t angle)
 	{
 		m_Rotation += vec4(axis, angle);
 	}
@@ -77,31 +78,33 @@ public:
 	inline matrix getTransposed()
 	{
 		build();
-		return matrix::transpose(m_Matrix);
+		return matrix::transpose(m_mMatrix);
 	}
 
 	inline matrix getInversed()
 	{
 		build();
-		return matrix::inverse(m_Matrix);
+		return matrix::inverse(m_mMatrix);
 	}
 
 	inline matrix getInverseTransposed()
 	{
 		build();
-		return matrix::inverseTranspose(m_Matrix);
+		return matrix::inverseTranspose(m_mMatrix);
 	}
 protected:
 	void build()
 	{
 		reset();
 
-		m_Matrix.translate(m_Translation);
-		m_Matrix.rotate(m_Rotation.x, m_Rotation.y, m_Rotation.z, m_Rotation.z);
-		m_Matrix.scale(m_Scalling);
+		matrix translation = matrix::setTranslate(m_Translation);
+		matrix rotation = matrix::setRotate(m_Rotation.x, m_Rotation.y, m_Rotation.z, m_Rotation.w);
+		matrix scalling = matrix::setScale(m_Scalling);
+
+		m_mMatrix = translation * rotation * scalling;
 	}
 private:
-	matrix m_Matrix;
+	matrix m_mMatrix;
 	vec3 m_Scalling;
 	vec3 m_Translation;
 	vec4 m_Rotation;

@@ -24,17 +24,12 @@ public:
 
 	inline void translate(float32_t x, float32_t y, float32_t z)
 	{
-		math::matrix translation;
-		translation.translate(x, y, z);
-
-		m_mWorld *= translation;
+		m_mWorld *= math::matrix::setTranslate(x, y, z);
 	}
 
 	inline void rotate(float32_t x, float32_t y, float32_t z, float32_t angle)
 	{
-		math::matrix rotation;
-		rotation.rotate(x, y, z, angle);
-		m_mWorld *= rotation;
+		m_mWorld *= math::matrix::setRotate(x, y, z, angle);
 	}
 
 	inline void setViewParams(

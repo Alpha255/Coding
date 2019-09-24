@@ -5,7 +5,7 @@
 namespaceStart(gear)
 namespaceStart(math)
 
-class matrix : public DirectX::XMFLOAT4X4A
+class matrix : public DirectX::XMFLOAT4X4
 {
 public:
 	inline matrix()
@@ -18,7 +18,7 @@ public:
 		float32_t m10, float32_t m11, float32_t m12, float32_t m13,
 		float32_t m20, float32_t m21, float32_t m22, float32_t m23,
 		float32_t m30, float32_t m31, float32_t m32, float32_t m33)
-		: DirectX::XMFLOAT4X4A(
+		: DirectX::XMFLOAT4X4(
 			m00, m01, m02, m03,
 			m10, m11, m12, m13,
 			m20, m21, m22, m23,
@@ -44,21 +44,21 @@ public:
 	inline void identity()
 	{
 		DirectX::XMMATRIX iMatrix = DirectX::XMMatrixIdentity();
-		DirectX::XMStoreFloat4x4A(this, iMatrix);
+		DirectX::XMStoreFloat4x4(this, iMatrix);
 	}
 
 	inline void transpose()
 	{
-		DirectX::XMMATRIX temp = DirectX::XMLoadFloat4x4A(this);
+		DirectX::XMMATRIX temp = DirectX::XMLoadFloat4x4(this);
 		DirectX::XMMATRIX result = DirectX::XMMatrixTranspose(temp);
-		DirectX::XMStoreFloat4x4A(this, result);
+		DirectX::XMStoreFloat4x4(this, result);
 	}
 
 	inline void inverse()
 	{
-		DirectX::XMMATRIX temp = DirectX::XMLoadFloat4x4A(this);
+		DirectX::XMMATRIX temp = DirectX::XMLoadFloat4x4(this);
 		DirectX::XMMATRIX result = DirectX::XMMatrixInverse(nullptr, temp);
-		DirectX::XMStoreFloat4x4A(this, result);
+		DirectX::XMStoreFloat4x4(this, result);
 	}
 
 	inline void inverseTranspose()
@@ -71,87 +71,105 @@ public:
 		_43 = 0.0f;
 		_44 = 1.0f;
 
-		DirectX::XMMATRIX temp = DirectX::XMLoadFloat4x4A(this);
+		DirectX::XMMATRIX temp = DirectX::XMLoadFloat4x4(this);
 		DirectX::XMVECTOR det = DirectX::XMMatrixDeterminant(temp);
 		DirectX::XMMATRIX result = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(&det, temp));
-		DirectX::XMStoreFloat4x4A(this, result);
-	}
-
-	inline void translate(float32_t x, float32_t y, float32_t z)
-	{
-		DirectX::XMMATRIX vResult = DirectX::XMMatrixTranslation(x, y, z);
-		DirectX::XMStoreFloat4x4A(this, vResult);
-	}
-
-	inline void translate(const vec3 &translation)
-	{
-		translate(translation.x, translation.y, translation.z);
-	}
-
-	inline void scale(float32_t x, float32_t y, float32_t z)
-	{
-		DirectX::XMMATRIX vResult = DirectX::XMMatrixScaling(x, y, z);
-		DirectX::XMStoreFloat4x4A(this, vResult);
-	}
-
-	inline void scale(float32_t factor)
-	{
-		scale(factor, factor, factor);
-	}
-
-	inline void rotate(float32_t x, float32_t y, float32_t z, float32_t angle)
-	{
-		DirectX::XMVECTOR axis = DirectX::XMVectorSet(x, y, z, 0.0f);
-		DirectX::XMMATRIX vResult = DirectX::XMMatrixRotationAxis(axis, angle * DirectX::XM_PI / 180.0f);
-		DirectX::XMStoreFloat4x4A(this, vResult);
-	}
-
-	inline void rotate(const vec3 &axis, float32_t angle)
-	{
-		rotate(axis.x, axis.y, axis.z, angle);
-	}
-
-	inline void rotateX(float32_t angle)
-	{
-		DirectX::XMMATRIX vResult = DirectX::XMMatrixRotationX(angle * DirectX::XM_PI / 180.0f);
-		DirectX::XMStoreFloat4x4A(this, vResult);
-	}
-
-	inline void rotateY(float32_t angle)
-	{
-		DirectX::XMMATRIX vResult = DirectX::XMMatrixRotationY(angle * DirectX::XM_PI / 180.0f);
-		DirectX::XMStoreFloat4x4A(this, vResult);
-	}
-
-	inline void rotateZ(float32_t angle)
-	{
-		DirectX::XMMATRIX vResult = DirectX::XMMatrixRotationZ(angle * DirectX::XM_PI / 180.0f);
-		DirectX::XMStoreFloat4x4A(this, vResult);
+		DirectX::XMStoreFloat4x4(this, result);
 	}
 
 	inline void operator*=(const matrix &right)
 	{
-		DirectX::XMMATRIX vLeft = DirectX::XMLoadFloat4x4A(this);
-		DirectX::XMMATRIX vRight = DirectX::XMLoadFloat4x4A(&right);
+		DirectX::XMMATRIX vLeft = DirectX::XMLoadFloat4x4(this);
+		DirectX::XMMATRIX vRight = DirectX::XMLoadFloat4x4(&right);
 		DirectX::XMMATRIX vResult = DirectX::XMMatrixMultiply(vLeft, vRight);
-		DirectX::XMStoreFloat4x4A(this, vResult);
+		DirectX::XMStoreFloat4x4(this, vResult);
 	}
 
 	inline void operator+=(const matrix &right)
 	{
-		DirectX::XMMATRIX vLeft = DirectX::XMLoadFloat4x4A(this);
-		DirectX::XMMATRIX vRight = DirectX::XMLoadFloat4x4A(&right);
+		DirectX::XMMATRIX vLeft = DirectX::XMLoadFloat4x4(this);
+		DirectX::XMMATRIX vRight = DirectX::XMLoadFloat4x4(&right);
 		DirectX::XMMATRIX vResult = DirectX::XMMatrixMultiply(vLeft, vRight);
-		DirectX::XMStoreFloat4x4A(this, vResult);
+		DirectX::XMStoreFloat4x4(this, vResult);
+	}
+
+	inline static matrix setTranslate(float32_t x, float32_t y, float32_t z)
+	{
+		matrix result;
+		DirectX::XMMATRIX vResult = DirectX::XMMatrixTranslation(x, y, z);
+		DirectX::XMStoreFloat4x4(&result, vResult);
+
+		return result;
+	}
+
+	inline static matrix setTranslate(const vec3 &translation)
+	{
+		return setTranslate(translation.x, translation.y, translation.z);
+	}
+
+	inline static matrix setScale(float32_t x, float32_t y, float32_t z)
+	{
+		matrix result;
+		DirectX::XMMATRIX vResult = DirectX::XMMatrixScaling(x, y, z);
+		DirectX::XMStoreFloat4x4(&result, vResult);
+
+		return result;
+	}
+
+	inline static matrix setScale(float32_t factor)
+	{
+		return setScale(factor, factor, factor);
+	}
+
+	inline static matrix setRotate(float32_t x, float32_t y, float32_t z, float32_t angle)
+	{
+		matrix result;
+		DirectX::XMVECTOR axis = DirectX::XMVectorSet(x, y, z, 0.0f);
+		DirectX::XMMATRIX vResult = DirectX::XMMatrixRotationAxis(axis, angle * DirectX::XM_PI / 180.0f);
+		DirectX::XMStoreFloat4x4(&result, vResult);
+
+		return result;
+	}
+
+	inline static matrix setRotate(const vec3 &axis, float32_t angle)
+	{
+		return setRotate(axis.x, axis.y, axis.z, angle);
+	}
+
+	inline static matrix setRotateX(float32_t angle)
+	{
+		matrix result;
+		DirectX::XMMATRIX vResult = DirectX::XMMatrixRotationX(angle * DirectX::XM_PI / 180.0f);
+		DirectX::XMStoreFloat4x4(&result, vResult);
+
+		return result;
+	}
+
+	inline static matrix setRotateY(float32_t angle)
+	{
+		matrix result;
+		DirectX::XMMATRIX vResult = DirectX::XMMatrixRotationY(angle * DirectX::XM_PI / 180.0f);
+		DirectX::XMStoreFloat4x4(&result, vResult);
+
+		return result;
+	}
+
+	inline static matrix setRotateZ(float32_t angle)
+	{
+		matrix result;
+		DirectX::XMMATRIX vResult = DirectX::XMMatrixRotationZ(angle * DirectX::XM_PI / 180.0f);
+		DirectX::XMStoreFloat4x4(&result, vResult);
+
+		return result;
 	}
 
 	inline static matrix transpose(const matrix &targetMatrix)
 	{
 		matrix result;
 
-		DirectX::XMMATRIX temp = DirectX::XMLoadFloat4x4A(&targetMatrix);
+		DirectX::XMMATRIX temp = DirectX::XMLoadFloat4x4(&targetMatrix);
 		DirectX::XMMATRIX vResult = DirectX::XMMatrixTranspose(temp);
-		DirectX::XMStoreFloat4x4A(&result, vResult);
+		DirectX::XMStoreFloat4x4(&result, vResult);
 
 		return result;
 	}
@@ -160,9 +178,9 @@ public:
 	{
 		matrix result;
 
-		DirectX::XMMATRIX temp = DirectX::XMLoadFloat4x4A(&targetMatrix);
+		DirectX::XMMATRIX temp = DirectX::XMLoadFloat4x4(&targetMatrix);
 		DirectX::XMMATRIX vResult = DirectX::XMMatrixInverse(nullptr, temp);
-		DirectX::XMStoreFloat4x4A(&result, vResult);
+		DirectX::XMStoreFloat4x4(&result, vResult);
 
 		return result;
 	}
@@ -180,10 +198,10 @@ public:
 		copy._43 = 0.0f;
 		copy._44 = 1.0f;
 
-		DirectX::XMMATRIX temp = DirectX::XMLoadFloat4x4A(&copy);
+		DirectX::XMMATRIX temp = DirectX::XMLoadFloat4x4(&copy);
 		DirectX::XMVECTOR det = DirectX::XMMatrixDeterminant(temp);
 		DirectX::XMMATRIX vResult = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(&det, temp));
-		DirectX::XMStoreFloat4x4A(&result, vResult);
+		DirectX::XMStoreFloat4x4(&result, vResult);
 
 		return result;
 	}
@@ -193,7 +211,7 @@ public:
 		matrix result;
 
 		DirectX::XMMATRIX vResult = DirectX::XMMatrixPerspectiveFovLH(fov, aspect, nearPlane, farPlane);
-		DirectX::XMStoreFloat4x4A(&result, vResult);
+		DirectX::XMStoreFloat4x4(&result, vResult);
 
 		return result;
 	}
@@ -203,7 +221,7 @@ public:
 		matrix result;
 
 		DirectX::XMMATRIX vResult = DirectX::XMMatrixPerspectiveOffCenterLH(left, right, bottom, top, nearPlane, farPlane);
-		DirectX::XMStoreFloat4x4A(&result, vResult);
+		DirectX::XMStoreFloat4x4(&result, vResult);
 
 		return result;
 	}
@@ -213,7 +231,7 @@ public:
 		matrix result;
 
 		DirectX::XMMATRIX vResult = DirectX::XMMatrixOrthographicLH(width, height, nearPlane, farPlane);
-		DirectX::XMStoreFloat4x4A(&result, vResult);
+		DirectX::XMStoreFloat4x4(&result, vResult);
 
 		return result;
 	}
@@ -223,7 +241,7 @@ public:
 		matrix result;
 
 		DirectX::XMMATRIX vResult = DirectX::XMMatrixOrthographicOffCenterLH(left, right, bottom, top, nearPlane, farPlane);
-		DirectX::XMStoreFloat4x4A(&result, vResult);
+		DirectX::XMStoreFloat4x4(&result, vResult);
 
 		return result;
 	}
@@ -236,7 +254,7 @@ public:
 		DirectX::XMVECTOR vLookAt = DirectX::XMVectorSet(lookAt.x, lookAt.y, lookAt.z, 0.0f);
 		DirectX::XMVECTOR vUp = DirectX::XMVectorSet(up.x, up.y, up.z, 0.0f);
 		DirectX::XMMATRIX vResult = DirectX::XMMatrixLookAtLH(vEye, vLookAt, vUp);
-		DirectX::XMStoreFloat4x4A(&result, vResult);
+		DirectX::XMStoreFloat4x4(&result, vResult);
 
 		return result;
 	}
@@ -269,37 +287,42 @@ public:
 	{
 	}
 
-	inline void translate(float32_t x, float32_t y, float32_t z)
+	inline static matrix setTranslate(float32_t x, float32_t y, float32_t z)
 	{
-		_41 = x;
-		_42 = y;
-		_43 = z;
+		matrix result;
+		result._41 = x;
+		result._42 = y;
+		result._43 = z;
+		return result;
 	}
 
-	inline void translate(const vec3 &translation)
+	inline static matrix setTranslate(const vec3 &translation)
 	{
-		translate(translation.x, translation.y, translation.z);
+		return setTranslate(translation.x, translation.y, translation.z);
 	}
 
-	inline void scale(float32_t value)
+	inline static matrix setScale(float32_t value)
 	{
-		scale(value, value, value);
+		return setScale(value, value, value);
 	}
 
-	inline void scale(const vec3 &scalling)
+	inline static matrix setScale(const vec3 &scalling)
 	{
-		scale(scalling.x, scalling.y, scalling.z);
+		return setScale(scalling.x, scalling.y, scalling.z);
 	}
 
-	inline void scale(float32_t x, float32_t y, float32_t z)
+	inline static matrix setScale(float32_t x, float32_t y, float32_t z)
 	{
-		_11 = x;
-		_22 = y;
-		_33 = z;
+		matrix result;
+		result._11 = x;
+		result._22 = y;
+		result._33 = z;
+		return result;
 	}
 
-	inline void rotate(float32_t x, float32_t y, float32_t z, float32_t angle)
+	inline static matrix setRotate(float32_t x, float32_t y, float32_t z, float32_t angle)
 	{
+		matrix result;
 		vec3 axis(x, y, z);
 		axis.normalize();
 
@@ -307,66 +330,77 @@ public:
 		float32_t cosTheta = ::cosf(radian);
 		float32_t sinTheta = ::sinf(radian);
 
-		_11 = axis.x * axis.x * (1.0f - cosTheta) + cosTheta;
-		_12 = axis.x * axis.y * (1.0f - cosTheta) + axis.z * sinTheta;
-		_13 = axis.x * axis.z * (1.0f - cosTheta) - axis.y * sinTheta;
-		_14 = 0.0f;
+		result._11 = axis.x * axis.x * (1.0f - cosTheta) + cosTheta;
+		result._12 = axis.x * axis.y * (1.0f - cosTheta) + axis.z * sinTheta;
+		result._13 = axis.x * axis.z * (1.0f - cosTheta) - axis.y * sinTheta;
+		result._14 = 0.0f;
 
-		_21 = axis.x * axis.y * (1.0f - cosTheta) - axis.z * sinTheta;
-		_22 = axis.y * axis.y * (1.0f - cosTheta) + cosTheta;
-		_23 = axis.y * axis.z * (1.0f - cosTheta) + axis.x * sinTheta;
-		_33 = 0.0f;
+		result._21 = axis.x * axis.y * (1.0f - cosTheta) - axis.z * sinTheta;
+		result._22 = axis.y * axis.y * (1.0f - cosTheta) + cosTheta;
+		result._23 = axis.y * axis.z * (1.0f - cosTheta) + axis.x * sinTheta;
+		result._33 = 0.0f;
 
-		_31 = axis.x * axis.z * (1.0f - cosTheta) + axis.y * sinTheta;
-		_32 = axis.y * axis.z * (1.0f - cosTheta) - axis.x * sinTheta;
-		_33 = axis.z * axis.z * (1.0f - cosTheta) + cosTheta;
-		_34 = 0.0f;
+		result._31 = axis.x * axis.z * (1.0f - cosTheta) + axis.y * sinTheta;
+		result._32 = axis.y * axis.z * (1.0f - cosTheta) - axis.x * sinTheta;
+		result._33 = axis.z * axis.z * (1.0f - cosTheta) + cosTheta;
+		result._34 = 0.0f;
 
-		_41 = 0.0f;
-		_42 = 0.0f;
-		_43 = 0.0f;
-		_43 = 1.0f;
+		result._41 = 0.0f;
+		result._42 = 0.0f;
+		result._43 = 0.0f;
+		result._43 = 1.0f;
+
+		return result;
 	}
 
-	inline void rotate(const vec3 &axis, float32_t angle)
+	inline static matrix setRotate(const vec3 &axis, float32_t angle)
 	{
-		rotate(axis.x, axis.y, axis.z, angle);
+		return setRotate(axis.x, axis.y, axis.z, angle);
 	}
 
-	inline void rotateX(float32_t angle)
+	inline static matrix setRotateX(float32_t angle)
 	{
+		matrix result;
 		float32_t radian = angle * DirectX::XM_PI / 180.0f;
 		float32_t cosTheta = ::cosf(radian);
 		float32_t sinTheta = ::sinf(radian);
 
-		_11 = 1.0f; _12 = 0.0f;      _13 = 0.0f;     _14 = 0.0f;
-		_12 = 0.0f; _22 = cosTheta;  _23 = sinTheta; _24 = 0.0f;
-		_31 = 0.0f; _32 = -sinTheta; _33 = cosTheta; _34 = 0.0f;
-		_41 = 0.0f; _42 = 0.0f;      _43 = 0.0f;     _44 = 1.0f;
+		result._11 = 1.0f; result._12 = 0.0f;      result._13 = 0.0f;     result._14 = 0.0f;
+		result._12 = 0.0f; result._22 = cosTheta;  result._23 = sinTheta; result._24 = 0.0f;
+		result._31 = 0.0f; result._32 = -sinTheta; result._33 = cosTheta; result._34 = 0.0f;
+		result._41 = 0.0f; result._42 = 0.0f;      result._43 = 0.0f;     result._44 = 1.0f;
+
+		return result;
 	}
 
-	inline void rotateY(float32_t angle)
+	inline static matrix setRotateY(float32_t angle)
 	{
+		matrix result;
 		float32_t radian = angle * DirectX::XM_PI / 180.0f;
 		float32_t cosTheta = ::cosf(radian);
 		float32_t sinTheta = ::sinf(radian);
 
-		_11 = cosTheta; _12 = 0.0f; _13 = -sinTheta; _14 = 0.0f;
-		_12 = 0.0f;     _22 = 1.0f; _23 = 0.0f;      _24 = 0.0f;
-		_31 = sinTheta; _32 = 0.0f; _33 = cosTheta;  _34 = 0.0f;
-		_41 = 0.0f;     _42 = 0.0f; _43 = 0.0f;      _44 = 1.0f;
+		result._11 = cosTheta; result._12 = 0.0f; result._13 = -sinTheta; result._14 = 0.0f;
+		result._12 = 0.0f;     result._22 = 1.0f; result._23 = 0.0f;      result._24 = 0.0f;
+		result._31 = sinTheta; result._32 = 0.0f; result._33 = cosTheta;  result._34 = 0.0f;
+		result._41 = 0.0f;     result._42 = 0.0f; result._43 = 0.0f;      result._44 = 1.0f;
+
+		return result;
 	}
 
-	inline void rotateZ(float32_t angle)
+	inline static matrix setRotateZ(float32_t angle)
 	{
+		matrix result;
 		float32_t radian = angle * DirectX::XM_PI / 180.0f;
 		float32_t cosTheta = ::cosf(radian);
 		float32_t sinTheta = ::sinf(radian);
 
-		_11 = cosTheta;  _12 = sinTheta; _13 = 0.0f; _14 = 0.0f;
-		_12 = -sinTheta; _22 = cosTheta; _23 = 0.0f; _24 = 0.0f;
-		_31 = 0.0f;      _32 = 0.0f;     _33 = 1.0f; _34 = 0.0f;
-		_41 = 0.0f;      _42 = 0.0f;     _43 = 0.0f; _44 = 1.0f;
+		result._11 = cosTheta;  result._12 = sinTheta; result._13 = 0.0f; result._14 = 0.0f;
+		result._12 = -sinTheta; result._22 = cosTheta; result._23 = 0.0f; result._24 = 0.0f;
+		result._31 = 0.0f;      result._32 = 0.0f;     result._33 = 1.0f; result._34 = 0.0f;
+		result._41 = 0.0f;      result._42 = 0.0f;     result._43 = 0.0f; result._44 = 1.0f;
+
+		return result;
 	}
 
 	inline void operator*=(const matrix &right)
@@ -534,10 +568,10 @@ inline matrix operator*(const matrix &left, const matrix &right)
 {
 	matrix result;
 
-	DirectX::XMMATRIX vLeft = DirectX::XMLoadFloat4x4A(&left);
-	DirectX::XMMATRIX vRight = DirectX::XMLoadFloat4x4A(&right);
+	DirectX::XMMATRIX vLeft = DirectX::XMLoadFloat4x4(&left);
+	DirectX::XMMATRIX vRight = DirectX::XMLoadFloat4x4(&right);
 	DirectX::XMMATRIX vResult = vLeft * vRight;
-	DirectX::XMStoreFloat4x4A(&result, vResult);
+	DirectX::XMStoreFloat4x4(&result, vResult);
 
 	return result;
 }

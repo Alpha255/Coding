@@ -5,36 +5,36 @@
 namespaceStart(gear)
 namespaceStart(math)
 
-class vec3 : public DirectX::XMFLOAT3A
+class vec3 : public DirectX::XMFLOAT3
 {
 public:
 	inline vec3()
-		: DirectX::XMFLOAT3A(0.0f, 0.0f, 0.0f)
+		: DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f)
 	{
 	}
 
 	inline vec3(float32_t x, float32_t y, float32_t z)
-		: DirectX::XMFLOAT3A(x, y, z)
+		: DirectX::XMFLOAT3(x, y, z)
 	{
 	}
 
 	inline vec3(float32_t value)
-		: DirectX::XMFLOAT3A(value, value, value)
+		: DirectX::XMFLOAT3(value, value, value)
 	{
 	}
 
 	inline vec3(const float32_t* pArray)
-		: DirectX::XMFLOAT3A(pArray)
+		: DirectX::XMFLOAT3(pArray)
 	{
 	}
 
 	inline vec3(const vec2 &other, float32_t z = 0.0f)
-		: DirectX::XMFLOAT3A(other.x, other.y, z)
+		: DirectX::XMFLOAT3(other.x, other.y, z)
 	{
 	}
 
 #if defined(UsingSSE)
-	vecMemberFuncsA(3)
+	vecMemberFuncs(3)
 #else
 	inline float32_t lengthSq()
 	{
@@ -108,7 +108,7 @@ public:
 };
 
 #if defined(UsingSSE)
-	vecPublicFuncsA(3)
+	vecPublicFuncs(3)
 #else
 inline vec3 operator+(const vec3 &left, const vec3 &right)
 {

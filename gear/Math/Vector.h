@@ -59,7 +59,7 @@ namespaceStart(math)
 {                                                                             \
 	DirectX::XMVECTOR temp = DirectX::XMLoadFloat##Dimension(Vec);            \
 	DirectX::XMVECTOR vResult = DirectX::XMVector##Dimension##Length(temp);   \
-	DirectX::XMStoreFloat(Result, vResult);                                   \
+	Result = DirectX::XMVectorGetX(vResult);                                  \
 }
 
 #define vecNormalizeA(Dimension, Vec)                                         \
@@ -114,7 +114,7 @@ namespaceStart(math)
 {                                                                             \
 	DirectX::XMVECTOR temp = DirectX::XMLoadFloat##Dimension##A(Vec);         \
 	DirectX::XMVECTOR vResult = DirectX::XMVector##Dimension##Length(temp);   \
-	DirectX::XMStoreFloat(Result, vResult);                                   \
+	Result = DirectX::XMVectorGetX(vResult);                                  \
 }
 
 #define vecMemberFuncs(Dimension)                                             \
@@ -273,7 +273,7 @@ inline vec##Dimension negate(vec##Dimension &targetVec)                         
 inline float32_t length(const vec##Dimension &targeVec)                                  \
 {                                                                                        \
 	float32_t result = FLT_MAX;                                                          \
-	vecLength(Dimension, &targeVec, &result)                                             \
+	vecLength(Dimension, &targeVec, result)                                              \
 	return result;                                                                       \
 }                                                                                        \
 inline vec##Dimension getMin(const vec##Dimension &left, const vec##Dimension &right)    \
@@ -366,7 +366,7 @@ inline vec##Dimension negate(vec##Dimension &targetVec)                         
 inline float32_t length(const vec##Dimension &targeVec)                                  \
 {                                                                                        \
 	float32_t result = FLT_MAX;                                                          \
-	vecLengthA(Dimension, &targeVec, &result)                                            \
+	vecLengthA(Dimension, &targeVec, result)                                             \
 	return result;                                                                       \
 }                                                                                        \
 inline vec##Dimension getMin(const vec##Dimension &left, const vec##Dimension &right)    \

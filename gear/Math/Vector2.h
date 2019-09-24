@@ -6,31 +6,31 @@
 namespaceStart(gear)
 namespaceStart(math)
 
-class vec2 : public DirectX::XMFLOAT2A
+class vec2 : public DirectX::XMFLOAT2
 {
 public:
 	inline vec2()
-		: DirectX::XMFLOAT2A(0.0f, 0.0f)
+		: DirectX::XMFLOAT2(0.0f, 0.0f)
 	{
 	}
 
 	inline vec2(float32_t value)
-		: DirectX::XMFLOAT2A(value, value)
+		: DirectX::XMFLOAT2(value, value)
 	{
 	}
 
 	inline vec2(float32_t x, float32_t y)
-		: DirectX::XMFLOAT2A(x, y)
+		: DirectX::XMFLOAT2(x, y)
 	{
 	}
 
 	inline vec2(const float32_t* pArray)
-		: DirectX::XMFLOAT2A(pArray)
+		: DirectX::XMFLOAT2(pArray)
 	{                               
 	}
 
 #if defined(UsingSSE)
-	vecMemberFuncsA(2)
+	vecMemberFuncs(2)
 #else
 	inline float32_t lengthSq()
 	{
@@ -93,7 +93,7 @@ public:
 };
 
 #if defined(UsingSSE)
-	vecPublicFuncsA(2)
+	vecPublicFuncs(2)
 #else
 inline vec2 operator+(const vec2 &left, const vec2 &right)
 {

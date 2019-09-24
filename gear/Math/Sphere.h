@@ -6,12 +6,13 @@
 namespaceStart(gear)
 namespaceStart(math)
 
-class euler : public vec4
+class sphere
 {
 public:
-	void set(float32_t roll, float32_t pitch, float32_t head);
 protected:
 private:
+	vec3 m_Center;
+	float32_t m_Radius;
 };
 
 namespaceEnd(math)

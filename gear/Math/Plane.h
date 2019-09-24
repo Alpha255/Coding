@@ -6,7 +6,7 @@
 namespaceStart(gear)
 namespaceStart(math)
 
-class plane
+class plane : public vec4
 {
 public:
 protected:
