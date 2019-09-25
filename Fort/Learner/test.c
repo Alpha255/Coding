@@ -59,7 +59,7 @@ void initialize(uint32_t dimension)
 	uint32_t length = ((dimension * (dimension - 1u)) >> 1u) + 1u;
 	gWeightMatrix = (int32_t *)malloc(sizeof(int32_t) * length);
 	assert(gWeightMatrix);
-	memset(gWeightMatrix, INT32_MAX, sizeof(int32_t) * length);
+	memset(gWeightMatrix, -1, sizeof(int32_t) * length);
 
 	gWeightMatrix[0] = dimension;
 }
@@ -225,9 +225,9 @@ void outputWeightMatrix()
 	printf("\n\n");
 }
 
-void getMinWeightPath()
+void getMinWeightPath(uint32_t start)
 {
-
+	assert(start < getDimension());
 }
 
 int32_t main()
@@ -240,7 +240,7 @@ int32_t main()
 	outputWeightMatrix();
 #endif
 
-	getMinWeightPath();
+	getMinWeightPath(0u);
 
 	finalize();
 
