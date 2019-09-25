@@ -6,26 +6,19 @@
 #include <ctype.h>
 #include <stdbool.h>
 
-enum
-{
-	eMaxDimension = 100
-};
+#define MAX_DIMENSION 100
+#define INVALID_VALUE -1
 
 int32_t *gWeightMatrix = NULL;
-
-void swap(uint32_t *pLeft, uint32_t *pRight)
-{
-	uint32_t temp = *pLeft;
-	*pLeft = *pRight;
-	*pRight = temp;
-}
+int32_t *gWeights = NULL;
+bool *gVisited = NULL;
 
 uint32_t getDimension()
 {
 	assert(gWeightMatrix);
 
 	uint32_t dimension = gWeightMatrix[0];
-	assert(dimension <= eMaxDimension);
+	assert(dimension <= MAX_DIMENSION);
 	return dimension;
 }
 
@@ -40,7 +33,9 @@ int32_t getWeight(uint32_t row, uint32_t col)
 
 	if (row < col)
 	{
-		swap(&row, &col);
+		uint32_t temp = row;
+		row = col;
+		col = temp;
 	}
 
 	return gWeightMatrix[((row * (row - 1u)) >> 1u) + col + 1u];
@@ -49,19 +44,25 @@ int32_t getWeight(uint32_t row, uint32_t col)
 void setWeight(uint32_t row, uint32_t col, int32_t weight)
 {
 	assert(gWeightMatrix && row < getDimension() && col < getDimension());
-
 	gWeightMatrix[((row * (row - 1u)) >> 1u) + col + 1u] = weight;
 }
 
 void initialize(uint32_t dimension)
 {
-	assert(dimension >= 1u && dimension <= eMaxDimension);
+	assert(dimension >= 1u && dimension <= MAX_DIMENSION);
 	uint32_t length = ((dimension * (dimension - 1u)) >> 1u) + 1u;
 	gWeightMatrix = (int32_t *)malloc(sizeof(int32_t) * length);
 	assert(gWeightMatrix);
-	memset(gWeightMatrix, -1, sizeof(int32_t) * length);
-
+	memset(gWeightMatrix, INVALID_VALUE, sizeof(int32_t) * length);
 	gWeightMatrix[0] = dimension;
+
+	gWeights = (int32_t *)malloc(sizeof(int32_t) * dimension);
+	assert(gWeights);
+	memset(gWeights, INVALID_VALUE, sizeof(int32_t) * dimension);
+
+	gVisited = (bool *)malloc(sizeof(bool) * dimension);
+	assert(gVisited);
+	memset(gVisited, false, sizeof(bool) * dimension);
 }
 
 void finalize()
@@ -70,6 +71,18 @@ void finalize()
 	{
 		free(gWeightMatrix);
 		gWeightMatrix = NULL;
+	}
+
+	if (gWeights)
+	{
+		free(gWeights);
+		gWeights = NULL;
+	}
+
+	if (gVisited)
+	{
+		free(gVisited);
+		gVisited = NULL;
 	}
 }
 
@@ -88,9 +101,9 @@ const char *getInput()
 uint32_t getDimensionFromInput()
 {
 	uint32_t dimension = UINT32_MAX;
-	while (dimension > eMaxDimension)
+	while (dimension > MAX_DIMENSION)
 	{
-		printf_s("Please input the count of cities (less than %u): ", eMaxDimension);
+		printf_s("Please input the count of cities (less than %u): ", MAX_DIMENSION);
 		const char *pInput = getInput();
 		if (pInput)
 		{
@@ -116,9 +129,9 @@ uint32_t getDimensionFromInput()
 				dimension = UINT32_MAX;
 				printf_s("The count of cities must great than 1, please try again.\n\n");
 			}
-			else if (dimension > eMaxDimension)
+			else if (dimension > MAX_DIMENSION)
 			{
-				printf_s("The count of cities must less than %u, please try again.\n\n", eMaxDimension);
+				printf_s("The count of cities must less than %u, please try again.\n\n", MAX_DIMENSION);
 			}
 		}
 		else
@@ -152,7 +165,7 @@ void buildWeightMatrixFromInput()
 				}
 				if (*pLine == 'x' || *pLine == 'X')
 				{
-					setWeight(row, col++, -1);
+					setWeight(row, col++, INVALID_VALUE);
 					++pLine;
 					continue;
 				}
@@ -166,7 +179,7 @@ void buildWeightMatrixFromInput()
 					int32_t weight = atoi(pLine);
 					if (weight == INT32_MAX)
 					{
-						printf_s("Invalid input format, please try again.\n\n");
+						printf_s("Invalid input format/number, please try again.\n\n");
 						bValid = false;
 						break;
 					}
@@ -225,9 +238,78 @@ void outputWeightMatrix()
 	printf("\n\n");
 }
 
-void getMinWeightPath(uint32_t start)
+void getMinWeightPath(uint32_t start, uint32_t dimension)
 {
-	assert(start < getDimension());
+	assert(start < dimension && gVisited && gWeights);
+
+	for (uint32_t i = 0u; i < dimension; ++i)
+	{
+		gWeights[i] = getWeight(start, i);
+	}
+	gVisited[start] = true;
+
+	uint32_t counter = 1u;
+	uint32_t next = 0u;
+	while (counter < dimension - 1u)
+	{
+		int32_t minWeight = INT32_MAX;
+		for (uint32_t i = 0u; i < dimension; ++i)
+		{
+			if (!gVisited[i] && gWeights[i] != INVALID_VALUE && gWeights[i] < minWeight)
+			{
+				minWeight = gWeights[i];
+				next = i;
+			}
+		}
+
+		gVisited[next] = true;
+
+		for (uint32_t i = 0u; i < dimension; ++i)
+		{
+			if (!gVisited[i])
+			{
+				int32_t nextWeight = getWeight(next, i);
+				if (nextWeight != -1 && (minWeight + nextWeight < gWeights[i]))
+				{
+					gWeights[i] = minWeight + nextWeight;
+				}
+			}
+		}
+
+		++counter;
+	}
+}
+
+void calculateMinWeightPath(uint32_t start)
+{
+	uint32_t dimension = getDimension();
+	if (1u == dimension)
+	{
+		printf_s("The message broadcast to the entire empire takes no time.\n");
+		return;
+	}
+
+	getMinWeightPath(start, dimension);
+
+	int32_t maxWeight = INVALID_VALUE;
+	for (uint32_t i = 0u; i < dimension; ++i)
+	{
+		if (i == start)
+		{
+			continue;
+		}
+
+		if (INVALID_VALUE == gWeights[i])
+		{
+			printf_s("There is no road from city %u to city %u, the message can't broadcast to the entire empire.\n", start + 1u, i + 1u);
+			break;
+		}
+
+		maxWeight = max(gWeights[i], maxWeight);
+	}
+
+	assert(maxWeight != INVALID_VALUE);
+	printf_s("The message broadcast to the entire empire takes %d time.\n", maxWeight);
 }
 
 int32_t main()
@@ -240,7 +322,7 @@ int32_t main()
 	outputWeightMatrix();
 #endif
 
-	getMinWeightPath(0u);
+	calculateMinWeightPath(0u);
 
 	finalize();
 
