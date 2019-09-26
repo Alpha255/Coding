@@ -38,3 +38,29 @@ class D3D11UnorderedAccessView : public D3DObject<ID3D11UnorderedAccessView>
 public:
 	void Create(D3D11Resource &resource, uint32_t format, uint32_t dimension, uint32_t firstElem, uint32_t numElems, uint32_t flags);
 };
+
+class renderSurface
+{
+public:
+protected:
+	enum eType
+	{
+		eNone,
+		eRenderTargetView,
+		eShaderResourceView,
+		eUnorderedAccessView,
+		eDepthStencilView
+	};
+
+	union uResource
+	{
+		ID3D11RenderTargetView *RenderTargetView = nullptr;
+		ID3D11ShaderResourceView *ShaderResourceView;
+		ID3D11UnorderedAccessView *UnorderedAccessView;
+		ID3D11DepthStencilView *DepthStencilView;
+	};
+private:
+	eType m_Type = eNone;
+	uResource m_Resource;
+	D3DObject<ID3D11View> m_View;
+};

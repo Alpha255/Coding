@@ -7,7 +7,7 @@
 
 	///s_This->HandleInput(msg, wParam, lParam);
 
-	return ::DefWindowProcW(hWnd, msg, wParam, lParam);
+	return ::DefWindowProcA(hWnd, msg, wParam, lParam);
 }
 
 void application::makeWindow(const std::string &title, uint32_t width, uint32_t height, uint32_t extraWindowStyle)
@@ -18,7 +18,7 @@ void application::makeWindow(const std::string &title, uint32_t width, uint32_t 
 	std::wstring wTitle(title.begin(), title.end());
 	if (wTitle.length() == 0U)
 	{
-		wTitle = L"Application_NoName";
+		wTitle = L"applicationNoName";
 	}
 
 	::WNDCLASSEX wndClassEx = {};

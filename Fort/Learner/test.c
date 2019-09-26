@@ -6,12 +6,14 @@
 #include <ctype.h>
 #include <stdbool.h>
 
+/// Compiled with VS2017
+
 #define MAX_DIMENSION 100
 #define INVALID_VALUE -1
 
-int32_t *gWeightMatrix = NULL;
-int32_t *gWeights = NULL;
-bool *gVisited = NULL;
+int32_t *gWeightMatrix = NULL;  /// Store adjacent matrix, use array to store the adjacent matrix
+int32_t *gWeights = NULL;       /// Store the weight from the capital to other city
+bool *gVisited = NULL;          /// Store whether the city has been visited
 
 uint32_t getDimension()
 {
@@ -24,7 +26,7 @@ uint32_t getDimension()
 
 int32_t getWeight(uint32_t row, uint32_t col)
 {
-	assert(gWeightMatrix && row < getDimension() && col < getDimension());
+	assert(row < getDimension() && col < getDimension());
 
 	if (row == col)
 	{
@@ -43,7 +45,7 @@ int32_t getWeight(uint32_t row, uint32_t col)
 
 void setWeight(uint32_t row, uint32_t col, int32_t weight)
 {
-	assert(gWeightMatrix && row < getDimension() && col < getDimension());
+	assert(row < getDimension() && col < getDimension());
 	gWeightMatrix[((row * (row - 1u)) >> 1u) + col + 1u] = weight;
 }
 
@@ -240,6 +242,7 @@ void outputWeightMatrix()
 
 void getMinWeightPath(uint32_t start, uint32_t dimension)
 {
+	/// Dijkstra O(n^2)
 	assert(start < dimension && gVisited && gWeights);
 
 	for (uint32_t i = 0u; i < dimension; ++i)
@@ -282,27 +285,20 @@ void getMinWeightPath(uint32_t start, uint32_t dimension)
 
 void calculateMinWeightPath(uint32_t start)
 {
+	/// So we send out (n-1) messengers from the capital to the rest of cities one time, 
+	/// and let them make their every efforts to send the message to the target city as soon as possible,
+	/// if anyone of them can't arrive his target cify, this mission is fail, and if they all succeed in the job, 
+	/// the longest time of them will be the answer.
 	uint32_t dimension = getDimension();
-	if (1u == dimension)
-	{
-		printf_s("The message broadcast to the entire empire takes no time.\n");
-		return;
-	}
-
 	getMinWeightPath(start, dimension);
 
 	int32_t maxWeight = INVALID_VALUE;
 	for (uint32_t i = 0u; i < dimension; ++i)
 	{
-		if (i == start)
-		{
-			continue;
-		}
-
 		if (INVALID_VALUE == gWeights[i])
 		{
 			printf_s("There is no road from city %u to city %u, the message can't broadcast to the entire empire.\n", start + 1u, i + 1u);
-			break;
+			return;
 		}
 
 		maxWeight = max(gWeights[i], maxWeight);

@@ -6,9 +6,24 @@ IApplication * IApplication::s_This = nullptr;
 
 ::LRESULT IApplication::MessageProcFunc(::HWND hWnd, uint32_t msg, ::WPARAM wParam, ::LPARAM lParam)
 {
-	s_This->HandleWindowMessage(msg, wParam, lParam);
+	if (msg == WM_CREATE)
+	{
+		::CREATESTRUCT *pCS = reinterpret_cast<CREATESTRUCT*>(lParam);
+		::LPVOID pApp = pCS->lpCreateParams;
+		if (::SetWindowLongPtrW(hWnd, 0, reinterpret_cast<LONG_PTR>(pApp)) == 0)
+		{
+			uint32_t err = ::GetLastError();
+			printf("Erro");
+		}
+	}
 
-	s_This->HandleInput(msg, wParam, lParam);
+	IApplication* pApp = reinterpret_cast<IApplication*>(::GetWindowLongPtrW(hWnd, 0));
+	if (pApp)
+	{
+		pApp->HandleWindowMessage(msg, wParam, lParam);
+
+		pApp->HandleInput(msg, wParam, lParam);
+	}
 
 	return ::DefWindowProcW(hWnd, msg, wParam, lParam);
 }
@@ -26,7 +41,7 @@ void IApplication::MakeWindow(const std::string &title, uint32_t width, uint32_t
 
 	::WNDCLASSEX wndClassEx = {};
 	memset(&wndClassEx, 0, sizeof(::WNDCLASSEX));
-	wndClassEx.cbClsExtra = 0;
+	wndClassEx.cbClsExtra = sizeof(void *);
 	wndClassEx.cbSize = sizeof(::WNDCLASSEX);
 	wndClassEx.hbrBackground = (::HBRUSH)GetStockObject(BLACK_BRUSH);
 	wndClassEx.hCursor = ::LoadCursor(0, IDC_ARROW);
@@ -54,7 +69,7 @@ void IApplication::MakeWindow(const std::string &title, uint32_t width, uint32_t
 		0,
 		0,
 		hInst,
-		nullptr);
+		static_cast<LPVOID>(this));
 	assert(m_hWnd);
 
 	m_WindowSize.first = width;
