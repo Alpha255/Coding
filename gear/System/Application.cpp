@@ -3,44 +3,48 @@
 
 ::LRESULT application::messageProc(::HWND hWnd, uint32_t msg, ::WPARAM wParam, ::LPARAM lParam)
 {
-	///s_This->HandleWindowMessage(msg, wParam, lParam);
+	if (msg == WM_CREATE)
+	{
+		::CREATESTRUCT *pCreateStruct = reinterpret_cast<::CREATESTRUCT *>(lParam);
+		verifyWin(::SetWindowLongPtrW(hWnd, 0, reinterpret_cast<LONG_PTR>(pCreateStruct->lpCreateParams)) != 0);
+	}
 
-	///s_This->HandleInput(msg, wParam, lParam);
+	application *pApp = reinterpret_cast<application *>(::GetWindowLongPtrW(hWnd, 0));
+	if (pApp)
+	{
+		pApp->handleMessage(msg, wParam, lParam);
+	}
 
 	return ::DefWindowProcA(hWnd, msg, wParam, lParam);
 }
 
 void application::makeWindow(const std::string &title, uint32_t width, uint32_t height, uint32_t extraWindowStyle)
 {
-	::HINSTANCE hInst = ::GetModuleHandle(nullptr);
-	assert(hInst);
+	::HINSTANCE hInstance = ::GetModuleHandleW(nullptr);
+	verifyWin(hInstance);
 
-	std::wstring wTitle(title.begin(), title.end());
-	if (wTitle.length() == 0U)
+	std::wstring wTitle(title.cbegin(), title.cend());
+	::WNDCLASSEXW wndClassEx
 	{
-		wTitle = L"applicationNoName";
-	}
+		sizeof(::WNDCLASSEX),
+		CS_HREDRAW | CS_VREDRAW,
+		messageProc,
+		0,
+		sizeof(void *),
+		hInstance,
+		::LoadIconW(hInstance, MAKEINTRESOURCEW(m_IconID)),
+		::LoadCursorW(0, IDC_ARROW),
+		(::HBRUSH)::GetStockObject(BLACK_BRUSH),
+		nullptr,
+		wTitle.c_str(),
+		::LoadIconW(hInstance, MAKEINTRESOURCEW(m_IconID))
+	};
+	verifyWin(::RegisterClassExW(&wndClassEx) != 0);
 
-	::WNDCLASSEX wndClassEx = {};
-	memset(&wndClassEx, 0, sizeof(::WNDCLASSEX));
-	wndClassEx.cbClsExtra = 0;
-	wndClassEx.cbSize = sizeof(::WNDCLASSEX);
-	wndClassEx.hbrBackground = (::HBRUSH)GetStockObject(BLACK_BRUSH);
-	wndClassEx.hCursor = ::LoadCursor(0, IDC_ARROW);
-	wndClassEx.hIcon = ::LoadIcon(hInst, MAKEINTRESOURCE(m_IconID));
-	wndClassEx.hIconSm = wndClassEx.hIcon;
-	wndClassEx.hInstance = hInst;
-	wndClassEx.lpfnWndProc = messageProc;
-	wndClassEx.lpszClassName = wTitle.c_str();
-	wndClassEx.lpszMenuName = nullptr;
-	wndClassEx.style = CS_HREDRAW | CS_VREDRAW;
-
-	verifyWin(::RegisterClassEx(&wndClassEx) != 0);
-
-	::RECT rect{ 0, 0, (long32_t)width, (long32_t)height };
+	::RECT rect{ 0l, 0l, (long32_t)width, (long32_t)height };
 	verifyWin(::AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, false) != 0);
 
-	m_hWnd = ::CreateWindow(
+	m_hWnd = ::CreateWindowW(
 		wTitle.c_str(),
 		wTitle.c_str(),
 		WS_OVERLAPPEDWINDOW ^ extraWindowStyle,
@@ -48,20 +52,18 @@ void application::makeWindow(const std::string &title, uint32_t width, uint32_t 
 		CW_USEDEFAULT,
 		rect.right - rect.left,
 		rect.bottom - rect.top,
-		0,
-		0,
-		hInst,
-		nullptr);
-	assert(m_hWnd);
+		nullptr,
+		nullptr,
+		hInstance,
+		static_cast<void *>(this));
+	verifyWin(m_hWnd);
 
-	m_WindowSize.x = (float32_t)width;
-	m_WindowSize.y = (float32_t)height;
-
+	m_WindowSize = vec2((float32_t)width, (float32_t)height);
 	::ShowWindow(m_hWnd, SW_SHOWDEFAULT);
 	verifyWin(::UpdateWindow(m_hWnd) != 0);
 }
 
-void application::handleMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM /*lParam*/)
+void application::handleMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -104,6 +106,8 @@ void application::handleMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM /*lParam
 		}
 		break;
 	}
+
+	handleInput(msg, wParam, lParam);
 }
 
 void application::updateWindow()
@@ -153,16 +157,16 @@ void application::updateFPS()
 
 void application::loop()
 {
-	::MSG msg = { 0 };
+	::MSG msg = {};
 
 	m_Timer.reset();
 
 	while (msg.message != WM_QUIT)
 	{
-		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
+		if (PeekMessageW(&msg, nullptr, 0u, 0u, PM_REMOVE))
 		{
 			::TranslateMessage(&msg);
-			::DispatchMessage(&msg);
+			::DispatchMessageW(&msg);
 		}
 		else
 		{
@@ -178,7 +182,7 @@ void application::loop()
 			}
 			else
 			{
-				::Sleep(100U);
+				::Sleep(100u);
 			}
 		}
 	}

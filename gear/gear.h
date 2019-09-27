@@ -9,6 +9,8 @@
 #include "gear/Math/AABB.h"
 #include "gear/Math/OBB.h"
 #include "gear/Math/Frustum.h"
+#include "gear/Math/Rect.h"
+#include "gear/Math/Plane.h"
 
 using namespace gear;
 using namespace gear::math;

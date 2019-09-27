@@ -65,7 +65,7 @@ public:
 		z = vz;
 	}
 
-	inline float32_t dot(const vec3 &right)
+	inline float32_t dot(const vec3 &right) const
 	{
 		return x * right.x + y * right.y + z * right.z;
 	}

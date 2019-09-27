@@ -48,12 +48,12 @@ namespaceStart(math)
 	DirectX::XMVECTOR vResult = DirectX::XMVectorScale(temp, Factor);         \
 	DirectX::XMStoreFloat##Dimension(VecResult, vResult);                     \
 }
-#define vecDot(Dimension, VecLeft, VecRight, VecResult)                       \
+#define vecDot(Dimension, VecLeft, VecRight, Result)                          \
 {                                                                             \
 	DirectX::XMVECTOR v0 = DirectX::XMLoadFloat##Dimension(VecLeft);          \
 	DirectX::XMVECTOR v1 = DirectX::XMLoadFloat##Dimension(VecRight);         \
 	DirectX::XMVECTOR vResult = DirectX::XMVector##Dimension##Dot(v0, v1);    \
-	DirectX::XMStoreFloat##Dimension(VecResult, vResult);                     \
+	Result = DirectX::XMVectorGetX(vResult);                                  \
 }
 #define vecLength(Dimension, Vec, Result)                                     \
 {                                                                             \
@@ -103,12 +103,12 @@ namespaceStart(math)
 	DirectX::XMVECTOR vResult = DirectX::XMVectorScale(temp, Factor);         \
 	DirectX::XMStoreFloat##Dimension##A(VecResult, vResult);                  \
 }
-#define vecDotA(Dimension, VecLeft, VecRight, VecResult)                      \
+#define vecDotA(Dimension, VecLeft, VecRight, Result)                         \
 {                                                                             \
 	DirectX::XMVECTOR v0 = DirectX::XMLoadFloat##Dimension##A(VecLeft);       \
 	DirectX::XMVECTOR v1 = DirectX::XMLoadFloat##Dimension##A(VecRight);      \
 	DirectX::XMVECTOR vResult = DirectX::XMVector##Dimension##Dot(v0, v1);    \
-	DirectX::XMStoreFloat##Dimension##A(VecResult, vResult);                  \
+	Result = DirectX::XMVectorGetX(vResult);                                  \
 }
 #define vecLengthA(Dimension, Vec, Result)                                    \
 {                                                                             \
@@ -138,9 +138,11 @@ inline vec##Dimension cross(const vec##Dimension &right)                      \
 {                                                                             \
 	vecCross(Dimension, this, &right, this)                                   \
 }                                                                             \
-inline vec##Dimension dot(const vec##Dimension &right)                        \
+inline float32_t dot(const vec##Dimension &right) const                       \
 {                                                                             \
-	vecDot(Dimension, this, &right, this)                                     \
+	float32_t result = 0.0f;                                                  \
+	vecDot(Dimension, this, &right, result)                                   \
+	return result;                                                            \
 }                                                                             \
 inline void normalize()                                                       \
 {                                                                             \
@@ -180,9 +182,11 @@ inline vec##Dimension cross(const vec##Dimension &right)                      \
 {                                                                             \
 	vecCrossA(Dimension, this, &right, this)                                  \
 }                                                                             \
-inline vec##Dimension dot(const vec##Dimension &right)                        \
+inline float32_t dot(const vec##Dimension &right) const                       \
 {                                                                             \
-	vecDotA(Dimension, this, &right, this)                                    \
+	float32_t result = 0.0f;                                                  \
+	vecDotA(Dimension, this, &right, result)                                  \
+	return result;                                                            \
 }                                                                             \
 inline void normalize()                                                       \
 {                                                                             \
@@ -250,10 +254,10 @@ inline vec##Dimension cross(const vec##Dimension &left, const vec##Dimension &ri
 	vecCross(Dimension, &left, &right, &result)                                          \
 	return result;                                                                       \
 }                                                                                        \
-inline vec##Dimension dot(const vec##Dimension &left, const vec##Dimension &right)       \
+inline float32_t dot(const vec##Dimension &left, const vec##Dimension &right)            \
 {                                                                                        \
-	vec##Dimension result;                                                               \
-	vecDot(Dimension, &left, &right, &result)                                            \
+	float32_t result;                                                                    \
+	vecDot(Dimension, &left, &right, result)                                             \
 	return result;                                                                       \
 }                                                                                        \
 inline vec##Dimension normalize(const vec##Dimension &targetVec)                         \
@@ -343,10 +347,10 @@ inline vec##Dimension cross(const vec##Dimension &left, const vec##Dimension &ri
 	vecCrossA(Dimension, &left, &right, &result)                                         \
 	return result;                                                                       \
 }                                                                                        \
-inline vec##Dimension dot(const vec##Dimension &left, const vec##Dimension &right)       \
+inline float32_t dot(const vec##Dimension &left, const vec##Dimension &right)            \
 {                                                                                        \
-	vec##Dimension result;                                                               \
-	vecDotA(Dimension, &left, &right, &result)                                           \
+	float32_t result = 0.0f;                                                             \
+	vecDotA(Dimension, &left, &right, result)                                            \
 	return result;                                                                       \
 }                                                                                        \
 inline vec##Dimension normalize(const vec##Dimension &targetVec)                         \

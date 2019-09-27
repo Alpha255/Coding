@@ -6,7 +6,6 @@ class application
 {
 public:
 	application() = default;
-
 	virtual ~application() = default;
 
 	virtual void initialize(const std::string &title, uint32_t width, uint32_t height, bool bFullScreen, uint32_t extraWindowStyle);
@@ -32,7 +31,7 @@ protected:
 
 	::HWND m_hWnd = nullptr;
 
-	vec2 m_WindowSize = { 0U, 0U };
+	vec2 m_WindowSize = { 0.0f, 0.0f };
 
 	float32_t m_FPS = 0.0f;
 	uint16_t m_IconID = UINT16_MAX;

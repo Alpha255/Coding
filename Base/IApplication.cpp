@@ -41,7 +41,8 @@ void IApplication::MakeWindow(const std::string &title, uint32_t width, uint32_t
 
 	::WNDCLASSEX wndClassEx = {};
 	memset(&wndClassEx, 0, sizeof(::WNDCLASSEX));
-	wndClassEx.cbClsExtra = sizeof(void *);
+	wndClassEx.cbClsExtra = 0;
+	wndClassEx.cbWndExtra = sizeof(void *);
 	wndClassEx.cbSize = sizeof(::WNDCLASSEX);
 	wndClassEx.hbrBackground = (::HBRUSH)GetStockObject(BLACK_BRUSH);
 	wndClassEx.hCursor = ::LoadCursor(0, IDC_ARROW);
@@ -53,7 +54,7 @@ void IApplication::MakeWindow(const std::string &title, uint32_t width, uint32_t
 	wndClassEx.lpszMenuName = nullptr;
 	wndClassEx.style = CS_HREDRAW | CS_VREDRAW;
 
-	Verify(::RegisterClassEx(&wndClassEx) != 0);
+	Verify(::RegisterClassExW(&wndClassEx) != 0);
 
 	::RECT rect{ 0, 0, (long)width, (long)height };
 	Verify(::AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, false) != 0);

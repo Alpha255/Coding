@@ -72,7 +72,7 @@ public:
 		w = 0.0f;
 	}
 
-	inline float32_t dot(const vec4 &right)
+	inline float32_t dot(const vec4 &right) const
 	{
 		return x * right.x + y * right.y + z * right.z + w * right.w;
 	}
@@ -212,6 +212,8 @@ inline vec4 negate(const vec4 &targetVec)
 	return result;
 }
 #endif
+
+#include "Vector.hpp"
 
 namespaceEnd(math)
 namespaceEnd(gear)

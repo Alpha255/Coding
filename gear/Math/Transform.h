@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Functions.h"
 #include "Matrix.h"
 #include "Euler.h"
 #include "Quaternions.h"

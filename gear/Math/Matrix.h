@@ -163,6 +163,15 @@ public:
 		return result;
 	}
 
+	inline static matrix setRotateRollPitchYaw(float32_t roll, float32_t pitch, float32_t yaw)
+	{
+		matrix result;
+		DirectX::XMMATRIX vResult = DirectX::XMMatrixRotationRollPitchYaw(roll, pitch, yaw);
+		DirectX::XMStoreFloat4x4(&result, vResult);
+
+		return result;
+	}
+
 	inline static matrix transpose(const matrix &targetMatrix)
 	{
 		matrix result;
@@ -281,10 +290,85 @@ public:
 
 	inline void inverse()
 	{
+		// inverse() invert matrices using determinants;
+		// gaussJordanInverse() use the Gauss-Jordan method.
+		// inverse() are significantly faster than gaussJordanInverse(), 
+		// but the results may be slightly less accurate.
+		if (m[0][3] != 0.0f || m[1][3] != 0.0f || m[2][3] != 0.0f || m[3][3] != 1.0f)
+		{
+			gaussJordanInverse();
+			return;
+		}
+
+		matrix s(
+			m[1][1] * m[2][2] - m[2][1] * m[1][2],
+			m[2][1] * m[0][2] - m[0][1] * m[2][2],
+			m[0][1] * m[1][2] - m[1][1] * m[0][2],
+			0.0f,
+
+			m[2][0] * m[1][2] - m[1][0] * m[2][2],
+			m[0][0] * m[2][2] - m[2][0] * m[0][2],
+			m[1][0] * m[0][2] - m[0][0] * m[1][2],
+			0.0f,
+
+			m[1][0] * m[2][1] - m[2][0] * m[1][1],
+			m[2][0] * m[0][1] - m[0][0] * m[2][1],
+			m[0][0] * m[1][1] - m[1][0] * m[0][1],
+			0.0f,
+
+			0.0f,
+			0.0f,
+			0.0f,
+			1.0f);
+
+		float32_t r = m[0][0] * s.m[0][0] + m[0][1] * s.m[1][0] + m[0][2] * s.m[2][0];
+		if (std::abs(r) >= 1.0f)
+		{
+			for (uint32_t i = 0u; i < 3u; ++i)
+			{
+				for (uint32_t j = 0u; j < 3u; ++j)
+				{
+					s.m[i][j] /= r;
+				}
+			}
+		}
+		else
+		{
+			float32_t mr = std::abs(r) / FLT_MIN;
+			for (uint32_t i = 0u; i < 3u; ++i)
+			{
+				for (uint32_t j = 0u; j < 3u; ++j)
+				{
+					if (mr > std::abs(s.m[i][j]))
+					{
+						s.m[i][j] /= r;
+					}
+					else
+					{
+						/// singular matrix
+						assert(0);
+					}
+				}
+			}
+		}
+
+		s.m[3][0] = -m[3][0] * s.m[0][0] - m[3][1] * s.m[1][0] - m[3][2] * s.m[2][0];
+		s.m[3][1] = -m[3][0] * s.m[0][1] - m[3][1] * s.m[1][1] - m[3][2] * s.m[2][1];
+		s.m[3][2] = -m[3][0] * s.m[0][2] - m[3][1] * s.m[1][2] - m[3][2] * s.m[2][2];
+
+		*this = s;
 	}
 
 	inline void inverseTranspose()
 	{
+		matrix copy(*this);
+		copy._41 = 0.0f;
+		copy._42 = 0.0f;
+		copy._43 = 0.0f;
+		copy._44 = 1.0f;
+
+		inverse();
+		transpose();
 	}
 
 	inline static matrix setTranslate(float32_t x, float32_t y, float32_t z)
@@ -401,6 +485,11 @@ public:
 		result._41 = 0.0f;      result._42 = 0.0f;     result._43 = 0.0f; result._44 = 1.0f;
 
 		return result;
+	}
+
+	inline static matrix setRotateRollPitchYaw(float32_t, float32_t, float32_t)
+	{
+
 	}
 
 	inline void operator*=(const matrix &right)
@@ -525,6 +614,40 @@ public:
 
 	inline static matrix orthographicOffCenterLH(float32_t left, float32_t right, float32_t bottom, float32_t top, float32_t nearPlane, float32_t farPlane)
 	{
+		/// Model Space -> World Space -> Camera Space -> Projection Space -> Clipping Space -> Homogeneous Screen Space
+		/*
+		/// For D3D volume box is min(-1,-1,0), max(1,1,1)
+		/// For GL volume box is min(-1,-1,-1), max(1,1,1)
+		/// Center the Viewing Volume at the Origin
+		1. center
+		center(x, y, z) center.x = (1 - 0.5) * left + 0.5 * right
+		center((left + right) / 2, (up + bottom) / 2, (far + near) / 2)
+							 |   1           0          0       0  |
+		centerAboutOrigion = |   0           1          0       0  |
+							 |   0           0          1       0  |
+							 |-center.x  -center.y  -center.z  1.0 |
+		2. scale the Viewing Volume to unit volume
+		width * factor = unitWidth
+		factor = unitWidth / width
+		scale(2 / (right - left), 2 / (up - bottom), 1 / (far - near))
+							 | scale.x       0          0       0  |
+		scaleViewingVolume = |   0         scale.y      0       0  |
+							 |   0           0       scale.z    0  |
+							 |   0           0          0      1.0 |
+		3. switch Coordinate Systems
+							  |   1           0          0       0  |
+		convertToLeftHanded = |   0           1          0       0  |
+							  |   0           0         -1       0  |
+							  |   0           0          0      1.0 |
+
+							   |   1           0          0       0  |
+		convertToRightHanded = |   0           1          0       0  |
+							   |   0           0          1       0  |
+							   |   0           0          0      1.0 |
+
+		final = centerAboutOrigion * scaleViewingVolume * convertToRightHanded
+		/// https://docs.microsoft.com/en-us/windows/win32/dxtecharts/the-direct3d-transformation-pipeline
+		*/
 		float32_t reciprocalWidth = 1.0f / (right - left);
 		float32_t reciprocalHeight = 1.0f / (top - bottom);
 		float32_t range = 1.0f / (farPlane - nearPlane);
@@ -560,6 +683,82 @@ public:
 	}
 #endif
 protected:
+#if !defined(UsingSSE)
+	void gaussJordanInverse()
+	{
+		/// Gauss-Jordan method
+		matrix copy(*this);
+		int32_t i, j, k;
+
+		/// Forward elimination
+		for (i = 0; i < 3; ++i)
+		{
+			int32_t pivot = i;
+			float32_t pivotSize = copy.m[i][i];
+
+			pivotSize = pivotSize < 0.0f ? -pivotSize : pivotSize;
+
+			for (j = i + 1; j < 4; ++j)
+			{
+				float32_t temp = copy.m[j][i];
+				temp = temp < 0.0f ? -temp : temp;
+
+				if (temp > pivotSize)
+				{
+					pivot = j;
+					pivotSize = temp;
+				}
+			}
+
+			/// singular matrix
+			assert(pivotSize != 0.0f);
+
+			if (pivot != i)
+			{
+				for (j = 0; j < 4; ++j)
+				{
+					std::swap(copy.m[i][j], copy.m[pivot][j]);
+					std::swap(m[i][j], m[pivot][j]);
+				}
+			}
+
+			for (j = i + 1; j < 4; ++j)
+			{
+				float32_t factor = copy.m[j][i] / copy.m[i][i];
+				for (k = 0; k < 4; ++k)
+				{
+					copy.m[j][k] -= factor * copy.m[i][k];
+					m[j][k] -= factor * m[i][k];
+				}
+			}
+		}
+
+		/// Backward substitution
+		for (i = 3; i >= 0; --i)
+		{
+			float32_t factor = copy.m[i][i];
+
+			/// singular matrix
+			assert(factor != 0.0f);
+
+			for (j = 0; j < 4; ++j)
+			{
+				copy.m[i][j] /= factor;
+				m[i][j] /= factor;
+			}
+
+			for (j = 0; j < i; ++j)
+			{
+				factor = copy.m[j][i];
+				for (k = 0; k < 4; ++k)
+				{
+					copy.m[j][k] -= factor * copy.m[i][k];
+					m[j][k] -= factor * m[i][k];
+				}
+			}
+		}
+	}
+#endif
 private:
 };
 
@@ -574,6 +773,11 @@ inline matrix operator*(const matrix &left, const matrix &right)
 	DirectX::XMStoreFloat4x4(&result, vResult);
 
 	return result;
+}
+
+inline vec4 operator*(const vec4 &left, const matrix &right)
+{
+
 }
 #else
 inline matrix operator*(const matrix &left, const matrix &right)

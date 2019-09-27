@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Vector.h"
 #include "Functions.h"
 
 namespaceStart(gear)
@@ -55,7 +54,7 @@ public:
 		x = y = value;
 	}
 
-	inline float32_t dot(const vec2 &right)
+	inline float32_t dot(const vec2 &right) const
 	{
 		return x * right.x + y * right.y;
 	}
