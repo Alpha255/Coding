@@ -195,7 +195,7 @@ void ImGUI::RenderEnd()
 
 bool ImGUI::Update()
 {
-	REvent Marker;
+	///REvent Marker;
 
 	ImDrawData *pDrawData = ImGui::GetDrawData();
 	if (!pDrawData || pDrawData->CmdListsCount == 0U)
@@ -224,7 +224,7 @@ bool ImGUI::Update()
 		(R + L) / (L - R), (T + B) / (B - T), 0.5f, 1.0f
 	);
 #endif
-	Marker.Begin("ImGui");
+	///Marker.Begin("ImGui");
 
 	m_Resource.UniformBufferVS.Update(&wvp, sizeof(Matrix));
 
@@ -284,7 +284,7 @@ bool ImGUI::Update()
 	REngine::Instance().SetBlendState(RStaticState::NoneBlendState);
 	REngine::Instance().SetDepthStencilState(RStaticState::NoneDepthStencilState, 0U);
 
-	Marker.End();
+	///Marker.End();
 
 	return true;
 }

@@ -70,11 +70,19 @@ std::string format(const char *pArgStr, ...)
 
 void log(const char *pMessage, ...) 
 {
-#define formatString(message, ...) format(message, __VA_ARGS__)
-	std::string message = formatString(pMessage);
-	::OutputDebugStringA(message.c_str());
+	std::unique_ptr<char8_t> message = nullptr;
+	if (pMessage)
+	{
+		va_list list = nullptr;
+		va_start(list, pMessage);
+		size_t size = (size_t)_vscprintf(pMessage, list) + 1;
+		message = std::unique_ptr<char8_t>(new char8_t[size]());
+		_vsnprintf_s(message.get(), size, size, pMessage, list);
+		va_end(list);
+	}
+
+	::OutputDebugStringA(message.get());
 	::OutputDebugStringA("\n");
-#undef formatString
 }
 
 namespaceEnd(gear)

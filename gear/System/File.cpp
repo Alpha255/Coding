@@ -100,6 +100,41 @@ void buildFileList(
 	}
 }
 
+std::string tryToFindFile(
+	const std::string &targetPath,
+	const std::string &fileName)
+{
+	std::string rootDir = targetPath + "\\*.*";
+
+	::WIN32_FIND_DATAA findData = {};
+	::HANDLE fileHandle = ::FindFirstFileA(rootDir.c_str(), &findData);
+
+	while (true)
+	{
+		if (findData.cFileName[0] != '.')
+		{
+			if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+			{
+				tryToFindFile(targetPath + "\\" + findData.cFileName, fileName);
+			}
+			else
+			{
+				if (stricmp(findData.cFileName, fileName.c_str()) == 0)
+				{
+					return targetPath + "\\" + findData.cFileName;
+				}
+			}
+		}
+
+		if (!::FindNextFileA(fileHandle, &findData))
+		{
+			break;
+		}
+	}
+
+	return std::string();
+}
+
 void buildFolderTree(file::folderTree &outTree, const std::string &targetPath, bool bToLower, bool bFullPath)
 {
 	std::string rootDir = targetPath + "\\*.*";
@@ -247,6 +282,16 @@ std::vector<std::string> file::getFileList(const std::string &targetPath, const 
 	buildFileList(result, targetPath, filters, bToLower);
 
 	return result;
+}
+
+std::string file::findFile(const std::string &targetPath, const std::string &fileName)
+{
+	if (!isValidDirectory(targetPath))
+	{
+		return std::string();
+	}
+
+	return tryToFindFile(targetPath, fileName);
 }
 
 file::folderTree file::getFolderTree(const std::string &targetPath, bool bToLower, bool bFullPath)

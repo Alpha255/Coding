@@ -8,24 +8,41 @@ public:
 	application() = default;
 	virtual ~application() = default;
 
-	virtual void initialize(const std::string &title, uint32_t width, uint32_t height, bool bFullScreen, uint32_t extraWindowStyle);
+	void initialize(const std::string &title, uint32_t width, uint32_t height, bool bFullScreen, uint32_t extraWindowStyle);
+
+	virtual void postInitialize() {}
 
 	virtual void loop();
 
-	virtual void finalize() {};
+	virtual void finalize() {}
 
-	virtual void resizeWindow(uint32_t, uint32_t) {}
+	virtual void resizeWindow() {}
 
 	virtual void updateWindow();
 
-	virtual void renterToWindow() = 0;
+	virtual void renterToWindow() {}
 
 	virtual void handleMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM lParam);
 
-	virtual void handleInput(uint32_t, ::WPARAM, ::LPARAM) {};
+	virtual void handleInput(uint32_t, ::WPARAM, ::LPARAM) {}
+
+	inline std::shared_ptr<assetFile> getAsset(const std::string &assetName)
+	{
+		return m_AssetBucket.getAsset(assetName);
+	}
 
 	static ::LRESULT messageProc(::HWND hWnd, uint32_t msg, ::WPARAM wParam, ::LPARAM lParam);
 protected:
+	class assetBucket
+	{
+	public:
+		void initialize();
+		std::shared_ptr<assetFile> getAsset(const std::string &assetName);
+	private:
+		std::string m_AssetsPath;
+		std::unordered_map<std::string, std::shared_ptr<assetFile>> m_Assets;
+	};
+
 	void makeWindow(const std::string &title, uint32_t width, uint32_t height, uint32_t extraWindowStyle);
 	void updateFPS();
 
@@ -43,4 +60,5 @@ private:
 	bool8_t m_bNeedResize = false;
 	uint32_t m_FrameCount = 0U;
 	float32_t m_LastUpdateTime = 0.0f;
+	assetBucket m_AssetBucket;
 };

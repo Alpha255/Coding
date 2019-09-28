@@ -4,7 +4,7 @@
 
 namespaceStart(gear)
 
-class fileIO
+class fileIO : public file
 {
 public:
 	enum eRead
@@ -16,7 +16,7 @@ public:
 	fileIO() = default;
 	
 	fileIO(const std::string &filePath)
-		: m_File(std::make_unique<file>(filePath))
+		: file(filePath)
 	{
 	}
 
@@ -28,7 +28,6 @@ public:
 		return m_Data;
 	}
 protected:
-	std::unique_ptr<file> m_File;
 private:
 	std::shared_ptr<byte> m_Data;
 };

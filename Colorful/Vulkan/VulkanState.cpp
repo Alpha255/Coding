@@ -129,6 +129,8 @@ void VulkanBlendState::Create(
 VulkanSamplerState VulkanStaticState::LinearSampler;
 VulkanDepthStencilState VulkanStaticState::DisableDepthStencil;
 VulkanRasterizerState VulkanStaticState::SolidNoneCulling;
+VulkanRasterizerState VulkanStaticState::WireframeNoneCulling;
+VulkanRasterizerState VulkanStaticState::Wireframe;
 VulkanRasterizerState VulkanStaticState::Solid;
 VulkanBlendState VulkanStaticState::NoneBlendState;
 VulkanDepthStencilState VulkanStaticState::NoneDepthStencilState;

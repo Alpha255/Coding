@@ -18,6 +18,15 @@ public:
 	{
 	}
 
+	rect(const ::RECT &winRect)
+		: vec4(
+		(float32_t)winRect.left, 
+		(float32_t)winRect.top, 
+		(float32_t)winRect.right, 
+		(float32_t)winRect.bottom)
+	{
+	}
+
 	inline float32_t width()
 	{
 		return z - x;
@@ -32,6 +41,8 @@ public:
 	{
 		return ::RECT{ (long32_t)x, (long32_t)y, (long32_t)z, (long32_t)w };
 	}
+
+	bool8_t isCollide(const rect &other);
 protected:
 private:
 };

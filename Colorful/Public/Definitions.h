@@ -2,8 +2,8 @@
 
 #include "Base/Resource.h"
 
-#define UsingD3D11
-///#define UsingVulkan
+///#define UsingD3D11
+#define UsingVulkan
 
 #if defined(UsingD3D11)
 	#include "D3D11/D3D11Engine.h"
@@ -30,6 +30,7 @@
 	#include "Vulkan/VulkanEngine.h"
 	#define IconID IconVulkan 
 	typedef VulkanEngine REngine;
+	typedef VulkanContext RContext;
 	typedef VulkanVertexShader RVertexShader;
 	typedef VulkanPixelShader RPixelShader;
 	typedef VulkanBuffer RBuffer;

@@ -6,6 +6,16 @@
 class VulkanInputLayout
 {
 public:
+	inline bool IsValid() const
+	{
+		return m_bValid;
+	}
+
+	inline uint32_t GetVertexStride() const
+	{
+		return 0ull;
+	}
+
 	void Create(const void *, const std::vector<Geometry::VertexLayout> & layouts);
 
 	inline const VkPipelineVertexInputStateCreateInfo &Get() const

@@ -53,6 +53,11 @@ private:
 class VulkanContext
 {
 public:
+	inline bool IsValid()
+	{
+		return true;
+	}
+
 	inline void Initialize()
 	{
 		m_Cache.Create();

@@ -308,6 +308,7 @@ void calculateMinWeightPath(uint32_t start)
 	printf_s("The message broadcast to the entire empire takes %d time.\n", maxWeight);
 }
 
+#if 0
 int32_t main()
 {
 	initialize(getDimensionFromInput());
@@ -324,3 +325,4 @@ int32_t main()
 
 	return 0;
 }
+#endif

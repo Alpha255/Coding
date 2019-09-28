@@ -42,6 +42,7 @@ function linkLibsCommon()
 		"AssetTool",
 		"ImGui",
 		"DirectXTK",
+		"gear",
 		--"assimp"
 	}
 end
@@ -259,6 +260,24 @@ workspace "Miscellaneous"
 				[""] = { "./Demo/MultithreadedRendering/**" },
 			}
 			files { "./Demo/MultithreadedRendering/**" }
+			resourceInclude()
+			includeCommon()
+			linkLibsCommon()
+
+		project "vkTest"
+			kind "WindowedApp"
+			language "C++"
+			location "./Projects"
+			vpaths {
+				["Resource"] = { 
+					"./Assets/Icon/Resource.rc", 
+					"./Assets/Icon/directx.ico", 
+					"./Assets/Icon/vulkan.ico",
+					"./Base/Resource.h"
+					},
+				[""] = { "./Demo/vkTest/**" },
+			}
+			files { "./Demo/vkTest/**" }
 			resourceInclude()
 			includeCommon()
 			linkLibsCommon()

@@ -51,7 +51,7 @@
 {                                                             \
 	if (!(condition))                                         \
 	{                                                         \
-		gear::log("gear: Error code = %d", ::GetLastError()); \
+		gear::log("gear: Error code = %u", ::GetLastError()); \
 		assert(0);                                            \
 	}                                                         \
 }

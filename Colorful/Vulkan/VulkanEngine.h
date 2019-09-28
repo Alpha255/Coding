@@ -107,6 +107,11 @@ public:
 		m_Context.DrawIndexed(indexCount, startIndex, offset, primitive);
 	}
 
+	inline VulkanContext &GetIMContext()
+	{
+		return m_Context;
+	}
+
 	inline void Resize(uint32_t width, uint32_t height)
 	{
 		m_Swapchain.Resize(width, height);

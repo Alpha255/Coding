@@ -106,6 +106,8 @@ struct VulkanStaticState
 	static VulkanSamplerState LinearSampler;
 	static VulkanDepthStencilState DisableDepthStencil;
 	static VulkanRasterizerState SolidNoneCulling;
+	static VulkanRasterizerState Wireframe;
+	static VulkanRasterizerState WireframeNoneCulling;
 	static VulkanRasterizerState Solid;
 	static VulkanBlendState NoneBlendState;
 	static VulkanDepthStencilState NoneDepthStencilState;

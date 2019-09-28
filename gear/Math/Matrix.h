@@ -5,7 +5,7 @@
 namespaceStart(gear)
 namespaceStart(math)
 
-class matrix : public DirectX::XMFLOAT4X4
+class matrix : public DirectX::XMFLOAT4X4A
 {
 public:
 	inline matrix()
@@ -18,7 +18,7 @@ public:
 		float32_t m10, float32_t m11, float32_t m12, float32_t m13,
 		float32_t m20, float32_t m21, float32_t m22, float32_t m23,
 		float32_t m30, float32_t m31, float32_t m32, float32_t m33)
-		: DirectX::XMFLOAT4X4(
+		: DirectX::XMFLOAT4X4A(
 			m00, m01, m02, m03,
 			m10, m11, m12, m13,
 			m20, m21, m22, m23,
@@ -44,21 +44,21 @@ public:
 	inline void identity()
 	{
 		DirectX::XMMATRIX iMatrix = DirectX::XMMatrixIdentity();
-		DirectX::XMStoreFloat4x4(this, iMatrix);
+		DirectX::XMStoreFloat4x4A(this, iMatrix);
 	}
 
 	inline void transpose()
 	{
 		DirectX::XMMATRIX temp = DirectX::XMLoadFloat4x4(this);
 		DirectX::XMMATRIX result = DirectX::XMMatrixTranspose(temp);
-		DirectX::XMStoreFloat4x4(this, result);
+		DirectX::XMStoreFloat4x4A(this, result);
 	}
 
 	inline void inverse()
 	{
 		DirectX::XMMATRIX temp = DirectX::XMLoadFloat4x4(this);
 		DirectX::XMMATRIX result = DirectX::XMMatrixInverse(nullptr, temp);
-		DirectX::XMStoreFloat4x4(this, result);
+		DirectX::XMStoreFloat4x4A(this, result);
 	}
 
 	inline void inverseTranspose()
@@ -74,7 +74,7 @@ public:
 		DirectX::XMMATRIX temp = DirectX::XMLoadFloat4x4(this);
 		DirectX::XMVECTOR det = DirectX::XMMatrixDeterminant(temp);
 		DirectX::XMMATRIX result = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(&det, temp));
-		DirectX::XMStoreFloat4x4(this, result);
+		DirectX::XMStoreFloat4x4A(this, result);
 	}
 
 	inline void operator*=(const matrix &right)
@@ -82,7 +82,7 @@ public:
 		DirectX::XMMATRIX vLeft = DirectX::XMLoadFloat4x4(this);
 		DirectX::XMMATRIX vRight = DirectX::XMLoadFloat4x4(&right);
 		DirectX::XMMATRIX vResult = DirectX::XMMatrixMultiply(vLeft, vRight);
-		DirectX::XMStoreFloat4x4(this, vResult);
+		DirectX::XMStoreFloat4x4A(this, vResult);
 	}
 
 	inline void operator+=(const matrix &right)
@@ -90,14 +90,14 @@ public:
 		DirectX::XMMATRIX vLeft = DirectX::XMLoadFloat4x4(this);
 		DirectX::XMMATRIX vRight = DirectX::XMLoadFloat4x4(&right);
 		DirectX::XMMATRIX vResult = DirectX::XMMatrixMultiply(vLeft, vRight);
-		DirectX::XMStoreFloat4x4(this, vResult);
+		DirectX::XMStoreFloat4x4A(this, vResult);
 	}
 
 	inline static matrix setTranslate(float32_t x, float32_t y, float32_t z)
 	{
 		matrix result;
 		DirectX::XMMATRIX vResult = DirectX::XMMatrixTranslation(x, y, z);
-		DirectX::XMStoreFloat4x4(&result, vResult);
+		DirectX::XMStoreFloat4x4A(&result, vResult);
 
 		return result;
 	}
@@ -111,7 +111,7 @@ public:
 	{
 		matrix result;
 		DirectX::XMMATRIX vResult = DirectX::XMMatrixScaling(x, y, z);
-		DirectX::XMStoreFloat4x4(&result, vResult);
+		DirectX::XMStoreFloat4x4A(&result, vResult);
 
 		return result;
 	}
@@ -126,7 +126,7 @@ public:
 		matrix result;
 		DirectX::XMVECTOR axis = DirectX::XMVectorSet(x, y, z, 0.0f);
 		DirectX::XMMATRIX vResult = DirectX::XMMatrixRotationAxis(axis, angle * DirectX::XM_PI / 180.0f);
-		DirectX::XMStoreFloat4x4(&result, vResult);
+		DirectX::XMStoreFloat4x4A(&result, vResult);
 
 		return result;
 	}
@@ -140,7 +140,7 @@ public:
 	{
 		matrix result;
 		DirectX::XMMATRIX vResult = DirectX::XMMatrixRotationX(angle * DirectX::XM_PI / 180.0f);
-		DirectX::XMStoreFloat4x4(&result, vResult);
+		DirectX::XMStoreFloat4x4A(&result, vResult);
 
 		return result;
 	}
@@ -149,7 +149,7 @@ public:
 	{
 		matrix result;
 		DirectX::XMMATRIX vResult = DirectX::XMMatrixRotationY(angle * DirectX::XM_PI / 180.0f);
-		DirectX::XMStoreFloat4x4(&result, vResult);
+		DirectX::XMStoreFloat4x4A(&result, vResult);
 
 		return result;
 	}
@@ -158,7 +158,7 @@ public:
 	{
 		matrix result;
 		DirectX::XMMATRIX vResult = DirectX::XMMatrixRotationZ(angle * DirectX::XM_PI / 180.0f);
-		DirectX::XMStoreFloat4x4(&result, vResult);
+		DirectX::XMStoreFloat4x4A(&result, vResult);
 
 		return result;
 	}
@@ -167,7 +167,7 @@ public:
 	{
 		matrix result;
 		DirectX::XMMATRIX vResult = DirectX::XMMatrixRotationRollPitchYaw(roll, pitch, yaw);
-		DirectX::XMStoreFloat4x4(&result, vResult);
+		DirectX::XMStoreFloat4x4A(&result, vResult);
 
 		return result;
 	}
@@ -178,7 +178,7 @@ public:
 
 		DirectX::XMMATRIX temp = DirectX::XMLoadFloat4x4(&targetMatrix);
 		DirectX::XMMATRIX vResult = DirectX::XMMatrixTranspose(temp);
-		DirectX::XMStoreFloat4x4(&result, vResult);
+		DirectX::XMStoreFloat4x4A(&result, vResult);
 
 		return result;
 	}
@@ -189,7 +189,7 @@ public:
 
 		DirectX::XMMATRIX temp = DirectX::XMLoadFloat4x4(&targetMatrix);
 		DirectX::XMMATRIX vResult = DirectX::XMMatrixInverse(nullptr, temp);
-		DirectX::XMStoreFloat4x4(&result, vResult);
+		DirectX::XMStoreFloat4x4A(&result, vResult);
 
 		return result;
 	}
@@ -210,7 +210,7 @@ public:
 		DirectX::XMMATRIX temp = DirectX::XMLoadFloat4x4(&copy);
 		DirectX::XMVECTOR det = DirectX::XMMatrixDeterminant(temp);
 		DirectX::XMMATRIX vResult = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(&det, temp));
-		DirectX::XMStoreFloat4x4(&result, vResult);
+		DirectX::XMStoreFloat4x4A(&result, vResult);
 
 		return result;
 	}
@@ -220,7 +220,7 @@ public:
 		matrix result;
 
 		DirectX::XMMATRIX vResult = DirectX::XMMatrixPerspectiveFovLH(fov, aspect, nearPlane, farPlane);
-		DirectX::XMStoreFloat4x4(&result, vResult);
+		DirectX::XMStoreFloat4x4A(&result, vResult);
 
 		return result;
 	}
@@ -230,7 +230,7 @@ public:
 		matrix result;
 
 		DirectX::XMMATRIX vResult = DirectX::XMMatrixPerspectiveOffCenterLH(left, right, bottom, top, nearPlane, farPlane);
-		DirectX::XMStoreFloat4x4(&result, vResult);
+		DirectX::XMStoreFloat4x4A(&result, vResult);
 
 		return result;
 	}
@@ -240,7 +240,7 @@ public:
 		matrix result;
 
 		DirectX::XMMATRIX vResult = DirectX::XMMatrixOrthographicLH(width, height, nearPlane, farPlane);
-		DirectX::XMStoreFloat4x4(&result, vResult);
+		DirectX::XMStoreFloat4x4A(&result, vResult);
 
 		return result;
 	}
@@ -250,7 +250,7 @@ public:
 		matrix result;
 
 		DirectX::XMMATRIX vResult = DirectX::XMMatrixOrthographicOffCenterLH(left, right, bottom, top, nearPlane, farPlane);
-		DirectX::XMStoreFloat4x4(&result, vResult);
+		DirectX::XMStoreFloat4x4A(&result, vResult);
 
 		return result;
 	}
@@ -263,7 +263,7 @@ public:
 		DirectX::XMVECTOR vLookAt = DirectX::XMVectorSet(lookAt.x, lookAt.y, lookAt.z, 0.0f);
 		DirectX::XMVECTOR vUp = DirectX::XMVectorSet(up.x, up.y, up.z, 0.0f);
 		DirectX::XMMATRIX vResult = DirectX::XMMatrixLookAtLH(vEye, vLookAt, vUp);
-		DirectX::XMStoreFloat4x4(&result, vResult);
+		DirectX::XMStoreFloat4x4A(&result, vResult);
 
 		return result;
 	}
@@ -684,80 +684,7 @@ public:
 #endif
 protected:
 #if !defined(UsingSSE)
-	void gaussJordanInverse()
-	{
-		/// Gauss-Jordan method
-		matrix copy(*this);
-		int32_t i, j, k;
-
-		/// Forward elimination
-		for (i = 0; i < 3; ++i)
-		{
-			int32_t pivot = i;
-			float32_t pivotSize = copy.m[i][i];
-
-			pivotSize = pivotSize < 0.0f ? -pivotSize : pivotSize;
-
-			for (j = i + 1; j < 4; ++j)
-			{
-				float32_t temp = copy.m[j][i];
-				temp = temp < 0.0f ? -temp : temp;
-
-				if (temp > pivotSize)
-				{
-					pivot = j;
-					pivotSize = temp;
-				}
-			}
-
-			/// singular matrix
-			assert(pivotSize != 0.0f);
-
-			if (pivot != i)
-			{
-				for (j = 0; j < 4; ++j)
-				{
-					std::swap(copy.m[i][j], copy.m[pivot][j]);
-					std::swap(m[i][j], m[pivot][j]);
-				}
-			}
-
-			for (j = i + 1; j < 4; ++j)
-			{
-				float32_t factor = copy.m[j][i] / copy.m[i][i];
-				for (k = 0; k < 4; ++k)
-				{
-					copy.m[j][k] -= factor * copy.m[i][k];
-					m[j][k] -= factor * m[i][k];
-				}
-			}
-		}
-
-		/// Backward substitution
-		for (i = 3; i >= 0; --i)
-		{
-			float32_t factor = copy.m[i][i];
-
-			/// singular matrix
-			assert(factor != 0.0f);
-
-			for (j = 0; j < 4; ++j)
-			{
-				copy.m[i][j] /= factor;
-				m[i][j] /= factor;
-			}
-
-			for (j = 0; j < i; ++j)
-			{
-				factor = copy.m[j][i];
-				for (k = 0; k < 4; ++k)
-				{
-					copy.m[j][k] -= factor * copy.m[i][k];
-					m[j][k] -= factor * m[i][k];
-				}
-			}
-		}
-	}
+	void gaussJordanInverse();
 #endif
 private:
 };
@@ -770,7 +697,7 @@ inline matrix operator*(const matrix &left, const matrix &right)
 	DirectX::XMMATRIX vLeft = DirectX::XMLoadFloat4x4(&left);
 	DirectX::XMMATRIX vRight = DirectX::XMLoadFloat4x4(&right);
 	DirectX::XMMATRIX vResult = vLeft * vRight;
-	DirectX::XMStoreFloat4x4(&result, vResult);
+	DirectX::XMStoreFloat4x4A(&result, vResult);
 
 	return result;
 }

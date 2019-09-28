@@ -1,15 +1,15 @@
 #include "application.h"
-///#include <ShellScalingApi.h>
+#include "Base/Resource.h"
 
 ::LRESULT application::messageProc(::HWND hWnd, uint32_t msg, ::WPARAM wParam, ::LPARAM lParam)
 {
 	if (msg == WM_CREATE)
 	{
-		::CREATESTRUCT *pCreateStruct = reinterpret_cast<::CREATESTRUCT *>(lParam);
-		verifyWin(::SetWindowLongPtrW(hWnd, 0, reinterpret_cast<LONG_PTR>(pCreateStruct->lpCreateParams)) != 0);
+		::CREATESTRUCTA *pCreateStruct = reinterpret_cast<::CREATESTRUCTA *>(lParam);
+		verifyWin(::SetWindowLongPtrA(hWnd, 0, reinterpret_cast<LONG_PTR>(pCreateStruct->lpCreateParams)) == 0);
 	}
 
-	application *pApp = reinterpret_cast<application *>(::GetWindowLongPtrW(hWnd, 0));
+	application *pApp = reinterpret_cast<application *>(::GetWindowLongPtrA(hWnd, 0));
 	if (pApp)
 	{
 		pApp->handleMessage(msg, wParam, lParam);
@@ -18,35 +18,68 @@
 	return ::DefWindowProcA(hWnd, msg, wParam, lParam);
 }
 
+void application::assetBucket::initialize()
+{
+	char8_t currentPath[MAX_PATH] = {};
+	verifyWin(::GetCurrentDirectoryA(MAX_PATH, currentPath) != 0);
+
+	m_AssetsPath = file::getRootDirectory(currentPath);
+	m_AssetsPath += "\\Assets";
+	verify(file::isValidDirectory(m_AssetsPath));
+}
+
+std::shared_ptr<assetFile> application::assetBucket::getAsset(const std::string &assetName)
+{
+	std::string lowerName(assetName);
+	gear::toLower(lowerName);
+
+	auto it = m_Assets.find(lowerName);
+	if (it != m_Assets.cend())
+	{
+		return it->second;
+	}
+
+	std::string assetPath = file::findFile(m_AssetsPath, assetName);
+	if (assetPath.length() != 0u)
+	{
+		std::shared_ptr<assetFile> asset = std::make_shared<assetFile>(assetPath);
+		m_Assets.insert(std::make_pair(lowerName, asset));
+		return asset;
+	}
+
+	return nullptr;
+}
+
 void application::makeWindow(const std::string &title, uint32_t width, uint32_t height, uint32_t extraWindowStyle)
 {
 	::HINSTANCE hInstance = ::GetModuleHandleW(nullptr);
 	verifyWin(hInstance);
 
-	std::wstring wTitle(title.cbegin(), title.cend());
-	::WNDCLASSEXW wndClassEx
+	::HICON hIcon = ::LoadIcon(hInstance, MAKEINTRESOURCE(m_IconID));
+	verifyWin(hIcon);
+	::WNDCLASSEXA wndClassEx
 	{
-		sizeof(::WNDCLASSEX),
+		sizeof(::WNDCLASSEXA),
 		CS_HREDRAW | CS_VREDRAW,
 		messageProc,
 		0,
 		sizeof(void *),
 		hInstance,
-		::LoadIconW(hInstance, MAKEINTRESOURCEW(m_IconID)),
-		::LoadCursorW(0, IDC_ARROW),
+		hIcon,
+		::LoadCursor(0, IDC_ARROW),
 		(::HBRUSH)::GetStockObject(BLACK_BRUSH),
 		nullptr,
-		wTitle.c_str(),
-		::LoadIconW(hInstance, MAKEINTRESOURCEW(m_IconID))
+		title.c_str(),
+		hIcon
 	};
-	verifyWin(::RegisterClassExW(&wndClassEx) != 0);
+	verifyWin(::RegisterClassExA(&wndClassEx) != 0);
 
 	::RECT rect{ 0l, 0l, (long32_t)width, (long32_t)height };
 	verifyWin(::AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, false) != 0);
 
-	m_hWnd = ::CreateWindowW(
-		wTitle.c_str(),
-		wTitle.c_str(),
+	m_hWnd = ::CreateWindowA(
+		title.c_str(),
+		title.c_str(),
 		WS_OVERLAPPEDWINDOW ^ extraWindowStyle,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
@@ -105,6 +138,12 @@ void application::handleMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM lParam)
 			m_bNeedResize = true;
 		}
 		break;
+	case WM_GETMINMAXINFO:
+	{
+		::LPMINMAXINFO lpMinMaxInfo = (::LPMINMAXINFO)lParam;
+		lpMinMaxInfo->ptMinTrackSize = { 640l, 480l };
+	}
+		break;
 	}
 
 	handleInput(msg, wParam, lParam);
@@ -120,25 +159,24 @@ void application::updateWindow()
 	::RECT rect = {};
 	verifyWin(::GetClientRect(m_hWnd, &rect) != 0);
 
-	m_WindowSize.x = (float32_t)std::max<long32_t>((rect.right - rect.left), 32u);
-	m_WindowSize.y = (float32_t)std::max<long32_t>((rect.bottom - rect.top), 32u);
+	m_WindowSize = { (float32_t)(rect.right - rect.left), (float32_t)(rect.bottom - rect.top) };
 
-	resizeWindow((uint32_t)m_WindowSize.x, (uint32_t)m_WindowSize.y);
+	resizeWindow();
 
 	m_bNeedResize = false;
 }
 
 void application::initialize(const std::string &title, uint32_t width, uint32_t height, bool bFullScreen, uint32_t extraWindowStyle)
 {
-#if defined(_WIN32_WINNT_WIN10)
-	/// "DpiAwareness" already enabled in project file
-	///::GetDpiForMonitor();
-	///Verify(::SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE) == S_OK);
-#endif
+	m_IconID = IconVulkan;
 
 	m_bFullScreen = bFullScreen;
 
 	makeWindow(title, width, height, extraWindowStyle);
+
+	m_AssetBucket.initialize();
+
+	postInitialize();
 }
 
 void application::updateFPS()

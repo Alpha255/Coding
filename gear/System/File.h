@@ -20,6 +20,7 @@ public:
 	static std::string getRootDirectory(const std::string &filePath, bool bToLower = false);
 	static std::string getDirectory(const std::string &filePath, bool bToLower = false);
 	static std::vector<std::string> getFileList(const std::string &targetPath, const std::vector<std::string> &filters, bool bToLower = false);
+	static std::string findFile(const std::string &targetPath, const std::string &fileName);
 	static folderTree getFolderTree(const std::string &targetPath, bool bToLower = false, bool bFullPath = false);
 	static ::FILETIME getLastTime(const std::string &filePath);
 
