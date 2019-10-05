@@ -4,7 +4,7 @@ namespaceStart(gear)
 
 void assetFile::getType()
 {
-	std::string extension = m_File->extension();
+	std::string extension = getExtension();
 
 	if (extension == ".dds" || extension == ".bmp")
 	{

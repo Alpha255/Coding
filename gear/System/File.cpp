@@ -119,7 +119,7 @@ std::string tryToFindFile(
 			}
 			else
 			{
-				if (stricmp(findData.cFileName, fileName.c_str()) == 0)
+				if (_stricmp(findData.cFileName, fileName.c_str()) == 0)
 				{
 					return targetPath + "\\" + findData.cFileName;
 				}
@@ -208,6 +208,7 @@ std::string file::getExtension(const std::string &filePath, bool bToLower)
 
 std::string file::getName(const std::string &filePath, bool bToLower)
 {
+	assert(getExtension(filePath, false).length() > 0u);
 	std::string name("");
 
 	size_t index = filePath.rfind('/');

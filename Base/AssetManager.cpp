@@ -5,10 +5,10 @@ std::unique_ptr<AssetManager> AssetManager::s_Instance;
 void AssetManager::Initialize()
 {
 	char curPath[MAX_PATH] = {};
-	Verify(::GetCurrentDirectoryA(MAX_PATH, curPath) != 0);
+	Verify(::GetModuleFileNameA(nullptr, curPath, MAX_PATH) != 0);
 
-	std::string assetPath = Base::GetRootDirectory(curPath);
-	assetPath += "\\Assets";
+	std::string assetPath = Base::GetParentDirectory(curPath);
+	assetPath += "\\..\\Assets";
 
 	std::vector<std::string> assetList;
 	Base::BuildFileList(assetList, assetPath, std::vector<std::string>{}, true);

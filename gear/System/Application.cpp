@@ -21,9 +21,9 @@
 void application::assetBucket::initialize()
 {
 	char8_t currentPath[MAX_PATH] = {};
-	verifyWin(::GetCurrentDirectoryA(MAX_PATH, currentPath) != 0);
+	verifyWin(::GetModuleFileNameA(nullptr, currentPath, MAX_PATH) != 0);
 
-	m_AssetsPath = file::getRootDirectory(currentPath);
+	m_AssetsPath = file::getDirectory(file::getDirectory(currentPath));
 	m_AssetsPath += "\\Assets";
 	verify(file::isValidDirectory(m_AssetsPath));
 }

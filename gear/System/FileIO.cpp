@@ -11,11 +11,11 @@ void fileIO::Read(eRead readType)
 
 		int32_t mode = readType == eBinary ? std::ios::in : std::ios::in | std::ios::binary;
 
-		std::ifstream fileStream(fullPath(), mode);
+		std::ifstream fileStream(getFullPath(), mode);
 		assert(fileStream.is_open());
 
-		byte *pMemory = new byte[size()]();
-		fileStream.read((char8_t *)pMemory, size());
+		byte *pMemory = new byte[getSize()]();
+		fileStream.read((char8_t *)pMemory, getSize());
 		fileStream.close();
 
 		m_Data.reset(pMemory);

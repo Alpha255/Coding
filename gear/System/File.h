@@ -27,27 +27,27 @@ public:
 	file() = default;
 	file(const std::string &filePath);
 
-	inline size_t size() const
+	inline size_t getSize() const
 	{
 		return m_Size;
 	}
 
-	inline std::string name() const
+	inline std::string getName() const
 	{
 		return m_Name;
 	}
 
-	inline std::string extension() const
+	inline std::string getExtension() const
 	{
 		return m_Extension;
 	}
 
-	inline std::string fullPath() const
+	inline std::string getFullPath() const
 	{
 		return m_FullPath;
 	}
 
-	inline std::string relativePath() const
+	inline std::string getRelativePath() const
 	{
 		return m_RelPath;
 	}

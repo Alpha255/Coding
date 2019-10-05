@@ -24,12 +24,12 @@ public:
 		getType();
 	}
 
-	inline eType type() const
+	inline eType getType() const
 	{
 		return m_Type;
 	}
 
-	inline uint32_t ID() const
+	inline uint32_t getID() const
 	{
 		return m_ID;
 	}

@@ -22,7 +22,7 @@ public:
 
 	void Read(eRead readType = eText);
 
-	std::shared_ptr<byte> data() const
+	std::shared_ptr<byte> getData() const
 	{
 		assert(m_Data);
 		return m_Data;
