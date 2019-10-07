@@ -2,7 +2,7 @@
 #include "Base/AssetFile.h"
 #include "Colorful/Vulkan/VulkanTypes.h"
 
-#if defined max
+#if defined(max)
 	#undef max
 #endif
 
@@ -179,6 +179,113 @@ bool CompileShader(
 	glslang::FinalizeProcess();
 
 	return binary.size() > 0U;
+}
+
+/// Standard, Portable Intermediate Representation - V
+std::vector<uint32_t> compileShader(const std::string &fileName, const std::string &entryName, uint32_t shaderStage, bool8_t bUsingParser)
+{
+	std::vector<uint32_t> spirv;
+	auto shaderFile = assetBucket::instance().getAsset(fileName);
+	assert(shaderFile);
+
+	if (bUsingParser)
+	{
+		std::string inputFile(shaderFile->getFullPath());
+		std::string outputFile = file::stripExtension(inputFile) + ".spirv";
+
+		char8_t parserPath[MAX_PATH] = {};
+		verifyWin(::GetEnvironmentVariableA("VULKAN_SDK", parserPath, MAX_PATH) != 0);
+		std::string commandline(parserPath);
+		commandline += "\\Bin\\glslangValidator ";
+
+		switch (shaderStage)
+		{
+		case eVertexShader:
+			commandline += "-S vert ";
+			break;
+		case ePixelShader:
+			commandline += "-S frag ";
+			break;
+		default:
+			assert(0);
+			break;
+		}
+
+		commandline += "-e ";
+		commandline += entryName;
+
+#if defined(_DEBUG)
+		commandline += "-g ";
+#endif
+		commandline += "-V ";
+
+		commandline += "-o ";
+		commandline += outputFile;
+		commandline += " ";
+		commandline += inputFile;
+
+		assert(gear::executeProcess(commandline, true));
+
+		gear::fileIO shaderBinary(outputFile);
+		size_t shaderBinarySize = shaderBinary.getSize();
+		assert((shaderBinarySize % sizeof(uint32_t)) == 0u);
+		spirv.resize(shaderBinarySize / sizeof(uint32_t));
+		verify(memcpy_s((void *)spirv.data(), shaderBinarySize, (void *)shaderBinary.getData(gear::fileIO::eBinary).get(), shaderBinarySize) == 0);
+	}
+	else
+	{
+		EShLanguage language = EShLangCount;
+		switch (shaderStage)
+		{
+		case eVertexShader:
+			language = EShLangVertex;
+			break;
+		case ePixelShader:
+			language = EShLangFragment;
+			break;
+		default:
+			assert(0);
+			break;
+		}
+
+		/// WTF ???
+		glslang::InitializeProcess();
+		glslang::InitializeProcess();
+		glslang::InitializeProcess();
+		glslang::FinalizeProcess();
+		glslang::FinalizeProcess();
+
+		EShMessages message = (EShMessages)(EShMsgSpvRules | EShMsgVulkanRules);
+
+		glslang::TShader shader(language);
+		const char *pShaderCodes[] = { (const char8_t *)shaderFile->getData().get() };
+		shader.setStrings(pShaderCodes, _countof(pShaderCodes));
+		shader.setEntryPoint(entryName.c_str());
+
+		const int32_t defaultVersion = 100u; /// use 100 for ES environment, 110 for desktop
+		if (!shader.parse(&s_DefaultTBuiltInResource, defaultVersion, false, message))
+		{
+			Base::Log("Shader compile failed: %s.", shaderFile->getName().c_str());
+			Base::Log(shader.getInfoLog());
+			Base::Log(shader.getInfoDebugLog());
+			return std::vector<uint32_t>();
+		}
+
+		glslang::TProgram program;
+		program.addShader(&shader);
+
+		if (!program.link(message))
+		{
+			Base::Log("Shader link failed: %s.", shaderFile->getName().c_str());
+			Base::Log(shader.getInfoLog());
+			Base::Log(shader.getInfoDebugLog());
+			return std::vector<uint32_t>();
+		}
+
+		glslang::GlslangToSpv(*program.getIntermediate(language), spirv);
+	}
+
+	return spirv;
 }
 
 NamespaceEnd(AssetTool)

@@ -29,7 +29,9 @@ file::file(const std::string &filePath)
 		nullptr);
 	if (fileHandle != INVALID_HANDLE_VALUE)
 	{
-		verify(::GetFileSize(fileHandle, (::LPDWORD)(&m_Size)) != INVALID_FILE_SIZE);
+		::LARGE_INTEGER result{};
+		verifyWin(::GetFileSizeEx(fileHandle, &result) != 0);
+		m_Size = (size_t)result.QuadPart;
 	}
 	::CloseHandle(fileHandle);
 }
@@ -100,9 +102,10 @@ void buildFileList(
 	}
 }
 
-std::string tryToFindFile(
+void tryToFindFile(
 	const std::string &targetPath,
-	const std::string &fileName)
+	const std::string &fileName,
+	std::string &outFilePath)
 {
 	std::string rootDir = targetPath + "\\*.*";
 
@@ -115,13 +118,14 @@ std::string tryToFindFile(
 		{
 			if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 			{
-				tryToFindFile(targetPath + "\\" + findData.cFileName, fileName);
+				tryToFindFile(targetPath + "\\" + findData.cFileName, fileName, outFilePath);
 			}
 			else
 			{
 				if (_stricmp(findData.cFileName, fileName.c_str()) == 0)
 				{
-					return targetPath + "\\" + findData.cFileName;
+					outFilePath = targetPath + "\\" + findData.cFileName;
+					break;
 				}
 			}
 		}
@@ -131,11 +135,9 @@ std::string tryToFindFile(
 			break;
 		}
 	}
-
-	return std::string();
 }
 
-void buildFolderTree(file::folderTree &outTree, const std::string &targetPath, bool bToLower, bool bFullPath)
+void buildFolderTree(file::folderTree &outTree, const std::string &targetPath, bool8_t bToLower, bool8_t bFullPath)
 {
 	std::string rootDir = targetPath + "\\*.*";
 
@@ -188,7 +190,7 @@ bool file::isValidDirectory(const std::string &targetPath)
 	return bValid;
 }
 
-std::string file::getExtension(const std::string &filePath, bool bToLower)
+std::string file::getExtension(const std::string &filePath, bool8_t bToLower)
 {
 	size_t index = filePath.rfind(".");
 
@@ -206,7 +208,7 @@ std::string file::getExtension(const std::string &filePath, bool bToLower)
 	return ext;
 }
 
-std::string file::getName(const std::string &filePath, bool bToLower)
+std::string file::getName(const std::string &filePath, bool8_t bToLower)
 {
 	assert(getExtension(filePath, false).length() > 0u);
 	std::string name("");
@@ -230,7 +232,7 @@ std::string file::getName(const std::string &filePath, bool bToLower)
 	return name;
 }
 
-std::string file::getRootDirectory(const std::string &filePath, bool bToLower)
+std::string file::getRootDirectory(const std::string &filePath, bool8_t bToLower)
 {
 	std::string path("");
 
@@ -251,7 +253,7 @@ std::string file::getRootDirectory(const std::string &filePath, bool bToLower)
 	return path;
 }
 
-std::string file::getDirectory(const std::string &filePath, bool bToLower)
+std::string file::getDirectory(const std::string &filePath, bool8_t bToLower)
 {
 	std::string path("");
 
@@ -272,7 +274,7 @@ std::string file::getDirectory(const std::string &filePath, bool bToLower)
 	return path;
 }
 
-std::vector<std::string> file::getFileList(const std::string &targetPath, const std::vector<std::string>& filters, bool bToLower)
+std::vector<std::string> file::getFileList(const std::string &targetPath, const std::vector<std::string>& filters, bool8_t bToLower)
 {
 	if (!isValidDirectory(targetPath))
 	{
@@ -287,15 +289,16 @@ std::vector<std::string> file::getFileList(const std::string &targetPath, const 
 
 std::string file::findFile(const std::string &targetPath, const std::string &fileName)
 {
-	if (!isValidDirectory(targetPath))
+	std::string filePath;
+	if (isValidDirectory(targetPath))
 	{
-		return std::string();
+		tryToFindFile(targetPath, fileName, filePath);
 	}
 
-	return tryToFindFile(targetPath, fileName);
+	return filePath;
 }
 
-file::folderTree file::getFolderTree(const std::string &targetPath, bool bToLower, bool bFullPath)
+file::folderTree file::getFolderTree(const std::string &targetPath, bool8_t bToLower, bool8_t bFullPath)
 {
 	if (!isValidDirectory(targetPath))
 	{
@@ -333,6 +336,23 @@ file::folderTree file::getFolderTree(const std::string &targetPath, bool bToLowe
 	::CloseHandle(fileHandle);
 
 	return time;
+}
+
+std::string file::stripExtension(const std::string &filePath, bool8_t bToLower)
+{
+	std::string result(filePath);
+	std::string ext = getExtension(filePath, bToLower);
+	if (ext.length() > 0u)
+	{
+		result = result.substr(0u, result.length() - ext.length());
+	}
+
+	if (bToLower)
+	{
+		toLower(result);
+	}
+
+	return result;
 }
 
 namespaceEnd(gear)

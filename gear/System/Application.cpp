@@ -18,38 +18,6 @@
 	return ::DefWindowProcA(hWnd, msg, wParam, lParam);
 }
 
-void application::assetBucket::initialize()
-{
-	char8_t currentPath[MAX_PATH] = {};
-	verifyWin(::GetModuleFileNameA(nullptr, currentPath, MAX_PATH) != 0);
-
-	m_AssetsPath = file::getDirectory(file::getDirectory(currentPath));
-	m_AssetsPath += "\\Assets";
-	verify(file::isValidDirectory(m_AssetsPath));
-}
-
-std::shared_ptr<assetFile> application::assetBucket::getAsset(const std::string &assetName)
-{
-	std::string lowerName(assetName);
-	gear::toLower(lowerName);
-
-	auto it = m_Assets.find(lowerName);
-	if (it != m_Assets.cend())
-	{
-		return it->second;
-	}
-
-	std::string assetPath = file::findFile(m_AssetsPath, assetName);
-	if (assetPath.length() != 0u)
-	{
-		std::shared_ptr<assetFile> asset = std::make_shared<assetFile>(assetPath);
-		m_Assets.insert(std::make_pair(lowerName, asset));
-		return asset;
-	}
-
-	return nullptr;
-}
-
 void application::makeWindow(const std::string &title, uint32_t width, uint32_t height, uint32_t extraWindowStyle)
 {
 	::HINSTANCE hInstance = ::GetModuleHandleW(nullptr);
@@ -174,7 +142,7 @@ void application::initialize(const std::string &title, uint32_t width, uint32_t 
 
 	makeWindow(title, width, height, extraWindowStyle);
 
-	m_AssetBucket.initialize();
+	assetBucket::instance().initialize();
 
 	postInitialize();
 }

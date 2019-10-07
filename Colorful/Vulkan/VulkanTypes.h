@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Base/Base.h"
+#include "gear/gear.h"
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_win32.h>
 

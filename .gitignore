@@ -27,6 +27,7 @@
 *.ipdb
 *.sln
 *.spv
+*.spirv
 
 Debug/
 Release/

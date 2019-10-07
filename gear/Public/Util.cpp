@@ -11,7 +11,7 @@ void toLower(std::string &srcStr)
 	});
 }
 
-void replace(std::string &srcStr, const char8_t srcC, const char8_t dstC)
+void replace(std::string &srcStr, char8_t srcC, char8_t dstC)
 {
 	std::replace(srcStr.begin(), srcStr.end(), srcC, dstC);
 }
@@ -42,7 +42,7 @@ template <typename Token> std::vector<std::string> split(const std::string &srcS
 	return result;
 }
 
-std::vector<std::string> split(const std::string &srcStr, const char8_t token)
+std::vector<std::string> split(const std::string &srcStr, char8_t token)
 {
 	return split<char8_t>(srcStr, token);
 }
@@ -52,7 +52,7 @@ std::vector<std::string> split(const std::string &srcStr, const std::string &tok
 	return split<std::string>(srcStr, token);
 }
 
-std::string format(const char *pArgStr, ...)
+std::string format(const char8_t *pArgStr, ...)
 {
 	std::unique_ptr<char8_t> pResult = nullptr;
 	if (pArgStr)
@@ -68,7 +68,7 @@ std::string format(const char *pArgStr, ...)
 	return std::string(pResult.get());
 }
 
-void log(const char *pMessage, ...) 
+void log(const char8_t *pMessage, ...) 
 {
 	std::unique_ptr<char8_t> message = nullptr;
 	if (pMessage)
@@ -83,6 +83,73 @@ void log(const char *pMessage, ...)
 
 	::OutputDebugStringA(message.get());
 	::OutputDebugStringA("\n");
+}
+
+bool8_t executeProcess(const std::string &commandline, bool8_t bWaitUntilDone)
+{
+	bool8_t bResult = true;
+	::SECURITY_ATTRIBUTES securityAttr{};
+	securityAttr.bInheritHandle = true;
+	securityAttr.nLength = sizeof(::SECURITY_ATTRIBUTES);
+
+	::HANDLE readHandle = nullptr, writeHandle = nullptr;
+	verifyWin(::CreatePipe(&readHandle, &writeHandle, &securityAttr, INT16_MAX) != 0);
+	verifyWin(::SetStdHandle(STD_OUTPUT_HANDLE, writeHandle) != 0);
+
+	/// If an error occurs, the ANSI version of this function (GetStartupInfoA) can raise an exception. 
+	/// The Unicode version (GetStartupInfoW) does not fail
+	::STARTUPINFOA startupInfo{};
+	::GetStartupInfoA(&startupInfo);
+	startupInfo.cb = sizeof(::STARTUPINFOA);
+	startupInfo.dwFlags = STARTF_USESTDHANDLES;
+	startupInfo.hStdInput = readHandle;
+	startupInfo.hStdOutput = writeHandle;
+
+	::PROCESS_INFORMATION processInfo{};
+	if (::CreateProcessA(
+		nullptr, 
+		(::LPSTR)commandline.c_str(), 
+		nullptr, 
+		nullptr, 
+		true, 
+		CREATE_NO_WINDOW,
+		nullptr, 
+		nullptr, 
+		&startupInfo,
+		&processInfo))
+	{
+		if (bWaitUntilDone)
+		{
+			::DWORD exitCode = 0u;
+			::WaitForSingleObject(processInfo.hProcess, INFINITE);
+			if (::GetExitCodeProcess(processInfo.hProcess, &exitCode))
+			{
+				if (exitCode != 0u)
+				{
+					::DWORD readBytes = 0u;
+					char8_t outputBuffer[INT16_MAX] = {};
+					verifyWin(::ReadFile(readHandle, outputBuffer, INT16_MAX, &readBytes, nullptr) != 0);
+					outputBuffer[readBytes] = '\0';
+					gear::log("Shader compile failed: %s", outputBuffer);
+					bResult = false;
+				}
+			}
+			else
+			{
+				verifyWin(0);
+			}
+
+			/// STILL_ACTIVE
+		}
+
+		::CloseHandle(processInfo.hThread);
+		::CloseHandle(processInfo.hProcess);
+
+		::CloseHandle(readHandle);
+		::CloseHandle(writeHandle);
+	}
+
+	return bResult;
 }
 
 namespaceEnd(gear)

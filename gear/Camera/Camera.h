@@ -50,27 +50,27 @@ public:
 		m_mProjection = math::matrix::perspectiveFovLH(fov, aspect, nearPlane, farPlane);
 	}
 
-	inline const math::matrix &worldMatrix() const
+	inline const math::matrix &getWorldMatrix() const
 	{
 		return m_mWorld;
 	}
 
-	inline const math::matrix &viewMatrix() const
+	inline const math::matrix &getViewMatrix() const
 	{
 		return m_mView;
 	}
 
-	inline const math::matrix &projMatrix() const
+	inline const math::matrix &getProjMatrix() const
 	{
 		return m_mProjection;
 	}
 
-	inline math::matrix WVPMatrix() const
+	inline math::matrix getWVPMatrix() const
 	{
 		return m_mWorld * m_mView * m_mProjection;
 	}
 
-	inline const math::vec4 &eye() const
+	inline const math::vec4 &getEye() const
 	{
 		return m_Eye;
 	}
@@ -99,7 +99,7 @@ public:
 	{
 		m_Radius = radius;
 	}
-	inline float32_t viewRadius() const
+	inline float32_t getViewRadius() const
 	{
 		return m_Radius;
 	}

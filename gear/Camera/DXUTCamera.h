@@ -22,27 +22,27 @@ public:
 	void setProjParams(float32_t fov, float32_t aspect, float32_t nearPlane, float32_t farPlane);
 	void update(float32_t elapsedTime);
 
-	inline const math::matrix &worldMatrix() const 
+	inline const math::matrix &getWorldMatrix() const 
 	{
 		return m_World;
 	}
 
-	inline const math::matrix &viewMatrix() const 
+	inline const math::matrix &getViewMatrix() const 
 	{
 		return m_View;
 	}
 
-	inline const math::matrix &projMatrix() const 
+	inline const math::matrix &getProjMatrix() const 
 	{
 		return m_Proj;
 	}
 
-	inline const math::matrix &WVPMatrix() const
+	inline const math::matrix &getWVPMatrix() const
 	{
 		return m_View * m_Proj;
 	}
 
-	inline const math::vec3 &eye() const
+	inline const math::vec3 &getEye() const
 	{
 		return m_Eye;
 	}

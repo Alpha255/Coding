@@ -1,5 +1,6 @@
 #include "Base/AssetFile.h"
 #include "Colorful/Public/Geometry.h"
+#include "gear/gear.h"
 
 NamespaceBegin(gli)
 	class texture;
@@ -21,6 +22,8 @@ Export bool CompileShader(
 	const uint32_t shaderStage,
 	__out std::vector<uint32_t> &binary);
 
+Export std::vector<uint32_t> compileShader(const std::string &fileName, const std::string &entryName, uint32_t shaderStage, bool8_t bUsingParser = false);
+
 Export bool LoadOBJ(
 	AssetFile &asset,
 	__out std::vector<Geometry::Vertex> &vertices,
@@ -36,7 +39,5 @@ Export void CreateTextureFromFile(
 	AssetFile &asset,
 	__out ID3D11Resource **pTexture,
 	__out ID3D11ShaderResourceView **pTextureView);
-
-Export gli::texture *CreateTextureFromFile(AssetFile &asset);
 
 NamespaceEnd(AssetTool)

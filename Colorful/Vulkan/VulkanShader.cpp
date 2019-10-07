@@ -51,18 +51,16 @@ void VulkanShader::Create(const std::string &fileName, const std::string &entryP
 
 	m_EntryName = entryPoint;
 
-	std::vector<uint32_t> spv;
-
-	AssetFile shaderFile(fileName);
-	Verify(AssetTool::CompileShader(shaderFile, entryPoint, m_Type, spv) == true);
+	std::vector<uint32_t> spirv = AssetTool::compileShader(fileName, entryPoint, m_Type, true);
+	assert(spirv.size() > 0u);
 
 	VkShaderModuleCreateInfo createInfo =
 	{
 		VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
 		nullptr,
 		0U,
-		spv.size() * sizeof(int32_t),
-		spv.data()
+		spirv.size() * sizeof(uint32_t),
+		spirv.data()
 	};
 	Check(vkCreateShaderModule(VulkanEngine::Instance().GetDevice().Get(), &createInfo, nullptr, &m_Handle));
 

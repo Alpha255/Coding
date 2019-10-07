@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gear/Asset/AssetFile.h"
+#include "gear/Asset/AssetBucket.h"
 #include "gear/System/Timer.h"
 
 #include "gear/Camera/Camera.h"

@@ -7,7 +7,7 @@ namespaceStart(gear)
 class fileIO : public file
 {
 public:
-	enum eRead
+	enum eReadAs
 	{
 		eText,
 		eBinary
@@ -20,14 +20,17 @@ public:
 	{
 	}
 
-	void Read(eRead readType = eText);
-
-	std::shared_ptr<byte> getData() const
+	std::shared_ptr<byte> getData(eReadAs readAs = eText)
 	{
-		assert(m_Data);
+		if (!m_Data)
+		{
+			read(readAs);
+		}
+
 		return m_Data;
 	}
 protected:
+	void read(eReadAs readAs = eText);
 private:
 	std::shared_ptr<byte> m_Data;
 };

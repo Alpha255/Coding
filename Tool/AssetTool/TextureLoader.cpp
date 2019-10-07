@@ -23,13 +23,4 @@ void CreateTextureFromFile(
 	}
 }
 
-gli::texture *CreateTextureFromFile(AssetFile &asset)
-{
-	gli::texture *pTexture = new gli::texture();
-
-	*pTexture = gli::load(asset.GetPath());
-
-	return pTexture;
-}
-
 NamespaceEnd(AssetTool)
