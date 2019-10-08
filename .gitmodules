@@ -1,24 +1,18 @@
 [submodule "ThirdParty/DirectXTK"]
 	path = ThirdParty/DirectXTK
 	url = https://github.com/Microsoft/DirectXTK.git
-[submodule "ThirdParty/vcglib"]
-	path = ThirdParty/vcglib
-	url = https://github.com/cnr-isti-vclab/vcglib.git
 [submodule "ThirdParty/freetype"]
 	path = ThirdParty/freetype
 	url = https://github.com/ubawurinna/freetype-windows-binaries.git
-[submodule "ThirdParty/glslang"]
-	path = ThirdParty/glslang
-	url = https://github.com/KhronosGroup/glslang.git
 [submodule "ThirdParty/ImGUI"]
 	path = ThirdParty/ImGUI
-	url = git@github.com:ocornut/imgui.git
-[submodule "ThirdParty/gli"]
-	path = ThirdParty/gli
-	url = https://github.com/g-truc/gli
-[submodule "ThirdParty/glm"]
-	path = ThirdParty/glm
-	url = https://github.com/g-truc/glm.git
+	url = https://github.com/ocornut/imgui.git
+[submodule "ThirdParty/vcglib"]
+	path = ThirdParty/vcglib
+	url = https://github.com/cnr-isti-vclab/vcglib.git
 [submodule "ThirdParty/json"]
 	path = ThirdParty/json
 	url = https://github.com/nlohmann/json.git
+[submodule "ThirdParty/glew"]
+	path = ThirdParty/glew
+	url = https://github.com/nigels-com/glew.git
