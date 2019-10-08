@@ -87,6 +87,7 @@ void VulkanDeviceMemory::Alloc(size_t size, uint32_t memTypeBits, uint32_t usage
 
 void VulkanDeviceMemory::Update(const void *pMemory, size_t size, size_t offset)
 {
+	/// vkCmdCopyBuffer
 	assert(IsValid() && pMemory);
 
 	void *pDeviceMemory = nullptr;

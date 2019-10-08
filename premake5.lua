@@ -277,16 +277,12 @@ workspace "Miscellaneous"
 					},
 				[""] = { "./Demo/vkTest/**" },
 				["Shaders"] = {
-					"./Assets/Shaders/vkTest.shader",
-					"./Assets/Shaders/vkTestVS.shader",
-					"./Assets/Shaders/vkTestPS.shader",
+					"./Assets/Shaders/vkTest.shader"
 				}
 			}
 			files { 
 				"./Demo/vkTest/**",
-				"./Assets/Shaders/vkTest.shader",
-				"./Assets/Shaders/vkTestVS.shader",
-				"./Assets/Shaders/vkTestPS.shader",
+				"./Assets/Shaders/vkTest.shader"
 			}
 			resourceInclude()
 			includeCommon()
