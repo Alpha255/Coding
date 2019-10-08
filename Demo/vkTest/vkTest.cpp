@@ -8,8 +8,8 @@ void vkTest::postInitialize()
 {
 	VulkanEngine::Instance().Initialize(m_hWnd, (uint32_t)m_WindowSize.x, (uint32_t)m_WindowSize.y, true);
 
-	vkVS.Create("vkTestVS.shader", "vsMain");
-	vkPS.Create("vkTestPS.shader", "psMain");
+	vkVS.Create("vkTest.shader", "vsMain");
+	vkPS.Create("vkTest.shader", "psMain");
 }
 
 void vkTest::finalize()

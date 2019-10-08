@@ -202,9 +202,11 @@ std::vector<uint32_t> compileShader(const std::string &fileName, const std::stri
 		{
 		case eVertexShader:
 			commandline += "-S vert ";
+			commandline += "-DVertexShader ";
 			break;
 		case ePixelShader:
 			commandline += "-S frag ";
+			commandline += "-DFragmentShader ";
 			break;
 		default:
 			assert(0);
@@ -213,6 +215,7 @@ std::vector<uint32_t> compileShader(const std::string &fileName, const std::stri
 
 		commandline += "-e ";
 		commandline += entryName;
+		commandline += " ";
 
 #if defined(_DEBUG)
 		commandline += "-g ";

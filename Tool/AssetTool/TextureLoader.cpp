@@ -2,7 +2,6 @@
 #include "Base/AssetFile.h"
 #include <d3d11.h>
 #include <DirectXTK/Inc/DDSTextureLoader.h>
-#include <gli/gli/gli.hpp>
 
 NamespaceBegin(AssetTool)
 

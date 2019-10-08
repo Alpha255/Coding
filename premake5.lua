@@ -276,8 +276,18 @@ workspace "Miscellaneous"
 					"./Base/Resource.h"
 					},
 				[""] = { "./Demo/vkTest/**" },
+				["Shaders"] = {
+					"./Assets/Shaders/vkTest.shader",
+					"./Assets/Shaders/vkTestVS.shader",
+					"./Assets/Shaders/vkTestPS.shader",
+				}
 			}
-			files { "./Demo/vkTest/**" }
+			files { 
+				"./Demo/vkTest/**",
+				"./Assets/Shaders/vkTest.shader",
+				"./Assets/Shaders/vkTestVS.shader",
+				"./Assets/Shaders/vkTestPS.shader",
+			}
 			resourceInclude()
 			includeCommon()
 			linkLibsCommon()
