@@ -115,6 +115,8 @@ void application::handleMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM lParam)
 	}
 
 	handleInput(msg, wParam, lParam);
+
+	m_Camera.handleMessage(msg, wParam, lParam);
 }
 
 void application::updateWindow()
@@ -134,7 +136,7 @@ void application::updateWindow()
 	m_bNeedResize = false;
 }
 
-void application::initialize(const std::string &title, uint32_t width, uint32_t height, bool bFullScreen, uint32_t extraWindowStyle)
+void application::initialize(const std::string &title, uint32_t width, uint32_t height, bool8_t bFullScreen, uint32_t extraWindowStyle)
 {
 	m_IconID = IconVulkan;
 
@@ -149,10 +151,10 @@ void application::initialize(const std::string &title, uint32_t width, uint32_t 
 
 void application::updateFPS()
 {
-	float totalTime = m_Timer.totalTime();
+	float32_t totalTime = m_Timer.getTotalTime();
 	++m_FrameCount;
 
-	float elapsedTime = totalTime - m_LastUpdateTime;
+	float32_t elapsedTime = totalTime - m_LastUpdateTime;
 	if (elapsedTime > 1.0f)
 	{
 		m_FPS = m_FrameCount / elapsedTime;

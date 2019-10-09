@@ -105,6 +105,8 @@ public:
 		z *= right.z;
 	}
 #endif
+
+	static vec3 transformCoord(const vec3 &src, const class matrix &mat);
 };
 
 #if defined(UsingSSE)

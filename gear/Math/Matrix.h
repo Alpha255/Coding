@@ -487,9 +487,13 @@ public:
 		return result;
 	}
 
-	inline static matrix setRotateRollPitchYaw(float32_t, float32_t, float32_t)
+	inline static matrix setRotateRollPitchYaw(float32_t roll, float32_t pitch, float32_t yaw)
 	{
+		matrix result;
+		DirectX::XMMATRIX vResult = DirectX::XMMatrixRotationRollPitchYaw(roll, pitch, yaw);
+		DirectX::XMStoreFloat4x4A(&result, vResult);
 
+		return result;
 	}
 
 	inline void operator*=(const matrix &right)

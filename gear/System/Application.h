@@ -8,7 +8,7 @@ public:
 	application() = default;
 	virtual ~application() = default;
 
-	void initialize(const std::string &title, uint32_t width, uint32_t height, bool bFullScreen, uint32_t extraWindowStyle);
+	void initialize(const std::string &title, uint32_t width, uint32_t height, bool8_t bFullScreen, uint32_t extraWindowStyle);
 
 	virtual void postInitialize() {}
 
@@ -42,6 +42,7 @@ protected:
 	bool8_t m_bActive = false;
 
 	gear::timer m_Timer;
+	gear::dxutCamera m_Camera;
 private:
 	bool8_t m_bNeedResize = false;
 	uint32_t m_FrameCount = 0U;

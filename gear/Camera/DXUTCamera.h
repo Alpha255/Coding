@@ -37,7 +37,7 @@ public:
 		return m_Proj;
 	}
 
-	inline const math::matrix &getWVPMatrix() const
+	inline math::matrix getWVPMatrix() const
 	{
 		return m_View * m_Proj;
 	}

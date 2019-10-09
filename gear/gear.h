@@ -4,6 +4,7 @@
 #include "gear/System/Timer.h"
 
 #include "gear/Camera/Camera.h"
+#include "gear/Camera/DXUTCamera.h"
 
 #include "gear/Math/Color.h"
 #include "gear/Math/AABB.h"

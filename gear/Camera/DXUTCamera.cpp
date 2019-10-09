@@ -232,23 +232,21 @@ void dxutCamera::update(float32_t elapsedTime)
 		m_Pitch = std::min<float32_t>(DirectX::XM_PIDIV2, m_Pitch);
 	}
 
-	///math::matrix rotate = math::matrix::RotateRollPitchYaw(m_Pitch, m_Yaw, 0.0f);
-
 	math::vec3 up(0.0f, 1.0f, 0.0f);
 	math::vec3 forward(0.0f, 0.0f, 1.0f);
 
-	///math::vec3 worldUp = TransformCoord(up, rotate);
-	///math::vec3 worldForward = TransformCoord(forward, rotate);
+	math::matrix rotate = math::matrix::setRotateRollPitchYaw(m_Pitch, m_Yaw, 0.0f);
+	math::vec3 worldUp = math::vec3::transformCoord(up, rotate);
+	math::vec3 worldForward = math::vec3::transformCoord(forward, rotate);
+	math::vec3 deltaWorld = math::vec3::transformCoord(deltaPos, rotate);
 
-	///math::vec3 deltaWorld = TransformCoord(deltaPos, rotate);
-
-	///m_Eye += deltaWorld;
+	m_Eye += deltaWorld;
 
 	/// Clip to boundary
 
-	///m_LookAt = m_Eye + worldForward;
+	m_LookAt = m_Eye + worldForward;
 
-	///m_View = math::matrix::lookAtLH(m_Eye, m_LookAt, worldUp);
+	m_View = math::matrix::lookAtLH(m_Eye, m_LookAt, worldUp);
 	m_World = math::matrix::inverse(m_View);
 }
 

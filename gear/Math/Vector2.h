@@ -89,6 +89,8 @@ public:
 		y *= right.y;
 	}
 #endif
+
+	static vec2 transformCoord(const vec2 &src, const class matrix &mat);
 };
 
 #if defined(UsingSSE)

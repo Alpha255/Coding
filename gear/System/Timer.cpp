@@ -9,18 +9,6 @@ timer::timer()
 	m_SecondsPerTick = 1.0 / (double)largeInt.QuadPart;
 }
 
-float32_t timer::totalTime() const
-{
-	if (m_bStopped)
-	{
-		return (float32_t)(((m_StopTime - m_PausedTime) - m_BaseTime) * m_SecondsPerTick);
-	}
-	else
-	{
-		return (float32_t)(((m_CurTime - m_PausedTime) - m_BaseTime) * m_SecondsPerTick);
-	}
-}
-
 void timer::reset()
 {
 	::LARGE_INTEGER largeInt = {};

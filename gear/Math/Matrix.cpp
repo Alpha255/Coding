@@ -80,5 +80,29 @@ void matrix::gaussJordanInverse()
 }
 #endif
 
+vec2 vec2::transformCoord(const vec2 &src, const matrix &mat)
+{
+	DirectX::XMVECTOR vVec = DirectX::XMLoadFloat2A(&src);
+	DirectX::XMMATRIX vMat = DirectX::XMLoadFloat4x4A(&mat);
+	DirectX::XMVECTOR vResult = DirectX::XMVector2TransformCoord(vVec, vMat);
+
+	vec2 result;
+	DirectX::XMStoreFloat2A(&result, vResult);
+
+	return result;
+}
+
+vec3 vec3::transformCoord(const vec3 &src, const matrix &mat)
+{
+	DirectX::XMVECTOR vVec = DirectX::XMLoadFloat3A(&src);
+	DirectX::XMMATRIX vMat = DirectX::XMLoadFloat4x4A(&mat);
+	DirectX::XMVECTOR vResult = DirectX::XMVector3TransformCoord(vVec, vMat);
+
+	vec3 result;
+	DirectX::XMStoreFloat3A(&result, vResult);
+
+	return result;
+}
+
 namespaceEnd(math)
 namespaceEnd(gear)

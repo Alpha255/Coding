@@ -9,8 +9,19 @@ class timer
 public:
 	timer();
 
-	float32_t totalTime() const;
-	inline float32_t elapsedTime() const
+	inline float32_t getTotalTime() const
+	{
+		if (m_bStopped)
+		{
+			return (float32_t)(((m_StopTime - m_PausedTime) - m_BaseTime) * m_SecondsPerTick);
+		}
+		else
+		{
+			return (float32_t)(((m_CurTime - m_PausedTime) - m_BaseTime) * m_SecondsPerTick);
+		}
+	}
+
+	inline float32_t getElapsedTime() const
 	{
 		return (float32_t)m_ElapsedTime;
 	}
