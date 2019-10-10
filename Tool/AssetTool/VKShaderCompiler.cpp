@@ -119,68 +119,6 @@ const static TBuiltInResource s_DefaultTBuiltInResource =
 	}
 };
 
-bool CompileShader(
-	AssetFile &asset,
-	const std::string &entryPoint,
-	const uint32_t shaderStage,
-	__out std::vector<uint32_t> &binary)
-{
-	EShLanguage language = EShLangCount;
-	switch (shaderStage)
-	{
-	case eVertexShader:
-		language = EShLangVertex;
-		break;
-	case ePixelShader:
-		language = EShLangFragment;
-		break;
-	default:
-		assert(0);
-		break;
-	}
-
-	auto shaderCode = asset.Load();
-
-	/// WTF ???
-	glslang::InitializeProcess();
-	glslang::InitializeProcess();  /// also test reference counting of users
-	glslang::InitializeProcess();  /// also test reference counting of users
-	glslang::FinalizeProcess();    /// also test reference counting of users
-	glslang::FinalizeProcess();    /// also test reference counting of users
-
-	EShMessages message = (EShMessages)(EShMsgSpvRules | EShMsgVulkanRules | EShMsgReadHlsl);
-	const char *pShaderCodes[] = { (const char *)(shaderCode.get()) };
-
-	glslang::TShader shader(language);
-	shader.setStrings(pShaderCodes, _countof(pShaderCodes));
-	shader.setEntryPoint(entryPoint.c_str());
-
-	const int32_t defaultVersion = 100U; /// use 100 for ES environment, 110 for desktop
-	if (!shader.parse(&s_DefaultTBuiltInResource, defaultVersion, false, message))
-	{
-		Base::Log("Compile failed- %s.", asset.GetName().c_str());
-		Base::Log(shader.getInfoLog());
-		Base::Log(shader.getInfoDebugLog());
-		return false;
-	}
-
-	glslang::TProgram program;
-	program.addShader(&shader);
-
-	if (!program.link(message))
-	{
-		Base::Log("Link failed- %s.", asset.GetName().c_str());
-		Base::Log(shader.getInfoLog());
-		Base::Log(shader.getInfoDebugLog());
-		return false;
-	}
-
-	glslang::GlslangToSpv(*program.getIntermediate(language), binary);
-	glslang::FinalizeProcess();
-
-	return binary.size() > 0U;
-}
-
 /// Standard, Portable Intermediate Representation - V
 std::vector<uint32_t> compileShader(const std::string &fileName, const std::string &entryName, uint32_t shaderStage, bool8_t bUsingParser)
 {
@@ -235,6 +173,7 @@ std::vector<uint32_t> compileShader(const std::string &fileName, const std::stri
 		spirv.resize(shaderBinarySize / sizeof(uint32_t));
 		verify(memcpy_s((void *)spirv.data(), shaderBinarySize, (void *)shaderBinary.getData(gear::fileIO::eBinary).get(), shaderBinarySize) == 0);
 	}
+#if 0
 	else
 	{
 		EShLanguage language = EShLangCount;
@@ -287,6 +226,7 @@ std::vector<uint32_t> compileShader(const std::string &fileName, const std::stri
 
 		glslang::GlslangToSpv(*program.getIntermediate(language), spirv);
 	}
+#endif
 
 	return spirv;
 }

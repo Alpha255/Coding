@@ -16,12 +16,6 @@ struct ID3D11ShaderResourceView;
 
 NamespaceBegin(AssetTool)
 
-Export bool CompileShader(
-	AssetFile &asset,
-	const std::string &entryPoint,
-	const uint32_t shaderStage,
-	__out std::vector<uint32_t> &binary);
-
 Export std::vector<uint32_t> compileShader(const std::string &fileName, const std::string &entryName, uint32_t shaderStage, bool8_t bUsingParser = false);
 
 Export bool LoadOBJ(

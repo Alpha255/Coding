@@ -153,6 +153,8 @@ public:
 protected:
 	VulkanEngine() = default;
 	~VulkanEngine() = default;
+
+	static void LoadVulkanLibrary();
 private:
 	static std::unique_ptr<VulkanEngine, std::function<void(VulkanEngine *)>> s_Instance;
 
@@ -162,4 +164,6 @@ private:
 	VulkanRenderPass m_RenderPass;
 	VulkanContext m_Context;
 	std::array<VulkanCommandPool, VulkanCommandPool::ePoolTypeCount> m_CommandPools;
+
+	static ::HMODULE s_Library;
 };

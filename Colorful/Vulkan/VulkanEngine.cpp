@@ -1,6 +1,7 @@
 #include "VulkanEngine.h"
 
 std::unique_ptr<VulkanEngine, std::function<void(VulkanEngine *)>> VulkanEngine::s_Instance;
+::HMODULE VulkanEngine::s_Library = nullptr;
 
 void VulkanEngine::Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool bWindowed)
 {

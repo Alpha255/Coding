@@ -1,44 +1,25 @@
 #include "VulkanDevice.h"
 #include "VulkanEngine.h"
 
-static void VerifyLayerProperties(const std::vector<VkLayerProperties> supportedLayers, const std::vector<const char *> layers)
+template <typename T> std::vector<const char8_t *> getSupportedProperties(
+	const std::vector<T> &supportedProperties, 
+	const std::vector<const char8_t *> &targetProperties)
 {
-	for each (auto layer in layers)
+	std::vector<const char8_t *> result;
+
+	for each (auto propertyName in targetProperties)
 	{
-		auto it = supportedLayers.begin();
-		for (; it != supportedLayers.end(); ++it)
+		for (auto it = supportedProperties.begin(); it != supportedProperties.end(); ++it)
 		{
-			if (_stricmp(it->layerName, layer) == 0)
+			if (_stricmp((const char8_t *)(&(*it)), propertyName) == 0)
 			{
+				result.emplace_back(propertyName);
 				break;
 			}
 		}
-
-		if (it == supportedLayers.end())
-		{
-			assert(0);
-		}
 	}
-}
 
-static void VerifyExtensionProperties(const std::vector<VkExtensionProperties> &supportedExtensions, const std::vector<const char *> extensions)
-{
-	for each (auto extension in extensions)
-	{
-		auto it = supportedExtensions.begin();
-		for (; it != supportedExtensions.end(); ++it)
-		{
-			if (_stricmp(it->extensionName, extension) == 0)
-			{
-				break;
-			}
-		}
-
-		if (it == supportedExtensions.end())
-		{
-			assert(0);
-		}
-	}
+	return result;
 }
 
 #if 0
@@ -83,12 +64,12 @@ void VulkanInstance::Create(const std::string &appName, const std::string &engin
 	Check(vkEnumerateInstanceLayerProperties(&count, nullptr));
 	std::vector<VkLayerProperties> supportedLayers(count);
 	Check(vkEnumerateInstanceLayerProperties(&count, supportedLayers.data()));
-	VerifyLayerProperties(supportedLayers, layers);
+	layers = getSupportedProperties<VkLayerProperties>(supportedLayers, layers);
 
 	Check(vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr));
 	std::vector<VkExtensionProperties> supportedExtensions(count);
 	Check(vkEnumerateInstanceExtensionProperties(nullptr, &count, supportedExtensions.data()));
-	VerifyExtensionProperties(supportedExtensions, extensions);
+	extensions = getSupportedProperties<VkExtensionProperties>(supportedExtensions, extensions);
 
 	VkApplicationInfo appInfo
 	{
@@ -179,30 +160,28 @@ void VulkanDevice::Create()
 
 	std::vector<const char *> layers =
 	{
-#if defined(_DEBUG)
 		"VK_LAYER_LUNARG_standard_validation",
 		"VK_LAYER_LUNARG_parameter_validation",
 		"VK_LAYER_LUNARG_object_tracker",
 		"VK_LAYER_LUNARG_core_validation"
-#endif
 	};
 
 	std::vector<const char *> extensions =
 	{
 		VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-		///VK_EXT_DEBUG_MARKER_EXTENSION_NAME
+		VK_EXT_DEBUG_MARKER_EXTENSION_NAME
 	};
 
 	uint32_t count = 0U;
 	Check(vkEnumerateDeviceLayerProperties(m_PhysicalDevice.Get(), &count, nullptr));
 	std::vector<VkLayerProperties> supportedLayers(count);
 	Check(vkEnumerateDeviceLayerProperties(m_PhysicalDevice.Get(), &count, supportedLayers.data()));
-	VerifyLayerProperties(supportedLayers, layers);
+	layers = getSupportedProperties<VkLayerProperties>(supportedLayers, layers);
 
 	Check(vkEnumerateDeviceExtensionProperties(m_PhysicalDevice.Get(), nullptr, &count, nullptr));
 	std::vector<VkExtensionProperties> supportedExtensions(count);
 	Check(vkEnumerateDeviceExtensionProperties(m_PhysicalDevice.Get(), nullptr, &count, supportedExtensions.data()));
-	VerifyExtensionProperties(supportedExtensions, extensions);
+	extensions = getSupportedProperties<VkExtensionProperties>(supportedExtensions, extensions);
 
 	std::vector<float> queuePriorities = 
 	{ 
