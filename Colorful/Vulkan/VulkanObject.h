@@ -126,6 +126,13 @@ class VulkanRect : public VkRect2D
 {
 public:
 	inline VulkanRect() = default;
+	inline VulkanRect(float32_t x, float32_t y, float32_t width, float32_t height)
+	{
+		offset.x = (int32_t)x;
+		offset.y = (int32_t)y;
+		extent.width = (uint32_t)width;
+		extent.height = (uint32_t)height;
+	}
 
 	inline VulkanRect(const ::RECT &rect)
 	{

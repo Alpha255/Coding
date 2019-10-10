@@ -49,9 +49,9 @@ public:
 		VulkanFrameBuffer FrameBuffer;
 	};
 
-	void Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool bFullScreen);
+	void Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool bFullScreen, bool bCreateSurface = true);
 
-	void Create();
+	void Create(bool bCreateSemaphore = true);
 
 	void Resize(uint32_t width, uint32_t height);
 
@@ -105,6 +105,7 @@ private:
 	VulkanSemaphore m_WaitSemaphore;
 	VulkanDepthStencilView m_DepthStencilView;
 	uint32_t m_CurrentBackBufferIndex = 0U;
+	::HWND m_hWnd = nullptr;
 
 	bool m_bVSync = false;
 	bool m_bFullScreen = false;

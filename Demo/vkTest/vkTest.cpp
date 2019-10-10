@@ -25,8 +25,8 @@ struct vertex
 struct uniformBuffer_vs
 {
 	matrix world;
-	matrix proj;
 	matrix view;
+	matrix proj;
 };
 
 VulkanVertexShader VertexShader;
@@ -70,9 +70,13 @@ void vkTest::postInitialize()
 	std::vector<Geometry::VertexLayout> vertexLayout =
 	{
 		{ "POSITION", sizeof(vertex::pos),   offsetof(vertex, pos),   eRGB32_Float },
-		{ "TEXCOORD", sizeof(vertex::color), offsetof(vertex, color), eRG32_Float  },
+		{ "COLOR",    sizeof(vertex::color), offsetof(vertex, color), eRGB32_Float },
 	};
 	InputLayout.Create(VertexShader.GetBlob(), vertexLayout);
+
+	m_Camera.setProjParams(math::g_pi_div4, m_WindowSize.x / m_WindowSize.y, 0.1f, 500.0f);
+	m_Camera.setViewParams(vec3(0.0f, 0.0f, 2.5f), vec3(0.0f, 0.0f, 0.0f));
+	m_Camera.setScalers(0.01f, 15.0f);
 }
 
 void vkTest::finalize()
@@ -90,19 +94,22 @@ void vkTest::finalize()
 void vkTest::resizeWindow()
 {
 	VulkanEngine::Instance().Resize((uint32_t)m_WindowSize.x, (uint32_t)m_WindowSize.y);
-
-	m_Camera.setProjParams(math::g_pi_div4, m_WindowSize.x / m_WindowSize.y, 0.1f, 500.0f);
 }
 
 void vkTest::renterToWindow()
 {
 	/// Bind geometry
 	/// Bind shaders
-	matrix wvp = m_Camera.getWVPMatrix();
-	UniformBuffer.Update(&wvp, sizeof(matrix));
+	uniformBuffer_vs uniformBuffer{};
+	uniformBuffer.world = matrix();
+	uniformBuffer.view = m_Camera.getViewMatrix();
+	uniformBuffer.proj = m_Camera.getProjMatrix();
+	UniformBuffer.Update(&uniformBuffer, sizeof(uniformBuffer_vs));
 
 	VulkanEngine::Instance().ResetDefaultRenderSurfaces(Vec4(0.0f, 0.0f, 0.2f, 1.0f));
 	VulkanEngine::Instance().SetViewport(VulkanViewport(0.0f, 0.0f, m_WindowSize.x, m_WindowSize.y));
+	VulkanEngine::Instance().SetScissorRect(VulkanRect(0.0f, 0.0f, m_WindowSize.x, m_WindowSize.y));
+	VulkanEngine::Instance().SetRasterizerState(VulkanStaticState::SolidNoneCulling);
 	VulkanEngine::Instance().SetVertexShader(VertexShader);
 	VulkanEngine::Instance().SetPixelShader(PixelShader);
 	VulkanEngine::Instance().SetUniformBuffer(UniformBuffer, 0u, eVertexShader);

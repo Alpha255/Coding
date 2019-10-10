@@ -32,11 +32,15 @@ void VulkanSurface::Create(::HWND hWnd)
 	Check(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, m_Handle, &count, m_SurfaceFormats.data()));
 }
 
-void VulkanSwapchain::Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool bFullScreen)
+void VulkanSwapchain::Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool bFullScreen, bool bCreateSurface)
 {
 	m_bFullScreen = bFullScreen;
+	m_hWnd = hWnd;
 
-	m_Surface.Create(hWnd);
+	if (bCreateSurface)
+	{
+		m_Surface.Create(hWnd);
+	}
 
 	auto &surfaceCapabilities = m_Surface.GetCapabilities();
 	assert(surfaceCapabilities.maxImageExtent.width && surfaceCapabilities.maxImageExtent.height);
@@ -66,9 +70,10 @@ void VulkanSwapchain::Initialize(::HWND hWnd, uint32_t width, uint32_t height, b
 	assert(m_DepthStencilFormat != VK_FORMAT_UNDEFINED);
 }
 
-void VulkanSwapchain::Create()
+void VulkanSwapchain::Create(bool bCreateSemaphore)
 {
 	VkColorSpaceKHR colorSpace = VK_COLOR_SPACE_MAX_ENUM_KHR;
+	VkSwapchainKHR oldSwapchain = m_Handle;
 
 	auto &surfaceFormats = m_Surface.GetFormats();
 	for each (auto surfaceFormat in surfaceFormats)
@@ -113,13 +118,29 @@ void VulkanSwapchain::Create()
 		VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,  /// Alpha = 1.0f
 		m_PresentMode,
 		VK_TRUE, 
-		VK_NULL_HANDLE
+		oldSwapchain
 	};
 
 	Check(vkCreateSwapchainKHR(VulkanEngine::Instance().GetDevice().Get(), &createInfo, nullptr, &m_Handle));
 
-	m_PresentSemaphore.Create();
-	m_WaitSemaphore.Create();
+	if (oldSwapchain != VK_NULL_HANDLE)
+	{
+		m_DepthStencilView.Destory();
+
+		for (uint32_t i = 0U; i < m_BackBuffers.size(); ++i)
+		{
+			m_BackBuffers[i].FrameBuffer.Destory();
+			m_BackBuffers[i].RenderTargetView.Destory();
+		}
+
+		vkDestroySwapchainKHR(VulkanEngine::Instance().GetDevice().Get(), oldSwapchain, nullptr);
+	}
+
+	if (bCreateSemaphore)
+	{
+		m_PresentSemaphore.Create();
+		m_WaitSemaphore.Create();
+	}
 
 	VulkanImage depthStencilImage;
 	depthStencilImage.Create(
@@ -139,14 +160,20 @@ void VulkanSwapchain::Create()
 	std::vector<VkImage> images(count);
 	Check(vkGetSwapchainImagesKHR(VulkanEngine::Instance().GetDevice().Get(), m_Handle, &count, images.data()));
 
-	m_BackBuffers.resize(count);
+	if (bCreateSemaphore)
+	{
+		m_BackBuffers.resize(count);
+	}
 	for (uint32_t i = 0U; i < count; ++i)
 	{
 		VulkanImage image;
 		image.Reset(images[i]);
 
 		m_BackBuffers[i].RenderTargetView.CreateAsTexture(eTexture2D, image, m_ColorFormat, 1U, false);
-		m_BackBuffers[i].PresentFence.Create(VulkanFence::eSignaled);
+		if (bCreateSemaphore)
+		{
+			m_BackBuffers[i].PresentFence.Create(VulkanFence::eSignaled);
+		}
 		m_BackBuffers[i].CommandBuffer = VulkanEngine::Instance().AllocCommandBuffer(VulkanCommandPool::eGeneral, VulkanCommandPool::ePrimary, 1U);
 
 		std::vector<VkImageView> imageViews
@@ -158,9 +185,11 @@ void VulkanSwapchain::Create()
 	}
 }
 
-void VulkanSwapchain::Resize(uint32_t, uint32_t)
+void VulkanSwapchain::Resize(uint32_t width, uint32_t height)
 {
-	///Create(nullptr, uWidth, uHeight, m_bFullScreen);
+	Check(vkDeviceWaitIdle(VulkanEngine::Instance().GetDevice().Get()));
+	Initialize(m_hWnd, width, height, m_bFullScreen, false);
+	Create(false);
 }
 
 #if 0
@@ -219,6 +248,8 @@ void VulkanSwapchain::End()
 void VulkanSwapchain::Flush()
 {
 	Check(vkAcquireNextImageKHR(VulkanEngine::Instance().GetDevice().Get(), m_Handle, UINT64_MAX, m_PresentSemaphore.Get(), VK_NULL_HANDLE, &m_CurrentBackBufferIndex));
+	Check(vkWaitForFences(VulkanEngine::Instance().GetDevice().Get(), 1u, &m_BackBuffers[m_CurrentBackBufferIndex].PresentFence, true, UINT64_MAX));
+	Check(vkResetFences(VulkanEngine::Instance().GetDevice().Get(), 1u, &m_BackBuffers[m_CurrentBackBufferIndex].PresentFence));
 
 	VkQueue deviceQueue = VulkanEngine::Instance().GetDevice().GetQueue().Get();
 
@@ -235,7 +266,7 @@ void VulkanSwapchain::Flush()
 		1U,
 		&m_WaitSemaphore
 	};
-	Check(vkQueueSubmit(deviceQueue, 1U, &submitInfo, VK_NULL_HANDLE));
+	Check(vkQueueSubmit(deviceQueue, 1U, &submitInfo, m_BackBuffers[m_CurrentBackBufferIndex].PresentFence.Get()));
 
 	VkPresentInfoKHR presentInfo
 	{

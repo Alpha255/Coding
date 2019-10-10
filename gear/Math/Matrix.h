@@ -2,6 +2,8 @@
 
 #include "Vector4.h"
 
+///#define UsingSSE
+
 namespaceStart(gear)
 namespaceStart(math)
 
@@ -573,7 +575,7 @@ public:
 
 	inline static matrix perspectiveFovLH(float32_t fov, float32_t aspect, float32_t nearPlane, float32_t farPlane)
 	{
-		float32_t radian = fov * DirectX::XM_PI / 180.0f;
+		float32_t radian = fov * 0.5f;
 		float32_t cosTheta = ::cosf(radian);
 		float32_t sinTheta = ::sinf(radian);
 		float32_t height = cosTheta / sinTheta;
