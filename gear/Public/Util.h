@@ -1,44 +1,10 @@
 #pragma once
 
-#include "Common.h"
+#include "gear/Public/Commandline.h"
+#include "gear/Public/String.h"
+#include "gear/Public/Singleton.h"
 
 namespaceStart(gear)
-
-class noneCopyable
-{
-public:
-	noneCopyable() = default;
-	~noneCopyable() = default;
-
-	noneCopyable(const noneCopyable &) = delete;
-	void operator=(const noneCopyable &) = delete;
-protected:
-private:
-};
-
-template <typename T> class singleton : public noneCopyable
-{
-public:
-	inline static T &instance()
-	{
-		return s_Instance;
-	}
-
-	singleton(const singleton &) = delete;
-	void operator=(const singleton &) = delete;
-protected:
-	singleton() = default;
-	virtual ~singleton() = default;
-private:
-	static T s_Instance;
-};
-template<class T> __declspec(selectany) T singleton<T>::s_Instance;
-
-#define singletonDeclare(ClassName)          \
-private:                                     \
-	ClassName() = default;                   \
-	~ClassName() = default;                  \
-	friend class gear::singleton<ClassName>;
 
 template <typename Left, typename Right>
 inline bool isEqual(const Left &left, const Right &right)
@@ -47,15 +13,19 @@ inline bool isEqual(const Left &left, const Right &right)
 	return ::memcmp(&left, &right, sizeof(Right)) == 0;
 }
 
-void toLower(std::string &srcStr);
+struct folderTree
+{
+	std::string Name;
+	std::vector<std::shared_ptr<folderTree>> Children;
+};
 
-void replace(std::string &srcStr, const char8_t srcC, char8_t dstC);
+bool8_t isValidDirectory(const std::string &targetPath);
 
-std::vector<std::string> split(const std::string &srcStr, char8_t token);
+std::vector<std::string> getFileList(const std::string &targetPath, const std::vector<std::string> &filters, bool8_t bToLower = false);
 
-std::vector<std::string> split(const std::string &srcStr, const std::string &token);
+std::string findFile(const std::string &targetPath, const std::string &fileName);
 
-std::string format(const char8_t *pArgStr, ...);
+folderTree getFolderTree(const std::string &targetPath, bool8_t bToLower = false, bool8_t bFullPath = false);
 
 void log(const char8_t *pMessage, ...);
 

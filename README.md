@@ -1,7 +1,7 @@
 ## Miscellaneous
 - To do list
   * [ ] basic gear library
-  * [ ] vulkan basic sample (draw a triangle)
+  * [x] vulkan basic sample (draw a triangle)
   * [ ] using sample as dll ? lib ?
   * [ ] whether using launcher ?
   * [ ] vulkan multithreaded rendering sample

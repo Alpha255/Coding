@@ -7,21 +7,11 @@ namespaceStart(gear)
 class file
 {
 public:
-	struct folderTree
-	{
-		std::string Name;
-		std::vector<std::shared_ptr<folderTree>> Children;
-	};
-
-	static bool isExists(const std::string &filePath);
-	static bool isValidDirectory(const std::string &targetPath);
+	static bool8_t isExists(const std::string &filePath);
 	static std::string getExtension(const std::string &filePath, bool8_t bToLower = false);
 	static std::string getName(const std::string &filePath, bool8_t bToLower = false);
 	static std::string getRootDirectory(const std::string &filePath, bool8_t bToLower = false);
 	static std::string getDirectory(const std::string &filePath, bool8_t bToLower = false);
-	static std::vector<std::string> getFileList(const std::string &targetPath, const std::vector<std::string> &filters, bool8_t bToLower = false);
-	static std::string findFile(const std::string &targetPath, const std::string &fileName);
-	static folderTree getFolderTree(const std::string &targetPath, bool8_t bToLower = false, bool8_t bFullPath = false);
 	static ::FILETIME getLastTime(const std::string &filePath);
 	static std::string stripExtension(const std::string &filePath, bool8_t bToLower = false);
 

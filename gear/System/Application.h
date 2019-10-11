@@ -2,6 +2,8 @@
 
 #include "gear/gear.h"
 
+namespaceStart(gear)
+
 class application
 {
 public:
@@ -41,10 +43,12 @@ protected:
 	bool8_t m_bFullScreen = false;
 	bool8_t m_bActive = false;
 
-	gear::timer m_Timer;
-	gear::dxutCamera m_Camera;
+	timer m_Timer;
+	dxutCamera m_Camera;
 private:
 	bool8_t m_bNeedResize = false;
 	uint32_t m_FrameCount = 0U;
 	float32_t m_LastUpdateTime = 0.0f;
 };
+
+namespaceEnd(gear)

@@ -69,7 +69,7 @@ protected:
 			RotateButton = button;
 		}
 
-		inline bool isRotateButtonDown()
+		inline bool8_t isRotateButtonDown()
 		{
 			assert(RotateButton != eButtonCount);
 			return ButtonDown[RotateButton];
@@ -112,7 +112,7 @@ protected:
 
 		eKeyAction keyAction(WPARAM wParam);
 
-		inline bool isKeyActive(eKeyAction action) const
+		inline bool8_t isKeyActive(eKeyAction action) const
 		{
 			return ActiveKeys[action];
 		}

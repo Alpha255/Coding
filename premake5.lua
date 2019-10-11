@@ -4,8 +4,6 @@ function includeCommon()
 		"$(SolutionDir)Colorful", 
 		"$(SolutionDir)ThirdParty",
 		"$(SolutionDir)ThirdParty\\vcglib",
-		"$(SolutionDir)ThirdParty\\glm",
-		"$(SolutionDir)ThirdParty\\gli",
 		"$(VK_SDK_PATH)", 
 		"$(VK_SDK_PATH)\\Include" 
 	}
@@ -15,7 +13,6 @@ function linkLibsCommon()
 	libdirs {
 		"$(SolutionDir)ThirdParty\\freetype\\win64",
 		"$(VK_SDK_PATH)\\Lib",
-		"$(VK_SDK_PATH)\\glslang\\Lib\\$(Configuration)",
 	}
 
 	links { 
@@ -27,15 +24,6 @@ function linkLibsCommon()
 		"Comctl32",
 		"Shcore",
 		"vulkan-1",
-		"SPIRV",
-		"glslang",
-		"SPVRemapper",
-		"glslang-default-resource-limits",
-		"OGLCompiler",
-		"OSDependent",
-		"HLSL",
-		"SPIRV-Tools-opt",
-		"SPIRV-Tools",
 
 		"Base",
 		"Colorful",
@@ -43,7 +31,6 @@ function linkLibsCommon()
 		"ImGui",
 		"DirectXTK",
 		"gear",
-		--"assimp"
 	}
 end
 
@@ -73,11 +60,13 @@ workspace "Miscellaneous"
 	filter { "configurations:Debug" }
 		symbols "On"
 		optimize "Debug"
+		defines { "DEBUG", "_UNICODE", "UNICODE", "Platform_Win32" }
 	filter { "configurations:Release" }
 		optimize "Speed"
 	filter { "platforms:Win64" }
 		system "Windows"
 		architecture "x64"
+		defines { "NDEBUG", "_UNICODE", "UNICODE", "Platform_Win32" }
 	filter { }
 
 	group "Libs"
@@ -185,47 +174,6 @@ workspace "Miscellaneous"
   					"_LIB",
   					"_CRT_STDIO_ARBITRARY_WIDE_SPECIFIERS",
   				}
---[[
-  		project "assimp"
-  			kind "StaticLib"
-			language "C++"
-			location "./Projects"
-			targetdir "$(SolutionDir)Out\\Libs\\"
-			files {
-				"./ThirdParty/assimp/code/**",
-				"./ThirdParty/assimp/include/**",
-				"./ThirdParty/assimp/contrib/irrXML/**",
-				"./ThirdParty/assimp/contrib/unzip/**",
-				"./ThirdParty/assimp/contrib/zip/src/**",
-				"./ThirdParty/assimp/contrib/zlib/**.c",
-				"./ThirdParty/assimp/contrib/zlib/**.h",
-			}
-			removefiles { 
-				"./ThirdParty/assimp/contrib/zlib/contrib/inflate86/**",
-				--"./ThirdParty/assimp/code/Common/Assimp.cpp",
-				--"./ThirdParty/assimp/code/Common/Importer.cpp",
-				--"./ThirdParty/assimp/code/Common/Exporter.cpp",
-				--"./ThirdParty/assimp/code/Common/ziparchiveiosystem.cpp",
-				--"./ThirdParty/assimp/code/Common/Version.cpp",
-				--"./ThirdParty/assimp/code/Common/ImporterRegistry.cpp",
-				--"./ThirdParty/assimp/code/Common/PostStepRegistry.cpp"
-			}
-			includedirs { 
-				"$(SolutionDir)ThirdParty/assimp",
-				"$(SolutionDir)ThirdParty/assimp/include",
-				"$(SolutionDir)ThirdParty/assimp/code",
-				"$(SolutionDir)ThirdParty/assimp/contrib/irrXML",
-				"$(SolutionDir)ThirdParty/assimp/contrib/zlib",
-				"$(SolutionDir)ThirdParty/assimp/contrib/unzip",
-				"$(SolutionDir)ThirdParty/assimp/build",
-				"$(SolutionDir)ThirdParty/assimp/build/include",
-				"$(SolutionDir)ThirdParty/assimp/build/contrib/zlib",
-				"$(SolutionDir)ThirdParty/assimp/contrib/rapidjson/include"
-			}
-			warnings "Off"
-			defines { "ASSIMP_BUILD_NO_IFC_IMPORTER", "ASSIMP_BUILD_NO_C4D_IMPORTER", "ASSIMP_BUILD_NO_OPENGEX_IMPORTER", "ASSIMP_BUILD_NO_STEP_IMPORTER" }
---]]
-
 
 	group "Colorful"
 		project "Box"

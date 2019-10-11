@@ -1,5 +1,7 @@
 #include "application.h"
-#include "Base/Resource.h"
+#include "gear/System/Resource.h"
+
+namespaceStart(gear)
 
 ::LRESULT application::messageProc(::HWND hWnd, uint32_t msg, ::WPARAM wParam, ::LPARAM lParam)
 {
@@ -195,3 +197,5 @@ void application::loop()
 		}
 	}
 }
+
+namespaceEnd(gear)

@@ -2,6 +2,8 @@
 
 #include "gear/Asset/AssetFile.h"
 
+namespaceStart(gear)
+
 class assetBucket final : public gear::singleton<assetBucket>
 {
 	singletonDeclare(assetBucket);
@@ -12,3 +14,5 @@ private:
 	std::string m_AssetsPath;
 	std::unordered_map<std::string, std::shared_ptr<gear::assetFile>> m_Assets;
 };
+
+namespaceEnd(gear)

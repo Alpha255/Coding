@@ -48,7 +48,12 @@ public:
 
 	inline void normalize()
 	{
-		float32_t factor = 1.0f / length();
+		float32_t factor = 0.0f;
+		float32_t len = length();
+		if (len > 0.0f)
+		{
+			factor = 1.0f / len;
+		}
 		x *= factor;
 		y *= factor;
 		z *= factor;

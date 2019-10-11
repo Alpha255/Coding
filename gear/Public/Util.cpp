@@ -1,72 +1,7 @@
 #include "Util.h"
+#include "gear/System/File.h"
 
 namespaceStart(gear)
-
-void toLower(std::string &srcStr)
-{
-	std::transform(srcStr.begin(), srcStr.end(), srcStr.begin(),
-		[](char c)
-	{
-		return (char)::tolower((int32_t)c);
-	});
-}
-
-void replace(std::string &srcStr, char8_t srcC, char8_t dstC)
-{
-	std::replace(srcStr.begin(), srcStr.end(), srcC, dstC);
-}
-
-template <typename Token> std::vector<std::string> split(const std::string &srcStr, const Token &token)
-{
-	std::vector<std::string> result;
-
-	std::string temp(srcStr);
-	size_t index = temp.find(token);
-
-	while (index != std::string::npos)
-	{
-		std::string split = temp.substr(0u, index);
-		if (split.length() > 0u)
-		{
-			result.emplace_back(split);
-		}
-		temp = temp.substr(index + 1U);
-		index = temp.find(token);
-	}
-
-	if (temp.length() > 0U)
-	{
-		result.emplace_back(temp);
-	}
-
-	return result;
-}
-
-std::vector<std::string> split(const std::string &srcStr, char8_t token)
-{
-	return split<char8_t>(srcStr, token);
-}
-
-std::vector<std::string> split(const std::string &srcStr, const std::string &token)
-{
-	return split<std::string>(srcStr, token);
-}
-
-std::string format(const char8_t *pArgStr, ...)
-{
-	std::unique_ptr<char8_t> pResult = nullptr;
-	if (pArgStr)
-	{
-		va_list list = nullptr;
-		va_start(list, pArgStr);
-		size_t size = (size_t)_vscprintf(pArgStr, list) + 1;
-		pResult = std::unique_ptr<char8_t>(new char8_t[size]());
-		_vsnprintf_s(pResult.get(), size, size, pArgStr, list);
-		va_end(list);
-	}
-
-	return std::string(pResult.get());
-}
 
 void log(const char8_t *pMessage, ...) 
 {
@@ -150,6 +85,189 @@ bool8_t executeProcess(const std::string &commandline, bool8_t bWaitUntilDone)
 	}
 
 	return bResult;
+}
+
+bool8_t isValidDirectory(const std::string &targetPath)
+{
+	::WIN32_FIND_DATAA fileData = {};
+	bool8_t bValid = false;
+
+	::HANDLE fileHandle = ::FindFirstFileA(targetPath.c_str(), &fileData);
+	if ((fileHandle != INVALID_HANDLE_VALUE) && (fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+	{
+		bValid = true;
+	}
+	::FindClose(fileHandle);
+
+	return bValid;
+}
+
+void buildFileList(
+	std::vector<std::string> &outFileList,
+	const std::string &targetPath,
+	const std::vector<std::string> &filters,
+	bool8_t bToLower)
+{
+	std::string rootDir = targetPath + "\\*.*";
+
+	::WIN32_FIND_DATAA findData = {};
+	::HANDLE fileHandle = ::FindFirstFileA(rootDir.c_str(), &findData);
+
+	while (true)
+	{
+		if (findData.cFileName[0] != '.')
+		{
+			if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+			{
+				std::string subDir = targetPath + "\\" + findData.cFileName;
+
+				buildFileList(outFileList, subDir, filters, bToLower);
+			}
+			else
+			{
+				std::string fileName(findData.cFileName);
+
+				if (filters.size() == 0U)
+				{
+					std::string filePath = targetPath + "\\" + fileName;
+					if (bToLower)
+					{
+						toLower(filePath);
+					}
+
+					outFileList.emplace_back(filePath);
+				}
+				else
+				{
+					std::string fileExt = file::getExtension(fileName, true);
+					for (auto it = filters.cbegin(); it != filters.cend(); ++it)
+					{
+						std::string filter = *it;
+						toLower(filter);
+
+						if (fileExt == filter)
+						{
+							std::string filePath = targetPath + "\\" + fileName;
+							if (bToLower)
+							{
+								toLower(filePath);
+							}
+
+							outFileList.emplace_back(filePath);
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		if (!::FindNextFileA(fileHandle, &findData))
+		{
+			break;
+		}
+	}
+}
+
+void tryToFindFile(
+	const std::string &targetPath,
+	const std::string &fileName,
+	std::string &outFilePath)
+{
+	std::string rootDir = targetPath + "\\*.*";
+
+	::WIN32_FIND_DATAA findData = {};
+	::HANDLE fileHandle = ::FindFirstFileA(rootDir.c_str(), &findData);
+
+	while (true)
+	{
+		if (findData.cFileName[0] != '.')
+		{
+			if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+			{
+				tryToFindFile(targetPath + "\\" + findData.cFileName, fileName, outFilePath);
+			}
+			else
+			{
+				if (_stricmp(findData.cFileName, fileName.c_str()) == 0)
+				{
+					outFilePath = targetPath + "\\" + findData.cFileName;
+					break;
+				}
+			}
+		}
+
+		if (!::FindNextFileA(fileHandle, &findData))
+		{
+			break;
+		}
+	}
+}
+
+void buildFolderTree(folderTree &outTree, const std::string &targetPath, bool8_t bToLower, bool8_t bFullPath)
+{
+	std::string rootDir = targetPath + "\\*.*";
+
+	::WIN32_FIND_DATAA findData = {};
+	::HANDLE hFileHandle = ::FindFirstFileA(rootDir.c_str(), &findData);
+
+	while (true)
+	{
+		if (findData.cFileName[0] != '.')
+		{
+			if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+			{
+				std::string subDir = targetPath + "\\" + findData.cFileName;
+
+				std::shared_ptr<folderTree> subTree(new folderTree);
+				subTree->Name = bFullPath ? subDir : findData.cFileName;
+				outTree.Children.emplace_back(subTree);
+
+				buildFolderTree(*subTree, subDir, bToLower, bFullPath);
+			}
+		}
+
+		if (!::FindNextFileA(hFileHandle, &findData))
+		{
+			break;
+		}
+	}
+}
+
+std::vector<std::string> getFileList(const std::string &targetPath, const std::vector<std::string>& filters, bool8_t bToLower)
+{
+	if (!isValidDirectory(targetPath))
+	{
+		return std::vector<std::string>();
+	}
+
+	std::vector<std::string> result;
+	buildFileList(result, targetPath, filters, bToLower);
+
+	return result;
+}
+
+std::string findFile(const std::string &targetPath, const std::string &fileName)
+{
+	std::string filePath;
+	if (isValidDirectory(targetPath))
+	{
+		tryToFindFile(targetPath, fileName, filePath);
+	}
+
+	return filePath;
+}
+
+folderTree getFolderTree(const std::string &targetPath, bool8_t bToLower, bool8_t bFullPath)
+{
+	if (!isValidDirectory(targetPath))
+	{
+		return folderTree();
+	}
+
+	folderTree result;
+	buildFolderTree(result, targetPath, bToLower, bFullPath);
+
+	return result;
 }
 
 namespaceEnd(gear)
