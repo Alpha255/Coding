@@ -32,15 +32,19 @@ void VulkanSurface::Create(::HWND hWnd)
 	Check(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, m_Handle, &count, m_SurfaceFormats.data()));
 }
 
-void VulkanSwapchain::Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool bFullScreen, bool bCreateSurface)
+void VulkanSurface::Destory()
+{
+	assert(IsValid());
+	vkDestroySurfaceKHR(VulkanEngine::Instance().GetInstance().Get(), m_Handle, nullptr);
+	Reset();
+}
+
+void VulkanSwapchain::Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool bFullScreen)
 {
 	m_bFullScreen = bFullScreen;
 	m_hWnd = hWnd;
 
-	if (bCreateSurface)
-	{
-		m_Surface.Create(hWnd);
-	}
+	m_Surface.Create(hWnd);
 
 	auto &surfaceCapabilities = m_Surface.GetCapabilities();
 	assert(surfaceCapabilities.maxImageExtent.width && surfaceCapabilities.maxImageExtent.height);
@@ -70,10 +74,9 @@ void VulkanSwapchain::Initialize(::HWND hWnd, uint32_t width, uint32_t height, b
 	assert(m_DepthStencilFormat != VK_FORMAT_UNDEFINED);
 }
 
-void VulkanSwapchain::Create(bool bCreateSemaphore)
+void VulkanSwapchain::Create()
 {
 	VkColorSpaceKHR colorSpace = VK_COLOR_SPACE_MAX_ENUM_KHR;
-	VkSwapchainKHR oldSwapchain = m_Handle;
 
 	auto &surfaceFormats = m_Surface.GetFormats();
 	for each (auto surfaceFormat in surfaceFormats)
@@ -98,6 +101,15 @@ void VulkanSwapchain::Create(bool bCreateSemaphore)
 	}
 
 	m_PresentMode = VK_PRESENT_MODE_FIFO_KHR;
+	auto presentModes = m_Surface.GetPresentModes();
+	for (uint32_t i = 0u; i < presentModes.size(); ++i)
+	{
+		if (presentModes[i] == VK_PRESENT_MODE_MAILBOX_KHR)
+		{
+			m_PresentMode = VK_PRESENT_MODE_MAILBOX_KHR;
+			break;
+		}
+	}
 
 	VkSwapchainCreateInfoKHR createInfo
 	{
@@ -118,29 +130,13 @@ void VulkanSwapchain::Create(bool bCreateSemaphore)
 		VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,  /// Alpha = 1.0f
 		m_PresentMode,
 		VK_TRUE, 
-		oldSwapchain
+		VK_NULL_HANDLE
 	};
 
 	Check(vkCreateSwapchainKHR(VulkanEngine::Instance().GetDevice().Get(), &createInfo, nullptr, &m_Handle));
 
-	if (oldSwapchain != VK_NULL_HANDLE)
-	{
-		m_DepthStencilView.Destory();
-
-		for (uint32_t i = 0U; i < m_BackBuffers.size(); ++i)
-		{
-			m_BackBuffers[i].FrameBuffer.Destory();
-			m_BackBuffers[i].RenderTargetView.Destory();
-		}
-
-		vkDestroySwapchainKHR(VulkanEngine::Instance().GetDevice().Get(), oldSwapchain, nullptr);
-	}
-
-	if (bCreateSemaphore)
-	{
-		m_PresentSemaphore.Create();
-		m_WaitSemaphore.Create();
-	}
+	m_PresentSemaphore.Create();
+	m_WaitSemaphore.Create();
 
 	VulkanImage depthStencilImage;
 	depthStencilImage.Create(
@@ -160,20 +156,14 @@ void VulkanSwapchain::Create(bool bCreateSemaphore)
 	std::vector<VkImage> images(count);
 	Check(vkGetSwapchainImagesKHR(VulkanEngine::Instance().GetDevice().Get(), m_Handle, &count, images.data()));
 
-	if (bCreateSemaphore)
-	{
-		m_BackBuffers.resize(count);
-	}
+	m_BackBuffers.resize(count);
 	for (uint32_t i = 0U; i < count; ++i)
 	{
 		VulkanImage image;
 		image.Reset(images[i]);
 
 		m_BackBuffers[i].RenderTargetView.CreateAsTexture(eTexture2D, image, m_ColorFormat, 1U, false);
-		if (bCreateSemaphore)
-		{
-			m_BackBuffers[i].PresentFence.Create(VulkanFence::eSignaled);
-		}
+		m_BackBuffers[i].PresentFence.Create(VulkanFence::eSignaled);
 		m_BackBuffers[i].CommandBuffer = VulkanEngine::Instance().AllocCommandBuffer(VulkanCommandPool::eGeneral, VulkanCommandPool::ePrimary, 1U);
 
 		std::vector<VkImageView> imageViews
@@ -188,8 +178,9 @@ void VulkanSwapchain::Create(bool bCreateSemaphore)
 void VulkanSwapchain::Resize(uint32_t width, uint32_t height)
 {
 	Check(vkDeviceWaitIdle(VulkanEngine::Instance().GetDevice().Get()));
-	Initialize(m_hWnd, width, height, m_bFullScreen, false);
-	Create(false);
+	Destory();
+	Initialize(m_hWnd, width, height, m_bFullScreen);
+	Create();
 }
 
 #if 0
@@ -289,19 +280,22 @@ void VulkanSwapchain::Destory()
 {
 	assert(IsValid());
 
-	m_PresentSemaphore.Destory();
-	m_WaitSemaphore.Destory();
 	m_DepthStencilView.Destory();
 
 	for (uint32_t i = 0U; i < m_BackBuffers.size(); ++i)
 	{
 		m_BackBuffers[i].FrameBuffer.Destory();
-		m_BackBuffers[i].PresentFence.Destory();
 		m_BackBuffers[i].RenderTargetView.Destory();
+		m_BackBuffers[i].PresentFence.Destory();
 	}
 	m_BackBuffers.clear();
 
 	vkDestroySwapchainKHR(VulkanEngine::Instance().GetDevice().Get(), m_Handle, nullptr);
 
+	m_PresentSemaphore.Destory();
+	m_WaitSemaphore.Destory();
+
 	Reset();
+
+	m_Surface.Destory();
 }

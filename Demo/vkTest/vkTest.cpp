@@ -75,7 +75,7 @@ void vkTest::postInitialize()
 	InputLayout.Create(VertexShader.GetBlob(), vertexLayout);
 
 	m_Camera.setProjParams(math::g_pi_div4, m_WindowSize.x / m_WindowSize.y, 0.1f, 500.0f);
-	m_Camera.setViewParams(vec3(0.0f, 0.0f, 2.5f), vec3(0.0f, 0.0f, 0.0f));
+	m_Camera.setViewParams(vec3(0.0f, 0.0f, 4.0f), vec3(0.0f, 0.0f, 0.0f));
 	m_Camera.setScalers(0.01f, 15.0f);
 }
 

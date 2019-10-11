@@ -26,11 +26,7 @@ public:
 		return m_SurfaceFormats;
 	}
 
-	void Destory() override
-	{
-		assert(IsValid());
-		Reset();
-	}
+	void Destory() override;
 protected:
 private:
 	VkSurfaceCapabilitiesKHR m_SurfaceCapabilities = {};
@@ -49,9 +45,9 @@ public:
 		VulkanFrameBuffer FrameBuffer;
 	};
 
-	void Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool bFullScreen, bool bCreateSurface = true);
+	void Initialize(::HWND hWnd, uint32_t width, uint32_t height, bool bFullScreen);
 
-	void Create(bool bCreateSemaphore = true);
+	void Create();
 
 	void Resize(uint32_t width, uint32_t height);
 
