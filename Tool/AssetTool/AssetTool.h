@@ -16,8 +16,6 @@ struct ID3D11ShaderResourceView;
 
 NamespaceBegin(AssetTool)
 
-Export std::vector<uint32_t> compileShader(const std::string &fileName, const std::string &entryName, uint32_t shaderStage, bool8_t bUsingParser = false);
-
 Export bool LoadOBJ(
 	AssetFile &asset,
 	__out std::vector<Geometry::Vertex> &vertices,

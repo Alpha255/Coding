@@ -14,6 +14,9 @@
 #include <vcg/complex/algorithms/update/topology.h>
 #include <vcg/complex/algorithms/update/bounding.h>
 #include "vcgOBJImporter.hpp"
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
+#include <assimp/Importer.hpp>
 
 NamespaceBegin(AssetTool)
 

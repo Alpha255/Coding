@@ -4,6 +4,8 @@ function includeCommon()
 		"$(SolutionDir)Colorful", 
 		"$(SolutionDir)ThirdParty",
 		"$(SolutionDir)ThirdParty\\vcglib",
+		"$(SolutionDir)ThirdParty\\assimp\\include",
+		"$(SolutionDir)ThirdParty\\assimp\\build\\include",
 		"$(VK_SDK_PATH)", 
 		"$(VK_SDK_PATH)\\Include" 
 	}
@@ -31,6 +33,7 @@ function linkLibsCommon()
 		"ImGui",
 		"DirectXTK",
 		"gear",
+		"assimp",
 	}
 end
 
@@ -63,10 +66,10 @@ workspace "Miscellaneous"
 		defines { "DEBUG", "_UNICODE", "UNICODE", "Platform_Win32" }
 	filter { "configurations:Release" }
 		optimize "Speed"
+		defines { "NDEBUG", "_UNICODE", "UNICODE", "Platform_Win32" }
 	filter { "platforms:Win64" }
 		system "Windows"
 		architecture "x64"
-		defines { "NDEBUG", "_UNICODE", "UNICODE", "Platform_Win32" }
 	filter { }
 
 	group "Libs"
@@ -174,6 +177,81 @@ workspace "Miscellaneous"
   					"_LIB",
   					"_CRT_STDIO_ARBITRARY_WIDE_SPECIFIERS",
   				}
+
+  		project "assimp"
+  			kind "SharedLib"
+			location "./Projects"
+			targetdir "$(SolutionDir)Out\\"
+			buildoptions { "/bigobj" }
+			disablewarnings { "4315", "4458", "4456", "4245", "4127", "4244", "4706", "4701", "4702", "4100", "4389", "4267", "4457", "4131", "4996", "4310", "4459", "4189" }
+			files {
+				"./ThirdParty/assimp/code/**",
+				"./ThirdParty/assimp/include/**",
+				"./ThirdParty/assimp/contrib/irrXML/**",
+				"./ThirdParty/assimp/contrib/unzip/**",
+				"./ThirdParty/assimp/contrib/clipper/**",
+				"./ThirdParty/assimp/contrib/Open3DGC/**",
+				"./ThirdParty/assimp/contrib/openddlparser/**",
+				"./ThirdParty/assimp/contrib/poly2tri/**",
+				"./ThirdParty/assimp/contrib/zip/src/**",
+				"./ThirdParty/assimp/contrib/zlib/**.c",
+				"./ThirdParty/assimp/contrib/zlib/**.h",
+			}
+			removefiles { 
+				"./ThirdParty/assimp/contrib/zlib/contrib/inflate86/**",
+				"./ThirdParty/assimp/code/Importer/IFC/IFCReaderGen_4.h",
+				"./ThirdParty/assimp/code/Importer/IFC/IFCReaderGen_4.cpp",
+				"./ThirdParty/assimp/contrib/zlib/contrib/**",
+			}
+			includedirs { 
+				"$(SolutionDir)ThirdParty/assimp",
+				"$(SolutionDir)ThirdParty/assimp/include",
+				"$(SolutionDir)ThirdParty/assimp/code",
+				"$(SolutionDir)ThirdParty/assimp/contrib/",
+				"$(SolutionDir)ThirdParty/assimp/contrib/irrXML",
+				"$(SolutionDir)ThirdParty/assimp/contrib/zlib",
+				"$(SolutionDir)ThirdParty/assimp/contrib/unzip",
+				"$(SolutionDir)ThirdParty/assimp/contrib/openddlparser/include/",
+				"$(SolutionDir)ThirdParty/assimp/build",
+				"$(SolutionDir)ThirdParty/assimp/build/include",
+				"$(SolutionDir)ThirdParty/assimp/build/contrib/zlib",
+				"$(SolutionDir)ThirdParty/assimp/contrib/rapidjson/include"
+			}
+			filter { "configurations:Debug" }
+				defines { 
+					"WIN32",
+					"_WINDOWS",
+					"_DEBUG",
+					"EBUG:FULL",
+					"WIN32_LEAN_AND_MEAN",
+					"UNICODE",
+					"_UNICODE",
+					"ASSIMP_BUILD_NO_C4D_IMPORTER",
+					"MINIZ_USE_UNALIGNED_LOADS_AND_STORES=0",
+					"ASSIMP_IMPORTER_GLTF_USE_OPEN3DGC=1",
+					"ASSIMP_BUILD_DLL_EXPORT",
+					"_SCL_SECURE_NO_WARNINGS",
+					"_CRT_SECURE_NO_WARNINGS",
+					"OPENDDLPARSER_BUILD",
+					"assimp_EXPORTS",
+				}
+			filter { "configurations:Release" }
+				defines { 
+					"WIN32",
+					"_WINDOWS",
+					"NDEBUG",
+					"WIN32_LEAN_AND_MEAN",
+					"UNICODE",
+					"_UNICODE",
+					"ASSIMP_BUILD_NO_C4D_IMPORTER",
+					"MINIZ_USE_UNALIGNED_LOADS_AND_STORES=0",
+					"ASSIMP_IMPORTER_GLTF_USE_OPEN3DGC=1",
+					"ASSIMP_BUILD_DLL_EXPORT",
+					"_SCL_SECURE_NO_WARNINGS",
+					"_CRT_SECURE_NO_WARNINGS",
+					"OPENDDLPARSER_BUILD",
+					"assimp_EXPORTS", 
+				}
 
 	group "Colorful"
 		project "Box"

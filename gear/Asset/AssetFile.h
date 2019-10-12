@@ -21,7 +21,7 @@ public:
 	assetFile(const std::string &filePath)
 		: fileIO(filePath)
 	{
-		getType();
+		matchType();
 	}
 
 	inline eType getType() const
@@ -34,7 +34,7 @@ public:
 		return m_ID;
 	}
 protected:
-	void getType();
+	void matchType();
 private:
 	eType m_Type = eUnknown;
 	uint32_t m_ID = UINT32_MAX;

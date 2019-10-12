@@ -8,11 +8,6 @@ namespaceStart(math)
 class aabb
 {
 public:
-	enum
-	{
-		eVertexCount = 8
-	};
-
 	aabb()
 		: m_Center(0.0f, 0.0f, 0.0f)
 		, m_Extents(1.0f, 1.0f, 1.0f)
@@ -25,8 +20,35 @@ public:
 	{
 	}
 
-	std::array<vec3, eVertexCount> getVertices() const;
-	static aabb createFromVertices(const vec3 *pVertices, uint32_t vertexCount);
+	//inline vec3 getMin() const
+	//{
+	//	return m_Extents * vec3(-1.0f, -1.0f, 1.0f) + m_Center;
+	//}
+
+	//inline vec3 getMax() const
+	//{
+	//	return m_Extents * vec3(1.0f, 1.0f, 1.0f) + m_Center;
+	//}
+
+	inline vec3 getCenter() const
+	{
+		return m_Center;
+	}
+
+	inline vec3 getExtens() const
+	{
+		return m_Extents;
+	}
+
+	std::vector<vec3> getVertices() const;
+
+	inline static aabb createFromVertices(const vec3 *pVertices, uint32_t vertexCount)
+	{
+		std::vector<vec3> vertices(vertexCount);
+		memcpy(vertices.data(), pVertices, sizeof(vec3) * vertexCount);
+		return createFromVertices(vertices);
+	}
+	static aabb createFromVertices(const std::vector<vec3> &vertices);
 protected:
 private:
 	vec3 m_Center;

@@ -2,6 +2,7 @@
 #include "VulkanEngine.h"
 #include "Base/AssetFile.h"
 #include "Tool/AssetTool/AssetTool.h"
+#include "Colorful/AssetTool/AssetTool.h"
 
 void VulkanInputLayout::Create(const void *, const std::vector<Geometry::VertexLayout> &layouts)
 {
@@ -51,7 +52,7 @@ void VulkanShader::Create(const std::string &fileName, const std::string &entryP
 
 	m_EntryName = entryPoint;
 
-	std::vector<uint32_t> spirv = AssetTool::compileShader(fileName, entryPoint, m_Type, true);
+	std::vector<uint32_t> spirv = assetTool::compileVkShader(fileName, entryPoint, m_Type);
 	assert(spirv.size() > 0u);
 
 	VkShaderModuleCreateInfo createInfo =

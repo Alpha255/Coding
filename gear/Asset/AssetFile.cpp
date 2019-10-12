@@ -2,27 +2,27 @@
 
 namespaceStart(gear)
 
-void assetFile::getType()
+void assetFile::matchType()
 {
-	std::string extension = getExtension();
+	std::string ext = getExtension();
 
-	if (extension == ".dds" || extension == ".bmp")
+	if (ext == ".dds" || ext == ".bmp")
 	{
 		m_Type = eTexture;
 	}
-	else if (extension == ".shader")
+	else if (ext == ".shader")
 	{
 		m_Type = eShader;
 	}
-	else if (extension == ".sdkmesh" || extension == ".txt" || extension == ".obj")
+	else if (ext == ".sdkmesh" || ext == ".txt" || ext == ".obj" || ext == ".dae")
 	{
 		m_Type = eStaticMesh;
 	}
-	else if (extension == ".mp3")
+	else if (ext == ".mp3")
 	{
 		m_Type = eSound;
 	}
-	else if (extension == ".dat")
+	else if (ext == ".dat")
 	{
 		m_Type = eLevel;
 	}

@@ -3,9 +3,9 @@
 namespaceStart(gear)
 namespaceStart(math)
 
-std::array<vec3, aabb::eVertexCount> aabb::getVertices() const
+std::vector<vec3> aabb::getVertices() const
 {
-	static vec3 s_Offsets[eVertexCount] = 
+	static const vec3 s_Offsets[] = 
 	{
 		{ -1.0f, -1.0f,  1.0f },
 		{  1.0f, -1.0f,  1.0f },
@@ -17,8 +17,8 @@ std::array<vec3, aabb::eVertexCount> aabb::getVertices() const
 		{ -1.0f,  1.0f, -1.0f },
 	};
 
-	std::array<vec3, eVertexCount> result;
-	for (uint32_t i = 0u; i < eVertexCount; ++i)
+	std::vector<vec3> result(_countof(s_Offsets));
+	for (uint32_t i = 0u; i < _countof(s_Offsets); ++i)
 	{
 		result[i] = m_Extents * s_Offsets[i] + m_Center;
 	}
@@ -26,15 +26,13 @@ std::array<vec3, aabb::eVertexCount> aabb::getVertices() const
 	return result;
 }
 
-aabb aabb::createFromVertices(const vec3 *pVertices, uint32_t vertexCount)
+aabb aabb::createFromVertices(const std::vector<vec3> &vertices)
 {
-	assert(pVertices && vertexCount);
-	
 	vec3 vMin, vMax;
-	for (uint32_t i = 0u; i < vertexCount; ++i)
+	for (uint32_t i = 0u; i < vertices.size(); ++i)
 	{
-		vMin = getMin(vMin, pVertices[i]);
-		vMax = getMax(vMax, pVertices[i]);
+		vMin = getMin(vMin, vertices[i]);
+		vMax = getMax(vMax, vertices[i]);
 	}
 
 	aabb result;

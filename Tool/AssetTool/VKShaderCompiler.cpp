@@ -2,6 +2,7 @@
 #include "Base/AssetFile.h"
 #include "Colorful/Vulkan/VulkanTypes.h"
 
+#if defined(UsingGlslangLib)
 #if defined(max)
 	#undef max
 #endif
@@ -119,7 +120,6 @@ const static TBuiltInResource s_DefaultTBuiltInResource =
 	}
 };
 
-/// Standard, Portable Intermediate Representation - V
 std::vector<uint32_t> compileShader(const std::string &fileName, const std::string &entryName, uint32_t shaderStage, bool8_t bUsingParser)
 {
 	std::vector<uint32_t> spirv;
@@ -173,7 +173,7 @@ std::vector<uint32_t> compileShader(const std::string &fileName, const std::stri
 		spirv.resize(shaderBinarySize / sizeof(uint32_t));
 		verify(memcpy_s((void *)spirv.data(), shaderBinarySize, (void *)shaderBinary.getData(gear::fileIO::eBinary).get(), shaderBinarySize) == 0);
 	}
-#if 0
+#if defined(UsingGlslangLib)
 	else
 	{
 		EShLanguage language = EShLangCount;
@@ -232,3 +232,5 @@ std::vector<uint32_t> compileShader(const std::string &fileName, const std::stri
 }
 
 NamespaceEnd(AssetTool)
+
+#endif
