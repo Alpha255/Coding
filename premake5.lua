@@ -314,6 +314,30 @@ workspace "Miscellaneous"
 			includeCommon()
 			linkLibsCommon()
 
+		project "vkMultiThread"
+			kind "WindowedApp"
+			language "C++"
+			location "./Projects"
+			vpaths {
+				["Resource"] = { 
+					"./Assets/Icon/Resource.rc", 
+					"./Assets/Icon/directx.ico", 
+					"./Assets/Icon/vulkan.ico",
+					"./Base/Resource.h"
+					},
+				[""] = { "./Demo/vkMultiThread/**" },
+				["Shaders"] = {
+					"./Assets/Shaders/vkMultiThread.shader"
+				}
+			}
+			files { 
+				"./Demo/vkMultiThread/**",
+				"./Assets/Shaders/vkMultiThread.shader"
+			}
+			resourceInclude()
+			includeCommon()
+			linkLibsCommon()
+
 		group "Colorful/HLSLCookBook"
 			project "ForwardLighting"
 				kind "WindowedApp"

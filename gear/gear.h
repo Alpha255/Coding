@@ -2,6 +2,7 @@
 
 #include "gear/Asset/AssetBucket.h"
 #include "gear/System/Timer.h"
+#include "gear/System/TaskScheduler.h"
 
 #include "gear/Camera/Camera.h"
 #include "gear/Camera/DXUTCamera.h"

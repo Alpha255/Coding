@@ -4,6 +4,48 @@
 #include "Tool/AssetTool/AssetTool.h"
 #include "Colorful/AssetTool/AssetTool.h"
 
+void VulkanInputLayout::create(const vertexLayouts &layouts)
+{
+	assert(!m_bValid && layouts.size() > 0U);
+
+	m_VertexInputAttrs.clear();
+
+	size_t stride = 0U;
+	for (uint32_t i = 0U; i < layouts.size(); ++i)
+	{
+		VkVertexInputAttributeDescription inputAttrDesc
+		{
+			i,
+			0U,
+			(VkFormat)layouts[i].Format,
+			layouts[i].Offset
+		};
+		m_VertexInputAttrs.emplace_back(inputAttrDesc);
+
+		stride += layouts[i].Stride;
+	}
+
+	m_InputBinding = VkVertexInputBindingDescription
+	{
+		0U,
+		(uint32_t)stride,
+		VK_VERTEX_INPUT_RATE_VERTEX
+	};
+
+	m_CreateInfo = VkPipelineVertexInputStateCreateInfo
+	{
+		VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
+		nullptr,
+		0U,
+		1U,
+		&m_InputBinding,
+		(uint32_t)m_VertexInputAttrs.size(),
+		m_VertexInputAttrs.data()
+	};
+
+	m_bValid = true;
+}
+
 void VulkanInputLayout::Create(const void *, const std::vector<Geometry::VertexLayout> &layouts)
 {
 	assert(!m_bValid && layouts.size() > 0U);

@@ -2,6 +2,7 @@
 
 #include "VulkanObject.h"
 #include "Public/Geometry.h"
+#include "Colorful/Public/Model_Public.h"
 
 class VulkanInputLayout
 {
@@ -17,6 +18,7 @@ public:
 	}
 
 	void Create(const void *, const std::vector<Geometry::VertexLayout> & layouts);
+	void create(const vertexLayouts &layouts);
 
 	inline const VkPipelineVertexInputStateCreateInfo &Get() const
 	{

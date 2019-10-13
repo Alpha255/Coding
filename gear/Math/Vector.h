@@ -4,6 +4,8 @@
 #include <DirectXMath.h>
 #include <DirectXCollision.h>
 
+///#define UsingSSE
+
 namespaceStart(gear)
 namespaceStart(math)
 
@@ -157,7 +159,7 @@ inline void negate()                                                          \
 inline float32_t length()                                                     \
 {                                                                             \
 	float32_t result = FLT_MAX;                                               \
-	vecLength(Dimension, this, &result)                                       \
+	vecLength(Dimension, this, result)                                        \
 	return result;                                                            \
 }
 
@@ -201,7 +203,7 @@ inline void negate()                                                          \
 inline float32_t length()                                                     \
 {                                                                             \
 	float32_t result = FLT_MAX;                                               \
-	vecLengthA(Dimension, this, &result)                                      \
+	vecLengthA(Dimension, this, result)                                       \
 	return result;                                                            \
 }
 
@@ -230,19 +232,19 @@ inline vec##Dimension operator*(const vec##Dimension &left, const vec##Dimension
 	vecMultiply(Dimension, &left, &right, &result)                                       \
 	return result;                                                                       \
 }                                                                                        \
-inline bool operator==(const vec##Dimension &left, const vec##Dimension &right)          \
+inline bool8_t operator==(const vec##Dimension &left, const vec##Dimension &right)       \
 {                                                                                        \
 	DirectX::XMVECTOR vLeft = DirectX::XMLoadFloat##Dimension(&left);                    \
 	DirectX::XMVECTOR vRight = DirectX::XMLoadFloat##Dimension(&right);                  \
 	return DirectX::XMVector##Dimension##Equal(vLeft, vRight);                           \
 }                                                                                        \
-inline bool operator>=(const vec##Dimension &left, const vec##Dimension &right)          \
+inline bool8_t operator>=(const vec##Dimension &left, const vec##Dimension &right)       \
 {                                                                                        \
 	DirectX::XMVECTOR vLeft = DirectX::XMLoadFloat##Dimension(&left);                    \
 	DirectX::XMVECTOR vRight = DirectX::XMLoadFloat##Dimension(&right);                  \
 	return DirectX::XMVector##Dimension##GreaterOrEqual(vLeft, vRight);                  \
 }                                                                                        \
-inline bool operator>(const vec##Dimension &left, const vec##Dimension &right)           \
+inline bool8_t operator>(const vec##Dimension &left, const vec##Dimension &right)        \
 {                                                                                        \
 	DirectX::XMVECTOR vLeft = DirectX::XMLoadFloat##Dimension(&left);                    \
 	DirectX::XMVECTOR vRight = DirectX::XMLoadFloat##Dimension(&right);                  \
@@ -324,23 +326,24 @@ inline vec##Dimension operator*(const vec##Dimension &left, const vec##Dimension
 	vecMultiplyA(Dimension, &left, &right, &result)                                      \
 	return result;                                                                       \
 }                                                                                        \
-inline bool operator==(const vec##Dimension &left, const vec##Dimension &right)          \
+inline bool8_t operator==(const vec##Dimension &left, const vec##Dimension &right)       \
 {                                                                                        \
 	DirectX::XMVECTOR vLeft = DirectX::XMLoadFloat##Dimension##A(&left);                 \
 	DirectX::XMVECTOR vRight = DirectX::XMLoadFloat##Dimension##A(&right);               \
 	return DirectX::XMVector##Dimension##Equal(vLeft, vRight);                           \
 }                                                                                        \
-inline bool operator>=(const vec##Dimension &left, const vec##Dimension &right)          \
+inline bool8_t operator>=(const vec##Dimension &left, const vec##Dimension &right)       \
 {                                                                                        \
 	DirectX::XMVECTOR vLeft = DirectX::XMLoadFloat##Dimension##A(&left);                 \
 	DirectX::XMVECTOR vRight = DirectX::XMLoadFloat##Dimension##A(&right);               \
 	return DirectX::XMVector##Dimension##GreaterOrEqual(vLeft, vRight);                  \
 }                                                                                        \
-inline bool operator>(const vec##Dimension &left, const vec##Dimension &right)           \
+inline bool8_t operator>(const vec##Dimension &left, const vec##Dimension &right)        \
 {                                                                                        \
 	DirectX::XMVECTOR vLeft = DirectX::XMLoadFloat##Dimension##A(&left);			     \
 	DirectX::XMVECTOR vRight = DirectX::XMLoadFloat##Dimension##A(&right);               \
 	return DirectX::XMVector##Dimension##Greater(vLeft, vRight);                         \
+}                                                                                        \
 inline vec##Dimension cross(const vec##Dimension &left, const vec##Dimension &right)     \
 {                                                                                        \
 	vec##Dimension result;                                                               \
@@ -356,7 +359,7 @@ inline float32_t dot(const vec##Dimension &left, const vec##Dimension &right)   
 inline vec##Dimension normalize(const vec##Dimension &targetVec)                         \
 {                                                                                        \
 	vec##Dimension result(targetVec);                                                    \
-	vecNormalizeA(Dimension, &targetVec)                                                 \
+	vecNormalizeA(Dimension, &result)                                                    \
 	return result;                                                                       \
 }                                                                                        \
 inline vec##Dimension negate(vec##Dimension &targetVec)                                  \

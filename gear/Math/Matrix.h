@@ -710,7 +710,15 @@ inline matrix operator*(const matrix &left, const matrix &right)
 
 inline vec4 operator*(const vec4 &left, const matrix &right)
 {
+	assert(0);
+	vec4 result;
 
+	DirectX::XMVECTOR vLeft = DirectX::XMLoadFloat4A(&left);
+	DirectX::XMMATRIX vRight = DirectX::XMLoadFloat4x4(&right);
+	///DirectX::XMVECTOR vResult = vLeft * vRight;
+	///DirectX::XMStoreFloat4A(&result, vResult);
+
+	return result;
 }
 #else
 inline matrix operator*(const matrix &left, const matrix &right)

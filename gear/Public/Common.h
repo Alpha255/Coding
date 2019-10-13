@@ -5,8 +5,15 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <queue>
 #include <array>
 #include <unordered_map>
+#include <functional>
+#include <thread>
+#include <atomic>
+#include <mutex>
+#include <fstream>
+#include <condition_variable>
 #include <Windows.h>
 
 #define safeRelease(ptr)  \

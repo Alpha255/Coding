@@ -60,7 +60,8 @@ void dxutCamera::mouseAction::handleMessage(uint32_t msg, ::WPARAM wParam, ::LPA
 	case WM_CAPTURECHANGED:
 		break;
 	case WM_MOUSEWHEEL:
-		WheelDelta += (int32_t)HIWORD(wParam);
+		WheelDelta += ((GET_WHEEL_DELTA_WPARAM(wParam)) * 0.005f);
+		ButtonDown[eWheel] = true;
 		break;
 	}
 }
@@ -186,7 +187,7 @@ void dxutCamera::updateVelocity(float32_t elapsedTime)
 	accel.normalize();
 	accel *= m_MouseAction.MoveScaler;
 
-	if (accel * accel > 0.0f)
+	if (dot(accel, accel) > 0.0f)
 	{
 		m_Velocity = accel;
 		m_DragTimer = 0.25f;
@@ -228,14 +229,14 @@ void dxutCamera::update(float32_t elapsedTime)
 		m_Yaw += deltaYaw;
 
 		/// Limit pitch to straight up or straight down
-		m_Pitch = std::max<float32_t>(-DirectX::XM_PIDIV2, m_Pitch);
-		m_Pitch = std::min<float32_t>(DirectX::XM_PIDIV2, m_Pitch);
+		m_Pitch = std::max<float32_t>(-math::g_pi_div2, m_Pitch);
+		m_Pitch = std::min<float32_t>(math::g_pi_div2, m_Pitch);
 	}
 
 	math::vec3 up(0.0f, 1.0f, 0.0f);
 	math::vec3 forward(0.0f, 0.0f, 1.0f);
-
 	math::matrix rotate = math::matrix::setRotateRollPitchYaw(m_Pitch, m_Yaw, 0.0f);
+
 	math::vec3 worldUp = math::vec3::transformCoord(up, rotate);
 	math::vec3 worldForward = math::vec3::transformCoord(forward, rotate);
 	math::vec3 deltaWorld = math::vec3::transformCoord(deltaPos, rotate);
@@ -248,6 +249,8 @@ void dxutCamera::update(float32_t elapsedTime)
 
 	m_View = math::matrix::lookAtLH(m_Eye, m_LookAt, worldUp);
 	m_World = math::matrix::inverse(m_View);
+
+	m_MouseAction.ButtonDown[mouseAction::eWheel] = false;
 }
 
 namespaceEnd(gear)

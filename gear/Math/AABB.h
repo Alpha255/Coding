@@ -35,7 +35,7 @@ public:
 		return m_Center;
 	}
 
-	inline vec3 getExtens() const
+	inline vec3 getExtents() const
 	{
 		return m_Extents;
 	}

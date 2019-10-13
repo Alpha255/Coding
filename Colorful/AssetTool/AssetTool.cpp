@@ -85,7 +85,7 @@ void loadModelFromFile(const std::string &modelName, model &outModel)
 		}
 	}
 
-	outModel.m_AABBBox = gear::math::aabb::createFromVertices(vertices);
+	outModel.m_AABB = gear::math::aabb::createFromVertices(vertices);
 }
 
 /// Standard, Portable Intermediate Representation - V

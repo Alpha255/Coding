@@ -60,6 +60,7 @@ protected:
 			eLeftButton,
 			eMiddleButton,
 			eRightButton,
+			eWheel,
 			eButtonCount
 		};
 
@@ -85,10 +86,10 @@ protected:
 		void updateInput();
 
 		bool8_t ButtonDown[eButtonCount] = {};
-		int32_t WheelDelta = 0;
+		float32_t WheelDelta = 0.0f;
 		eButton RotateButton = eLeftButton;
-		int32_t LastPosition[2U] = {};
-		uint32_t FrameCountToSmoothMouseData = 2U;
+		int32_t LastPosition[2u] = {};
+		uint32_t FrameCountToSmoothMouseData = 2u;
 		float32_t RotateScaler = 0.01f;
 		float32_t MoveScaler = 5.0f;
 		math::vec2 Delta;
