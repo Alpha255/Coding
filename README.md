@@ -2,8 +2,6 @@
 - To do list
   * [ ] basic gear library
   * [x] vulkan basic sample (draw a triangle)
-  * [ ] using sample as dll ? lib ?
-  * [ ] whether using launcher ?
   * [ ] vulkan multithreaded rendering sample
   * [ ] vulkan deferred shading sample
   * [ ] independent rendering thread

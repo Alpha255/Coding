@@ -18,14 +18,10 @@ void appConfig::load()
 		std::ifstream filestream(configFilePath);
 		filestream >> configJson;
 
-		auto itName = configJson.find("name");
 		auto itWidth = configJson.find("width");
 		auto itHeight = configJson.find("height");
+		auto itFullScreen = configJson.find("fullscreen");
 
-		if (itName != configJson.end())
-		{
-			m_AppName = itName.value();
-		}
 		if (itWidth != configJson.end())
 		{
 			m_WindowWidth = itWidth.value();
@@ -33,6 +29,10 @@ void appConfig::load()
 		if (itHeight != configJson.end())
 		{
 			m_WindowHeight = itHeight.value();
+		}
+		if (itFullScreen != configJson.end())
+		{
+			m_bFullScreen = itFullScreen.value();
 		}
 	}
 	else

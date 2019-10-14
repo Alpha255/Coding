@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Demo/vkTest/vkTest.h"
-#include "Demo/vkMultithread/vkMultiThread.h"
+#include "app/Colorful/vkTest/vkTest.h"
+#include "app/Colorful/vkMultithread/vkMultiThread.h"
 #include "gear/Public/Config.h"
 
 class launcher

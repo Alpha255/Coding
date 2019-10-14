@@ -14,6 +14,7 @@ void assetBucket::initialize()
 
 std::shared_ptr<gear::assetFile> assetBucket::getAsset(const std::string &assetName)
 {
+	assert(m_AssetsPath.length() > 0u);
 	std::string lowerName(assetName);
 	gear::toLower(lowerName);
 

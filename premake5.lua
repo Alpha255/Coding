@@ -42,7 +42,6 @@ function resourceInclude()
 		"./Assets/Icon/Resource.rc",
 		"./Assets/Icon/directx.ico",
 		"./Assets/Icon/vulkan.ico",
-		"./Base/Resource.h",
 	}
 end
 
@@ -299,19 +298,20 @@ workspace "Miscellaneous"
 					"./Assets/Icon/Resource.rc", 
 					"./Assets/Icon/directx.ico", 
 					"./Assets/Icon/vulkan.ico",
-					"./Base/Resource.h"
+					"./gear/System/Resource.h"
 					},
-				[""] = { "./Demo/vkTest/**" },
+				[""] = { "./app/Colorful/vkTest/**" },
 				["Shaders"] = {
 					"./Assets/Shaders/vkTest.shader"
 				}
 			}
 			files { 
-				"./Demo/vkTest/**",
-				"./Assets/Shaders/vkTest.shader"
+				"./app/Colorful/vkTest/**",
+				"./Assets/Shaders/vkTest.shader",
+				"./gear/System/Resource.h"
 			}
-			resourceInclude()
 			includeCommon()
+			resourceInclude()
 			linkLibsCommon()
 
 		project "vkMultiThread"
@@ -323,19 +323,20 @@ workspace "Miscellaneous"
 					"./Assets/Icon/Resource.rc", 
 					"./Assets/Icon/directx.ico", 
 					"./Assets/Icon/vulkan.ico",
-					"./Base/Resource.h"
+					"./gear/System/Resource.h"
 					},
-				[""] = { "./Demo/vkMultiThread/**" },
+				[""] = { "./app/Colorful/vkMultiThread/**" },
 				["Shaders"] = {
 					"./Assets/Shaders/vkMultiThread.shader"
 				}
 			}
 			files { 
-				"./Demo/vkMultiThread/**",
-				"./Assets/Shaders/vkMultiThread.shader"
+				"./app/Colorful/vkMultiThread/**",
+				"./Assets/Shaders/vkMultiThread.shader",
+				"./gear/System/Resource.h"
 			}
-			resourceInclude()
 			includeCommon()
+			resourceInclude()
 			linkLibsCommon()
 
 		group "Colorful/HLSLCookBook"

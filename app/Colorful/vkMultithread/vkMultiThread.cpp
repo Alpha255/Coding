@@ -5,7 +5,9 @@
 
 struct uniformBuffer_ufo
 {
-	matrix wvp;
+	matrix world;
+	matrix view;
+	matrix proj;
 	vec4 color;
 };
 
@@ -31,6 +33,11 @@ struct ufoParams
 typedef std::vector<ufoParams> threadParams;
 bool8_t g_EnableMultiThread = false;
 
+model ufo;
+uint32_t g_ThreadCount = std::thread::hardware_concurrency();
+uint32_t g_ufoCountPerThread = 512u / g_ThreadCount;
+threadParams g_ThreadParams;
+
 VulkanVertexShader VertexShader;
 VulkanPixelShader PixelShader;
 VulkanInputLayout InputLayout;
@@ -39,24 +46,19 @@ VulkanBuffer VertexBuffer;
 VulkanBuffer IndexBuffer;
 VulkanBuffer UniformBuffer;
 
-model ufo;
-uint32_t g_ThreadCount = std::thread::hardware_concurrency();
-uint32_t g_ufoCountPerThread = 512u / g_ThreadCount;
-threadParams g_ThreadParams;
-
 void vkMultiThread::postInitialize()
 {
 	taskScheduler::instance().initialize();
 
 	VulkanEngine::Instance().Initialize(m_hWnd, (uint32_t)m_WindowSize.x, (uint32_t)m_WindowSize.y, true);
 
-	g_ThreadParams.resize(g_ThreadCount);
-	for (uint32_t i = 0u; i < g_ThreadCount; ++i)
-	{
-		g_ThreadParams[i].ModelParams.resize(g_ufoCountPerThread);
-		g_ThreadParams[i].UniformBuffers.resize(g_ufoCountPerThread);
-		g_ThreadParams[i].CmdBuffer = VulkanEngine::Instance().AllocCommandBuffer(VulkanCommandPool::eGeneral, VulkanCommandPool::eSecondary, g_ufoCountPerThread);
-	}
+	//g_ThreadParams.resize(g_ThreadCount);
+	//for (uint32_t i = 0u; i < g_ThreadCount; ++i)
+	//{
+	//	g_ThreadParams[i].ModelParams.resize(g_ufoCountPerThread);
+	//	g_ThreadParams[i].UniformBuffers.resize(g_ufoCountPerThread);
+	//	g_ThreadParams[i].CmdBuffer = VulkanEngine::Instance().AllocCommandBuffer(VulkanCommandPool::eGeneral, VulkanCommandPool::eSecondary, g_ufoCountPerThread);
+	//}
 
 	VertexShader.Create("vkMultiThread.shader", "main");
 	PixelShader.Create("vkMultiThread.shader", "main");
@@ -70,6 +72,8 @@ void vkMultiThread::postInitialize()
 	IndexBuffer.CreateAsIndexBuffer(indices.size() * sizeof(uint32_t), eGpuReadCpuWrite, indices.data());
 
 	InputLayout.create(ufo.getVertexLayouts());
+
+	UniformBuffer.CreateAsUniformBuffer(sizeof(uniformBuffer_ufo), eGpuReadCpuWrite, nullptr);
 
 	vec3 center = ufo.getAABB().getCenter();
 	vec3 extents = ufo.getAABB().getExtents();
@@ -105,11 +109,11 @@ void vkMultiThread::renterToWindow()
 {
 	/// Bind geometry
 	/// Bind shaders
-	//uniformBuffer_vs uniformBuffer{};
-	//uniformBuffer.world = matrix();
-	//uniformBuffer.view = m_Camera.getViewMatrix();
-	//uniformBuffer.proj = m_Camera.getProjMatrix();
-	//UniformBuffer.Update(&uniformBuffer, sizeof(uniformBuffer_vs));
+	uniformBuffer_ufo uniformBuffer{};
+	uniformBuffer.world = matrix();
+	uniformBuffer.view = m_Camera.getViewMatrix();
+	uniformBuffer.proj = m_Camera.getProjMatrix();
+	UniformBuffer.Update(&uniformBuffer, sizeof(uniformBuffer_ufo));
 
 	VulkanEngine::Instance().ResetDefaultRenderSurfaces(Vec4(0.0f, 0.0f, 0.2f, 1.0f));
 	VulkanEngine::Instance().SetViewport(VulkanViewport(0.0f, 0.0f, m_WindowSize.x, m_WindowSize.y));
@@ -126,3 +130,5 @@ void vkMultiThread::renterToWindow()
 
 	m_Camera.update(m_Timer.getElapsedTime());
 }
+
+winMainEntry(vkMultiThread)

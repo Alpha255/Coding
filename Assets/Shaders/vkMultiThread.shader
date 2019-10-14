@@ -12,6 +12,7 @@ layout(binding = 0) uniform UBO
 	mat4 worldMatrix;
 	mat4 viewMatrix;
 	mat4 projectionMatrix;
+	vec3 color;
 } ubo;
 
 layout(location = 0) out vec3 outColor;

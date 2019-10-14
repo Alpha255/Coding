@@ -9,11 +9,6 @@ class appConfig
 public:
 	void load();
 
-	std::string getAppName() const
-	{
-		return m_AppName;
-	}
-
 	uint32_t getWindowWidth() const
 	{
 		return m_WindowWidth;
@@ -23,11 +18,16 @@ public:
 	{
 		return m_WindowHeight;
 	}
+
+	bool8_t getFullScreen() const
+	{
+		return m_bFullScreen;
+	}
 protected:
 private:
-	std::string m_AppName;
 	uint32_t m_WindowWidth = 0u;
 	uint32_t m_WindowHeight = 0u;
+	bool8_t m_bFullScreen = false;
 
 	commandline m_Commandline;
 };

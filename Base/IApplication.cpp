@@ -12,8 +12,7 @@ IApplication * IApplication::s_This = nullptr;
 		::LPVOID pApp = pCS->lpCreateParams;
 		if (::SetWindowLongPtrW(hWnd, 0, reinterpret_cast<LONG_PTR>(pApp)) == 0)
 		{
-			uint32_t err = ::GetLastError();
-			printf("Erro");
+			assert(0);
 		}
 	}
 

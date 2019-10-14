@@ -122,3 +122,5 @@ void vkTest::renterToWindow()
 
 	m_Camera.update(m_Timer.getElapsedTime());
 }
+
+winMainEntry(vkTest)

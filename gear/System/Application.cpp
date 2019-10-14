@@ -138,13 +138,13 @@ void application::updateWindow()
 	m_bNeedResize = false;
 }
 
-void application::initialize(const std::string &title, uint32_t width, uint32_t height, bool8_t bFullScreen, uint32_t extraWindowStyle)
+void application::initialize(const std::string &title, uint32_t extraWindowStyle)
 {
 	m_IconID = IconVulkan;
 
-	m_bFullScreen = bFullScreen;
+	m_Config.load();
 
-	makeWindow(title, width, height, extraWindowStyle);
+	makeWindow(title, m_Config.getWindowWidth(), m_Config.getWindowHeight(), extraWindowStyle);
 
 	assetBucket::instance().initialize();
 

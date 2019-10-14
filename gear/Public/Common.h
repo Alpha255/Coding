@@ -63,6 +63,21 @@
 	}                                                         \
 }
 
+#define winMainEntry(appName)                                  \
+int32_t WINAPI wWinMain(HINSTANCE, HINSTANCE, LPWSTR, int32_t) \
+{                                                              \
+	appName app_##appName;                                     \
+	app_##appName.initialize(#appName, 0);                     \
+	app_##appName.loop();                                      \
+	app_##appName.finalize();                                  \
+}
+
+#if defined(UsingAsDynamicLib)
+	#define exportAPI __declspec(dllexport)
+#else
+	#define exportAPI __declspec(dllimport)
+#endif
+
 typedef char char8_t;
 typedef unsigned char uchar8_t;
 typedef float float32_t;
