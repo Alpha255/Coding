@@ -2,6 +2,8 @@
 
 #include "node.h"
 
+/// Single Consumer, Single Producer, so called "Lockfree"
+
 class Product
 {
 public:
@@ -11,25 +13,55 @@ public:
 	virtual void Process() {}
 };
 
-template <typename MaxSize, typename T = Product> struct ProductRepository
+class ProductRepository
 {
-	std::unordered_map<uint32_t, std::shared_ptr<T>> Products;
+public:
+	ProductRepository() = default;
+	virtual ~ProductRepository() = default;
 
-	inline bool IsFull() const
+	inline void SetMaxSize(size_t maxSize)
 	{
-		return Products.size() == MaxSize;
+		assert(maxSize > 0u);
+		m_MaxSize = maxSize;
 	}
 
-	inline bool IsEmpty() const
+	inline void Store(std::shared_ptr<Product> newProduct)
 	{
-		return Products.size() == 0U;
+
 	}
+
+	inline std::shared_ptr<Product> Get()
+	{
+
+	}
+protected:
+private:
+	size_t m_MaxSize = 0u;
 };
 
 class Producer
 {
 public:
+	Producer() = default;
+	virtual ~Producer() = default;
 
+	virtual std::shared_ptr<Product> Produce() {
+		auto newProduct = std::make_shared<Product>();
+		newProduct->Process();
+		return newProduct;
+	}
+protected:
+private:
+};
+
+class Consumer
+{
+public:
+	Consumer() = default;
+	virtual ~Consumer() = default;
+
+	virtual void Consume(std::shared_ptr<Product>) {
+	}
 protected:
 private:
 };
