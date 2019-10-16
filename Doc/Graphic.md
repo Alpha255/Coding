@@ -26,5 +26,35 @@ $$
  \right]
 $$
   - 给定x属于[a, b], 对应于y属于[c, d], 使得x与a的距离比上ab等于y与c的距离比上cd, 即${x-a\over b-a}$ = ${y-c\over d-c}$, 此时, [a, b]上任一点都能在[c, d]中找到对应点, 同理, 将(x’, y’)映射到[-1, 1] (线性插值), 可得
-  - ${Nx/z - left\over right - left}$ = ${x<sub>cvv</sub>-(-1)\over 1-(-1)}$
-  - ${Ny/z - bottom\over top - bottom}$ = ${y<sub>cvv</sub>-(-1)\over 1-(-1)}$
+  - ${Nx/z - left\over right - left}$ = ${X<sub>cvv</sub>-(-1)\over 1-(-1)}$
+  - ${Ny/z - bottom\over top - bottom}$ = ${Y<sub>cvv</sub>-(-1)\over 1-(-1)}$ (可表示为:)
+  - ${Nx/z\over right - left}$ - ${left\over right - left}$ = ${X<sub>cvv</sub>\over 2}$ + ${1\over 2}$
+  - ${Ny/z\over top - bottom}$ - ${bottom\over top - bottom}$ = ${Y<sub>cvv</sub>\over 2}$ + ${1\over 2}$
+  - 当投影平面在x方向上居中, 且在y方向上居中, 即left = -right, bottom = -top, 即
+  - -${left\over right - left}$ = ${1\over 2}$
+  - -${bottom\over top - bottom}$ = ${1\over 2}$
+  - 则上面式可以写成
+  - ${Nx/z\over right - left}$ = ${X<sub>cvv</sub>\over 2}$
+  - ${Ny/z\over top - bottom}$ = ${Y<sub>cvv</sub>\over 2}$
+  - 反推投影矩阵, 可得
+$$
+\left[
+ \begin{matrix}
+   2N/r-l & 0 & 0 & 0 \\
+   0 & 2N/t-b & 0 & 0 \\
+   0 & 0 & a & 1 \\
+   0 & 0 & b & 0 \\
+ \end{matrix} 
+ \right]
+$$
+  - 一般情况下的矩阵
+$$
+\left[
+ \begin{matrix}
+   2N/r-l & 0 & 0 & 0 \\
+   0 & 2N/t-b & 0 & 0 \\
+   l+r/l-r & b+t/b-t & a & 1 \\
+   0 & 0 & b & 0 \\
+ \end{matrix} 
+ \right]
+$$
