@@ -33,6 +33,7 @@ Debug/
 Release/
 obj/
 Temp/
+Doc/.ipynb_checkpoints/
 .hg/
 .vs/
 Intermediate/
