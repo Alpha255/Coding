@@ -105,8 +105,8 @@ void dxutCamera::mouseAction::updateInput()
 {
 	if (isRotateButtonDown())
 	{
-		int32_t curPos[2U] = {};
-		int32_t deltaPos[2U] = {};
+		int32_t curPos[2u] = {};
+		int32_t deltaPos[2u] = {};
 		::GetCursorPos((::LPPOINT)curPos);
 		deltaPos[0] = curPos[0] - LastPosition[0];
 		deltaPos[1] = curPos[1] - LastPosition[1];

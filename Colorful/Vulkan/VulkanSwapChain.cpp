@@ -97,8 +97,22 @@ void VulkanSwapchain::Create()
 	}
 	if (surfaceCapabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT)
 	{
-		usageFlags |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+		/// use a value like VK_IMAGE_USAGE_TRANSFER_DST_BIT instead and use a memory operation to transfer the rendered image to a swap chain image
+		usageFlags |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;  
 	}
+
+	/// VK_PRESENT_MODE_IMMEDIATE_KHR: Images submitted by your application are transferred to the screen right away, which may result in tearing
+
+	/// VK_PRESENT_MODE_FIFO_KHR: The swap chain is a queue where the display takes an image from the front of the queue when the display is 
+	/// refreshed and the program inserts rendered images at the back of the queue.If the queue is full then the program has to wait.
+	/// This is most similar to vertical sync as found in modern games.The moment that the display is refreshed is known as ¡°vertical blank¡±
+	
+	/// VK_PRESENT_MODE_FIFO_RELAXED_KHR: This mode only differs from the previous one if the application is late and the queue was empty at the last
+	/// vertical blank.Instead of waiting for the next vertical blank, the image is transferred right away when it finally arrives.This may result in visible tearing
+	
+	/// VK_PRESENT_MODE_MAILBOX_KHR: This is another variation of the second mode. Instead of blocking the application when the queue is full, the
+	/// images that are already queued are simply replaced with the newer ones. This mode can be used to implement triple buffering, which allows you 
+	/// to avoid tearing with significantly less latency issues than standard vertical sync that uses double buffering
 
 	m_PresentMode = VK_PRESENT_MODE_FIFO_KHR;
 	auto presentModes = m_Surface.GetPresentModes();
@@ -111,6 +125,15 @@ void VulkanSwapchain::Create()
 		}
 	}
 
+	/// Specify how to handle swap chain images that will be used across multiple queue families, 
+	/// That will be the case in application if the graphics queue family is different from the presentation queue
+
+	/// VK_SHARING_MODE_EXCLUSIVE: An image is owned by one queue family at a time and ownership must be explicitly transfered before using 
+	/// it in another queue family.This option offers the best performance
+
+	/// VK_SHARING_MODE_CONCURRENT: Images can be used across multiple queue families without explicit ownership transfers,
+	/// concurrent mode requires you to specify at least two distinct queue families
+
 	VkSwapchainCreateInfoKHR createInfo
 	{
 		VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
@@ -121,22 +144,28 @@ void VulkanSwapchain::Create()
 		m_ColorFormat,
 		colorSpace,
 		m_Size,
-		1U,
+		1U, /// This is always 1 unless you are developing a stereoscopic 3D application
 		usageFlags,
 		VK_SHARING_MODE_EXCLUSIVE,
 		0U,
 		nullptr,
 		VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR,
-		VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,  /// Alpha = 1.0f
+		VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,  /// The compositeAlpha field specifies if the alpha channel should be used for blending with other windows in the window system
 		m_PresentMode,
 		VK_TRUE, 
 		VK_NULL_HANDLE
 	};
 
+	/// If the clipped member is set to VK_TRUE then that means that we don¡¯t care about the color of pixels that are
+	/// obscured, for example because another window is in front of them.Unless you really need to be able to read these 
+	/// pixels back and get predictable results, you¡¯ll get the best performance by enabling clipping
+
 	Check(vkCreateSwapchainKHR(VulkanEngine::Instance().GetDevice().Get(), &createInfo, nullptr, &m_Handle));
 
 	m_PresentSemaphore.Create();
 	m_WaitSemaphore.Create();
+
+	/// ImageView describes how to access the image and which part of the image to access
 
 	VulkanImage depthStencilImage;
 	depthStencilImage.Create(
@@ -182,59 +211,6 @@ void VulkanSwapchain::Resize(uint32_t width, uint32_t height)
 	Initialize(m_hWnd, width, height, m_bFullScreen);
 	Create();
 }
-
-#if 0
-void VulkanSwapchain::Begin()
-{
-	VKCheck(vkAcquireNextImageKHR(VulkanEngine::Instance().GetDevice(), m_Handle, UINT64_MAX, m_BackBuffers[m_CurBackBufferIndex].ImageAcquireSemaphore.Get(), VK_NULL_HANDLE, &m_CurBackBufferIndex));
-
-	VKCheck(vkWaitForFences(VulkanEngine::Instance().GetDevice(), 1U, &m_BackBuffers[m_CurBackBufferIndex].PresentFence, VK_TRUE, UINT64_MAX));
-
-	VKCheck(vkResetFences(VulkanEngine::Instance().GetDevice(), 1U, &m_BackBuffers[m_CurBackBufferIndex].PresentFence));
-
-	m_BackBuffers[m_CurBackBufferIndex].CommandBuffer.ResetCommand(0U);
-
-	m_BackBuffers[m_CurBackBufferIndex].CommandBuffer.Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
-
-	VkClearValue clearValue = {};
-	memcpy(clearValue.color.float32, &Color::DarkBlue, sizeof(Vec4));
-	VkRenderPassBeginInfo info
-	{
-		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
-		nullptr,
-		VulkanEngine::Instance().GetDefaultRenderPass().Get(),
-		m_BackBuffers[m_CurBackBufferIndex].FrameBuffer.Get(),
-		{ 0U, 0U, 800U, 600U },
-		1U,
-		&clearValue
-	};
-	vkCmdBeginRenderPass(m_BackBuffers[m_CurBackBufferIndex].CommandBuffer.Get(), &info, VK_SUBPASS_CONTENTS_INLINE);
-
-	m_CurBackBufferIndex = (m_CurBackBufferIndex + 1) % m_BackBuffers.size();
-}
-
-void VulkanSwapchain::End()
-{
-	vkCmdEndRenderPass(m_BackBuffers[m_CurBackBufferIndex].CommandBuffer.Get());
-
-	VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	VkSubmitInfo info
-	{
-		VK_STRUCTURE_TYPE_SUBMIT_INFO,
-		nullptr,
-		1U,
-		&m_BackBuffers[m_CurBackBufferIndex].ImageAcquireSemaphore,
-		&wait_stage,
-		1U,
-		&m_BackBuffers[m_CurBackBufferIndex].CommandBuffer,
-		1U,
-		&m_BackBuffers[m_CurBackBufferIndex].RenderCompleteSemaphore
-	};
-	m_BackBuffers[m_CurBackBufferIndex].CommandBuffer.End();
-
-	VKCheck(vkQueueSubmit(VulkanEngine::Instance().GetQueue(), 1U, &info, m_BackBuffers[m_CurBackBufferIndex].PresentFence.Get()));
-}
-#endif
 
 void VulkanSwapchain::Flush()
 {

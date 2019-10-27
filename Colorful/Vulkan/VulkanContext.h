@@ -19,6 +19,9 @@ protected:
 private:
 };
 
+/// A pipeline cache can be used to store and reuse data relevant to pipeline creation across multiple calls to
+/// "vkCreateGraphicsPipelines" and even across program executions if the cache is stored to a file.This makes it 
+/// possible to significantly speed up pipeline creation at a later time.
 class VulkanPipelineCache : public VulkanObject<VkPipelineCache>
 {
 public:
