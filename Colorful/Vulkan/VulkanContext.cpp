@@ -360,8 +360,15 @@ void VulkanContext::DrawIndexed(uint32_t indexCount, uint32_t startIndex, int32_
 
 		Check(vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo));
 
+		/// VK_SUBPASS_CONTENTS_INLINE: The render pass commands will be embedded in the primary command buffer itself 
+		/// and no secondary command buffers will be executed
+		
+		/// VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS: The render pass commands will be executed from secondary command buffers
+
 		vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
+		/// VK_PIPELINE_BIND_POINT_GRAPHICS/VK_PIPELINE_BIND_POINT_COMPUTE: 
+		/// Specifies if the pipeline object is a graphics or compute pipeline
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_CurPipline.Get());
 
 		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayouts[0].Get(), 0U, 1U, &m_DescriptorSets[0], 0U, nullptr);

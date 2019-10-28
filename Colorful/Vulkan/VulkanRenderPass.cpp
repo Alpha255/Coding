@@ -59,6 +59,10 @@ void VulkanRenderPass::Create()
 		nullptr
 	};
 
+	/// The special value VK_SUBPASS_EXTERNAL refers to the implicit subpass before or after the render pass depending on whether 
+	/// it is specified in srcSubpass or dstSubpass
+	/// The dstSubpass must always be higher than srcSubpass to prevent cycles in the dependency graph
+
 	std::vector<VkSubpassDependency> subpassDependencies =
 	{
 		VkSubpassDependency

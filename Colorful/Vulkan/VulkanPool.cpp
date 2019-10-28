@@ -7,6 +7,12 @@ void VulkanCommandPool::Create(ePoolType type)
 
 	m_Type = type;
 
+	/// VK_COMMAND_POOL_CREATE_TRANSIENT_BIT: Hint that command buffers are recorded with new commands very often
+	/// (may change memory allocation behavior)
+
+	/// VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT: Allow command buffers to be rerecorded individually, 
+	/// without this flag they all have to be reset together
+
 	uint32_t flags = VK_COMMAND_POOL_CREATE_FLAG_BITS_MAX_ENUM;
 	switch (type)
 	{

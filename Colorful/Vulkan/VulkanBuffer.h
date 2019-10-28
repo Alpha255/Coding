@@ -95,6 +95,9 @@ private:
 class VulkanCommandBuffer
 {
 public:
+	/// VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT: The command buffer will be rerecorded right after executing it once
+	/// VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT: This is a secondary command buffer that will be entirely within a single render pass
+	/// VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT: The command buffer can be resubmitted while it is also already pending execution
 	enum eCommandBufferUsage
 	{
 		eDefault = 0U,
@@ -184,6 +187,8 @@ public:
 			nullptr
 		};
 
+		/// If the command buffer was already recorded once, then a call to vkBeginCommandBuffer
+		/// will implicitly reset it.It¡¯s not possible to append commands to a buffer at a later time
 		Check(vkBeginCommandBuffer(m_CommandBuffers[index], &beginInfo));
 	}
 

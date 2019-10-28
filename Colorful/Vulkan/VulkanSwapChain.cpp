@@ -214,9 +214,18 @@ void VulkanSwapchain::Resize(uint32_t width, uint32_t height)
 
 void VulkanSwapchain::Flush()
 {
+	/// The drawFrame function will perform the following operations
+	/// - Acquire an image from the swap chain
+	/// - Execute the command buffer with that image as attachment in the framebuffer
+	/// - Return the image to the swap chain for presentation
+	/// Each of these events is set in motion using a single function call, but they are executed asynchronously.
+	/// The function calls will return before the operations are actually finished and the order of execution is also undefined
 	Check(vkAcquireNextImageKHR(VulkanEngine::Instance().GetDevice().Get(), m_Handle, UINT64_MAX, m_PresentSemaphore.Get(), VK_NULL_HANDLE, &m_CurrentBackBufferIndex));
 	Check(vkWaitForFences(VulkanEngine::Instance().GetDevice().Get(), 1u, &m_BackBuffers[m_CurrentBackBufferIndex].PresentFence, true, UINT64_MAX));
 	Check(vkResetFences(VulkanEngine::Instance().GetDevice().Get(), 1u, &m_BackBuffers[m_CurrentBackBufferIndex].PresentFence));
+
+	/// Fences are mainly designed to synchronize your application itself with rendering operation,
+	/// whereas semaphores are used to synchronize operations within or across command queues
 
 	VkQueue deviceQueue = VulkanEngine::Instance().GetDevice().GetQueue().Get();
 

@@ -14,6 +14,8 @@ public:
 		ePoolTypeCount
 	};
 
+	/// VK_COMMAND_BUFFER_LEVEL_PRIMARY: Can be submitted to a queue for execution, but cannot be called from other command buffers
+	/// VK_COMMAND_BUFFER_LEVEL_SECONDARY: Cannot be submitted directly, but can be called from primary command buffers
 	enum eBufferType
 	{
 		ePrimary = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
