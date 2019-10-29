@@ -42,7 +42,7 @@ public:
 		return ::RECT{ (long32_t)x, (long32_t)y, (long32_t)z, (long32_t)w };
 	}
 
-	bool8_t isCollide(const rect &other);
+	bool8_t isIntersect(const rect &other);
 protected:
 private:
 };
