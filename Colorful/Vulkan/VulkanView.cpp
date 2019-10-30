@@ -13,6 +13,9 @@ void VulkanImage::Create(
 	uint32_t layout,
 	const VulkanSubResourceData *pSubResourceData)
 {
+	///  A pipeline barrier like that is generally used to synchronize access to resources, 
+	/// like ensuring that a write to a buffer completes before reading from it, but it can also be used to 
+	/// transition image layouts and transfer queue family ownership when VK_SHARING_MODE_EXCLUSIVE is used.
 	assert(!IsValid() && type <= VK_IMAGE_TYPE_END_RANGE);
 
 	m_CreateInfo = VkImageCreateInfo
