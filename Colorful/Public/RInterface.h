@@ -7,7 +7,7 @@ class rDevice
 public:
 	virtual void create(::HWND) = 0;
 	virtual void destory() = 0;
-	virtual void translate() = 0;
+	virtual uint32_t translate(uint32_t) = 0;
 };
 
 class rContext
