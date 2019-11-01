@@ -249,3 +249,14 @@ private:
 
 	bool m_Inited = false;
 };
+
+
+#include "D3D11Device.h"
+
+class d3d11Engine : public rEngine
+{
+public:
+	void initialize(::HWND, uint32_t, uint32_t, bool8_t) override final;
+protected:
+private:
+};

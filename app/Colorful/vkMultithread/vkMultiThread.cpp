@@ -2,6 +2,7 @@
 #include "Colorful/Vulkan/VulkanEngine.h"
 #include "Colorful/Public/Geometry.h"
 #include "Colorful/Public/Model.h"
+#include "Colorful/Public/RObjectTest.h"
 
 struct uniformBuffer_ufo
 {
@@ -48,6 +49,14 @@ VulkanBuffer UniformBuffer;
 
 void vkMultiThread::postInitialize()
 {
+#if 1
+	//vkEngine engine_vk;
+	//auto instancePtr = engine_vk.createInstance();
+
+	d3d11Engine engine_d3d11;
+	rDevicePtr devicePtr = engine_d3d11.getDevice();
+#endif
+
 	taskScheduler::instance().initialize();
 
 	VulkanEngine::Instance().Initialize(m_hWnd, (uint32_t)m_WindowSize.x, (uint32_t)m_WindowSize.y, true);

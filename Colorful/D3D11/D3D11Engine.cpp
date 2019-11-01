@@ -89,3 +89,8 @@ void D3D11Engine::Resize(uint32_t width, uint32_t height)
 
 	RecreateRenderTargetDepthStencil(width, height);
 }
+
+void d3d11Engine::initialize(::HWND, uint32_t, uint32_t, bool8_t)
+{
+
+}

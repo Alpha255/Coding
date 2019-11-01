@@ -1,20 +1,14 @@
 #pragma once
 
-#include "gear/gear.h"
+#include "RObject.h"
 
 class rDevice
 {
 public:
-	virtual void create(::HWND) = 0;
-	virtual void destory() = 0;
-	virtual uint32_t translate(uint32_t) = 0;
+	virtual void create() = 0;
 };
 
 class rContext
-{
-};
-
-class rObject
 {
 };
 
@@ -100,4 +94,29 @@ public:
 class rInputLayout
 {
 
+};
+
+typedef std::shared_ptr<rDevice> rDevicePtr;
+typedef std::shared_ptr<rContext> rContextPtr;
+
+class rEngine
+{
+public:
+	virtual void initialize(::HWND, uint32_t, uint32_t, bool8_t) = 0;
+
+	inline rDevicePtr getDevice() const
+	{
+		assert(m_Device);
+		return m_Device;
+	}
+
+	inline rContextPtr getIMContext() const
+	{
+		assert(m_IMContext);
+		return m_IMContext;
+	}
+protected:
+private:
+	rDevicePtr m_Device = nullptr;
+	rContextPtr m_IMContext = nullptr;
 };
