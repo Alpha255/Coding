@@ -28,13 +28,27 @@ public:
 	{
 		return m_Object.use_count();
 	}
+protected:
+	std::shared_ptr<T> m_Object = nullptr;
+private:
+};
 
-	inline void reset(T *other = nullptr)
+template <typename T> class vkObject : public rObject<T>
+{
+public:
+	inline T operator&() const
+	{
+		return (T)(m_Object.get());
+	}
+
+	inline void reset(T other = VK_NULL_HANDLE)
 	{
 		if (other)
 		{
-			destory();
-			m_Object.reset(other);
+			m_Object.reset((T *)other, std::function<void(T *&)>([](T *&pObject)
+			{
+				pObject = VK_NULL_HANDLE;
+			}));
 		}
 		else
 		{
@@ -45,35 +59,60 @@ public:
 			}
 		}
 	}
-
-	inline virtual void destory() {};
-protected:
-	std::shared_ptr<T> m_Object = nullptr;
-private:
-};
-
-template <typename T> class vkObject : public rObject<T>
-{
-public:
 };
 
 template <typename T> class d3dObject : public rObject<T>
 {
 public:
-	inline void destory() override final
+	inline void reset(T *other = nullptr)
 	{
-		if (m_Object)
+		if (other)
 		{
-			m_Object->Release();
-			m_Object = nullptr;
+			m_Object.reset(other, std::function<void(T *&)>([](T *&pObject) 
+			{ 
+				pObject->Release(); 
+				pObject = nullptr;
+			}));
+		}
+		else
+		{
+			if (m_Object)
+			{
+				m_Object.reset();
+				m_Object = nullptr;
+			}
 		}
 	}
 };
 
-#define rVerify(func)     \
-{                         \
-	auto result = (func); \
-	if (result != 0)      \
-	{                     \
-	}                     \
+#if 0
+#define rVerify(func)                                 \
+{                                                     \
+	auto result = (func);                             \
+	if (result != 0)                                  \
+	{                                                 \
+		if (g_rEnginePtr)                             \
+		{                                             \
+			g_rEnginePtr->logError((uint32_t)result); \
+		}                                             \
+	}                                                 \
+}
+#endif
+
+#define rVerifyD3D11(func)                        \
+{                                                 \
+	::HRESULT result = (func);                    \
+	if (FAILED(result))                           \
+	{                                             \
+		d3d11Engine::instance().logError(result); \
+	}                                             \
+}
+
+#define rVerifyVk(func)                        \
+{                                              \
+	VkResult result = (func);                  \
+	if (result != VK_SUCCESS)                  \
+	{                                          \
+		vkEngine::instance().logError(result); \
+	}                                          \
 }

@@ -1,4 +1,7 @@
 #include "vkMultiThread.h"
+///#include "Colorful/D3D11/D3D11Engine.h"
+#include "Colorful/Vulkan/VulkanEngine.h"
+#if 0
 #include "Colorful/Vulkan/VulkanEngine.h"
 #include "Colorful/Public/Geometry.h"
 #include "Colorful/Public/Model.h"
@@ -53,8 +56,7 @@ void vkMultiThread::postInitialize()
 	//vkEngine engine_vk;
 	//auto instancePtr = engine_vk.createInstance();
 
-	d3d11Engine engine_d3d11;
-	rDevicePtr devicePtr = engine_d3d11.getDevice();
+	
 #endif
 
 	taskScheduler::instance().initialize();
@@ -139,5 +141,27 @@ void vkMultiThread::renterToWindow()
 
 	m_Camera.update(m_Timer.getElapsedTime());
 }
+#else
+void vkMultiThread::postInitialize()
+{
+	///d3d11Engine::instance().initialize(m_hWnd, (uint32_t)m_WindowSize.x, (uint32_t)m_WindowSize.y, false);
+	vkEngine::instance().initialize(m_hWnd, (uint32_t)m_WindowSize.x, (uint32_t)m_WindowSize.y, false);
+}
+
+void vkMultiThread::finalize()
+{
+
+}
+
+void vkMultiThread::resizeWindow()
+{
+
+}
+
+void vkMultiThread::renterToWindow()
+{
+
+}
+#endif
 
 winMainEntry(vkMultiThread)

@@ -1,5 +1,8 @@
 #include "application.h"
 #include "gear/System/Resource.h"
+#include "Colorful/Public/RInterface.h"
+
+rEnginePtr g_rEnginePtr = nullptr;
 
 namespaceStart(gear)
 
@@ -144,7 +147,16 @@ void application::initialize(const std::string &title, uint32_t extraWindowStyle
 
 	m_Config.load();
 
-	makeWindow(title, m_Config.getWindowWidth(), m_Config.getWindowHeight(), extraWindowStyle);
+	makeWindow(title, m_Config.getWidth(), m_Config.getHeight(), extraWindowStyle);
+
+	auto renderEngine = m_Config.getRenderEngine();
+	if (renderEngine == appConfig::eD3D11)
+	{
+	}
+	else if (renderEngine == appConfig::eVulkan)
+	{
+
+	}
 
 	assetBucket::instance().initialize();
 

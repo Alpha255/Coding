@@ -21,18 +21,31 @@ void appConfig::load()
 		auto itWidth = configJson.find("width");
 		auto itHeight = configJson.find("height");
 		auto itFullScreen = configJson.find("fullscreen");
+		auto itRenderEngine = configJson.find("renderEngine");
 
 		if (itWidth != configJson.end())
 		{
-			m_WindowWidth = itWidth.value();
+			m_Width = itWidth.value();
 		}
 		if (itHeight != configJson.end())
 		{
-			m_WindowHeight = itHeight.value();
+			m_Height = itHeight.value();
 		}
 		if (itFullScreen != configJson.end())
 		{
 			m_bFullScreen = itFullScreen.value();
+		}
+		if (itRenderEngine != configJson.end())
+		{
+			std::string renderEngine = itRenderEngine.value();
+			if (renderEngine == "d3d11")
+			{
+				m_RenderEngine = eD3D11;
+			}
+			else if (renderEngine == "vulkan")
+			{
+				m_RenderEngine = eVulkan;
+			}
 		}
 	}
 	else

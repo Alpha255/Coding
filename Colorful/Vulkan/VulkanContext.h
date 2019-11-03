@@ -386,3 +386,12 @@ private:
 	VulkanStateInfos m_StateInfos = {};
 	bool m_Dirty = false;
 };
+
+#include <vulkan/vulkan.h>
+#include <vulkan/vulkan_win32.h>
+#include "Public/RInterface.h"
+
+class vkContext : public rContext
+{
+};
+typedef std::shared_ptr<vkContext> vkContextPtr;

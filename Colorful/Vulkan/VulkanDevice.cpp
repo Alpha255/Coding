@@ -255,3 +255,160 @@ void VulkanDevice::Create()
 //
 //	return result;
 //}
+
+VKAPI_ATTR VkBool32 VKAPI_CALL vkDebugReportFunc(
+	VkDebugReportFlagsEXT flags,
+	VkDebugReportObjectTypeEXT objectType,
+	uint64_t object,
+	size_t location,
+	int32_t messageCode,
+	const char8_t* pLayerPrefix,
+	const char8_t* pMessage,
+	void* pUserData)
+{
+	(void)(flags);
+	(void)(objectType);
+	(void)(object);
+	(void)(location);
+	(void)(messageCode);
+	(void)(pUserData);
+
+	std::string message = gear::format("%15s|%2d: %s", pLayerPrefix, messageCode, pMessage);
+	gear::eLogLevel logLevel = gear::eError;
+
+	if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
+	{
+		logLevel = gear::eError;
+	}
+	else if (flags & VK_DEBUG_REPORT_WARNING_BIT_EXT)
+	{
+		logLevel = gear::eWarning;
+	}
+	else if (flags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT)
+	{
+		logLevel = gear::eInfo;
+	}
+	else if (flags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT)
+	{
+		logLevel = gear::eInfo;
+	}
+	else if (flags & VK_DEBUG_REPORT_DEBUG_BIT_EXT)
+	{
+		logLevel = gear::eInfo;
+	}
+	
+	gear::log(logLevel, "Vulkan debug report: %s.", message.c_str());
+	return VK_FALSE;
+}
+
+void vkInstance::create()
+{
+	std::vector<const char8_t*> layers =
+	{
+		"VK_LAYER_LUNARG_standard_validation",
+#if defined(_DEBUG)
+		"VK_LAYER_LUNARG_core_validation",
+		"VK_LAYER_LUNARG_object_tracker",
+		"VK_LAYER_LUNARG_parameter_validation"
+#endif
+	};
+
+	std::vector<const char8_t*> extensions =
+	{
+		VK_KHR_SURFACE_EXTENSION_NAME,
+		VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
+		VK_EXT_DEBUG_REPORT_EXTENSION_NAME
+	};
+
+	uint32_t count = 0U;
+	rVerifyVk(vkEnumerateInstanceLayerProperties(&count, nullptr));
+	std::vector<VkLayerProperties> supportedLayers(count);
+	rVerifyVk(vkEnumerateInstanceLayerProperties(&count, supportedLayers.data()));
+	layers = getSupportedProperties<VkLayerProperties>(supportedLayers, layers);
+
+	rVerifyVk(vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr));
+	std::vector<VkExtensionProperties> supportedExtensions(count);
+	rVerifyVk(vkEnumerateInstanceExtensionProperties(nullptr, &count, supportedExtensions.data()));
+	extensions = getSupportedProperties<VkExtensionProperties>(supportedExtensions, extensions);
+
+	VkApplicationInfo appInfo
+	{
+		VK_STRUCTURE_TYPE_APPLICATION_INFO,
+		nullptr,
+		"vkApplication",
+		0U,
+		"vkEngine",
+		0U,
+		VK_API_VERSION_1_0
+	};
+
+	VkInstanceCreateInfo createInfo
+	{
+		VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+		nullptr,
+		0u,
+		&appInfo,
+		(uint32_t)layers.size(),
+		layers.data(),
+		(uint32_t)extensions.size(),
+		extensions.data()
+	};
+
+	VkInstance handle = VK_NULL_HANDLE;
+	rVerifyVk(vkCreateInstance(&createInfo, nullptr, &handle));
+	reset(handle);
+}
+
+void vkDebugReportCallback::create(const vkInstancePtr &instance)
+{
+	PFN_vkCreateDebugReportCallbackEXT vkCreateDebugReportCallback = reinterpret_cast<PFN_vkCreateDebugReportCallbackEXT>(
+		vkGetInstanceProcAddr(&(*instance), "vkCreateDebugReportCallbackEXT")
+		);
+	assert(vkCreateDebugReportCallback);
+
+	VkDebugReportCallbackCreateInfoEXT createInfo
+	{
+		VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT,
+		nullptr,
+		VK_DEBUG_REPORT_INFORMATION_BIT_EXT 
+			| VK_DEBUG_REPORT_ERROR_BIT_EXT 
+			| VK_DEBUG_REPORT_WARNING_BIT_EXT 
+			| VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT 
+			| VK_DEBUG_REPORT_DEBUG_BIT_EXT,
+		vkDebugReportFunc,
+		nullptr
+	};
+
+	VkDebugReportCallbackEXT handle = VK_NULL_HANDLE;
+	rVerifyVk(vkCreateDebugReportCallback(&(*instance), &createInfo, nullptr, &handle));
+	reset(handle);
+}
+
+uint32_t vkDevice::create(const std::vector<vkPhysicalDevicePtr> &physicalDevices)
+{
+	uint32_t discreteGpuIndex = UINT32_MAX;
+	for (uint32_t i = 0u; i < physicalDevices.size(); ++i)
+	{
+		VkPhysicalDeviceProperties properties = {};
+		vkGetPhysicalDeviceProperties(&(*physicalDevices[i]), &properties);
+
+		switch (properties.deviceType)
+		{
+		case VK_PHYSICAL_DEVICE_TYPE_OTHER:
+			break;
+		case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
+			break;
+		case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
+			discreteGpuIndex = i;
+			break;
+		case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
+			break;
+		case VK_PHYSICAL_DEVICE_TYPE_CPU:
+			break;
+		default:
+			break;
+		}
+	}
+
+	return discreteGpuIndex;
+}

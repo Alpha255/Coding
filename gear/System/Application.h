@@ -2,6 +2,7 @@
 
 #include "gear/gear.h"
 #include "gear/Public/Config.h"
+#include "Colorful/Public/RInterface.h"
 
 namespaceStart(gear)
 

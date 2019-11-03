@@ -54,14 +54,21 @@
 	}                     \
 }
 
-#define verifyWin(condition)                                  \
-{                                                             \
-	if (!(condition))                                         \
-	{                                                         \
-		gear::log("gear: Error code = %u", ::GetLastError()); \
-		assert(0);                                            \
-	}                                                         \
+
+#if defined(DEBUG) || defined(_DEBUG)
+#define verifyWin(condition)                                                                                                   \
+{                                                                                                                              \
+	if (!(condition))                                                                                                          \
+	{                                                                                                                          \
+		uint32_t errorCode = (uint32_t)::GetLastError();                                                                       \
+		std::string errorMsg = gear::getErrorMessage(errorCode);                                                               \
+		gear::log(gear::eError, "Failed to invoke WINAPI, error code = %u, error info = \"%s\"", errorCode, errorMsg.c_str()); \
+		assert(0);                                                                                                             \
+	}                                                                                                                          \
 }
+#else
+#define verifyWin(condition) verify(condition)
+#endif
 
 #define winMainEntry(appName)                                  \
 int32_t WINAPI wWinMain(HINSTANCE, HINSTANCE, LPWSTR, int32_t) \
@@ -71,6 +78,8 @@ int32_t WINAPI wWinMain(HINSTANCE, HINSTANCE, LPWSTR, int32_t) \
 	app_##appName.loop();                                      \
 	app_##appName.finalize();                                  \
 }
+
+#define enumToString(enumValue) #enumValue
 
 #if defined(UsingAsDynamicLib)
 	#define exportAPI __declspec(dllexport)

@@ -2,10 +2,17 @@
 
 #include "RObject.h"
 
+struct rAdapter
+{
+	std::string DeviceName;
+	uint32_t VendorID = 0u;
+	uint32_t DeviceID = 0u;
+};
+
 class rDevice
 {
-public:
-	virtual void create() = 0;
+protected:
+	rAdapter m_Adapter;
 };
 
 class rContext
@@ -103,20 +110,13 @@ class rEngine
 {
 public:
 	virtual void initialize(::HWND, uint32_t, uint32_t, bool8_t) = 0;
+	virtual void finalize() = 0;
+	virtual void logError(uint32_t result) const = 0;
 
-	inline rDevicePtr getDevice() const
-	{
-		assert(m_Device);
-		return m_Device;
-	}
-
-	inline rContextPtr getIMContext() const
-	{
-		assert(m_IMContext);
-		return m_IMContext;
-	}
+	virtual rDevicePtr getDevice() const = 0;
+	virtual rContextPtr getIMContext() const = 0;
 protected:
 private:
-	rDevicePtr m_Device = nullptr;
-	rContextPtr m_IMContext = nullptr;
 };
+typedef std::unique_ptr<rEngine> rEnginePtr;
+extern rEnginePtr g_rEnginePtr;

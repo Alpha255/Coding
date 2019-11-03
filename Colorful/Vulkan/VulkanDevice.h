@@ -133,3 +133,31 @@ private:
 	VulkanPhysicalDevice m_PhysicalDevice;
 	VulkanQueue m_DeviceQueue;
 };
+
+#include "VulkanContext.h"
+
+class vkInstance : public vkObject<VkInstance>
+{
+public:
+	void create();
+};
+typedef std::shared_ptr<vkInstance> vkInstancePtr;
+
+class vkDebugReportCallback : public vkObject<VkDebugReportCallbackEXT>
+{
+public:
+	void create(const vkInstancePtr &instance);
+};
+typedef std::shared_ptr<vkDebugReportCallback> vkDebugReportCallbackPtr;
+
+class vkPhysicalDevice : public vkObject<VkPhysicalDevice>
+{
+};
+typedef std::shared_ptr<vkPhysicalDevice> vkPhysicalDevicePtr;
+
+class vkDevice : public vkObject<VkDevice>, public rDevice
+{
+public:
+	uint32_t create(const std::vector<vkPhysicalDevicePtr> &physicalDevices);
+};
+typedef std::shared_ptr<vkDevice> vkDevicePtr;

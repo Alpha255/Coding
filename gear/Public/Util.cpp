@@ -3,8 +3,19 @@
 
 namespaceStart(gear)
 
-void log(const char8_t *pMessage, ...) 
+void log(eLogLevel level, const char8_t *pMessage, ...)
 {
+	assert(level < eLogLevel_MaxEnum);
+
+	static std::string s_LogLevel[eLogLevel_MaxEnum] = 
+	{
+		"Info: ",
+		"Warning: ",
+		"Error: "
+	};
+
+	std::string logMessage(s_LogLevel[level]);
+
 	std::unique_ptr<char8_t> message = nullptr;
 	if (pMessage)
 	{
@@ -14,10 +25,34 @@ void log(const char8_t *pMessage, ...)
 		message = std::unique_ptr<char8_t>(new char8_t[size]());
 		_vsnprintf_s(message.get(), size, size, pMessage, list);
 		va_end(list);
+
+		logMessage += message.get();
 	}
 
-	::OutputDebugStringA(message.get());
-	::OutputDebugStringA("\n");
+	logMessage += "\n";
+
+	::OutputDebugStringA(logMessage.c_str());
+}
+
+std::string getErrorMessage(uint32_t errorCode)
+{
+	std::string message;
+
+	::LPSTR msg = nullptr;
+	::FormatMessageA(
+		FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_ALLOCATE_BUFFER,
+		nullptr,
+		errorCode,
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		msg,
+		0u,
+		nullptr);
+	if (msg)
+	{
+		message = std::string(msg);
+	}
+
+	return message;
 }
 
 bool8_t executeProcess(const std::string &commandline, bool8_t bWaitUntilDone)
@@ -65,7 +100,7 @@ bool8_t executeProcess(const std::string &commandline, bool8_t bWaitUntilDone)
 					char8_t outputBuffer[INT16_MAX] = {};
 					verifyWin(::ReadFile(readHandle, outputBuffer, INT16_MAX, &readBytes, nullptr) != 0);
 					outputBuffer[readBytes] = '\0';
-					gear::log("Shader compile failed: %s", outputBuffer);
+					gear::log(gear::eError, "Shader compile failed: %s", outputBuffer);
 					bResult = false;
 				}
 			}
