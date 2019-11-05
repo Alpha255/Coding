@@ -139,6 +139,106 @@ private:
 class thread
 {
 public:
+	enum ePriority
+	{
+		eLow,
+		eNormal,
+		eHight,
+		ePriority_MaxEnum
+	};
+
+	enum eAffinity
+	{
+		eCoreAny,
+		eCore_0,
+	};
+
+	enum eState
+	{
+		eSuspend,
+		eRunning,
+		eTerminated,
+		eState_MaxEnum
+	};
+
+	enum eThreadType
+	{
+		eUnited,
+		eIndependent,
+		eThreadType_MaxEnum
+	};
+
+	thread(
+		const std::string &name, 
+		eThreadType type = eUnited,
+		ePriority priority = eNormal, 
+		eAffinity affinity = eCoreAny, 
+		bool8_t suspendOnStart = true)
+		: m_Name(name)
+		, m_Type(type)
+		, m_Priority(priority)
+		, m_Affinity(affinity)
+		, m_bSuspend(suspendOnStart)
+	{
+	}
+	virtual ~thread() {}
+
+	uintptr_t getNativeHandle()
+	{
+		return (uintptr_t)(m_Thread.native_handle());
+	}
+
+	std::thread::id getID() const
+	{
+		return m_Thread.get_id();
+	}
+
+	inline void run() 
+	{
+
+	}
+
+	inline void suspend()
+	{
+
+	}
+
+	inline void terminate()
+	{
+
+	}
+
+	inline bool8_t waitDone() 
+	{
+		if (m_Type == eUnited && m_State == eRunning && m_Thread.joinable())
+		{
+			m_Thread.join();
+			return true;
+		}
+
+		return false;
+	}
+
+	virtual void threadFunc() = 0;
+protected:
+private:
+	std::string m_Name;
+	eThreadType m_Type = eUnited;
+	ePriority m_Priority = eNormal;
+	eAffinity m_Affinity = eCoreAny;
+	eState m_State = eSuspend;
+
+	bool8_t m_bTerminate = false;
+	bool8_t m_bSuspend = true;
+
+	std::thread m_Thread;
+	std::condition_variable m_Notifier;
+};
+
+class threadTask
+{
+public:
+	virtual void execute() = 0;
 protected:
 private:
 };
