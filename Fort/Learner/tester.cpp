@@ -154,19 +154,24 @@ int main()
 
 	//rbTree<char> rbTreeTest;
 
-	InputBuffer buffer0;
-	InputBuffer_0 buffer_0;
+	//InputBuffer buffer0;
+	//InputBuffer_0 buffer_0;
 
-	AlignTest test0;
-	AlignTest_0 test_0;
+	//AlignTest test0;
+	//AlignTest_0 test_0;
 
-	AlignTest_1 test1;
+	//AlignTest_1 test1;
 
-	Hanoi(3u, 'A', 'B', 'C');
+	//Hanoi(3u, 'A', 'B', 'C');
 
-	OutputDebugStringA("\n\n");
+	//OutputDebugStringA("\n\n");
 
-	_Hanoi_(3u, 'A', 'B', 'C');
+	//_Hanoi_(3u, 'A', 'B', 'C');
+
+	TryToClimbStairs tryTest;
+	uint32_t result1 = tryTest.ClimbStairs(20u);
+
+	uint32_t result2 = _ClimbStairs_(20u);
 	
 	return 0;
 }

@@ -48,7 +48,7 @@ template <typename T> void shellSort(T *pBegin, T *pEnd, std::function<bool(T &,
 		{
 			T key = pBegin[i];
 			uint32_t start = i - incr;
-			while (start >= 0U && key <= pBegin[start])
+			while (start >= 0U && compFunc(key, pBegin[start]))
 			{
 				pBegin[start + incr] = pBegin[start];
 				start -= incr;

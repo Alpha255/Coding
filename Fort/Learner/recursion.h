@@ -54,3 +54,57 @@ void _Hanoi_(uint32_t count, const char &left, const char &middle, const char &r
 		std::swap(movement.Left, movement.Middle);
 	}
 }
+
+/////////////////////////////////////////////////////////
+uint32_t ClimbStairs(uint32_t n)
+{
+	if (n <= 2u)
+	{
+		return n;
+	}
+
+	return ClimbStairs(n - 1u) + ClimbStairs(n - 2u);
+}
+
+class TryToClimbStairs
+{
+public:
+	uint32_t ClimbStairs(uint32_t n)
+	{
+		if (n <= 2u)
+		{
+			return n;
+		}
+
+		if (m_Results.size() > (n - 3u))
+		{
+			return m_Results.at(n - 3u);
+		}
+
+		uint32_t result = ClimbStairs(n - 1u) + ClimbStairs(n - 2u);
+		m_Results.emplace_back(result);
+		return result;
+	}
+private:
+	std::vector<uint32_t> m_Results;
+};
+
+uint32_t _ClimbStairs_(uint32_t n)
+{
+	if (n <= 2u)
+	{
+		return n;
+	}
+
+	uint32_t n0 = 0u, n1 = 1u, n2 = 2u;
+	for (uint32_t i = 3u; i <= n; ++i)
+	{
+		n0 = n1 + n2;
+		n1 = n2;
+		n2 = n0;
+	}
+
+	return n0;
+}
+
+
