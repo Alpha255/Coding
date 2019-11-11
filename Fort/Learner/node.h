@@ -1,11 +1,6 @@
 #pragma once
 
-#include <stdint.h>
-#include <assert.h>
-#include <memory>
-#include <iostream>
-#include <stack>
-#include "Base/Base.h"
+#include "gear/gear.h"
 
 template<typename T> struct node
 {

@@ -110,7 +110,19 @@ workspace "Miscellaneous"
 			language "C++"
 			location "./Projects"
 			files "./Fort/Learner/**"
-			includedirs { "$(SolutionDir)" }
+			includedirs { 
+				"$(SolutionDir)",
+				"$(SolutionDir)ThirdParty",
+				"$(SolutionDir)ThirdParty\\googletest",
+				"$(SolutionDir)ThirdParty\\googletest\\googletest",
+				"$(SolutionDir)ThirdParty\\googletest\\googlemock",
+				"$(SolutionDir)ThirdParty\\googletest\\googletest\\include",
+				"$(SolutionDir)ThirdParty\\googletest\\googlemock\\include",
+			 }
+			links {
+				"gear",
+				"googletest"
+			}
 
 	group "ThirdParty"
 		project "ImGui"
@@ -251,6 +263,69 @@ workspace "Miscellaneous"
 					"OPENDDLPARSER_BUILD",
 					"assimp_EXPORTS", 
 				}
+		
+				project "googletest"
+					kind "StaticLib"
+					language "C++"
+					location "./Projects"
+					includedirs { 
+						"$(SolutionDir)ThirdParty\\googletest\\googletest",
+						"$(SolutionDir)ThirdParty\\googletest\\googletest\\include",
+						"$(SolutionDir)ThirdParty\\googletest\\googlemock",
+						"$(SolutionDir)ThirdParty\\googletest\\googlemock\\include",
+					 }
+					vpaths {
+						["gtest/include"] = {
+							"./ThirdParty/googletest/googletest/include/gtest/**"
+						},
+						["gtest/src"] = {
+							"./ThirdParty/googletest/googletest/src/**"
+						},
+						["gmock/include"] = {
+							"./ThirdParty/googletest/googlemock/include/gmock/**"
+						},
+						["gmock/src"] = {
+							"./ThirdParty/googletest/googlemock/src/**"
+						},
+					}
+					files {
+						"./ThirdParty/googletest/googletest/include/gtest/**",
+						"./ThirdParty/googletest/googletest/src/gtest-all.cc",
+						"./ThirdParty/googletest/googlemock/include/gmock/**",
+						"./ThirdParty/googletest/googlemock/src/gmock-all.cc"
+					}
+					removefiles {
+						"./ThirdParty/googletest/googletest/include/gtest/internal/custom/README.md",
+						"./ThirdParty/googletest/googletest/src/gtest_main.cc",
+						"./ThirdParty/googletest/googlemock/include/gmock/internal/custom/README.md",
+						"./ThirdParty/googletest/googlemock/src/gmock_main.cc",
+						"./ThirdParty/googletest/**.pump"
+					}
+					filter { "configurations:Debug" }
+						defines {
+							"WIN32",
+							"_WINDOWS",
+							"_UNICODE",
+							"UNICODE",
+							"_WIN32",
+							"STRICT",
+							"WIN32_LEAN_AND_MEAN",
+							"GTEST_HAS_PTHREAD=0",
+							"_HAS_EXCEPTIONS=1"
+						}
+					filter { "configurations:Release" }
+						defines {
+							"WIN32",
+							"_WINDOWS",
+							"NDEBUG",
+							"_UNICODE",
+							"UNICODE",
+							"_WIN32",
+							"STRICT",
+							"WIN32_LEAN_AND_MEAN",
+							"GTEST_HAS_PTHREAD=0",
+							"_HAS_EXCEPTIONS=1"
+						}
 
 	group "Colorful"
 		project "Box"
