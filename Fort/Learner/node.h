@@ -2,6 +2,8 @@
 
 #include "gear/gear.h"
 
+namespaceStart(fort)
+
 template<typename T> struct node
 {
 	inline node() = default;
@@ -52,3 +54,5 @@ template<typename T> inline void freeArray(T *&pMemory)
 		pMemory = nullptr;
 	}
 }
+
+namespaceEnd(fort)

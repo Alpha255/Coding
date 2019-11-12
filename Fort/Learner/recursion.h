@@ -2,6 +2,8 @@
 
 #include "node.h"
 
+namespaceStart(fort)
+
 void Move(uint32_t index, const char &from, const char &to)
 {
 	std::cout << "Move " << index << " from " << from << " to " << to << std::endl;
@@ -106,5 +108,7 @@ uint32_t _ClimbStairs_(uint32_t n)
 
 	return n0;
 }
+
+namespaceEnd(fort)
 
 

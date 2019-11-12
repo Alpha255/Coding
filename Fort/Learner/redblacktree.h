@@ -2,6 +2,8 @@
 
 #include "bintree.h"
 
+namespaceStart(fort)
+
 template <typename T> struct rbTreeNode : public treenode<T>
 {
 	enum eColor
@@ -54,3 +56,5 @@ protected:
 	}
 private:
 };
+
+namespaceEnd(fort)

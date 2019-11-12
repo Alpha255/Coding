@@ -2,6 +2,8 @@
 
 #include "Node.h"
 
+namespaceStart(fort)
+
 template<typename T> class doublelinkedlist
 {
 public:
@@ -91,3 +93,5 @@ private:
 	iterator m_Root = nullptr;
 	size_t m_Size = 0U;
 };
+
+namespaceEnd(fort)

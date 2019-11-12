@@ -2,6 +2,8 @@
 
 #include "Node.h"
 
+namespaceStart(fort)
+
 template<typename T> class linkedlist
 {
 public:
@@ -137,3 +139,5 @@ private:
 	iterator m_End = nullptr;
 	size_t m_Size = 0U;
 };
+
+namespaceEnd(fort)

@@ -2,6 +2,8 @@
 
 #include "node.h"
 
+namespaceStart(fort)
+
 template<typename T> class linearlist
 {
 public:
@@ -129,3 +131,5 @@ private:
 	size_t m_MaxSize = 0U;
 	std::unique_ptr<T> m_Data = nullptr;
 };
+
+namespaceEnd(fort)

@@ -2,8 +2,10 @@
 
 #include "node.h"
 
+namespaceStart(fort)
+
 /// O(N^2) steady
-template <typename T> void insertSort(T *pBegin, T *pEnd, std::function<bool(T &, T &)> compFunc = [&](T &left, T &right)->bool {
+template <typename T> void insertSort(T *pBegin, T *pEnd, std::function<bool(const T &, const T &)> compFunc = [](const T &left, const T &right)->bool {
 	return left <= right;
 })
 {
@@ -34,21 +36,21 @@ template <typename T> void insertSort(T *pBegin, T *pEnd, std::function<bool(T &
 }
 
 /// O(n^1.3) not steady
-template <typename T> void shellSort(T *pBegin, T *pEnd, std::function<bool(T &, T &)> compFunc = [&](T &left, T &right)->bool {
+template <typename T> void shellSort(T *pBegin, T *pEnd, std::function<bool(const T &, const T &)> compFunc = [](const T &left, const T &right)->bool {
 	return left <= right;
 })
 {
 	ptrdiff_t length = std::distance(pBegin, pEnd);
 	uint32_t incr = (uint32_t)length;
 
-	while (incr > 1U)
+	while (incr > 1u)
 	{
-		incr = incr / 3U + 1U;
+		incr = incr / 3u + 1u;
 		for (uint32_t i = incr; i < length; ++i)
 		{
 			T key = pBegin[i];
 			uint32_t start = i - incr;
-			while (start >= 0U && compFunc(key, pBegin[start]))
+			while (start >= 0u && start < length && compFunc(key, pBegin[start]))
 			{
 				pBegin[start + incr] = pBegin[start];
 				start -= incr;
@@ -58,3 +60,5 @@ template <typename T> void shellSort(T *pBegin, T *pEnd, std::function<bool(T &,
 		}
 	}
 }
+
+namespaceEnd(fort)

@@ -4,6 +4,8 @@
 
 /// Single Consumer, Single Producer, so called "Lockfree"
 
+namespaceStart(fort)
+
 class Product
 {
 public:
@@ -65,3 +67,5 @@ public:
 protected:
 private:
 };
+
+namespaceEnd(fort)

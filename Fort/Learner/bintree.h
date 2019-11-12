@@ -2,6 +2,8 @@
 
 #include "node.h"
 
+namespaceStart(fort)
+
 template <typename T> class BinTree
 {
 public:
@@ -124,3 +126,5 @@ protected:
 private:
 	treenode<T> *m_Root = nullptr;
 };
+
+namespaceEnd(fort)
