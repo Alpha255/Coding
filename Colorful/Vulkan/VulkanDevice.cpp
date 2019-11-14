@@ -384,13 +384,13 @@ void vkDebugReportCallback::create(const vkInstancePtr &instance)
 	reset(handle);
 }
 
-uint32_t vkDevice::create(const std::vector<vkPhysicalDevicePtr> &physicalDevices)
+uint32_t vkDevice::create(const std::vector<vkPhysicalDevicePtr> &physicalDevicePtrs)
 {
 	uint32_t discreteGpuIndex = UINT32_MAX;
-	for (uint32_t i = 0u; i < physicalDevices.size(); ++i)
+	for (uint32_t i = 0u; i < physicalDevicePtrs.size(); ++i)
 	{
 		VkPhysicalDeviceProperties properties = {};
-		vkGetPhysicalDeviceProperties(&(*physicalDevices[i]), &properties);
+		vkGetPhysicalDeviceProperties(&(*physicalDevicePtrs[i]), &properties);
 
 		switch (properties.deviceType)
 		{

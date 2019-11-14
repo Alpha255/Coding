@@ -128,7 +128,7 @@ std::string file::getDirectory(const std::string &filePath, bool8_t bToLower)
 	return path;
 }
 
-::FILETIME file::getLastTime(const std::string & filePath)
+::FILETIME file::getLastWriteTime(const std::string & filePath)
 {
 	::FILETIME time = {};
 

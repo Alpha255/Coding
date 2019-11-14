@@ -1,6 +1,8 @@
 #include "application.h"
 #include "gear/System/Resource.h"
 #include "Colorful/Public/RInterface.h"
+///#include "Colorful/D3D11/D3D11Engine.h"
+///#include "Colorful/Vulkan/VulkanEngine.h"
 
 rEnginePtr g_rEnginePtr = nullptr;
 
@@ -23,12 +25,12 @@ namespaceStart(gear)
 	return ::DefWindowProcA(hWnd, msg, wParam, lParam);
 }
 
-void application::makeWindow(const std::string &title, uint32_t width, uint32_t height, uint32_t extraWindowStyle)
+void application::makeWindow(const std::string &title, uint32_t width, uint32_t height, uint32_t extraWindowStyle, uint16_t iconID)
 {
 	::HINSTANCE hInstance = ::GetModuleHandleW(nullptr);
 	verifyWin(hInstance);
 
-	::HICON hIcon = ::LoadIcon(hInstance, MAKEINTRESOURCE(m_IconID));
+	::HICON hIcon = ::LoadIcon(hInstance, MAKEINTRESOURCE(iconID));
 	verifyWin(hIcon);
 	::WNDCLASSEXA wndClassEx
 	{
@@ -143,19 +145,19 @@ void application::updateWindow()
 
 void application::initialize(const std::string &title, uint32_t extraWindowStyle)
 {
-	m_IconID = IconVulkan;
-
 	m_Config.load();
 
-	makeWindow(title, m_Config.getWidth(), m_Config.getHeight(), extraWindowStyle);
-
-	auto renderEngine = m_Config.getRenderEngine();
+	auto renderEngine = m_Config.RenderEngine;
 	if (renderEngine == appConfig::eD3D11)
 	{
+		makeWindow(title, m_Config.WindowWidth, m_Config.WindowHeight, extraWindowStyle, IconDirectX);
+		///d3d11Engine::instance().initialize(m_hWnd, m_Config);
 	}
 	else if (renderEngine == appConfig::eVulkan)
 	{
-
+		makeWindow(title, m_Config.WindowWidth, m_Config.WindowHeight, extraWindowStyle, IconVulkan);
+		//vkEngine::instance().initialize(m_hWnd, m_Config);
+		//g_rEnginePtr = std::make_unique<rEngine>(&vkEngine::instance());
 	}
 
 	assetBucket::instance().initialize();

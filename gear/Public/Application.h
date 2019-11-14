@@ -32,7 +32,7 @@ public:
 
 	static ::LRESULT messageProc(::HWND hWnd, uint32_t msg, ::WPARAM wParam, ::LPARAM lParam);
 protected:
-	void makeWindow(const std::string &title, uint32_t width, uint32_t height, uint32_t extraWindowStyle);
+	void makeWindow(const std::string &title, uint32_t width, uint32_t height, uint32_t extraWindowStyle, uint16_t iconID);
 	void updateFPS();
 
 	::HWND m_hWnd = nullptr;
@@ -40,7 +40,6 @@ protected:
 	vec2 m_WindowSize = { 0.0f, 0.0f };
 
 	float32_t m_FPS = 0.0f;
-	uint16_t m_IconID = UINT16_MAX;
 	bool8_t m_bActive = false;
 
 	timer m_Timer;

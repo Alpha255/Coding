@@ -25,31 +25,32 @@ void appConfig::load()
 
 		if (itWidth != configJson.end())
 		{
-			m_Width = itWidth.value();
+			WindowWidth = itWidth.value();
 		}
 		if (itHeight != configJson.end())
 		{
-			m_Height = itHeight.value();
+			WindowHeight = itHeight.value();
 		}
 		if (itFullScreen != configJson.end())
 		{
-			m_bFullScreen = itFullScreen.value();
+			FullScreen = itFullScreen.value();
 		}
 		if (itRenderEngine != configJson.end())
 		{
 			std::string renderEngine = itRenderEngine.value();
 			if (renderEngine == "d3d11")
 			{
-				m_RenderEngine = eD3D11;
+				RenderEngine = eD3D11;
 			}
 			else if (renderEngine == "vulkan")
 			{
-				m_RenderEngine = eVulkan;
+				RenderEngine = eVulkan;
 			}
 		}
 	}
 	else
 	{
+		/// Try to get configurations from commandline.
 		assert(0);
 	}
 }

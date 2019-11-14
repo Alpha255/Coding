@@ -62,10 +62,10 @@ workspace "Miscellaneous"
 	filter { "configurations:Debug" }
 		symbols "On"
 		optimize "Debug"
-		defines { "DEBUG", "_UNICODE", "UNICODE" }
+		defines { "DEBUG", "_UNICODE", "UNICODE", "Platform_Win32" }
 	filter { "configurations:Release" }
 		optimize "Speed"
-		defines { "NDEBUG", "_UNICODE", "UNICODE" }
+		defines { "NDEBUG", "_UNICODE", "UNICODE", "Platform_Win32" }
 	filter { "platforms:Win64" }
 		system "Windows"
 		architecture "x64"

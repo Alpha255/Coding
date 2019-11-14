@@ -12,7 +12,7 @@ public:
 	static std::string getName(const std::string &filePath, bool8_t bToLower = false);
 	static std::string getRootDirectory(const std::string &filePath, bool8_t bToLower = false);
 	static std::string getDirectory(const std::string &filePath, bool8_t bToLower = false);
-	static ::FILETIME getLastTime(const std::string &filePath);
+	static ::FILETIME getLastWriteTime(const std::string &filePath);
 	static std::string stripExtension(const std::string &filePath, bool8_t bToLower = false);
 
 	file() = default;

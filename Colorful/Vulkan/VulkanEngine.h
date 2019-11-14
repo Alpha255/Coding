@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Public/IEngine.h"
+#include "Colorful/Public/IEngine.h"
 #include "VulkanDevice.h"
 #include "VulkanContext.h"
 
@@ -175,7 +175,7 @@ class vkEngine : public rEngine, public gear::singleton<vkEngine>
 {
 	singletonDeclare(vkEngine);
 public:
-	void initialize(::HWND, uint32_t, uint32_t, bool8_t) override final;
+	void initialize(::HWND, const gear::appConfig &config) override final;
 	void finalize() override final {}
 
 	void logError(uint32_t result) const override final;

@@ -44,7 +44,7 @@ void VulkanEngine::Finalize()
 	m_Instance.Destory();
 }
 
-void vkEngine::initialize(::HWND, uint32_t, uint32_t, bool8_t)
+void vkEngine::initialize(::HWND, const gear::appConfig &)
 {
 	m_Instance = std::make_shared<vkInstance>();
 	m_Instance->create();
@@ -52,23 +52,23 @@ void vkEngine::initialize(::HWND, uint32_t, uint32_t, bool8_t)
 	m_DebugReportCallback = std::make_shared<vkDebugReportCallback>();
 	m_DebugReportCallback->create(m_Instance);
 
-	std::vector<vkPhysicalDevicePtr> physicalDevices;
+	std::vector<vkPhysicalDevicePtr> physicalDevicePtrs;
 	std::vector<VkPhysicalDevice> physicalDeviceHandles;
 
 	uint32_t count = 0U;
 	rVerifyVk(vkEnumeratePhysicalDevices(&(*m_Instance), &count, nullptr));
 	assert(count > 0U);
-	physicalDevices.resize(count);
+	physicalDevicePtrs.resize(count);
 	physicalDeviceHandles.resize(count);
-	Check(vkEnumeratePhysicalDevices(&(*m_Instance), &count, physicalDeviceHandles.data()));
+	rVerifyVk(vkEnumeratePhysicalDevices(&(*m_Instance), &count, physicalDeviceHandles.data()));
 	for (uint32_t i = 0u; i < count; ++i)
 	{
-		physicalDevices[i] = std::make_shared<vkPhysicalDevice>();
-		physicalDevices[i]->reset(physicalDeviceHandles[i]);
+		physicalDevicePtrs[i] = std::make_shared<vkPhysicalDevice>();
+		physicalDevicePtrs[i]->reset(physicalDeviceHandles[i]);
 	}
 	
 	m_Device = std::make_shared<vkDevice>();
-	m_Device->create(physicalDevices);
+	m_Device->create(physicalDevicePtrs);
 
 	uint32_t graphicsQueueIndex = 0u;
 	uint32_t computeQueueIndex = 0u;

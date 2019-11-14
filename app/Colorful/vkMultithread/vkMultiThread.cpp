@@ -144,8 +144,6 @@ void vkMultiThread::renterToWindow()
 #else
 void vkMultiThread::postInitialize()
 {
-	///d3d11Engine::instance().initialize(m_hWnd, (uint32_t)m_WindowSize.x, (uint32_t)m_WindowSize.y, false);
-	vkEngine::instance().initialize(m_hWnd, (uint32_t)m_WindowSize.x, (uint32_t)m_WindowSize.y, false);
 }
 
 void vkMultiThread::finalize()

@@ -2,6 +2,11 @@
 
 #include "RObject.h"
 
+namespace gear
+{
+	struct appConfig;
+}
+
 struct rAdapter
 {
 	std::string DeviceName;
@@ -109,7 +114,7 @@ typedef std::shared_ptr<rContext> rContextPtr;
 class rEngine
 {
 public:
-	virtual void initialize(::HWND, uint32_t, uint32_t, bool8_t) = 0;
+	virtual void initialize(::HWND, const gear::appConfig &config) = 0;
 	virtual void finalize() = 0;
 	virtual void logError(uint32_t result) const = 0;
 

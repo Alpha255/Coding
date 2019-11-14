@@ -158,6 +158,6 @@ typedef std::shared_ptr<vkPhysicalDevice> vkPhysicalDevicePtr;
 class vkDevice : public vkObject<VkDevice>, public rDevice
 {
 public:
-	uint32_t create(const std::vector<vkPhysicalDevicePtr> &physicalDevices);
+	uint32_t create(const std::vector<vkPhysicalDevicePtr> &physicalDevicePtrs);
 };
 typedef std::shared_ptr<vkDevice> vkDevicePtr;
