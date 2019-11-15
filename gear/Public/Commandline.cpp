@@ -2,8 +2,9 @@
 
 namespaceStart(gear)
 
-void commandline::addCommand(eOption option, const std::string &command, const std::string &parser)
+void commandline::addCommand(eOption, const std::string &, const std::string &)
 {
+	valueType<eString>::type type = "Test";
 }
 
 void commandline::parse()

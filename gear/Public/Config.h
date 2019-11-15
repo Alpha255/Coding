@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gear/Public/Commandline.h"
+#include "Gear/Public/Commandline.h"
 
 namespaceStart(gear)
 

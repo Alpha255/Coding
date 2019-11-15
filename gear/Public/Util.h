@@ -1,8 +1,8 @@
 #pragma once
 
-#include "gear/Public/Commandline.h"
-#include "gear/Public/String.h"
-#include "gear/Public/Singleton.h"
+#include "Gear/Public/Commandline.h"
+#include "Gear/Public/String.h"
+#include "Gear/Public/Singleton.h"
 
 namespaceStart(gear)
 

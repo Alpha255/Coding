@@ -15,7 +15,16 @@
 #include <mutex>
 #include <fstream>
 #include <condition_variable>
-#include <Windows.h>
+
+typedef char char8_t;
+typedef unsigned char uchar8_t;
+typedef float float32_t;
+typedef double double64_t;
+typedef bool bool8_t;
+typedef long long32_t;
+
+#define namespaceStart(name) namespace name {
+#define namespaceEnd(name) }
 
 #define safeRelease(ptr)  \
 {                         \
@@ -44,8 +53,13 @@
 	}                        \
 }
 
-#define namespaceStart(name) namespace name {
-#define namespaceEnd(name) }
+#define enumToString(enumValue) #enumValue
+
+#if defined(UsingAsDynamicLib)
+	#define exportAPI __declspec(dllexport)
+#else
+	#define exportAPI __declspec(dllimport)
+#endif
 
 #define verify(condition) \
 {                         \
@@ -55,9 +69,11 @@
 	}                     \
 }
 
+#if defined(Platform_Win32)
 
-#if defined(DEBUG) || defined(_DEBUG)
-#define verifyWin(condition)                                                                                                   \
+#include <Windows.h>
+
+#define verify_Log(condition)                                                                                                  \
 {                                                                                                                              \
 	if (!(condition))                                                                                                          \
 	{                                                                                                                          \
@@ -67,11 +83,8 @@
 		assert(0);                                                                                                             \
 	}                                                                                                                          \
 }
-#else
-#define verifyWin(condition) verify(condition)
-#endif
 
-#define winMainEntry(appName)                                  \
+#define appMainEntry(appName)                                  \
 int32_t WINAPI wWinMain(HINSTANCE, HINSTANCE, LPWSTR, int32_t) \
 {                                                              \
 	appName app_##appName;                                     \
@@ -80,18 +93,11 @@ int32_t WINAPI wWinMain(HINSTANCE, HINSTANCE, LPWSTR, int32_t) \
 	app_##appName.finalize();                                  \
 }
 
-#define enumToString(enumValue) #enumValue
+#elif defined(Platform_Linux)
 
-#if defined(UsingAsDynamicLib)
-	#define exportAPI __declspec(dllexport)
-#else
-	#define exportAPI __declspec(dllimport)
+#define verify_Log(condition)
+
+#define appMainEntry(appName) 
+
 #endif
-
-typedef char char8_t;
-typedef unsigned char uchar8_t;
-typedef float float32_t;
-typedef double double64_t;
-typedef bool bool8_t;
-typedef long long32_t;
 

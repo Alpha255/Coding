@@ -1,18 +1,18 @@
 #pragma once
 
-#include "gear/Asset/AssetBucket.h"
-#include "gear/System/Timer.h"
-#include "gear/System/TaskScheduler.h"
+#include "Gear/Asset/AssetBucket.h"
+#include "Gear/System/Timer.h"
+#include "Gear/System/TaskScheduler.h"
 
-#include "gear/Camera/Camera.h"
-#include "gear/Camera/DXUTCamera.h"
+#include "Gear/Camera/Camera.h"
+#include "Gear/Camera/DXUTCamera.h"
 
-#include "gear/Math/Color.h"
-#include "gear/Math/AABB.h"
-#include "gear/Math/OBB.h"
-#include "gear/Math/Frustum.h"
-#include "gear/Math/Rect.h"
-#include "gear/Math/Plane.h"
+#include "Gear/Math/Color.h"
+#include "Gear/Math/AABB.h"
+#include "Gear/Math/OBB.h"
+#include "Gear/Math/Frustum.h"
+#include "Gear/Math/Rect.h"
+#include "Gear/Math/Plane.h"
 
 using namespace gear;
 using namespace gear::math;
