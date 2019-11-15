@@ -4,6 +4,7 @@ namespaceStart(gear)
 
 void assetFile::matchType()
 {
+	/// Need to move into config file
 	std::string ext = getExtension();
 
 	if (ext == ".dds" || ext == ".bmp")

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gear/Public/Util.h"
+#include "gear/Public/Independent/Singleton.h"
 
 namespaceStart(gear)
 

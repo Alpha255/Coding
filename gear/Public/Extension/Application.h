@@ -1,5 +1,7 @@
 #pragma once
 
+#if 0
+
 #include "gear/gear.h"
 #include "gear/Public/Config.h"
 #include "Colorful/Public/RInterface.h"
@@ -52,3 +54,5 @@ private:
 };
 
 namespaceEnd(gear)
+
+#endif

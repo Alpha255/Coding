@@ -1,18 +1,16 @@
 #include "Config.h"
-#include "gear/Public/Util.h"
-#include "gear/System/File.h"
+#include "Gear/Public/Extension/File.h"
+#include "Gear/Public/Extension/System.h"
 #include <ThirdParty/json/single_include/nlohmann/json.hpp>
 
 namespaceStart(gear)
 
 void appConfig::load()
 {
-	char8_t currentPath[MAX_PATH] = {};
-	verifyWin(::GetModuleFileNameA(nullptr, currentPath, MAX_PATH) != 0);
-
-	std::string rootPath = file::getDirectory(currentPath);
+	std::string appPath = gear::getApplicationPath();
+	std::string rootPath = file::getFileDirectory(appPath);
 	std::string configFilePath(rootPath + "\\appConfig.json");
-	if (file::isExists(configFilePath))
+	if (file::isFileExists(configFilePath))
 	{
 		nlohmann::json configJson;
 		std::ifstream filestream(configFilePath);

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Gear/Public/Commandline.h"
+#include "Gear/Public/Extension/Commandline.h"
 
 namespaceStart(gear)
 
@@ -9,7 +9,9 @@ struct appConfig
 	enum eRenderEngine
 	{
 		eUnknown,
+		eOpenGL,
 		eD3D11,
+		eD3D12,
 		eVulkan,
 		eRenderEngine_MaxEnum
 	};

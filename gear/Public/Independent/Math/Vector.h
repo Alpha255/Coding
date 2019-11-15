@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Gear/Public/Util.h"
+#include "Gear/Public/Definitions.h"
 #include <DirectXMath.h>
 #include <DirectXCollision.h>
 

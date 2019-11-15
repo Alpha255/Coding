@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gear/Public/Util.h"
+#include "Gear/Public/Definitions.h"
 
 namespaceStart(gear)
 
@@ -31,7 +31,7 @@ public:
 	{
 		if (bNoDebug)
 		{
-			verifyWin(::InitializeCriticalSectionEx(&m_CriticalSection, spinCount, CRITICAL_SECTION_NO_DEBUG_INFO) != 0);
+			///verify_Log(::InitializeCriticalSectionEx(&m_CriticalSection, spinCount, CRITICAL_SECTION_NO_DEBUG_INFO) != 0);
 		}
 		else if (spinCount > 0u)
 		{
@@ -88,7 +88,7 @@ public:
 		if (!m_Mutex && ::GetLastError() == ERROR_ALREADY_EXISTS)
 		{
 			m_Mutex = ::OpenMutexA(SYNCHRONIZE, false, pName);
-			verifyWin(m_Mutex != nullptr);
+			///verify_Log(m_Mutex != nullptr);
 		}
 	}
 
@@ -109,7 +109,7 @@ public:
 
 	inline void unlock()
 	{
-		verifyWin(::ReleaseMutex(m_Mutex) != 0);
+		///verify_Log(::ReleaseMutex(m_Mutex) != 0);
 	}
 
 	inline ~mutex()

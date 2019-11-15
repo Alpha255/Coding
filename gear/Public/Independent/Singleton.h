@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Gear/Public/Common.h"
+#include "Gear/Public/Definitions.h"
 
 namespaceStart(gear)
 
@@ -34,11 +34,11 @@ private:
 };
 template<class T> __declspec(selectany) T singleton<T>::s_Instance;
 
-#define singletonDeclare(ClassName)          \
+#define singletonDeclare(className)          \
 private:                                     \
-	ClassName() = default;                   \
-	~ClassName() = default;                  \
-	friend class gear::singleton<ClassName>;
+	className() = default;                   \
+	~className() = default;                  \
+	friend class gear::singleton<className>;
 
 namespaceEnd(gear)
 

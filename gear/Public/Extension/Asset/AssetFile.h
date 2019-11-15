@@ -1,10 +1,10 @@
 #pragma once
 
-#include "gear/System/FileIO.h"
+#include "Gear/Public/Extension/File.h"
 
 namespaceStart(gear)
 
-class assetFile : public fileIO
+class assetFile : public file
 {
 public:
 	enum eType
@@ -19,7 +19,7 @@ public:
 
 	assetFile() = default;
 	assetFile(const std::string &filePath)
-		: fileIO(filePath)
+		: file(filePath)
 	{
 		matchType();
 	}

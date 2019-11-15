@@ -1,7 +1,7 @@
 #pragma once
 
-#include "gear/Math/Matrix.h"
-#include "gear/Math/Functions.h"
+#include "Gear/Public/Independent/Math/Matrix.h"
+#include "Gear/Public/Independent/Math/Functions.h"
 
 namespaceStart(gear)
 

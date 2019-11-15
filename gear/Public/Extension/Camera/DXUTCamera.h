@@ -1,7 +1,7 @@
 #pragma once
 
-#include "gear/Math/Matrix.h"
-#include "gear/Math/Functions.h"
+#include "Gear/Public/Independent/Math/Matrix.h"
+#include "Gear/Public/Independent/Math/Functions.h"
 
 namespaceStart(gear)
 
@@ -11,7 +11,7 @@ public:
 	dxutCamera();
 	~dxutCamera() = default;
 
-	inline void handleMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM lParam)
+	inline void processEvent(uint32_t msg, ::WPARAM wParam, ::LPARAM lParam)
 	{
 		m_KeyAction.handleMessage(msg, wParam, lParam);
 

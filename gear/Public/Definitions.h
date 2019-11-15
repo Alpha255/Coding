@@ -2,6 +2,8 @@
 
 #include <stdint.h>
 #include <assert.h>
+#include <stdlib.h>
+#include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
@@ -73,15 +75,16 @@ typedef long long32_t;
 
 #include <Windows.h>
 
-#define verify_Log(condition)                                                                                                  \
-{                                                                                                                              \
-	if (!(condition))                                                                                                          \
-	{                                                                                                                          \
-		uint32_t errorCode = (uint32_t)::GetLastError();                                                                       \
-		std::string errorMsg = gear::getErrorMessage(errorCode);                                                               \
-		gear::log(gear::eError, "Failed to invoke WINAPI, error code = %u, error info = \"%s\"", errorCode, errorMsg.c_str()); \
-		assert(0);                                                                                                             \
-	}                                                                                                                          \
+#define verify_Log(condition)                                                                              \
+{                                                                                                          \
+	if (!(condition))                                                                                      \
+	{                                                                                                      \
+		uint32_t errorCode = (uint32_t)::GetLastError();                                                   \
+		std::string errorMsg = gear::getErrorMessage(errorCode);                                           \
+		gear::logger::instance().log(gear::logger::eError,                                                 \
+			"Failed to invoke WINAPI, error code = %u, error info = \"%s\"", errorCode, errorMsg.c_str()); \
+		assert(0);                                                                                         \
+	}                                                                                                      \
 }
 
 #define appMainEntry(appName)                                  \

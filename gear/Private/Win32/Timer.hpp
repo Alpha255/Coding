@@ -1,4 +1,6 @@
-#include "Timer.h"
+#include "Gear/Public/Extension/Timer.h"
+
+#if defined(Platform_Win32)
 
 namespaceStart(gear)
 
@@ -70,3 +72,5 @@ void timer::tick()
 }
 
 namespaceEnd(gear)
+
+#endif

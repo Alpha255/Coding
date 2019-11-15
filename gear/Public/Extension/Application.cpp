@@ -1,4 +1,6 @@
 #include "application.h"
+
+#if 0
 #include "gear/System/Resource.h"
 #include "Colorful/Public/RInterface.h"
 ///#include "Colorful/D3D11/D3D11Engine.h"
@@ -213,3 +215,5 @@ void application::loop()
 }
 
 namespaceEnd(gear)
+
+#endif

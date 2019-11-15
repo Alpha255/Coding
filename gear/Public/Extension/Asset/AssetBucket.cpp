@@ -1,22 +1,22 @@
 #include "AssetBucket.h"
+#include "Gear/Public/Extension/System.h"
+#include "Gear/Public/Independent/String.h"
 
 namespaceStart(gear)
 
 void assetBucket::initialize()
 {
-	char8_t currentPath[MAX_PATH] = {};
-	verifyWin(::GetModuleFileNameA(nullptr, currentPath, MAX_PATH) != 0);
-
-	m_AssetsPath = gear::file::getDirectory(gear::file::getDirectory(currentPath));
+	std::string currentPath = gear::getApplicationPath();
+	m_AssetsPath = file::getFileDirectory(file::getFileDirectory(currentPath));
 	m_AssetsPath += "\\Assets";
-	verify(gear::isValidDirectory(m_AssetsPath));
+	verify(file::isDirectoryExists(m_AssetsPath));
 }
 
 std::shared_ptr<gear::assetFile> assetBucket::getAsset(const std::string &assetName)
 {
 	assert(m_AssetsPath.length() > 0u);
 	std::string lowerName(assetName);
-	gear::toLower(lowerName);
+	toLower(lowerName);
 
 	auto it = m_Assets.find(lowerName);
 	if (it != m_Assets.cend())
@@ -24,7 +24,7 @@ std::shared_ptr<gear::assetFile> assetBucket::getAsset(const std::string &assetN
 		return it->second;
 	}
 
-	std::string assetPath = gear::findFile(m_AssetsPath, assetName);
+	std::string assetPath = file::findFile(m_AssetsPath, assetName);
 	if (assetPath.length() != 0u)
 	{
 		std::shared_ptr<gear::assetFile> asset = std::make_shared<gear::assetFile>(assetPath);

@@ -1,10 +1,11 @@
 #pragma once
 
-#include "gear/Asset/AssetFile.h"
+#include "Gear/Public/Independent/Singleton.h"
+#include "Gear/Public/Extension/Asset/AssetFile.h"
 
 namespaceStart(gear)
 
-class assetBucket final : public gear::singleton<assetBucket>
+class assetBucket final : public singleton<assetBucket>
 {
 	singletonDeclare(assetBucket);
 public:
