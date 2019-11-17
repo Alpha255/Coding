@@ -45,6 +45,12 @@ function resourceInclude()
 	}
 end
 
+function configInclude()
+	files {
+		"./Out/appConfig.json"
+	}
+end
+
 workspace "Miscellaneous"
 	location "./"
 	configurations { "Debug", "Release" }
@@ -376,21 +382,21 @@ workspace "Miscellaneous"
 					"./Assets/Icon/Resource.rc", 
 					"./Assets/Icon/directx.ico", 
 					"./Assets/Icon/vulkan.ico",
-					"./gear/System/Resource.h"
+					"./app/Resource.h"
 					},
 				[""] = { "./app/Colorful/vkTest/**" },
-				["Shaders"] = {
-					"./Assets/Shaders/vkTest.shader"
-				}
+				["Shaders"] = { "./Assets/Shaders/vkTest.shader" },
+				["Configuration"] = { "./Out/appConfig.json" }
 			}
 			files { 
 				"./app/Colorful/vkTest/**",
 				"./Assets/Shaders/vkTest.shader",
-				"./gear/System/Resource.h"
+				"./app/Resource.h"
 			}
 			includeCommon()
 			resourceInclude()
 			linkLibsCommon()
+			configInclude()
 
 		project "vkMultiThread"
 			kind "WindowedApp"
@@ -401,21 +407,25 @@ workspace "Miscellaneous"
 					"./Assets/Icon/Resource.rc", 
 					"./Assets/Icon/directx.ico", 
 					"./Assets/Icon/vulkan.ico",
-					"./gear/System/Resource.h"
+					"./app/Resource.h"
 					},
 				[""] = { "./app/Colorful/vkMultiThread/**" },
-				["Shaders"] = {
-					"./Assets/Shaders/vkMultiThread.shader"
-				}
+				["Shaders"] = { 
+					"./Assets/Shaders/vkMultiThread.shader",
+					"./Assets/Shaders/vkMultiThread.xml"
+				},
+				["Configuration"] = { "./Out/appConfig.json" }
 			}
 			files { 
 				"./app/Colorful/vkMultiThread/**",
 				"./Assets/Shaders/vkMultiThread.shader",
-				"./gear/System/Resource.h"
+				"./Assets/Shaders/vkMultiThread.xml",
+				"./app/Resource.h"
 			}
 			includeCommon()
 			resourceInclude()
 			linkLibsCommon()
+			configInclude()
 
 		group "Colorful/HLSLCookBook"
 			project "ForwardLighting"

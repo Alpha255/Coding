@@ -18,7 +18,8 @@
       "png",
       "bmp",
       "jpg",
-      "ktx"
+      "ktx",
+      "xml"
     ],
     "eShader": [
       "shader",

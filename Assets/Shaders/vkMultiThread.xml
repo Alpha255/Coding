@@ -1,0 +1,38 @@
+<vkMultiThread>
+	<VertexShader>
+		<ResourceBinding>
+			<UniformBuffer Slot = "0">
+				<Math Type = "mat4" Name = "worldMatrix"/>
+				<Math Type = "mat4" Name = "viewMatrix"/>
+				<Math Type = "mat4" Name = "projectionMatrix"/>
+				<Math Type = "vec3" Name = "color"/>
+			</UniformBuffer>
+		</ResourceBinding>
+		<InputLayout>
+			<Math Type = "vec3" Usage = "Position"/>
+			<Math Type = "vec3" Usage = "Normal"/>
+			<Math Type = "vec3" Usage = "Tangent"/>
+			<Math Type = "vec2" Usage = "Texcoord"/>
+			<Math Type = "vec3" Usage = "Color"/>
+		</InputLayout>
+		<Output>
+			<Math Type = "vec3" Name = "outColor"/>
+			<Math Type = "vec4" Name = "outPosition"/>
+		</Output>
+		<Code>
+			<![CDATA[]]>
+		</Code>
+	</VertexShader>
+
+	<PixelShader>
+		<Input>
+			<Math Type = "vec3" Name = "inColor"/>
+		</Input>
+		<Output>
+			<Math Type = "vec4" Name = "outFragColor"/>
+		</Output>
+		<Code>
+			<![CDATA[]]>
+		</Code>
+	</PixelShader>
+</vkMultiThread>
