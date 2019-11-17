@@ -1,20 +1,21 @@
 #pragma once
 
-#if 0
-#include "Gear/Asset/AssetBucket.h"
-#include "Gear/System/Timer.h"
-#include "Gear/System/TaskScheduler.h"
+#include "Gear/Public/Independent/String.h"
+#include "Gear/Public/Independent/Math/OBB.h"
+#include "Gear/Public/Independent/Math/Rect.h"
+#include "Gear/Public/Independent/Math/AABB.h"
+#include "Gear/Public/Independent/Math/Plane.h"
+#include "Gear/Public/Independent/Math/Color.h"
+#include "Gear/Public/Independent/Math/Frustum.h"
+#include "Gear/Public/Independent/TaskScheduler.h"
 
-#include "Gear/Camera/Camera.h"
-#include "Gear/Camera/DXUTCamera.h"
-
-#include "Gear/Math/Color.h"
-#include "Gear/Math/AABB.h"
-#include "Gear/Math/OBB.h"
-#include "Gear/Math/Frustum.h"
-#include "Gear/Math/Rect.h"
-#include "Gear/Math/Plane.h"
+#include "Gear/Public/Extension/Log.h"
+#include "Gear/Public/Extension/Event.h"
+#include "Gear/Public/Extension/Timer.h"
+#include "Gear/Public/Extension/System.h"
+#include "Gear/Public/Extension/Camera/Camera.h"
+#include "Gear/Public/Extension/Camera/DXUTCamera.h"
+#include "Gear/Public/Extension/Asset/AssetBucket.h"
 
 using namespace gear;
 using namespace gear::math;
-#endif

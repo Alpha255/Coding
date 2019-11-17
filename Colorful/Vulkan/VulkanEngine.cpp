@@ -44,7 +44,7 @@ void VulkanEngine::Finalize()
 	m_Instance.Destory();
 }
 
-void vkEngine::initialize(::HWND, const gear::appConfig &)
+void vkEngine::initialize(uint64_t, const gear::appConfig &)
 {
 	m_Instance = std::make_shared<vkInstance>();
 	m_Instance->create();
@@ -70,9 +70,9 @@ void vkEngine::initialize(::HWND, const gear::appConfig &)
 	m_Device = std::make_shared<vkDevice>();
 	m_Device->create(physicalDevicePtrs);
 
-	uint32_t graphicsQueueIndex = 0u;
-	uint32_t computeQueueIndex = 0u;
-	uint32_t transferQueueIndex = 0u;
+	//uint32_t graphicsQueueIndex = 0u;
+	//uint32_t computeQueueIndex = 0u;
+	//uint32_t transferQueueIndex = 0u;
 
 	for each (auto handle in physicalDeviceHandles)
 	{
@@ -144,5 +144,5 @@ case enumValue:                                      \
 
 #undef vkResultCaseMessage
 
-	gear::log(gear::eError, "Faile to invoke VulkanAPI, error message: ", errorMsg.c_str());
+	logger::instance().log(logger::eError, "Faile to invoke VulkanAPI, error message: ", errorMsg.c_str());
 }

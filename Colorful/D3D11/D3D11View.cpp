@@ -219,7 +219,7 @@ void D3D11ShaderResourceView::CreateAsTextureArray(eRViewType type, D3D11Resourc
 	Reset(pShaderResourceView);
 }
 
-void D3D11ShaderResourceView::Create(const std::string &ddsName, bool sRGB)
+void D3D11ShaderResourceView::Create(const std::string &ddsName, bool)
 {
 	assert(!IsValid() && Base::GetFileExtension(ddsName, true) == ".dds");
 

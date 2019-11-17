@@ -11,11 +11,11 @@ public:
 	dxutCamera();
 	~dxutCamera() = default;
 
-	inline void processEvent(uint32_t msg, ::WPARAM wParam, ::LPARAM lParam)
+	inline void processEvent()
 	{
-		m_KeyAction.handleMessage(msg, wParam, lParam);
+		m_KeyAction.processEvent();
 
-		m_MouseAction.handleMessage(msg, wParam, lParam);
+		m_MouseAction.processEvent();
 	}
 
 	void setViewParams(const math::vec3 &eye, const math::vec3 &lookAt);
@@ -82,16 +82,16 @@ protected:
 			MoveScaler = moveScaler;
 		}
 
-		void handleMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM lParam);
+		void processEvent();
 		void updateInput();
 
 		bool8_t ButtonDown[eButtonCount] = {};
 		float32_t WheelDelta = 0.0f;
 		eButton RotateButton = eLeftButton;
-		int32_t LastPosition[2u] = {};
 		uint32_t FrameCountToSmoothMouseData = 2u;
 		float32_t RotateScaler = 0.01f;
 		float32_t MoveScaler = 5.0f;
+		math::vec2 LastPosition;
 		math::vec2 Delta;
 		math::vec2 RotateVelocity;
 	};
@@ -111,7 +111,7 @@ protected:
 			eOther
 		};
 
-		eKeyAction keyAction(WPARAM wParam);
+		eKeyAction getKeyAction();
 
 		inline bool8_t isKeyActive(eKeyAction action) const
 		{
@@ -128,7 +128,7 @@ protected:
 			ActiveKeys[action] = false;
 		}
 
-		void handleMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM lParam);
+		void processEvent();
 		void updateInput();
 
 		math::vec3 KeyDirection;

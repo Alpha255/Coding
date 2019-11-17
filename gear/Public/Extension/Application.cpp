@@ -1,149 +1,12 @@
-#include "application.h"
-
-#if 0
-#include "gear/System/Resource.h"
+#include "Gear/Public/Extension/Application.h"
 #include "Colorful/Public/RInterface.h"
+#include "App/Resource.h"
 ///#include "Colorful/D3D11/D3D11Engine.h"
 ///#include "Colorful/Vulkan/VulkanEngine.h"
 
 rEnginePtr g_rEnginePtr = nullptr;
 
 namespaceStart(gear)
-
-::LRESULT application::messageProc(::HWND hWnd, uint32_t msg, ::WPARAM wParam, ::LPARAM lParam)
-{
-	if (msg == WM_CREATE)
-	{
-		::CREATESTRUCTA *pCreateStruct = reinterpret_cast<::CREATESTRUCTA *>(lParam);
-		verifyWin(::SetWindowLongPtrA(hWnd, 0, reinterpret_cast<LONG_PTR>(pCreateStruct->lpCreateParams)) == 0);
-	}
-
-	application *pApp = reinterpret_cast<application *>(::GetWindowLongPtrA(hWnd, 0));
-	if (pApp)
-	{
-		pApp->handleMessage(msg, wParam, lParam);
-	}
-
-	return ::DefWindowProcA(hWnd, msg, wParam, lParam);
-}
-
-void application::makeWindow(const std::string &title, uint32_t width, uint32_t height, uint32_t extraWindowStyle, uint16_t iconID)
-{
-	::HINSTANCE hInstance = ::GetModuleHandleW(nullptr);
-	verifyWin(hInstance);
-
-	::HICON hIcon = ::LoadIcon(hInstance, MAKEINTRESOURCE(iconID));
-	verifyWin(hIcon);
-	::WNDCLASSEXA wndClassEx
-	{
-		sizeof(::WNDCLASSEXA),
-		CS_HREDRAW | CS_VREDRAW,
-		messageProc,
-		0,
-		sizeof(void *),
-		hInstance,
-		hIcon,
-		::LoadCursor(0, IDC_ARROW),
-		(::HBRUSH)::GetStockObject(BLACK_BRUSH),
-		nullptr,
-		title.c_str(),
-		hIcon
-	};
-	verifyWin(::RegisterClassExA(&wndClassEx) != 0);
-
-	::RECT rect{ 0l, 0l, (long32_t)width, (long32_t)height };
-	verifyWin(::AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, false) != 0);
-
-	m_hWnd = ::CreateWindowA(
-		title.c_str(),
-		title.c_str(),
-		WS_OVERLAPPEDWINDOW ^ extraWindowStyle,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
-		rect.right - rect.left,
-		rect.bottom - rect.top,
-		nullptr,
-		nullptr,
-		hInstance,
-		static_cast<void *>(this));
-	verifyWin(m_hWnd);
-
-	m_WindowSize = vec2((float32_t)width, (float32_t)height);
-	::ShowWindow(m_hWnd, SW_SHOWDEFAULT);
-	verifyWin(::UpdateWindow(m_hWnd) != 0);
-}
-
-void application::handleMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM lParam)
-{
-	switch (msg)
-	{
-	case WM_ACTIVATE:
-		if (LOWORD(wParam) == WA_INACTIVE)
-		{
-			m_bActive = false;
-			m_Timer.stop();
-		}
-		else
-		{
-			m_bActive = true;
-			m_Timer.start();
-		}
-		break;
-	case WM_SYSCOMMAND:
-		if (SC_MAXIMIZE == wParam || SC_RESTORE == wParam)
-		{
-			m_bNeedResize = true;
-		}
-		break;
-	case WM_ENTERSIZEMOVE:
-		m_bActive = false;
-		m_Timer.stop();
-		m_bNeedResize = true;
-		break;
-	case WM_EXITSIZEMOVE:
-		m_Timer.start();
-		m_bActive = true;
-		break;
-	case WM_DESTROY:
-		m_bActive = false;
-		m_Timer.stop();
-		::PostQuitMessage(0);
-		break;
-	case WM_NCLBUTTONDBLCLK:
-		if (wParam == HTCAPTION)
-		{
-			m_bNeedResize = true;
-		}
-		break;
-	case WM_GETMINMAXINFO:
-	{
-		::LPMINMAXINFO lpMinMaxInfo = (::LPMINMAXINFO)lParam;
-		lpMinMaxInfo->ptMinTrackSize = { 640l, 480l };
-	}
-		break;
-	}
-
-	handleInput(msg, wParam, lParam);
-
-	m_Camera.handleMessage(msg, wParam, lParam);
-}
-
-void application::updateWindow()
-{
-	if (!m_bNeedResize)
-	{
-		return;
-	}
-
-	::RECT rect = {};
-	verifyWin(::GetClientRect(m_hWnd, &rect) != 0);
-
-	m_WindowSize = { (float32_t)(rect.right - rect.left), (float32_t)(rect.bottom - rect.top) };
-
-	resizeWindow();
-
-	m_bNeedResize = false;
-}
 
 void application::initialize(const std::string &title, uint32_t extraWindowStyle)
 {
@@ -162,14 +25,73 @@ void application::initialize(const std::string &title, uint32_t extraWindowStyle
 		//g_rEnginePtr = std::make_unique<rEngine>(&vkEngine::instance());
 	}
 
+	eventHandler::instance().setWindowSizeLimitations(math::vec2(640.0f, 480.0f));
+
 	assetBucket::instance().initialize();
 
 	postInitialize();
 }
 
+void application::processEvent()
+{
+	auto event = eventHandler::instance().getAppEvent();
+	switch (event)
+	{
+	case eAppEvent::eInactive:
+		m_bActive = false;
+		m_cpuTimer.stop();
+		break;
+	case eAppEvent::eActive:
+		m_bActive = true;
+		m_cpuTimer.start();
+		break;
+	case eAppEvent::eMaximize:
+	case eAppEvent::eMinimize:
+		m_bNeedResize = true;
+		break;
+	case eAppEvent::eResizing_Start:
+		m_bActive = false;
+		m_cpuTimer.stop();
+		m_bNeedResize = true;
+		break;
+	case eAppEvent::eResizing_End:
+		m_cpuTimer.start();
+		m_bActive = true;
+		break;
+	case eAppEvent::eQuit:
+		m_bActive = false;
+		m_cpuTimer.stop();
+		break;
+	case eAppEvent::eDoubleClickNonClientArea:
+		m_bNeedResize = true;
+		break;
+	}
+
+	m_Camera.processEvent();
+}
+
+void application::updateWindow()
+{
+	if (!m_bNeedResize)
+	{
+		return;
+	}
+
+	math::rect winRect = getWindowRect(m_WindowHandle);
+	m_WindowSize = 
+	{ 
+		winRect.getWidth(), 
+		winRect.getHeight() 
+	};
+
+	resizeWindow();
+
+	m_bNeedResize = false;
+}
+
 void application::updateFPS()
 {
-	float32_t totalTime = m_Timer.getTotalTime();
+	float32_t totalTime = m_cpuTimer.getTotalTime();
 	++m_FrameCount;
 
 	float32_t elapsedTime = totalTime - m_LastUpdateTime;
@@ -183,20 +105,14 @@ void application::updateFPS()
 
 void application::loop()
 {
-	::MSG msg = {};
+	m_cpuTimer.reset();
 
-	m_Timer.reset();
-
-	while (msg.message != WM_QUIT)
+	eAppEvent event = eAppEvent::eActive;
+	while (eAppEvent::eQuit != event)
 	{
-		if (PeekMessageW(&msg, nullptr, 0u, 0u, PM_REMOVE))
+		if (!eventHandler::instance().dispatchEvent())
 		{
-			::TranslateMessage(&msg);
-			::DispatchMessageW(&msg);
-		}
-		else
-		{
-			m_Timer.tick();
+			m_cpuTimer.tick();
 
 			if (m_bActive)
 			{
@@ -211,9 +127,9 @@ void application::loop()
 				::Sleep(100u);
 			}
 		}
+
+		event = eventHandler::instance().getAppEvent();
 	}
 }
 
 namespaceEnd(gear)
-
-#endif

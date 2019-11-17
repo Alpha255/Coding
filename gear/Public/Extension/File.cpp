@@ -1,6 +1,5 @@
 #include "File.h"
 #include "Gear/Public/Independent/String.h"
-#include "Gear/Private/Win32/File.hpp"
 
 namespaceStart(gear)
 
@@ -131,18 +130,15 @@ std::string file::stripFileExtension(const std::string &filePath, bool8_t bToLow
 
 void file::read(eReadAs readAs)
 {
-	m_Data = std::make_shared<byte>();
-
 	int32_t mode = readAs == eBinary ? std::ios::in | std::ios::binary : std::ios::in;
 
 	std::ifstream fileStream(getFullPath(), mode);
 	assert(fileStream.is_open());
 
-	byte *pMemory = new byte[getSize()]();
-	fileStream.read((char8_t *)pMemory, getSize());
+	m_Data.reset(new byte[getSize()]());
+	assert(m_Data);
+	fileStream.read((char8_t *)m_Data.get(), getSize());
 	fileStream.close();
-
-	m_Data.reset(pMemory);
 }
 
 namespaceEnd(gear)

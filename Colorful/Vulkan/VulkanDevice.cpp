@@ -274,30 +274,30 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vkDebugReportFunc(
 	(void)(pUserData);
 
 	std::string message = gear::format("%15s|%2d: %s", pLayerPrefix, messageCode, pMessage);
-	gear::eLogLevel logLevel = gear::eError;
+	logger::eLogLevel logLevel = logger::eError;
 
 	if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
 	{
-		logLevel = gear::eError;
+		logLevel = logger::eError;
 	}
 	else if (flags & VK_DEBUG_REPORT_WARNING_BIT_EXT)
 	{
-		logLevel = gear::eWarning;
+		logLevel = logger::eWarning;
 	}
 	else if (flags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT)
 	{
-		logLevel = gear::eInfo;
+		logLevel = logger::eInfo;
 	}
 	else if (flags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT)
 	{
-		logLevel = gear::eInfo;
+		logLevel = logger::eInfo;
 	}
 	else if (flags & VK_DEBUG_REPORT_DEBUG_BIT_EXT)
 	{
-		logLevel = gear::eInfo;
+		logLevel = logger::eInfo;
 	}
 	
-	gear::log(logLevel, "Vulkan debug report: %s.", message.c_str());
+	logger::instance().log(logLevel, "Vulkan debug report: %s.", message.c_str());
 	return VK_FALSE;
 }
 

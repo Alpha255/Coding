@@ -107,6 +107,25 @@ std::string getApplicationName()
 	return appName;
 }
 
+void sleep(uint32_t microseconds)
+{
+	::Sleep(microseconds);
+}
+
+math::rect getWindowRect(uint64_t windowHandle)
+{
+	::RECT winRect;
+	verify_Log(::GetWindowRect((::HWND)windowHandle, &winRect) != 0);
+
+	return math::rect
+	{
+		(float32_t)winRect.left,
+		(float32_t)winRect.top,
+		(float32_t)winRect.right,
+		(float32_t)winRect.bottom
+	};
+}
+
 namespaceEnd(gear)
 
 #endif

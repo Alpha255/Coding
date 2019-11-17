@@ -1,6 +1,7 @@
 #include "Gear/Public/Extension/File.h"
 #include "Gear/Public/Extension/System.h"
 #include "Gear/Public/Extension/Log.h"
+#include "Gear/Public/Independent/String.h"
 
 #if defined(Platform_Win32)
 

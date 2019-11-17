@@ -1,9 +1,7 @@
 #pragma once
 
-#if 0
-
-#include "gear/gear.h"
-#include "gear/Public/Config.h"
+#include "Gear/gear.h"
+#include "Gear/Public/Extension/Config.h"
 #include "Colorful/Public/RInterface.h"
 
 namespaceStart(gear)
@@ -28,23 +26,19 @@ public:
 
 	virtual void renterToWindow() {}
 
-	virtual void handleMessage(uint32_t msg, ::WPARAM wParam, ::LPARAM lParam);
-
-	virtual void handleInput(uint32_t, ::WPARAM, ::LPARAM) {}
-
-	static ::LRESULT messageProc(::HWND hWnd, uint32_t msg, ::WPARAM wParam, ::LPARAM lParam);
+	virtual void processEvent();
 protected:
 	void makeWindow(const std::string &title, uint32_t width, uint32_t height, uint32_t extraWindowStyle, uint16_t iconID);
 	void updateFPS();
 
-	::HWND m_hWnd = nullptr;
+	uint64_t m_WindowHandle = 0u;
 
-	vec2 m_WindowSize = { 0.0f, 0.0f };
+	math::vec2 m_WindowSize = { 0.0f, 0.0f };
 
 	float32_t m_FPS = 0.0f;
 	bool8_t m_bActive = false;
 
-	timer m_Timer;
+	cpuTimer m_cpuTimer;
 	dxutCamera m_Camera;
 	appConfig m_Config;
 private:
@@ -54,5 +48,3 @@ private:
 };
 
 namespaceEnd(gear)
-
-#endif

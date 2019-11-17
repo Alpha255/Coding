@@ -4,14 +4,14 @@
 
 namespaceStart(gear)
 
-timer::timer()
+cpuTimer::cpuTimer()
 {
 	::LARGE_INTEGER largeInt = {};
 	::QueryPerformanceFrequency(&largeInt);
 	m_SecondsPerTick = 1.0 / (double)largeInt.QuadPart;
 }
 
-void timer::reset()
+void cpuTimer::reset()
 {
 	::LARGE_INTEGER largeInt = {};
 	QueryPerformanceCounter(&largeInt);
@@ -22,7 +22,7 @@ void timer::reset()
 	m_bStopped = false;
 }
 
-void timer::start()
+void cpuTimer::start()
 {
 	::LARGE_INTEGER largeInt = {};
 	::QueryPerformanceCounter(&largeInt);
@@ -37,7 +37,7 @@ void timer::start()
 	}
 }
 
-void timer::stop()
+void cpuTimer::stop()
 {
 	if (!m_bStopped)
 	{
@@ -49,7 +49,7 @@ void timer::stop()
 	}
 }
 
-void timer::tick()
+void cpuTimer::tick()
 {
 	if (m_bStopped)
 	{

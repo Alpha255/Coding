@@ -35,8 +35,19 @@ public:
 
 			if (memcmp(data, vData.data(), sizeof(T) * m_Range) != 0)
 			{
+				for (uint32_t n = 0u; n < m_Range; ++n)
+				{
+					std::cout << data[n] << " ";
+				}
+				std::cout << std::endl;
+
+				for (uint32_t n = 0u; n < m_Range; ++n)
+				{
+					std::cout << vData[n] << " ";
+				}
+				std::cout << std::endl;
+
 				safeDeleteArray(data);
-				__debugbreak();
 				return false;
 			}
 

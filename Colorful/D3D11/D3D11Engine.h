@@ -257,7 +257,7 @@ class d3d11Engine : public rEngine, public gear::singleton<d3d11Engine>
 {
 	singletonDeclare(d3d11Engine);
 public:
-	void initialize(::HWND, const gear::appConfig &config) override final;
+	void initialize(uint64_t windowHandle, const gear::appConfig &config) override final;
 	void finalize() override final {}
 
 	void logError(uint32_t result) const override final;

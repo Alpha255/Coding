@@ -114,7 +114,7 @@ typedef std::shared_ptr<rContext> rContextPtr;
 class rEngine
 {
 public:
-	virtual void initialize(::HWND, const gear::appConfig &config) = 0;
+	virtual void initialize(uint64_t windowHandl, const gear::appConfig &config) = 0;
 	virtual void finalize() = 0;
 	virtual void logError(uint32_t result) const = 0;
 

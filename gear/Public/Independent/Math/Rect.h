@@ -8,6 +8,11 @@ namespaceStart(math)
 class rect : public vec4
 {
 public:
+	rect()
+		: vec4(0.0f, 0.0f, 0.0f, 0.0f)
+	{
+	}
+
 	rect(float32_t left, float32_t top, float32_t right, float32_t bottom)
 		: vec4(left, top, right, bottom)
 	{
@@ -18,12 +23,12 @@ public:
 	{
 	}
 
-	inline float32_t width()
+	inline float32_t getWidth()
 	{
 		return z - x;
 	}
 
-	inline float32_t height()
+	inline float32_t getHeight()
 	{
 		return w - y;
 	}

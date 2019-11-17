@@ -22,7 +22,7 @@ void D3D11InputLayout::Create(const void *pByteCode, const size_t byteSize, cons
 		};
 		inputDesc.emplace_back(desc);
 
-		m_VertexStride += layout.Stride;
+		m_VertexStride += (uint32_t)layout.Stride;
 	}
 
 	ID3D11InputLayout *pInputLayout = nullptr;

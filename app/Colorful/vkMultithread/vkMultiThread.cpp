@@ -162,4 +162,4 @@ void vkMultiThread::renterToWindow()
 }
 #endif
 
-winMainEntry(vkMultiThread)
+appMainEntry(vkMultiThread)

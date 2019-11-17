@@ -21,7 +21,7 @@ D3D11Event::D3D11Event(D3D11Context *pContext)
 	}
 }
 
-void D3D11Event::Begin(const std::string &info)
+void D3D11Event::Begin(const std::string &)
 {
 	//if (IsValid())
 	//{

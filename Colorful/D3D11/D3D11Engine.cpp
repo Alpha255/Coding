@@ -90,7 +90,7 @@ void D3D11Engine::Resize(uint32_t width, uint32_t height)
 	RecreateRenderTargetDepthStencil(width, height);
 }
 
-void d3d11Engine::initialize(::HWND, const gear::appConfig &)
+void d3d11Engine::initialize(uint64_t, const gear::appConfig &)
 {
 	m_Device = std::make_shared<d3d11Device>();
 	m_IMContext = std::make_shared<d3d11Context>();
@@ -153,5 +153,5 @@ void d3d11Engine::logError(uint32_t result) const
 		break;
 	}
 
-	gear::log(gear::eError, "Failed to invoke D3D11API, error message: ", errorMsg.c_str());
+	logger::instance().log(logger::eError, "Failed to invoke D3D11API, error message: ", errorMsg.c_str());
 }

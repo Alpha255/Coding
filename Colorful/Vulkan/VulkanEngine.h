@@ -175,7 +175,7 @@ class vkEngine : public rEngine, public gear::singleton<vkEngine>
 {
 	singletonDeclare(vkEngine);
 public:
-	void initialize(::HWND, const gear::appConfig &config) override final;
+	void initialize(uint64_t windowHandle, const gear::appConfig &config) override final;
 	void finalize() override final {}
 
 	void logError(uint32_t result) const override final;

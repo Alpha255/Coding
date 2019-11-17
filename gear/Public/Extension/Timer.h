@@ -4,10 +4,10 @@
 
 namespaceStart(gear)
 
-class timer
+class cpuTimer
 {
 public:
-	timer();
+	cpuTimer();
 
 	inline float32_t getTotalTime() const
 	{

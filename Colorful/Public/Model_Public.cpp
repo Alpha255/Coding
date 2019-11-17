@@ -38,7 +38,7 @@ std::vector<vertexLayout> vertexLayout::make(const std::vector<std::pair<eVertex
 void model::createFromFile(const std::string &modelName)
 {
 	init();
-	std::string ext = gear::file::getExtension(modelName, true);
+	std::string ext = file::getFileExtension(modelName, true);
 	if (ext == ".sdkmesh")
 	{
 

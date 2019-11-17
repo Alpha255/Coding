@@ -89,9 +89,9 @@ void VulkanDepthStencilState::Create(
 }
 
 void VulkanBlendState::Create(
-	bool bAlphaToCoverage,
-	bool bIndependentBlend,
-	uint32_t surfaceIndex,
+	bool,
+	bool,
+	uint32_t,
 	bool bBlend,
 	eRBlend srcColor,
 	eRBlend dstColor,

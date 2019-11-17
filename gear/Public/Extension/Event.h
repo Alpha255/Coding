@@ -1,6 +1,7 @@
 #pragma once
 
-#include "gear/Public/Independent/Singleton.h"
+#include "Gear/Public/Independent/Singleton.h"
+#include "Gear/Public/Independent/Math/Vector2.h"
 
 namespaceStart(gear)
 
@@ -15,10 +16,15 @@ enum class eKeyboardEvent
 enum class eMouseEvent
 {
 	eMouseEvent_None,
+	eLeftUp,
 	eLeftClick,
 	eLeftDoubleClick,
+	eRightUp,
 	eRightClick,
+	eRightDoubleClick,
+	eMiddleUp,
 	eMiddleClick,
+	eMiddleDoubleClick,
 	eMove,
 	eWheel,
 	eMouseEvent_MaxEnum
@@ -29,14 +35,14 @@ enum class eAppEvent
 	eAppEvent_None,
 	eActive,
 	eInactive,
-	eDestory,
-	eDoubleClick_NonclientArea,
+	eDoubleClickNonClientArea,
 	eMaximize,
 	eMinimize,
-	eClose,
+	eQuit,
 	eRestore,
 	eResizing_Start,
 	eResizing_End,
+	eSetWindowSizeLimitations,
 	eAppMessage_MaxEnum
 };
 
@@ -47,6 +53,8 @@ enum class eKeyboardKey
 	eKey_A,
 	eKey_S,
 	eKey_D,
+	eKey_Q,
+	eKey_E,
 	eKey_Left,
 	eKey_Right,
 	eKey_Up,
@@ -66,8 +74,17 @@ class eventHandler : public singleton<eventHandler>
 	singletonDeclare(eventHandler);
 public:
 	void processEvent();
-	void dispatchEvent();
-	void pushEvent(const void *pEventData, size_t size);
+	bool8_t dispatchEvent();
+
+	inline void pushEvent(const byte *pEventData, size_t size)
+	{
+		m_EventData.reset(new byte[size]());
+		assert(m_EventData);
+
+		memcpy(m_EventData.get(), pEventData, size);
+
+		processEvent();
+	}
 
 	inline eMouseEvent getMouseEvent() const
 	{
@@ -93,6 +110,16 @@ public:
 	{
 		return m_MouseWheelDelta;
 	}
+
+	inline math::vec2 getMousePosition() const
+	{
+		return m_MousePosition;
+	}
+
+	inline void setWindowSizeLimitations(math::vec2 limitations)
+	{
+		m_WindowSizeLimitations = limitations;
+	}
 protected:
 private:
 	eMouseEvent m_MouseEvent = eMouseEvent::eMouseEvent_None;
@@ -100,6 +127,9 @@ private:
 	eAppEvent m_AppEvent = eAppEvent::eAppEvent_None;
 	eKeyboardKey m_KeyboardKey = eKeyboardKey::eKeyboardKey_None;
 	float32_t m_MouseWheelDelta = 0.0f;
+	math::vec2 m_MousePosition;
+	math::vec2 m_WindowSizeLimitations;
+	std::unique_ptr<byte> m_EventData = nullptr;
 };
 
 namespaceEnd(gear)

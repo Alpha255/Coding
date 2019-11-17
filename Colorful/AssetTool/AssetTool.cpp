@@ -96,10 +96,10 @@ std::vector<uint32_t> compileVkShader(const std::string &fileName, const std::st
 	assert(shaderFile);
 
 	std::string inputFile(shaderFile->getFullPath());
-	std::string outputFile = file::stripExtension(inputFile) + ".spirv";
+	std::string outputFile = file::stripFileExtension(inputFile) + ".spirv";
 
 	char8_t parserPath[MAX_PATH] = {};
-	verifyWin(::GetEnvironmentVariableA("VULKAN_SDK", parserPath, MAX_PATH) != 0);
+	verify_Log(::GetEnvironmentVariableA("VULKAN_SDK", parserPath, MAX_PATH) != 0);
 	std::string commandline(parserPath);
 	commandline += "\\Bin\\glslangValidator ";
 
@@ -134,11 +134,11 @@ std::vector<uint32_t> compileVkShader(const std::string &fileName, const std::st
 
 	assert(gear::executeProcess(commandline, true));
 
-	gear::fileIO shaderBinary(outputFile);
+	file shaderBinary(outputFile);
 	size_t shaderBinarySize = shaderBinary.getSize();
 	assert((shaderBinarySize % sizeof(uint32_t)) == 0u);
 	spirv.resize(shaderBinarySize / sizeof(uint32_t));
-	verify(memcpy_s((void *)spirv.data(), shaderBinarySize, (void *)shaderBinary.getData(gear::fileIO::eBinary).get(), shaderBinarySize) == 0);
+	verify(memcpy_s((void *)spirv.data(), shaderBinarySize, (void *)shaderBinary.getData(file::eBinary).get(), shaderBinarySize) == 0);
 
 	return spirv;
 }
