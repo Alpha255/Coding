@@ -171,11 +171,11 @@ private:
 
 #include "VulkanDevice.h"
 
-class vkEngine : public rEngine, public gear::singleton<vkEngine>
+class vkEngine : public rEngine, public singleton<vkEngine>
 {
 	singletonDeclare(vkEngine);
 public:
-	void initialize(uint64_t windowHandle, const gear::appConfig &config) override final;
+	void initialize(uint64_t windowHandle, const appConfig &config) override final;
 	void finalize() override final {}
 
 	void logError(uint32_t result) const override final;
@@ -197,5 +197,8 @@ private:
 	vkDebugReportCallbackPtr m_DebugReportCallback = nullptr;
 	vkDevicePtr m_Device = nullptr;
 	vkPhysicalDevicePtr m_PhysicalDevice = nullptr;
+	vkDeviceQueuePtr m_GraphicsQueue = nullptr;
+	vkDeviceQueuePtr m_ComputeQueue = nullptr;
+	vkDeviceQueuePtr m_TransferQueue = nullptr;
 	vkContextPtr m_IMContext = nullptr;
 };

@@ -146,18 +146,41 @@ typedef std::shared_ptr<vkInstance> vkInstancePtr;
 class vkDebugReportCallback : public vkObject<VkDebugReportCallbackEXT>
 {
 public:
-	void create(const vkInstancePtr &instance);
+	void create(const vkInstancePtr &instancePtr);
 };
 typedef std::shared_ptr<vkDebugReportCallback> vkDebugReportCallbackPtr;
 
 class vkPhysicalDevice : public vkObject<VkPhysicalDevice>
 {
+public:
+	static std::vector<std::shared_ptr<vkPhysicalDevice>> enumeratePhysicalDevices(const vkInstancePtr &instancePtr);
 };
 typedef std::shared_ptr<vkPhysicalDevice> vkPhysicalDevicePtr;
 
 class vkDevice : public vkObject<VkDevice>, public rDevice
 {
 public:
-	uint32_t create(const std::vector<vkPhysicalDevicePtr> &physicalDevicePtrs);
+	uint32_t create(
+		const std::vector<vkPhysicalDevicePtr> &physicalDevicePtrs,
+		uint32_t &graphicsQueueIndex,
+		uint32_t &computeQueueIndex,
+		uint32_t &transferQueueIndex
+	);
 };
 typedef std::shared_ptr<vkDevice> vkDevicePtr;
+
+class vkDeviceQueue : public vkObject<VkQueue>
+{
+public:
+	vkDeviceQueue(uint32_t queueFamilyIndex, const vkDevicePtr &devicePtr)
+		: m_FamilyIndex(queueFamilyIndex)
+	{
+		VkQueue handle = VK_NULL_HANDLE;
+		vkGetDeviceQueue(&(*devicePtr), queueFamilyIndex, 0u, &handle);
+		reset(handle);
+	}
+protected:
+private:
+	uint32_t m_FamilyIndex = UINT32_MAX;
+};
+typedef std::shared_ptr<vkDeviceQueue> vkDeviceQueuePtr;

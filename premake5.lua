@@ -84,7 +84,10 @@ workspace "Miscellaneous"
 			language "C++"
 			location "./Projects"
 			files "./gear/**"
-			includedirs { "$(SolutionDir)" }
+			includedirs { 
+				"$(SolutionDir)",
+				"$(VK_SDK_PATH)\\Include" 
+			}
 			targetdir "$(SolutionDir)Out\\Libs\\"
 
 		project "Colorful"

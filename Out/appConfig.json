@@ -1,6 +1,44 @@
 {
-  "width": 1280,
-  "height": 720,
-  "fullscreen": false,
-  "renderEngine": "vulkan"
+  "appConfig": {
+    "width": 1280,
+    "height": 720,
+    "fullscreen": false,
+    "imGUI": true,
+    "adapterInfo": true,
+    "fps": true,
+    "renderEngine": "vulkan",
+
+    "postProcess": {
+    }
+  },
+
+  "assetFormat": {
+    "eTexture": [
+      "dds",
+      "png",
+      "bmp",
+      "jpg",
+      "ktx"
+    ],
+    "eShader": [
+      "shader",
+      "hlsl",
+      "hlsli",
+      "glsl",
+      "vert",
+      "frag"
+    ],
+    "eStaticMesh": [
+      "sdkmesh",
+      "obj",
+      "dae",
+      "txt"
+    ],
+    "eSound": [
+      "mp3"
+    ],
+    "eLevel": [
+      "dat"
+    ]
+  }
 }

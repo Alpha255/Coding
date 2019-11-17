@@ -44,7 +44,7 @@ void VulkanEngine::Finalize()
 	m_Instance.Destory();
 }
 
-void vkEngine::initialize(uint64_t, const gear::appConfig &)
+void vkEngine::initialize(uint64_t, const appConfig &)
 {
 	m_Instance = std::make_shared<vkInstance>();
 	m_Instance->create();
@@ -52,46 +52,32 @@ void vkEngine::initialize(uint64_t, const gear::appConfig &)
 	m_DebugReportCallback = std::make_shared<vkDebugReportCallback>();
 	m_DebugReportCallback->create(m_Instance);
 
-	std::vector<vkPhysicalDevicePtr> physicalDevicePtrs;
-	std::vector<VkPhysicalDevice> physicalDeviceHandles;
+	auto physicalDevicePtrs = vkPhysicalDevice::enumeratePhysicalDevices(m_Instance);
+	assert(physicalDevicePtrs.size() == 1u); /// Only allow single video card for now...
 
-	uint32_t count = 0U;
-	rVerifyVk(vkEnumeratePhysicalDevices(&(*m_Instance), &count, nullptr));
-	assert(count > 0U);
-	physicalDevicePtrs.resize(count);
-	physicalDeviceHandles.resize(count);
-	rVerifyVk(vkEnumeratePhysicalDevices(&(*m_Instance), &count, physicalDeviceHandles.data()));
-	for (uint32_t i = 0u; i < count; ++i)
-	{
-		physicalDevicePtrs[i] = std::make_shared<vkPhysicalDevice>();
-		physicalDevicePtrs[i]->reset(physicalDeviceHandles[i]);
-	}
-	
+	uint32_t graphicsQueueFamilyIndex = UINT32_MAX;
+	uint32_t computeQueueFamilyIndex = UINT32_MAX;
+	uint32_t transferQueueFamilyIndex = UINT32_MAX;
 	m_Device = std::make_shared<vkDevice>();
-	m_Device->create(physicalDevicePtrs);
+	uint32_t gpuIndex = m_Device->create(
+		physicalDevicePtrs, 
+		graphicsQueueFamilyIndex,
+		computeQueueFamilyIndex,
+		transferQueueFamilyIndex);
+	assert(graphicsQueueFamilyIndex != UINT32_MAX);
 
-	//uint32_t graphicsQueueIndex = 0u;
-	//uint32_t computeQueueIndex = 0u;
-	//uint32_t transferQueueIndex = 0u;
-
-	for each (auto handle in physicalDeviceHandles)
+	m_GraphicsQueue = std::make_shared<vkDeviceQueue>(graphicsQueueFamilyIndex, m_Device);
+	if (computeQueueFamilyIndex != UINT32_MAX)
 	{
-		vkGetPhysicalDeviceQueueFamilyProperties(handle, &count, nullptr);
-
-		std::vector<VkQueueFamilyProperties> queueFamilyProperties(count);
-		vkGetPhysicalDeviceQueueFamilyProperties(handle, &count, queueFamilyProperties.data());
-
-		for (uint32_t i = 0U; i < queueFamilyProperties.size(); ++i)
-		{
-			if (queueFamilyProperties[i].queueFlags & (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT))
-			{
-				///m_QueueFamilyIndex = i;
-				break;
-			}
-		}
+		m_ComputeQueue = std::make_shared<vkDeviceQueue>(computeQueueFamilyIndex, m_Device);
 	}
-	//assert(m_QueueFamilyIndex != UINT32_MAX);
-	//Reset(m_PhysicalDevices[m_QueueFamilyIndex]);
+	if (transferQueueFamilyIndex != UINT32_MAX)
+	{
+		m_TransferQueue = std::make_shared<vkDeviceQueue>(transferQueueFamilyIndex, m_Device);
+	}
+
+	assert(gpuIndex != UINT32_MAX);
+	m_PhysicalDevice = physicalDevicePtrs[gpuIndex];
 }
 
 void vkEngine::logError(uint32_t result) const

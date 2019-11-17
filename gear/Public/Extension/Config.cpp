@@ -7,7 +7,7 @@ namespaceStart(gear)
 
 void appConfig::load()
 {
-	std::string appPath = gear::getApplicationPath();
+	std::string appPath = getApplicationPath();
 	std::string rootPath = file::getFileDirectory(appPath);
 	std::string configFilePath(rootPath + "\\appConfig.json");
 	if (file::isFileExists(configFilePath))
@@ -16,24 +16,27 @@ void appConfig::load()
 		std::ifstream filestream(configFilePath);
 		filestream >> configJson;
 
-		auto itWidth = configJson.find("width");
-		auto itHeight = configJson.find("height");
-		auto itFullScreen = configJson.find("fullscreen");
-		auto itRenderEngine = configJson.find("renderEngine");
+		auto appConfigPtr = configJson.find("appConfig");
+		assert(appConfigPtr != configJson.end());
 
-		if (itWidth != configJson.end())
+		auto itWidth = appConfigPtr->find("width");
+		auto itHeight = appConfigPtr->find("height");
+		auto itFullScreen = appConfigPtr->find("fullscreen");
+		auto itRenderEngine = appConfigPtr->find("renderEngine");
+
+		if (itWidth != appConfigPtr->end())
 		{
 			WindowWidth = itWidth.value();
 		}
-		if (itHeight != configJson.end())
+		if (itHeight != appConfigPtr->end())
 		{
 			WindowHeight = itHeight.value();
 		}
-		if (itFullScreen != configJson.end())
+		if (itFullScreen != appConfigPtr->end())
 		{
 			FullScreen = itFullScreen.value();
 		}
-		if (itRenderEngine != configJson.end())
+		if (itRenderEngine != appConfigPtr->end())
 		{
 			std::string renderEngine = itRenderEngine.value();
 			if (renderEngine == "d3d11")

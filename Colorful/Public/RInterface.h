@@ -110,11 +110,12 @@ class rInputLayout
 
 typedef std::shared_ptr<rDevice> rDevicePtr;
 typedef std::shared_ptr<rContext> rContextPtr;
+typedef std::shared_ptr<rTexture> rTexturePtr;
 
 class rEngine
 {
 public:
-	virtual void initialize(uint64_t windowHandl, const gear::appConfig &config) = 0;
+	virtual void initialize(uint64_t windowHandl, const appConfig &config) = 0;
 	virtual void finalize() = 0;
 	virtual void logError(uint32_t result) const = 0;
 

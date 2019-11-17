@@ -7,14 +7,15 @@ namespaceStart(gear)
 class assetFile : public file
 {
 public:
-	enum eType
+	enum eAssetType
 	{
 		eUnknown,
 		eTexture,
 		eShader,
 		eStaticMesh,
 		eSound,
-		eLevel
+		eLevel,
+		eAssetType_MaxEnum
 	};
 
 	assetFile() = default;
@@ -24,7 +25,7 @@ public:
 		matchType();
 	}
 
-	inline eType getType() const
+	inline eAssetType getType() const
 	{
 		return m_Type;
 	}
@@ -36,7 +37,7 @@ public:
 protected:
 	void matchType();
 private:
-	eType m_Type = eUnknown;
+	eAssetType m_Type = eUnknown;
 	uint32_t m_ID = UINT32_MAX;
 };
 

@@ -10,8 +10,8 @@ namespaceStart(assetTool)
 
 void loadModelFromFile(const std::string &modelName, model &outModel)
 {
-	auto assetFile = gear::assetBucket::instance().getAsset(modelName);
-	assert(assetFile && assetFile->getType() == gear::assetFile::eStaticMesh);
+	auto assetFile = assetBucket::instance().getAsset(modelName);
+	assert(assetFile && assetFile->getType() == assetFile::eStaticMesh);
 
 	const int32_t readFlags =
 		aiProcess_FlipWindingOrder |
@@ -85,7 +85,7 @@ void loadModelFromFile(const std::string &modelName, model &outModel)
 		}
 	}
 
-	outModel.m_AABB = gear::math::aabb::createFromVertices(vertices);
+	outModel.m_AABB = math::aabb::createFromVertices(vertices);
 }
 
 /// Standard, Portable Intermediate Representation - V
@@ -132,7 +132,7 @@ std::vector<uint32_t> compileVkShader(const std::string &fileName, const std::st
 	commandline += " ";
 	commandline += inputFile;
 
-	assert(gear::executeProcess(commandline, true));
+	assert(executeProcess(commandline, true));
 
 	file shaderBinary(outputFile);
 	size_t shaderBinarySize = shaderBinary.getSize();

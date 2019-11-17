@@ -2,7 +2,7 @@
 #include "Colorful/Public/RInterface.h"
 #include "App/Resource.h"
 ///#include "Colorful/D3D11/D3D11Engine.h"
-///#include "Colorful/Vulkan/VulkanEngine.h"
+#include "Colorful/Vulkan/VulkanEngine.h"
 
 rEnginePtr g_rEnginePtr = nullptr;
 
@@ -21,7 +21,7 @@ void application::initialize(const std::string &title, uint32_t extraWindowStyle
 	else if (renderEngine == appConfig::eVulkan)
 	{
 		makeWindow(title, m_Config.WindowWidth, m_Config.WindowHeight, extraWindowStyle, IconVulkan);
-		//vkEngine::instance().initialize(m_hWnd, m_Config);
+		vkEngine::instance().initialize(m_WindowHandle, m_Config);
 		//g_rEnginePtr = std::make_unique<rEngine>(&vkEngine::instance());
 	}
 

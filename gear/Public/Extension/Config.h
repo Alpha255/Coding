@@ -16,10 +16,10 @@ struct appConfig
 		eRenderEngine_MaxEnum
 	};
 
-	uint32_t WindowWidth = 0u;
-	uint32_t WindowHeight = 0u;
+	uint32_t WindowWidth = 1280u;
+	uint32_t WindowHeight = 720u;
 	bool8_t FullScreen = false;
-	eRenderEngine RenderEngine = eUnknown;
+	eRenderEngine RenderEngine = eD3D11;
 
 	void load();
 };

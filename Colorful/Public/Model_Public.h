@@ -58,8 +58,8 @@ public:
 		m_VertexLayouts.clear();
 		m_SubModels.clear();
 
-		m_AABB = gear::math::aabb();
-		m_OBB = gear::math::obb();
+		m_AABB = math::aabb();
+		m_OBB = math::obb();
 	}
 
 	uint32_t getVertexStride()
@@ -97,12 +97,12 @@ public:
 		return m_VertexLayouts;
 	}
 
-	gear::math::aabb getAABB() const
+	math::aabb getAABB() const
 	{
 		return m_AABB;
 	}
 
-	gear::math::obb getOBB() const
+	math::obb getOBB() const
 	{
 		return m_OBB;
 	}
@@ -119,8 +119,8 @@ private:
 	std::vector<subModel> m_SubModels;
 	std::vector<material> m_Materials;
 
-	gear::math::aabb m_AABB;
-	gear::math::obb m_OBB;
+	math::aabb m_AABB;
+	math::obb m_OBB;
 
 	uint32_t m_VertexStride = UINT32_MAX;
 };

@@ -387,9 +387,7 @@ private:
 	bool m_Dirty = false;
 };
 
-#include <vulkan/vulkan.h>
-#include <vulkan/vulkan_win32.h>
-#include "Public/RInterface.h"
+#include "Colorful/Public/RInterface.h"
 
 class vkContext : public rContext
 {

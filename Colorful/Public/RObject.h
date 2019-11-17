@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gear/gear.h"
+#include "Gear/Gear.h"
 
 template <typename T> class rObject
 {
@@ -41,13 +41,13 @@ public:
 		return (T)(m_Object.get());
 	}
 
-	inline void reset(T other = VK_NULL_HANDLE)
+	inline void reset(T other = NULL)
 	{
 		if (other)
 		{
 			m_Object.reset((T *)other, std::function<void(T *&)>([](T *&pObject)
 			{
-				pObject = VK_NULL_HANDLE;
+				pObject = NULL;
 			}));
 		}
 		else
