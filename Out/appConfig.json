@@ -10,36 +10,5 @@
 
     "postProcess": {
     }
-  },
-
-  "assetFormat": {
-    "eTexture": [
-      "dds",
-      "png",
-      "bmp",
-      "jpg",
-      "ktx",
-      "xml"
-    ],
-    "eShader": [
-      "shader",
-      "hlsl",
-      "hlsli",
-      "glsl",
-      "vert",
-      "frag"
-    ],
-    "eStaticMesh": [
-      "sdkmesh",
-      "obj",
-      "dae",
-      "txt"
-    ],
-    "eSound": [
-      "mp3"
-    ],
-    "eLevel": [
-      "dat"
-    ]
   }
 }

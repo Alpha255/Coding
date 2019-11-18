@@ -5,9 +5,8 @@
 
 namespaceStart(gear)
 
-class assetBucket final : public singleton<assetBucket>
+class assetBucket
 {
-	singletonDeclare(assetBucket);
 public:
 	void initialize();
 	std::shared_ptr<assetFile> getAsset(const std::string &assetName);

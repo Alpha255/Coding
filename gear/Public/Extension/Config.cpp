@@ -1,7 +1,6 @@
 #include "Config.h"
 #include "Gear/Public/Extension/File.h"
 #include "Gear/Public/Extension/System.h"
-#include <ThirdParty/json/single_include/nlohmann/json.hpp>
 
 namespaceStart(gear)
 
@@ -12,12 +11,11 @@ void appConfig::load()
 	std::string configFilePath(rootPath + "\\appConfig.json");
 	if (file::isFileExists(configFilePath))
 	{
-		nlohmann::json configJson;
 		std::ifstream filestream(configFilePath);
-		filestream >> configJson;
+		filestream >> ConfigJson;
 
-		auto appConfigPtr = configJson.find("appConfig");
-		assert(appConfigPtr != configJson.end());
+		auto appConfigPtr = ConfigJson.find("appConfig");
+		assert(appConfigPtr != ConfigJson.end());
 
 		auto itWidth = appConfigPtr->find("width");
 		auto itHeight = appConfigPtr->find("height");

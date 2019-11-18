@@ -1,38 +1,38 @@
-<vkMultiThread>
-	<VertexShader>
-		<ResourceBinding>
+<XMLShader>
+	<eVertexShader>
+    <eInputLayout>
+      <Attribute Type = "vec3" Usage = "Position"/>
+      <Attribute Type = "vec3" Usage = "Normal"/>
+      <Attribute Type = "vec3" Usage = "Tangent"/>
+      <Attribute Type = "vec2" Usage = "Texcoord"/>
+      <Attribute Type = "vec3" Usage = "Color"/>
+    </eInputLayout>
+		<eResourceBinding>
 			<UniformBuffer Slot = "0">
-				<Math Type = "mat4" Name = "worldMatrix"/>
-				<Math Type = "mat4" Name = "viewMatrix"/>
-				<Math Type = "mat4" Name = "projectionMatrix"/>
-				<Math Type = "vec3" Name = "color"/>
+				<Attribute Type = "mat4" Name = "worldMatrix"/>
+				<Attribute Type = "mat4" Name = "viewMatrix"/>
+				<Attribute Type = "mat4" Name = "projectionMatrix"/>
+				<Attribute Type = "vec3" Name = "color"/>
 			</UniformBuffer>
-		</ResourceBinding>
-		<InputLayout>
-			<Math Type = "vec3" Usage = "Position"/>
-			<Math Type = "vec3" Usage = "Normal"/>
-			<Math Type = "vec3" Usage = "Tangent"/>
-			<Math Type = "vec2" Usage = "Texcoord"/>
-			<Math Type = "vec3" Usage = "Color"/>
-		</InputLayout>
-		<Output>
-			<Math Type = "vec3" Name = "outColor"/>
-			<Math Type = "vec4" Name = "outPosition"/>
-		</Output>
-		<Code>
+		</eResourceBinding>
+		<eOutput>
+			<Attribute Type = "vec3" Name = "outColor"/>
+			<Attribute Type = "vec4" Name = "outPosition"/>
+		</eOutput>
+		<eCode>
 			<![CDATA[]]>
-		</Code>
-	</VertexShader>
+		</eCode>
+	</eVertexShader>
 
-	<PixelShader>
-		<Input>
-			<Math Type = "vec3" Name = "inColor"/>
-		</Input>
-		<Output>
-			<Math Type = "vec4" Name = "outFragColor"/>
-		</Output>
-		<Code>
+	<eFragmentShader>
+		<eInput>
+			<Attribute Type = "vec3" Name = "inColor"/>
+		</eInput>
+		<eOutput>
+			<Attribute Type = "vec4" Name = "outFragColor"/>
+		</eOutput>
+		<eCode>
 			<![CDATA[]]>
-		</Code>
-	</PixelShader>
-</vkMultiThread>
+		</eCode>
+	</eFragmentShader>
+</XMLShader>

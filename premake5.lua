@@ -34,6 +34,7 @@ function linkLibsCommon()
 		"DirectXTK",
 		"gear",
 		"assimp",
+		"pugixml",
 	}
 end
 
@@ -335,6 +336,13 @@ workspace "Miscellaneous"
 							"GTEST_HAS_PTHREAD=0",
 							"_HAS_EXCEPTIONS=1"
 						}
+
+		project "pugixml"
+			kind "StaticLib"
+			language "C++"
+			location "./Projects"
+			files { "./ThirdParty/pugixml/src/**" }
+			targetdir "$(SolutionDir)Out\\Libs\\"
 
 	group "Colorful"
 		project "Box"
