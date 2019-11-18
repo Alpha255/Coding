@@ -48,7 +48,9 @@ end
 
 function configInclude()
 	files {
-		"./Out/appConfig.json"
+		"./Out/appConfig.json",
+		"./Out/assetConfig.json",
+		"./Out/shaderConfig.json",
 	}
 end
 
@@ -422,7 +424,11 @@ workspace "Miscellaneous"
 					"./Assets/Shaders/vkMultiThread.shader",
 					"./Assets/Shaders/vkMultiThread.xml"
 				},
-				["Configuration"] = { "./Out/appConfig.json" }
+				["Configuration"] = { 
+					"./Out/appConfig.json",
+					"./Out/assetConfig.json",
+					"./Out/shaderConfig.json",
+				}
 			}
 			files { 
 				"./app/Colorful/vkMultiThread/**",

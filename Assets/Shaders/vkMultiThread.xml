@@ -1,23 +1,23 @@
 <XMLShader>
 	<eVertexShader>
     <eInputLayout>
-      <Attribute Type = "vec3" Usage = "Position"/>
-      <Attribute Type = "vec3" Usage = "Normal"/>
-      <Attribute Type = "vec3" Usage = "Tangent"/>
-      <Attribute Type = "vec2" Usage = "Texcoord"/>
-      <Attribute Type = "vec3" Usage = "Color"/>
+      <attribute type = "vec3" usage = "Position"/>
+      <attribute type = "vec3" usage = "Normal"/>
+      <attribute type = "vec3" usage = "Tangent"/>
+      <attribute type = "vec2" usage = "Texcoord"/>
+      <attribute type = "vec3" usage = "Color"/>
     </eInputLayout>
 		<eResourceBinding>
-			<UniformBuffer Slot = "0">
-				<Attribute Type = "mat4" Name = "worldMatrix"/>
-				<Attribute Type = "mat4" Name = "viewMatrix"/>
-				<Attribute Type = "mat4" Name = "projectionMatrix"/>
-				<Attribute Type = "vec3" Name = "color"/>
-			</UniformBuffer>
+			<eUniformBuffer slot = "0">
+				<attribute type = "mat4" name = "WorldMatrix"/>
+				<attribute type = "mat4" name = "ViewMatrix"/>
+				<attribute type = "mat4" name = "ProjectionMatrix"/>
+				<attribute type = "vec3" name = "Color"/>
+			</eUniformBuffer>
 		</eResourceBinding>
 		<eOutput>
-			<Attribute Type = "vec3" Name = "outColor"/>
-			<Attribute Type = "vec4" Name = "outPosition"/>
+			<attribute type = "vec3" name = "Color"/>
+			<attribute type = "vec4" name = "Position"/>
 		</eOutput>
 		<eCode>
 			<![CDATA[]]>
@@ -26,10 +26,10 @@
 
 	<eFragmentShader>
 		<eInput>
-			<Attribute Type = "vec3" Name = "inColor"/>
+			<attribute Type = "vec3" name = "Color"/>
 		</eInput>
 		<eOutput>
-			<Attribute Type = "vec4" Name = "outFragColor"/>
+			<attribute Type = "vec4" name = "FragColor"/>
 		</eOutput>
 		<eCode>
 			<![CDATA[]]>

@@ -14,7 +14,7 @@ struct rShaderParser
 {
 	std::string ShaderCode[eRShaderUsage::eRShaderUsage_MaxEnum];
 
-	void parse(eRShaderUsage usage, const std::string &fileName, appConfig::eRenderEngine engine);
+	void parse(eRShaderUsage usage, const assetFilePtr &assetPtr, appConfig::eRenderEngine engine);
 
 protected:
 	enum eShaderAttribute
@@ -63,14 +63,11 @@ class rAssetBucket : public singleton<rAssetBucket>
 {
 	singletonDeclare(rAssetBucket);
 public:
-	inline void initialize(appConfig::eRenderEngine engine)
-	{
-		m_Engine = engine;
-		m_Bucket.initialize();
-	}
+	void initialize(appConfig::eRenderEngine engine);
+
+	std::vector<byte> getShaderBinary(eRShaderUsage usage, const std::string &shaderName);
 protected:
 private:
-	rShaderParser m_ShaderParser;
 	rShaderCache m_ShaderCache;
 	assetBucket m_Bucket;
 	appConfig::eRenderEngine m_Engine = appConfig::eD3D11;

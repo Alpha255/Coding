@@ -1,21 +1,22 @@
 #include "Config.h"
 #include "Gear/Public/Extension/File.h"
 #include "Gear/Public/Extension/System.h"
+#include <ThirdParty/json/single_include/nlohmann/json.hpp>
 
 namespaceStart(gear)
 
 void appConfig::load()
 {
-	std::string appPath = getApplicationPath();
-	std::string rootPath = file::getFileDirectory(appPath);
-	std::string configFilePath(rootPath + "\\appConfig.json");
-	if (file::isFileExists(configFilePath))
+	std::string configPath(file::getFileDirectory(getApplicationPath()) + "\\appConfig.json");
+	if (file::isFileExists(configPath))
 	{
-		std::ifstream filestream(configFilePath);
-		filestream >> ConfigJson;
+		nlohmann::json configJson;
+		std::ifstream filestream(configPath);
+		filestream >> configJson;
+		filestream.close();
 
-		auto appConfigPtr = ConfigJson.find("appConfig");
-		assert(appConfigPtr != ConfigJson.end());
+		auto appConfigPtr = configJson.find("appConfig");
+		assert(appConfigPtr != configJson.end());
 
 		auto itWidth = appConfigPtr->find("width");
 		auto itHeight = appConfigPtr->find("height");

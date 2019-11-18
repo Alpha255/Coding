@@ -1,32 +1,32 @@
 {
   "assetFormat": {
     "eTexture": [
-      "dds",
-      "png",
-      "bmp",
-      "jpg",
-      "ktx",
-      "xml"
+      ".dds",
+      ".png",
+      ".bmp",
+      ".jpg",
+      ".ktx"
     ],
     "eShader": [
-      "shader",
-      "hlsl",
-      "hlsli",
-      "glsl",
-      "vert",
-      "frag"
+      ".shader",
+      ".hlsl",
+      ".hlsli",
+      ".glsl",
+      ".vert",
+      ".frag",
+      ".xml"
     ],
     "eStaticMesh": [
-      "sdkmesh",
-      "obj",
-      "dae",
-      "txt"
+      ".sdkmesh",
+      ".obj",
+      ".dae",
+      ".txt"
     ],
     "eSound": [
-      "mp3"
+      ".mp3"
     ],
     "eLevel": [
-      "dat"
+      ".dat"
     ]
   }
 }
