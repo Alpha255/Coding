@@ -1,8 +1,5 @@
 #include "Gear/Public/Extension/Application.h"
-#include "App/Resource.h"
-#include "Colorful/Public/RInterface.h"
-///#include "Colorful/D3D11/D3D11Engine.h"
-///#include "Colorful/Vulkan/VulkanEngine.h"
+#include "Applications/Resource.h"
 
 #if defined(Platform_Win32)
 

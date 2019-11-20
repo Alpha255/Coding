@@ -1,7 +1,6 @@
 #include "Gear/Public/Extension/Application.h"
-#include "Colorful/Public/RInterface.h"
-#include "App/Resource.h"
-///#include "Colorful/D3D11/D3D11Engine.h"
+#include "Applications/Resource.h"
+#include "Colorful/D3D11/D3D11Engine.h"
 #include "Colorful/Vulkan/VulkanEngine.h"
 
 rEnginePtr g_rEnginePtr = nullptr;
@@ -16,18 +15,15 @@ void application::initialize(const std::string &title, uint32_t extraWindowStyle
 	if (renderEngine == appConfig::eD3D11)
 	{
 		makeWindow(title, m_Config.WindowWidth, m_Config.WindowHeight, extraWindowStyle, IconDirectX);
-		///d3d11Engine::instance().initialize(m_hWnd, m_Config);
+		d3d11Engine::instance().initialize(m_WindowHandle, m_Config);
 	}
 	else if (renderEngine == appConfig::eVulkan)
 	{
 		makeWindow(title, m_Config.WindowWidth, m_Config.WindowHeight, extraWindowStyle, IconVulkan);
 		vkEngine::instance().initialize(m_WindowHandle, m_Config);
-		//g_rEnginePtr = std::make_unique<rEngine>(&vkEngine::instance());
 	}
 
 	eventHandler::instance().setWindowSizeLimitations(math::vec2(640.0f, 480.0f));
-
-	assetBucket::instance().initialize();
 
 	postInitialize();
 }
@@ -124,7 +120,7 @@ void application::loop()
 			}
 			else
 			{
-				::Sleep(100u);
+				sleep(100u);
 			}
 		}
 

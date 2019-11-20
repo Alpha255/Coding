@@ -12,6 +12,34 @@ struct rAdapter
 	std::string DeviceName;
 	uint32_t VendorID = 0u;
 	uint32_t DeviceID = 0u;
+
+	static std::string getVerdorName(uint32_t verdorID)
+	{
+		std::string verdorName("Unknown");
+		switch (verdorID)
+		{
+		case 0x1002: 
+			verdorName = std::string("AMD");
+			break;
+		case 0x1010: 
+			verdorName = std::string("ImgTec");
+			break;
+		case 0x10DE: 
+			verdorName = std::string("NVIDIA");
+			break;
+		case 0x13B5: 
+			verdorName = std::string("ARM");
+			break;
+		case 0x5143: 
+			verdorName = std::string("Qualcomm");
+			break;
+		case 0x8086: 
+			verdorName = std::string("Intel");
+			break;
+		}
+
+		return verdorName;
+	}
 };
 
 class rDevice

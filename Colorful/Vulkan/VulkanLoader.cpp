@@ -5,10 +5,10 @@
 	Function = (PFN_##Function)::GetProcAddress(s_Library, #Function); \
 	verifyWin(Function);
 
-void VulkanEngine::LoadVulkanLibrary()
+#if 0
+void vkEngine::loadLibrary()
 {
 	/// #define VK_NO_PROTOTYPES
-#if 0
 	s_Library = LoadLibraryA("vulkan-1.dll");
 	verifyWin(s_Library);
 
@@ -100,5 +100,5 @@ void VulkanEngine::LoadVulkanLibrary()
 	vkLoadFunction(vkDestroyDescriptorSetLayout);
 	vkLoadFunction(vkDestroySampler);
 	vkLoadFunction(vkDestroyImage);
-#endif
 }
+#endif

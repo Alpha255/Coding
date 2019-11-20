@@ -18,6 +18,8 @@
 #include <fstream>
 #include <condition_variable>
 
+#include "Gear/Public/Definitions.Generated.h"
+
 typedef char char8_t;
 typedef unsigned char uchar8_t;
 typedef float float32_t;

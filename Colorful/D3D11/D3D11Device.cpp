@@ -117,8 +117,8 @@ void d3d11Device::create(__out d3d11ContextPtr &context, d3d11DxgiFactoryPtr &dx
 	std::wstring wDeviceName(adapterDesc.Description);
 	m_Adapter.DeviceName = std::string(wDeviceName.cbegin(), wDeviceName.cend());
 
-	logger::instance().log(logger::eInfo, "Created d3d11 device on adapter: \"%s\", VerdonID = %d, DeviceID = %d.",
+	logger::instance().log(logger::eInfo, "Created d3d11 device on adapter: \"%s %s\", DeviceID = %d.",
+		rAdapter::getVerdorName(m_Adapter.VendorID).c_str(),
 		m_Adapter.DeviceName.c_str(),
-		m_Adapter.VendorID,
 		m_Adapter.DeviceID);
 }

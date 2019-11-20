@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Gear/Gear.h"
+#include "Colorful/Public/REnumerations.h"
 
 template <typename T> class rObject
 {
@@ -84,20 +85,6 @@ public:
 		}
 	}
 };
-
-#if 0
-#define rVerify(func)                                 \
-{                                                     \
-	auto result = (func);                             \
-	if (result != 0)                                  \
-	{                                                 \
-		if (g_rEnginePtr)                             \
-		{                                             \
-			g_rEnginePtr->logError((uint32_t)result); \
-		}                                             \
-	}                                                 \
-}
-#endif
 
 #define rVerifyD3D11(func)                        \
 {                                                 \

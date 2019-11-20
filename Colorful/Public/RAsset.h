@@ -1,9 +1,6 @@
 #pragma once
 
-#include "Gear/Public/Extension/Asset/AssetBucket.h"
-#include "Gear/Public/Extension/Config.h"
-#include "REnumerations.h"
-#include "RInterface.h"
+#include "Colorful/Public/RInterface.h"
 #include <ThirdParty/pugixml/src/pugixml.hpp>
 
 namespaceStart(rAsset)

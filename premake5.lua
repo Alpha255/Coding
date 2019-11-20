@@ -27,9 +27,7 @@ function linkLibsCommon()
 		"Shcore",
 		"vulkan-1",
 
-		"Base",
 		"Colorful",
-		"AssetTool",
 		"ImGui",
 		"DirectXTK",
 		"gear",
@@ -71,23 +69,16 @@ workspace "Miscellaneous"
 	filter { "configurations:Debug" }
 		symbols "On"
 		optimize "Debug"
-		defines { "DEBUG", "_UNICODE", "UNICODE", "Platform_Win32" }
+		defines { "DEBUG", "_UNICODE", "UNICODE" }
 	filter { "configurations:Release" }
 		optimize "Speed"
-		defines { "NDEBUG", "_UNICODE", "UNICODE", "Platform_Win32" }
+		defines { "NDEBUG", "_UNICODE", "UNICODE" }
 	filter { "platforms:Win64" }
 		system "Windows"
 		architecture "x64"
 	filter { }
 
 	group "Libs"
-		project "Base"
-			kind "StaticLib"
-			language "C++"
-			location "./Projects"
-			files "./Base/**"
-			targetdir "$(SolutionDir)Out\\Libs\\"
-
 		project "gear"
 			kind "StaticLib"
 			language "C++"
@@ -99,22 +90,13 @@ workspace "Miscellaneous"
 			}
 			targetdir "$(SolutionDir)Out\\Libs\\"
 
-		project "Colorful"
+		project "colorful"
 			kind "StaticLib"
 			language "C++"
 			location "./Projects"
 			files "./Colorful/**"
 			targetdir "$(SolutionDir)Out\\Libs\\"
 			includeCommon()
-
-		project "AssetTool"
-			kind "StaticLib"
-			language "C++"
-			location "./Projects"
-			files "./Tool/AssetTool/**"
-			targetdir "$(SolutionDir)Out\\Libs\\"
-			includeCommon()
-			disablewarnings { "4100", "4201", "4458", "4244", "4267", }
 	
 	group "Fort"
 		project "Learner"
@@ -347,7 +329,7 @@ workspace "Miscellaneous"
 			targetdir "$(SolutionDir)Out\\Libs\\"
 
 	group "Colorful"
-		project "Box"
+		project "rRenderTest"
 			kind "WindowedApp"
 			language "C++"
 			location "./Projects"
@@ -356,73 +338,11 @@ workspace "Miscellaneous"
 					"./Assets/Icon/Resource.rc", 
 					"./Assets/Icon/directx.ico", 
 					"./Assets/Icon/vulkan.ico",
-					"./Base/Resource.h"
+					"./Applications/Resource.h"
 					},
-				[""] = { "./Demo/Box/**" },
-			}
-			files { "./Demo/Box/**" }
-			resourceInclude()
-			includeCommon()
-			linkLibsCommon()
-
-		project "MultithreadedRendering"
-			kind "WindowedApp"
-			language "C++"
-			location "./Projects"
-			vpaths {
-				["Resource"] = { 
-					"./Assets/Icon/Resource.rc", 
-					"./Assets/Icon/directx.ico", 
-					"./Assets/Icon/vulkan.ico",
-					"./Base/Resource.h"
-					},
-				[""] = { "./Demo/MultithreadedRendering/**" },
-			}
-			files { "./Demo/MultithreadedRendering/**" }
-			resourceInclude()
-			includeCommon()
-			linkLibsCommon()
-
-		project "vkTest"
-			kind "WindowedApp"
-			language "C++"
-			location "./Projects"
-			vpaths {
-				["Resource"] = { 
-					"./Assets/Icon/Resource.rc", 
-					"./Assets/Icon/directx.ico", 
-					"./Assets/Icon/vulkan.ico",
-					"./app/Resource.h"
-					},
-				[""] = { "./app/Colorful/vkTest/**" },
-				["Shaders"] = { "./Assets/Shaders/vkTest.shader" },
-				["Configuration"] = { "./Out/appConfig.json" }
-			}
-			files { 
-				"./app/Colorful/vkTest/**",
-				"./Assets/Shaders/vkTest.shader",
-				"./app/Resource.h"
-			}
-			includeCommon()
-			resourceInclude()
-			linkLibsCommon()
-			configInclude()
-
-		project "vkMultiThread"
-			kind "WindowedApp"
-			language "C++"
-			location "./Projects"
-			vpaths {
-				["Resource"] = { 
-					"./Assets/Icon/Resource.rc", 
-					"./Assets/Icon/directx.ico", 
-					"./Assets/Icon/vulkan.ico",
-					"./app/Resource.h"
-					},
-				[""] = { "./app/Colorful/vkMultiThread/**" },
+				[""] = { "./Applications/Colorful/rRenderTest/**" },
 				["Shaders"] = { 
-					"./Assets/Shaders/vkMultiThread.shader",
-					"./Assets/Shaders/vkMultiThread.xml"
+					"./Assets/Shaders/rRenderTest.xml"
 				},
 				["Configuration"] = { 
 					"./Out/appConfig.json",
@@ -431,52 +351,14 @@ workspace "Miscellaneous"
 				}
 			}
 			files { 
-				"./app/Colorful/vkMultiThread/**",
-				"./Assets/Shaders/vkMultiThread.shader",
-				"./Assets/Shaders/vkMultiThread.xml",
-				"./app/Resource.h"
+				"./Applications/Colorful/rRenderTest/**",
+				"./Assets/Shaders/rRenderTest.xml",
+				"./Applications/Resource.h"
 			}
 			includeCommon()
 			resourceInclude()
 			linkLibsCommon()
 			configInclude()
-
-		group "Colorful/HLSLCookBook"
-			project "ForwardLighting"
-				kind "WindowedApp"
-				language "C++"
-				location "./Projects"
-				vpaths {
-					["Resource"] = { 
-						"./Assets/Icon/Resource.rc", 
-						"./Assets/Icon/directx.ico", 
-						"./Assets/Icon/vulkan.ico",
-						"./Base/Resource.h"
-						},
-					[""] = { "./Demo/HLSLCookBook/ForwardLighting/**" },
-				}
-				files { "./Demo/HLSLCookBook/ForwardLighting/**" }
-				resourceInclude()
-				includeCommon()
-				linkLibsCommon()
-
-			project "DeferredShading"
-				kind "WindowedApp"
-				language "C++"
-				location "./Projects"
-				vpaths {
-					["Resource"] = { 
-						"./Assets/Icon/Resource.rc", 
-						"./Assets/Icon/directx.ico", 
-						"./Assets/Icon/vulkan.ico",
-						"./Base/Resource.h"
-						},
-					[""] = { "./Demo/HLSLCookBook/DeferredShading/**" },
-				}
-				files { "./Demo/HLSLCookBook/DeferredShading/**" }
-				resourceInclude()
-				includeCommon()
-				linkLibsCommon()
 
 
 
