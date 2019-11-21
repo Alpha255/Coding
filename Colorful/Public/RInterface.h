@@ -11,7 +11,7 @@ struct rAdapter
 {
 	std::string DeviceName;
 	uint32_t VendorID = 0u;
-	uint32_t DeviceID = 0u;
+	uint32_t DeviceID = 0u;                      
 
 	static std::string getVerdorName(uint32_t verdorID)
 	{
@@ -42,12 +42,6 @@ struct rAdapter
 	}
 };
 
-class rDevice
-{
-protected:
-	rAdapter m_Adapter;
-};
-
 class rContext
 {
 };
@@ -69,13 +63,23 @@ public:
 
 class rShader
 {
+public:
 	class rShaderInput
 	{
 		class rSampler
 		{
 		};
 	};
+
+	rShader(eRShaderUsage usage)
+		: m_Usage(usage)
+	{
+	}
+protected:
+private:
+	eRShaderUsage m_Usage = eRShaderUsage_MaxEnum;
 };
+typedef std::shared_ptr<rShader> rShaderPtr;
 
 class rRenderSurface
 {
@@ -136,6 +140,15 @@ class rInputLayout
 
 };
 
+class rDevice
+{
+public:
+	virtual rShaderPtr createShader(eRShaderUsage usage, const std::string &shaderName) = 0;
+protected:
+	rAdapter m_Adapter;
+private:
+};
+
 typedef std::shared_ptr<rDevice> rDevicePtr;
 typedef std::shared_ptr<rContext> rContextPtr;
 typedef std::shared_ptr<rTexture> rTexturePtr;
@@ -154,3 +167,4 @@ private:
 };
 typedef std::unique_ptr<rEngine> rEnginePtr;
 extern rEnginePtr g_rEnginePtr;
+extern rDevicePtr g_rDevicePtr;

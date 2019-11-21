@@ -33,11 +33,16 @@ void assetBucket::initAsset(assetFilePtr &assetPtr)
 		assert(it->is_array());
 		for (uint32_t i = 0u; i < it->size(); ++i)
 		{
-			if (it[i] == ext)
+			if ((*it)[i] == ext)
 			{
 				keyType = it.key();
 				break;
 			}
+		}
+
+		if (keyType.size() > 0u)
+		{
+			break;
 		}
 	}
 
@@ -77,8 +82,14 @@ void assetBucket::initAsset(assetFilePtr &assetPtr)
 			}
 			break;
 		}
+
+		if (assetType != assetFile::eUnknown)
+		{
+			break;
+		}
 	}
 
+	assert(assetType != assetFile::eUnknown);
 	assetPtr->m_Type = (assetFile::eAssetType)assetType;
 }
 

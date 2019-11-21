@@ -32,6 +32,8 @@ public:
 		uint32_t &computeQueueIndex,
 		uint32_t &transferQueueIndex
 	);
+
+	rShaderPtr createShader(eRShaderUsage usage, const std::string &shaderName) override final;
 };
 typedef std::shared_ptr<vkDevice> vkDevicePtr;
 

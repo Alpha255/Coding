@@ -1,8 +1,6 @@
 #pragma once
 
-#include "Colorful/Public/RInterface.h"
-
-#include <vulkan/vulkan.h>
+#include "Colorful/Public/RAsset.h"
 
 class vkContext : public rContext
 {

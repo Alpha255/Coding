@@ -1,10 +1,6 @@
 #pragma once
 
-#include "Colorful/Public/RInterface.h"
-
-#include <d3d11.h>
-#include <d3d11_1.h>
-#include <d3dcompiler.h>
+#include "Colorful/Public/RAsset.h"
 
 class d3d11Context final : public d3dObject<ID3D11DeviceContext>, public rContext
 {

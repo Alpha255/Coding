@@ -4,6 +4,7 @@
 #include "Colorful/Vulkan/VulkanEngine.h"
 
 rEnginePtr g_rEnginePtr = nullptr;
+rDevicePtr g_rDevicePtr = nullptr;
 
 namespaceStart(gear)
 
@@ -16,12 +17,20 @@ void application::initialize(const std::string &title, uint32_t extraWindowStyle
 	{
 		makeWindow(title, m_Config.WindowWidth, m_Config.WindowHeight, extraWindowStyle, IconDirectX);
 		d3d11Engine::instance().initialize(m_WindowHandle, m_Config);
+
+		g_rEnginePtr.reset(&d3d11Engine::instance());
 	}
 	else if (renderEngine == appConfig::eVulkan)
 	{
 		makeWindow(title, m_Config.WindowWidth, m_Config.WindowHeight, extraWindowStyle, IconVulkan);
 		vkEngine::instance().initialize(m_WindowHandle, m_Config);
+
+		g_rEnginePtr.reset(&vkEngine::instance());
 	}
+
+	g_rDevicePtr = g_rEnginePtr->getDevice();
+
+	rAsset::rAssetBucket::instance().initialize(renderEngine);
 
 	eventHandler::instance().setWindowSizeLimitations(math::vec2(640.0f, 480.0f));
 

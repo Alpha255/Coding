@@ -1,17 +1,25 @@
 #pragma once
 
 #include "Colorful/Public/RInterface.h"
-#include <ThirdParty/pugixml/src/pugixml.hpp>
+
+namespace pugi
+{
+	class xml_document;
+}
 
 namespaceStart(rAsset)
 
 rTexturePtr createTextureFromFile(const std::string &fileName, appConfig::eRenderEngine engine);
 
+struct rShaderBinary
+{
+	byte *Binary = nullptr;
+	size_t Size = 0ull;
+};
+
 struct rShaderParser
 {
-	std::string ShaderCode[eRShaderUsage::eRShaderUsage_MaxEnum];
-
-	void parse(eRShaderUsage usage, const assetFilePtr &assetPtr, appConfig::eRenderEngine engine);
+	std::string parse(eRShaderUsage usage, const assetFilePtr &assetPtr, appConfig::eRenderEngine engine);
 
 protected:
 	enum eShaderAttribute
@@ -21,6 +29,7 @@ protected:
 		eOutput,
 		eUniformBuffer,
 		eTexture,
+		eSampler,
 		eCode,
 		eShaderAttribute_MaxEnum
 	};
@@ -53,7 +62,13 @@ protected:
 
 class rShaderCache
 {
-
+public:
+	rShaderBinary getShaderBinary(eRShaderUsage, const std::string &)
+	{
+		return rShaderBinary();
+	}
+protected:
+private:
 };
 
 class rAssetBucket : public singleton<rAssetBucket>
@@ -62,9 +77,19 @@ class rAssetBucket : public singleton<rAssetBucket>
 public:
 	void initialize(appConfig::eRenderEngine engine);
 
-	std::vector<byte> getShaderBinary(eRShaderUsage usage, const std::string &shaderName);
+	rShaderBinary getShaderBinary(eRShaderUsage usage, const std::string &shaderName, const rDevicePtr &devicePtr);
+
+	void finalize() {}
 protected:
+	inline std::string getShaderCode(eRShaderUsage usage, const std::string &shaderName)
+	{
+		auto shaderPtr = m_Bucket.getAsset(shaderName);
+		assert(shaderPtr);
+
+		return m_ShaderParser.parse(usage, shaderPtr, m_Engine);
+	}
 private:
+	rShaderParser m_ShaderParser;
 	rShaderCache m_ShaderCache;
 	assetBucket m_Bucket;
 	appConfig::eRenderEngine m_Engine = appConfig::eD3D11;
