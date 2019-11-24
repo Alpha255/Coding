@@ -52,7 +52,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vkDebugReportFunc(
 	}
 	else if (flags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT)
 	{
-		logLevel = logger::eInfo;
+		logLevel = logger::eWarning;
 	}
 	else if (flags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT)
 	{
@@ -137,11 +137,10 @@ void vkDebugReportCallback::create(const vkInstancePtr &instancePtr)
 	VkDebugReportCallbackCreateInfoEXT createInfo
 	{
 		VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT,
-		nullptr,
-		VK_DEBUG_REPORT_INFORMATION_BIT_EXT 
-			| VK_DEBUG_REPORT_ERROR_BIT_EXT 
+		nullptr, 
+		VK_DEBUG_REPORT_ERROR_BIT_EXT 
 			| VK_DEBUG_REPORT_WARNING_BIT_EXT 
-			| VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT 
+			| VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT
 			| VK_DEBUG_REPORT_DEBUG_BIT_EXT,
 		vkDebugReportFunc,
 		nullptr
@@ -187,11 +186,7 @@ uint32_t vkDevice::create(
 	uint32_t graphicsQueueFamilyIndex = UINT32_MAX;
 	uint32_t computeQueueFamilyIndex = UINT32_MAX;
 	uint32_t transferQueueFamilyIndex = UINT32_MAX;
-
-	std::vector<float32_t> queuePriorities =
-	{
-		1.0f
-	};
+	uint32_t numQueuePriority = 0u;
 
 	std::vector<VkDeviceQueueCreateInfo> deviceQueueCreateInfos;
 	for (uint32_t i = 0u; i < physicalDevicePtrs.size(); ++i)
@@ -231,28 +226,37 @@ uint32_t vkDevice::create(
 
 		for (uint32_t j = 0U; j < queueFamilyProperties.size(); ++j)
 		{
-			if ((queueFamilyProperties[j].queueFlags & VK_QUEUE_GRAPHICS_BIT) == VK_QUEUE_GRAPHICS_BIT)
+			if (((queueFamilyProperties[j].queueFlags & VK_QUEUE_GRAPHICS_BIT) == VK_QUEUE_GRAPHICS_BIT) &&
+				graphicsQueueFamilyIndex == UINT32_MAX)
 			{
-				graphicsQueueFamilyIndex = i;
+				graphicsQueueFamilyIndex = j;
 			}
 
-			if ((queueFamilyProperties[j].queueFlags & VK_QUEUE_COMPUTE_BIT) == VK_QUEUE_COMPUTE_BIT)
+			if (((queueFamilyProperties[j].queueFlags & VK_QUEUE_COMPUTE_BIT) == VK_QUEUE_COMPUTE_BIT) &&
+				computeQueueFamilyIndex == UINT32_MAX &&
+				computeQueueFamilyIndex != j &&
+				graphicsQueueFamilyIndex != j)
 			{
-				computeQueueFamilyIndex = i;
+				computeQueueFamilyIndex = j;
 			}
 
-			if ((queueFamilyProperties[j].queueFlags & VK_QUEUE_TRANSFER_BIT) == VK_QUEUE_TRANSFER_BIT)
+			if (((queueFamilyProperties[j].queueFlags & VK_QUEUE_TRANSFER_BIT) == VK_QUEUE_TRANSFER_BIT) &&
+				transferQueueFamilyIndex == UINT32_MAX && 
+				transferQueueFamilyIndex != j && 
+				((queueFamilyProperties[j].queueFlags & VK_QUEUE_GRAPHICS_BIT) == 0) &&
+				((queueFamilyProperties[j].queueFlags & VK_QUEUE_COMPUTE_BIT) == 0))
 			{
-				transferQueueFamilyIndex = i;
+				transferQueueFamilyIndex = j;
 			}
 
-			if (UINT32_MAX == graphicsQueueFamilyIndex &&
-				UINT32_MAX == computeQueueFamilyIndex &&
-				UINT32_MAX == transferQueueFamilyIndex)
+			if (graphicsQueueFamilyIndex == UINT32_MAX &&
+				computeQueueFamilyIndex == UINT32_MAX &&
+				transferQueueFamilyIndex == UINT32_MAX)
 			{
 				continue;
 			}
 
+			numQueuePriority += queueFamilyProperties[j].queueCount;
 			VkDeviceQueueCreateInfo deviceQueueCreateInfo
 			{
 				VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
@@ -260,7 +264,7 @@ uint32_t vkDevice::create(
 				0u,
 				j,
 				queueFamilyProperties[j].queueCount,
-				queuePriorities.data()
+				nullptr
 			};
 			deviceQueueCreateInfos.emplace_back(deviceQueueCreateInfo);
 		}
@@ -270,6 +274,13 @@ uint32_t vkDevice::create(
 	if (gpuIndex != discreteGpuIndex)
 	{
 		logger::instance().log(logger::eInfo, "Can't find discrete gpu, the valid gpu type is \"%s\"", gpuTypeName.c_str());
+	}
+
+	std::vector<float32_t> queuePriorities(numQueuePriority, 1.0f);
+
+	for (auto &deviceQueueCreateInfo : deviceQueueCreateInfos)
+	{
+		deviceQueueCreateInfo.pQueuePriorities = queuePriorities.data();
 	}
 
 	std::vector<const char8_t *> layers =
@@ -313,18 +324,6 @@ uint32_t vkDevice::create(
 		extensions.data(),
 		&deviceFeatures
 	};
-
-	/// Disable everything sparse-related
-	deviceFeatures.shaderResourceResidency = VK_FALSE;
-	deviceFeatures.shaderResourceMinLod = VK_FALSE;
-	deviceFeatures.sparseBinding = VK_FALSE;
-	deviceFeatures.sparseResidencyBuffer = VK_FALSE;
-	deviceFeatures.sparseResidencyImage2D = VK_FALSE;
-	deviceFeatures.sparseResidencyImage3D = VK_FALSE;
-	deviceFeatures.sparseResidency2Samples = VK_FALSE;
-	deviceFeatures.sparseResidency4Samples = VK_FALSE;
-	deviceFeatures.sparseResidency8Samples = VK_FALSE;
-	deviceFeatures.sparseResidencyAliased = VK_FALSE;
 
 	VkDevice handle = VK_NULL_HANDLE;
 	rVerifyVk(vkCreateDevice(&(*physicalDevicePtrs[gpuIndex]), &createInfo, nullptr, &handle));

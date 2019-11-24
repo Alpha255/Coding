@@ -1,27 +1,18 @@
-[submodule "ThirdParty/DirectXTK"]
-	path = ThirdParty/DirectXTK
-	url = https://github.com/Microsoft/DirectXTK.git
-[submodule "ThirdParty/freetype"]
-	path = ThirdParty/freetype
-	url = https://github.com/ubawurinna/freetype-windows-binaries.git
 [submodule "ThirdParty/ImGUI"]
 	path = ThirdParty/ImGUI
 	url = https://github.com/ocornut/imgui.git
-[submodule "ThirdParty/vcglib"]
-	path = ThirdParty/vcglib
-	url = https://github.com/cnr-isti-vclab/vcglib.git
 [submodule "ThirdParty/json"]
 	path = ThirdParty/json
 	url = https://github.com/nlohmann/json.git
-[submodule "ThirdParty/glew"]
-	path = ThirdParty/glew
-	url = https://github.com/nigels-com/glew.git
 [submodule "ThirdParty/assimp"]
 	path = ThirdParty/assimp
 	url = https://github.com/assimp/assimp.git
 [submodule "ThirdParty/googletest"]
 	path = ThirdParty/googletest
 	url = https://github.com/google/googletest.git
-[submodule "ThirdParty/pugixml"]
-	path = ThirdParty/pugixml
-	url = https://github.com/zeux/pugixml.git
+[submodule "ThirdParty/DirectXTex"]
+	path = ThirdParty/DirectXTex
+	url = https://github.com/microsoft/DirectXTex.git
+[submodule "ThirdParty/SPIRV-Cross"]
+	path = ThirdParty/SPIRV-Cross
+	url = https://github.com/KhronosGroup/SPIRV-Cross.git

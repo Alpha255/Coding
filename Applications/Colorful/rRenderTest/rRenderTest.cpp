@@ -2,8 +2,8 @@
 
 void rRenderTest::postInitialize()
 {
-	m_VertexShader = g_rDevicePtr->createShader(eVertexShader, "rRenderTest.xml");
-	m_FragmentShader = g_rDevicePtr->createShader(eFragmentShader, "rRenderTest.xml");
+	m_VertexShader = g_rDevicePtr->createShader(eVertexShader, "rRenderTest.shader");
+	m_FragmentShader = g_rDevicePtr->createShader(eFragmentShader, "rRenderTest.shader");
 }
 
 void rRenderTest::resizeWindow()

@@ -10,16 +10,16 @@ std::string getErrorMessage(uint32_t errorCode)
 {
 	std::string message;
 
-	::LPSTR msg = nullptr;
-	::FormatMessageA(
-		FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_ALLOCATE_BUFFER,
+	char8_t msg[UINT16_MAX] = {};
+	verify(::FormatMessageA(
+		FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 		nullptr,
 		errorCode,
 		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
 		msg,
-		0u,
-		nullptr);
-	if (msg)
+		UINT16_MAX,
+		nullptr) != 0);
+	if (strlen(msg) > 0)
 	{
 		message = std::string(msg);
 	}
@@ -100,13 +100,6 @@ std::string getApplicationPath()
 	return std::string(appPath);
 }
 
-std::string getApplicationName()
-{
-	std::string appName(getApplicationPath());
-	appName = file::getFileName(appName);
-	return appName;
-}
-
 void sleep(uint32_t microseconds)
 {
 	::Sleep(microseconds);
@@ -124,6 +117,14 @@ math::rect getWindowRect(uint64_t windowHandle)
 		(float32_t)winRect.right,
 		(float32_t)winRect.bottom
 	};
+}
+
+std::string getEnvironmentVariable(const std::string &envVarName)
+{
+	char8_t result[UINT16_MAX] = {};
+	verify_Log(::GetEnvironmentVariableA(envVarName.c_str(), result, UINT16_MAX) != 0);
+
+	return result;
 }
 
 namespaceEnd(gear)

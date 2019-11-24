@@ -11,7 +11,9 @@ public:
 	enum eAssetType
 	{
 		eUnknown,
-		eTexture,
+		eDDSTexture,
+		eWICTexture,
+		eVulkanTexture,
 		eShader,
 		eStaticMesh,
 		eSound,
@@ -19,9 +21,10 @@ public:
 		eAssetType_MaxEnum
 	};
 
-	assetFile() = default;
-	assetFile(const std::string &filePath)
+	assetFile(const std::string &filePath, eAssetType type, uint32_t assetID)
 		: file(filePath)
+		, m_Type(type)
+		, m_ID(assetID)
 	{
 	}
 
@@ -48,7 +51,7 @@ public:
 	void initialize();
 	assetFilePtr getAsset(const std::string &assetName);
 protected:
-	void initAsset(assetFilePtr &assetPtr);
+	assetFile::eAssetType getAssetType(const std::string &assetName);
 private:
 	std::string m_AssetsPath;
 	std::unordered_map<std::string, assetFilePtr> m_Assets;

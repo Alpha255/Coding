@@ -18,7 +18,7 @@ public:
 
 	virtual void loop();
 
-	virtual void finalize() {}
+	virtual void finalize();
 
 	virtual void resizeWindow() {}
 

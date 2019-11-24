@@ -41,6 +41,7 @@ public:
 	static std::vector<std::string> getFileList(const std::string &targetPath, const std::vector<std::string> &filters, bool8_t bToLower = false);
 	static std::string findFile(const std::string &targetPath, const std::string &fileName);
 	static folderTree getFolderTree(const std::string &targetPath, bool8_t bToLower = false, bool8_t bFullPath = false);
+	static void createDirectory(const std::string &directory);
 
 	file() = default;
 	file(const std::string &filePath);

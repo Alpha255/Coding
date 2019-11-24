@@ -18,17 +18,19 @@ void application::initialize(const std::string &title, uint32_t extraWindowStyle
 		makeWindow(title, m_Config.WindowWidth, m_Config.WindowHeight, extraWindowStyle, IconDirectX);
 		d3d11Engine::instance().initialize(m_WindowHandle, m_Config);
 
-		g_rEnginePtr.reset(&d3d11Engine::instance());
+		g_rEnginePtr = &d3d11Engine::instance();
 	}
 	else if (renderEngine == appConfig::eVulkan)
 	{
 		makeWindow(title, m_Config.WindowWidth, m_Config.WindowHeight, extraWindowStyle, IconVulkan);
 		vkEngine::instance().initialize(m_WindowHandle, m_Config);
 
-		g_rEnginePtr.reset(&vkEngine::instance());
+		g_rEnginePtr = &vkEngine::instance();
 	}
 
+	assert(g_rEnginePtr);
 	g_rDevicePtr = g_rEnginePtr->getDevice();
+	assert(g_rDevicePtr);
 
 	rAsset::rAssetBucket::instance().initialize(renderEngine);
 
@@ -135,6 +137,11 @@ void application::loop()
 
 		event = eventHandler::instance().getAppEvent();
 	}
+}
+
+void application::finalize()
+{
+	g_rEnginePtr->finalize();
 }
 
 namespaceEnd(gear)

@@ -12,9 +12,8 @@ file::file(const std::string &filePath)
 
 	m_FullPath = filePath;
 	replace(m_FullPath, '/', '\\');
-	toLower(m_FullPath);
 
-	m_Extension = getFileExtension(m_FullPath);
+	m_Extension = getFileExtension(m_FullPath, true);
 	m_Name = getFileName(m_FullPath);
 
 	std::string rootPath(getFileRootDirectory(m_FullPath));

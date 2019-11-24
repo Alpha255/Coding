@@ -165,6 +165,6 @@ public:
 protected:
 private:
 };
-typedef std::unique_ptr<rEngine> rEnginePtr;
+typedef rEngine *rEnginePtr;
 extern rEnginePtr g_rEnginePtr;
 extern rDevicePtr g_rDevicePtr;

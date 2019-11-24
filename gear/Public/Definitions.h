@@ -76,17 +76,18 @@ typedef long long32_t;
 #if defined(Platform_Win32)
 
 #include <Windows.h>
+#include <shlobj.h>
 
-#define verify_Log(condition)                                                                              \
-{                                                                                                          \
-	if (!(condition))                                                                                      \
-	{                                                                                                      \
-		uint32_t errorCode = (uint32_t)::GetLastError();                                                   \
-		std::string errorMsg = gear::getErrorMessage(errorCode);                                           \
-		gear::logger::instance().log(gear::logger::eError,                                                 \
-			"Failed to invoke WINAPI, error code = %u, error info = \"%s\"", errorCode, errorMsg.c_str()); \
-		assert(0);                                                                                         \
-	}                                                                                                      \
+#define verify_Log(condition)                                                                          \
+{                                                                                                      \
+	if (!(condition))                                                                                  \
+	{                                                                                                  \
+		uint32_t errorCode = (uint32_t)::GetLastError();                                               \
+		std::string errorMsg = gear::getErrorMessage(errorCode);                                       \
+		gear::logger::instance().log(gear::logger::eError,                                             \
+			"Failed to invoke WINAPI, error code = %u, error info = %s", errorCode, errorMsg.c_str()); \
+		assert(0);                                                                                     \
+	}                                                                                                  \
 }
 
 #define appMainEntry(appName)                                  \

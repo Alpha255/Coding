@@ -4,6 +4,6 @@ rShaderPtr vkDevice::createShader(eRShaderUsage usage, const std::string &shader
 {
 	/// try to get shader binary from cache at first
 
-	rAsset::rAssetBucket::instance().getShaderBinary(usage, shaderName, std::shared_ptr<rDevice>(this));
+	auto shaderBinary = rAsset::rAssetBucket::instance().getShaderBinary(usage, shaderName);
 	return nullptr;
 }

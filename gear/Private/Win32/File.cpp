@@ -259,6 +259,12 @@ file::folderTree file::getFolderTree(const std::string &targetPath, bool8_t bToL
 	return result;
 }
 
+void file::createDirectory(const std::string &directory)
+{
+	std::wstring wDirectory(directory.cbegin(), directory.cend());
+	verify_Log(ERROR_SUCCESS == ::SHCreateDirectory(nullptr, wDirectory.c_str()));
+}
+
 namespaceEnd(gear)
 
 #endif

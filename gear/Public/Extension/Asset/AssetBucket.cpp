@@ -1,4 +1,5 @@
 #include "AssetBucket.h"
+#include "Gear/Public/Extension/Log.h"
 #include "Gear/Public/Extension/System.h"
 #include "Gear/Public/Independent/String.h"
 #include <ThirdParty/json/single_include/nlohmann/json.hpp>
@@ -14,19 +15,19 @@ void assetBucket::initialize()
 	m_AssetsPath += "\\Assets";
 	verify(file::isDirectoryExists(m_AssetsPath));
 
-	std::string configPath(file::getFileDirectory(getApplicationPath()) + "\\assetConfig.json");
+	std::string configPath(file::getFileDirectory(getApplicationPath()) + "\\appConfig.json");
 	assert(file::isFileExists(configPath));
 	std::ifstream filestream(configPath);
 	filestream >> s_AssetConfigJson;
 	filestream.close();
 }
 
-void assetBucket::initAsset(assetFilePtr &assetPtr)
+assetFile::eAssetType assetBucket::getAssetType(const std::string &assetName)
 {
 	auto assetFormatPtr = s_AssetConfigJson.find("assetFormat");
 	assert(assetFormatPtr != s_AssetConfigJson.end());
 
-	std::string ext = assetPtr->getExtension();
+	std::string ext = file::getFileExtension(assetName);
 	std::string keyType;
 	for (auto it = assetFormatPtr->cbegin(); it != assetFormatPtr->cend(); ++it)
 	{
@@ -47,12 +48,24 @@ void assetBucket::initAsset(assetFilePtr &assetPtr)
 	}
 
 	uint32_t assetType = assetFile::eUnknown;
-	for (uint32_t i = assetFile::eTexture; i != assetFile::eAssetType_MaxEnum; ++i)
+	for (uint32_t i = assetFile::eDDSTexture; i != assetFile::eAssetType_MaxEnum; ++i)
 	{
 		switch (i)
 		{
-		case assetFile::eTexture:
-			if (keyType == enumToString(eTexture))
+		case assetFile::eDDSTexture:
+			if (keyType == enumToString(eDDSTexture))
+			{
+				assetType = i;
+			}
+			break;
+		case assetFile::eWICTexture:
+			if (keyType == enumToString(eWICTexture))
+			{
+				assetType = i;
+			}
+			break;
+		case assetFile::eVulkanTexture:
+			if (keyType == enumToString(eVulkanTexture))
 			{
 				assetType = i;
 			}
@@ -89,8 +102,7 @@ void assetBucket::initAsset(assetFilePtr &assetPtr)
 		}
 	}
 
-	assert(assetType != assetFile::eUnknown);
-	assetPtr->m_Type = (assetFile::eAssetType)assetType;
+	return (assetFile::eAssetType)assetType;
 }
 
 assetFilePtr assetBucket::getAsset(const std::string &assetName)
@@ -108,13 +120,13 @@ assetFilePtr assetBucket::getAsset(const std::string &assetName)
 	std::string assetPath = file::findFile(m_AssetsPath, assetName);
 	if (assetPath.length() != 0u)
 	{
-		/// May construct immediately if don't use assetID
-		assetFilePtr assetPtr = std::make_shared<assetFile>(assetPath);
-		initAsset(assetPtr);
+		assetFilePtr assetPtr = std::make_shared<assetFile>(assetPath, getAssetType(assetName), UINT32_MAX);
 		m_Assets.insert(std::make_pair(lowerName, assetPtr));
 		return assetPtr;
 	}
 
+	logger::instance().log(logger::eError, "Can't find file: \"%s\"", assetName.c_str());
+	assert(0);
 	return nullptr;
 }
 

@@ -10,5 +10,40 @@
 
     "postProcess": {
     }
+  },
+
+  "assetFormat": {
+    "eDDSTexture": [
+      ".dds"
+    ],
+    "eWICTexture": [
+      ".png",
+      ".bmp",
+      ".jpg",
+      ".tga"
+    ],
+    "eVulkanTexture": [
+      ".ktx"
+    ],
+    "eShader": [
+      ".hlsl",
+      ".hlsli",
+      ".glsl",
+      ".vert",
+      ".frag",
+      ".shader"
+    ],
+    "eStaticMesh": [
+      ".sdkmesh",
+      ".obj",
+      ".dae",
+      ".txt"
+    ],
+    "eSound": [
+      ".mp3"
+    ],
+    "eLevel": [
+      ".dat"
+    ]
   }
 }

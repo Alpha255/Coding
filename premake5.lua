@@ -1,21 +1,13 @@
-function includeCommon()
+function appInclude()
 	includedirs { 
 		"$(SolutionDir)", 
-		"$(SolutionDir)Colorful", 
-		"$(SolutionDir)ThirdParty",
-		"$(SolutionDir)ThirdParty\\vcglib",
-		"$(SolutionDir)ThirdParty\\assimp\\include",
-		"$(SolutionDir)ThirdParty\\assimp\\build\\include",
-		"$(VK_SDK_PATH)", 
+		"$(SolutionDir)ThirdParty", 
 		"$(VK_SDK_PATH)\\Include" 
 	}
 end
 
-function linkLibsCommon()
-	libdirs {
-		"$(SolutionDir)ThirdParty\\freetype\\win64",
-		"$(VK_SDK_PATH)\\Lib",
-	}
+function appLinks()
+	libdirs { "$(VK_SDK_PATH)\\Lib" }
 
 	links { 
 		"d3d11",
@@ -29,26 +21,17 @@ function linkLibsCommon()
 
 		"Colorful",
 		"ImGui",
-		"DirectXTK",
 		"gear",
-		"assimp",
-		"pugixml",
+		"assetTool"
 	}
 end
 
-function resourceInclude()
+function appResourceFiles()
 	files { 
 		"./Assets/Icon/Resource.rc",
 		"./Assets/Icon/directx.ico",
 		"./Assets/Icon/vulkan.ico",
-	}
-end
-
-function configInclude()
-	files {
 		"./Out/appConfig.json",
-		"./Out/assetConfig.json",
-		"./Out/shaderConfig.json",
 	}
 end
 
@@ -78,16 +61,46 @@ workspace "Miscellaneous"
 		architecture "x64"
 	filter { }
 
+	group "Dlls"
+		project "assetTool"
+			kind "SharedLib"
+			language "C++"
+			location "./Projects"
+			files "./AssetTool/**"
+			implibname "$(SolutionDir)Out\\Libs\\$(ProjectName)"
+			includedirs { 
+				"$(SolutionDir)", 
+				"$(VK_SDK_PATH)\\Include",
+				"$(SolutionDir)ThirdParty\\assimp\\include",
+				"$(SolutionDir)ThirdParty\\assimp\\build\\include", 
+			}
+			libdirs { "$(VK_SDK_PATH)\\Lib" }
+			targetdir "$(SolutionDir)Out"
+			defines { "UsingAsDynamicLib" }
+			links {
+				"d3d11",
+				"dxgi", 
+				"d3dcompiler", 
+				"windowscodecs",
+				"Usp10",
+				"Comctl32",
+				"Shcore",
+				"vulkan-1",
+
+				"Colorful",
+				"gear",
+				"assimp",
+				"DirectXTex",
+				"SPIRV-Cross"
+			}
+
 	group "Libs"
 		project "gear"
 			kind "StaticLib"
 			language "C++"
 			location "./Projects"
 			files "./gear/**"
-			includedirs { 
-				"$(SolutionDir)",
-				"$(VK_SDK_PATH)\\Include" 
-			}
+			includedirs { "$(SolutionDir)", "$(VK_SDK_PATH)\\Include" }
 			targetdir "$(SolutionDir)Out\\Libs\\"
 
 		project "colorful"
@@ -96,7 +109,8 @@ workspace "Miscellaneous"
 			location "./Projects"
 			files "./Colorful/**"
 			targetdir "$(SolutionDir)Out\\Libs\\"
-			includeCommon()
+			includedirs { "$(SolutionDir)", "$(VK_SDK_PATH)\\Include" }
+
 	
 	group "Fort"
 		project "Learner"
@@ -124,49 +138,105 @@ workspace "Miscellaneous"
 			language "C++"
 			location "./Projects"
 			files { "./ThirdParty/ImGUI/**.h", "./ThirdParty/ImGUI/**.cpp" }
-			removefiles { "./ThirdParty/ImGUI/examples/**", "./ThirdParty/ImGUI/misc/fonts/**" }
+			removefiles { 
+				"./ThirdParty/ImGUI/examples/**", 
+				"./ThirdParty/ImGUI/misc/fonts/**",
+				"./ThirdParty/ImGUI/misc/freetype/**" }
 			targetdir "$(SolutionDir)Out\\Libs\\"
-			includedirs { 
-				"$(SolutionDir)ThirdParty\\ImGUI",
-				"$(SolutionDir)ThirdParty\\freetype\\include",
-			}
+			includedirs { "$(SolutionDir)ThirdParty\\ImGUI" }
 
-		project "DirectXTK"
+		project "SPIRV-Cross"
 			kind "StaticLib"
 			language "C++"
 			location "./Projects"
-			pchheader "pch.h"
-			pchsource "./ThirdParty/DirectXTK/Src/pch.cpp"
-			floatingpoint "Fast"
-			files { 
-				"./ThirdParty/DirectXTK/**.h", 
-				"./ThirdParty/DirectXTK/**.cpp", 
-				"./ThirdParty/DirectXTK/**.fx", 
-				"./ThirdParty/DirectXTK/**.fxh",
-				"./ThirdParty/DirectXTK/**.hlsl", 
-				"./ThirdParty/DirectXTK/**.hlsli",
-				"./ThirdParty/DirectXTK/**.inc",
-				"./ThirdParty/DirectXTK/**.inl",
-				"./ThirdParty/DirectXTK/**.cmd",
-				"./ThirdParty/DirectXTK/**.txt", 
-			}
-			removefiles { 
-				"./ThirdParty/DirectXTK/Audio/**",
-				"./ThirdParty/DirectXTK/Inc/Audio.h",
-				"./ThirdParty/DirectXTK/Inc/XboxDDSTextureLoader.h",
-				"./ThirdParty/DirectXTK/Src/XboxDDSTextureLoader.cpp",
-				"./ThirdParty/DirectXTK/XWBTool/XWBTool.cpp", 
+			files {
+				"./ThirdParty/SPIRV-Cross/GLSL.std.450.h",
+				"./ThirdParty/SPIRV-Cross/spirv.hpp",
+				"./ThirdParty/SPIRV-Cross/spirv_cfg.hpp",
+				"./ThirdParty/SPIRV-Cross/spirv_common.hpp",
+				"./ThirdParty/SPIRV-Cross/spirv_cross.hpp",
+				"./ThirdParty/SPIRV-Cross/spirv_cross_containers.hpp",
+				"./ThirdParty/SPIRV-Cross/spirv_cross_error_handling.hpp",
+				"./ThirdParty/SPIRV-Cross/spirv_cross_parsed_ir.hpp",
+				"./ThirdParty/SPIRV-Cross/spirv_cfg.cpp",
+				"./ThirdParty/SPIRV-Cross/spirv_cross.cpp",
+				"./ThirdParty/SPIRV-Cross/spirv_cross_parsed_ir.cpp",
+				"./ThirdParty/SPIRV-Cross/spirv_parser.cpp",
+
+				"./ThirdParty/SPIRV-Cross/spirv_hlsl.hpp",
+				"./ThirdParty/SPIRV-Cross/spirv_hlsl.cpp",
+
+				"./ThirdParty/SPIRV-Cross/spirv_glsl.hpp",
+				"./ThirdParty/SPIRV-Cross/spirv_glsl.cpp",
+
+				"./ThirdParty/SPIRV-Cross/spirv_reflect.hpp",
+				"./ThirdParty/SPIRV-Cross/spirv_reflect.cpp",
+
+				"./ThirdParty/SPIRV-Cross/spirv_cross_util.hpp",
+				"./ThirdParty/SPIRV-Cross/spirv_cross_util.cpp"
 			}
 			targetdir "$(SolutionDir)Out\\Libs\\"
-			includedirs { "$(SolutionDir)ThirdParty\\DirectXTK\\Inc", }
+			includedirs { "$(SolutionDir)ThirdParty\\SPIRV-Cross" }
+			vpaths {
+				["core"] = {
+					"./ThirdParty/SPIRV-Cross/GLSL.std.450.h",
+					"./ThirdParty/SPIRV-Cross/spirv.hpp",
+					"./ThirdParty/SPIRV-Cross/spirv_cfg.hpp",
+					"./ThirdParty/SPIRV-Cross/spirv_common.hpp",
+					"./ThirdParty/SPIRV-Cross/spirv_cross.hpp",
+					"./ThirdParty/SPIRV-Cross/spirv_cross_containers.hpp",
+					"./ThirdParty/SPIRV-Cross/spirv_cross_error_handling.hpp",
+					"./ThirdParty/SPIRV-Cross/spirv_cross_parsed_ir.hpp",
+					"./ThirdParty/SPIRV-Cross/spirv_cfg.cpp",
+					"./ThirdParty/SPIRV-Cross/spirv_cross.cpp",
+					"./ThirdParty/SPIRV-Cross/spirv_cross_parsed_ir.cpp",
+					"./ThirdParty/SPIRV-Cross/spirv_parser.cpp",
+				},
+				["hlsl"] = {
+					"./ThirdParty/SPIRV-Cross/spirv_hlsl.hpp",
+					"./ThirdParty/SPIRV-Cross/spirv_hlsl.cpp",
+				},
+				["glsl"] = {
+					"./ThirdParty/SPIRV-Cross/spirv_glsl.hpp",
+					"./ThirdParty/SPIRV-Cross/spirv_glsl.cpp",
+				},
+				["reflect"] = {
+					"./ThirdParty/SPIRV-Cross/spirv_reflect.hpp",
+					"./ThirdParty/SPIRV-Cross/spirv_reflect.cpp",
+				},
+				["util"] = {
+					"./ThirdParty/SPIRV-Cross/spirv_cross_util.hpp",
+					"./ThirdParty/SPIRV-Cross/spirv_cross_util.cpp"
+				}
+			}
+			disablewarnings { "4245" }
+
+		project "DirectXTex"
+			kind "StaticLib"
+			language "C++"
+			location "./Projects"
+			pchheader "DirectXTexP.h"
+			pchsource "./ThirdParty/DirectXTex/DirectXTex/DirectXTexUtil.cpp"
+			floatingpoint "Fast"
+			vectorextensions "SSE2" --Seems dosen't work
+			buildoptions { "/openmp", "/permissive-", "/Zc:twoPhase-" }
+			files { 
+				"./ThirdParty/DirectXTex/DirectXTex/**.h", 
+				"./ThirdParty/DirectXTex/DirectXTex/**.cpp", 
+				"./ThirdParty/DirectXTex/DirectXTex/**.hlsl", 
+				"./ThirdParty/DirectXTex/DirectXTex/**.inc",
+				"./ThirdParty/DirectXTex/DirectXTex/**.inl",
+				"./ThirdParty/DirectXTex/DirectXTex/**.cmd",
+			}
+			targetdir "$(SolutionDir)Out\\Libs\\"
+			includedirs { "$(SolutionDir)ThirdParty\\DirectXTex\\DirectXTex", }
 
 			filter { "files:**.hlsl" }
   				flags { "ExcludeFromBuild" }
 
   			filter { "configurations:Debug" }
   				defines { 
-  					"_WIN32_WINNT=0x0600",
-  					"_WIN7_PLATFORM_UPDATE",
+  					"_WIN32_WINNT=0x0A00",
   					"WIN32",
   					"_DEBUG",
   					"_LIB",
@@ -175,8 +245,7 @@ workspace "Miscellaneous"
 
   			filter { "configurations:Release" }
   				defines { 
-  					"_WIN32_WINNT=0x0600",
-  					"_WIN7_PLATFORM_UPDATE",
+  					"_WIN32_WINNT=0x0A00",
   					"WIN32",
   					"NDEBUG",
   					"_LIB",
@@ -189,6 +258,7 @@ workspace "Miscellaneous"
 			targetdir "$(SolutionDir)Out\\"
 			buildoptions { "/bigobj" }
 			disablewarnings { "4315", "4458", "4456", "4245", "4127", "4244", "4706", "4701", "4702", "4100", "4389", "4267", "4457", "4131", "4996", "4310", "4459", "4189" }
+			implibname "$(SolutionDir)Out\\Libs\\$(ProjectName)"
 			files {
 				"./ThirdParty/assimp/code/**",
 				"./ThirdParty/assimp/include/**",
@@ -262,6 +332,7 @@ workspace "Miscellaneous"
 					kind "StaticLib"
 					language "C++"
 					location "./Projects"
+					targetdir "$(SolutionDir)Out\\Libs\\"
 					includedirs { 
 						"$(SolutionDir)ThirdParty\\googletest\\googletest",
 						"$(SolutionDir)ThirdParty\\googletest\\googletest\\include",
@@ -321,13 +392,6 @@ workspace "Miscellaneous"
 							"_HAS_EXCEPTIONS=1"
 						}
 
-		project "pugixml"
-			kind "StaticLib"
-			language "C++"
-			location "./Projects"
-			files { "./ThirdParty/pugixml/src/**" }
-			targetdir "$(SolutionDir)Out\\Libs\\"
-
 	group "Colorful"
 		project "rRenderTest"
 			kind "WindowedApp"
@@ -341,24 +405,17 @@ workspace "Miscellaneous"
 					"./Applications/Resource.h"
 					},
 				[""] = { "./Applications/Colorful/rRenderTest/**" },
-				["Shaders"] = { 
-					"./Assets/Shaders/rRenderTest.xml"
-				},
-				["Configuration"] = { 
-					"./Out/appConfig.json",
-					"./Out/assetConfig.json",
-					"./Out/shaderConfig.json",
-				}
+				["Configuration"] = { "./Out/appConfig.json" },
+				["Shaders"] = { "./Assets/Shaders/rRenderTest.shader" },
 			}
 			files { 
 				"./Applications/Colorful/rRenderTest/**",
-				"./Assets/Shaders/rRenderTest.xml",
+				"./Assets/Shaders/rRenderTest.shader",
 				"./Applications/Resource.h"
 			}
-			includeCommon()
-			resourceInclude()
-			linkLibsCommon()
-			configInclude()
+			appInclude()
+			appLinks()
+			appResourceFiles()
 
 
 
