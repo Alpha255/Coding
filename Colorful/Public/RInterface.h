@@ -46,10 +46,6 @@ class rContext
 {
 };
 
-class rSwapchain
-{
-};
-
 class rTexture
 {
 };

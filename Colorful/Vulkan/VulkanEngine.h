@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Colorful/Vulkan/VulkanDevice.h"
+#include "Colorful/Vulkan/VulkanSwapChain.h"
 
 class vkEngine : public rEngine, public singleton<vkEngine>
 {
@@ -32,4 +33,5 @@ private:
 	vkDeviceQueuePtr m_ComputeQueue = nullptr;
 	vkDeviceQueuePtr m_TransferQueue = nullptr;
 	vkContextPtr m_IMContext = nullptr;
+	vkSwapChainPtr m_SwapChain = nullptr;
 };

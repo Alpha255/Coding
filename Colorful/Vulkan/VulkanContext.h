@@ -2,6 +2,8 @@
 
 #include "Colorful/Public/RAsset.h"
 
+#define vkMemoryAllocator nullptr /// For future use
+
 class vkContext : public rContext
 {
 };
