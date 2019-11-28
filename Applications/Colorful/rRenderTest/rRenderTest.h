@@ -7,8 +7,6 @@ class rRenderTest : public application
 public:
 	void postInitialize() override;
 
-	void finalize() override;
-
 	void resizeWindow() override;
 
 	void renterToWindow() override;

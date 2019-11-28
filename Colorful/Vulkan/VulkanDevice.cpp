@@ -22,48 +22,39 @@ template <typename T> std::vector<const char8_t *> getSupportedProperties(
 	return result;
 }
 
-VKAPI_ATTR VkBool32 VKAPI_CALL vkDebugReportFunc(
-	VkDebugReportFlagsEXT flags,
-	VkDebugReportObjectTypeEXT objectType,
-	uint64_t object,
-	size_t location,
-	int32_t messageCode,
-	const char8_t* pLayerPrefix,
-	const char8_t* pMessage,
+VKAPI_ATTR VkBool32 VKAPI_CALL vkDebugUtilsMessengerFunc(
+	VkDebugUtilsMessageSeverityFlagBitsEXT messageServerityFlagBits,
+	VkDebugUtilsMessageTypeFlagsEXT messageTypeFlags,
+	const VkDebugUtilsMessengerCallbackDataEXT *pMessengerCallbackData,
 	void* pUserData)
 {
-	(void)(flags);
-	(void)(objectType);
-	(void)(object);
-	(void)(location);
-	(void)(messageCode);
 	(void)(pUserData);
+	(void)(messageTypeFlags);
 
-	std::string message = format("%15s|%2d: %s", pLayerPrefix, messageCode, pMessage);
 	logger::eLogLevel logLevel = logger::eError;
-
-	if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
+	if (messageServerityFlagBits & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
+	{
+		logLevel = logger::eInfo;
+	}
+	else if (messageServerityFlagBits & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)
+	{
+		logLevel = logger::eInfo;
+	}
+	else if (messageServerityFlagBits & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
+	{
+		logLevel = logger::eWarning;
+	}
+	else if (messageServerityFlagBits & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
 	{
 		logLevel = logger::eError;
 	}
-	else if (flags & VK_DEBUG_REPORT_WARNING_BIT_EXT)
-	{
-		logLevel = logger::eWarning;
-	}
-	else if (flags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT)
-	{
-		logLevel = logger::eWarning;
-	}
-	else if (flags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT)
-	{
-		logLevel = logger::eInfo;
-	}
-	else if (flags & VK_DEBUG_REPORT_DEBUG_BIT_EXT)
-	{
-		logLevel = logger::eInfo;
-	}
+
+	std::string message = format("[%3d][%10s]: %s", 
+		pMessengerCallbackData->messageIdNumber, 
+		pMessengerCallbackData->pMessageIdName,
+		pMessengerCallbackData->pMessage);
 	
-	logger::instance().log(logLevel, "Vulkan debug report: %s.", message.c_str());
+	logger::instance().log(logLevel, "Vulkan Validation: %s.", message.c_str());
 	return VK_FALSE;
 }
 
@@ -88,7 +79,7 @@ void vkInstance::create()
 #elif defined(Platform_Linux)
 		VK_KHR_XCB_SURFACE_EXTENSION_NAME,
 #endif
-		VK_EXT_DEBUG_REPORT_EXTENSION_NAME
+		VK_EXT_DEBUG_UTILS_EXTENSION_NAME
 	};
 
 	uint32_t count = 0U;
@@ -126,34 +117,64 @@ void vkInstance::create()
 	};
 
 	VkInstance handle = VK_NULL_HANDLE;
-	rVerifyVk(vkCreateInstance(&createInfo, nullptr, &handle));
+	rVerifyVk(vkCreateInstance(&createInfo, vkMemoryAllocator, &handle));
 	reset(handle);
 }
 
-void vkDebugReportCallback::create(const vkInstancePtr &instancePtr)
+void vkInstance::destory()
 {
-	assert(instancePtr);
-
-	PFN_vkCreateDebugReportCallbackEXT vkCreateDebugReportCallback = reinterpret_cast<PFN_vkCreateDebugReportCallbackEXT>(
-		vkGetInstanceProcAddr(&(*instancePtr), "vkCreateDebugReportCallbackEXT")
-		);
-	assert(vkCreateDebugReportCallback);
-
-	VkDebugReportCallbackCreateInfoEXT createInfo
+	if (isValid())
 	{
-		VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT,
+		vkDestroyInstance(&(*this), vkMemoryAllocator);
+		reset();
+	}
+}
+
+void vkDebugUtilsMessenger::create(const vkInstancePtr &instancePtr, bool8_t verbose)
+{
+	assert(instancePtr && instancePtr->isValid());
+
+	PFN_vkCreateDebugUtilsMessengerEXT vkCreateDebugUtilsMesserger = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
+		vkGetInstanceProcAddr(&(*instancePtr), "vkCreateDebugUtilsMessengerEXT"));
+	assert(vkCreateDebugUtilsMesserger);
+
+	VkDebugUtilsMessageSeverityFlagsEXT messageServityFlags = verbose ? (VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT 
+		| VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT 
+		| VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT 
+		| VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) : 
+		(VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT);
+
+	VkDebugUtilsMessengerCreateInfoEXT createInfo
+	{
+		VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
 		nullptr, 
-		VK_DEBUG_REPORT_ERROR_BIT_EXT 
-			| VK_DEBUG_REPORT_WARNING_BIT_EXT 
-			| VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT
-			| VK_DEBUG_REPORT_DEBUG_BIT_EXT,
-		vkDebugReportFunc,
+		0u,
+		messageServityFlags,
+		VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT 
+			| VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT
+			| VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
+		vkDebugUtilsMessengerFunc,
 		nullptr
 	};
 
-	VkDebugReportCallbackEXT handle = VK_NULL_HANDLE;
-	rVerifyVk(vkCreateDebugReportCallback(&(*instancePtr), &createInfo, nullptr, &handle));
+	VkDebugUtilsMessengerEXT handle = VK_NULL_HANDLE;
+	rVerifyVk(vkCreateDebugUtilsMesserger(&(*instancePtr), &createInfo, vkMemoryAllocator, &handle));
 	reset(handle);
+}
+
+void vkDebugUtilsMessenger::destory(const vkInstancePtr &instancePtr)
+{
+	assert(instancePtr && instancePtr->isValid());
+
+	if (isValid())
+	{
+		PFN_vkDestroyDebugUtilsMessengerEXT vkDestroyDebugUtilsMessenger = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
+			vkGetInstanceProcAddr(&(*instancePtr), "vkDestroyDebugUtilsMessengerEXT")
+			);
+		assert(vkDestroyDebugUtilsMessenger);
+		vkDestroyDebugUtilsMessenger(&(*instancePtr), &(*this), vkMemoryAllocator);
+		reset();
+	}
 }
 
 std::vector<vkPhysicalDevicePtr> vkPhysicalDevice::enumeratePhysicalDevices(const vkInstancePtr &instancePtr)
@@ -333,7 +354,7 @@ uint32_t vkDevice::create(
 	};
 
 	VkDevice handle = VK_NULL_HANDLE;
-	rVerifyVk(vkCreateDevice(&(*physicalDevicePtrs[gpuIndex]), &createInfo, nullptr, &handle));
+	rVerifyVk(vkCreateDevice(&(*physicalDevicePtrs[gpuIndex]), &createInfo, vkMemoryAllocator, &handle));
 	reset(handle);
 
 	VkPhysicalDeviceProperties properties = {};
@@ -353,4 +374,20 @@ uint32_t vkDevice::create(
 	transferQueueIndex = transferQueueFamilyIndex;
 
 	return gpuIndex;
+}
+
+void vkDevice::waitIdle()
+{
+	assert(isValid());
+	rVerifyVk(vkDeviceWaitIdle(&(*this)));
+}
+
+void vkDevice::destory()
+{
+	if (isValid())
+	{
+		rVerifyVk(vkDeviceWaitIdle(&(*this)));
+		vkDestroyDevice(&(*this), vkMemoryAllocator);
+		reset();
+	}
 }

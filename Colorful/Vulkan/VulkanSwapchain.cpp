@@ -23,6 +23,17 @@ void vkSwapchain::vkSurface::create(uint64_t appInstance, uint64_t windowHandle,
 #endif
 }
 
+void vkSwapchain::vkSurface::destory(const vkInstancePtr &instancePtr)
+{
+	assert(instancePtr->isValid());
+
+	if (isValid())
+	{
+		vkDestroySurfaceKHR(&(*instancePtr), &(*this), vkMemoryAllocator);
+		reset();
+	}
+}
+
 void vkSwapchain::create(
 	uint64_t appInstance, 
 	uint64_t windowHandle, 
@@ -34,7 +45,7 @@ void vkSwapchain::create(
 	const vkPhysicalDevicePtr &physicalDevicePtr,
 	const vkDevicePtr &devicePtr)
 {
-	assert(instancePtr && physicalDevicePtr);
+	assert(instancePtr && instancePtr->isValid() && physicalDevicePtr && physicalDevicePtr->isValid());
 
 	m_Surface = std::make_shared<vkSurface>();
 	m_Surface->create(appInstance, windowHandle, instancePtr);
@@ -110,7 +121,7 @@ void vkSwapchain::create(
 
 void vkSwapchain::recreate(uint32_t width, uint32_t height, bool8_t vSync, bool8_t fullscreen, const vkDevicePtr &devicePtr)
 {
-	assert(m_Surface);
+	assert(devicePtr && devicePtr->isValid() && m_Surface->isValid());
 
 	m_VSync = vSync;
 	m_FullScreen = fullscreen;
@@ -202,7 +213,7 @@ void vkSwapchain::recreate(uint32_t width, uint32_t height, bool8_t vSync, bool8
 		compositeAlphaFlagBits,  /// The compositeAlpha field specifies if the alpha channel should be used for blending with other windows in the window system
 		presentMode,
 		VK_TRUE,
-		*m_Object
+		m_Object ? (*m_Object) : VK_NULL_HANDLE
 	};
 
 	/// If the clipped member is set to VK_TRUE then that means that we don¡¯t care about the color of pixels that are
@@ -212,4 +223,13 @@ void vkSwapchain::recreate(uint32_t width, uint32_t height, bool8_t vSync, bool8
 	VkSwapchainKHR handle = VK_NULL_HANDLE;
 	rVerifyVk(vkCreateSwapchainKHR(&(*devicePtr), &createInfo, nullptr, &handle));
 	reset(handle);
+}
+
+void vkSwapchain::destory(const vkInstancePtr &instancePtr, const vkDevicePtr &devicePtr)
+{
+	assert(instancePtr && instancePtr->isValid() && devicePtr && devicePtr->isValid());
+
+	vkDestroySwapchainKHR(&(*devicePtr), &(*this), vkMemoryAllocator);
+	m_Surface->destory(instancePtr);
+	reset();
 }

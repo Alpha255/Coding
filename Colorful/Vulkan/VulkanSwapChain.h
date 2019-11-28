@@ -18,6 +18,8 @@ public:
 
 	void recreate(uint32_t width, uint32_t height, bool8_t vSync, bool8_t fullscreen, const vkDevicePtr &devicePtr);
 
+	void destory(const vkInstancePtr &instancePtr, const vkDevicePtr &devicePtr);
+
 	inline void resize(uint32_t width, uint32_t height, const vkDevicePtr &devicePtr)
 	{
 		recreate(width, height, m_VSync, m_FullScreen, devicePtr);
@@ -26,6 +28,8 @@ protected:
 	struct vkSurface : public vkObject<VkSurfaceKHR>
 	{
 		void create(uint64_t appInstance, uint64_t windowHandle, const vkInstancePtr &instancePtr);
+
+		void destory(const vkInstancePtr &instancePtr);
 
 		VkSurfaceFormatKHR SurfaceFormat = {};
 		VkSurfaceCapabilitiesKHR SurfaceCapabilities = {};

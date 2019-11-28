@@ -24,4 +24,6 @@ math::rect getWindowRect(uint64_t windowHandle);
 
 std::string getEnvironmentVariable(const std::string &envVarName);
 
+uint64_t getAppInstance();
+
 namespaceEnd(gear)

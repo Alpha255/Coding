@@ -16,9 +16,4 @@ void rRenderTest::renterToWindow()
 
 }
 
-void rRenderTest::finalize()
-{
-
-}
-
 appMainEntry(rRenderTest)

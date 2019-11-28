@@ -1,13 +1,13 @@
 #include "VulkanEngine.h"
 
-void vkEngine::initialize(uint64_t, const appConfig &)
+void vkEngine::initialize(uint64_t windowHandle, const appConfig &config)
 {
 	m_Instance = std::make_shared<vkInstance>();
 	m_Instance->create();
 
 #if defined(_DEBUG)
-	m_DebugReportCallback = std::make_shared<vkDebugReportCallback>();
-	m_DebugReportCallback->create(m_Instance);
+	m_DebugUtilsMessenger = std::make_shared<vkDebugUtilsMessenger>();
+	m_DebugUtilsMessenger->create(m_Instance, config.VulkanValidationVerbose);
 #endif
 
 	auto physicalDevicePtrs = vkPhysicalDevice::enumeratePhysicalDevices(m_Instance);
@@ -36,6 +36,18 @@ void vkEngine::initialize(uint64_t, const appConfig &)
 
 	assert(gpuIndex != UINT32_MAX);
 	m_PhysicalDevice = physicalDevicePtrs[gpuIndex];
+
+	m_SwapChain = std::make_shared<vkSwapchain>();
+	m_SwapChain->create(
+		getAppInstance(),
+		windowHandle,
+		config.WindowWidth,
+		config.WindowHeight,
+		config.VSync,
+		config.FullScreen,
+		m_Instance,
+		m_PhysicalDevice,
+		m_Device);
 }
 
 void vkEngine::logError(uint32_t result) const
@@ -89,4 +101,19 @@ case enumValue:                                      \
 #undef vkResultCaseMessage
 
 	logger::instance().log(logger::eError, "Faile to invoke VulkanAPI, error message: ", errorMsg.c_str());
+}
+
+void vkEngine::finalize()
+{
+	m_Device->waitIdle();
+
+	m_SwapChain->destory(m_Instance, m_Device);
+
+	m_Device->destory();
+
+#if defined(DEBUG)
+	m_DebugUtilsMessenger->destory(m_Instance);
+#endif
+
+	m_Instance->destory();
 }

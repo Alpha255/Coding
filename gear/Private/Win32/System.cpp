@@ -127,6 +127,13 @@ std::string getEnvironmentVariable(const std::string &envVarName)
 	return result;
 }
 
+uint64_t getAppInstance()
+{
+	::HMODULE hInst = ::GetModuleHandleA(nullptr);
+	verify_Log(hInst);
+	return (uint64_t)hInst;
+}
+
 namespaceEnd(gear)
 
 #endif

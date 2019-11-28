@@ -6,15 +6,19 @@ class vkInstance : public vkObject<VkInstance>
 {
 public:
 	void create();
+
+	void destory();
 };
 typedef std::shared_ptr<vkInstance> vkInstancePtr;
 
-class vkDebugReportCallback : public vkObject<VkDebugReportCallbackEXT>
+class vkDebugUtilsMessenger : public vkObject<VkDebugUtilsMessengerEXT>
 {
 public:
-	void create(const vkInstancePtr &instancePtr);
+	void create(const vkInstancePtr &instancePtr, bool8_t verbose);
+
+	void destory(const vkInstancePtr &instancePtr);
 };
-typedef std::shared_ptr<vkDebugReportCallback> vkDebugReportCallbackPtr;
+typedef std::shared_ptr<vkDebugUtilsMessenger> vkDebugUtilsMessengerPtr;
 
 class vkPhysicalDevice : public vkObject<VkPhysicalDevice>
 {
@@ -32,6 +36,10 @@ public:
 		uint32_t &computeQueueIndex,
 		uint32_t &transferQueueIndex
 	);
+
+	void waitIdle();
+
+	void destory();
 
 	rShaderPtr createShader(eRShaderUsage usage, const std::string &shaderName) override final;
 };

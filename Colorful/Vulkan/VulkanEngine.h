@@ -8,7 +8,7 @@ class vkEngine : public rEngine, public singleton<vkEngine>
 	singletonDeclare(vkEngine);
 public:
 	void initialize(uint64_t windowHandle, const appConfig &config) override final;
-	void finalize() override final {}
+	void finalize() override final;
 
 	void logError(uint32_t result) const override final;
 
@@ -26,7 +26,7 @@ public:
 protected:
 private:
 	vkInstancePtr m_Instance = nullptr;
-	vkDebugReportCallbackPtr m_DebugReportCallback = nullptr;
+	vkDebugUtilsMessengerPtr m_DebugUtilsMessenger = nullptr;
 	vkDevicePtr m_Device = nullptr;
 	vkPhysicalDevicePtr m_PhysicalDevice = nullptr;
 	vkDeviceQueuePtr m_GraphicsQueue = nullptr;
