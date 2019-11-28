@@ -75,14 +75,19 @@ void vkInstance::create()
 #if defined(_DEBUG)
 		"VK_LAYER_LUNARG_core_validation",
 		"VK_LAYER_LUNARG_object_tracker",
-		"VK_LAYER_LUNARG_parameter_validation"
+		"VK_LAYER_LUNARG_parameter_validation",
+		"VK_LAYER_KHRONOS_validation"
 #endif
 	};
 
 	std::vector<const char8_t*> extensions =
 	{
 		VK_KHR_SURFACE_EXTENSION_NAME,
+#if defined(Platform_Win32)
 		VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
+#elif defined(Platform_Linux)
+		VK_KHR_XCB_SURFACE_EXTENSION_NAME,
+#endif
 		VK_EXT_DEBUG_REPORT_EXTENSION_NAME
 	};
 
@@ -219,8 +224,10 @@ uint32_t vkDevice::create(
 
 		gpuIndex = i;
 
-		uint32_t count = UINT32_MAX;
+		uint32_t count = 0u;
 		vkGetPhysicalDeviceQueueFamilyProperties(&(*physicalDevicePtrs[i]), &count, nullptr);
+		assert(count > 0u);
+
 		std::vector<VkQueueFamilyProperties> queueFamilyProperties(count);
 		vkGetPhysicalDeviceQueueFamilyProperties(&(*physicalDevicePtrs[i]), &count, queueFamilyProperties.data());
 
