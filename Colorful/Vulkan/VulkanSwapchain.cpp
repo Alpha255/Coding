@@ -127,8 +127,8 @@ void vkSwapchain::recreate(
 {
 	assert(devicePtr && devicePtr->isValid() && m_Surface && m_Surface->isValid());
 
-	m_VSync = vSync;
-	m_FullScreen = fullscreen;
+	m_bVSync = vSync;
+	m_bFullScreen = fullscreen;
 
 	rVerifyVk(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(&(*physicalDevicePtr), &(*m_Surface), &m_Surface->SurfaceCapabilities));
 
@@ -152,7 +152,7 @@ void vkSwapchain::recreate(
 	/// to avoid tearing with significantly less latency issues than standard vertical sync that uses double buffering
 
 	VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;
-	if (!m_VSync)
+	if (!m_bVSync)
 	{
 		for (uint32_t i = 0u; i < m_Surface->PresentModes.size(); ++i)
 		{

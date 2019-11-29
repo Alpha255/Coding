@@ -28,7 +28,7 @@ public:
 
 	inline void resize(uint32_t width, uint32_t height, const vkPhysicalDevicePtr &physicalDevicePtr, const vkDevicePtr &devicePtr)
 	{
-		recreate(width, height, m_VSync, m_FullScreen, physicalDevicePtr, devicePtr);
+		recreate(width, height, m_bVSync, m_bFullScreen, physicalDevicePtr, devicePtr);
 	}
 protected:
 	struct vkSurface : public vkObject<VkSurfaceKHR>
@@ -44,7 +44,7 @@ protected:
 	typedef std::shared_ptr<vkSurface> vkSurfacePtr;
 private:
 	vkSurfacePtr m_Surface = nullptr;
-	bool8_t m_VSync = false;
-	bool8_t m_FullScreen = false;
+	bool8_t m_bVSync = false;
+	bool8_t m_bFullScreen = false;
 };
 typedef std::shared_ptr<vkSwapchain> vkSwapChainPtr;

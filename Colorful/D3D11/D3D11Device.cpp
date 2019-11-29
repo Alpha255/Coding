@@ -1,22 +1,22 @@
 #include "D3D11Device.h"
 #include "D3D11Engine.h"
 
-void d3d11Device::create(__out d3d11ContextPtr &context, d3d11DxgiFactoryPtr &dxgiFactory)
+void d3d11Device::create(__out d3d11ContextPtr &context, dxgiFactory7Ptr &dxgiFactoryPtr)
 {
-	assert(!isValid() && !context->isValid() && dxgiFactory->isValid());
+	assert(!isValid() && !context->isValid() && dxgiFactoryPtr && dxgiFactoryPtr->isValid());
 
-	std::vector<d3d11DxgiAdapterPtr> dxgiAdapters;
+	std::vector<dxgiAdapter4Ptr> dxgiAdapterPtrs;
 	uint32_t adapterIndex = 0u;
 	while (true)
 	{
-		d3d11DxgiAdapterPtr dxgiAdapter = std::make_shared<d3d11DxgiAdapter>();
-		IDXGIAdapter *pDxgiAdapter = nullptr;
-		if (DXGI_ERROR_NOT_FOUND == ((*dxgiFactory)->EnumAdapters(adapterIndex++, &pDxgiAdapter)))
+		dxgiAdapter4Ptr dxgiAdapterPtr = std::make_shared<dxgiAdapter4>();
+		IDXGIAdapter1 *pDxgiAdapter = nullptr;
+		if (DXGI_ERROR_NOT_FOUND == ((*dxgiFactoryPtr)->EnumAdapters1(adapterIndex++, &pDxgiAdapter)))
 		{
 			break;
 		}
-		dxgiAdapter->reset(pDxgiAdapter);
-		dxgiAdapters.emplace_back(dxgiAdapter);
+		dxgiAdapterPtr->reset(static_cast<IDXGIAdapter4 *>(pDxgiAdapter));
+		dxgiAdapterPtrs.emplace_back(dxgiAdapterPtr);
 	}
 
 	struct createResult
@@ -26,12 +26,12 @@ void d3d11Device::create(__out d3d11ContextPtr &context, d3d11DxgiFactoryPtr &dx
 		::HRESULT Result = E_FAIL;
 	};
 
-	auto tryToCreateDevice = [](d3d11DevicePtr &device, d3d11ContextPtr &context)->createResult {
+	auto tryToCreateDevice = [](d3d11DevicePtr &devicePtr, d3d11ContextPtr &contextPtr)->createResult {
 		createResult resultAttr = {};
 
 		uint32_t deviceFlags = 0;
 #if defined(DEBUG) || defined(_DEBUG)
-		deviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+		///deviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
 		std::vector<D3D_DRIVER_TYPE> driverTypes =
@@ -73,8 +73,8 @@ void d3d11Device::create(__out d3d11ContextPtr &context, d3d11DxgiFactoryPtr &dx
 			{
 				resultAttr.DriverType = driverTypes[i];
 
-				device->reset(pDevice);
-				context->reset(pContext);
+				devicePtr->reset(pDevice);
+				contextPtr->reset(pContext);
 
 				break;
 			}
@@ -85,7 +85,7 @@ void d3d11Device::create(__out d3d11ContextPtr &context, d3d11DxgiFactoryPtr &dx
 
 	adapterIndex = UINT32_MAX;
 	createResult tempResultAttr = {};
-	for (uint32_t i = 0u; i < dxgiAdapters.size(); ++i)
+	for (uint32_t i = 0u; i < dxgiAdapterPtrs.size(); ++i)
 	{
 		d3d11DevicePtr tempDevice = std::make_shared<d3d11Device>();
 		d3d11ContextPtr tempContext = std::make_shared<d3d11Context>();
@@ -109,16 +109,16 @@ void d3d11Device::create(__out d3d11ContextPtr &context, d3d11DxgiFactoryPtr &dx
 	}
 
 	*this = *tempDevice;
+	m_dxgiAdapter = dxgiAdapterPtrs[adapterIndex];
 
-	DXGI_ADAPTER_DESC adapterDesc = {};
-	rVerifyD3D11((*dxgiAdapters[adapterIndex])->GetDesc(&adapterDesc));
+	DXGI_ADAPTER_DESC3 adapterDesc = {};
+	rVerifyD3D11((*m_dxgiAdapter)->GetDesc3(&adapterDesc));
 	m_Adapter.VendorID = adapterDesc.VendorId;
 	m_Adapter.DeviceID = adapterDesc.DeviceId;
 	std::wstring wDeviceName(adapterDesc.Description);
 	m_Adapter.DeviceName = std::string(wDeviceName.cbegin(), wDeviceName.cend());
 
-	logger::instance().log(logger::eInfo, "Created d3d11 device on adapter: \"%s %s\", DeviceID = %d.",
-		rAdapter::getVerdorName(m_Adapter.VendorID).c_str(),
+	logger::instance().log(logger::eInfo, "Created d3d11 device on adapter: \"%s\", DeviceID = %d.",
 		m_Adapter.DeviceName.c_str(),
 		m_Adapter.DeviceID);
 }

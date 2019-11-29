@@ -20,6 +20,8 @@ struct appConfig
 	uint32_t WindowHeight = 720u;
 	bool8_t VSync = false;
 	bool8_t FullScreen = false;
+	bool8_t D3DTripleBuffer = true;
+	bool8_t EnableVulkanValidation = true;
 	bool8_t VulkanValidationVerbose = false;
 	eRenderEngine RenderEngine = eD3D11;
 

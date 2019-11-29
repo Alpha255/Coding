@@ -6,7 +6,7 @@
     "imGUI": true,
     "adapterInfo": true,
     "fps": true,
-    "renderEngine": "vulkan",
+    "renderEngine": "d3d11",
 
     "postProcess": {
     }

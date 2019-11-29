@@ -1,6 +1,7 @@
 #pragma once
 
 #include "D3D11Device.h"
+#include "D3D11Swapchain.h"
 
 class d3d11Engine : public rEngine, public singleton<d3d11Engine>
 {
@@ -31,4 +32,5 @@ protected:
 private:
 	d3d11DevicePtr m_Device = nullptr;
 	d3d11ContextPtr m_IMContext = nullptr;
+	d3d11SwapchainPtr m_Swapchain = nullptr;
 };

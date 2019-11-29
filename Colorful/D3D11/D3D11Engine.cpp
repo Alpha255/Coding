@@ -1,16 +1,32 @@
 #include "D3D11Engine.h"
 
-void d3d11Engine::initialize(uint64_t, const appConfig &)
+void d3d11Engine::initialize(uint64_t windowHandle, const appConfig &config)
 {
 	m_Device = std::make_shared<d3d11Device>();
 	m_IMContext = std::make_shared<d3d11Context>();
 
-	d3d11DxgiFactoryPtr dxgiFactory = std::make_shared<d3d11DxgiFactory>();
-	IDXGIFactory *pFactory = nullptr;
-	rVerifyD3D11(CreateDXGIFactory(__uuidof(IDXGIFactory), reinterpret_cast<void **>(&pFactory)));
-	dxgiFactory->reset(pFactory);
+	uint32_t flags = 0u;
+#if defined(_DEBUG)
+	flags = DXGI_CREATE_FACTORY_DEBUG;
+#endif
 
-	m_Device->create(m_IMContext, dxgiFactory);
+	dxgiFactory7Ptr dxgiFactoryPtr = std::make_shared<dxgiFactory7>();
+	IDXGIFactory7 *pFactory = nullptr;
+	rVerifyD3D11(CreateDXGIFactory2(flags, __uuidof(IDXGIFactory7), reinterpret_cast<void **>(&pFactory)));
+	dxgiFactoryPtr->reset(pFactory);
+
+	m_Device->create(m_IMContext, dxgiFactoryPtr);
+
+	m_Swapchain = std::make_shared<d3d11Swapchain>();
+	m_Swapchain->create(
+		windowHandle,
+		config.WindowWidth,
+		config.WindowHeight,
+		config.VSync,
+		config.FullScreen,
+		config.D3DTripleBuffer,
+		dxgiFactoryPtr,
+		m_Device);
 }
 
 void d3d11Engine::logError(uint32_t result) const
@@ -63,5 +79,6 @@ void d3d11Engine::logError(uint32_t result) const
 		break;
 	}
 
-	logger::instance().log(logger::eError, "Failed to invoke D3D11API, error message: ", errorMsg.c_str());
+	logger::instance().log(logger::eError, "Failed to invoke D3D11API, error message: %s", errorMsg.c_str());
+	assert(0);
 }
