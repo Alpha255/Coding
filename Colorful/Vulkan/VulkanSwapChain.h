@@ -16,13 +16,19 @@ public:
 		const vkPhysicalDevicePtr &physicalDevicePtr,
 		const vkDevicePtr &devicePtr);
 
-	void recreate(uint32_t width, uint32_t height, bool8_t vSync, bool8_t fullscreen, const vkDevicePtr &devicePtr);
+	void recreate(
+		uint32_t width, 
+		uint32_t height, 
+		bool8_t vSync, 
+		bool8_t fullscreen,
+		const vkPhysicalDevicePtr &physicalDevicePtr,
+		const vkDevicePtr &devicePtr);
 
 	void destory(const vkInstancePtr &instancePtr, const vkDevicePtr &devicePtr);
 
-	inline void resize(uint32_t width, uint32_t height, const vkDevicePtr &devicePtr)
+	inline void resize(uint32_t width, uint32_t height, const vkPhysicalDevicePtr &physicalDevicePtr, const vkDevicePtr &devicePtr)
 	{
-		recreate(width, height, m_VSync, m_FullScreen, devicePtr);
+		recreate(width, height, m_VSync, m_FullScreen, physicalDevicePtr, devicePtr);
 	}
 protected:
 	struct vkSurface : public vkObject<VkSurfaceKHR>

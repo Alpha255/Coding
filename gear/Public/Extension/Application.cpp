@@ -49,27 +49,26 @@ void application::processEvent()
 		m_cpuTimer.stop();
 		break;
 	case eAppEvent::eActive:
+	case eAppEvent::eRestore:
 		m_bActive = true;
 		m_cpuTimer.start();
 		break;
 	case eAppEvent::eMaximize:
 	case eAppEvent::eMinimize:
+		m_bActive = false;
 		m_bNeedResize = true;
 		break;
-	case eAppEvent::eResizing_Start:
+	case eAppEvent::eResizing:
 		m_bActive = false;
 		m_cpuTimer.stop();
 		m_bNeedResize = true;
-		break;
-	case eAppEvent::eResizing_End:
-		m_cpuTimer.start();
-		m_bActive = true;
 		break;
 	case eAppEvent::eQuit:
 		m_bActive = false;
 		m_cpuTimer.stop();
 		break;
 	case eAppEvent::eDoubleClickNonClientArea:
+		m_bActive = false;
 		m_bNeedResize = true;
 		break;
 	}
@@ -84,11 +83,11 @@ void application::updateWindow()
 		return;
 	}
 
-	math::rect winRect = getWindowRect(m_WindowHandle);
+	math::rect windowRect = getWindowRect(m_WindowHandle);
 	m_WindowSize = 
 	{ 
-		winRect.getWidth(), 
-		winRect.getHeight() 
+		windowRect.getWidth(),
+		windowRect.getHeight()
 	};
 
 	resizeWindow();

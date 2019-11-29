@@ -109,22 +109,28 @@ void vkSwapchain::create(
 	}
 	assert(m_Surface->SurfaceFormat.colorSpace != VK_COLOR_SPACE_MAX_ENUM_KHR);
 
-	rVerifyVk(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(&(*physicalDevicePtr), &(*m_Surface), &m_Surface->SurfaceCapabilities));
-
 	rVerifyVk(vkGetPhysicalDeviceSurfacePresentModesKHR(&(*physicalDevicePtr), &(*m_Surface), &count, nullptr));
 	assert(count > 0u);
 	m_Surface->PresentModes.resize(count);
 	rVerifyVk(vkGetPhysicalDeviceSurfacePresentModesKHR(&(*physicalDevicePtr), &(*m_Surface), &count, m_Surface->PresentModes.data()));
 
-	recreate(width, height, vSync, fullscreen, devicePtr);
+	recreate(width, height, vSync, fullscreen, physicalDevicePtr, devicePtr);
 }
 
-void vkSwapchain::recreate(uint32_t width, uint32_t height, bool8_t vSync, bool8_t fullscreen, const vkDevicePtr &devicePtr)
+void vkSwapchain::recreate(
+	uint32_t width, 
+	uint32_t height, 
+	bool8_t vSync, 
+	bool8_t fullscreen, 
+	const vkPhysicalDevicePtr &physicalDevicePtr,
+	const vkDevicePtr &devicePtr)
 {
-	assert(devicePtr && devicePtr->isValid() && m_Surface->isValid());
+	assert(devicePtr && devicePtr->isValid() && m_Surface && m_Surface->isValid());
 
 	m_VSync = vSync;
 	m_FullScreen = fullscreen;
+
+	rVerifyVk(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(&(*physicalDevicePtr), &(*m_Surface), &m_Surface->SurfaceCapabilities));
 
 	VkExtent2D sizeExtent{};
 	sizeExtent.width = std::min<uint32_t>(width, m_Surface->SurfaceCapabilities.maxImageExtent.width);
@@ -213,12 +219,14 @@ void vkSwapchain::recreate(uint32_t width, uint32_t height, bool8_t vSync, bool8
 		compositeAlphaFlagBits,  /// The compositeAlpha field specifies if the alpha channel should be used for blending with other windows in the window system
 		presentMode,
 		VK_TRUE,
-		m_Object ? (*m_Object) : VK_NULL_HANDLE
+		m_Object ? (&(*this)) : VK_NULL_HANDLE
 	};
 
 	/// If the clipped member is set to VK_TRUE then that means that we don¡¯t care about the color of pixels that are
 	/// obscured, for example because another window is in front of them.Unless you really need to be able to read these 
 	/// pixels back and get predictable results, you will get the best performance by enabling clipping
+
+	devicePtr->waitIdle();
 
 	VkSwapchainKHR handle = VK_NULL_HANDLE;
 	rVerifyVk(vkCreateSwapchainKHR(&(*devicePtr), &createInfo, nullptr, &handle));

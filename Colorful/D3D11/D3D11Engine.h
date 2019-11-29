@@ -11,6 +11,11 @@ public:
 
 	void logError(uint32_t result) const override final;
 
+	inline void handleWindowResize(uint32_t, uint32_t, const appConfig &) override final
+	{
+
+	}
+
 	inline rDevicePtr getDevice() const override final
 	{
 		assert(m_Device);

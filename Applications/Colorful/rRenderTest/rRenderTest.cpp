@@ -6,11 +6,6 @@ void rRenderTest::postInitialize()
 	m_FragmentShader = g_rDevicePtr->createShader(eFragmentShader, "rRenderTest.shader");
 }
 
-void rRenderTest::resizeWindow()
-{
-
-}
-
 void rRenderTest::renterToWindow()
 {
 

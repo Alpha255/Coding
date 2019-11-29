@@ -156,6 +156,8 @@ public:
 	virtual void finalize() = 0;
 	virtual void logError(uint32_t result) const = 0;
 
+	virtual void handleWindowResize(uint32_t width, uint32_t height, const appConfig &config) = 0;
+
 	virtual rDevicePtr getDevice() const = 0;
 	virtual rContextPtr getIMContext() const = 0;
 protected:

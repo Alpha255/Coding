@@ -20,13 +20,16 @@ public:
 
 	virtual void finalize();
 
-	virtual void resizeWindow() {}
-
 	virtual void updateWindow();
 
 	virtual void renterToWindow() {}
 
 	virtual void processEvent();
+
+	inline virtual void resizeWindow()
+	{
+		g_rEnginePtr->handleWindowResize((uint32_t)m_WindowSize.x, (uint32_t)m_WindowSize.y, m_Config);
+	}
 protected:
 	void makeWindow(const std::string &title, uint32_t width, uint32_t height, uint32_t extraWindowStyle, uint16_t iconID);
 	void updateFPS();

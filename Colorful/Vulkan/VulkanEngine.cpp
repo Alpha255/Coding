@@ -100,7 +100,8 @@ case enumValue:                                      \
 
 #undef vkResultCaseMessage
 
-	logger::instance().log(logger::eError, "Faile to invoke VulkanAPI, error message: ", errorMsg.c_str());
+	logger::instance().log(logger::eError, "Faile to invoke VulkanAPI, VKResult = %s", errorMsg.c_str());
+	assert(0);
 }
 
 void vkEngine::finalize()

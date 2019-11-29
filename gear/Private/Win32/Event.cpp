@@ -43,11 +43,8 @@ void eventHandler::processEvent()
 			m_AppEvent = eAppEvent::eRestore;
 		}
 		break;
-	case WM_ENTERSIZEMOVE:
-		m_AppEvent = eAppEvent::eResizing_Start;
-		break;
-	case WM_EXITSIZEMOVE:
-		m_AppEvent = eAppEvent::eResizing_End;
+	case WM_SIZING:
+		m_AppEvent = eAppEvent::eResizing;
 		break;
 	case WM_DESTROY:
 		m_AppEvent = eAppEvent::eQuit;

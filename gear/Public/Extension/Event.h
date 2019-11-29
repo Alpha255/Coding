@@ -40,8 +40,7 @@ enum class eAppEvent
 	eMinimize,
 	eQuit,
 	eRestore,
-	eResizing_Start,
-	eResizing_End,
+	eResizing,
 	eSetWindowSizeLimitations,
 	eAppMessage_MaxEnum
 };
