@@ -13,32 +13,32 @@ struct rAdapter
 	uint32_t VendorID = 0u;
 	uint32_t DeviceID = 0u;                      
 
-	static std::string getVerdorName(uint32_t verdorID)
+	static std::string getVendorName(uint32_t verdorID)
 	{
-		std::string verdorName("Unknown");
+		std::string vendorName("Unknown");
 		switch (verdorID)
 		{
 		case 0x1002: 
-			verdorName = std::string("AMD");
+			vendorName = std::string("AMD");
 			break;
 		case 0x1010: 
-			verdorName = std::string("ImgTec");
+			vendorName = std::string("ImgTec");
 			break;
 		case 0x10DE: 
-			verdorName = std::string("NVIDIA");
+			vendorName = std::string("NVIDIA");
 			break;
 		case 0x13B5: 
-			verdorName = std::string("ARM");
+			vendorName = std::string("ARM");
 			break;
 		case 0x5143: 
-			verdorName = std::string("Qualcomm");
+			vendorName = std::string("Qualcomm");
 			break;
 		case 0x8086: 
-			verdorName = std::string("Intel");
+			vendorName = std::string("Intel");
 			break;
 		}
 
-		return verdorName;
+		return vendorName;
 	}
 };
 
@@ -161,3 +161,6 @@ private:
 
 extern rEngine *g_rEnginePtr;
 extern rDevice *g_rDevicePtr;
+
+using rShaderPtr = std::shared_ptr<rShader>;
+using rTexturePtr = std::shared_ptr<rTexture>;

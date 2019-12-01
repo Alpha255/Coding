@@ -36,7 +36,9 @@ public:
 
 	void waitIdle();
 
-	vkFence *createFence(vkFence::eFenceState state);
+	vkFence *createFence(vkFence::eFenceState state, bool8_t autoReset = false);
+	vkSemaphore *createSemaphore(bool8_t autoReset = false);
+	vkEvent *createEvent(bool8_t autoReset = false);
 
 	void destory();
 public:

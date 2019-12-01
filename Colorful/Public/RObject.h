@@ -62,6 +62,12 @@ public:
 	}
 };
 
+template <typename T> class vkDeviceObject : public vkObject<T>
+{
+public:
+	virtual void destory(const class vkDevice &device) = 0;
+};
+
 template <typename T> class d3dObject : public rObject<T>
 {
 public:

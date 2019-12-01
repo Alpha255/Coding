@@ -78,3 +78,16 @@ void d3d11Engine::logError(uint32_t result) const
 	logger::instance().log(logger::eError, "Failed to invoke D3D11API, error message: %s", errorMsg.c_str());
 	assert(0);
 }
+
+void d3d11Engine::finalize()
+{
+#if 0
+	ID3D11Debug *debugLayerPtr = nullptr;
+	m_Device->QueryInterface(__uuidof(ID3D11Debug), (void**)(&debugLayerPtr));
+	if (debugLayerPtr)
+	{
+		debugLayerPtr->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+		safeRelease(debugLayerPtr);
+	}
+#endif
+}

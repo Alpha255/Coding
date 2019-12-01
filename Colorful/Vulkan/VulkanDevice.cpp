@@ -368,7 +368,7 @@ uint32_t vkDevice::create(
 	m_Adapter.VendorID = properties.vendorID;
 
 	logger::instance().log(logger::eInfo, "Created vulkan device on adapter: \"%s %s\", DeviceID = %d.",
-		rAdapter::getVerdorName(m_Adapter.VendorID).c_str(),
+		rAdapter::getVendorName(m_Adapter.VendorID).c_str(),
 		m_Adapter.DeviceName.c_str(),
 		m_Adapter.DeviceID);
 

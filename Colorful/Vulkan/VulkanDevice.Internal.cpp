@@ -9,10 +9,26 @@ rShader *vkDevice::createShader(eRShaderUsage usage, const std::string &shaderNa
 	return nullptr;
 }
 
-vkFence *vkDevice::createFence(vkFence::eFenceState state)
+vkFence *vkDevice::createFence(vkFence::eFenceState state, bool8_t)
 {
 	vkFence *fencePtr = new vkFence(*this, state);
 	assert(fencePtr);
 
 	return fencePtr;
+}
+
+vkSemaphore *vkDevice::createSemaphore(bool8_t)
+{
+	vkSemaphore *semaphorePtr = new vkSemaphore(*this);
+	assert(semaphorePtr);
+
+	return semaphorePtr;
+}
+
+vkEvent *vkDevice::createEvent(bool8_t)
+{
+	vkEvent *eventPtr = new vkEvent(*this);
+	assert(eventPtr);
+
+	return eventPtr;
 }

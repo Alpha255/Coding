@@ -8,7 +8,7 @@ class d3d11Engine : public rEngine, public singleton<d3d11Engine>
 	singletonDeclare(d3d11Engine);
 public:
 	void initialize(uint64_t windowHandle, const appConfig &config) override final;
-	void finalize() override final {}
+	void finalize() override final;
 
 	void logError(uint32_t result) const override final;
 
