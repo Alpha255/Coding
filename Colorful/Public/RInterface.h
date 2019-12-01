@@ -75,7 +75,6 @@ protected:
 private:
 	eRShaderUsage m_Usage = eRShaderUsage_MaxEnum;
 };
-typedef std::shared_ptr<rShader> rShaderPtr;
 
 class rRenderSurface
 {
@@ -139,15 +138,11 @@ class rInputLayout
 class rDevice
 {
 public:
-	virtual rShaderPtr createShader(eRShaderUsage usage, const std::string &shaderName) = 0;
+	virtual rShader *createShader(eRShaderUsage usage, const std::string &shaderName) = 0;
 protected:
 	rAdapter m_Adapter;
 private:
 };
-
-typedef std::shared_ptr<rDevice> rDevicePtr;
-typedef std::shared_ptr<rContext> rContextPtr;
-typedef std::shared_ptr<rTexture> rTexturePtr;
 
 class rEngine
 {
@@ -158,11 +153,11 @@ public:
 
 	virtual void handleWindowResize(uint32_t width, uint32_t height, const appConfig &config) = 0;
 
-	virtual rDevicePtr getDevice() const = 0;
-	virtual rContextPtr getIMContext() const = 0;
+	virtual rDevice *getDevice() = 0;
 protected:
 private:
 };
-typedef rEngine *rEnginePtr;
-extern rEnginePtr g_rEnginePtr;
-extern rDevicePtr g_rDevicePtr;
+
+
+extern rEngine *g_rEnginePtr;
+extern rDevice *g_rDevicePtr;

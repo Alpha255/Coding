@@ -14,32 +14,26 @@ public:
 
 	inline void handleWindowResize(uint32_t width, uint32_t height, const appConfig &config) override final
 	{
-		if (m_SwapChain->isValid())
+		if (m_Swapchain.isValid())
 		{
-			m_SwapChain->recreate(width, height, config.VSync, config.FullScreen, m_PhysicalDevice, m_Device);
+			m_Swapchain.recreate(width, height, config.VSync, config.FullScreen, m_PhysicalDevice, m_Device);
 		}
 	}
 
-	inline rDevicePtr getDevice() const override final
+	inline rDevice *getDevice() override final
 	{
-		assert(m_Device);
-		return m_Device;
-	}
-
-	inline rContextPtr getIMContext() const override final
-	{
-		assert(m_IMContext);
-		return m_IMContext;
+		assert(m_Device.isValid());
+		return &m_Device;
 	}
 protected:
 private:
-	vkInstancePtr m_Instance = nullptr;
-	vkDebugUtilsMessengerPtr m_DebugUtilsMessenger = nullptr;
-	vkDevicePtr m_Device = nullptr;
-	vkPhysicalDevicePtr m_PhysicalDevice = nullptr;
-	vkDeviceQueuePtr m_GraphicsQueue = nullptr;
-	vkDeviceQueuePtr m_ComputeQueue = nullptr;
-	vkDeviceQueuePtr m_TransferQueue = nullptr;
-	vkContextPtr m_IMContext = nullptr;
-	vkSwapChainPtr m_SwapChain = nullptr;
+	vkInstance m_Instance;
+	vkDebugUtilsMessenger m_DebugUtilsMessenger;
+	vkDevice m_Device;
+	vkPhysicalDevice m_PhysicalDevice;
+	vkDeviceQueue m_GraphicsQueue;
+	vkDeviceQueue m_ComputeQueue;
+	vkDeviceQueue m_TransferQueue;
+	vkContext m_IMContext;
+	vkSwapchain m_Swapchain;
 };

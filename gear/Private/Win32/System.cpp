@@ -134,6 +134,41 @@ uint64_t getAppInstance()
 	return (uint64_t)hInst;
 }
 
+math::vec2 getDesktopWindowSize()
+{
+#if 0
+	uint32_t width = ::GetSystemMetrics(SM_CXFULLSCREEN);
+	uint32_t height = ::GetSystemMetrics(SM_CYFULLSCREEN);
+
+	return math::vec2((float32_t)width, (float32_t)height);
+#else
+	::HWND hWnd = ::GetDesktopWindow();
+	verify_Log(hWnd != nullptr);
+
+	::RECT rect{};
+	::GetWindowRect(hWnd, &rect);
+
+	return math::vec2(rect.right - rect.left, rect.bottom - rect.top);
+#endif
+}
+
+void dynamicLibrary::load(const std::string &libraryName)
+{
+	::HMODULE result = ::LoadLibraryA(libraryName.c_str());
+	if (result != nullptr)
+	{
+		Handle = (uint64_t)result;
+	}
+}
+
+void dynamicLibrary::free()
+{
+	if (Handle != 0u)
+	{
+		verify_Log(::FreeLibrary((::HMODULE)Handle) != 0);
+	}
+}
+
 namespaceEnd(gear)
 
 #endif

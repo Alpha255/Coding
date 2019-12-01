@@ -26,4 +26,26 @@ std::string getEnvironmentVariable(const std::string &envVarName);
 
 uint64_t getAppInstance();
 
+math::vec2 getDesktopWindowSize();
+
+struct dynamicLibrary
+{
+	uint64_t Handle = 0u;
+
+	void load(const std::string &libraryName);
+
+	void free();
+
+	dynamicLibrary() = default;
+	dynamicLibrary(const std::string &libraryName)
+	{
+		load(libraryName);
+	}
+
+	~dynamicLibrary()
+	{
+		free();
+	}
+};
+
 namespaceEnd(gear)

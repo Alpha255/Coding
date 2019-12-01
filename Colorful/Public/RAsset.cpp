@@ -21,7 +21,7 @@ rShaderBinary rAssetBucket::getShaderBinary(eRShaderUsage usage, const std::stri
 	return shaderBinary;
 }
 
-rTexturePtr rAssetBucket::createTexture(const std::string &, const rDevicePtr &)
+rTexture *rAssetBucket::createTexture(const std::string &, const rDevice &)
 {
 	return nullptr;
 }

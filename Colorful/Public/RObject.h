@@ -37,7 +37,7 @@ private:
 template <typename T> class vkObject : public rObject<T>
 {
 public:
-	inline T operator&() const
+	inline T operator*() const
 	{
 		return (T)(m_Object.get());
 	}

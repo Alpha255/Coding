@@ -2,30 +2,26 @@
 
 void d3d11Engine::initialize(uint64_t windowHandle, const appConfig &config)
 {
-	m_Device = std::make_shared<d3d11Device>();
-	m_IMContext = std::make_shared<d3d11Context>();
-
 	uint32_t flags = 0u;
 #if defined(_DEBUG)
 	flags = DXGI_CREATE_FACTORY_DEBUG;
 #endif
 
-	dxgiFactory7Ptr dxgiFactoryPtr = std::make_shared<dxgiFactory7>();
+	dxgiFactory7 tempDxgiFactory;
 	IDXGIFactory7 *pFactory = nullptr;
 	rVerifyD3D11(CreateDXGIFactory2(flags, __uuidof(IDXGIFactory7), reinterpret_cast<void **>(&pFactory)));
-	dxgiFactoryPtr->reset(pFactory);
+	tempDxgiFactory.reset(pFactory);
 
-	m_Device->create(m_IMContext, dxgiFactoryPtr);
+	m_Device.create(m_IMContext, tempDxgiFactory);
 
-	m_Swapchain = std::make_shared<d3d11Swapchain>();
-	m_Swapchain->create(
+	m_Swapchain.create(
 		windowHandle,
 		config.WindowWidth,
 		config.WindowHeight,
 		config.VSync,
 		config.FullScreen,
 		config.D3DTripleBuffer,
-		dxgiFactoryPtr,
+		tempDxgiFactory,
 		m_Device);
 }
 

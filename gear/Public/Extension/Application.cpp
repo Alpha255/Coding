@@ -1,10 +1,11 @@
 #include "Gear/Public/Extension/Application.h"
 #include "Applications/Resource.h"
-#include "Colorful/D3D11/D3D11Engine.h"
+#include "Colorful/Public/RAsset.h"
+#include "Colorful/D3D/D3D11/D3D11Engine.h"
 #include "Colorful/Vulkan/VulkanEngine.h"
 
-rEnginePtr g_rEnginePtr = nullptr;
-rDevicePtr g_rDevicePtr = nullptr;
+rEngine *g_rEnginePtr = nullptr;
+rDevice *g_rDevicePtr = nullptr;
 
 namespaceStart(gear)
 
@@ -27,7 +28,6 @@ void application::initialize(const std::string &title, uint32_t extraWindowStyle
 
 		g_rEnginePtr = &vkEngine::instance();
 	}
-
 	assert(g_rEnginePtr);
 	g_rDevicePtr = g_rEnginePtr->getDevice();
 	assert(g_rDevicePtr);

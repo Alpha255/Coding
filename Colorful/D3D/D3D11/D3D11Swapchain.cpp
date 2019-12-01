@@ -8,10 +8,10 @@ void d3d11Swapchain::create(
 	bool8_t vSync, 
 	bool8_t fullscreen, 
 	bool8_t tripleBuffer,
-	const dxgiFactory7Ptr &dxgiFactoryPtr,
-	const d3d11DevicePtr &devicePtr)
+	const dxgiFactory7 &inDxgiFactory,
+	d3d11Device &device)
 {
-	assert(windowHandle && dxgiFactoryPtr && dxgiFactoryPtr->isValid() && devicePtr && devicePtr->isValid());
+	assert(!isValid() && windowHandle && inDxgiFactory.isValid() && device.isValid());
 	/// Microsoft DirectX Graphics Infrastructure (DXGI)
 	/// IDXGISwapChain1: Provides presentation capabilities that are enhanced from IDXGISwapChain. 
 	/// These presentation capabilities consist of specifying dirty rectangles and scroll rectangle to optimize the presentation.
@@ -24,11 +24,13 @@ void d3d11Swapchain::create(
 	m_bFullScreen = fullscreen;
 	m_bTripleBuffer = tripleBuffer;
 
+	math::vec2 desktopWindowSize = getDesktopWindowSize();
+
 	DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
-	auto dxgiAdapter = devicePtr->getDxgiAdapter();
+	auto dxgiAdapter = device.getDxgiAdapter();
 	assert(dxgiAdapter && dxgiAdapter->isValid());
-	std::vector<dxgiOutput6Ptr> dxgiOutputPtrs;
+	std::vector<dxgiOutput6> dxgiOutputs;
 	uint32_t dxgiOutputIndex = 0u;
 	while (true)
 	{
@@ -37,30 +39,39 @@ void d3d11Swapchain::create(
 		{
 			break;
 		}
-		dxgiOutput6Ptr tempDxgiOutputPtr = std::make_shared<dxgiOutput6>();
-		tempDxgiOutputPtr->reset(static_cast<IDXGIOutput6 *>(pDxgiOutput));
-		dxgiOutputPtrs.emplace_back(tempDxgiOutputPtr);
+
+		dxgiOutputs.emplace_back();
+		dxgiOutputs[dxgiOutputs.size() - 1u].reset(static_cast<IDXGIOutput6 *>(pDxgiOutput));
 	}
 
 	std::vector<DXGI_MODE_DESC1> dxgiModeDescs;
-	for (uint32_t i = 0u; i < dxgiOutputPtrs.size(); ++i)
+	for (uint32_t i = 0u; i < dxgiOutputs.size(); ++i)
 	{
 		uint32_t count = 0u;
-		rVerifyD3D11((*dxgiOutputPtrs[i])->GetDisplayModeList1(format, DXGI_ENUM_MODES_INTERLACED, &count, nullptr));
+		rVerifyD3D11(dxgiOutputs[i]->GetDisplayModeList1(format, DXGI_ENUM_MODES_INTERLACED, &count, nullptr));
 
 		std::vector<DXGI_MODE_DESC1> tempDxgiModeDescs(count);
-		rVerifyD3D11((*dxgiOutputPtrs[i])->GetDisplayModeList1(format, DXGI_ENUM_MODES_INTERLACED, &count, tempDxgiModeDescs.data()));
+		rVerifyD3D11(dxgiOutputs[i]->GetDisplayModeList1(format, DXGI_ENUM_MODES_INTERLACED, &count, tempDxgiModeDescs.data()));
 
 		dxgiModeDescs.insert(dxgiModeDescs.end(), tempDxgiModeDescs.cbegin(), tempDxgiModeDescs.cend());
 	}
 
-	uint32_t tempWidth = 0u; uint32_t dxgiModeIndex = UINT32_MAX;
+	uint32_t tempWidth = 0u; uint32_t dxgiModeIndex = UINT32_MAX; float32_t tempRefreshRate = 0.0f;
 	for (uint32_t i = 0u; i < dxgiModeDescs.size(); ++i)
 	{
-		if (dxgiModeDescs[i].Width > tempWidth)
+		if ((uint32_t)desktopWindowSize.x == dxgiModeDescs[i].Width &&
+			(uint32_t)desktopWindowSize.y == dxgiModeDescs[i].Height)
 		{
-			tempWidth = dxgiModeDescs[i].Width;
-			dxgiModeIndex = i;
+			if (dxgiModeDescs[i].Width >= tempWidth)
+			{
+				float32_t refreshRate = dxgiModeDescs[i].RefreshRate.Numerator / (float32_t)dxgiModeDescs[i].RefreshRate.Denominator;
+				if (refreshRate >= tempRefreshRate)
+				{
+					tempWidth = dxgiModeDescs[i].Width;
+					tempRefreshRate = refreshRate;
+					dxgiModeIndex = i;
+				}
+			}
 		}
 	}
 	assert(dxgiModeIndex != UINT32_MAX);
@@ -92,8 +103,8 @@ void d3d11Swapchain::create(
 	};
 
 	IDXGISwapChain1 *pSwapchain = nullptr;
-	rVerifyD3D11((*dxgiFactoryPtr)->CreateSwapChainForHwnd(
-		devicePtr->get(),
+	rVerifyD3D11(inDxgiFactory->CreateSwapChainForHwnd(
+		device.get(),
 		(::HWND)windowHandle,
 		&desc,
 		&fullscreenDesc,

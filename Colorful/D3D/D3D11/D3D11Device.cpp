@@ -1,22 +1,22 @@
 #include "D3D11Device.h"
 #include "D3D11Engine.h"
 
-void d3d11Device::create(__out d3d11ContextPtr &context, dxgiFactory7Ptr &dxgiFactoryPtr)
+void d3d11Device::create(__out d3d11Context &context, const dxgiFactory7 &inDxgiFactory)
 {
-	assert(!isValid() && !context->isValid() && dxgiFactoryPtr && dxgiFactoryPtr->isValid());
+	assert(!isValid() && !context.isValid() && inDxgiFactory.isValid());
 
-	std::vector<dxgiAdapter4Ptr> dxgiAdapterPtrs;
+	std::vector<dxgiAdapter4> dxgiAdapters;
 	uint32_t adapterIndex = 0u;
 	while (true)
 	{
-		dxgiAdapter4Ptr dxgiAdapterPtr = std::make_shared<dxgiAdapter4>();
 		IDXGIAdapter1 *pDxgiAdapter = nullptr;
-		if (DXGI_ERROR_NOT_FOUND == ((*dxgiFactoryPtr)->EnumAdapters1(adapterIndex++, &pDxgiAdapter)))
+		if (DXGI_ERROR_NOT_FOUND == (inDxgiFactory->EnumAdapters1(adapterIndex++, &pDxgiAdapter)))
 		{
 			break;
 		}
-		dxgiAdapterPtr->reset(static_cast<IDXGIAdapter4 *>(pDxgiAdapter));
-		dxgiAdapterPtrs.emplace_back(dxgiAdapterPtr);
+
+		dxgiAdapters.emplace_back();
+		dxgiAdapters[dxgiAdapters.size() - 1u].reset(static_cast<IDXGIAdapter4 *>(pDxgiAdapter));
 	}
 
 	struct createResult
@@ -26,12 +26,16 @@ void d3d11Device::create(__out d3d11ContextPtr &context, dxgiFactory7Ptr &dxgiFa
 		::HRESULT Result = E_FAIL;
 	};
 
-	auto tryToCreateDevice = [](d3d11DevicePtr &devicePtr, d3d11ContextPtr &contextPtr)->createResult {
+	auto tryToCreateDevice = [](d3d11Device &device, d3d11Context &context)->createResult {
 		createResult resultAttr = {};
 
 		uint32_t deviceFlags = 0;
 #if defined(DEBUG) || defined(_DEBUG)
-		///deviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+		dynamicLibrary debugLayer("D3D11_1SDKLayers.dll");
+		if (debugLayer.Handle != 0u)
+		{
+			deviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+		}
 #endif
 
 		std::vector<D3D_DRIVER_TYPE> driverTypes =
@@ -73,8 +77,8 @@ void d3d11Device::create(__out d3d11ContextPtr &context, dxgiFactory7Ptr &dxgiFa
 			{
 				resultAttr.DriverType = driverTypes[i];
 
-				devicePtr->reset(pDevice);
-				contextPtr->reset(pContext);
+				device.reset(pDevice);
+				context.reset(pContext);
 
 				break;
 			}
@@ -85,10 +89,10 @@ void d3d11Device::create(__out d3d11ContextPtr &context, dxgiFactory7Ptr &dxgiFa
 
 	adapterIndex = UINT32_MAX;
 	createResult tempResultAttr = {};
-	for (uint32_t i = 0u; i < dxgiAdapterPtrs.size(); ++i)
+	for (uint32_t i = 0u; i < dxgiAdapters.size(); ++i)
 	{
-		d3d11DevicePtr tempDevice = std::make_shared<d3d11Device>();
-		d3d11ContextPtr tempContext = std::make_shared<d3d11Context>();
+		d3d11Device tempDevice;
+		d3d11Context tempContext;
 
 		createResult resultAttr = tryToCreateDevice(tempDevice, tempContext);
 		if (SUCCEEDED(resultAttr.Result) && resultAttr.FeatureLevel > tempResultAttr.FeatureLevel)
@@ -99,8 +103,7 @@ void d3d11Device::create(__out d3d11ContextPtr &context, dxgiFactory7Ptr &dxgiFa
 	}
 	assert(adapterIndex != UINT32_MAX);
 
-	d3d11DevicePtr tempDevice = std::make_shared<d3d11Device>();
-	createResult resultAttr = tryToCreateDevice(tempDevice, context);
+	createResult resultAttr = tryToCreateDevice(*this, context);
 	if (FAILED(resultAttr.Result))
 	{
 		logger::instance().log(logger::eError, "Failed to create d3d11 device.");
@@ -108,11 +111,10 @@ void d3d11Device::create(__out d3d11ContextPtr &context, dxgiFactory7Ptr &dxgiFa
 		assert(0);
 	}
 
-	*this = *tempDevice;
-	m_dxgiAdapter = dxgiAdapterPtrs[adapterIndex];
+	m_dxgiAdapter = dxgiAdapters[adapterIndex];
 
 	DXGI_ADAPTER_DESC3 adapterDesc = {};
-	rVerifyD3D11((*m_dxgiAdapter)->GetDesc3(&adapterDesc));
+	rVerifyD3D11(m_dxgiAdapter->GetDesc3(&adapterDesc));
 	m_Adapter.VendorID = adapterDesc.VendorId;
 	m_Adapter.DeviceID = adapterDesc.DeviceId;
 	std::wstring wDeviceName(adapterDesc.Description);

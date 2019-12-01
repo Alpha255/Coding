@@ -58,7 +58,7 @@ enum eRPrimitiveTopology
 	eRPrimitiveTopology_MaxEnum
 };
 
-enum eRImageViewType
+enum eRTextureType
 {
 	eTexture1D,
 	eTexture2D,

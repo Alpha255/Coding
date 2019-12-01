@@ -60,6 +60,8 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vkDebugUtilsMessengerFunc(
 
 void vkInstance::create()
 {
+	assert(!isValid());
+
 	std::vector<const char8_t*> layers =
 	{
 		"VK_LAYER_LUNARG_standard_validation",
@@ -125,17 +127,17 @@ void vkInstance::destory()
 {
 	if (isValid())
 	{
-		vkDestroyInstance(&(*this), vkMemoryAllocator);
+		vkDestroyInstance(**this, vkMemoryAllocator);
 		reset();
 	}
 }
 
-void vkDebugUtilsMessenger::create(const vkInstancePtr &instancePtr, bool8_t verbose)
+void vkDebugUtilsMessenger::create(const vkInstance &instance, bool8_t verbose)
 {
-	assert(instancePtr && instancePtr->isValid());
+	assert(!isValid() && instance.isValid());
 
 	PFN_vkCreateDebugUtilsMessengerEXT vkCreateDebugUtilsMesserger = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
-		vkGetInstanceProcAddr(&(*instancePtr), "vkCreateDebugUtilsMessengerEXT"));
+		vkGetInstanceProcAddr(*instance, "vkCreateDebugUtilsMessengerEXT"));
 	assert(vkCreateDebugUtilsMesserger);
 
 	VkDebugUtilsMessageSeverityFlagsEXT messageServityFlags = verbose ? (VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT 
@@ -158,53 +160,54 @@ void vkDebugUtilsMessenger::create(const vkInstancePtr &instancePtr, bool8_t ver
 	};
 
 	VkDebugUtilsMessengerEXT handle = VK_NULL_HANDLE;
-	rVerifyVk(vkCreateDebugUtilsMesserger(&(*instancePtr), &createInfo, vkMemoryAllocator, &handle));
+	rVerifyVk(vkCreateDebugUtilsMesserger(*instance, &createInfo, vkMemoryAllocator, &handle));
 	reset(handle);
 }
 
-void vkDebugUtilsMessenger::destory(const vkInstancePtr &instancePtr)
+void vkDebugUtilsMessenger::destory(const vkInstance &instance)
 {
-	assert(instancePtr && instancePtr->isValid());
+	assert(instance.isValid());
 
 	if (isValid())
 	{
 		PFN_vkDestroyDebugUtilsMessengerEXT vkDestroyDebugUtilsMessenger = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
-			vkGetInstanceProcAddr(&(*instancePtr), "vkDestroyDebugUtilsMessengerEXT")
+			vkGetInstanceProcAddr(*instance, "vkDestroyDebugUtilsMessengerEXT")
 			);
 		assert(vkDestroyDebugUtilsMessenger);
-		vkDestroyDebugUtilsMessenger(&(*instancePtr), &(*this), vkMemoryAllocator);
+		vkDestroyDebugUtilsMessenger(*instance, **this, vkMemoryAllocator);
 		reset();
 	}
 }
 
-std::vector<vkPhysicalDevicePtr> vkPhysicalDevice::enumeratePhysicalDevices(const vkInstancePtr &instancePtr)
+std::vector<vkPhysicalDevice> vkPhysicalDevice::enumeratePhysicalDevices(const vkInstance &instance)
 {
-	assert(instancePtr);
+	assert(instance.isValid());
 
-	std::vector<vkPhysicalDevicePtr> physicalDevicePtrs;
+	std::vector<vkPhysicalDevice> physicalDevices;
 	std::vector<VkPhysicalDevice> physicalDeviceHandles;
 
 	uint32_t count = 0U;
-	rVerifyVk(vkEnumeratePhysicalDevices(&(*instancePtr), &count, nullptr));
+	rVerifyVk(vkEnumeratePhysicalDevices(*instance, &count, nullptr));
 	assert(count > 0U);
-	physicalDevicePtrs.resize(count);
+	physicalDevices.resize(count);
 	physicalDeviceHandles.resize(count);
-	rVerifyVk(vkEnumeratePhysicalDevices(&(*instancePtr), &count, physicalDeviceHandles.data()));
+	rVerifyVk(vkEnumeratePhysicalDevices(*instance, &count, physicalDeviceHandles.data()));
 	for (uint32_t i = 0u; i < count; ++i)
 	{
-		physicalDevicePtrs[i] = std::make_shared<vkPhysicalDevice>();
-		physicalDevicePtrs[i]->reset(physicalDeviceHandles[i]);
+		physicalDevices[i].reset(physicalDeviceHandles[i]);
 	}
 
-	return physicalDevicePtrs;
+	return physicalDevices;
 }
 
 uint32_t vkDevice::create(
-	const std::vector<vkPhysicalDevicePtr> &physicalDevicePtrs,
+	const std::vector<vkPhysicalDevice> &physicalDevices,
 	uint32_t &graphicsQueueIndex,
 	uint32_t &computeQueueIndex,
 	uint32_t &transferQueueIndex)
 {
+	assert(!isValid() && physicalDevices.size() > 0u);
+
 	uint32_t gpuIndex = UINT32_MAX;
 	uint32_t discreteGpuIndex = UINT32_MAX;
 	std::string gpuTypeName;
@@ -215,10 +218,10 @@ uint32_t vkDevice::create(
 	uint32_t numQueuePriority = 0u;
 
 	std::vector<VkDeviceQueueCreateInfo> deviceQueueCreateInfos;
-	for (uint32_t i = 0u; i < physicalDevicePtrs.size(); ++i)
+	for (uint32_t i = 0u; i < physicalDevices.size(); ++i)
 	{
 		VkPhysicalDeviceProperties properties = {};
-		vkGetPhysicalDeviceProperties(&(*physicalDevicePtrs[i]), &properties);
+		vkGetPhysicalDeviceProperties(*physicalDevices[i], &properties);
 
 		switch (properties.deviceType)
 		{
@@ -246,11 +249,11 @@ uint32_t vkDevice::create(
 		gpuIndex = i;
 
 		uint32_t count = 0u;
-		vkGetPhysicalDeviceQueueFamilyProperties(&(*physicalDevicePtrs[i]), &count, nullptr);
+		vkGetPhysicalDeviceQueueFamilyProperties(*physicalDevices[i], &count, nullptr);
 		assert(count > 0u);
 
 		std::vector<VkQueueFamilyProperties> queueFamilyProperties(count);
-		vkGetPhysicalDeviceQueueFamilyProperties(&(*physicalDevicePtrs[i]), &count, queueFamilyProperties.data());
+		vkGetPhysicalDeviceQueueFamilyProperties(*physicalDevices[i], &count, queueFamilyProperties.data());
 
 		for (uint32_t j = 0U; j < queueFamilyProperties.size(); ++j)
 		{
@@ -326,18 +329,18 @@ uint32_t vkDevice::create(
 	};
 
 	uint32_t count = 0U;
-	rVerifyVk(vkEnumerateDeviceLayerProperties(&(*physicalDevicePtrs[gpuIndex]), &count, nullptr));
+	rVerifyVk(vkEnumerateDeviceLayerProperties(*physicalDevices[gpuIndex], &count, nullptr));
 	std::vector<VkLayerProperties> supportedLayers(count);
-	rVerifyVk(vkEnumerateDeviceLayerProperties(&(*physicalDevicePtrs[gpuIndex]), &count, supportedLayers.data()));
+	rVerifyVk(vkEnumerateDeviceLayerProperties(*physicalDevices[gpuIndex], &count, supportedLayers.data()));
 	layers = getSupportedProperties<VkLayerProperties>(supportedLayers, layers);
 
-	rVerifyVk(vkEnumerateDeviceExtensionProperties(&(*physicalDevicePtrs[gpuIndex]), nullptr, &count, nullptr));
+	rVerifyVk(vkEnumerateDeviceExtensionProperties(*physicalDevices[gpuIndex], nullptr, &count, nullptr));
 	std::vector<VkExtensionProperties> supportedExtensions(count);
-	rVerifyVk(vkEnumerateDeviceExtensionProperties(&(*physicalDevicePtrs[gpuIndex]), nullptr, &count, supportedExtensions.data()));
+	rVerifyVk(vkEnumerateDeviceExtensionProperties(*physicalDevices[gpuIndex], nullptr, &count, supportedExtensions.data()));
 	extensions = getSupportedProperties<VkExtensionProperties>(supportedExtensions, extensions);
 
 	VkPhysicalDeviceFeatures deviceFeatures{};
-	vkGetPhysicalDeviceFeatures(&(*physicalDevicePtrs[gpuIndex]), &deviceFeatures);
+	vkGetPhysicalDeviceFeatures(*physicalDevices[gpuIndex], &deviceFeatures);
 
 	VkDeviceCreateInfo createInfo
 	{
@@ -354,11 +357,11 @@ uint32_t vkDevice::create(
 	};
 
 	VkDevice handle = VK_NULL_HANDLE;
-	rVerifyVk(vkCreateDevice(&(*physicalDevicePtrs[gpuIndex]), &createInfo, vkMemoryAllocator, &handle));
+	rVerifyVk(vkCreateDevice(*physicalDevices[gpuIndex], &createInfo, vkMemoryAllocator, &handle));
 	reset(handle);
 
 	VkPhysicalDeviceProperties properties = {};
-	vkGetPhysicalDeviceProperties(&(*physicalDevicePtrs[gpuIndex]), &properties);
+	vkGetPhysicalDeviceProperties(*physicalDevices[gpuIndex], &properties);
 
 	m_Adapter.DeviceName = properties.deviceName;
 	m_Adapter.DeviceID = properties.deviceID;
@@ -378,16 +381,18 @@ uint32_t vkDevice::create(
 
 void vkDevice::waitIdle()
 {
-	assert(isValid());
-	rVerifyVk(vkDeviceWaitIdle(&(*this)));
+	if (isValid())
+	{
+		rVerifyVk(vkDeviceWaitIdle(**this));
+	}
 }
 
 void vkDevice::destory()
 {
 	if (isValid())
 	{
-		rVerifyVk(vkDeviceWaitIdle(&(*this)));
-		vkDestroyDevice(&(*this), vkMemoryAllocator);
+		rVerifyVk(vkDeviceWaitIdle(**this));
+		vkDestroyDevice(**this, vkMemoryAllocator);
 		reset();
 	}
 }

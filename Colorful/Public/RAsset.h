@@ -33,7 +33,7 @@ public:
 
 	rShaderBinary getShaderBinary(eRShaderUsage usage, const std::string &shaderName);
 
-	rTexturePtr createTexture(const std::string &textureName, const rDevicePtr &devicePtr);
+	rTexture *createTexture(const std::string &textureName, const rDevice &devicePtr);
 
 	void finalize() {}
 protected:

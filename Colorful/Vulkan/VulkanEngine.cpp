@@ -2,43 +2,39 @@
 
 void vkEngine::initialize(uint64_t windowHandle, const appConfig &config)
 {
-	m_Instance = std::make_shared<vkInstance>();
-	m_Instance->create();
+	m_Instance.create();
 
 #if defined(_DEBUG)
-	m_DebugUtilsMessenger = std::make_shared<vkDebugUtilsMessenger>();
-	m_DebugUtilsMessenger->create(m_Instance, config.VulkanValidationVerbose);
+	m_DebugUtilsMessenger.create(m_Instance, config.VulkanValidationVerbose);
 #endif
 
-	auto physicalDevicePtrs = vkPhysicalDevice::enumeratePhysicalDevices(m_Instance);
-	assert(physicalDevicePtrs.size() == 1u); /// Only allow single video card for now...
+	auto physicalDevices = vkPhysicalDevice::enumeratePhysicalDevices(m_Instance);
+	assert(physicalDevices.size() == 1u); /// Only allow single video card for now...
 
 	uint32_t graphicsQueueFamilyIndex = UINT32_MAX;
 	uint32_t computeQueueFamilyIndex = UINT32_MAX;
 	uint32_t transferQueueFamilyIndex = UINT32_MAX;
-	m_Device = std::make_shared<vkDevice>();
-	uint32_t gpuIndex = m_Device->create(
-		physicalDevicePtrs, 
+	uint32_t gpuIndex = m_Device.create(
+		physicalDevices,
 		graphicsQueueFamilyIndex,
 		computeQueueFamilyIndex,
 		transferQueueFamilyIndex);
 	assert(graphicsQueueFamilyIndex != UINT32_MAX);
 
-	m_GraphicsQueue = std::make_shared<vkDeviceQueue>(graphicsQueueFamilyIndex, m_Device);
+	m_GraphicsQueue.create(graphicsQueueFamilyIndex, m_Device);
 	if (computeQueueFamilyIndex != UINT32_MAX)
 	{
-		m_ComputeQueue = std::make_shared<vkDeviceQueue>(computeQueueFamilyIndex, m_Device);
+		m_ComputeQueue.create(computeQueueFamilyIndex, m_Device);
 	}
 	if (transferQueueFamilyIndex != UINT32_MAX)
 	{
-		m_TransferQueue = std::make_shared<vkDeviceQueue>(transferQueueFamilyIndex, m_Device);
+		m_TransferQueue.create(transferQueueFamilyIndex, m_Device);
 	}
 
 	assert(gpuIndex != UINT32_MAX);
-	m_PhysicalDevice = physicalDevicePtrs[gpuIndex];
+	m_PhysicalDevice = physicalDevices[gpuIndex];
 
-	m_SwapChain = std::make_shared<vkSwapchain>();
-	m_SwapChain->create(
+	m_Swapchain.create(
 		getAppInstance(),
 		windowHandle,
 		config.WindowWidth,
@@ -106,15 +102,15 @@ case enumValue:                                      \
 
 void vkEngine::finalize()
 {
-	m_Device->waitIdle();
+	m_Device.waitIdle();
 
-	m_SwapChain->destory(m_Instance, m_Device);
+	m_Swapchain.destory(m_Instance, m_Device);
 
-	m_Device->destory();
+	m_Device.destory();
 
 #if defined(DEBUG)
-	m_DebugUtilsMessenger->destory(m_Instance);
+	m_DebugUtilsMessenger.destory(m_Instance);
 #endif
 
-	m_Instance->destory();
+	m_Instance.destory();
 }
