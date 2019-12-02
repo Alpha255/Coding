@@ -31,11 +31,7 @@ void d3d11Device::create(__out d3d11Context &context, const dxgiFactory7 &inDxgi
 
 		uint32_t deviceFlags = 0;
 #if defined(DEBUG) || defined(_DEBUG)
-		dynamicLibrary debugLayer("D3D11_1SDKLayers.dll");
-		if (debugLayer.Handle != 0u)
-		{
-			deviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
-		}
+		deviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
 		std::vector<D3D_DRIVER_TYPE> driverTypes =
