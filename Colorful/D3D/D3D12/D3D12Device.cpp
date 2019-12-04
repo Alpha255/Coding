@@ -1,9 +1,9 @@
-#include "D3D11Device.h"
-#include "D3D11Engine.h"
+#include "D3D12Device.h"
+#include "D3D12Engine.h"
 
-void d3d11Device::create(__out d3d11Context &context, const dxgiFactory7 &inDxgiFactory)
+void d3d12Device::create(const dxgiFactory7 &inDxgiFactory)
 {
-	assert(!isValid() && !context.isValid() && inDxgiFactory.isValid());
+	assert(!isValid() && inDxgiFactory.isValid());
 
 	std::vector<dxgiAdapter4> dxgiAdapters;
 	uint32_t adapterIndex = 0u;
@@ -28,25 +28,12 @@ void d3d11Device::create(__out d3d11Context &context, const dxgiFactory7 &inDxgi
 
 	struct createResult
 	{
-		D3D_DRIVER_TYPE DriverType = (D3D_DRIVER_TYPE)0u;
 		D3D_FEATURE_LEVEL FeatureLevel = (D3D_FEATURE_LEVEL)0u;
 		::HRESULT Result = E_FAIL;
 	};
 
-	auto tryToCreateDevice = [](d3d11Device &device, d3d11Context &context)->createResult {
+	auto tryToCreateDevice = [](const dxgiAdapter4 &adapter, d3d12Device &device, bool8_t realCreate)->createResult {
 		createResult resultAttr = {};
-
-		uint32_t deviceFlags = 0;
-#if defined(DEBUG) || defined(_DEBUG)
-		deviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
-#endif
-
-		std::vector<D3D_DRIVER_TYPE> driverTypes =
-		{
-			D3D_DRIVER_TYPE_HARDWARE,
-			D3D_DRIVER_TYPE_WARP,
-			D3D_DRIVER_TYPE_REFERENCE,
-		};
 
 		std::vector<D3D_FEATURE_LEVEL> featureLevels =
 		{
@@ -60,30 +47,25 @@ void d3d11Device::create(__out d3d11Context &context, const dxgiFactory7 &inDxgi
 			D3D_FEATURE_LEVEL_9_1
 		};
 
-		ID3D11Device *pDevice = nullptr;
-		ID3D11DeviceContext *pContext = nullptr;
+		ID3D12Device *pDevice = nullptr;
 
-		for (uint32_t i = 0; i < driverTypes.size(); ++i)
+		for (uint32_t j = 0; j < featureLevels.size(); ++j)
 		{
-			resultAttr.Result = D3D11CreateDevice(
-				nullptr,
-				driverTypes[i],
-				nullptr,
-				deviceFlags,
-				featureLevels.data(),
-				(uint32_t)featureLevels.size(),
-				D3D11_SDK_VERSION,
-				&pDevice,
-				&resultAttr.FeatureLevel,
-				&pContext);
+			resultAttr.Result = D3D12CreateDevice(
+				adapter.get(),
+				featureLevels[j],
+				_uuidof(ID3D12Device),
+				realCreate ? (void **)&pDevice : nullptr);
 			if (SUCCEEDED(resultAttr.Result))
 			{
-				resultAttr.DriverType = driverTypes[i];
+				resultAttr.FeatureLevel = featureLevels[j];
 
-				device.reset(pDevice);
-				context.reset(pContext);
+				if (realCreate)
+				{
+					device.reset(pDevice);
+				}
 
-				break;
+				return resultAttr;
 			}
 		}
 
@@ -94,10 +76,9 @@ void d3d11Device::create(__out d3d11Context &context, const dxgiFactory7 &inDxgi
 	createResult tempResultAttr = {};
 	for (uint32_t i = 0u; i < dxgiAdapters.size(); ++i)
 	{
-		d3d11Device tempDevice;
-		d3d11Context tempContext;
+		d3d12Device tempDevice;
 
-		createResult resultAttr = tryToCreateDevice(tempDevice, tempContext);
+		createResult resultAttr = tryToCreateDevice(dxgiAdapters[i], tempDevice, false);
 		if (SUCCEEDED(resultAttr.Result) && resultAttr.FeatureLevel > tempResultAttr.FeatureLevel)
 		{
 			tempResultAttr = resultAttr;
@@ -105,25 +86,24 @@ void d3d11Device::create(__out d3d11Context &context, const dxgiFactory7 &inDxgi
 		}
 	}
 	assert(adapterIndex != UINT32_MAX);
+	m_dxgiAdapter = dxgiAdapters[adapterIndex];
 
-	createResult resultAttr = tryToCreateDevice(*this, context);
+	createResult resultAttr = tryToCreateDevice(m_dxgiAdapter, *this, true);
 	if (FAILED(resultAttr.Result))
 	{
 		logger::instance().log(logger::eError, "Failed to create d3d11 device.");
-		d3d11Engine::instance().logError((uint32_t)resultAttr.Result);
+		d3d12Engine::instance().logError((uint32_t)resultAttr.Result);
 		assert(0);
 	}
 
-	m_dxgiAdapter = dxgiAdapters[adapterIndex];
-
 	DXGI_ADAPTER_DESC3 adapterDesc = {};
-	rVerifyD3D11(m_dxgiAdapter->GetDesc3(&adapterDesc));
+	rVerifyD3D12(m_dxgiAdapter->GetDesc3(&adapterDesc));
 	m_Adapter.VendorID = adapterDesc.VendorId;
 	m_Adapter.DeviceID = adapterDesc.DeviceId;
 	std::wstring wDeviceName(adapterDesc.Description);
 	m_Adapter.DeviceName = std::string(wDeviceName.cbegin(), wDeviceName.cend());
 
-	logger::instance().log(logger::eInfo, "Created d3d11 device on adapter: \"%s\", DeviceID = %d.",
+	logger::instance().log(logger::eInfo, "Created d3d12 device on adapter: \"%s\", DeviceID = %d.",
 		m_Adapter.DeviceName.c_str(),
 		m_Adapter.DeviceID);
 }

@@ -42,6 +42,10 @@ void appConfig::load()
 			{
 				RenderEngine = eD3D11;
 			}
+			else if (renderEngine == "d3d12")
+			{
+				RenderEngine = eD3D12;
+			}
 			else if (renderEngine == "vulkan")
 			{
 				RenderEngine = eVulkan;

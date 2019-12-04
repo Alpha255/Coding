@@ -10,6 +10,6 @@ public:
 	void renterToWindow() override;
 protected:
 private:
-	rShader *m_VertexShader = nullptr;
-	rShader *m_FragmentShader = nullptr;
+	rShaderPtr m_VertexShader = nullptr;
+	rShaderPtr m_FragmentShader = nullptr;
 };

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RObject.h"
+#include "RDeclaration.h"
 
 namespace gear
 {
@@ -60,17 +60,25 @@ public:
 class rShader
 {
 public:
-	class rShaderInput
+	union rVertexLayout
 	{
-		class rSampler
-		{
-		};
+
+	};
+
+	enum eVertexLayoutFlags
+	{
+		ePosition = 0x00000001,
+		eNormal = 0x00000010,
+		eTangent = 0x00000100,
+		eTexcoord = 0x00001000,
 	};
 
 	rShader(eRShaderUsage usage)
 		: m_Usage(usage)
 	{
 	}
+
+	virtual void setVertexLayout(uint32_t vertexLayoutFlags) = 0;
 protected:
 private:
 	eRShaderUsage m_Usage = eRShaderUsage_MaxEnum;
@@ -92,6 +100,10 @@ class rCommandList
 {
 };
 
+class rCommandBuffer
+{
+};
+
 class rViewport
 {
 };
@@ -108,6 +120,10 @@ class rRasterizerState
 {
 };
 
+class rSamplerState
+{
+};
+
 class rGpuMarker
 {
 };
@@ -116,29 +132,10 @@ class rGpuTimer
 {
 };
 
-class rResourceFactory
-{
-public:
-	enum eResourceType
-	{
-		eInputLayout,
-		eBuffer,
-	};
-
-	struct rCreateInfo
-	{
-	};
-};
-
-class rInputLayout
-{
-
-};
-
 class rDevice
 {
 public:
-	virtual rShader *createShader(eRShaderUsage usage, const std::string &shaderName) = 0;
+	virtual rShaderPtr createShader(eRShaderUsage usage, const std::string &shaderName) = 0;
 protected:
 	rAdapter m_Adapter;
 private:
@@ -157,10 +154,3 @@ public:
 protected:
 private:
 };
-
-
-extern rEngine *g_rEnginePtr;
-extern rDevice *g_rDevicePtr;
-
-using rShaderPtr = std::shared_ptr<rShader>;
-using rTexturePtr = std::shared_ptr<rTexture>;

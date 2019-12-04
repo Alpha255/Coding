@@ -3,10 +3,10 @@
 #include "Colorful/D3D/D3D11/D3D11Context.h"
 
 /// ID3D11Device5
-class d3d11Device : public d3dObject<ID3D11Device>, public rDevice
+class d3d12Device : public d3dObject<ID3D12Device>, public rDevice
 {
 public:
-	void create(__out d3d11Context &context, const dxgiFactory7 &inDxgiFactory);
+	void create(const dxgiFactory7 &inDxgiFactory);
 	
 	rShaderPtr createShader(eRShaderUsage usage, const std::string &shaderName) override final;
 

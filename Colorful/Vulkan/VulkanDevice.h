@@ -42,7 +42,7 @@ public:
 
 	void destory();
 public:
-	rShader *createShader(eRShaderUsage usage, const std::string &shaderName) override final;
+	rShaderPtr createShader(eRShaderUsage usage, const std::string &shaderName) override final;
 };
 
 class vkDeviceQueue : public vkObject<VkQueue>

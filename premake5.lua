@@ -11,6 +11,7 @@ function appLinks()
 
 	links { 
 		"d3d11",
+		"d3d12",
 		"dxgi", 
 		"d3dcompiler", 
 		"windowscodecs",

@@ -101,6 +101,15 @@ public:
 	}                                             \
 }
 
+#define rVerifyD3D12(func)                        \
+{                                                 \
+	::HRESULT result = (func);                    \
+	if (FAILED(result))                           \
+	{                                             \
+		d3d12Engine::instance().logError(result); \
+	}                                             \
+}
+
 #define rVerifyVk(func)                        \
 {                                              \
 	VkResult result = (func);                  \
@@ -119,3 +128,6 @@ public:
 #include <d3d11_4.h>
 #include <dxgi1_6.h>
 #include <d3dcompiler.h>
+
+#include <d3d12.h>
+#include <d3d12shader.h>

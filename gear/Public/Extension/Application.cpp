@@ -2,6 +2,7 @@
 #include "Applications/Resource.h"
 #include "Colorful/Public/RAsset.h"
 #include "Colorful/D3D/D3D11/D3D11Engine.h"
+#include "Colorful/D3D/D3D12/D3D12Engine.h"
 #include "Colorful/Vulkan/VulkanEngine.h"
 
 rEngine *g_rEnginePtr = nullptr;
@@ -14,12 +15,21 @@ void application::initialize(const std::string &title, uint32_t extraWindowStyle
 	m_Config.load();
 
 	auto renderEngine = m_Config.RenderEngine;
+	assert(renderEngine != appConfig::eUnknown);
+
 	if (renderEngine == appConfig::eD3D11)
 	{
 		makeWindow(title, m_Config.WindowWidth, m_Config.WindowHeight, extraWindowStyle, IconDirectX);
 		d3d11Engine::instance().initialize(m_WindowHandle, m_Config);
 
 		g_rEnginePtr = &d3d11Engine::instance();
+	}
+	else if (renderEngine == appConfig::eD3D12)
+	{
+		makeWindow(title, m_Config.WindowWidth, m_Config.WindowHeight, extraWindowStyle, IconDirectX);
+		d3d12Engine::instance().initialize(m_WindowHandle, m_Config);
+
+		g_rEnginePtr = &d3d12Engine::instance();
 	}
 	else if (renderEngine == appConfig::eVulkan)
 	{

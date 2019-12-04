@@ -1,7 +1,7 @@
 #include "VulkanDevice.h"
 #include "Colorful/Public/RAsset.h"
 
-rShader *vkDevice::createShader(eRShaderUsage usage, const std::string &shaderName)
+rShaderPtr vkDevice::createShader(eRShaderUsage usage, const std::string &shaderName)
 {
 	/// try to get shader binary from cache at first
 
