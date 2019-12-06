@@ -17,7 +17,7 @@ vkFence::vkFence(const vkDevice &device, eFenceState state)
 	reset(handle);
 }
 
-void vkFence::destory(const vkDevice &device)
+void vkFence::destroy(const vkDevice &device)
 {
 	assert(device.isValid());
 
@@ -44,7 +44,7 @@ vkSemaphore::vkSemaphore(const vkDevice &device)
 	reset(handle);
 }
 
-void vkSemaphore::destory(const vkDevice &device)
+void vkSemaphore::destroy(const vkDevice &device)
 {
 	assert(device.isValid());
 
@@ -71,7 +71,7 @@ vkEvent::vkEvent(const vkDevice &device)
 	reset(handle);
 }
 
-void vkEvent::destory(const vkDevice &device)
+void vkEvent::destroy(const vkDevice &device)
 {
 	assert(device.isValid());
 

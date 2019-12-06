@@ -22,7 +22,7 @@ vkShader::vkShader(const vkDevice &device, eRShaderUsage usage, const rAsset::rS
 	reset(handle);
 }
 
-void vkShader::destory(const vkDevice &device)
+void vkShader::destroy(const vkDevice &device)
 {
 	assert(device.isValid());
 

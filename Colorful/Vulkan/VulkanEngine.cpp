@@ -104,13 +104,13 @@ void vkEngine::finalize()
 {
 	m_Device.waitIdle();
 
-	m_Swapchain.destory(m_Instance, m_Device);
+	m_Swapchain.destroy(m_Instance, m_Device);
 
-	m_Device.destory();
+	m_Device.destroy();
 
 #if defined(DEBUG)
-	m_DebugUtilsMessenger.destory(m_Instance);
+	m_DebugUtilsMessenger.destroy(m_Instance);
 #endif
 
-	m_Instance.destory();
+	m_Instance.destroy();
 }

@@ -7,7 +7,7 @@ class vkInstance : public vkObject<VkInstance>
 public:
 	void create();
 
-	void destory();
+	void destroy();
 };
 
 class vkDebugUtilsMessenger : public vkObject<VkDebugUtilsMessengerEXT>
@@ -15,7 +15,7 @@ class vkDebugUtilsMessenger : public vkObject<VkDebugUtilsMessengerEXT>
 public:
 	void create(const vkInstance &instance, bool8_t verbose);
 
-	void destory(const vkInstance &instance);
+	void destroy(const vkInstance &instance);
 };
 
 class vkPhysicalDevice : public vkObject<VkPhysicalDevice>
@@ -40,7 +40,7 @@ public:
 	vkSemaphore *createSemaphore(bool8_t autoReset = false);
 	vkEvent *createEvent(bool8_t autoReset = false);
 
-	void destory();
+	void destroy();
 public:
 	rShaderPtr createShader(eRShaderUsage usage, const std::string &shaderName) override final;
 };

@@ -24,7 +24,7 @@ public:
 		const class vkPhysicalDevice &physicalDevice,
 		class vkDevice &device);
 
-	void destory(const class vkInstance &instance, const class vkDevice &device);
+	void destroy(const class vkInstance &instance, const class vkDevice &device);
 
 	inline void resize(uint32_t width, uint32_t height, const class vkPhysicalDevice &physicalDevice, class vkDevice &device)
 	{
@@ -35,7 +35,7 @@ protected:
 	{
 		void create(uint64_t appInstance, uint64_t windowHandle, const class vkInstance &instance);
 
-		void destory(const class vkInstance &instance);
+		void destroy(const class vkInstance &instance);
 
 		VkSurfaceFormatKHR SurfaceFormat = {};
 		VkSurfaceCapabilitiesKHR SurfaceCapabilities = {};

@@ -23,7 +23,7 @@ void vkSwapchain::vkSurface::create(uint64_t appInstance, uint64_t windowHandle,
 #endif
 }
 
-void vkSwapchain::vkSurface::destory(const vkInstance &instance)
+void vkSwapchain::vkSurface::destroy(const vkInstance &instance)
 {
 	assert(instance.isValid());
 
@@ -232,11 +232,11 @@ void vkSwapchain::recreate(
 	reset(handle);
 }
 
-void vkSwapchain::destory(const vkInstance &instance, const vkDevice &device)
+void vkSwapchain::destroy(const vkInstance &instance, const vkDevice &device)
 {
 	assert(instance.isValid() && device.isValid());
 
 	vkDestroySwapchainKHR(*device, **this, vkMemoryAllocator);
-	m_Surface.destory(instance);
+	m_Surface.destroy(instance);
 	reset();
 }

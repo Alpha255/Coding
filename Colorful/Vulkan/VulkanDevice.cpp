@@ -123,7 +123,7 @@ void vkInstance::create()
 	reset(handle);
 }
 
-void vkInstance::destory()
+void vkInstance::destroy()
 {
 	if (isValid())
 	{
@@ -164,7 +164,7 @@ void vkDebugUtilsMessenger::create(const vkInstance &instance, bool8_t verbose)
 	reset(handle);
 }
 
-void vkDebugUtilsMessenger::destory(const vkInstance &instance)
+void vkDebugUtilsMessenger::destroy(const vkInstance &instance)
 {
 	assert(instance.isValid());
 
@@ -387,7 +387,7 @@ void vkDevice::waitIdle()
 	}
 }
 
-void vkDevice::destory()
+void vkDevice::destroy()
 {
 	if (isValid())
 	{
