@@ -104,7 +104,7 @@ void d3d12Swapchain::create(
 
 	IDXGISwapChain1 *pSwapchain = nullptr;
 	rVerifyD3D12(inDxgiFactory->CreateSwapChainForHwnd(
-		device.get(),
+		device.getCommandQueue()->get(),
 		(::HWND)windowHandle,
 		&desc,
 		&fullscreenDesc,

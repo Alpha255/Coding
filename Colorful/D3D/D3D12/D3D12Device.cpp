@@ -1,6 +1,23 @@
 #include "D3D12Device.h"
 #include "D3D12Engine.h"
 
+void d3d12CommandQueue::create(const d3d12Device &device)
+{
+	assert(!isValid() && device.isValid());
+
+	D3D12_COMMAND_QUEUE_DESC desc
+	{
+		D3D12_COMMAND_LIST_TYPE_DIRECT,
+		0,
+		D3D12_COMMAND_QUEUE_FLAG_NONE,
+		0u
+	};
+
+	ID3D12CommandQueue *pCommandQueue = nullptr;
+	rVerifyD3D12(device->CreateCommandQueue(&desc, _uuidof(ID3D12CommandQueue), (void **)&pCommandQueue));
+	reset(pCommandQueue);
+}
+
 void d3d12Device::create(const dxgiFactory7 &inDxgiFactory)
 {
 	assert(!isValid() && inDxgiFactory.isValid());
@@ -106,4 +123,6 @@ void d3d12Device::create(const dxgiFactory7 &inDxgiFactory)
 	logger::instance().log(logger::eInfo, "Created d3d12 device on adapter: \"%s\", DeviceID = %d.",
 		m_Adapter.DeviceName.c_str(),
 		m_Adapter.DeviceID);
+
+	m_CommandQueue.create(*this);
 }
