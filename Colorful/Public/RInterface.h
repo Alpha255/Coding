@@ -57,28 +57,18 @@ public:
 	virtual void createAsVertexBuffer() = 0;
 };
 
+class rInputLayout
+{
+
+};
+
 class rShader
 {
 public:
-	union rVertexLayout
-	{
-
-	};
-
-	enum eVertexLayoutFlags
-	{
-		ePosition = 0x00000001,
-		eNormal = 0x00000010,
-		eTangent = 0x00000100,
-		eTexcoord = 0x00001000,
-	};
-
 	rShader(eRShaderUsage usage)
 		: m_Usage(usage)
 	{
 	}
-
-	virtual void setVertexLayout(uint32_t vertexLayoutFlags) = 0;
 protected:
 private:
 	eRShaderUsage m_Usage = eRShaderUsage_MaxEnum;
@@ -118,6 +108,12 @@ class rBlendState
 
 class rRasterizerState
 {
+public:
+protected:
+private:
+	eRPolygonMode PolygonMode = eSolid;
+	eRCullMode CullMode = eCullNone;
+	eRFrontFace FrontFace = eClockwise;
 };
 
 class rSamplerState
@@ -130,6 +126,41 @@ class rGpuMarker
 
 class rGpuTimer
 {
+};
+
+class rRenderpass
+{
+public:
+	virtual void begin() = 0;
+	virtual void end() = 0;
+	virtual void bindGraphicsPipeline() = 0;
+protected:
+private:
+	std::string m_Description;
+};
+
+class rGraphicsPipeline
+{
+public:
+	virtual void setInputLayout(const rInputLayout &inputLayout) = 0;
+
+	virtual void setShaders(const rShader &shader) = 0;
+
+	inline void setPrimitiveTopology(eRPrimitiveTopology primitiveTopology)
+	{
+		m_PrimitiveTopology = primitiveTopology;
+	}
+
+	virtual void setRasterizerState() = 0;
+
+	virtual void setBlendState() = 0;
+
+	virtual void setDepthStencilState() = 0;
+
+	virtual void build() = 0;
+protected:
+	eRPrimitiveTopology m_PrimitiveTopology = eTriangleList;
+private:
 };
 
 class rDevice

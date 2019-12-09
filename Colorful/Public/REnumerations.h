@@ -121,6 +121,20 @@ enum eRCullMode
 	eRCullMode_MaxEnum
 };
 
+enum eRFrontFace
+{
+	eClockwise,
+	eCounterclockwise,
+	eRFrontFace_MaxEnum
+};
+
+enum eRInputRate
+{
+	eRVertex,
+	eRInstance,
+	eRInputRate_MaxEnum
+};
+
 enum class eRCompareOp
 {
 	eNever,
