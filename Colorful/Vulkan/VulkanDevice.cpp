@@ -376,6 +376,8 @@ uint32_t vkDevice::create(
 	computeQueueIndex = computeQueueFamilyIndex;
 	transferQueueIndex = transferQueueFamilyIndex;
 
+	m_CommandPool.create(*this, graphicsQueueFamilyIndex);
+
 	return gpuIndex;
 }
 
@@ -397,7 +399,40 @@ void vkDevice::destroy()
 	if (isValid())
 	{
 		rVerifyVk(vkDeviceWaitIdle(**this));
+
+		m_CommandPool.destroy(*this);
+
 		vkDestroyDevice(**this, vkMemoryAllocator);
+		reset();
+	}
+}
+
+void vkCommandPool::create(const vkDevice &device, uint32_t queueIndex)
+{
+	assert(!isValid() && device.isValid());
+
+	/// queueFamilyIndex designates a queue family as described in section Queue Family Properties. 
+	/// All command buffers allocated from this command pool must be submitted on queues from the same queue family.
+	VkCommandPoolCreateInfo createInfo
+	{
+		VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+		nullptr,
+		VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+		queueIndex
+	};
+
+	VkCommandPool handle = VK_NULL_HANDLE;
+	rVerifyVk(vkCreateCommandPool(*device, &createInfo, vkMemoryAllocator, &handle));
+	reset(handle);
+}
+
+void vkCommandPool::destroy(const vkDevice &device)
+{
+	assert(device.isValid());
+
+	if (isValid())
+	{
+		vkDestroyCommandPool(*device, **this, vkMemoryAllocator);
 		reset();
 	}
 }

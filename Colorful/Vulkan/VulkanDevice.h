@@ -48,6 +48,7 @@ public:
 protected:
 private:
 	VkPhysicalDeviceMemoryProperties m_DeviceMemoryProperties{};
+	vkCommandPool m_CommandPool;
 };
 
 class vkDeviceQueue : public vkObject<VkQueue>
@@ -65,4 +66,17 @@ public:
 protected:
 private:
 	uint32_t m_FamilyIndex = UINT32_MAX;
+};
+
+class vkCommandBuffer : public vkDeviceObject<VkCommandBuffer>
+{
+};
+
+class vkCommandPool : public vkDeviceObject<VkCommandPool>
+{
+public:
+	void create(const vkDevice &device, uint32_t queueIndex);
+	void destroy(const vkDevice &device) override final;
+protected:
+private:
 };
