@@ -362,15 +362,15 @@ uint32_t vkDevice::create(
 
 	VkPhysicalDeviceProperties properties = {};
 	vkGetPhysicalDeviceProperties(*physicalDevices[gpuIndex], &properties);
-
 	m_Adapter.DeviceName = properties.deviceName;
 	m_Adapter.DeviceID = properties.deviceID;
 	m_Adapter.VendorID = properties.vendorID;
-
 	logger::instance().log(logger::eInfo, "Created vulkan device on adapter: \"%s %s\", DeviceID = %d.",
 		rAdapter::getVendorName(m_Adapter.VendorID).c_str(),
 		m_Adapter.DeviceName.c_str(),
 		m_Adapter.DeviceID);
+
+	vkGetPhysicalDeviceMemoryProperties(*physicalDevices[gpuIndex], &m_DeviceMemoryProperties);
 
 	graphicsQueueIndex = graphicsQueueFamilyIndex;
 	computeQueueIndex = computeQueueFamilyIndex;
@@ -385,6 +385,11 @@ void vkDevice::waitIdle()
 	{
 		rVerifyVk(vkDeviceWaitIdle(**this));
 	}
+}
+
+uint32_t vkDevice::getMemoryTypeIndex(eRBufferUsage usage, uint32_t memoryTypeBits) const
+{
+	assert(usage < eRBufferUsage_MaxEnum);
 }
 
 void vkDevice::destroy()

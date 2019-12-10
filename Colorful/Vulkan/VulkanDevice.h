@@ -41,8 +41,13 @@ public:
 	vkEvent *createEvent(bool8_t autoReset = false);
 
 	void destroy();
+
+	uint32_t getMemoryTypeIndex(eRBufferUsage usage, uint32_t memoryTypeBits) const;
 public:
 	rShaderPtr createShader(eRShaderUsage usage, const std::string &shaderName) override final;
+protected:
+private:
+	VkPhysicalDeviceMemoryProperties m_DeviceMemoryProperties{};
 };
 
 class vkDeviceQueue : public vkObject<VkQueue>

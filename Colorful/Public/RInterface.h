@@ -52,9 +52,6 @@ class rTexture
 
 class rBuffer
 {
-public:
-	virtual void createAsIndexBuffer() = 0;
-	virtual void createAsVertexBuffer() = 0;
 };
 
 class rInputLayout
@@ -108,12 +105,6 @@ class rBlendState
 
 class rRasterizerState
 {
-public:
-protected:
-private:
-	eRPolygonMode PolygonMode = eSolid;
-	eRCullMode CullMode = eCullNone;
-	eRFrontFace FrontFace = eClockwise;
 };
 
 class rSamplerState

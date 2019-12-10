@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Colorful/Vulkan/VulkanDeclaration.h"
+#include "Colorful/Vulkan/VulkanContext.h"
 
 class vkTexture : public vkObject<VkImage>, public rTexture
 {
