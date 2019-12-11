@@ -392,6 +392,8 @@ void vkDevice::waitIdle()
 uint32_t vkDevice::getMemoryTypeIndex(eRBufferUsage usage, uint32_t memoryTypeBits) const
 {
 	assert(usage < eRBufferUsage_MaxEnum);
+
+	return 0u;
 }
 
 void vkDevice::destroy()
@@ -424,6 +426,33 @@ void vkCommandPool::create(const vkDevice &device, uint32_t queueIndex)
 	VkCommandPool handle = VK_NULL_HANDLE;
 	rVerifyVk(vkCreateCommandPool(*device, &createInfo, vkMemoryAllocator, &handle));
 	reset(handle);
+}
+
+vkCommandBufferArray vkCommandPool::allocCommandBuffers(const vkDevice &device, VkCommandBufferLevel level, uint32_t count)
+{
+	assert(isValid() && device.isValid() && count);
+
+	VkCommandBufferAllocateInfo allocateInfo
+	{
+		VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+		nullptr,
+		**this,
+		level,
+		count
+	};
+
+	vkCommandBufferArray commandBuffers(level, count);
+	rVerifyVk(vkAllocateCommandBuffers(*device, &allocateInfo, commandBuffers.m_CommandBuffers.data()));
+
+	return commandBuffers;
+}
+
+void vkCommandPool::freeCommandBuffers(const vkDevice &device, vkCommandBufferArray &commandBuffers)
+{
+	assert(isValid() && device.isValid());
+
+	vkFreeCommandBuffers(*device, **this, (uint32_t)commandBuffers.m_CommandBuffers.size(), commandBuffers.m_CommandBuffers.data());
+	commandBuffers.destory();
 }
 
 void vkCommandPool::destroy(const vkDevice &device)

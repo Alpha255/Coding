@@ -51,7 +51,7 @@ void vkBuffer::destroy(const vkDevice &device)
 	}
 }
 
-void vkStagingBuffer::create(const vkDevice &device, VkBufferUsageFlagBits usageFlagBits, size_t size, const void *pData)
+vkStagingBuffer::vkStagingBuffer(const vkDevice &device, VkBufferUsageFlagBits usageFlagBits, size_t size, const void *pData)
 {
 	assert(!isValid() && device.isValid() && pData);
 	assert(usageFlagBits == VK_BUFFER_USAGE_TRANSFER_SRC_BIT || usageFlagBits == VK_BUFFER_USAGE_TRANSFER_DST_BIT);
@@ -127,8 +127,7 @@ vkGpuBuffer::vkGpuBuffer(const vkDevice &device, eRBufferBindFlags bindFlags, eR
 	{
 		rVerifyVk(vkBindBufferMemory(*device, **this, *m_Memory, 0u));
 
-		vkStagingBuffer stagingBuffer;
-		stagingBuffer.create(device, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, size, pData);
+		vkStagingBuffer stagingBuffer(device, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, size, pData);
 		/// Do CmdCopy
 		stagingBuffer.destroy(device);
 	}

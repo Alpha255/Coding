@@ -23,7 +23,7 @@ private:
 class vkStagingBuffer : public vkBuffer
 {
 public:
-	void create(const class vkDevice &device, VkBufferUsageFlagBits usageFlagBits, size_t size, const void *pData);
+	vkStagingBuffer(const class vkDevice &device, VkBufferUsageFlagBits usageFlagBits, size_t size, const void *pData);
 };
 
 class vkGpuBuffer : public vkBuffer, public rBuffer
