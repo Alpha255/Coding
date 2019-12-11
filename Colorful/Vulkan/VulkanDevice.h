@@ -33,8 +33,14 @@ public:
 		m_CommandBuffers.resize(count);
 	}
 
+	inline VkCommandBuffer get(uint32_t index = 0u) const
+	{
+		assert(m_CommandBuffers.size() > 0u && index < m_CommandBuffers.size());
+		return m_CommandBuffers[index];
+	}
+
 	void begin();
-	void end();
+	void end(bool8_t submit = true);
 	void queueSubmit();
 protected:
 	inline void destory()
@@ -55,8 +61,8 @@ public:
 	void create(const class vkDevice &device, uint32_t queueIndex);
 	void destroy(const class vkDevice &device) override final;
 
-	vkCommandBufferArray allocCommandBuffers(const class vkDevice &device, VkCommandBufferLevel level, uint32_t count);
-	void freeCommandBuffers(const class vkDevice &device, vkCommandBufferArray &commandBuffers);
+	vkCommandBufferArray allocCommandBuffers(const class vkDevice &device, VkCommandBufferLevel level, uint32_t count) const;
+	void freeCommandBuffers(const class vkDevice &device, vkCommandBufferArray &commandBuffers) const;
 protected:
 private:
 };
@@ -80,6 +86,16 @@ public:
 	void destroy();
 
 	uint32_t getMemoryTypeIndex(eRBufferUsage usage, uint32_t memoryTypeBits) const;
+
+	inline vkCommandBufferArray allocCommandBuffers(VkCommandBufferLevel level, uint32_t count) const
+	{
+		return m_CommandPool.allocCommandBuffers(*this, level, count);
+	}
+
+	inline void freeCommandBuffers(vkCommandBufferArray &commandBuffers) const
+	{
+		m_CommandPool.freeCommandBuffers(*this, commandBuffers);
+	}
 public:
 	rShaderPtr createShader(eRShaderUsage usage, const std::string &shaderName) override final;
 protected:

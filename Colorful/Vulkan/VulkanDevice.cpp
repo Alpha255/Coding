@@ -428,7 +428,7 @@ void vkCommandPool::create(const vkDevice &device, uint32_t queueIndex)
 	reset(handle);
 }
 
-vkCommandBufferArray vkCommandPool::allocCommandBuffers(const vkDevice &device, VkCommandBufferLevel level, uint32_t count)
+vkCommandBufferArray vkCommandPool::allocCommandBuffers(const vkDevice &device, VkCommandBufferLevel level, uint32_t count) const
 {
 	assert(isValid() && device.isValid() && count);
 
@@ -447,7 +447,22 @@ vkCommandBufferArray vkCommandPool::allocCommandBuffers(const vkDevice &device, 
 	return commandBuffers;
 }
 
-void vkCommandPool::freeCommandBuffers(const vkDevice &device, vkCommandBufferArray &commandBuffers)
+void vkCommandBufferArray::begin()
+{
+
+}
+
+void vkCommandBufferArray::end(bool8_t submit)
+{
+
+}
+
+void vkCommandBufferArray::queueSubmit()
+{
+
+}
+
+void vkCommandPool::freeCommandBuffers(const vkDevice &device, vkCommandBufferArray &commandBuffers) const
 {
 	assert(isValid() && device.isValid());
 
