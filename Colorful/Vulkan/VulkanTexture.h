@@ -2,9 +2,15 @@
 
 #include "Colorful/Vulkan/VulkanContext.h"
 
-class vkTexture : public vkObject<VkImage>, public rTexture
+class vkTexture : public vkDeviceObject<VkImage>, public rTexture
 {
-
+public:
+	vkTexture(const class vkDevice &device);
+	vkTexture(const class vkDevice &device, const std::string &fileName);
+	void destroy(const class vkDevice &device) override final;
+protected:
+	void transitionImageLayout();
+private:
 };
 
 class vkTexture1D : public vkTexture

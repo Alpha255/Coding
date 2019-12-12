@@ -74,6 +74,7 @@ workspace "Miscellaneous"
 				"$(VK_SDK_PATH)\\Include",
 				"$(SolutionDir)ThirdParty\\assimp\\include",
 				"$(SolutionDir)ThirdParty\\assimp\\build\\include", 
+				"$(SolutionDir)ThirdParty\\gli\\external",
 			}
 			libdirs { "$(VK_SDK_PATH)\\Lib" }
 			targetdir "$(SolutionDir)Out"
@@ -94,6 +95,7 @@ workspace "Miscellaneous"
 				"DirectXTex",
 				"SPIRV-Cross"
 			}
+			disablewarnings { "4201", "4458", "4100" }
 
 	group "Libs"
 		project "gear"

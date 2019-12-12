@@ -1,6 +1,7 @@
 #include "AssetTool.h"
 #include "Gear/Public/Extension/Log.h"
 #include <ThirdParty/SPIRV-Cross/spirv_hlsl.hpp>
+#include <ThirdParty/gli/gli/gli.hpp>
 
 namespaceStart(assetTool)
 
