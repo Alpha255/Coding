@@ -391,9 +391,39 @@ void vkDevice::waitIdle()
 
 uint32_t vkDevice::getMemoryTypeIndex(eRBufferUsage usage, uint32_t memoryTypeBits) const
 {
-	assert(usage < eRBufferUsage_MaxEnum);
+	assert(isValid() && usage < eRBufferUsage_MaxEnum);
 
-	return 0u;
+	VkMemoryPropertyFlags memoryPropertyFlags = 0u;
+	switch (usage)
+	{
+	case eGpuReadWrite:
+	case eGpuReadOnly:
+		memoryPropertyFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+		break;
+	case eGpuReadCpuWrite:
+		memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+		break;
+	case eGpuCopyToCpu:
+		memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
+		break;
+	default:
+		assert(0);
+		break;
+	}
+
+	for (uint32_t i = 0u; i < m_DeviceMemoryProperties.memoryTypeCount; ++i)
+	{
+		if (((memoryTypeBits >> i) & 1u) == 1u)
+		{
+			if ((m_DeviceMemoryProperties.memoryTypes[i].propertyFlags & memoryPropertyFlags) == memoryPropertyFlags)
+			{
+				return i;
+			}
+		}
+	}
+
+	assert(0);
+	return UINT32_MAX;
 }
 
 void vkDevice::destroy()
@@ -452,7 +482,7 @@ void vkCommandBufferArray::begin()
 
 }
 
-void vkCommandBufferArray::end(bool8_t submit)
+void vkCommandBufferArray::end(bool8_t)
 {
 
 }

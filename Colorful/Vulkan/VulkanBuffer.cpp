@@ -34,7 +34,7 @@ void vkDeviceMemory::update(const vkDevice &device, const void *pData, size_t si
 
 	/// VkMemoryMapFlags is a bitmask type for setting a mask, but is currently reserved for future use.
 	void *pGpuMemory = nullptr;
-	rVerifyVk(vkMapMemory(*device, **this, offset, 0u, size, &pGpuMemory));
+	rVerifyVk(vkMapMemory(*device, **this, offset, size, 0u, &pGpuMemory));
 	verify(memcpy_s(pGpuMemory, size, pData, size) == 0);
 	vkUnmapMemory(*device, **this);
 }
@@ -51,7 +51,7 @@ void vkBuffer::destroy(const vkDevice &device)
 	}
 }
 
-vkStagingBuffer::vkStagingBuffer(const vkDevice &device, VkBufferUsageFlagBits usageFlagBits, size_t size, const void *pData)
+vkStagingBuffer::vkStagingBuffer(const vkDevice &device, VkBufferUsageFlags usageFlagBits, size_t size, const void *pData)
 {
 	assert(!isValid() && device.isValid() && pData);
 	assert(usageFlagBits == VK_BUFFER_USAGE_TRANSFER_SRC_BIT || usageFlagBits == VK_BUFFER_USAGE_TRANSFER_DST_BIT);
@@ -110,7 +110,7 @@ vkGpuBuffer::vkGpuBuffer(const vkDevice &device, eRBufferBindFlags bindFlags, eR
 		nullptr,
 		0u,
 		size,
-		useStagingBuffer ? (usageFlagBits | VK_BUFFER_USAGE_TRANSFER_DST_BIT) : usageFlagBits,
+		VkBufferUsageFlags(useStagingBuffer ? (usageFlagBits | VK_BUFFER_USAGE_TRANSFER_DST_BIT) : usageFlagBits),
 		VK_SHARING_MODE_EXCLUSIVE,
 		0u,
 		nullptr
