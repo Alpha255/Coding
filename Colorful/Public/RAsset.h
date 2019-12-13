@@ -10,6 +10,28 @@ struct rShaderBinary
 	size_t Size = 0ull;
 };
 
+struct rTextureBinary
+{
+	struct rExtent
+	{
+		uint32_t Width = 0u;
+		uint32_t Height = 0u;
+	};
+
+	eRTextureType Type = eRTextureType_MaxEnum;
+	eRFormat Format = eRFormat_MaxEnum;
+
+	uint32_t Depth = 0u;
+	uint32_t MipLevels = 0u;
+	uint32_t ArrayLayers = 0u;
+
+	std::vector<std::vector<rExtent>> Extents;
+	std::vector<std::vector<size_t>> Sizes;
+	
+	size_t Size = 0ull;
+	std::shared_ptr<byte> Binary = nullptr;
+};
+
 class rShaderCache
 {
 public:

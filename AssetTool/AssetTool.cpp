@@ -152,4 +152,55 @@ rAsset::rShaderBinary getShaderBinary(appConfig::eRenderEngine engine, eRShaderU
 	return result;
 }
 
+rAsset::rTextureBinary getTextureBinary(appConfig::eRenderEngine engine, assetFilePtr &textureAssetPtr)
+{
+	assert(textureAssetPtr && engine == appConfig::eVulkan);
+
+	rAsset::rTextureBinary result;
+
+	gli::texture gliImage = gli::load(textureAssetPtr->getFullPath());
+	switch (gliImage.target)
+	{
+	case gli::TARGET_1D:
+	{
+		gli::texture1d gliImage1D(gliImage);
+		result.Type = eTexture1D;
+	}
+		break;
+	case gli::TARGET_1D_ARRAY:
+	{
+		result.Type = eTexture1DArray;
+	}
+		break;
+	case gli::TARGET_2D:
+	{
+		result.Type = eTexture2D;
+	}
+		break;
+	case gli::TARGET_2D_ARRAY:
+	{
+		result.Type = eTexture2DArray;
+	}
+		break;
+	case gli::TARGET_3D:
+	{
+		result.Type = eTexture3D;
+	}
+		break;
+	case gli::TARGET_CUBE:
+	{
+		result.Type = eTextureCube;
+	}
+		break;
+	case gli::TARGET_CUBE_ARRAY:
+	{
+		result.Type = eTextureCubeArray;
+	}
+		break;
+	default:
+		assert(0);
+		break;
+	}
+}
+
 namespaceEnd(assetTool)

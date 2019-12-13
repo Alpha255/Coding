@@ -68,7 +68,7 @@ enum eRTextureType
 	eTexture2DArray,
 	eTextureCubeArray,
 	eBuffer,
-	eRImageViewType_MaxEnum
+	eRTextureType_MaxEnum
 };
 
 enum eRFilter
