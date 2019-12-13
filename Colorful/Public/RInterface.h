@@ -158,6 +158,7 @@ class rDevice
 {
 public:
 	virtual rShaderPtr createShader(eRShaderUsage usage, const std::string &shaderName) = 0;
+	virtual rTexturePtr createTexture(const std::string &textureName) = 0;
 protected:
 	rAdapter m_Adapter;
 private:

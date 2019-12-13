@@ -12,10 +12,12 @@ struct rShaderBinary
 
 struct rTextureBinary
 {
-	struct rExtent
+	struct rImage
 	{
 		uint32_t Width = 0u;
 		uint32_t Height = 0u;
+		uint32_t Depth = 0u;
+		size_t Size = 0u;
 	};
 
 	eRTextureType Type = eRTextureType_MaxEnum;
@@ -25,8 +27,7 @@ struct rTextureBinary
 	uint32_t MipLevels = 0u;
 	uint32_t ArrayLayers = 0u;
 
-	std::vector<std::vector<rExtent>> Extents;
-	std::vector<std::vector<size_t>> Sizes;
+	std::vector<std::vector<rImage>> Images;
 	
 	size_t Size = 0ull;
 	std::shared_ptr<byte> Binary = nullptr;

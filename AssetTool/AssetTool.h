@@ -5,6 +5,6 @@ namespaceStart(assetTool)
 
 exportAPI rAsset::rShaderBinary getShaderBinary(appConfig::eRenderEngine engine, eRShaderUsage usage, assetFilePtr &shaderAssetPtr);
 
-exportAPI rAsset::rTextureBinary getTextureBinary(appConfig::eRenderEngine engine, assetFilePtr &textureAssetPtr);
+exportAPI rAsset::rTextureBinary getTextureBinary(appConfig::eRenderEngine engine, const assetFilePtr &textureAssetPtr);
 
 namespaceEnd(assetTool)

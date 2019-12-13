@@ -152,55 +152,121 @@ rAsset::rShaderBinary getShaderBinary(appConfig::eRenderEngine engine, eRShaderU
 	return result;
 }
 
-rAsset::rTextureBinary getTextureBinary(appConfig::eRenderEngine engine, assetFilePtr &textureAssetPtr)
+rAsset::rTextureBinary getTextureBinary(appConfig::eRenderEngine engine, const assetFilePtr &textureAssetPtr)
 {
 	assert(textureAssetPtr && engine == appConfig::eVulkan);
 
 	rAsset::rTextureBinary result;
-
 	gli::texture gliImage = gli::load(textureAssetPtr->getFullPath());
-	switch (gliImage.target)
+	result.Size = gliImage.size();
+	result.MipLevels = (uint32_t)gliImage.levels();
+	result.ArrayLayers = (uint32_t)gliImage.layers();
+	result.Images.resize(result.ArrayLayers);
+	result.Binary.reset(new byte[result.Size]());
+	verify(memcpy_s(result.Binary.get(), result.Size, gliImage.data(), result.Size) == 0);
+
+	switch (gliImage.target())
 	{
 	case gli::TARGET_1D:
 	{
 		gli::texture1d gliImage1D(gliImage);
+		assert(result.ArrayLayers == 1u);
+		result.Images[0].resize(gliImage1D.levels());
+		for (uint32_t i = 0u; i < gliImage1D.levels(); ++i)
+		{
+			result.Images[0][i].Width = gliImage1D[i].extent().x;
+			result.Images[0][i].Size = gliImage1D[i].size();
+		}
 		result.Type = eTexture1D;
 	}
 		break;
 	case gli::TARGET_1D_ARRAY:
 	{
+		gli::texture1d_array gliImage1D_Array(gliImage);
+		for (uint32_t i = 0u; i < result.ArrayLayers; ++i)
+		{
+			gli::texture1d gliImage1D = gliImage1D_Array[i];
+			result.Images[i].resize(gliImage1D.levels());
+			for (uint32_t j = 0u; j < gliImage1D.levels(); ++j)
+			{
+				result.Images[i][j].Width = gliImage1D[j].extent().x;
+				result.Images[i][j].Size = gliImage1D[j].size();
+			}
+		}
 		result.Type = eTexture1DArray;
 	}
 		break;
 	case gli::TARGET_2D:
 	{
+		gli::texture2d gliImage2D(gliImage);
+		assert(result.ArrayLayers == 1u);
+		result.Images[0].resize(gliImage2D.levels());
+		for (uint32_t i = 0u; i < gliImage2D.levels(); ++i)
+		{
+			result.Images[0][i].Width = gliImage2D[i].extent().x;
+			result.Images[0][i].Height = gliImage2D[i].extent().y;
+			result.Images[0][i].Size = gliImage2D[i].size();
+		}
 		result.Type = eTexture2D;
 	}
 		break;
 	case gli::TARGET_2D_ARRAY:
 	{
+		gli::texture2d_array gliImage2D_Array(gliImage);
+		for (uint32_t i = 0u; i < result.ArrayLayers; ++i)
+		{
+			gli::texture2d gliImage2D = gliImage2D_Array[i];
+			result.Images[i].resize(gliImage2D.levels());
+			for (uint32_t j = 0u; j < gliImage2D.levels(); ++j)
+			{
+				result.Images[i][j].Width = gliImage2D[j].extent().x;
+				result.Images[i][j].Height = gliImage2D[j].extent().y;
+				result.Images[i][j].Size = gliImage2D[j].size();
+			}
+		}
 		result.Type = eTexture2DArray;
 	}
 		break;
 	case gli::TARGET_3D:
 	{
+		gli::texture3d gliImage3D(gliImage);
+		assert(result.ArrayLayers == 1u);
+		result.Images[0].resize(gliImage3D.levels());
+		for (uint32_t i = 0u; i < gliImage3D.levels(); ++i)
+		{
+			result.Images[0][i].Width = gliImage3D[i].extent().x;
+			result.Images[0][i].Height = gliImage3D[i].extent().y;
+			result.Images[0][i].Depth = gliImage3D[i].extent().z;
+			result.Images[0][i].Size = gliImage3D[i].size();
+		}
 		result.Type = eTexture3D;
 	}
 		break;
 	case gli::TARGET_CUBE:
 	{
+		gli::texture_cube gliImageCube(gliImage);
+		assert(result.ArrayLayers == 1u);
+		result.Images.resize(gliImageCube.faces());
+		for (uint32_t i = 0u; i < gliImageCube.faces(); ++i)
+		{
+			gli::texture2d gliImageFace = gliImageCube[i];
+			result.Images[i].resize(gliImageFace.levels());
+			for (uint32_t j = 0u; j < gliImageFace.levels(); ++j)
+			{
+				result.Images[i][j].Width = gliImageFace[j].extent().x;
+				result.Images[i][j].Height = gliImageFace[j].extent().y;
+				result.Images[i][j].Size = gliImageFace[j].size();
+			}
+		}
 		result.Type = eTextureCube;
-	}
-		break;
-	case gli::TARGET_CUBE_ARRAY:
-	{
-		result.Type = eTextureCubeArray;
 	}
 		break;
 	default:
 		assert(0);
 		break;
 	}
+
+	return result;
 }
 
 namespaceEnd(assetTool)

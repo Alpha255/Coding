@@ -9,6 +9,12 @@ rShaderPtr vkDevice::createShader(eRShaderUsage usage, const std::string &shader
 	return nullptr;
 }
 
+rTexturePtr vkDevice::createTexture(const std::string &textureName)
+{
+	auto texturePtr = rAsset::rAssetBucket::instance().createTexture(textureName, *this);
+	return nullptr;
+}
+
 vkFence *vkDevice::createFence(vkFence::eFenceState state, bool8_t)
 {
 	vkFence *fencePtr = new vkFence(*this, state);
