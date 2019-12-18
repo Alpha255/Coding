@@ -6,3 +6,8 @@ rShaderPtr d3d11Device::createShader(eRShaderUsage usage, const std::string &sha
 	auto shaderBinary = rAsset::rAssetBucket::instance().getShaderBinary(usage, shaderName);
 	return nullptr;
 }
+
+rTexturePtr d3d11Device::createTexture(const std::string &textureName)
+{
+	return nullptr;
+}

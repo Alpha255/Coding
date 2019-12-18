@@ -2,7 +2,15 @@
 
 void vkEngine::initialize(uint64_t windowHandle, const appConfig &config)
 {
+#if defined(UsingVkLoader)
+	vkLoader::initializeGlobalFunctionTable();
+#endif
+
 	m_Instance.create();
+
+#if defined(UsingVkLoader)
+	vkLoader::initializeInstanceFunctionTable(m_Instance);
+#endif
 
 #if defined(_DEBUG)
 	m_DebugUtilsMessenger.create(m_Instance, config.VulkanValidationVerbose);
@@ -113,4 +121,8 @@ void vkEngine::finalize()
 #endif
 
 	m_Instance.destroy();
+
+#if defined(UsingVkLoader)
+	vkLoader::finalize();
+#endif
 }

@@ -34,6 +34,8 @@ struct dynamicLibrary
 
 	void load(const std::string &libraryName);
 
+	void *getProcAddress(const std::string &procName);
+
 	void free();
 
 	dynamicLibrary() = default;

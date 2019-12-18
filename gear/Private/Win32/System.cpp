@@ -148,7 +148,7 @@ math::vec2 getDesktopWindowSize()
 	::RECT rect{};
 	::GetWindowRect(hWnd, &rect);
 
-	return math::vec2(rect.right - rect.left, rect.bottom - rect.top);
+	return math::vec2((float32_t)(rect.right - rect.left), (float32_t)(rect.bottom - rect.top));
 #endif
 }
 
@@ -159,6 +159,15 @@ void dynamicLibrary::load(const std::string &libraryName)
 	{
 		Handle = (uint64_t)result;
 	}
+	assert(result);
+}
+
+void *dynamicLibrary::getProcAddress(const std::string &procName)
+{
+	assert(Handle);
+	void *result = ::GetProcAddress((::HMODULE)Handle, procName.c_str());
+	///verify_Log(result);
+	return result;
 }
 
 void dynamicLibrary::free()

@@ -2,6 +2,7 @@
 
 #include "Colorful/Vulkan/VulkanDevice.h"
 #include "Colorful/Vulkan/VulkanSwapChain.h"
+#include "Colorful/Vulkan/VulkanLoader.h"
 
 class vkEngine : public rEngine, public singleton<vkEngine>
 {
@@ -26,6 +27,15 @@ public:
 		return &m_Device;
 	}
 protected:
+	class vkLoader
+	{
+	public:
+		static void initializeGlobalFunctionTable();
+		static void initializeInstanceFunctionTable(const vkInstance &instance);
+		static void initializeDeviceFunctionTable(const vkDevice &device);
+
+		static void finalize();
+	};
 private:
 	vkInstance m_Instance;
 	vkDebugUtilsMessenger m_DebugUtilsMessenger;

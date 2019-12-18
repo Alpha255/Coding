@@ -360,6 +360,10 @@ uint32_t vkDevice::create(
 	rVerifyVk(vkCreateDevice(*physicalDevices[gpuIndex], &createInfo, vkMemoryAllocator, &handle));
 	reset(handle);
 
+#if defined(UsingVkLoader)
+	vkLoader::initializeDeviceFunctionTable(*this);
+#endif
+
 	VkPhysicalDeviceProperties properties = {};
 	vkGetPhysicalDeviceProperties(*physicalDevices[gpuIndex], &properties);
 	m_Adapter.DeviceName = properties.deviceName;

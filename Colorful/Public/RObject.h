@@ -119,6 +119,10 @@ public:
 	}                                          \
 }
 
+#if defined(UsingVkLoader)
+	#define VK_NO_PROTOTYPES
+#endif
+
 #include <vulkan/vulkan.h>
 
 #include <d3d11.h>

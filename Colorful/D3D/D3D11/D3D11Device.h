@@ -10,6 +10,8 @@ public:
 	
 	rShaderPtr createShader(eRShaderUsage usage, const std::string &shaderName) override final;
 
+	rTexturePtr createTexture(const std::string &textureName) override final;
+
 	inline dxgiAdapter4 *getDxgiAdapter()
 	{
 		return &m_dxgiAdapter;
