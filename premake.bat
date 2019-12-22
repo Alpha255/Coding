@@ -1,3 +1,3 @@
-premake5 vs2017
+python Build.py --make=True
 
 rem @pause
