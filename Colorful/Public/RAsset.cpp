@@ -21,23 +21,24 @@ rShaderBinary rAssetBucket::getShaderBinary(eRShaderUsage usage, const std::stri
 	return shaderBinary;
 }
 
-rTexture *rAssetBucket::createTexture(const std::string &textureName, const rDevice &)
+rTextureBinary rAssetBucket::getTextureBinary(const std::string &textureName)
 {
 	auto textureAssetPtr = m_Bucket.getAsset(textureName);
 	assert(textureAssetPtr->getType() == assetFile::eWICTexture || 
 		textureAssetPtr->getType() == assetFile::eDDSTexture || 
 		textureAssetPtr->getType() == assetFile::eVulkanTexture);
 
-	if (m_Engine == appConfig::eD3D11)
+	rTextureBinary textureBinary;
+	if (m_Engine == appConfig::eVulkan)
 	{
-
+		textureBinary = assetTool::getTextureBinary(m_Engine, textureAssetPtr);
 	}
-	else if (m_Engine == appConfig::eVulkan)
+	else
 	{
-		rTextureBinary textureBinary = assetTool::getTextureBinary(m_Engine, textureAssetPtr);
+		assert(0);
 	}
 
-	return nullptr;
+	return textureBinary;
 }
 
 namespaceEnd(rAsset)

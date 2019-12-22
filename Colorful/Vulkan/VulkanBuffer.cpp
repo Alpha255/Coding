@@ -25,6 +25,7 @@ void vkDeviceMemory::destroy(const vkDevice &device)
 	if (isValid())
 	{
 		vkFreeMemory(*device, **this, vkMemoryAllocator);
+		reset();
 	}
 }
 

@@ -159,6 +159,9 @@ rAsset::rTextureBinary getTextureBinary(appConfig::eRenderEngine engine, const a
 	rAsset::rTextureBinary result;
 	gli::texture gliImage = gli::load(textureAssetPtr->getFullPath());
 	result.Size = gliImage.size();
+	result.Width = gliImage.extent().x;
+	result.Height = gliImage.extent().y;
+	result.Depth = gliImage.extent().z;
 	result.MipLevels = (uint32_t)gliImage.levels();
 	result.ArrayLayers = (uint32_t)gliImage.layers();
 	result.Images.resize(result.ArrayLayers);

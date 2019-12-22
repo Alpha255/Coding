@@ -7,7 +7,7 @@ rShaderPtr d3d11Device::createShader(eRShaderUsage usage, const std::string &sha
 	return nullptr;
 }
 
-rTexturePtr d3d11Device::createTexture(const std::string &textureName)
+rTexturePtr d3d11Device::createTexture(const std::string &)
 {
 	return nullptr;
 }

@@ -1,5 +1,5 @@
 #include "VulkanDevice.h"
-#include "Colorful/Public/RAsset.h"
+#include "VulkanTexture.h"
 
 rShaderPtr vkDevice::createShader(eRShaderUsage usage, const std::string &shaderName)
 {
@@ -11,9 +11,10 @@ rShaderPtr vkDevice::createShader(eRShaderUsage usage, const std::string &shader
 
 rTexturePtr vkDevice::createTexture(const std::string &textureName)
 {
-	auto texturePtr = rAsset::rAssetBucket::instance().createTexture(textureName, *this);
-	(void)texturePtr;
-	return nullptr;
+	auto textureBinary = rAsset::rAssetBucket::instance().getTextureBinary(textureName);
+	rTexturePtr texturePtr(new vkTexture(*this, textureBinary));
+
+	return texturePtr;
 }
 
 vkFence *vkDevice::createFence(vkFence::eFenceState state, bool8_t)

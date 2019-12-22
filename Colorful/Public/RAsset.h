@@ -24,6 +24,8 @@ struct rTextureBinary
 	eRFormat Format = eRFormat_MaxEnum;
 
 	uint32_t Depth = 0u;
+	uint32_t Width = 0u;
+	uint32_t Height = 0u;
 	uint32_t MipLevels = 0u;
 	uint32_t ArrayLayers = 0u;
 
@@ -56,7 +58,7 @@ public:
 
 	rShaderBinary getShaderBinary(eRShaderUsage usage, const std::string &shaderName);
 
-	rTexture *createTexture(const std::string &textureName, const rDevice &devicePtr);
+	rTextureBinary getTextureBinary(const std::string &textureName);
 
 	void finalize() {}
 protected:

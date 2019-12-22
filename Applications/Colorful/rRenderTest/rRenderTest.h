@@ -12,4 +12,5 @@ protected:
 private:
 	rShaderPtr m_VertexShader = nullptr;
 	rShaderPtr m_FragmentShader = nullptr;
+	rTexturePtr m_DiffuseTexture = nullptr;
 };
