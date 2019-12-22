@@ -12,6 +12,7 @@ rShaderPtr vkDevice::createShader(eRShaderUsage usage, const std::string &shader
 rTexturePtr vkDevice::createTexture(const std::string &textureName)
 {
 	auto texturePtr = rAsset::rAssetBucket::instance().createTexture(textureName, *this);
+	(void)texturePtr;
 	return nullptr;
 }
 

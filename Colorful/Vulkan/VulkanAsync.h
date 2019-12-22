@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Colorful/Public/RInterface.h"
+#include "VulkanLoader.h"
 
 class vkFence : public vkDeviceObject<VkFence>
 {

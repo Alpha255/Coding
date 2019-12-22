@@ -6,13 +6,15 @@
 
 #define vkFunctionDeclare(func) extern PFN_##func func;
 #define vkFunctionDefinition(func) PFN_##func func = nullptr;
-#define vkFunctionReset(func) vkFunctionDefinition(func)
+#define vkFunctionReset(func) func = nullptr;
 
 #define vkGlobalFunctionTable(action)              \
 	action(vkCreateInstance)                       \
+	action(vkGetDeviceProcAddr)                    \
 	action(vkGetInstanceProcAddr)                  \
+	action(vkEnumerateDeviceLayerProperties)       \
 	action(vkEnumerateInstanceLayerProperties)     \
-	action(vkEnumerateInstanceExtensionProperties)
+	action(vkEnumerateInstanceExtensionProperties) 
 
 #define vkInstanceFunctionTable_General(action)       \
 	action(vkCreateDevice)                            \
@@ -37,8 +39,10 @@
 	action(vkResetFences)                 \
 	action(vkUnmapMemory)                 \
 	action(vkCreateImage)                 \
+	action(vkCreateEvent)                 \
 	action(vkCreateFence)                 \
 	action(vkQueueSubmit)                 \
+	action(vkDestroyEvent)                \
 	action(vkCreateBuffer)                \
 	action(vkDestroyImage)                \
 	action(vkDestroyFence)                \
@@ -66,7 +70,6 @@
 	action(vkEndCommandBuffer)            \
 	action(vkDestroySemaphore)            \
 	action(vkDestroyRenderPass)           \
-	action(vkGetDeviceProcAddr)           \
 	action(vkCreateCommandPool)           \
 	action(vkCreateFramebuffer)           \
 	action(vkDestroyFramebuffer)          \
@@ -120,5 +123,15 @@
 #define vkFunctionTableReset vkFunctionTable(vkFunctionReset)
 
 vkFunctionTableDeclare
+
+class vkLoader
+{
+public:
+	static void initializeGlobalFunctionTable();
+	static void initializeInstanceFunctionTable(const class vkInstance &instance);
+	static void initializeDeviceFunctionTable(const class vkDevice &device);
+
+	static void finalize();
+};
 
 #endif

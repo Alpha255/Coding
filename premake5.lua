@@ -1,13 +1,13 @@
 function appInclude()
 	includedirs { 
 		"$(SolutionDir)", 
-		"$(SolutionDir)ThirdParty", 
-		"$(VK_SDK_PATH)\\Include" 
+		"$(SolutionDir)ThirdParty",
+		"$(SolutionDir)ThirdParty\\VulkanSDK\\Include",
 	}
 end
 
 function appLinks()
-	libdirs { "$(VK_SDK_PATH)\\Lib" }
+	libdirs {}
 
 	links { 
 		"d3d11",
@@ -18,7 +18,6 @@ function appLinks()
 		"Usp10",
 		"Comctl32",
 		"Shcore",
-		"vulkan-1",
 
 		"Colorful",
 		"ImGui",
@@ -60,7 +59,7 @@ workspace "Miscellaneous"
 	filter { "platforms:Win64" }
 		system "Windows"
 		architecture "x64"
-	filter { }
+	filter {}
 
 	group "Dlls"
 		project "assetTool"
@@ -71,12 +70,12 @@ workspace "Miscellaneous"
 			implibname "$(SolutionDir)Out\\Libs\\$(ProjectName)"
 			includedirs { 
 				"$(SolutionDir)", 
-				"$(VK_SDK_PATH)\\Include",
 				"$(SolutionDir)ThirdParty\\assimp\\include",
 				"$(SolutionDir)ThirdParty\\assimp\\build\\include", 
 				"$(SolutionDir)ThirdParty\\gli\\external",
+				"$(SolutionDir)ThirdParty\\VulkanSDK\\Include"
 			}
-			libdirs { "$(VK_SDK_PATH)\\Lib" }
+			libdirs {}
 			targetdir "$(SolutionDir)Out"
 			defines { "UsingAsDynamicLib" }
 			links {
@@ -87,7 +86,6 @@ workspace "Miscellaneous"
 				"Usp10",
 				"Comctl32",
 				"Shcore",
-				"vulkan-1",
 
 				"Colorful",
 				"gear",
@@ -103,7 +101,7 @@ workspace "Miscellaneous"
 			language "C++"
 			location "./Projects"
 			files "./gear/**"
-			includedirs { "$(SolutionDir)", "$(VK_SDK_PATH)\\Include" }
+			includedirs { "$(SolutionDir)", "$(SolutionDir)ThirdParty\\VulkanSDK\\Include" }
 			targetdir "$(SolutionDir)Out\\Libs\\"
 
 		project "colorful"
@@ -112,7 +110,7 @@ workspace "Miscellaneous"
 			location "./Projects"
 			files "./Colorful/**"
 			targetdir "$(SolutionDir)Out\\Libs\\"
-			includedirs { "$(SolutionDir)", "$(VK_SDK_PATH)\\Include" }
+			includedirs { "$(SolutionDir)", "$(SolutionDir)ThirdParty\\VulkanSDK\\Include" }
 
 	
 	group "Fort"

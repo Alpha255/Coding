@@ -45,7 +45,7 @@ def preBuildDependencies():
 	executeCommand(assimp_Commandline)
 
 def generateProjects_Win32():
-	commandline = 'premake5.exe vs2017'
+	commandline = 'premake5 vs2017'
 	executeCommand(commandline)
 
 def generateProjects():

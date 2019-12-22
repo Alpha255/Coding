@@ -119,6 +119,8 @@ public:
 	}                                          \
 }
 
+#define UsingVkLoader
+
 #if defined(UsingVkLoader)
 	#define VK_NO_PROTOTYPES
 #endif

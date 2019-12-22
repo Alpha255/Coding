@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Colorful/Public/RAsset.h"
+#include "VulkanLoader.h"
 
 class vkShader : public vkDeviceObject<VkShaderModule>, public rShader
 {

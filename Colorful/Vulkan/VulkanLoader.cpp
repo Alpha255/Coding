@@ -13,7 +13,7 @@ vkFunctionTableDefinition
 
 static gear::dynamicLibrary s_VulkanLoader;
 
-void vkEngine::vkLoader::initializeGlobalFunctionTable()
+void vkLoader::initializeGlobalFunctionTable()
 {
 	s_VulkanLoader.load("vulkan-1.dll");
 
@@ -25,7 +25,7 @@ void vkEngine::vkLoader::initializeGlobalFunctionTable()
 #undef createFunctionTable
 }
 
-void vkEngine::vkLoader::initializeInstanceFunctionTable(const vkInstance &instance)
+void vkLoader::initializeInstanceFunctionTable(const vkInstance &instance)
 {
 	assert(instance.isValid() && vkGetInstanceProcAddr);
 
@@ -37,7 +37,7 @@ void vkEngine::vkLoader::initializeInstanceFunctionTable(const vkInstance &insta
 #undef createFunctionTable
 }
 
-void vkEngine::vkLoader::initializeDeviceFunctionTable(const vkDevice &device)
+void vkLoader::initializeDeviceFunctionTable(const vkDevice &device)
 {
 	assert(device.isValid() && vkGetDeviceProcAddr);
 
@@ -49,7 +49,7 @@ void vkEngine::vkLoader::initializeDeviceFunctionTable(const vkDevice &device)
 #undef createFunctionTable
 }
 
-void vkEngine::vkLoader::finalize()
+void vkLoader::finalize()
 {
 	vkFunctionTableReset
 }
