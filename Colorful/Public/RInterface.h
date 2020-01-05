@@ -42,10 +42,6 @@ struct rAdapter
 	}
 };
 
-class rContext
-{
-};
-
 class rTexture
 {
 };

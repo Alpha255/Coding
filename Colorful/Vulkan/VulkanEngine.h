@@ -34,6 +34,5 @@ private:
 	vkDeviceQueue m_GraphicsQueue;
 	vkDeviceQueue m_ComputeQueue;
 	vkDeviceQueue m_TransferQueue;
-	vkContext m_IMContext;
 	vkSwapchain m_Swapchain;
 };

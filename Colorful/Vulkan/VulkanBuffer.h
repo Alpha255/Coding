@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Colorful/Vulkan/VulkanContext.h"
+#include "VulkanLoader.h"
 
 class vkDeviceMemory : public vkDeviceObject<VkDeviceMemory>
 {
@@ -30,4 +30,11 @@ class vkGpuBuffer : public vkBuffer, public rBuffer
 {
 public:
 	vkGpuBuffer(const class vkDevice &device, eRBufferBindFlags bindFlags, eRBufferUsage usage, size_t size, const void *pData);
+};
+
+class vkFrameBuffer : public vkDeviceObject<VkFramebuffer>
+{
+public:
+	void create(const class vkDevice &device, const class vkRenderPass &renderPass);
+	void destroy(const class vkDevice &device) override final;
 };

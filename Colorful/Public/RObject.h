@@ -137,3 +137,5 @@ public:
 
 #include <d3d12.h>
 #include <d3d12shader.h>
+
+#define vkMemoryAllocator nullptr /// For future use

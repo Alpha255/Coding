@@ -1,12 +1,11 @@
 #pragma once
 
-#include "Colorful/Vulkan/VulkanContext.h"
+#include "VulkanPipeline.h"
 
 class vkInstance : public vkObject<VkInstance>
 {
 public:
 	void create();
-
 	void destroy();
 };
 
@@ -14,7 +13,6 @@ class vkDebugUtilsMessenger : public vkObject<VkDebugUtilsMessengerEXT>
 {
 public:
 	void create(const vkInstance &instance, bool8_t verbose);
-
 	void destroy(const vkInstance &instance);
 };
 
@@ -67,6 +65,12 @@ protected:
 private:
 };
 
+class vkDescriptorPool : public vkDeviceObject<VkDescriptorPool>
+{
+public:
+	void destroy(const class vkDevice &device) override final;
+};
+
 class vkDevice : public vkObject<VkDevice>, public rDevice
 {
 public:
@@ -103,6 +107,7 @@ protected:
 private:
 	VkPhysicalDeviceMemoryProperties m_DeviceMemoryProperties{};
 	vkCommandPool m_CommandPool;
+	vkPipelineCache m_PipelineCache;
 };
 
 class vkDeviceQueue : public vkObject<VkQueue>

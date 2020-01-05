@@ -84,11 +84,13 @@
 	action(vkAcquireNextImageKHR)         \
 	action(vkDestroySwapchainKHR)         \
 	action(vkDestroyShaderModule)         \
+	action(vkCreatePipelineCache)         \
 	action(vkCmdBindVertexBuffers)        \
 	action(vkCmdCopyBufferToImage)        \
 	action(vkCreateDescriptorPool)        \
 	action(vkUpdateDescriptorSets)        \
 	action(vkCreatePipelineLayout)        \
+	action(vkDestroyPipelineCache)        \
 	action(vkCmdBindDescriptorSets)       \
 	action(vkDestroyDescriptorPool)       \
 	action(vkDestroyPipelineLayout)       \
