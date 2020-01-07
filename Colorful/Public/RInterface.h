@@ -62,7 +62,14 @@ class rBuffer
 
 class rInputLayout
 {
+public:
+	struct rVertexAttributes
+	{
+		eRVertexUsage Usage = eRVertexUsge_MaxEnum;
+		eRFormat Format = eRFormat_MaxEnum;
+	};
 
+	virtual void create(const std::vector<rVertexAttributes> &vertexAttributes) = 0;
 };
 
 class rShader

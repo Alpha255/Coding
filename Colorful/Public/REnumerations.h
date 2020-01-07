@@ -221,6 +221,17 @@ enum eRStencilMask
 	eRStencilMask_MaxEnum
 };
 
+enum eRVertexUsage
+{
+	ePosition,
+	eNormal,
+	eBinNormal,
+	eTangent,
+	eTexcoord,
+	eColor,
+	eRVertexUsge_MaxEnum
+};
+
 enum eRFormat
 {
 	eUnknownFormat,
