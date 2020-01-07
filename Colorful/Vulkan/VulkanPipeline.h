@@ -21,7 +21,7 @@ public:
 	void destroy(const class vkDevice &device) override final;
 };
 
-class vkGraphicsPipeline : public vkPipeline
+class vkGraphicsPipeline : public vkPipeline, public rGraphicsPipeline
 {
 };
 

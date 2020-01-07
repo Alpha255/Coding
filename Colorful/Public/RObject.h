@@ -66,6 +66,13 @@ template <typename T> class vkDeviceObject : public vkObject<T>
 {
 public:
 	virtual void destroy(const class vkDevice &device) = 0;
+
+	inline void setDebugName(const std::string &debugName)
+	{
+		m_DebugName = debugName;
+	}
+protected:
+	std::string m_DebugName;
 };
 
 template <typename T> class d3dObject : public rObject<T>
