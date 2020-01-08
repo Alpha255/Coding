@@ -29,7 +29,7 @@ void vkDescriptorUpdateTemplate::destroy(const vkDevice &device)
 
 	if (isValid())
 	{
-		vkDestroyDescriptorUpdateTemplate(*device, **this, vkMemoryAllocator);
+		///vkDestroyDescriptorUpdateTemplate(*device, **this, vkMemoryAllocator);
 		reset();
 	}
 }

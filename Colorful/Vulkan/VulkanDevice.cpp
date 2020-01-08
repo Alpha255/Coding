@@ -339,8 +339,7 @@ uint32_t vkDevice::create(
 	rVerifyVk(vkEnumerateDeviceExtensionProperties(*physicalDevices[gpuIndex], nullptr, &count, supportedExtensions.data()));
 	extensions = getSupportedProperties<VkExtensionProperties>(supportedExtensions, extensions);
 
-	VkPhysicalDeviceFeatures deviceFeatures{};
-	vkGetPhysicalDeviceFeatures(*physicalDevices[gpuIndex], &deviceFeatures);
+	vkGetPhysicalDeviceFeatures(*physicalDevices[gpuIndex], &m_DeviceFeatures);
 
 	VkDeviceCreateInfo createInfo
 	{
@@ -353,7 +352,7 @@ uint32_t vkDevice::create(
 		layers.data(),
 		(uint32_t)extensions.size(),
 		extensions.data(),
-		&deviceFeatures
+		&m_DeviceFeatures
 	};
 
 	VkDevice handle = VK_NULL_HANDLE;
@@ -369,10 +368,16 @@ uint32_t vkDevice::create(
 	m_Adapter.DeviceName = properties.deviceName;
 	m_Adapter.DeviceID = properties.deviceID;
 	m_Adapter.VendorID = properties.vendorID;
-	logger::instance().log(logger::eInfo, "Created vulkan device on adapter: \"%s %s\", DeviceID = %d.",
+	logger::instance().log(logger::eInfo, "Created vulkan device on adapter: \"%s %s\", DeviceID = %d. VulkanAPI Version: %d.%d.%d",
 		rAdapter::getVendorName(m_Adapter.VendorID).c_str(),
 		m_Adapter.DeviceName.c_str(),
-		m_Adapter.DeviceID);
+		m_Adapter.DeviceID,
+		VK_VERSION_MAJOR(properties.apiVersion),
+		VK_VERSION_MINOR(properties.apiVersion),
+		VK_VERSION_PATCH(properties.apiVersion));
+
+	m_DeviceLimits = properties.limits;
+	assert(m_DeviceLimits.maxColorAttachments >= eRMax_RenderTargets);
 
 	vkGetPhysicalDeviceMemoryProperties(*physicalDevices[gpuIndex], &m_DeviceMemoryProperties);
 

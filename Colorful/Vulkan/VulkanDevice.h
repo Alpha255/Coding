@@ -59,6 +59,8 @@ public:
 protected:
 private:
 	VkPhysicalDeviceMemoryProperties m_DeviceMemoryProperties{};
+	VkPhysicalDeviceFeatures m_DeviceFeatures{};
+	VkPhysicalDeviceLimits m_DeviceLimits{};
 	vkCommandPool m_CommandPool;
 	vkPipelineCache m_PipelineCache;
 };

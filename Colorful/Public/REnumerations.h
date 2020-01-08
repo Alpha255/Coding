@@ -410,3 +410,8 @@ enum eRFormat
 
 	eRFormat_MaxEnum
 };
+
+enum eRLimitations
+{
+	eRMax_RenderTargets = 8u
+};
