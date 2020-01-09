@@ -44,6 +44,16 @@ public:
 
 	uint32_t getMemoryTypeIndex(eRBufferUsage usage, uint32_t memoryTypeBits) const;
 
+	inline vkCommandBuffer allocCommandBuffer(VkCommandBufferLevel level) const
+	{
+		return m_CommandPool.allocCommandBuffer(*this, level);
+	}
+
+	inline void freeCommandBuffer(vkCommandBuffer &commandBuffer) const
+	{
+		m_CommandPool.freeCommandBuffer(*this, commandBuffer);
+	}
+
 	inline vkCommandBufferArray allocCommandBuffers(VkCommandBufferLevel level, uint32_t count) const
 	{
 		return m_CommandPool.allocCommandBuffers(*this, level, count);
@@ -72,10 +82,14 @@ public:
 	{
 		assert(!isValid() && device.isValid());
 
+		/// vkGetDeviceQueue must only be used to get queues that were created with the flags parameter of VkDeviceQueueCreateInfo set to zero. 
+		/// To get queues that were created with a non-zero flags parameter use vkGetDeviceQueue2.
 		m_FamilyIndex = queueFamilyIndex;
 		VkQueue handle = VK_NULL_HANDLE;
 		vkGetDeviceQueue(*device, queueFamilyIndex, 0u, &handle);
 		reset(handle);
+
+		/// All queues associated with a logical device are destroyed when vkDestroyDevice is called on that device
 	}
 protected:
 private:

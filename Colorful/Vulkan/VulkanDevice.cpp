@@ -291,13 +291,15 @@ uint32_t vkDevice::create(
 			VkDeviceQueueCreateInfo deviceQueueCreateInfo
 			{
 				VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-				nullptr,
-				0u,
+				nullptr, /// pNext must be NULL or a pointer to a valid instance of VkDeviceQueueGlobalPriorityCreateInfoEXT
+				0u,      /// flags must be a valid combination of VkDeviceQueueCreateFlagBits values
 				j,
 				queueFamilyProperties[j].queueCount,
 				nullptr
 			};
 			deviceQueueCreateInfos.emplace_back(deviceQueueCreateInfo);
+			/// VkDeviceQueueCreateFlagBits::VK_DEVICE_QUEUE_CREATE_PROTECTED_BIT specifies that the device queue is a protected-capable queue. 
+			/// If the protected memory feature is not enabled, the VK_DEVICE_QUEUE_CREATE_PROTECTED_BIT bit of flags must not be set.
 		}
 	}
 
@@ -311,7 +313,7 @@ uint32_t vkDevice::create(
 
 	for (auto &deviceQueueCreateInfo : deviceQueueCreateInfos)
 	{
-		deviceQueueCreateInfo.pQueuePriorities = queuePriorities.data();
+		deviceQueueCreateInfo.pQueuePriorities = queuePriorities.data();  /// Each element of pQueuePriorities must be between 0.0 and 1.0 inclusive
 	}
 
 	std::vector<const char8_t *> layers =

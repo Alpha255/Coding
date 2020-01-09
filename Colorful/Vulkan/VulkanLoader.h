@@ -63,6 +63,7 @@
 	action(vkCreateSemaphore)            \
 	action(vkCreateImageView)            \
 	action(vkCmdBindPipeline)            \
+	action(vkResetCommandPool)           \
 	action(vkBindBufferMemory)           \
 	action(vkDestroyImageView)           \
 	action(vkCmdEndRenderPass)           \
@@ -72,8 +73,10 @@
 	action(vkDestroyRenderPass)          \
 	action(vkCreateCommandPool)          \
 	action(vkCreateFramebuffer)          \
+	action(vkCmdExecuteCommands)         \
 	action(vkDestroyFramebuffer)         \
 	action(vkCmdBeginRenderPass)         \
+	action(vkResetCommandBuffer)         \
 	action(vkBeginCommandBuffer)         \
 	action(vkCmdPipelineBarrier)         \
 	action(vkCmdClearColorImage)         \

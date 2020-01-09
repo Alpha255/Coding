@@ -70,8 +70,8 @@ void vkTexture::copyBufferToImage(const vkDevice &device, const rAsset::rTexture
 	}
 
 	vkStagingBuffer stagingBuffer(device, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, binary.Size, binary.Binary.get());
-	vkCommandBufferArray command = device.allocCommandBuffers(VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1u);
-	command.begin();
+	vkCommandBuffer commandBuffer = device.allocCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+	commandBuffer.begin();
 
 	VkImageSubresourceRange subresourceRange
 	{
@@ -82,7 +82,7 @@ void vkTexture::copyBufferToImage(const vkDevice &device, const rAsset::rTexture
 		binary.ArrayLayers
 	};
 	insertMemoryBarrier(
-		command,
+		commandBuffer,
 		VK_PIPELINE_STAGE_HOST_BIT,
 		VK_PIPELINE_STAGE_TRANSFER_BIT,
 		0u,
@@ -92,7 +92,7 @@ void vkTexture::copyBufferToImage(const vkDevice &device, const rAsset::rTexture
 		subresourceRange);
 
 	vkCmdCopyBufferToImage(
-		command.get(), 
+		*commandBuffer,
 		*stagingBuffer, 
 		**this, 
 		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -100,7 +100,7 @@ void vkTexture::copyBufferToImage(const vkDevice &device, const rAsset::rTexture
 		bufferImageCopy.data());
 
 	insertMemoryBarrier(
-		command,
+		commandBuffer,
 		VK_PIPELINE_STAGE_TRANSFER_BIT,
 		VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
 		VK_ACCESS_TRANSFER_WRITE_BIT,
@@ -109,15 +109,15 @@ void vkTexture::copyBufferToImage(const vkDevice &device, const rAsset::rTexture
 		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
 		subresourceRange);
 	
-	command.end();
+	commandBuffer.end();
 
-	device.freeCommandBuffers(command);
+	device.freeCommandBuffer(commandBuffer);
 
 	stagingBuffer.destroy(device);
 }
 
 void vkTexture::insertMemoryBarrier(
-	const vkCommandBufferArray &command, 
+	const vkCommandBuffer &commandBuffer, 
 	VkPipelineStageFlags srcStageMask, 
 	VkPipelineStageFlags dstStageMask, 
 	VkAccessFlags srcAccessFlags,
@@ -126,6 +126,8 @@ void vkTexture::insertMemoryBarrier(
 	VkImageLayout newLayout,
 	const VkImageSubresourceRange &subresourceRange)
 {
+	/// When inserting a VkBufferMemoryBarrier or VkImageMemoryBarrier (see Pipeline Barriers), 
+	/// a source and destination queue family index is specified to allow the ownership of a buffer or image to be transferred from one queue family to another. 
 	VkImageMemoryBarrier imageMemoryBarrier
 	{
 		VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
@@ -140,7 +142,7 @@ void vkTexture::insertMemoryBarrier(
 		subresourceRange
 	};
 	vkCmdPipelineBarrier(
-		command.get(),
+		*commandBuffer,
 		srcStageMask,
 		dstStageMask,
 		0u,

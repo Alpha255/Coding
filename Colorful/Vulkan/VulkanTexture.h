@@ -15,7 +15,7 @@ protected:
 	VkFormat getImageFormat(eRFormat format);
 	void copyBufferToImage(const class vkDevice &device, const rAsset::rTextureBinary &binary);
 	void insertMemoryBarrier(
-		const class vkCommandBufferArray &command, 
+		const class vkCommandBuffer &commandBuffer, 
 		VkPipelineStageFlags srcStageMask,
 		VkPipelineStageFlags dstStageMask,
 		VkAccessFlags srcAccessFlags,
