@@ -31,10 +31,14 @@ public:
 
 	void execute(const vkCommandBuffer &primaryCommandBuffer);
 
+	void queueSubmit();
+
 	void end();
 
 	inline void resetBuffer()
 	{
+		/// The command buffer can be in any state other than pending, and is moved into the initial state
+
 		/// Any primary command buffer that is in the recording or executable state and has commandBuffer recorded into it, becomes invalid.
 
 		/// VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT specifies that most or all memory resources currently owned by the command buffer should be returned to the parent command pool. 

@@ -43,6 +43,8 @@ void vkCommandPool::resetPool(const vkDevice &device)
 	/// Any primary command buffer allocated from another VkCommandPool that is in the recording or executable state and has a secondary command buffer allocated from commandPool recorded into it, becomes invalid.
 
 	/// VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT specifies that resetting a command pool recycles all of the resources from the command pool back to the system.
+
+	/// All VkCommandBuffer objects allocated from commandPool must not be in the pending state
 	rVerifyVk(vkResetCommandPool(*device, **this, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT));
 }
 
@@ -65,6 +67,8 @@ void vkCommandPool::destroy(const vkDevice &device)
 	/// When a pool is destroyed, all command buffers allocated from the pool are freed.
 
 	/// Any primary command buffer allocated from another VkCommandPool that is in the recording or executable state and has a secondary command buffer allocated from commandPool recorded into it, becomes invalid.
+
+	/// All VkCommandBuffer objects allocated from commandPool must not be in the pending state.
 	if (isValid())
 	{
 		vkDestroyCommandPool(*device, **this, vkMemoryAllocator);
@@ -174,6 +178,8 @@ void vkCommandPool::freeCommandBuffer(const vkDevice &device, vkCommandBuffer &c
 	assert(isValid() && device.isValid());
 
 	/// Any primary command buffer that is in the recording or executable state and has any element of pCommandBuffers recorded into it, becomes invalid.
+
+	/// All elements of pCommandBuffers must not be in the pending state
 	if (commandBuffer.isValid())
 	{
 		const VkCommandBuffer commandBuffers[]
@@ -189,7 +195,13 @@ void vkCommandBuffer::begin()
 {
 	assert(isValid() && m_State != ePending && m_State != eRecording);
 
+	/// commandBuffer must not be in the recording or pending state.
+
+	/// If commandBuffer was allocated from a VkCommandPool which did not have the VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT flag set, commandBuffer must be in the initial state.
+
 	/********************
+	VkCommandBufferUsageFlags: is a bitmask of VkCommandBufferUsageFlagBits specifying usage behavior for the command buffer.
+
 		VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT:
 			specifies that each recording of the command buffer will only be submitted once, and the command buffer will be reset and recorded again between each submission.
 
@@ -199,6 +211,8 @@ void vkCommandBuffer::begin()
 		VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT:
 			specifies that a command buffer can be resubmitted to a queue while it is in the pending state, and recorded into multiple primary command buffers.
 	*********************/
+
+	/// pInheritanceInfo is a pointer to a VkCommandBufferInheritanceInfo structure, used if commandBuffer is a secondary command buffer. If this is a primary command buffer, then this value is ignored.
 
 	VkCommandBufferBeginInfo beginInfo
 	{
@@ -225,11 +239,62 @@ void vkCommandBuffer::execute(const vkCommandBuffer &primaryCommandBuffer)
 	assert(primaryCommandBuffer.isValid() && primaryCommandBuffer.m_Level == VK_COMMAND_BUFFER_LEVEL_PRIMARY && primaryCommandBuffer.m_State == eRecording);
 	assert(m_State == ePending || m_State == eExecutable);
 
+	/**************************
+		If any element of pCommandBuffers was not recorded with the VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT flag, 
+			and it was recorded into any other primary command buffer, that primary command buffer must not be in the pending state
+
+			it must not be in the pending state.
+
+			it must not have already been recorded to commandBuffer.
+
+			it must not appear more than once in pCommandBuffers.
+
+		Each element of pCommandBuffers must have been allocated from a VkCommandPool that was created for the same queue family as the VkCommandPool from which commandBuffer was allocated
+
+		If vkCmdExecuteCommands is being called within a render pass instance, 
+			that render pass instance must have been begun with the contents parameter of vkCmdBeginRenderPass set to VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS
+
+			each element of pCommandBuffers must have been recorded with the VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT
+
+			each element of pCommandBuffers must have been recorded with VkCommandBufferInheritanceInfo::subpass set to the index of the subpass which the given command buffer will be executed in
+
+			the render passes specified in the pBeginInfo->pInheritanceInfo->renderPass members of the vkBeginCommandBuffer commands used to begin recording each element of pCommandBuffers must be compatible with the current render pass.
+
+			and any element of pCommandBuffers was recorded with VkCommandBufferInheritanceInfo::framebuffer not equal to VK_NULL_HANDLE, that VkFramebuffer must match the VkFramebuffer used in the current render pass instance
+
+		If vkCmdExecuteCommands is not being called within a render pass instance, each element of pCommandBuffers must not have been recorded with the VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT
+	***************************/
+
 	const VkCommandBuffer commandBuffers[]
 	{
 		**this
 	};
 	vkCmdExecuteCommands(*primaryCommandBuffer, 1u, commandBuffers);
+}
+
+void vkCommandBuffer::queueSubmit()
+{
+	/********************************
+		vkQueueSubmit:
+			Each element of pCommandBuffers must not have been allocated with VK_COMMAND_BUFFER_LEVEL_SECONDARY
+
+			Each element of pWaitDstStageMask must not include VK_PIPELINE_STAGE_HOST_BIT.
+
+			If fence is not VK_NULL_HANDLE, fence must be unsignaled, and must not be associated with any other queue command that has not yet completed execution on that queue
+
+			Each element of the pCommandBuffers member of each element of pSubmits must be in the pending or executable state
+
+			If any element of the pCommandBuffers member of any element of pSubmits was not recorded with the VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT, it must not be in the pending state
+
+			Any secondary command buffers recorded into any element of the pCommandBuffers member of any element of pSubmits must be in the pending or executable state
+
+			If any secondary command buffers recorded into any element of the pCommandBuffers member of any element of pSubmits was not recorded with the VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT, it must not be in the pending state
+
+			Each element of the pCommandBuffers member of each element of pSubmits must have been allocated from a VkCommandPool that was created for the same queue family queue belongs to
+
+			The order that command buffers appear in pCommandBuffers is used to determine submission order, and thus all the implicit ordering guarantees that respect it. 
+			Other than these implicit ordering guarantees and any explicit synchronization primitives, these command buffers may overlap or otherwise execute out of order.
+	*********************************/
 }
 
 void vkCommandBufferArray::execute(const vkCommandBuffer &primaryCommandBuffer)
