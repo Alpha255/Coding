@@ -55,6 +55,7 @@
 	action(vkAllocateMemory)             \
 	action(vkCmdSetViewport)             \
 	action(vkDestroySampler)             \
+	action(vkGetFenceStatus)             \
 	action(vkGetDeviceQueue)             \
 	action(vkDeviceWaitIdle)             \
 	action(vkBindImageMemory)            \

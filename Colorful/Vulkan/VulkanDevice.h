@@ -36,7 +36,7 @@ public:
 
 	void waitIdle();
 
-	vkFence *createFence(vkFence::eFenceState state, bool8_t autoReset = false);
+	vkFence *createFence(vkFence::eFenceStatus status, bool8_t autoReset = false);
 	vkSemaphore *createSemaphore(bool8_t autoReset = false);
 	vkEvent *createEvent(bool8_t autoReset = false);
 

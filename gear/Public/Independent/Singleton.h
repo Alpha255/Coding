@@ -40,6 +40,37 @@ private:                                     \
 	~className() = default;                  \
 	friend class gear::singleton<className>;
 
+template <typename T> class lazySingleton
+{
+public:
+	template <typename... Args> static T *instance(Args &&... args)
+	{
+		if (nullptr == s_pInstance)
+		{
+			s_pInstance = new T(std::forward<Args>(args)...);
+			assert(s_pInstance);
+		}
+		return s_pInstance;
+	}
+
+	static void destroy()
+	{
+		if (s_pInstance)
+		{
+			delete s_pInstance;
+			s_pInstance = nullptr;
+		}
+	}
+private:
+	lazySingleton() = default;
+	virtual ~lazySingleton() = default;
+	lazySingleton(const lazySingleton &) {}
+	void operator=(const lazySingleton &) {}
+
+	static T *s_pInstance;
+};
+template <typename T> T *lazySingleton<T>::s_pInstance = nullptr;
+
 namespaceEnd(gear)
 
 

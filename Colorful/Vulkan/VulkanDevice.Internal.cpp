@@ -17,9 +17,9 @@ rTexturePtr vkDevice::createTexture(const std::string &textureName)
 	return texturePtr;
 }
 
-vkFence *vkDevice::createFence(vkFence::eFenceState state, bool8_t)
+vkFence *vkDevice::createFence(vkFence::eFenceStatus status, bool8_t)
 {
-	vkFence *fencePtr = new vkFence(*this, state);
+	vkFence *fencePtr = new vkFence(*this, status);
 	assert(fencePtr);
 
 	return fencePtr;

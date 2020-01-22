@@ -1,6 +1,19 @@
 #include "VulkanTexture.h"
 #include "VulkanEngine.h"
 
+void vkTexture::transitionImageLayout()
+{
+	/// The old layout must match the current layout of the image subresource range, with one exception. 
+	/// The old layout can always be specified as VK_IMAGE_LAYOUT_UNDEFINED, though doing so invalidates the contents of the image subresource range.
+
+	/// Setting the old layout to VK_IMAGE_LAYOUT_UNDEFINED implies that the contents of the image subresource need not be preserved. 
+	/// Implementations may use this information to avoid performing expensive data transition operations.
+
+	/// Applications must ensure that layout transitions happen-after all operations accessing the image with the old layout, 
+	/// and happen-before any operations that will access the image with the new layout. 
+	/// Layout transitions are potentially read/write operations, so not defining appropriate memory dependencies to guarantee this will result in a data race.
+}
+
 VkImageType vkTexture::getImageType(eRTextureType type)
 {
 	VkImageType imageType = VK_IMAGE_TYPE_MAX_ENUM;

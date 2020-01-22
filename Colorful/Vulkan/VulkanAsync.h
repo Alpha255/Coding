@@ -5,6 +5,7 @@
 /*****************
 	Fences
 		Fences can be used to communicate to the host that execution of some task on the device has completed.
+		Fences are a synchronization primitive that can be used to insert a dependency from a queue to the host.
 
 	Semaphores
 		Semaphores can be used to control resource access across multiple queues.
@@ -23,15 +24,17 @@
 class vkFence : public vkDeviceObject<VkFence>
 {
 public:
-	enum eFenceState
+	enum eFenceStatus
 	{
 		eUnsignaled,
 		eSignaled,
 		eFenceState_MaxEnum
 	};
 
-	vkFence(const class vkDevice &device, eFenceState state);
+	vkFence(const class vkDevice &device, eFenceStatus status);
 	void destroy(const class vkDevice &device) override final;
+	eFenceStatus getStatus(const class vkDevice &device);
+	void resetFence(const class vkDevice &device);
 };
 
 class vkSemaphore : public vkDeviceObject<VkSemaphore>
