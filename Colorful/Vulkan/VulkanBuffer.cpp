@@ -16,6 +16,14 @@ void vkDeviceMemory::create(const vkDevice &device, eRBufferUsage usage, const V
 	VkDeviceMemory handle = VK_NULL_HANDLE;
 	rVerifyVk(vkAllocateMemory(*device, &allocateInfo, vkMemoryAllocator, &handle));
 	reset(handle);
+
+	/// If a memory object does not have the VK_MEMORY_PROPERTY_HOST_COHERENT_BIT property, 
+	/// then vkFlushMappedMemoryRanges must be called in order to guarantee that writes to the memory object from the host are made available to the host domain, 
+	/// where they can be further made available to the device domain via a domain operation. Similarly, 
+	/// vkInvalidateMappedMemoryRanges must be called to guarantee that writes which are available to the host domain are made visible to host operations.
+	/// If the memory object does have the VK_MEMORY_PROPERTY_HOST_COHERENT_BIT property flag, 
+	/// writes to the memory object from the host are automatically made available to the host domain.Similarly, 
+	/// writes made available to the host domain are automatically made visible to the host.
 }
 
 void vkDeviceMemory::destroy(const vkDevice &device)

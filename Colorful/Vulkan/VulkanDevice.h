@@ -91,6 +91,8 @@ public:
 
 		/// All queues associated with a logical device are destroyed when vkDestroyDevice is called on that device
 	}
+
+	void waitIdle();
 protected:
 private:
 	uint32_t m_FamilyIndex = UINT32_MAX;

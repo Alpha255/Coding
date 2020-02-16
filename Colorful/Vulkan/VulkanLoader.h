@@ -34,8 +34,10 @@
 
 #define vkDeviceFunctionTable(action)    \
 	action(vkCmdDraw)                    \
+	action(vkSetEvent)                   \
 	action(vkMapMemory)                  \
 	action(vkFreeMemory)                 \
+	action(vkResetEvent)                 \
 	action(vkResetFences)                \
 	action(vkUnmapMemory)                \
 	action(vkCreateImage)                \
@@ -46,6 +48,7 @@
 	action(vkCreateBuffer)               \
 	action(vkDestroyImage)               \
 	action(vkDestroyFence)               \
+	action(vkQueueWaitIdle)              \
 	action(vkDestroyDevice)              \
 	action(vkCmdSetScissor)              \
 	action(vkDestroyBuffer)              \
@@ -58,6 +61,7 @@
 	action(vkGetFenceStatus)             \
 	action(vkGetDeviceQueue)             \
 	action(vkDeviceWaitIdle)             \
+	action(vkGetEventStatus)             \
 	action(vkBindImageMemory)            \
 	action(vkDestroyPipeline)            \
 	action(vkQueuePresentKHR)            \

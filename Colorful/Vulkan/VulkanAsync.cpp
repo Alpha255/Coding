@@ -3,7 +3,7 @@
 
 vkFence::vkFence(const vkDevice &device, eFenceStatus status)
 {
-	assert(!isValid() && device.isValid());
+	assert(!isValid() && device.isValid() && status < eFenceStatus_MaxEnum);
 
 	/// To create a fence whose payload can be exported to external handles, 
 	/// add a VkExportFenceCreateInfo structure to the pNext chain of the VkFenceCreateInfo structure.
@@ -23,8 +23,10 @@ vkFence::vkFence(const vkDevice &device, eFenceStatus status)
 	reset(handle);
 }
 
-void vkFence::resetFence(const vkDevice &device)
+void vkFence::resetStatus(const vkDevice &device)
 {
+	/// Resets the fence to the unsignaled state.
+	/// If any member of pFences is already in the unsignaled state when vkResetFences is executed, then vkResetFences has no effect on that fence.
 	assert(device.isValid() && isValid());
 
 	const VkFence fences[] =
@@ -39,9 +41,11 @@ vkFence::eFenceStatus vkFence::getStatus(const vkDevice &device)
 	assert(device.isValid() && isValid());
 	VkResult result = vkGetFenceStatus(*device, **this);
 
+	/// If a queue submission command is pending execution, then the value returned by this command may immediately be out of date.
+	/// If the device has been lost, vkGetFenceStatus may return any of the (VK_SUCCESS|VK_NOT_READY|VK_ERROR_DEVICE_LOST). 
 	/// If the device has been lost and vkGetFenceStatus is called repeatedly, it will eventually return either VK_SUCCESS or VK_ERROR_DEVICE_LOST.
 
-	eFenceStatus status = eFenceState_MaxEnum;
+	eFenceStatus status = eFenceStatus_MaxEnum;
 	switch (result)
 	{
 	case VK_SUCCESS:
@@ -61,6 +65,8 @@ vkFence::eFenceStatus vkFence::getStatus(const vkDevice &device)
 
 void vkFence::destroy(const vkDevice &device)
 {
+	/// All queue submission commands that refer to fence must have completed execution
+
 	assert(device.isValid());
 
 	if (isValid())
@@ -72,6 +78,8 @@ void vkFence::destroy(const vkDevice &device)
 
 vkSemaphore::vkSemaphore(const vkDevice &device)
 {
+	/// Semaphores have two states - signaled and unsignaled. The state of a semaphore can be signaled after execution of a batch of commands is completed. 
+	/// A batch can wait for a semaphore to become signaled before it begins execution, and the semaphore is also unsignaled before the batch begins execution.
 	assert(!isValid() && device.isValid());
 
 	VkSemaphoreCreateInfo createInfo
@@ -84,10 +92,19 @@ vkSemaphore::vkSemaphore(const vkDevice &device)
 	VkSemaphore handle = VK_NULL_HANDLE;
 	rVerifyVk(vkCreateSemaphore(*device, &createInfo, vkMemoryAllocator, &handle));
 	reset(handle);
+
+	/// When a batch is submitted to a queue via a queue submission, and it includes semaphores to be signaled, 
+	/// it defines a memory dependency on the batch, and defines semaphore signal operations which set the semaphores to the signaled state.
+
+	/// Before waiting on a semaphore, the application must ensure the semaphore is in a valid state for a wait operation. Specifically, 
+	/// when a semaphore wait and unsignal operation is submitted to a queue:
+	/// 1. The semaphore must be signaled, or have an associated semaphore signal operation that is pending execution.
+	/// 2. There must be no other queue waiting on the same semaphore when the operation executes.
 }
 
 void vkSemaphore::destroy(const vkDevice &device)
 {
+	/// All submitted batches that refer to semaphore must have completed execution
 	assert(device.isValid());
 
 	if (isValid())
@@ -99,6 +116,9 @@ void vkSemaphore::destroy(const vkDevice &device)
 
 vkEvent::vkEvent(const vkDevice &device)
 {
+	/// An application can signal an event, or unsignal it, on either the host or the device. 
+	/// A device can wait for an event to become signaled before executing further operations. 
+	/// No command exists to wait for an event to become signaled on the host.
 	assert(!isValid() && device.isValid());
 
 	VkEventCreateInfo createInfo
@@ -111,10 +131,52 @@ vkEvent::vkEvent(const vkDevice &device)
 	VkEvent handle = VK_NULL_HANDLE;
 	rVerifyVk(vkCreateEvent(*device, &createInfo, vkMemoryAllocator, &handle));
 	reset(handle);
+
+	/// The state of an event can also be updated on the device by commands inserted in command buffers.
+	/// To set the state of an event to signaled from a device, call: vkCmdSetEvent
+}
+
+vkEvent::eEventStatus vkEvent::getStatus(const vkDevice &device)
+{
+	assert(!isValid() && device.isValid());
+
+	VkResult result = vkGetEventStatus(*device, **this);
+	eEventStatus status = eEventStatus_MaxEnum;
+	switch (result)
+	{
+	case VK_EVENT_SET:
+		status = eSignaled;
+		break;
+	case VK_EVENT_RESET:
+		status = eUnsignaled;
+		break;
+	default:
+		assert(0);
+		break;
+	}
+
+	return status;
+}
+
+void vkEvent::setStatus(const vkDevice &device, eEventStatus status)
+{
+	assert(!isValid() && device.isValid() && status < eEventStatus_MaxEnum);
+
+	if (eSignaled == status)
+	{
+		/// Set the state of an event to signaled from the host
+		rVerifyVk(vkSetEvent(*device, **this));
+	}
+	else if (eUnsignaled == status)
+	{
+		/// Set the state of an event to unsignaled from the host
+		rVerifyVk(vkResetEvent(*device, **this));
+	}
 }
 
 void vkEvent::destroy(const vkDevice &device)
 {
+	/// All submitted commands that refer to event must have completed execution
 	assert(device.isValid());
 
 	if (isValid())

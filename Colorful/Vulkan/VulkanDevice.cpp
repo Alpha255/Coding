@@ -396,6 +396,8 @@ uint32_t vkDevice::create(
 
 void vkDevice::waitIdle()
 {
+	/// To wait on the host for the completion of outstanding queue operations for all queues on a given logical device
+	/// equivalent to calling vkQueueWaitIdle for all queues owned by device
 	if (isValid())
 	{
 		rVerifyVk(vkDeviceWaitIdle(**this));
@@ -451,5 +453,15 @@ void vkDevice::destroy()
 
 		vkDestroyDevice(**this, vkMemoryAllocator);
 		reset();
+	}
+}
+
+void vkDeviceQueue::waitIdle()
+{
+	/// To wait on the host for the completion of outstanding queue operations for a given queue
+	/// equivalent to submitting a fence to a queue and waiting with an infinite timeout for that fence to signal.
+	if (isValid())
+	{
+		rVerifyVk(vkQueueWaitIdle(**this));
 	}
 }
