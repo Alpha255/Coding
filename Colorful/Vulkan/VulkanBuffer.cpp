@@ -157,3 +157,14 @@ vkGpuBuffer::vkGpuBuffer(const vkDevice &device, eRBufferBindFlags bindFlags, eR
 		rVerifyVk(vkBindBufferMemory(*device, **this, *m_Memory, 0u));
 	}
 }
+
+void vkFrameBuffer::destroy(const vkDevice &device)
+{
+	assert(device.isValid());
+
+	if (isValid())
+	{
+		vkDestroyFramebuffer(*device, **this, vkMemoryAllocator);
+		reset();
+	}
+}

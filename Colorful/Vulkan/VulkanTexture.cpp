@@ -12,6 +12,12 @@ void vkTexture::transitionImageLayout()
 	/// Applications must ensure that layout transitions happen-after all operations accessing the image with the old layout, 
 	/// and happen-before any operations that will access the image with the new layout. 
 	/// Layout transitions are potentially read/write operations, so not defining appropriate memory dependencies to guarantee this will result in a data race.
+
+	/// The image layout is per-image subresource, and separate image subresources of the same image can be in different layouts at the same time with one exception - 
+	/// depth and stencil aspects of a given image subresource must always be in the same layout.
+
+	/// When performing a layout transition on an image subresource, the old layout value must either equal the current layout of the image subresource (at the time the transition executes), or else be VK_IMAGE_LAYOUT_UNDEFINED (implying that the contents of the image subresource need not be preserved). 
+	/// The new layout used in a transition must not be VK_IMAGE_LAYOUT_UNDEFINED or VK_IMAGE_LAYOUT_PREINITIALIZED.
 }
 
 VkImageType vkTexture::getImageType(eRTextureType type)

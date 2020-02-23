@@ -189,6 +189,10 @@ protected:
 private:
 };
 
+class rComputePipeline
+{
+};
+
 class rDevice
 {
 public:

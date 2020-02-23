@@ -24,6 +24,7 @@ vkShader::vkShader(const vkDevice &device, eRShaderUsage usage, const rAsset::rS
 
 void vkShader::destroy(const vkDevice &device)
 {
+	/// A shader module can be destroyed while pipelines created using its shaders are still in use.
 	assert(device.isValid());
 
 	if (isValid())

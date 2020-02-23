@@ -3,6 +3,9 @@
 
 void vkPipelineLayout::destroy(const vkDevice &device)
 {
+	/// The pipeline layout represents a sequence of descriptor sets with each having a specific layout. 
+	/// This sequence of layouts is used to determine the interface between shader stages and shader resources. 
+	/// Each pipeline is created using a pipeline layout.
 	assert(device.isValid());
 
 	if (isValid())

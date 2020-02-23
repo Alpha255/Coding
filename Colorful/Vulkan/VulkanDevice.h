@@ -63,6 +63,11 @@ public:
 	{
 		m_CommandPool.freeCommandBuffers(*this, commandBuffers);
 	}
+
+	inline const VkPhysicalDeviceLimits &getDeviceLimits() const
+	{
+		return m_DeviceLimits;
+	}
 public:
 	rShaderPtr createShader(eRShaderUsage usage, const std::string &shaderName) override final;
 	rTexturePtr createTexture(const std::string &textureName) override final;

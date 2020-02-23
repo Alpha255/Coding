@@ -5,7 +5,7 @@
 namespaceStart(fort)
 
 /// O(N^2) steady
-template <typename T> void insertSort(T *pBegin, T *pEnd, std::function<bool(const T &, const T &)> compFunc = [](const T &left, const T &right)->bool {
+template <typename T> void insertSort(T *pBegin, T *pEnd, std::function<bool8_t(const T &, const T &)> compFunc = [](const T &left, const T &right)->bool8_t {
 	return left <= right;
 })
 {
@@ -36,7 +36,7 @@ template <typename T> void insertSort(T *pBegin, T *pEnd, std::function<bool(con
 }
 
 /// O(n^1.3) not steady
-template <typename T> void shellSort(T *pBegin, T *pEnd, std::function<bool(const T &, const T &)> compFunc = [](const T &left, const T &right)->bool {
+template <typename T> void shellSort(T *pBegin, T *pEnd, std::function<bool8_t(const T &, const T &)> compFunc = [](const T &left, const T &right)->bool8_t {
 	return left <= right;
 })
 {
@@ -59,6 +59,27 @@ template <typename T> void shellSort(T *pBegin, T *pEnd, std::function<bool(cons
 			pBegin[start + incr] = key;
 		}
 	}
+}
+
+template <typename T> void quickSort(T *pBegin, T *pEnd, std::function<bool8_t(const T &, const T &)> compFunc = [](const T &left, const T &right)->bool8_t {
+	return left <= right;
+})
+{
+
+}
+
+template <typename T> void selectSort(T *pBegin, T *pEnd, std::function<bool8_t(const T &, const T &)> compFunc = [](const T &left, const T &right)->bool8_t {
+	return left <= right;
+})
+{
+
+}
+
+template <typename T> void heapSort(T *pBegin, T *pEnd, std::function<bool8_t(const T &, const T &)> compFunc = [](const T &left, const T &right)->bool8_t {
+	return left <= right;
+})
+{
+
 }
 
 namespaceEnd(fort)

@@ -25,6 +25,10 @@ class vkGraphicsPipeline : public vkPipeline, public rGraphicsPipeline
 {
 };
 
-class vkComputePipeline : public vkPipeline
+class vkComputePipeline : public vkPipeline, public rComputePipeline
+{
+};
+
+class vkRayTracingPipeline : public vkPipeline
 {
 };

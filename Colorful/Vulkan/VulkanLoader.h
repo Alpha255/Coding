@@ -89,6 +89,7 @@
 	action(vkDestroyCommandPool)         \
 	action(vkCreateSwapchainKHR)         \
 	action(vkCreateShaderModule)         \
+	action(vkResetDescriptorPool)        \
 	action(vkAcquireNextImageKHR)        \
 	action(vkDestroySwapchainKHR)        \
 	action(vkDestroyShaderModule)        \
