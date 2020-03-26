@@ -1,8 +1,11 @@
 #pragma once
 
 #include "node.h"
+#include <vector>
 
 namespaceStart(fort)
+
+std::vector<int> test;
 
 template <typename T> class BinTree
 {
