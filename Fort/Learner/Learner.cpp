@@ -1,6 +1,7 @@
 #include <googletest/googletest/include/gtest/gtest.h>
 
 #include "sort.h"
+#include "FakeSTL/memory.hpp"
 
 template <typename T> class gTest_Sorting
 {
