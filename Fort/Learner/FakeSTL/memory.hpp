@@ -131,4 +131,74 @@ public:
 	}
 };
 
+template<class _Alloc> struct allocator_traits;
+
+template<class _Alloc> struct normal_allocator_traits
+{
+	using allocator_type = _Alloc;
+	using value_type = typename _Alloc::value_type;
+	using pointer = typename get_pointer_type<_Alloc>::type;
+	using const_pointer = typename get_const_pointer_type<_Alloc>::type;
+	using void_pointer = typename get_void_pointer_type<_Alloc>::type;
+	using const_void_pointer = typename get_const_void_pointer_type<_Alloc>::type;
+
+	using size_type = typename get_size_type<_Alloc>::type;
+	using difference_type = typename get_difference_type<_Alloc>::type;
+};
+
+template<class _Alloc> struct default_allocator_traits
+{
+	using allocator_type = _Alloc;
+	using value_type = typename _Alloc::value_type;
+	using pointer = value_type *;
+	using const_pointer = const value_type *;
+	using void_pointer = void *;
+	using const_void_pointer = const void *;
+
+	template<class _Other> using rebind_alloc = allocator<_Alloc>;
+
+	template<class _Other> using rebind_traits = allocator_traits<allocator<_Other>>;
+
+	static __declspec(allocator) pointer allocate(_Alloc &, const size_t count)
+	{
+		return (static_cast<pointer>(_allocate<align_of<value_type>>(get_size_of_n<sizeof(value_type)>(count))));
+	}
+
+	static __declspec(allocator) pointer allocate(_Alloc &, const size_t count, const_void_pointer)
+	{
+		return (static_cast<pointer>(_allocate<align_of<value_type>>(get_size_of_n<sizeof(value_type)>(count))));
+	}
+
+	static void deallocate(_Alloc &, const pointer ptr, const size_t count)
+	{
+		_deallocate<align_of<value_type>>(ptr, sizeof(value_type) * count);
+	}
+
+	template<class _Object, class... _Types> static void construct(_Alloc &, _Object * const ptr, _Types &&... args)
+	{
+		::new(const_cast<void *>(static_cast<const volatile void *>(ptr)))_Object(forward<_Types>(args)...);
+	}
+
+	template<class _Object> static void destroy(_Alloc &, _Object * const ptr)
+	{
+		ptr->~_Object();
+	}
+
+	static size_t max_size(const _Alloc &) noexcept
+	{
+		return (static_cast<size_t>(-1) / sizeof(value_type));
+	}
+
+	static _Alloc select_on_container_copy_construction(const _Alloc & alloc)
+	{
+		return (alloc);
+	}
+};
+
+template<class _Alloc> struct allocator_traits
+	: conditional_t<is_default_allocator<_Alloc>::value,
+	default_allocator_traits<_Alloc>, normal_allocator_traits<_Alloc>>
+{
+};
+
 namespaceEnd(FakeSTL)

@@ -83,7 +83,6 @@ public:
 	virtual void setInputLayout(const rInputLayout *) {}
 	virtual void pushUniformBuffer(const rBuffer *buffer) = 0;
 	virtual void pushTexture(const rTexture *texture) = 0;
-	virtual void pushSampler(const class rSamplerState *samplerState) = 0;
 protected:
 private:
 	eRShaderUsage m_Usage = eRShaderUsage_MaxEnum;
