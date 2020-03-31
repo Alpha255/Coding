@@ -4,6 +4,29 @@
 
 namespaceStart(FakeSTL)
 
+#define defaultAlignment 16ull
+
+constexpr size_t c_BigAllocationThreshold = 4096;
+constexpr size_t c_BigAllocationAlignment = 32;
+constexpr size_t c_BigAllocationSentinel = 0xFAFAFAFAFAFAFAFAULL;
+constexpr size_t c_NonUserSize = 2 * sizeof(void *) + c_BigAllocationAlignment - 1;
+
+template<class _T> constexpr const _T &min_value(const _T &left, const _T &right) noexcept
+{
+	return (right < left ? right : left);
+}
+template<class _T> constexpr const _T &max_value(const _T &left, const _T &right) noexcept
+{
+	return (left < right ? right : left);
+}
+template<class _T> constexpr size_t align_of = max_value(alignof(_T), static_cast<size_t>(defaultAlignment));
+
+template<class _T> class allocator;
+template<class _Alloc, class = void> struct is_default_allocator : false_type {};
+template<class _T> struct is_default_allocator<allocator<_T>, void> : true_type {};
+
+template<class _Alloc, class _Size_type, class _Const_void_pointer, class = void> struct has_allocate_hint : false_type {};
+
 struct default_allocator
 {
 	/// The allocator declaration specifier can be applied to custom memory-allocation functions to 
@@ -46,7 +69,7 @@ inline void adjustManullyVectorAligned(void *&ptr, size_t &bytes)
 }
 
 template<size_t _Align, class _Traits = default_allocator, 
-	enable_if_t<true || _Align <= DefaultAlignment, int> = 0> inline 
+	enable_if_t<true || _Align <= defaultAlignment, int> = 0> inline
 	__declspec(allocator) void *_allocate(const size_t bytest)
 {
 	if (bytes >= c_BigAllocationThreshold)
@@ -63,7 +86,7 @@ template<size_t _Align, class _Traits = default_allocator,
 }
 
 template<size_t _Align,
-	enable_if_t<(true || _Align <= DefaultAlignment), int> = 0> inline
+	enable_if_t<(true || _Align <= defaultAlignment), int> = 0> inline
 	void _deallocate(void *ptr, size_t bytes)
 {
 	if (bytes >= c_BigAllocationThreshold)
@@ -144,6 +167,29 @@ template<class _Alloc> struct normal_allocator_traits
 
 	using size_type = typename get_size_type<_Alloc>::type;
 	using difference_type = typename get_difference_type<_Alloc>::type;
+
+	template<class _Other> using rebind_alloc = typename get_rebind_type<_Alloc, _Other>::type;
+	template<class _Other> using rebind_traits = allocator_traits<rebind_alloc<_Other>>;
+
+	static __declspec(allocator) pointer allocate(_Alloc &alloc, const size_type count)
+	{
+		return alloc.allocate(count);
+	}
+
+	static __declspec(allocator) pointer allocate(_Alloc &alloc, const size_type count, const const_void_pointer hint)
+	{
+		return allocate1(alloc, count, hint, has_allocate_hint<_Alloc, size_type, const_void_pointer>{}));
+	}
+
+	static __declspec(allocator) pointer allocate1(_Alloc &alloc, const size_type count, const_void_pointer hint, true_type)
+	{
+		return alloc.allocate(count, hint);
+	}
+
+	static __declspec(allocator) pointer allocate1(_Alloc &alloc, const size_type count, const_void_pointer, false_type)
+	{
+		return alloc.allocate(count);
+	}
 };
 
 template<class _Alloc> struct default_allocator_traits
