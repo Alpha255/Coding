@@ -5,7 +5,9 @@
         _AlbedoTex("Texture", 2D) = "white" {}
     	_AlbedoTint("AlbedoTint", Color) = (1, 1, 1, 1)
         _Metallic("Metallic", Range(0.0, 1.0)) = 0.0
+        _Smoothness("Smoothness", Range(0.0, 1.0)) = 0.5
         [Enum(BRDF_GGX, 1, BRDF_BlinnPhong, 2)] _BRDFModel("BRDF Model:", Int) = 1
+        [Enum(BRDF_Tier1, 1, BRDF_Tier2, 2, BRDF_Tier3, 3)] _BRDFTier("BRDF Tier:", Int) = 1
     }
 
     SubShader
@@ -24,7 +26,9 @@
 
             float4 _AlbedoTint;
             half _Metallic;
+            float _Smoothness;
             int _BRDFModel;
+            int _BRDFTier;
             sampler2D _AlbedoTex;
 
             struct VertexInput
@@ -47,8 +51,8 @@
                 VertexOutput output;
                 output.position = UnityObjectToClipPos(input.position);
                 output.normal = UnityObjectToWorldNormal(input.normal);
-                output.normal = normalize(output.normal);
-                output.posWorld = mul(unity_ObjectToWorld, input.position);
+                ///output.normal = mul(input.normal, (float3x3)unity_WorldToObject);
+                output.posWorld = mul(unity_ObjectToWorld, input.position).xyz;
                 output.uv = input.uv;
                 return output;
             }
@@ -71,16 +75,46 @@
                 half3 specularColor;
                 DiffuseAndSpecularFromMetallic(albedo, _Metallic, diffuseColor, specularColor);
 
-            	return BRDF1_Unity_PBS(
-                    diffuseColor,
-                    specularColor,
-                    0.0,
-                    0.0,
-                    normalize(input.normal),
-                    viewDir,
-                    light,
-                    gi,
-                    _BRDFModel);
+                if (_BRDFTier == 1)
+                {
+                    return BRDF1_Unity_PBS(
+                        diffuseColor,
+                        specularColor,
+                        0.0,
+                        _Smoothness,
+                        normalize(input.normal),
+                        viewDir,
+                        light,
+                        gi,
+                        _BRDFModel);
+                }
+                else if (_BRDFTier == 2)
+                {
+                    return BRDF2_Unity_PBS(
+                        diffuseColor,
+                        specularColor,
+                        0.0,
+                        _Smoothness,
+                        normalize(input.normal),
+                        viewDir,
+                        light,
+                        gi,
+                        _BRDFModel);
+                }
+                else if (_BRDFTier == 3)
+                {
+                    return BRDF3_Unity_PBS(
+                        diffuseColor,
+                        specularColor,
+                        0.0,
+                        _Smoothness,
+                        normalize(input.normal),
+                        viewDir,
+                        light,
+                        gi);
+                }
+
+                return half4(diffuseColor, 1.0);
             }
             ENDCG
         }

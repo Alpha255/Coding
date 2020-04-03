@@ -58,7 +58,7 @@ inline half OneMinusReflectivityFromMetallic(half metallic)
 
 inline void DiffuseAndSpecularFromMetallic(half3 albedo, half metallic, out half3 diffColor, out half3 specColor)
 {
-    specColor = lerp (unity_ColorSpaceDielectricSpec.rgb, albedo, metallic);
+    specColor = lerp(unity_ColorSpaceDielectricSpec.rgb, albedo, metallic);
     half oneMinusReflectivity = OneMinusReflectivityFromMetallic(metallic);
     diffColor = albedo * oneMinusReflectivity;
 }
@@ -80,7 +80,7 @@ half DisneyDiffuse(half NdotV, half NdotL, half LdotH, half perceptualRoughness)
 }
 
 // Ref: http://jcgt.org/published/0003/02/03/paper.pdf
-inline float SmithJointGGXVisibilityTerm (float NdotL, float NdotV, float roughness)
+inline float SmithJointGGXVisibilityTerm(float NdotL, float NdotV, float roughness)
 {
 #if 0
     // Original formulation:
@@ -136,8 +136,14 @@ inline float GGXTerm(float NdotH, float roughness)
 
 inline half3 FresnelTerm(half3 F0, half cosA)
 {
-    half t = Pow5 (1 - cosA);   // ala Schlick interpoliation
+    half t = Pow5(1 - cosA);   // ala Schlick interpoliation
     return F0 + (1 - F0) * t;
+}
+
+inline half3 FresnelLerp(half3 F0, half3 F90, half cosA)
+{
+    half t = Pow5(1 - cosA);   // ala Schlick interpoliation
+    return lerp(F0, F90, t);
 }
 
 // BlinnPhong normalized as normal distribution function (NDF)
@@ -161,6 +167,23 @@ inline half PerceptualRoughnessToSpecPower(half perceptualRoughness)
     return n;
 }
 
+sampler2D_float unity_NHxRoughness;
+half3 BRDF3_Direct(half3 diffColor, half3 specColor, half rlPow4, half smoothness)
+{
+    half LUT_RANGE = 16.0;
+
+    half specular = tex2D(unity_NHxRoughness, half2(rlPow4, SmoothnessToPerceptualRoughness(smoothness))).r * LUT_RANGE;
+
+    return diffColor + specColor * specColor;
+}
+
+half3 BRDF3_Indirect(half3 diffColor, half3 specColor, UnityIndirect indirect, half grazingTerm, half fresnelTerm)
+{
+    half3 c = indirect.diffuse * diffColor;
+    c += indirect.specular * lerp(specColor, grazingTerm, fresnelTerm);
+    return c;
+}
+
 half4 BRDF1_Unity_PBS(
     half3 diffColor, 
     half3 specColor, 
@@ -182,10 +205,6 @@ half4 BRDF1_Unity_PBS(
     half lh = saturate(dot(light.dir, halfDir));
 
     half diffuseTerm = DisneyDiffuse(nv, nl, lh, perceptualRoughness) * nl;
-    ///half diffuseTerm = DisneyDiffuse_Source(diffColor, nv, nl, lh, perceptualRoughness) * nl;
-
-    half3 diffuse = diffColor * (gi.diffuse + light.color * diffuseTerm); /// Direct + InDirect
-
 
     float roughness = PerceptualRoughnessToRoughness(perceptualRoughness);
 
@@ -209,9 +228,88 @@ half4 BRDF1_Unity_PBS(
     specularTerm = max(0.0, specularTerm * nl);
     specularTerm *= any(specColor) ? 1.0 : 0.0;
 
-    half3 color = specularTerm * light.color * FresnelTerm(specColor, lh);
+    half surfaceReduction = 1.0 / (roughness * roughness + 1.0);
+    half grazingTerm = saturate(smoothness + (1 - oneMinusReflectivity));
+    half3 indirecTerm = surfaceReduction * gi.specular * FresnelLerp(specColor, grazingTerm, nv);
+
+    half3 diffuse = diffColor * (gi.diffuse + light.color * diffuseTerm); /// Direct + InDirect
+    half3 specular = specularTerm * light.color * FresnelTerm(specColor, lh);
+
+    half3 color = diffuse + specular + indirecTerm;
 
     return half4(color, 1);
+}
+
+half4 BRDF2_Unity_PBS(
+    half3 diffColor,
+    half3 specColor,
+    half oneMinusReflectivity,
+    half smoothness,
+    float3 normal,
+    float3 viewDir,
+    UnityLight light,
+    UnityIndirect gi,
+    int BRDF_Model)
+{
+    float3 halfDir = Unity_SafeNormalize(float3(light.dir) + viewDir);
+
+    half nl = saturate(dot(normal, light.dir));
+    float nh = saturate(dot(normal, halfDir));
+    half nv = saturate(dot(normal, viewDir));
+    float lh = saturate(dot(light.dir, halfDir));
+
+    half perceptualRoughness = SmoothnessToPerceptualRoughness(smoothness);
+    half roughness = PerceptualRoughnessToRoughness(perceptualRoughness);
+    float specularTerm = 0.0f;
+    if (BRDF_Model == 1)
+    {
+        half a = roughness;
+        float a2 = a * a;
+        float d = nh * nh * (a2 - 1.0f) + 1.0f;
+        specularTerm = a2 / (max(0.1f, lh * lh) * (roughness + 0.5f) * (d * d) * 4);
+    }
+    else if (BRDF_Model == 2)
+    {
+        half specularPower = PerceptualRoughnessToSpecPower(perceptualRoughness);
+        half invV = lh * lh * smoothness + perceptualRoughness * perceptualRoughness;
+        half invF = lh;
+        specularTerm = ((specularPower + 1.0) * pow(nh, specularPower)) / (8 * invV * invF + 1e-4);
+    }
+
+    half3 diffuse = diffColor * light.color * nl;
+    half3 specular = specColor * specularTerm * light.color * nl;
+
+    half3 color = diffuse + specular;
+
+    return half4(color, 1.0);
+}
+
+half4 BRDF3_Unity_PBS(
+    half3 diffColor,
+    half3 specColor,
+    half oneMinusReflectivity,
+    half smoothness,
+    float3 normal,
+    float3 viewDir,
+    UnityLight light,
+    UnityIndirect gi)
+{
+    float3 reflDir = reflect(viewDir, normal);
+
+    half nl = saturate(dot(normal, light.dir));
+    half nv = saturate(dot(normal, viewDir));
+
+    half2 rlPow4AndFresnelTerm = Pow4(float2(dot(reflDir, light.dir), 1 - nv));
+    half rlPow4 = rlPow4AndFresnelTerm.x;
+    half fresnelTerm = rlPow4AndFresnelTerm.y;
+
+    half grazingTerm = saturate(smoothness + (1 - oneMinusReflectivity));
+
+    half3 color = BRDF3_Direct(diffColor, specColor, rlPow4, smoothness);
+    color *= light.color * nl;
+    color += BRDF3_Indirect(diffColor, specColor, gi, grazingTerm, fresnelTerm);
+
+    return half4(color, 1.0);   
 }
 
 #endif
