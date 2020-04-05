@@ -40,6 +40,6 @@ public:
 protected:
 private:
 	d3d11Device m_Device;
-	d3d11GraphicsPipeline m_IMContext;
+	d3d11Context m_IMContext;
 	d3d11Swapchain m_Swapchain;
 };
