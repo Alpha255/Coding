@@ -20,11 +20,19 @@ public:
 		}
 	}
 
-	inline rDevice *getDevice() override final
+	class enumTranslator
 	{
-		assert(m_Device.isValid());
-		return &m_Device;
-	}
+	public:
+		static VkPolygonMode toPolygonMode(eRPolygonMode mode);
+		static VkCullModeFlags toCullMode(eRCullMode mode);
+		static VkFrontFace toFrontFace(eRFrontFace frontFace);
+		static VkLogicOp toLogicOp(eLogicOp op);
+		static VkBlendOp toBlendOp(eRBlendOp op);
+		static VkBlendFactor toBlendFactor(eRBlendFactor factor);
+		static VkColorComponentFlags toColorComponentFlags(uint32_t colorMask);
+		static VkCompareOp toCompareOp(eRCompareOp op);
+		static VkStencilOp toStencilOp(eRStencilOp op);
+	};
 protected:
 private:
 	vkInstance m_Instance;

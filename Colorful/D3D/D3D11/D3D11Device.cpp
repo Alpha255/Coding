@@ -1,9 +1,9 @@
 #include "D3D11Device.h"
 #include "D3D11Engine.h"
 
-void d3d11Device::create(__out d3d11Context &context, const dxgiFactory7 &inDxgiFactory)
+void d3d11Device::create(__out d3d11GraphicsPipeline &pipeline, const dxgiFactory7 &inDxgiFactory)
 {
-	assert(!isValid() && !context.isValid() && inDxgiFactory.isValid());
+	assert(!isValid() && !pipeline.isValid() && inDxgiFactory.isValid());
 
 	std::vector<dxgiAdapter4> dxgiAdapters;
 	uint32_t adapterIndex = 0u;
@@ -33,7 +33,7 @@ void d3d11Device::create(__out d3d11Context &context, const dxgiFactory7 &inDxgi
 		::HRESULT Result = E_FAIL;
 	};
 
-	auto tryToCreateDevice = [](d3d11Device &device, d3d11Context &context)->createResult {
+	auto tryToCreateDevice = [](d3d11Device &device, d3d11GraphicsPipeline &pipeline)->createResult {
 		createResult resultAttr = {};
 
 		uint32_t deviceFlags = 0;
@@ -81,7 +81,7 @@ void d3d11Device::create(__out d3d11Context &context, const dxgiFactory7 &inDxgi
 				resultAttr.DriverType = driverTypes[i];
 
 				device.reset(pDevice);
-				context.reset(pContext);
+				pipeline.reset(pContext);
 
 				break;
 			}
@@ -95,7 +95,7 @@ void d3d11Device::create(__out d3d11Context &context, const dxgiFactory7 &inDxgi
 	for (uint32_t i = 0u; i < dxgiAdapters.size(); ++i)
 	{
 		d3d11Device tempDevice;
-		d3d11Context tempContext;
+		d3d11GraphicsPipeline tempContext;
 
 		createResult resultAttr = tryToCreateDevice(tempDevice, tempContext);
 		if (SUCCEEDED(resultAttr.Result) && resultAttr.FeatureLevel > tempResultAttr.FeatureLevel)
@@ -106,7 +106,7 @@ void d3d11Device::create(__out d3d11Context &context, const dxgiFactory7 &inDxgi
 	}
 	assert(adapterIndex != UINT32_MAX);
 
-	createResult resultAttr = tryToCreateDevice(*this, context);
+	createResult resultAttr = tryToCreateDevice(*this, pipeline);
 	if (FAILED(resultAttr.Result))
 	{
 		logger::instance().log(logger::eError, "Failed to create d3d11 device.");

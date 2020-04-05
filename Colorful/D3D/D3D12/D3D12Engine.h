@@ -20,10 +20,10 @@ public:
 		}
 	}
 
-	inline rDevice *getDevice() override final
+	inline const d3d12Device &getDevice() const
 	{
 		assert(m_Device.isValid());
-		return &m_Device;
+		return m_Device;
 	}
 protected:
 private:

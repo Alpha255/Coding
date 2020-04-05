@@ -199,6 +199,24 @@ template<class _T, class _Other> struct get_rebind_alias<_T, _Other, void_t<type
 	using type = typename _T::template rebind<_Other>;
 };
 
+template<class _T, class = void> struct get_element_type
+{
+	using type = typename get_first_parameter<_T>::type;
+};
+template<class _T> struct get_element_type<_T, void_t<typename _T::element_type>>
+{
+	using type = typename _T::element_type;
+};
+
+template<class _T> struct pointer_traits
+{
+	using element_type = typename  get_element_type<_T>::type;
+	using pointer = _T;
+	using difference_type = typename get_ptr_difference_type<_T>::type;
+
+	template<class _Other> using rebind = typename get_rebind_alias<_T, _Other>::type;
+};
+
 template<class _T, class = void> struct get_pointer_type
 {
 	using type = typename _T::value_type *;
@@ -230,24 +248,6 @@ template<class _T, class = void> struct get_const_void_pointer_type
 template<class _T> struct get_const_void_pointer_type<_T, void_t<typename _T::const_void_pointer>>
 {
 	using type = typename _T::const_void_pointer;
-};
-
-template<class _T, class = void> struct get_element_type
-{
-	using type = typename get_first_parameter<_T>::type;
-};
-template<class _T> struct get_element_type<_T, void_t<typename _T::element_type>>
-{
-	using type = typename _T::element_type;
-};
-
-template<class _T> struct pointer_traits
-{
-	using element_type = typename  get_element_type<_T>::type;
-	using pointer = _T;
-	using difference_type = typename get_ptr_difference_type<_T>::type;
-
-	template<class _Other> using rebind = typename get_rebind_alias<_T, _Other>::type;
 };
 
 template<class _T, class = void> struct get_difference_type

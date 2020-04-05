@@ -39,8 +39,8 @@ void application::initialize(const std::string &title, uint32_t extraWindowStyle
 		g_rEnginePtr = &vkEngine::instance();
 	}
 	assert(g_rEnginePtr);
-	g_rDevicePtr = g_rEnginePtr->getDevice();
-	assert(g_rDevicePtr);
+	//g_rDevicePtr = g_rEnginePtr->getDevice();
+	//assert(g_rDevicePtr);
 
 	rAsset::rAssetBucket::instance().initialize(renderEngine);
 

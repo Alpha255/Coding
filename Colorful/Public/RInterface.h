@@ -112,20 +112,24 @@ class rScissor
 {
 };
 
-class rDepthStencilState
+struct rStencilOp
 {
+	eRStencilOp FailOp = eRStencilOp::eRStencilOp_MaxEnum;
+	eRStencilOp PassOp = eRStencilOp::eRStencilOp_MaxEnum;
+	eRStencilOp DepthFailOp = eRStencilOp::eRStencilOp_MaxEnum;
+	eRCompareOp CompareOp = eRCompareOp::eRCompareOp_MaxEnum;
 };
 
-class rBlendState
+struct rColorBlendState
 {
-};
-
-class rRasterizerState
-{
-};
-
-class rSamplerState
-{
+	bool8_t Enable = false;
+	eRBlendFactor SrcColor = eRBlendFactor::eRBlendFactor_MaxEnum;
+	eRBlendFactor DstColor = eRBlendFactor::eRBlendFactor_MaxEnum;
+	eRBlendOp ColorOp = eRBlendOp::eRBlendOp_MaxEnum;
+	eRBlendFactor SrcAlpha = eRBlendFactor::eRBlendFactor_MaxEnum;
+	eRBlendFactor DstAlpha = eRBlendFactor::eRBlendFactor_MaxEnum;
+	eRBlendOp AlphaOp = eRBlendOp::eRBlendOp_MaxEnum;
+	uint32_t ColorMask = eRColorWriteMask::eColorNone;
 };
 
 class rGpuMarker
@@ -166,11 +170,30 @@ public:
 
 	virtual void setShader(const rShader *shader) = 0;
 
-	virtual void setRasterizerState(const rRasterizerState *rasterizerState) = 0;
+	virtual void setRasterizerState(
+		eRPolygonMode polygonMode,
+		eRCullMode cullMode,
+		eRFrontFace frontFace,
+		bool8_t enableDepthBias = false,
+		float32_t depthBias = 0.0f,
+		float32_t depthBiasClamp = 0.0f,
+		float32_t depthBiasSlope = 0.0f) = 0;
 
-	virtual void setBlendState(const rBlendState *blendState) = 0;
+	virtual void setBlendState(
+		bool8_t enableLogicOp,
+		eLogicOp logicOp,
+		uint32_t attachmentCount,
+		const rColorBlendState * const clrBlendState) = 0;
 
-	virtual void setDepthStencilState(const rDepthStencilState *depthStencilState) = 0;
+	virtual void setDepthStencilState(
+		bool8_t enableDepth,
+		bool8_t enableDepthWrite,
+		eRCompareOp depthCompareOp,
+		bool8_t enableStencil,
+		uint8_t stencilReadMask,
+		uint8_t stencilWriteMask,
+		const rStencilOp &front,
+		const rStencilOp &back) = 0;
 
 	virtual void setViewport(const rViewport *viewport) = 0;
 
@@ -210,8 +233,6 @@ public:
 	virtual void logError(uint32_t result) const = 0;
 
 	virtual void handleWindowResize(uint32_t width, uint32_t height, const appConfig &config) = 0;
-
-	virtual rDevice *getDevice() = 0;
 protected:
 private:
 };

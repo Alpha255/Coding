@@ -196,29 +196,36 @@ enum class eRStencilOp
 	eRStencilOp_MaxEnum
 };
 
+enum class eLogicOp
+{
+	eClear,
+	eAnd,
+	eAnd_Reverse,
+	eCopy,
+	eAnd_Inverted,
+	eNo,
+	eXor,
+	eOr,
+	eNor,
+	eEquivalent,
+	eInvert,
+	eOr_Reverse,
+	eCopy_Inverted,
+	eOr_Inverted,
+	eNand,
+	eSet,
+	eRLogicOp_MaxEnum
+};
+
 enum eRColorWriteMask
 {
-	eColorNone,
-	eColorRed,
-	eColorGreen,
-	eColorBlue,
-	eColorAlpha,
+	eColorNone = 0x00000000,
+	eColorRed = 0x00000001,
+	eColorGreen = 0x00000010,
+	eColorBlue = 0x00000100,
+	eColorAlpha = 0x00001000,
 	eColorAll,
 	eRColorWriteMask_MaxEnum
-};
-
-enum eRDepthWriteMask
-{
-	eDepthMaskZero,   /// Turn off writes to the depth-stencil buffer.
-	eDepthMaskAll,    /// Turn on writes to the depth-stencil buffer.
-	eRDepthWriteMask_MaxEnum
-};
-
-enum eRStencilMask
-{
-	eStencilReadMask,
-	eStencilWriteMask,
-	eRStencilMask_MaxEnum
 };
 
 enum eRVertexUsage
@@ -230,6 +237,11 @@ enum eRVertexUsage
 	eTexcoord,
 	eColor,
 	eRVertexUsge_MaxEnum
+};
+
+enum eConstants
+{
+	eMaxRenderTargets = 8
 };
 
 enum eRFormat

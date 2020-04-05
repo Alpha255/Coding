@@ -126,3 +126,162 @@ void vkEngine::finalize()
 	vkLoader::finalize();
 #endif
 }
+
+VkPolygonMode vkEngine::enumTranslator::toPolygonMode(eRPolygonMode mode)
+{
+	switch (mode)
+	{
+	case eSolid:     return VK_POLYGON_MODE_FILL;
+	case eWireframe: return VK_POLYGON_MODE_LINE;
+	case ePoint:     return VK_POLYGON_MODE_POINT;
+	}
+	return VK_POLYGON_MODE_MAX_ENUM;
+}
+
+VkCullModeFlags vkEngine::enumTranslator::toCullMode(eRCullMode mode)
+{
+	switch (mode)
+	{
+	case eCullNone:      return VK_CULL_MODE_NONE;
+	case eCullFrontFace: return VK_CULL_MODE_FRONT_BIT;
+	case eCullBackFace:  return VK_CULL_MODE_BACK_BIT;
+	///case eCullAll:       return VK_CULL_MODE_FRONT_AND_BACK;
+	}
+	return VK_CULL_MODE_FLAG_BITS_MAX_ENUM;
+}
+
+VkFrontFace vkEngine::enumTranslator::toFrontFace(eRFrontFace frontFace)
+{
+	switch (frontFace)
+	{
+	case eClockwise:        return VK_FRONT_FACE_CLOCKWISE;
+	case eCounterclockwise: return VK_FRONT_FACE_COUNTER_CLOCKWISE;
+	}
+	return VK_FRONT_FACE_MAX_ENUM;
+}
+
+VkLogicOp vkEngine::enumTranslator::toLogicOp(eLogicOp op)
+{
+	switch (op)
+	{
+	case eLogicOp::eClear:         return VK_LOGIC_OP_CLEAR;
+	case eLogicOp::eAnd:           return VK_LOGIC_OP_AND;
+	case eLogicOp::eAnd_Reverse:   return VK_LOGIC_OP_AND_REVERSE;
+	case eLogicOp::eCopy:          return VK_LOGIC_OP_COPY;
+	case eLogicOp::eAnd_Inverted:  return VK_LOGIC_OP_AND_INVERTED;
+	case eLogicOp::eNo:            return VK_LOGIC_OP_NO_OP;
+	case eLogicOp::eXor:           return VK_LOGIC_OP_XOR;
+	case eLogicOp::eOr:            return VK_LOGIC_OP_OR;
+	case eLogicOp::eNor:           return VK_LOGIC_OP_NOR;
+	case eLogicOp::eEquivalent:    return VK_LOGIC_OP_EQUIVALENT;
+	case eLogicOp::eInvert:        return VK_LOGIC_OP_INVERT;
+	case eLogicOp::eOr_Reverse:    return VK_LOGIC_OP_OR_REVERSE;
+	case eLogicOp::eCopy_Inverted: return VK_LOGIC_OP_COPY_INVERTED;
+	case eLogicOp::eOr_Inverted:   return VK_LOGIC_OP_OR_INVERTED;
+	case eLogicOp::eNand:          return VK_LOGIC_OP_NAND;
+	case eLogicOp::eSet:           return VK_LOGIC_OP_SET;
+	}
+	return VK_LOGIC_OP_MAX_ENUM;
+}
+
+VkBlendOp vkEngine::enumTranslator::toBlendOp(eRBlendOp op)
+{
+	switch (op)
+	{
+	case eRBlendOp::eAdd:             return VK_BLEND_OP_ADD;
+	case eRBlendOp::eSubtract:        return VK_BLEND_OP_SUBTRACT;
+	case eRBlendOp::eReverseSubtract: return VK_BLEND_OP_REVERSE_SUBTRACT;
+	case eRBlendOp::eMin:             return VK_BLEND_OP_MIN;
+	case eRBlendOp::eMax:             return VK_BLEND_OP_MAX;
+	}
+	return VK_BLEND_OP_MAX_ENUM;
+}
+
+VkBlendFactor vkEngine::enumTranslator::toBlendFactor(eRBlendFactor factor)
+{
+	switch (factor)
+	{
+	case eRBlendFactor::eZero:             return VK_BLEND_FACTOR_ZERO;
+	case eRBlendFactor::eOne:              return VK_BLEND_FACTOR_ONE;
+	case eRBlendFactor::eConstant:         return VK_BLEND_FACTOR_CONSTANT_COLOR;
+	case eRBlendFactor::eInverseConstant:  return VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR;
+	case eRBlendFactor::eSrcAlpha:         return VK_BLEND_FACTOR_SRC_ALPHA;
+	case eRBlendFactor::eInverseSrcAlpha:  return VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+	case eRBlendFactor::eDstAlpha:         return VK_BLEND_FACTOR_DST_ALPHA;
+	case eRBlendFactor::eInverseDstAlpha:  return VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
+	case eRBlendFactor::eSrcAlphaSaturate: return VK_BLEND_FACTOR_SRC_ALPHA_SATURATE;
+	case eRBlendFactor::eSrc1Alpha:        return VK_BLEND_FACTOR_SRC1_ALPHA;
+	case eRBlendFactor::eInverseSrc1Alpha: return VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA;
+	case eRBlendFactor::eSrcColor:         return VK_BLEND_FACTOR_SRC_COLOR;
+	case eRBlendFactor::eInverseSrcColor:  return VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR;
+	case eRBlendFactor::eDstColor:         return VK_BLEND_FACTOR_DST_COLOR;
+	case eRBlendFactor::eInverseDstColor:  return VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR;
+	case eRBlendFactor::eSrc1Color:        return VK_BLEND_FACTOR_SRC1_COLOR;
+	case eRBlendFactor::eInverseSrc1Color: return VK_BLEND_FACTOR_ONE_MINUS_SRC1_COLOR;
+	}
+	return VK_BLEND_FACTOR_MAX_ENUM;
+}
+
+VkColorComponentFlags vkEngine::enumTranslator::toColorComponentFlags(uint32_t colorMask)
+{
+	if (colorMask == eColorNone)
+	{
+		return 0u;
+	}
+
+	if (colorMask == eColorAll)
+	{
+		return (VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT);
+	}
+
+	VkColorComponentFlags flags = 0u;
+	if (colorMask & eColorRed)
+	{
+		flags |= VK_COLOR_COMPONENT_R_BIT;
+	}
+	if (colorMask & eColorGreen)
+	{
+		flags |= VK_COLOR_COMPONENT_G_BIT;
+	}
+	if (colorMask & eColorBlue)
+	{
+		flags |= VK_COLOR_COMPONENT_B_BIT;
+	}
+	if (colorMask & eColorAlpha)
+	{
+		flags |= VK_COLOR_COMPONENT_A_BIT;
+	}
+	return flags;
+}
+
+VkCompareOp vkEngine::enumTranslator::toCompareOp(eRCompareOp op)
+{
+	switch (op)
+	{
+	case eRCompareOp::eNever:          return VK_COMPARE_OP_NEVER;
+	case eRCompareOp::eLess:           return VK_COMPARE_OP_LESS;
+	case eRCompareOp::eEqual:          return VK_COMPARE_OP_EQUAL;
+	case eRCompareOp::eLessOrEqual:    return VK_COMPARE_OP_LESS_OR_EQUAL;
+	case eRCompareOp::eGreater:        return VK_COMPARE_OP_GREATER;
+	case eRCompareOp::eNotEqual:       return VK_COMPARE_OP_NOT_EQUAL;
+	case eRCompareOp::eGreaterOrEqual: return VK_COMPARE_OP_GREATER_OR_EQUAL;
+	case eRCompareOp::eAlways:         return VK_COMPARE_OP_ALWAYS;
+	}
+	return VK_COMPARE_OP_MAX_ENUM;
+}
+
+VkStencilOp vkEngine::enumTranslator::toStencilOp(eRStencilOp op)
+{
+	switch (op)
+	{
+	case eRStencilOp::eKeep:              return VK_STENCIL_OP_KEEP;
+	case eRStencilOp::eZero:              return VK_STENCIL_OP_ZERO;
+	case eRStencilOp::eReplace:           return VK_STENCIL_OP_REPLACE;
+	case eRStencilOp::eIncrementAndClamp: return VK_STENCIL_OP_INCREMENT_AND_CLAMP;
+	case eRStencilOp::eDecrementAndClamp: return VK_STENCIL_OP_DECREMENT_AND_CLAMP;
+	case eRStencilOp::eInvert:            return VK_STENCIL_OP_INVERT;
+	case eRStencilOp::eIncrementAndWrap:  return VK_STENCIL_OP_INCREMENT_AND_WRAP;
+	case eRStencilOp::eDecrementAndWrap:  return VK_STENCIL_OP_DECREMENT_AND_WRAP;
+	}
+	return VK_STENCIL_OP_MAX_ENUM;
+}

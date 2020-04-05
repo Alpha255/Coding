@@ -178,7 +178,7 @@ template<class _Alloc> struct normal_allocator_traits
 
 	static __declspec(allocator) pointer allocate(_Alloc &alloc, const size_type count, const const_void_pointer hint)
 	{
-		return allocate1(alloc, count, hint, has_allocate_hint<_Alloc, size_type, const_void_pointer>{}));
+		return allocate1(alloc, count, hint, has_allocate_hint<_Alloc, size_type, const_void_pointer>{});
 	}
 
 	static __declspec(allocator) pointer allocate1(_Alloc &alloc, const size_type count, const_void_pointer hint, true_type)
@@ -259,8 +259,8 @@ public:
 	{
 	}
 
-	template<class... _Other1, class... _Other2> compressed_pair(_Other1 &&val1, _Other2&&... val2)
-		: _T1(forward<_Other1>(val1)),
+	template<class... _Other1, class... _Other2> compressed_pair(_Other1&&... val1, _Other2&&... val2)
+		: _T1(forward<_Other1>(val1)...),
 		_val2(forward<_Other2>(val2)...)
 	{
 	}
