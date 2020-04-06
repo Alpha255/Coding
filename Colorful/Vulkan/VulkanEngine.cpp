@@ -1,4 +1,7 @@
 #include "VulkanEngine.h"
+#include "VulkanTexture.h"
+#include "VulkanShader.h"
+#include "VulkanBuffer.h"
 
 void vkEngine::initialize(uint64_t windowHandle, const appConfig &config)
 {
@@ -111,6 +114,8 @@ case enumValue:                                      \
 void vkEngine::finalize()
 {
 	m_Device.waitIdle();
+
+	m_GpuResourcePool.releaseAll(m_Device);
 
 	m_Swapchain.destroy(m_Instance, m_Device);
 
@@ -284,4 +289,26 @@ VkStencilOp vkEngine::enumTranslator::toStencilOp(eRStencilOp op)
 	case eRStencilOp::eDecrementAndWrap:  return VK_STENCIL_OP_DECREMENT_AND_WRAP;
 	}
 	return VK_STENCIL_OP_MAX_ENUM;
+}
+
+void vkEngine::vkGpuResourcePool::releaseAll(const vkDevice &device)
+{
+	for (uint32_t i = 0u; i < rGpuResource::eResourceType_MaxEnum; ++i)
+	{
+		for (uint32_t j = 0u; j < m_Pool[i].size(); ++j)
+		{
+			if (i == rGpuResource::eTexture)
+			{
+				release<vkTexture>(m_Pool[i][j], device);
+			}
+			else if (i == rGpuResource::eShader)
+			{
+				release<vkShader>(m_Pool[i][j], device);
+			}
+			else if (i == rGpuResource::eBuffer)
+			{
+				release<vkBuffer>(m_Pool[i][j], device);
+			}
+		}
+	}
 }

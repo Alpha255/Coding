@@ -14,6 +14,8 @@ d3d11Shader::d3d11Shader(const d3d11Device &device, eRShaderUsage usage, const r
 		ID3D11VertexShader *pShader = nullptr;
 		rVerifyD3D11(device->CreateVertexShader(binary.Binary.get(), binary.Size, nullptr, &pShader));
 		reset(pShader);
+
+		m_ShaderBlob = binary;
 	}
 		break;
 	case eHullShader:
@@ -52,4 +54,23 @@ d3d11Shader::d3d11Shader(const d3d11Device &device, eRShaderUsage usage, const r
 	}
 		break;
 	}
+}
+
+void d3d11Shader::setInputLayout(const std::vector<rVertexAttributes> &vertexAttributes)
+{
+	assert(isValid() && m_Usage == eVertexShader);
+	assert(!m_InputLayout.isValid());
+
+	std::vector<D3D11_INPUT_ELEMENT_DESC> descs;
+	for each (const auto &attr in vertexAttributes)
+	{
+
+	}
+
+	ID3D11InputLayout *pLayout = nullptr;
+	rVerifyD3D11(d3d11Engine::instance().getDevice()->CreateInputLayout(descs.data(), descs.size(), m_ShaderBlob.Binary.get(), m_ShaderBlob.Size, &pLayout));
+	reset(pLayout);
+
+	m_ShaderBlob.Binary.reset();
+	m_ShaderBlob.Size = 0ull;
 }

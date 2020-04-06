@@ -20,6 +20,11 @@ public:
 		}
 	}
 
+	inline void appendResource(rGpuResource::eResourceType type, rGpuResource *resource)
+	{
+		m_GpuResourcePool.append(type, resource);
+	}
+
 	class enumTranslator
 	{
 	public:
@@ -34,6 +39,25 @@ public:
 		static VkStencilOp toStencilOp(eRStencilOp op);
 	};
 protected:
+	class vkGpuResourcePool
+	{
+	public:
+		inline void append(rGpuResource::eResourceType type, rGpuResource *resource)
+		{
+			m_Pool[type].emplace_back(resource);
+		}
+
+		void releaseAll(const vkDevice &device);
+	protected:
+		template<class T> void release(rGpuResource *resource, const vkDevice &device)
+		{
+			T *realType = static_cast<T *>(resource);
+			assert(realType);
+			realType->destroy(device);
+		}
+	private:
+		std::array<std::vector<rGpuResource *>, rGpuResource::eResourceType_MaxEnum> m_Pool;
+	};
 private:
 	vkInstance m_Instance;
 	vkDebugUtilsMessenger m_DebugUtilsMessenger;
@@ -43,4 +67,5 @@ private:
 	vkDeviceQueue m_ComputeQueue;
 	vkDeviceQueue m_TransferQueue;
 	vkSwapchain m_Swapchain;
+	vkGpuResourcePool m_GpuResourcePool;
 };

@@ -12,9 +12,10 @@ rShaderPtr vkDevice::createShader(eRShaderUsage usage, const std::string &shader
 rTexturePtr vkDevice::createTexture(const std::string &textureName)
 {
 	auto textureBinary = rAsset::rAssetBucket::instance().getTextureBinary(textureName);
-	rTexturePtr texturePtr(new vkTexture(*this, textureBinary));
+	auto texture = new vkTexture(*this, textureBinary);
+	vkEngine::instance().appendResource(rGpuResource::eTexture, texture);
 
-	return texturePtr;
+	return rTexturePtr(texture);
 }
 
 vkFence *vkDevice::createFence(vkFence::eFenceStatus status, bool8_t)

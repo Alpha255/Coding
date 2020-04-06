@@ -42,37 +42,38 @@ struct rAdapter
 	}
 };
 
-class rTexture
+class rGpuResource
 {
 public:
-	virtual void bindSampler(const class rSamplerState *samplerState) 
+	enum eResourceType
 	{
-		if (samplerState)
-		{
-			m_Sampler = samplerState;
-		}
+		eTexture,
+		eShader,
+		eBuffer,
+		eResourceType_MaxEnum
+	};
+};
+
+class rTexture : public rGpuResource
+{
+public:
+	virtual void bindSampler(const class rSampler *) 
+	{
 	}
 protected:
-	const class rSamplerState *m_Sampler = nullptr;
 };
 
-class rBuffer
+class rBuffer : public rGpuResource
 {
 };
 
-class rInputLayout
+struct rVertexAttributes
 {
-public:
-	struct rVertexAttributes
-	{
-		eRVertexUsage Usage = eRVertexUsge_MaxEnum;
-		eRFormat Format = eRFormat_MaxEnum;
-	};
-
-	virtual void create(const std::vector<rVertexAttributes> &vertexAttributes) = 0;
+	eRVertexUsage Usage = eRVertexUsge_MaxEnum;
+	eRFormat Format = eRFormat_MaxEnum;
 };
 
-class rShader
+class rShader : public rGpuResource
 {
 public:
 	rShader(eRShaderUsage usage)
@@ -80,12 +81,12 @@ public:
 	{
 	}
 
-	virtual void setInputLayout(const rInputLayout *) {}
+	virtual void setInputLayout(const std::vector<rVertexAttributes> &) {}
 	virtual void pushUniformBuffer(const rBuffer *buffer) = 0;
 	virtual void pushTexture(const rTexture *texture) = 0;
 protected:
-private:
 	eRShaderUsage m_Usage = eRShaderUsage_MaxEnum;
+private:
 };
 
 class rRenderSurface
@@ -165,8 +166,6 @@ public:
 		m_ClearValue.Depth = depth;
 		m_ClearValue.Stencil = stencil;
 	}
-
-	virtual void setInputLayout(const rInputLayout *inputLayout) = 0;
 
 	virtual void setShader(const rShader *shader) = 0;
 

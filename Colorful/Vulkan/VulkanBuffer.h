@@ -11,7 +11,7 @@ public:
 	void update(const class vkDevice &device, const void *pData, size_t size = VK_WHOLE_SIZE, size_t offset = 0u);
 };
 
-class vkBuffer : public vkDeviceObject<VkBuffer>
+class vkBuffer : public vkDeviceObject<VkBuffer>, public rBuffer
 {
 public:
 	void destroy(const class vkDevice &device) override final;
@@ -26,7 +26,7 @@ public:
 	vkStagingBuffer(const class vkDevice &device, VkBufferUsageFlags usageFlagBits, size_t size, const void *pData);
 };
 
-class vkGpuBuffer : public vkBuffer, public rBuffer
+class vkGpuBuffer : public vkBuffer
 {
 public:
 	vkGpuBuffer(const class vkDevice &device, eRBufferBindFlags bindFlags, eRBufferUsage usage, size_t size, const void *pData);

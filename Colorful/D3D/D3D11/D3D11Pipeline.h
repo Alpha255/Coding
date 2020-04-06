@@ -5,8 +5,6 @@
 class d3d11GraphicsPipeline : public rGraphicsPipeline
 {
 public:
-	void setInputLayout(const rInputLayout *inputLayout) override final {}
-
 	void setShader(const rShader *shader) override final {}
 
 	void setRasterizerState(

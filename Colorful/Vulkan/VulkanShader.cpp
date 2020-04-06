@@ -33,3 +33,8 @@ void vkShader::destroy(const vkDevice &device)
 		reset();
 	}
 }
+
+void vkShader::setInputLayout(const std::vector<rVertexAttributes>& vertexAttributes)
+{
+	assert(m_Usage == eVertexShader);
+}

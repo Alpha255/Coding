@@ -3,6 +3,11 @@
 #include "VulkanBuffer.h"
 #include "Colorful/Public/RAsset.h"
 
+class vkSampler : public vkDeviceObject<VkSampler>
+{
+
+};
+
 class vkTexture : public vkDeviceObject<VkImage>, public rTexture
 {
 public:
