@@ -3,7 +3,7 @@
     Properties
     {
         _AlbedoTex("Texture", 2D) = "white" {}
-    	_AlbedoTint("AlbedoTint", Color) = (1, 1, 1, 1)
+        _AlbedoTint("AlbedoTint", Color) = (1, 1, 1, 1)
         _Metallic("Metallic", Range(0.0, 1.0)) = 0.0
         _Smoothness("Smoothness", Range(0.0, 1.0)) = 0.5
         [Enum(BRDF_GGX, 1, BRDF_BlinnPhong, 2)] _BRDFModel("BRDF Model:", Int) = 1
@@ -65,11 +65,21 @@
                 light.color = _LightColor0.rgb;
                 light.dir = _WorldSpaceLightPos0.xyz;
 
-                UnityIndirect gi;
-                gi.diffuse = half3(.0, .0, .0);
-                gi.specular = half3(.0, .0, .0);
-
                 float3 viewDir = normalize(_WorldSpaceCameraPos.xyz - input.posWorld.xyz);
+
+                float3 normal = normalize(input.normal);
+                UnityGI unityGI = GetGI(
+                    _LightColor0.rgb,
+                    light.dir,
+                    normal,
+                    viewDir,
+                    reflect(viewDir, normal),
+                    0.0,
+                    1 - _Smoothness,
+                    input.posWorld.xyz);
+                UnityIndirect gi;
+                gi.diffuse = unityGI.indirect.diffuse.rgb;
+                gi.specular = unityGI.indirect.specular.rgb;
 
                 half3 diffuseColor;
                 half3 specularColor;
@@ -77,7 +87,7 @@
 
                 if (_BRDFTier == 1)
                 {
-                    return BRDF1_Unity_PBS(
+                    return bj_BRDF1_Unity_PBS(
                         diffuseColor,
                         specularColor,
                         0.0,
@@ -90,7 +100,7 @@
                 }
                 else if (_BRDFTier == 2)
                 {
-                    return BRDF2_Unity_PBS(
+                    return bj_BRDF2_Unity_PBS(
                         diffuseColor,
                         specularColor,
                         0.0,
@@ -103,7 +113,7 @@
                 }
                 else if (_BRDFTier == 3)
                 {
-                    return BRDF3_Unity_PBS(
+                    return bj_BRDF3_Unity_PBS(
                         diffuseColor,
                         specularColor,
                         0.0,
