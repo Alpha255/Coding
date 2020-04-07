@@ -165,26 +165,26 @@ VkFrontFace vkEngine::enumTranslator::toFrontFace(eRFrontFace frontFace)
 	return VK_FRONT_FACE_MAX_ENUM;
 }
 
-VkLogicOp vkEngine::enumTranslator::toLogicOp(eLogicOp op)
+VkLogicOp vkEngine::enumTranslator::toLogicOp(eRLogicOp op)
 {
 	switch (op)
 	{
-	case eLogicOp::eClear:         return VK_LOGIC_OP_CLEAR;
-	case eLogicOp::eAnd:           return VK_LOGIC_OP_AND;
-	case eLogicOp::eAnd_Reverse:   return VK_LOGIC_OP_AND_REVERSE;
-	case eLogicOp::eCopy:          return VK_LOGIC_OP_COPY;
-	case eLogicOp::eAnd_Inverted:  return VK_LOGIC_OP_AND_INVERTED;
-	case eLogicOp::eNo:            return VK_LOGIC_OP_NO_OP;
-	case eLogicOp::eXor:           return VK_LOGIC_OP_XOR;
-	case eLogicOp::eOr:            return VK_LOGIC_OP_OR;
-	case eLogicOp::eNor:           return VK_LOGIC_OP_NOR;
-	case eLogicOp::eEquivalent:    return VK_LOGIC_OP_EQUIVALENT;
-	case eLogicOp::eInvert:        return VK_LOGIC_OP_INVERT;
-	case eLogicOp::eOr_Reverse:    return VK_LOGIC_OP_OR_REVERSE;
-	case eLogicOp::eCopy_Inverted: return VK_LOGIC_OP_COPY_INVERTED;
-	case eLogicOp::eOr_Inverted:   return VK_LOGIC_OP_OR_INVERTED;
-	case eLogicOp::eNand:          return VK_LOGIC_OP_NAND;
-	case eLogicOp::eSet:           return VK_LOGIC_OP_SET;
+	case eRLogicOp::eClear:         return VK_LOGIC_OP_CLEAR;
+	case eRLogicOp::eAnd:           return VK_LOGIC_OP_AND;
+	case eRLogicOp::eAnd_Reverse:   return VK_LOGIC_OP_AND_REVERSE;
+	case eRLogicOp::eCopy:          return VK_LOGIC_OP_COPY;
+	case eRLogicOp::eAnd_Inverted:  return VK_LOGIC_OP_AND_INVERTED;
+	case eRLogicOp::eNo:            return VK_LOGIC_OP_NO_OP;
+	case eRLogicOp::eXor:           return VK_LOGIC_OP_XOR;
+	case eRLogicOp::eOr:            return VK_LOGIC_OP_OR;
+	case eRLogicOp::eNor:           return VK_LOGIC_OP_NOR;
+	case eRLogicOp::eEquivalent:    return VK_LOGIC_OP_EQUIVALENT;
+	case eRLogicOp::eInvert:        return VK_LOGIC_OP_INVERT;
+	case eRLogicOp::eOr_Reverse:    return VK_LOGIC_OP_OR_REVERSE;
+	case eRLogicOp::eCopy_Inverted: return VK_LOGIC_OP_COPY_INVERTED;
+	case eRLogicOp::eOr_Inverted:   return VK_LOGIC_OP_OR_INVERTED;
+	case eRLogicOp::eNand:          return VK_LOGIC_OP_NAND;
+	case eRLogicOp::eSet:           return VK_LOGIC_OP_SET;
 	}
 	return VK_LOGIC_OP_MAX_ENUM;
 }
@@ -289,6 +289,136 @@ VkStencilOp vkEngine::enumTranslator::toStencilOp(eRStencilOp op)
 	case eRStencilOp::eDecrementAndWrap:  return VK_STENCIL_OP_DECREMENT_AND_WRAP;
 	}
 	return VK_STENCIL_OP_MAX_ENUM;
+}
+
+VkFormat vkEngine::enumTranslator::toFormat(eRFormat format)
+{
+	switch (format)
+	{
+	case eUnknownFormat:            return VK_FORMAT_UNDEFINED;
+	case eD16_UNorm:                return VK_FORMAT_D16_UNORM;
+	case eD24_UNorm_S8_UInt:        return VK_FORMAT_D24_UNORM_S8_UINT;
+	case eD32_Float:                return VK_FORMAT_D32_SFLOAT;
+	case eRGBA32_Typeless:          return VK_FORMAT_R32G32B32A32_SFLOAT;
+	case eRGBA32_Float:             return VK_FORMAT_R32G32B32A32_SFLOAT;
+	case eRGBA32_UInt:              return VK_FORMAT_R32G32B32A32_UINT;
+	case eRGBA32_SInt:              return VK_FORMAT_R32G32B32A32_SINT;
+	case eRGB32_Typeless:           return VK_FORMAT_R32G32B32_SFLOAT;
+	case eRGB32_Float:              return VK_FORMAT_R32G32B32_SFLOAT;
+	case eRGB32_UInt:               return VK_FORMAT_R32G32B32_UINT;
+	case eRGB32_SInt:               return VK_FORMAT_R32G32B32_SINT;
+	case eRGBA16_Typeless:          return VK_FORMAT_R16G16B16A16_SFLOAT;
+	case eRGBA16_Float:             return VK_FORMAT_R16G16B16A16_SFLOAT;
+	case eRGBA16_UNorm:             return VK_FORMAT_R16G16B16A16_UNORM;
+	case eRGBA16_UInt:              return VK_FORMAT_R16G16B16A16_UINT;
+	case eRGBA16_SNorm:             return VK_FORMAT_R16G16B16A16_SNORM;
+	case eRGBA16_SInt:              return VK_FORMAT_R16G16B16A16_SINT;
+	case eRG32_Typeless:            return VK_FORMAT_R32_SFLOAT;
+	case eRG32_Float:               return VK_FORMAT_R32_SFLOAT;
+	case eRG32_UInt:                return VK_FORMAT_R32G32_UINT;
+	case eRG32_SInt:                return VK_FORMAT_R32G32_SINT;
+	case eRGBA8_Typeless:           return VK_FORMAT_R8G8B8A8_UNORM;
+	case eRGBA8_UNorm:              return VK_FORMAT_R8G8B8A8_UNORM;
+	case eRGBA8_UNorm_SRGB:         return VK_FORMAT_R8G8B8A8_SRGB;
+	case eRGBA8_UInt:               return VK_FORMAT_R8G8B8A8_UINT;
+	case eRGBA8_SNorm:              return VK_FORMAT_R8G8B8A8_SNORM;
+	case eRGBA8_SInt:               return VK_FORMAT_R8G8B8A8_SINT;
+	case eRG16_Typeless:            return VK_FORMAT_R16G16_SFLOAT;
+	case eRG16_Float:               return VK_FORMAT_R16G16_SFLOAT;
+	case eRG16_UNorm:               return VK_FORMAT_R16G16_UNORM;
+	case eRG16_UInt:                return VK_FORMAT_R16G16_UINT;
+	case eRG16_SNorm:               return VK_FORMAT_R16G16_SNORM;
+	case eRG16_SInt:                return VK_FORMAT_R16G16_SINT;
+	case eR32_Typeless:             return VK_FORMAT_R32_SFLOAT;
+	case eR32_Float:                return VK_FORMAT_R32_SFLOAT;
+	case eR32_UInt:                 return VK_FORMAT_R32_UINT;
+	case eR32_SInt:                 return VK_FORMAT_R32_SINT;
+	case eRG8_Typeless:             return VK_FORMAT_R8G8_UNORM;
+	case eRG8_UNorm:                return VK_FORMAT_R8G8_UNORM;
+	case eRG8_UInt:                 return VK_FORMAT_R8G8_UINT;
+	case eRG8_SNorm:                return VK_FORMAT_R8G8_SNORM;
+	case eRG8_SInt:                 return VK_FORMAT_R8G8_SINT;
+	case eR16_Typeless:             return VK_FORMAT_R16_SFLOAT;
+	case eR16_Float:                return VK_FORMAT_R16_SFLOAT;
+	case eR16_UNorm:                return VK_FORMAT_R16_UNORM;
+	case eR16_UInt:                 return VK_FORMAT_R16_UINT;
+	case eR16_SNorm:                return VK_FORMAT_R16_SNORM;
+	case eR16_SInt:                 return VK_FORMAT_R16_SINT;
+	case eR8_Typeless:              return VK_FORMAT_R8_UNORM;
+	case eR8_UNorm:                 return VK_FORMAT_R8_UNORM;
+	case eR8_UInt:                  return VK_FORMAT_R8_UINT;
+	case eR8_SNorm:                 return VK_FORMAT_R8_SNORM;
+	case eR8_SInt:                  return VK_FORMAT_R8_SINT;
+	case eBC1_Typeless:             return VK_FORMAT_BC1_RGBA_UNORM_BLOCK;
+	case eBC1_UNorm:                return VK_FORMAT_BC1_RGBA_UNORM_BLOCK;
+	case eBC1_UNorm_SRGB:           return VK_FORMAT_BC1_RGBA_SRGB_BLOCK;
+	case eBC2_Typeless:             return VK_FORMAT_BC2_UNORM_BLOCK;
+	case eBC2_UNorm:                return VK_FORMAT_BC2_UNORM_BLOCK;
+	case eBC2_UNorm_SRGB:           return VK_FORMAT_BC2_SRGB_BLOCK;
+	case eBC3_Typeless:             return VK_FORMAT_BC3_UNORM_BLOCK;
+	case eBC3_UNorm:                return VK_FORMAT_BC3_UNORM_BLOCK;
+	case eBC3_UNorm_SRGB:           return VK_FORMAT_BC3_SRGB_BLOCK;
+	case eBC4_Typeless:             return VK_FORMAT_BC4_UNORM_BLOCK;
+	case eBC4_UNorm:                return VK_FORMAT_BC4_UNORM_BLOCK;
+	case eBC4_SNorm:                return VK_FORMAT_BC4_SNORM_BLOCK;
+	case eBC5_Typeless:             return VK_FORMAT_BC5_UNORM_BLOCK;
+	case eBC5_UNorm:                return VK_FORMAT_BC5_UNORM_BLOCK;
+	case eBC5_SNorm:                return VK_FORMAT_BC5_SNORM_BLOCK;
+	case eB5G6R5_UNorm:             return VK_FORMAT_B5G6R5_UNORM_PACK16;
+	case eBGR5A1_UNorm:             return VK_FORMAT_B5G5R5A1_UNORM_PACK16;
+	case eBGRA8_UNorm:              return VK_FORMAT_R8G8B8A8_UNORM;
+	case eBGRA8_Typeless:           return VK_FORMAT_R8G8B8A8_UNORM;
+	case eBGRA8_UNorm_SRGB:         return VK_FORMAT_R8G8B8A8_SRGB;
+	case eBC6H_Typeless:            return VK_FORMAT_BC6H_UFLOAT_BLOCK;
+	case eBC6H_UF16:                return VK_FORMAT_BC6H_UFLOAT_BLOCK;
+	case eBC6H_SF16:                return VK_FORMAT_BC6H_SFLOAT_BLOCK;
+	case eBC7_Typeless:             return VK_FORMAT_BC7_UNORM_BLOCK;
+	case eBC7_UNorm:                return VK_FORMAT_BC7_UNORM_BLOCK;
+	case eBC7_UNorm_SRGB:           return VK_FORMAT_BC7_SRGB_BLOCK;
+	case eForce_UInt:               return VK_FORMAT_R8G8B8A8_UINT;
+	case eD32_Float_S8X24_Uint:    
+	case eR32G8X24_Typeless:       
+	case eR32_Float_X8X24_Typeless:
+	case eX32_Typeless_G8X24_UInt: 
+	case eRGB10A2_Typeless:        
+	case eRGB10A2_UNorm:           
+	case eRGB10A2_UInt:            
+	case eRG11B10_Float:           
+	case eR24G8_Typeless:          
+	case eR24_UNorm_X8_Typeless:   
+	case eX24_Typelesss_G8_UInt:   
+	case eA8_UNorm:                
+	case eR1_UNorm:                
+	case eRGB9E5_SharedXP:         
+	case eRG8_BG8_UNorm:           
+	case eGR8_GB8_UNorm:           
+	case eBGRX8_UNorm:             
+	case eRGB10_XR_Bias_A2_UNorm:  
+	case eBGRX8_Typeless:          
+	case eBGRX8_UNorm_SRGB:        
+	case eAYUV:                    
+	case eY410:                    
+	case eY416:                    
+	case eNV12:                    
+	case eP010:                    
+	case eP016:                    
+	case e420_Opaque:              
+	case eYUY2:                    
+	case eY210:                    
+	case eY216:                    
+	case eNV11:                    
+	case eAI44:                    
+	case eIA44:                    
+	case eP8:                      
+	case eAP8:                     
+	case eBGRA4_UNorm:             
+	case eP208:                    
+	case eV208:                    
+	case eV408:
+		assert(0);
+		break;
+	}
+	return (VkFormat)-1;
 }
 
 void vkEngine::vkGpuResourcePool::releaseAll(const vkDevice &device)

@@ -31,12 +31,13 @@ public:
 		static VkPolygonMode toPolygonMode(eRPolygonMode mode);
 		static VkCullModeFlags toCullMode(eRCullMode mode);
 		static VkFrontFace toFrontFace(eRFrontFace frontFace);
-		static VkLogicOp toLogicOp(eLogicOp op);
+		static VkLogicOp toLogicOp(eRLogicOp op);
 		static VkBlendOp toBlendOp(eRBlendOp op);
 		static VkBlendFactor toBlendFactor(eRBlendFactor factor);
 		static VkColorComponentFlags toColorComponentFlags(uint32_t colorMask);
 		static VkCompareOp toCompareOp(eRCompareOp op);
 		static VkStencilOp toStencilOp(eRStencilOp op);
+		static VkFormat toFormat(eRFormat format);
 	};
 protected:
 	class vkGpuResourcePool

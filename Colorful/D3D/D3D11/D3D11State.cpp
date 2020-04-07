@@ -33,7 +33,7 @@ void d3d11RasterizerState::create(
 
 void d3d11BlendState::create(
 	bool8_t enableLogicOp,
-	eLogicOp logicOp, 
+	eRLogicOp logicOp, 
 	uint32_t renderTargetCount,
 	const rColorBlendState * const clrBlendState)
 {

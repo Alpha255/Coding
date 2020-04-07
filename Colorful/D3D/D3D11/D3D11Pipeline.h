@@ -28,7 +28,7 @@ public:
 
 	void setBlendState(
 		bool8_t enableLogicOp,
-		eLogicOp logicOp,
+		eRLogicOp logicOp,
 		uint32_t renderTargetCount,
 		const rColorBlendState * const clrBlendState) override final
 	{

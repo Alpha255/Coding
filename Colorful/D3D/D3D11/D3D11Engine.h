@@ -36,6 +36,7 @@ public:
 		static uint8_t toColorComponentFlags(uint32_t colorMask);
 		static D3D11_COMPARISON_FUNC toCompareOp(eRCompareOp op);
 		static D3D11_STENCIL_OP toStencilOp(eRStencilOp op);
+		static DXGI_FORMAT toFormat(eRFormat format);
 	};
 protected:
 private:

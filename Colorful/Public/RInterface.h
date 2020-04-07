@@ -71,6 +71,10 @@ struct rVertexAttributes
 {
 	eRVertexUsage Usage = eRVertexUsge_MaxEnum;
 	eRFormat Format = eRFormat_MaxEnum;
+	eRVertexInputRate InputRate = eRInputRate_MaxEnum;
+
+	static uint32_t getUsageStride(eRVertexUsage usage);
+	static size_t getFormatStride(eRFormat format);
 };
 
 class rShader : public rGpuResource
@@ -180,7 +184,7 @@ public:
 
 	virtual void setBlendState(
 		bool8_t enableLogicOp,
-		eLogicOp logicOp,
+		eRLogicOp logicOp,
 		uint32_t attachmentCount,
 		const rColorBlendState * const clrBlendState) = 0;
 

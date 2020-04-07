@@ -49,7 +49,7 @@ void vkGraphicsPipeline::setRasterizerState(
 
 void vkGraphicsPipeline::setBlendState(
 	bool8_t enableLogicOp, 
-	eLogicOp logicOp, 
+	eRLogicOp logicOp, 
 	uint32_t attachmentCount, 
 	const rColorBlendState * const clrBlendState)
 {

@@ -19,7 +19,7 @@ class d3d11BlendState : public d3dObject<ID3D11BlendState>
 public:
 	void create(
 		bool8_t enableLogicOp,
-		eLogicOp logicOp,
+		eRLogicOp logicOp,
 		uint32_t renderTargetCount,
 		const rColorBlendState * const clrBlendState);
 };
