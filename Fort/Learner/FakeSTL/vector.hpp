@@ -2,6 +2,7 @@
 
 #include "memory.hpp"
 
-namespaceStart(FakeSTL)
+template<class T> class Vector
+{
 
-namespaceEnd(FakeSTL)
+};
