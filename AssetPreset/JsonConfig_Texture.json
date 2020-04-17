@@ -1,0 +1,53 @@
+{
+    "Items": [
+        {
+            "PresetName": "Texture_AlbedoTransparency",
+            "NamingConventions": [
+                "_AlbedoTransparency",
+                ""
+            ]
+        },
+        {
+            "PresetName": "Texture_Normal",
+            "NamingConventions": [
+                "_Normal",
+                ""
+            ]
+        },
+        {
+            "PresetName": "Texture_OcclusionMetallic",
+            "NamingConventions": [
+                "_OcclusionMetallic",
+                ""
+            ]
+        },
+        {
+            "PresetName": "Texture_Glossiness",
+            "NamingConventions": [
+                "_Glossiness",
+                ""
+            ]
+        },
+        {
+            "PresetName": "Texture_AO",
+            "NamingConventions": [
+                "_AO",
+                ""
+            ]
+        },
+        {
+            "PresetName": "Texture_MetallicSmoothness",
+            "NamingConventions": [
+                "_MetallicSmoothness",
+                ""
+            ]
+        },
+        {
+            "PresetName": "Texture_Emission",
+            "NamingConventions": [
+                "_Emission",
+                ""
+            ]
+        }
+    ]
+}
