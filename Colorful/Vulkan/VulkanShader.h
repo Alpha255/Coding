@@ -9,13 +9,13 @@ public:
 	vkShader(const class vkDevice &device, eRShaderUsage usage, const rAsset::rShaderBinary &binary);
 	void destroy(const class vkDevice &device) override final;
 
-	void setInputLayout(const std::vector<rVertexAttributes> &vertexAttributes) override final;
-
 	inline const VkPipelineVertexInputStateCreateInfo &getInputLayout() const
 	{
 		assert(m_InputLayout.InputState.sType != 0);
 		return m_InputLayout.InputState;
 	}
+
+	void setInputLayout(const std::vector<rVertexAttributes>& vertexAttributes);
 protected:
 	struct vkInputLayout
 	{

@@ -1,7 +1,7 @@
 #include <googletest/googletest/include/gtest/gtest.h>
 
 #include "sort.h"
-#include "FakeSTL/memory.hpp"
+#include "FakeSTL/vector.hpp"
 
 template <typename T> class gTest_Sorting
 {
@@ -66,6 +66,8 @@ private:
 
 int32_t main(int32_t argc, char8_t **argv)
 {	
+	std::vector<int> test(32);
+
 	::srand((uint32_t)(time(nullptr)));
 
 	testing::InitGoogleTest(&argc, argv);

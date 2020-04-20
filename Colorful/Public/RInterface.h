@@ -84,13 +84,20 @@ public:
 		: m_Usage(usage)
 	{
 	}
-
-	virtual void setInputLayout(const std::vector<rVertexAttributes> &) {}
-	virtual void pushUniformBuffer(const rBuffer *buffer) = 0;
-	virtual void pushTexture(const rTexture *texture) = 0;
 protected:
 	eRShaderUsage m_Usage = eRShaderUsage_MaxEnum;
 private:
+};
+
+class rDescriptor
+{
+public:
+	virtual void bindVertexBuffer() = 0;
+	virtual void bindIndexBuffer() = 0;
+	virtual void bindTexture() = 0;
+	virtual void bindSampler() = 0;
+	virtual void bindCombinedTexture() = 0;
+	virtual void bindUniformBuffer() = 0;
 };
 
 class rRenderSurface
