@@ -1,53 +1,39 @@
 {
-    "Items": [
+    "ItemList": [
         {
             "PresetName": "Texture_AlbedoTransparency",
-            "NamingConventions": [
-                "_AlbedoTransparency",
-                ""
-            ]
+            "LongName": "_AlbedoTransparency",
+            "ShortName": "_AT"
         },
         {
             "PresetName": "Texture_Normal",
-            "NamingConventions": [
-                "_Normal",
-                ""
-            ]
+            "LongName": "_Normal",
+            "ShortName": "_N"
         },
         {
             "PresetName": "Texture_OcclusionMetallic",
-            "NamingConventions": [
-                "_OcclusionMetallic",
-                ""
-            ]
+            "LongName": "_OcclusionMetallic",
+            "ShortName": "_OM"
         },
         {
             "PresetName": "Texture_Glossiness",
-            "NamingConventions": [
-                "_Glossiness",
-                ""
-            ]
+            "LongName": "_Glossiness",
+            "ShortName": "_G"
         },
         {
             "PresetName": "Texture_AO",
-            "NamingConventions": [
-                "_AO",
-                ""
-            ]
+            "LongName": "_AO",
+            "ShortName": "_AO"
         },
         {
             "PresetName": "Texture_MetallicSmoothness",
-            "NamingConventions": [
-                "_MetallicSmoothness",
-                ""
-            ]
+            "LongName": "_MetallicSmoothness",
+            "ShortName": "_MS"
         },
         {
             "PresetName": "Texture_Emission",
-            "NamingConventions": [
-                "_Emission",
-                ""
-            ]
+            "LongName": "_Emission",
+            "ShortName": "_E"
         }
     ]
 }

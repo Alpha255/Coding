@@ -12,73 +12,63 @@ namespace BlackJack.Tat.Tools.Unity.AssetPreset
         public struct PresetConfigItem
         {
             public string PresetName;          
-            public string[] NamingConventions;
+            public string LongName;
+            public string ShortName;
+
+            public bool IsValid()
+            {
+                return (PresetName != null && PresetName.Length > 0) &&
+                    (LongName != null && LongName.Length > 0) &&
+                    (ShortName != null && ShortName.Length > 0);
+            }
         }
 
         [System.Serializable]
         public struct PresetConfigItems
         {
-            public PresetConfigItem[] Items;
+            public List<PresetConfigItem> ItemList;
         }
 
         public class ConfigParser
         {
-            private bool mDirty = true;
-            public bool Dirty
-            {
-                get { return mDirty; }
-                set { mDirty = value; }
-            }
+            private string mConfigName = "JsonConfig_Texture";
 
-            private string mJsonName = "JsonConfig_Texture";
-
-            private string GetJsonPath()
+            private string GetConfigPath()
             {
-                var findResult = AssetDatabase.FindAssets(mJsonName);
+                var findResult = AssetDatabase.FindAssets(mConfigName);
                 if (findResult != null)
                 {
-                    return AssetDatabase.GUIDToAssetPath(findResult[0]);
+                    for (int i = 0; i < findResult.Length; ++i)
+                    {
+                        var path = AssetDatabase.GUIDToAssetPath(findResult[i]);
+                        if (path.Contains("\\AssetPreset\\" + mConfigName + ".json") ||
+                            path.Contains("/AssetPreset/" + mConfigName + ".json"))
+                        {
+                            return path;
+                        }
+                    }
                 }
 
                 return null;
             }
 
-            public System.DateTime GetFileTime()
+            public System.DateTime GetConfigFileTime()
             {
-                var jsonPath = GetJsonPath();
-                if (jsonPath != null)
+                var path = GetConfigPath();
+                if (path != null)
                 {
-                    return File.GetLastAccessTime(jsonPath);
+                    return File.GetLastAccessTime(path);
                 }
 
                 return new System.DateTime();
             }
 
-            private bool IsValid(ref List<PresetConfigItem> items)
-            {
-                for (int i = 0; i < items.Count; ++i)
-                {
-                    if (items[i].PresetName != null)
-                    {
-                        for (int j = 0; j < items[i].NamingConventions.Length; ++j)
-                        {
-                            if (items[i].NamingConventions[j] != null)
-                            {
-                                return true;
-                            }
-                        }
-                    }
-                }
-
-                return false;
-            }
-
             public PresetConfigItems Load()
             {
-                var jsonPath = GetJsonPath();
-                if (jsonPath != null)
+                var path = GetConfigPath();
+                if (path != null)
                 {
-                    string jsonData = File.ReadAllText(jsonPath);
+                    string jsonData = File.ReadAllText(path);
                     if (jsonData != null && jsonData.Length > 0)
                     {
                         return JsonUtility.FromJson<PresetConfigItems>(jsonData);
@@ -89,31 +79,31 @@ namespace BlackJack.Tat.Tools.Unity.AssetPreset
                     Debug.LogError("Load::Can't find texture preset configuration file.");
                 }
 
-                return new PresetConfigItems();
+                return new PresetConfigItems(); 
             }
 
-            public void Save(ref List<PresetConfigItem> items)
+            public void Save(ref PresetConfigItems items)
             {
-                var jsonPath = GetJsonPath();
-                if (jsonPath != null)
+                var path = GetConfigPath();
+                if (path != null && 
+                    items.ItemList != null && 
+                    items.ItemList.Count > 0)
                 {
-                    if (!IsValid(ref items))
-                    {
-                        return;
-                    }
                     var configItems = new PresetConfigItems();
-                    configItems.Items = new PresetConfigItem[items.Count];
-                    for (int i = 0; i < items.Count; ++i)
+                    configItems.ItemList = new List<PresetConfigItem>();
+                    for (int i = 0; i < items.ItemList.Count; ++i)
                     {
-                        configItems.Items[i] = items[i];
+                        if (items.ItemList[i].IsValid())
+                        {
+                            configItems.ItemList.Add(items.ItemList[i]);
+                        }
                     }
 
-                    string jsonData = JsonUtility.ToJson(configItems, true);
-                    File.WriteAllText(jsonPath, jsonData);
-                }
-                else
-                {
-                    Debug.LogError("Save::Can't find texture preset configuration file.");
+                    if (configItems.ItemList.Count > 0)
+                    {
+                        string jsonData = JsonUtility.ToJson(configItems, true);
+                        File.WriteAllText(path, jsonData);
+                    }
                 }
             }
         }

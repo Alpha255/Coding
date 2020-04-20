@@ -11,30 +11,28 @@ namespace BlackJack.Tat.Tools.Unity.AssetPreset
     {
         struct TexturePreset
         {
-            public Preset Preset;
+            public Preset PresetObject;
 
             public Texture.PresetConfigItem ConfigItem;
         }
 
         static bool mInited = false;
         static List<TexturePreset> mTexturePresets;
-        static System.DateTime mFileTime;
+        static System.DateTime mConfigFileTime;
 
-        private TexturePreset GetTexturePreset(string path)
+        private Preset GetTexturePreset(string texturePath)
         {
             for (int i = 0; i < mTexturePresets.Count; ++i)
             {
-                for (int j = 0; j < mTexturePresets[i].ConfigItem.NamingConventions.Length; ++j)
+                if (texturePath.Contains(mTexturePresets[i].ConfigItem.LongName) ||
+                    texturePath.Contains(mTexturePresets[i].ConfigItem.LongName.ToLower()) ||
+                    texturePath.EndsWith(mTexturePresets[i].ConfigItem.ShortName))
                 {
-                    var namingConvention = mTexturePresets[i].ConfigItem.NamingConventions[j];
-                    if (path.Contains(namingConvention) || path.Contains(namingConvention.ToLower()))
-                    {
-                        return mTexturePresets[i];
-                    }
+                    return mTexturePresets[i].PresetObject;
                 }
             }
 
-            return new TexturePreset();
+            return null;
         }
 
         public void Init()
@@ -45,48 +43,27 @@ namespace BlackJack.Tat.Tools.Unity.AssetPreset
             }
 
             var config = new Texture.ConfigParser();
-            mFileTime = config.GetFileTime();
+            mConfigFileTime = config.GetConfigFileTime();
 
             var configItems = config.Load();
-            if (configItems.Items == null)
+            if (configItems.ItemList == null || configItems.ItemList.Count == 0)
             {
                 return;
             }
 
             List<Texture.PresetConfigItem> items = new List<Texture.PresetConfigItem>();
-            for (int i = 0; i < configItems.Items.Length; ++i)
+            for (int i = 0; i < configItems.ItemList.Count; ++i)
             {
-                if (configItems.Items[i].PresetName == null)
+                if (!configItems.ItemList[i].IsValid())
                 {
                     continue;
                 }
 
-                int validItems = 0;
-                for (int j = 0; j < configItems.Items[i].NamingConventions.Length; ++j)
-                {
-                    if (configItems.Items[i].NamingConventions[j] != null &&
-                        configItems.Items[i].NamingConventions[j].Length > 0)
-                    {
-                        ++validItems;
-                    }
-                }
-
-                if (validItems > 0)
-                {
-                    var item = new Texture.PresetConfigItem();
-                    item.PresetName = configItems.Items[i].PresetName;
-                    item.NamingConventions = new string[validItems];
-
-                    for (int j = 0; j < configItems.Items[i].NamingConventions.Length; ++j)
-                    {
-                        if (configItems.Items[i].NamingConventions[j] != null &&
-                            configItems.Items[i].NamingConventions[j].Length > 0)
-                        {
-                            item.NamingConventions[j] = configItems.Items[i].NamingConventions[j];
-                        }
-                    }
-                    items.Add(item);
-                }
+                var item = new Texture.PresetConfigItem();
+                item.PresetName = configItems.ItemList[i].PresetName;
+                item.LongName = configItems.ItemList[i].LongName;
+                item.ShortName = configItems.ItemList[i].ShortName;
+                items.Add(item);
             }
 
             mTexturePresets = new List<TexturePreset>();
@@ -100,7 +77,7 @@ namespace BlackJack.Tat.Tools.Unity.AssetPreset
                     {
                         var preset = new TexturePreset();
                         preset.ConfigItem = items[j];
-                        preset.Preset = (Preset)AssetDatabase.LoadAssetAtPath(path, typeof(Preset));
+                        preset.PresetObject = (Preset)AssetDatabase.LoadAssetAtPath(path, typeof(Preset));
                         mTexturePresets.Add(preset);
                     }
                 }
@@ -111,10 +88,9 @@ namespace BlackJack.Tat.Tools.Unity.AssetPreset
 
         public void OnPreprocessTexture()
         {
-            ///return;
             var config = new Texture.ConfigParser();
-            var fileTime = config.GetFileTime();
-            if (fileTime != mFileTime)
+            var fileTime = config.GetConfigFileTime();
+            if (fileTime != mConfigFileTime)
             {
                 mInited = false;
             }
@@ -124,68 +100,75 @@ namespace BlackJack.Tat.Tools.Unity.AssetPreset
             var preset = GetTexturePreset(assetPath);
 
             #region HardCode
-            var textureImporter = (TextureImporter)assetImporter;
-            textureImporter.sRGBTexture = false;
-            var androidTextureSettings = textureImporter.GetPlatformTextureSettings("Android");
-            androidTextureSettings.overridden = true;
-            androidTextureSettings.compressionQuality = 100;
-            androidTextureSettings.resizeAlgorithm = TextureResizeAlgorithm.Mitchell;
+            //var textureImporter = (TextureImporter)assetImporter;
+            //textureImporter.sRGBTexture = false;
+            //var androidTextureSettings = textureImporter.GetPlatformTextureSettings("Android");
+            //androidTextureSettings.overridden = true;
+            //androidTextureSettings.compressionQuality = 100;
+            //androidTextureSettings.resizeAlgorithm = TextureResizeAlgorithm.Mitchell;
 
-            if (preset.ConfigItem.PresetName == "Texture_AlbedoTransparency")
-            {
-                androidTextureSettings.format = TextureImporterFormat.ASTC_5x5;
-                androidTextureSettings.maxTextureSize = 2048;
-                textureImporter.sRGBTexture = true;
-            }
-            else if (preset.ConfigItem.PresetName == "Texture_Normal")
-            {
-                androidTextureSettings.format = TextureImporterFormat.ASTC_4x4;
-                androidTextureSettings.maxTextureSize = 2048;
-                textureImporter.textureType = TextureImporterType.NormalMap;
-            }
-            else if (preset.ConfigItem.PresetName == "Texture_OcclusionMetallic")
-            {
-                androidTextureSettings.format = TextureImporterFormat.ASTC_8x8;
-                androidTextureSettings.maxTextureSize = 1024;
-            }
-            else if (preset.ConfigItem.PresetName == "Texture_Glossiness")
-            {
-                androidTextureSettings.format = TextureImporterFormat.ASTC_6x6;
-                androidTextureSettings.maxTextureSize = 2048;
-            }
-            else if (preset.ConfigItem.PresetName == "Texture_AO")
-            {
-                androidTextureSettings.format = TextureImporterFormat.ASTC_8x8;
-                androidTextureSettings.maxTextureSize = 1024;
-            }
-            else if (preset.ConfigItem.PresetName == "Texture_MetallicSmoothness")
-            {
-                androidTextureSettings.format = TextureImporterFormat.ASTC_6x6;
-                androidTextureSettings.maxTextureSize = 1024;
-            }
-            else if (preset.ConfigItem.PresetName == "Texture_Emission")
-            {
-                androidTextureSettings.format = TextureImporterFormat.R8;
-                androidTextureSettings.maxTextureSize = 512;
-            }
-            else
-            {
-                return;
-            }
-            textureImporter.SetPlatformTextureSettings(androidTextureSettings);
+            //if (preset.ConfigItem.PresetName == "Texture_AlbedoTransparency")
+            //{
+            //    androidTextureSettings.format = TextureImporterFormat.ASTC_5x5;
+            //    androidTextureSettings.maxTextureSize = 2048;
+            //    textureImporter.sRGBTexture = true;
+            //}
+            //else if (preset.ConfigItem.PresetName == "Texture_Normal")
+            //{
+            //    androidTextureSettings.format = TextureImporterFormat.ASTC_4x4;
+            //    androidTextureSettings.maxTextureSize = 2048;
+            //    textureImporter.textureType = TextureImporterType.NormalMap;
+            //}
+            //else if (preset.ConfigItem.PresetName == "Texture_OcclusionMetallic")
+            //{
+            //    androidTextureSettings.format = TextureImporterFormat.ASTC_8x8;
+            //    androidTextureSettings.maxTextureSize = 1024;
+            //}
+            //else if (preset.ConfigItem.PresetName == "Texture_Glossiness")
+            //{
+            //    androidTextureSettings.format = TextureImporterFormat.ASTC_6x6;
+            //    androidTextureSettings.maxTextureSize = 2048;
+            //}
+            //else if (preset.ConfigItem.PresetName == "Texture_AO")
+            //{
+            //    androidTextureSettings.format = TextureImporterFormat.ASTC_8x8;
+            //    androidTextureSettings.maxTextureSize = 1024;
+            //}
+            //else if (preset.ConfigItem.PresetName == "Texture_MetallicSmoothness")
+            //{
+            //    androidTextureSettings.format = TextureImporterFormat.ASTC_6x6;
+            //    androidTextureSettings.maxTextureSize = 1024;
+            //}
+            //else if (preset.ConfigItem.PresetName == "Texture_Emission")
+            //{
+            //    androidTextureSettings.format = TextureImporterFormat.R8;
+            //    androidTextureSettings.maxTextureSize = 512;
+            //}
+            //else
+            //{
+            //    return;
+            //}
+            //textureImporter.SetPlatformTextureSettings(androidTextureSettings);
             #endregion
 
-            //if (preset.Preset != null)
-            //{
-            //    var tempAssetBundleName = string.Copy(assetImporter.assetBundleName);
-            //    var tempAssetBundleVariant = string.Copy(assetImporter.assetBundleVariant);
-            //    ///var textureImporter = (TextureImporter)assetImporter;
-            //    if (!preset.Preset.ApplyTo(assetImporter))
-            //    {
-            //        Debug.LogError(string.Format("Faild to apply preset to texture {0}", assetPath));
-            //    }
-            //    assetImporter.SetAssetBundleNameAndVariant(tempAssetBundleName, tempAssetBundleVariant);
-            //}
+            if (preset != null)
+            {
+                var textureImporter = (TextureImporter)assetImporter;
+                List<string> targetProperties = new List<string>();
+                for (int i = 0; i < preset.PropertyModifications.Length; ++i)
+                {
+                    if (preset.PropertyModifications[i].propertyPath == "m_AssetBundleName" ||
+                        preset.PropertyModifications[i].propertyPath == "m_AssetBundleVariant")
+                    {
+                        continue;
+                    }
+                    targetProperties.Add(preset.PropertyModifications[i].propertyPath);
+                }
+                if (!preset.ApplyTo(textureImporter, targetProperties.ToArray()))
+                {
+                    Debug.LogError(string.Format("Faild to apply preset to texture {0}", assetPath));
+                }
+            }
         }
     }
 }
