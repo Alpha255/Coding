@@ -96,5 +96,6 @@
 class vkRenderPass : public vkDeviceObject<VkRenderPass>, public rRenderpass
 {
 public:
+	void create(const class vkDevice &device, const rRenderpassDesc &desc);
 	void destroy(const class vkDevice &device) override final;
 };

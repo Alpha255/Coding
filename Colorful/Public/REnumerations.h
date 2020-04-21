@@ -54,7 +54,7 @@ enum eRPrimitiveTopology
 	eLineStripAdj,
 	eTriangleListAdj,
 	eTriangleStripAdj,
-	eControlPointPatchList3,
+	ePatchList,
 	eRPrimitiveTopology_MaxEnum
 };
 

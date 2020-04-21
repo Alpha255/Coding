@@ -38,6 +38,8 @@ public:
 		static VkCompareOp toCompareOp(eRCompareOp op);
 		static VkStencilOp toStencilOp(eRStencilOp op);
 		static VkFormat toFormat(eRFormat format);
+		static VkShaderStageFlagBits toShaderStage(eRShaderUsage usage);
+		static VkPrimitiveTopology toPrimitiveTopology(eRPrimitiveTopology primitiveTopology);
 	};
 protected:
 	class vkGpuResourcePool

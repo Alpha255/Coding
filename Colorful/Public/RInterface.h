@@ -84,6 +84,11 @@ public:
 		: m_Usage(usage)
 	{
 	}
+
+	inline eRShaderUsage getUsage() const
+	{
+		return m_Usage;
+	}
 protected:
 	eRShaderUsage m_Usage = eRShaderUsage_MaxEnum;
 private:
@@ -98,6 +103,11 @@ public:
 	virtual void bindSampler() = 0;
 	virtual void bindCombinedTexture() = 0;
 	virtual void bindUniformBuffer() = 0;
+};
+
+class rRenderpassDesc
+{
+
 };
 
 class rRenderSurface
@@ -178,7 +188,13 @@ public:
 		m_ClearValue.Stencil = stencil;
 	}
 
-	virtual void setShader(const rShader *shader) = 0;
+	inline void setShader(const rShader *shader)
+	{
+		assert(shader);
+		assert(shader->getUsage() < eRShaderUsage_MaxEnum);
+		assert(m_Shaders[shader->getUsage()] == nullptr);
+		m_Shaders[shader->getUsage()] = shader;
+	}
 
 	virtual void setRasterizerState(
 		eRPolygonMode polygonMode,
@@ -218,6 +234,8 @@ protected:
 		float32_t Depth = 1.0f;
 		uint8_t Stencil = 0u;
 	} m_ClearValue;
+
+	const rShader *m_Shaders[eRShaderUsage_MaxEnum]{};
 private:
 };
 

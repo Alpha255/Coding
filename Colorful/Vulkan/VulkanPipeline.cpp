@@ -1,4 +1,7 @@
 #include "VulkanPipeline.h"
+#include "VulkanDescriptor.h"
+#include "VulkanShader.h"
+#include "VulkanRenderPass.h"
 #include "VulkanEngine.h"
 
 void vkPipelineLayout::destroy(const vkDevice &device)
@@ -58,6 +61,7 @@ void vkGraphicsPipeline::setBlendState(
 
 	for (uint32_t i = 0u; i < attachmentCount; ++i)
 	{
+		assert(clrBlendState);
 		m_ColorBlendAttachmentState[i] = VkPipelineColorBlendAttachmentState
 		{
 			clrBlendState[i].Enable,
@@ -126,6 +130,150 @@ void vkGraphicsPipeline::setDepthStencilState(
 		0.0f,
 		1.0f
 	};
+}
+
+void vkGraphicsPipeline::create(
+	const vkDevice &device, 
+	const vkRenderPass &renderpass, 
+	const vkPipelineCache &cache, 
+	const vkPipelineLayout &layout)
+{
+	assert(device.isValid() && !isValid());
+	assert(m_Shaders[eVertexShader]);
+
+	std::vector<VkPipelineShaderStageCreateInfo> shaderStageCreateInfos;
+	for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
+	{
+		if (m_Shaders[i])
+		{
+			auto shader = static_cast<const vkShader *>(m_Shaders[i]);
+
+			VkPipelineShaderStageCreateInfo shaderStageCreateInfo
+			{
+				VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+				nullptr,
+				0u,
+				vkEngine::enumTranslator::toShaderStage(shader->getUsage()),
+				**shader,
+				"main",
+				nullptr
+			};
+			shaderStageCreateInfos.emplace_back(std::move(shaderStageCreateInfo));
+		}
+	}
+
+	auto vertexShader = static_cast<const vkShader *>(m_Shaders[eVertexShader]);
+
+	VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo
+	{
+		VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
+		nullptr,
+		0u,
+		vkEngine::enumTranslator::toPrimitiveTopology(m_PrimitiveTopology),
+		false
+	};
+
+	//VkPipelineTessellationStateCreateInfo tessellationStateCreateInfo
+	//{
+	//};
+
+	/// Set viewport dynamic
+	VkPipelineViewportStateCreateInfo viewportStateCreateInfo
+	{
+		VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
+		nullptr,
+		0u,
+		1u,
+		nullptr,
+		1u,
+		nullptr
+	};
+
+	if (m_RasterizationState.sType == 0)
+	{
+		setRasterizerState(eRPolygonMode::eSolid, eRCullMode::eCullNone, eRFrontFace::eClockwise);
+	}
+
+	VkPipelineMultisampleStateCreateInfo multisampleStateCreateInfo
+	{
+		VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
+		nullptr,
+		0u,
+		VK_SAMPLE_COUNT_1_BIT,
+		false,
+		0.0f,
+		nullptr,
+		false,
+		false
+	};
+
+	if (m_DepthStencilState.sType == 0)
+	{
+		rStencilOp stencilOp
+		{
+			eRStencilOp::eKeep,
+			eRStencilOp::eKeep,
+			eRStencilOp::eKeep,
+			eRCompareOp::eAlways
+		};
+		setDepthStencilState(
+			false,
+			false,
+			eRCompareOp::eAlways,
+			false,
+			0u,
+			0u,
+			stencilOp,
+			stencilOp
+		);
+	}
+
+	if (m_ColorBlendState.sType == 0)
+	{
+		setBlendState(false, eRLogicOp::eAnd, 0u, nullptr);
+	}
+
+	std::vector<VkDynamicState> dynamicStates
+	{ 
+		VK_DYNAMIC_STATE_VIEWPORT,
+		VK_DYNAMIC_STATE_SCISSOR 
+	};
+	VkPipelineDynamicStateCreateInfo dynamicStateCreateInfo
+	{
+		VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
+		nullptr,
+		0u,
+		(uint32_t)dynamicStates.size(),
+		dynamicStates.data()
+	};
+
+	VkGraphicsPipelineCreateInfo createInfo
+	{
+		VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
+		nullptr,
+		0u,
+		(uint32_t)shaderStageCreateInfos.size(),
+		shaderStageCreateInfos.data(),
+		&vertexShader->getInputLayout(),
+		&inputAssemblyStateCreateInfo,
+		nullptr,
+		&viewportStateCreateInfo,
+		&m_RasterizationState,
+		&multisampleStateCreateInfo,
+		&m_DepthStencilState,
+		&m_ColorBlendState,
+		&dynamicStateCreateInfo,
+		*layout,
+		*renderpass,
+		0u,
+		VK_NULL_HANDLE,
+		0u
+	};
+
+	/// Pending creations ???
+	VkPipeline handle = VK_NULL_HANDLE;
+	rVerifyVk(vkCreateGraphicsPipelines(*device, *cache, 1u, &createInfo, vkMemoryAllocator, &handle));
+	reset(handle);
 }
 
 void vkPipelineCache::create(const vkDevice &device)

@@ -421,6 +421,39 @@ VkFormat vkEngine::enumTranslator::toFormat(eRFormat format)
 	return (VkFormat)-1;
 }
 
+VkShaderStageFlagBits vkEngine::enumTranslator::toShaderStage(eRShaderUsage usage)
+{
+	switch (usage)
+	{
+	case eVertexShader:   return VK_SHADER_STAGE_VERTEX_BIT;
+	case eHullShader:     return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+	case eDomainShader:   return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+	case eGeometryShader: return VK_SHADER_STAGE_GEOMETRY_BIT;
+	case eFragmentShader: return VK_SHADER_STAGE_FRAGMENT_BIT;
+	case eComputeShader:  return VK_SHADER_STAGE_COMPUTE_BIT;
+	}
+
+	return VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM;
+}
+
+VkPrimitiveTopology vkEngine::enumTranslator::toPrimitiveTopology(eRPrimitiveTopology primitiveTopology)
+{
+	switch (primitiveTopology)
+	{
+	case ePointList:        return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+	case eLineList:         return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+	case eLineStrip:        return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
+	case eTriangleList:     return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+	case eTriangleStrip:    return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+	case eLineListAdj:      return VK_PRIMITIVE_TOPOLOGY_LINE_LIST_WITH_ADJACENCY;
+	case eLineStripAdj:     return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP_WITH_ADJACENCY;
+	case eTriangleListAdj:  return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST_WITH_ADJACENCY;
+	case eTriangleStripAdj: return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP_WITH_ADJACENCY;
+	case ePatchList:        return VK_PRIMITIVE_TOPOLOGY_PATCH_LIST;
+	}
+	return VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
+}
+
 void vkEngine::vkGpuResourcePool::releaseAll(const vkDevice &device)
 {
 	for (uint32_t i = 0u; i < rGpuResource::eResourceType_MaxEnum; ++i)

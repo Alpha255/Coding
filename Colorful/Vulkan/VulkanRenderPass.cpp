@@ -31,6 +31,40 @@
 	A render pass must have at least one subpass.
 **************************************************/
 
+void vkRenderPass::create(const vkDevice &device, const rRenderpassDesc &)
+{
+	assert(device.isValid() && !isValid());
+
+	VkSubpassDescription subpassDesc
+	{
+		0u,
+		VK_PIPELINE_BIND_POINT_GRAPHICS,
+		0u,
+		nullptr
+	};
+
+	VkSubpassDependency subpassDependency
+	{
+	};
+
+	VkRenderPassCreateInfo createInfo
+	{
+		VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
+		nullptr,
+		0u,
+		0u,
+		nullptr,
+		0u,
+		nullptr,
+		0u,
+		nullptr
+	};
+
+	VkRenderPass handle = VK_NULL_HANDLE;
+	rVerifyVk(vkCreateRenderPass(*device, &createInfo, vkMemoryAllocator, &handle));
+	reset(handle);
+}
+
 void vkRenderPass::destroy(const vkDevice &device)
 {
 	assert(device.isValid());

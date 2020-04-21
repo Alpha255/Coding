@@ -49,6 +49,11 @@ public:
 		const rStencilOp &front,
 		const rStencilOp &back) override final;
 
+	void create(
+		const class vkDevice &device, 
+		const class vkRenderPass &renderpass, 
+		const vkPipelineCache &cache, 
+		const vkPipelineLayout &layout);
 protected:
 private:
 	VkPipelineRasterizationStateCreateInfo m_RasterizationState{};

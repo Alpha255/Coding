@@ -5,8 +5,6 @@
 class d3d11GraphicsPipeline : public rGraphicsPipeline
 {
 public:
-	void setShader(const rShader *shader) override final {}
-
 	void setRasterizerState(
 		eRPolygonMode polygonMode,
 		eRCullMode cullMode,

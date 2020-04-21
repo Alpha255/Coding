@@ -127,6 +127,11 @@ public:
 
 	vkCommandBuffer allocCommandBuffer(const class vkDevice &device, VkCommandBufferLevel level) const;
 	void freeCommandBuffer(const class vkDevice &device, vkCommandBuffer &commandBuffer) const;
+
+	inline vkCommandBuffer *getActiveCommandBuffer() const
+	{
+		return nullptr;
+	}
 protected:
 private:
 };
