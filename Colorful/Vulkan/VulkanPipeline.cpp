@@ -4,6 +4,27 @@
 #include "VulkanRenderPass.h"
 #include "VulkanEngine.h"
 
+void vkPipelineLayout::create(const vkDevice &device, const vkDescriptorSetLayout &descriptorSetLayout)
+{
+	assert(device.isValid() && !isValid() && descriptorSetLayout.isValid());
+
+	VkDescriptorSetLayout descriptorSetLayoutHandle = *descriptorSetLayout;
+	VkPipelineLayoutCreateInfo createInfo
+	{
+		VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+		nullptr,
+		0u,
+		1u,
+		&descriptorSetLayoutHandle,
+		0u,
+		nullptr /// PushRange ?????
+	};
+
+	VkPipelineLayout handle = VK_NULL_HANDLE;
+	rVerifyVk(vkCreatePipelineLayout(*device, &createInfo, vkMemoryAllocator, &handle));
+	reset(handle);
+}
+
 void vkPipelineLayout::destroy(const vkDevice &device)
 {
 	/// The pipeline layout represents a sequence of descriptor sets with each having a specific layout. 
@@ -135,11 +156,13 @@ void vkGraphicsPipeline::setDepthStencilState(
 void vkGraphicsPipeline::create(
 	const vkDevice &device, 
 	const vkRenderPass &renderpass, 
-	const vkPipelineCache &cache, 
-	const vkPipelineLayout &layout)
+	const vkPipelineCache &cache)
 {
 	assert(device.isValid() && !isValid());
 	assert(m_Shaders[eVertexShader]);
+
+	m_DescriptorSetLayout.create(device, m_DescriptorLayoutDesc);
+	m_PipelineLayout.create(device, m_DescriptorSetLayout);
 
 	std::vector<VkPipelineShaderStageCreateInfo> shaderStageCreateInfos;
 	for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
@@ -263,7 +286,7 @@ void vkGraphicsPipeline::create(
 		&m_DepthStencilState,
 		&m_ColorBlendState,
 		&dynamicStateCreateInfo,
-		*layout,
+		*m_PipelineLayout,
 		*renderpass,
 		0u,
 		VK_NULL_HANDLE,
@@ -274,6 +297,13 @@ void vkGraphicsPipeline::create(
 	VkPipeline handle = VK_NULL_HANDLE;
 	rVerifyVk(vkCreateGraphicsPipelines(*device, *cache, 1u, &createInfo, vkMemoryAllocator, &handle));
 	reset(handle);
+}
+
+void vkGraphicsPipeline::destroy(const vkDevice &device)
+{
+	m_PipelineLayout.destroy(device);
+	m_DescriptorSetLayout.destroy(device);
+	vkPipeline::destroy(device);
 }
 
 void vkPipelineCache::create(const vkDevice &device)

@@ -1,10 +1,12 @@
 #pragma once
 
 #include "Colorful/Vulkan/VulkanAsync.h"
+#include "Colorful/Vulkan/VulkanDescriptor.h"
 
 class vkPipelineLayout : public vkDeviceObject<VkPipelineLayout>
 {
 public:
+	void create(const class vkDevice &device, const vkDescriptorSetLayout &descriptorSetLayout);
 	void destroy(const class vkDevice &device) override final;
 };
 
@@ -18,7 +20,7 @@ public:
 class vkPipeline : public vkDeviceObject<VkPipeline>
 {
 public:
-	void destroy(const class vkDevice &device) override final;
+	void destroy(const class vkDevice &device) override;
 };
 
 class vkGraphicsPipeline : public vkPipeline, public rGraphicsPipeline
@@ -49,11 +51,17 @@ public:
 		const rStencilOp &front,
 		const rStencilOp &back) override final;
 
+	void setDescriptorLayout(const rDescriptorLayoutDesc &desc) override final
+	{
+		m_DescriptorLayoutDesc = desc;
+	}
+
 	void create(
 		const class vkDevice &device, 
 		const class vkRenderPass &renderpass, 
-		const vkPipelineCache &cache, 
-		const vkPipelineLayout &layout);
+		const vkPipelineCache &cache);
+
+	void destroy(const class vkDevice &device) override final;
 protected:
 private:
 	VkPipelineRasterizationStateCreateInfo m_RasterizationState{};
@@ -61,6 +69,10 @@ private:
 
 	VkPipelineColorBlendStateCreateInfo m_ColorBlendState{};
 	VkPipelineColorBlendAttachmentState m_ColorBlendAttachmentState[eMaxRenderTargets]{};
+
+	vkPipelineLayout m_PipelineLayout;
+	vkDescriptorSetLayout m_DescriptorSetLayout;
+	rDescriptorLayoutDesc m_DescriptorLayoutDesc;
 };
 
 class vkComputePipeline : public vkPipeline, public rComputePipeline

@@ -135,6 +135,18 @@ enum eRVertexInputRate
 	eRInputRate_MaxEnum
 };
 
+enum eRDescriptorType
+{
+	eDescriptor_Sampler,
+	eDescriptor_CombinedTextureSampler,
+	eDescriptor_SampledTexture,
+	eDescriptor_StorageTexture,
+	eDescriptor_UniformBuffer,
+	eDescriptor_StorageBuffer,
+	eDescriptor_InputAttachment,
+	eRDescriptorType_MaxEnum
+};
+
 enum class eRCompareOp
 {
 	eNever,

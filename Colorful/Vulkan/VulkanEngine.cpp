@@ -454,6 +454,21 @@ VkPrimitiveTopology vkEngine::enumTranslator::toPrimitiveTopology(eRPrimitiveTop
 	return VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
 }
 
+VkDescriptorType vkEngine::enumTranslator::toDescriptorType(eRDescriptorType type)
+{
+	switch (type)
+	{
+	case eDescriptor_Sampler:                return VK_DESCRIPTOR_TYPE_SAMPLER;
+	case eDescriptor_CombinedTextureSampler: return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	case eDescriptor_SampledTexture:         return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+	case eDescriptor_StorageTexture:         return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+	case eDescriptor_UniformBuffer:          return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	case eDescriptor_StorageBuffer:          return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+	case eDescriptor_InputAttachment:        return VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+	}
+	return VK_DESCRIPTOR_TYPE_MAX_ENUM;
+}
+
 void vkEngine::vkGpuResourcePool::releaseAll(const vkDevice &device)
 {
 	for (uint32_t i = 0u; i < rGpuResource::eResourceType_MaxEnum; ++i)

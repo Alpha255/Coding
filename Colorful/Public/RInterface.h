@@ -54,13 +54,19 @@ public:
 	};
 };
 
+class rSampler
+{
+};
+
 class rTexture : public rGpuResource
 {
 public:
-	virtual void bindSampler(const class rSampler *) 
+	void bindSampler(const rSampler *sampler) 
 	{
+		m_Sampler = sampler;
 	}
 protected:
+	const rSampler *m_Sampler = nullptr;
 };
 
 class rBuffer : public rGpuResource
@@ -77,6 +83,17 @@ struct rVertexAttributes
 	static size_t getFormatStride(eRFormat format);
 };
 
+struct rDescriptorLayoutDesc
+{
+	inline void pushDescriptorSet(eRShaderUsage shader, eRDescriptorType type)
+	{
+		assert(shader < eRShaderUsage_MaxEnum && type < eRDescriptorType_MaxEnum);
+		DescriptorLayout[shader].emplace_back(type);
+	}
+
+	std::array<std::vector<eRDescriptorType>, eRShaderUsage_MaxEnum> DescriptorLayout;
+};
+
 class rShader : public rGpuResource
 {
 public:
@@ -89,8 +106,27 @@ public:
 	{
 		return m_Usage;
 	}
+
+	inline void bindTexture(const rTexture *texture)
+	{
+		assert(texture);
+		m_Textures.emplace_back(std::move(texture));
+	}
+	inline void bindSampler(const rSampler *sampler)
+	{
+		assert(sampler);
+		m_Samplers.emplace_back(std::move(sampler));
+	}
+	inline void bindUniformBuffer(const rBuffer *buffer)
+	{
+		assert(buffer && !m_UniformBuffer);
+		m_UniformBuffer = buffer;
+	}
 protected:
 	eRShaderUsage m_Usage = eRShaderUsage_MaxEnum;
+	std::vector<const rTexture *> m_Textures;
+	std::vector<const rSampler *> m_Samplers;
+	const rBuffer *m_UniformBuffer = nullptr;
 private:
 };
 
@@ -99,10 +135,6 @@ class rDescriptor
 public:
 	virtual void bindVertexBuffer() = 0;
 	virtual void bindIndexBuffer() = 0;
-	virtual void bindTexture() = 0;
-	virtual void bindSampler() = 0;
-	virtual void bindCombinedTexture() = 0;
-	virtual void bindUniformBuffer() = 0;
 };
 
 class rRenderpassDesc
@@ -220,6 +252,8 @@ public:
 		uint8_t stencilWriteMask,
 		const rStencilOp &front,
 		const rStencilOp &back) = 0;
+
+	virtual void setDescriptorLayout(const rDescriptorLayoutDesc &desc) = 0;
 
 	virtual void setViewport(const rViewport *viewport) = 0;
 

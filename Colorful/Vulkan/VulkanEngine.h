@@ -40,6 +40,7 @@ public:
 		static VkFormat toFormat(eRFormat format);
 		static VkShaderStageFlagBits toShaderStage(eRShaderUsage usage);
 		static VkPrimitiveTopology toPrimitiveTopology(eRPrimitiveTopology primitiveTopology);
+		static VkDescriptorType toDescriptorType(eRDescriptorType type);
 	};
 protected:
 	class vkGpuResourcePool

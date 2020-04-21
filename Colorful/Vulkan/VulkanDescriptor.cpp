@@ -101,6 +101,41 @@ void vkDescriptorPool::destroy(const vkDevice &device)
 	}
 }
 
+void vkDescriptorSetLayout::create(const vkDevice &device, const rDescriptorLayoutDesc &desc)
+{
+	assert(device.isValid() && !isValid());
+
+	std::vector<VkDescriptorSetLayoutBinding> bindings;
+	for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
+	{
+		for (uint32_t j = 0u; j < desc.DescriptorLayout[i].size(); ++j)
+		{
+			VkDescriptorSetLayoutBinding binding
+			{
+				j,
+				vkEngine::enumTranslator::toDescriptorType(desc.DescriptorLayout[i][j]),
+				1u,
+				vkEngine::enumTranslator::toShaderStage(static_cast<eRShaderUsage>(i)),
+				nullptr
+			};
+			bindings.emplace_back(std::move(binding));
+		}
+	}
+
+	VkDescriptorSetLayoutCreateInfo createInfo
+	{
+		VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+		nullptr,
+		0u,
+		(uint32_t)bindings.size(),
+		bindings.data()
+	};
+
+	VkDescriptorSetLayout handle = VK_NULL_HANDLE;
+	rVerifyVk(vkCreateDescriptorSetLayout(*device, &createInfo, vkMemoryAllocator, &handle));
+	reset(handle);
+}
+
 void vkDescriptorSetLayout::destroy(const vkDevice &device)
 {
 	assert(device.isValid());
