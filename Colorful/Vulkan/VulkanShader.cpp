@@ -20,6 +20,8 @@ vkShader::vkShader(const vkDevice &device, eRShaderUsage usage, const rAsset::rS
 	VkShaderModule handle = VK_NULL_HANDLE;
 	rVerifyVk(vkCreateShaderModule(*device, &createInfo, vkMemoryAllocator, &handle));
 	reset(handle);
+
+	m_Reflections = binary.Reflections;
 }
 
 void vkShader::destroy(const vkDevice &device)

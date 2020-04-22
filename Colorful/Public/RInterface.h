@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RDeclaration.h"
+#include "RAsset.h"
 
 namespace gear
 {
@@ -110,12 +111,12 @@ public:
 	inline void bindTexture(const rTexture *texture)
 	{
 		assert(texture);
-		m_Textures.emplace_back(std::move(texture));
+		m_Textures.emplace_back(texture);
 	}
 	inline void bindSampler(const rSampler *sampler)
 	{
 		assert(sampler);
-		m_Samplers.emplace_back(std::move(sampler));
+		m_Samplers.emplace_back(sampler);
 	}
 	inline void bindUniformBuffer(const rBuffer *buffer)
 	{
@@ -127,6 +128,7 @@ protected:
 	std::vector<const rTexture *> m_Textures;
 	std::vector<const rSampler *> m_Samplers;
 	const rBuffer *m_UniformBuffer = nullptr;
+	rAsset::rShaderBinary::rShaderReflection m_Reflections;
 private:
 };
 

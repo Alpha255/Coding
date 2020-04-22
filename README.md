@@ -3,6 +3,7 @@
 - To do list
   * [ ] basic gear library
   * [x] vulkan basic sample (draw a triangle)
+  * [ ] D3D12 renderer
   * [ ] vulkan multithreaded rendering sample
   * [ ] vulkan deferred shading sample
   * [ ] independent rendering thread

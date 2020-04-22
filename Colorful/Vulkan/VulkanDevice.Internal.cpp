@@ -1,12 +1,17 @@
 #include "VulkanEngine.h"
 #include "VulkanTexture.h"
+#include "VulkanShader.h"
 
 rShaderPtr vkDevice::createShader(eRShaderUsage usage, const std::string &shaderName)
 {
 	/// try to get shader binary from cache at first
 
 	auto shaderBinary = rAsset::rAssetBucket::instance().getShaderBinary(usage, shaderName);
-	return nullptr;
+
+	auto shader = new vkShader(*this, usage, shaderBinary);
+	vkEngine::instance().appendResource(rGpuResource::eShader, shader);
+
+	return rShaderPtr(shader);
 }
 
 rTexturePtr vkDevice::createTexture(const std::string &textureName)
