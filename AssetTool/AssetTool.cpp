@@ -79,6 +79,48 @@ rAsset::rShaderBinary compileD3DShader(eRShaderUsage usage, const std::string &s
 	return result;
 }
 
+void buildShaderReflections(appConfig::eRenderEngine engine, rAsset::rShaderBinary &binary)
+{
+	if (engine == appConfig::eVulkan)
+	{
+		std::vector<uint32_t> spirv(binary.Size / sizeof(uint32_t));
+		verify(memcpy_s((void *)spirv.data(), binary.Size, (void *)binary.Binary.get(), binary.Size) == 0);
+		spirv_cross::Compiler compiler(std::move(spirv));
+		auto activeVars = compiler.get_active_interface_variables();
+		spirv_cross::ShaderResources shaderResources = compiler.get_shader_resources(activeVars);
+		compiler.set_enabled_interface_variables(std::move(activeVars));
+
+		auto pushReflection = [&](
+			const spirv_cross::SmallVector<spirv_cross::Resource> &resources,
+			VkDescriptorType type)
+		{
+			for each (auto &res in resources)
+			{
+				rAsset::rShaderBinary::rShaderReflection reflection
+				{
+					///compiler.get_decoration(res.id, spv::DecorationDescriptorSet), uniform (set = 0, binding = 1)
+					type,
+					compiler.get_decoration(res.id, spv::DecorationBinding)
+				};
+				binary.Reflections.emplace_back(std::move(reflection));
+			}
+		};
+
+		pushReflection(shaderResources.uniform_buffers, VK_DESCRIPTOR_TYPE_SAMPLER);
+		pushReflection(shaderResources.storage_buffers, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER);
+		pushReflection(shaderResources.storage_images, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE);
+		pushReflection(shaderResources.sampled_images, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+		pushReflection(shaderResources.separate_images, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE);
+		pushReflection(shaderResources.separate_samplers, VK_DESCRIPTOR_TYPE_SAMPLER);
+	}
+	else if (engine == appConfig::eD3D11)
+	{
+
+	}
+
+	assert(0);
+}
+
 rAsset::rShaderBinary getShaderBinary(appConfig::eRenderEngine engine, eRShaderUsage usage,	assetFilePtr &shaderAssetPtr)
 {
 	assert(shaderAssetPtr);
@@ -148,6 +190,8 @@ rAsset::rShaderBinary getShaderBinary(appConfig::eRenderEngine engine, eRShaderU
 	{
 		assert(0);
 	}
+
+	buildShaderReflections(engine, result);
 
 	return result;
 }

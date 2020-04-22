@@ -25,6 +25,11 @@ public:
 		m_GpuResourcePool.append(type, resource);
 	}
 
+	inline rShaderPtr createShader(eRShaderUsage usage, const std::string &shaderName) override final
+	{
+		return m_Device.createShader(usage, shaderName);
+	}
+
 	class enumTranslator
 	{
 	public:
