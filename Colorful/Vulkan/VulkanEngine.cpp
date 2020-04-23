@@ -115,8 +115,6 @@ void vkEngine::finalize()
 {
 	m_Device.waitIdle();
 
-	m_GpuResourcePool.releaseAll(m_Device);
-
 	m_Swapchain.destroy(m_Instance, m_Device);
 
 	m_Device.destroy();
@@ -467,26 +465,4 @@ VkDescriptorType vkEngine::enumTranslator::toDescriptorType(eRDescriptorType typ
 	case eDescriptor_InputAttachment:        return VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
 	}
 	return VK_DESCRIPTOR_TYPE_MAX_ENUM;
-}
-
-void vkEngine::vkGpuResourcePool::releaseAll(const vkDevice &device)
-{
-	for (uint32_t i = 0u; i < rGpuResource::eResourceType_MaxEnum; ++i)
-	{
-		for (uint32_t j = 0u; j < m_Pool[i].size(); ++j)
-		{
-			if (i == rGpuResource::eTexture)
-			{
-				release<vkTexture>(m_Pool[i][j], device);
-			}
-			else if (i == rGpuResource::eShader)
-			{
-				release<vkShader>(m_Pool[i][j], device);
-			}
-			else if (i == rGpuResource::eBuffer)
-			{
-				release<vkBuffer>(m_Pool[i][j], device);
-			}
-		}
-	}
 }

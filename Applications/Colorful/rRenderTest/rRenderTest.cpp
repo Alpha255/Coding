@@ -2,8 +2,49 @@
 
 void rRenderTest::postInitialize()
 {
-	m_VertexShader = g_rEnginePtr->createShader(eVertexShader, "rRenderTest.shader");
-	m_FragmentShader = g_rEnginePtr->createShader(eFragmentShader, "rRenderTest.shader");
+	auto vertexShader = m_Renderer->createVertexShader("rRenderTest.shader");
+	auto fragmentShader = m_Renderer->createFragmentShader("rRenderTest.shader");
+
+	struct vertex
+	{
+		vec3 Position;
+		vec3 Color;
+	};
+	std::vector<vertex> vertices{
+		{
+			{ 1.0f, 1.0f, 0.0f },
+			{ 1.0f, 0.0f, 0.0f }
+		},
+		{
+			{ -1.0f, 1.0f, 0.0f },
+			{  0.0f, 1.0f, 0.0f }
+		},
+		{
+			{  0.0f, -1.0f, 0.0f },
+			{  0.0f,  0.0f, 1.0f }
+		}
+	};
+	std::vector<uint32_t> indices{
+		0u, 1u, 2u
+	};
+	//m_VertexBuffer = g_rEnginePtr->createBuffer(eVertexBuffer, eGpuReadWrite, vertices.size() * sizeof(vertex), vertices.data());
+	//m_IndexBuffer = g_rEnginePtr->createBuffer(eIndexBuffer, eGpuReadWrite, indices.size() * sizeof(uint32_t), indices.data());
+
+	std::vector<rVertexAttributes> vertexAttrs
+	{
+		{
+			ePosition,
+			eRGB32_Float,
+			eVertex
+		},
+		{
+			eColor,
+			eRGB32_Float,
+			eVertex
+		}
+	};
+	/// alignment ??? Try to create based on shader reflection(Format) ??? 
+	///m_VertexShader->setInputLayout(vertexAttrs);
 	/// m_DiffuseTexture = g_rDevicePtr->createTexture("WoodCrate01.dds");
 
 	/// m_DiffuseTexture.bindSampler();

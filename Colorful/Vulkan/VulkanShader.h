@@ -15,11 +15,11 @@ public:
 		return m_InputLayout.InputState;
 	}
 
-	void setInputLayout(const std::vector<rVertexAttributes>& vertexAttributes);
+	void setInputLayout(const std::vector<rVertexAttributes>& vertexAttributes) override final;
 protected:
 	struct vkInputLayout
 	{
-		VkPipelineVertexInputStateCreateInfo InputState;
+		VkPipelineVertexInputStateCreateInfo InputState{};
 		std::vector<VkVertexInputBindingDescription> InputBindings;
 		std::vector<VkVertexInputAttributeDescription> InputAttributes;
 	};

@@ -9,7 +9,7 @@ struct rShaderBinary
 	std::shared_ptr<byte> Binary = nullptr;
 	size_t Size = 0ull;
 
-	std::vector<rShader::rShaderReflection> Reflections;
+	rShader::rReflectionInfos Reflections;
 };
 
 struct rTextureBinary

@@ -25,6 +25,15 @@ public:
 		assert(m_Device.isValid());
 		return m_Device;
 	}
+
+	rShader *createVertexShader(const std::string &) override final
+	{
+		return nullptr;
+	}
+	rShader *createFragmentShader(const std::string &) override final
+	{
+		return nullptr;
+	}
 protected:
 private:
 	d3d12Device m_Device;

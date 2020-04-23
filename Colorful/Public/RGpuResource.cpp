@@ -1,4 +1,4 @@
-#include "RInterface.h"
+#include "RGpuResource.h"
 
 uint32_t rVertexAttributes::getUsageStride(eRVertexUsage usage)
 {

@@ -85,7 +85,7 @@ vkStagingBuffer::vkStagingBuffer(const vkDevice &device, VkBufferUsageFlags usag
 	VkMemoryRequirements memoryRequirements{};
 	vkGetBufferMemoryRequirements(*device, handle, &memoryRequirements);
 	m_Memory.create(device, eGpuReadCpuWrite, memoryRequirements);
-	m_Memory.update(device, pData);
+	m_Memory.update(device, pData, size);
 	rVerifyVk(vkBindBufferMemory(*device, **this, *m_Memory, 0u));
 }
 

@@ -20,16 +20,16 @@ public:
 		}
 	}
 
-	inline void appendResource(rGpuResource::eResourceType type, rGpuResource *resource)
+public:
+	inline rShader *createVertexShader(const std::string &shaderName) override final
 	{
-		m_GpuResourcePool.append(type, resource);
+		return createShader<eVertexShader>(shaderName);
 	}
-
-	inline rShaderPtr createShader(eRShaderUsage usage, const std::string &shaderName) override final
+	inline rShader *createFragmentShader(const std::string &shaderName) override final
 	{
-		return m_Device.createShader(usage, shaderName);
+		return createShader<eFragmentShader>(shaderName);
 	}
-
+public:
 	class enumTranslator
 	{
 	public:
@@ -48,25 +48,11 @@ public:
 		static VkDescriptorType toDescriptorType(eRDescriptorType type);
 	};
 protected:
-	class vkGpuResourcePool
+	template<eRShaderUsage Usage>
+	inline rShader *createShader(const std::string &shaderName)
 	{
-	public:
-		inline void append(rGpuResource::eResourceType type, rGpuResource *resource)
-		{
-			m_Pool[type].emplace_back(resource);
-		}
-
-		void releaseAll(const vkDevice &device);
-	protected:
-		template<class T> void release(rGpuResource *resource, const vkDevice &device)
-		{
-			T *realType = static_cast<T *>(resource);
-			assert(realType);
-			realType->destroy(device);
-		}
-	private:
-		std::array<std::vector<rGpuResource *>, rGpuResource::eResourceType_MaxEnum> m_Pool;
-	};
+		return m_Device.createShader(Usage, shaderName);
+	}
 private:
 	vkInstance m_Instance;
 	vkDebugUtilsMessenger m_DebugUtilsMessenger;
@@ -76,5 +62,4 @@ private:
 	vkDeviceQueue m_ComputeQueue;
 	vkDeviceQueue m_TransferQueue;
 	vkSwapchain m_Swapchain;
-	vkGpuResourcePool m_GpuResourcePool;
 };

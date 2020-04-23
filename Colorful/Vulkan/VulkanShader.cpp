@@ -38,5 +38,39 @@ void vkShader::destroy(const vkDevice &device)
 
 void vkShader::setInputLayout(const std::vector<rVertexAttributes>& vertexAttributes)
 {
-	assert(m_Usage == eVertexShader);
+	assert(m_Usage == eVertexShader && m_InputLayout.InputState.sType == 0);
+
+	m_InputLayout.InputBindings.resize(1u);
+	m_InputLayout.InputAttributes.resize(vertexAttributes.size());
+
+	uint32_t stride = 0u;
+	for (uint32_t i = 0u; i < vertexAttributes.size(); ++i)
+	{
+		m_InputLayout.InputAttributes[i] = VkVertexInputAttributeDescription
+		{
+			i,
+			0u,
+			vkEngine::enumTranslator::toFormat(vertexAttributes[i].Format),
+			stride
+		};
+		stride += rVertexAttributes::getFormatStride(vertexAttributes[i].Format);
+	}
+
+	m_InputLayout.InputBindings[0] = VkVertexInputBindingDescription
+	{
+		0u,
+		stride,
+		VK_VERTEX_INPUT_RATE_VERTEX
+	};
+
+	m_InputLayout.InputState = VkPipelineVertexInputStateCreateInfo
+	{
+		VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
+		nullptr,
+		0u,
+		(uint32_t)m_InputLayout.InputBindings.size(),
+		m_InputLayout.InputBindings.data(),
+		(uint32_t)m_InputLayout.InputAttributes.size(),
+		m_InputLayout.InputAttributes.data()
+	};
 }

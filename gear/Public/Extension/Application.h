@@ -28,7 +28,8 @@ public:
 
 	inline virtual void resizeWindow()
 	{
-		g_rEnginePtr->handleWindowResize((uint32_t)m_WindowSize.x, (uint32_t)m_WindowSize.y, m_Config);
+		assert(m_Renderer);
+		m_Renderer->handleWindowResize((uint32_t)m_WindowSize.x, (uint32_t)m_WindowSize.y, m_Config);
 	}
 protected:
 	void makeWindow(const std::string &title, uint32_t width, uint32_t height, uint32_t extraWindowStyle, uint16_t iconID);
@@ -44,6 +45,7 @@ protected:
 	cpuTimer m_cpuTimer;
 	dxutCamera m_Camera;
 	appConfig m_Config;
+	rEngine *m_Renderer = nullptr;
 private:
 	bool8_t m_bNeedResize = false;
 	uint32_t m_FrameCount = 0U;

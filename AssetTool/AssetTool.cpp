@@ -96,17 +96,17 @@ void buildShaderReflections(appConfig::eRenderEngine engine, rAsset::rShaderBina
 		{
 			for each (auto &res in resources)
 			{
-				rShader::rShaderReflection reflection
+				rShader::rReflectionInfo reflection
 				{
 					///compiler.get_decoration(res.id, spv::DecorationDescriptorSet), uniform (set = 0, binding = 1)
-					type,
+					(uint32_t)type,
 					compiler.get_decoration(res.id, spv::DecorationBinding)
 				};
 				binary.Reflections.emplace_back(std::move(reflection));
 			}
 		};
 
-		pushReflection(shaderResources.uniform_buffers, VK_DESCRIPTOR_TYPE_SAMPLER);
+		pushReflection(shaderResources.uniform_buffers, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
 		pushReflection(shaderResources.storage_buffers, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER);
 		pushReflection(shaderResources.storage_images, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE);
 		pushReflection(shaderResources.sampled_images, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
@@ -117,8 +117,10 @@ void buildShaderReflections(appConfig::eRenderEngine engine, rAsset::rShaderBina
 	{
 
 	}
-
-	assert(0);
+	else
+	{
+		assert(0);
+	}
 }
 
 rAsset::rShaderBinary getShaderBinary(appConfig::eRenderEngine engine, eRShaderUsage usage,	assetFilePtr &shaderAssetPtr)

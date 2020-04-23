@@ -86,8 +86,7 @@ void d3d11Shader::setInputLayout(const std::vector<rVertexAttributes> &vertexAtt
 			vertexAttributes[i].InputRate == eVertex ? D3D11_INPUT_PER_VERTEX_DATA : D3D11_INPUT_PER_INSTANCE_DATA,
 			0u
 		};
-		vertexStride += (rVertexAttributes::getUsageStride(vertexAttributes[i].Usage) * 
-			rVertexAttributes::getFormatStride(vertexAttributes[i].Format));
+		vertexStride += rVertexAttributes::getFormatStride(vertexAttributes[i].Format);
 	}
 
 	ID3D11InputLayout *pLayout = nullptr;

@@ -161,9 +161,7 @@ void vkGraphicsPipeline::create(
 	assert(device.isValid() && !isValid());
 	assert(m_Shaders[eVertexShader]);
 
-	m_DescriptorSetLayout.create(device, m_DescriptorLayoutDesc);
-	m_PipelineLayout.create(device, m_DescriptorSetLayout);
-
+	rDescriptorLayoutDesc descriptorLayoutDesc{};
 	std::vector<VkPipelineShaderStageCreateInfo> shaderStageCreateInfos;
 	for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
 	{
@@ -182,8 +180,13 @@ void vkGraphicsPipeline::create(
 				nullptr
 			};
 			shaderStageCreateInfos.emplace_back(std::move(shaderStageCreateInfo));
+
+			descriptorLayoutDesc[i] = shader->getReflections();
 		}
 	}
+
+	m_DescriptorSetLayout.create(device, descriptorLayoutDesc);
+	m_PipelineLayout.create(device, m_DescriptorSetLayout);
 
 	auto vertexShader = static_cast<const vkShader *>(m_Shaders[eVertexShader]);
 

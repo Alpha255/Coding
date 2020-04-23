@@ -8,9 +8,9 @@ class d3d11Device : public d3dObject<ID3D11Device>, public rDevice
 public:
 	void create(__out d3d11Context &context, const dxgiFactory7 &inDxgiFactory);
 	
-	rShaderPtr createShader(eRShaderUsage usage, const std::string &shaderName) override final;
+	rShader *createShader(eRShaderUsage usage, const std::string &shaderName);
 
-	rTexturePtr createTexture(const std::string &textureName) override final;
+	rTexture *createTexture(const std::string &textureName);
 
 	inline dxgiAdapter4 *getDxgiAdapter()
 	{

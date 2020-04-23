@@ -5,9 +5,6 @@
 #include "Colorful/D3D/D3D12/D3D12Engine.h"
 #include "Colorful/Vulkan/VulkanEngine.h"
 
-rEngine *g_rEnginePtr = nullptr;
-rDevice *g_rDevicePtr = nullptr;
-
 namespaceStart(gear)
 
 void application::initialize(const std::string &title, uint32_t extraWindowStyle)
@@ -22,25 +19,22 @@ void application::initialize(const std::string &title, uint32_t extraWindowStyle
 		makeWindow(title, m_Config.WindowWidth, m_Config.WindowHeight, extraWindowStyle, IconDirectX);
 		d3d11Engine::instance().initialize(m_WindowHandle, m_Config);
 
-		g_rEnginePtr = &d3d11Engine::instance();
+		m_Renderer = &d3d11Engine::instance();
 	}
 	else if (renderEngine == appConfig::eD3D12)
 	{
 		makeWindow(title, m_Config.WindowWidth, m_Config.WindowHeight, extraWindowStyle, IconDirectX);
 		d3d12Engine::instance().initialize(m_WindowHandle, m_Config);
 
-		g_rEnginePtr = &d3d12Engine::instance();
+		m_Renderer = &d3d12Engine::instance();
 	}
 	else if (renderEngine == appConfig::eVulkan)
 	{
 		makeWindow(title, m_Config.WindowWidth, m_Config.WindowHeight, extraWindowStyle, IconVulkan);
 		vkEngine::instance().initialize(m_WindowHandle, m_Config);
 
-		g_rEnginePtr = &vkEngine::instance();
+		m_Renderer = &vkEngine::instance();
 	}
-	assert(g_rEnginePtr);
-	//g_rDevicePtr = g_rEnginePtr->getDevice();
-	//assert(g_rDevicePtr);
 
 	rAsset::rAssetBucket::instance().initialize(renderEngine);
 
@@ -150,7 +144,8 @@ void application::loop()
 
 void application::finalize()
 {
-	g_rEnginePtr->finalize();
+	assert(m_Renderer);
+	m_Renderer->finalize();
 }
 
 namespaceEnd(gear)

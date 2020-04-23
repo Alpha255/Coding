@@ -26,6 +26,16 @@ public:
 		return m_Device;
 	}
 
+public:
+	rShader *createVertexShader(const std::string &) override final
+	{
+		return nullptr;
+	}
+	rShader *createFragmentShader(const std::string &) override final
+	{
+		return nullptr;
+	}
+public:
 	class enumTranslator 
 	{
 	public:

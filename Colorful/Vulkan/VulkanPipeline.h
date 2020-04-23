@@ -51,11 +51,6 @@ public:
 		const rStencilOp &front,
 		const rStencilOp &back) override final;
 
-	void setDescriptorLayout(const rDescriptorLayoutDesc &desc) override final
-	{
-		m_DescriptorLayoutDesc = desc;
-	}
-
 	void create(
 		const class vkDevice &device, 
 		const class vkRenderPass &renderpass, 
@@ -72,7 +67,6 @@ private:
 
 	vkPipelineLayout m_PipelineLayout;
 	vkDescriptorSetLayout m_DescriptorSetLayout;
-	rDescriptorLayoutDesc m_DescriptorLayoutDesc;
 };
 
 class vkComputePipeline : public vkPipeline, public rComputePipeline

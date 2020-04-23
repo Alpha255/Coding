@@ -391,6 +391,8 @@ uint32_t vkDevice::create(
 
 	m_PipelineCache.create(*this);
 
+	m_GpuResourcePool = std::make_unique<vkGpuResourcePool>(*this);
+
 	return gpuIndex;
 }
 
@@ -446,6 +448,8 @@ void vkDevice::destroy()
 	if (isValid())
 	{
 		rVerifyVk(vkDeviceWaitIdle(**this));
+
+		m_GpuResourcePool->destoryAll();
 
 		m_CommandPool.destroy(*this);
 

@@ -60,10 +60,6 @@ public:
 			back);
 	}
 
-	void setViewport(const rViewport *viewport) override final {}
-
-	void setScissor(const rScissor *scissor) override final {}
-
 	void build(const rRenderpass &renderpass) override final {}
 protected:
 private:
