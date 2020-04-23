@@ -111,6 +111,10 @@ case enumValue:                                      \
 	assert(0);
 }
 
+void vkEngine::present()
+{
+}
+
 void vkEngine::finalize()
 {
 	m_Device.waitIdle();

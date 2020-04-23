@@ -62,6 +62,7 @@ public:
 	rShader *createShader(eRShaderUsage usage, const std::string &shaderName);
 	rTexture *createTexture(const std::string &textureName);
 	rBuffer *createBuffer(eRBufferBindFlags bindFlags, eRBufferUsage usage, size_t size, const void *pData);
+	
 protected:
 	class vkGpuResourcePool
 	{
@@ -71,6 +72,7 @@ protected:
 			eShader,
 			eTexture,
 			eBuffer,
+			ePipeline,
 			eResourceType_MaxEnum
 		};
 

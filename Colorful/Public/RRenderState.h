@@ -135,28 +135,37 @@ protected:
 private:
 };
 
+struct rViewport : public vec4
+{
+	rViewport() = default;
+	rViewport(float32_t x, float32_t y, float32_t width, float32_t height)
+		: vec4(x, y, width, height)
+	{
+	}
+	inline constexpr float32_t minDepth() const
+	{
+		return 0.0f;
+	}
+	inline constexpr float32_t maxDepth() const
+	{
+		return 1.0f;
+	}
+};
+
+struct rScissor : public vec4
+{
+	rScissor() = default;
+	rScissor(float32_t extentWidth, float32_t extentHeight, float32_t offsetX, float32_t offsetY)
+		: vec4(extentWidth, extentHeight, offsetX, offsetY)
+	{
+	}
+};
+
 struct rGraphicsPipelineState
 {
-	eRPrimitiveTopology PrimitiveTopology = eTriangleList;
-	struct ClearValue
-	{
-		vec4 Color;
-		float32_t Depth = 1.0f;
-		uint8_t Stencil = 0u;
-	} ClearValue;
-
-	const rShader *Shaders[eRShaderUsage_MaxEnum]{};
-
 	inline void setPrimitiveTopology(eRPrimitiveTopology primitiveTopology)
 	{
 		PrimitiveTopology = primitiveTopology;
-	}
-
-	inline void setClearValue(const vec4 &color, const float32_t depth, const uint8_t stencil)
-	{
-		ClearValue.Color = color;
-		ClearValue.Depth = depth;
-		ClearValue.Stencil = stencil;
 	}
 
 	inline void setShader(const rShader *shader)
@@ -165,6 +174,16 @@ struct rGraphicsPipelineState
 		assert(shader->getUsage() < eRShaderUsage_MaxEnum);
 		assert(Shaders[shader->getUsage()] == nullptr);
 		Shaders[shader->getUsage()] = shader;
+	}
+
+	inline void setViewport(const rViewport &viewport)
+	{
+		Viewport = viewport;
+	}
+
+	inline void setScissor(const rScissor &scissor)
+	{
+		Scissor = scissor;
 	}
 
 	inline void setRasterizerState(const rRasterizerStateDesc &desc)
@@ -182,9 +201,16 @@ struct rGraphicsPipelineState
 		DepthStencilStateDesc = desc;
 	}
 
+	eRPrimitiveTopology PrimitiveTopology = eTriangleList;
+
+	const rShader *Shaders[eRShaderUsage_MaxEnum]{};
+
 	rRasterizerStateDesc RasterizerStateDesc{};
 	rBlendStateDesc BlendStateDesc{};
 	rDepthStencilStateDesc DepthStencilStateDesc{};
+	rViewport Viewport;
+	rScissor Scissor;
+	/// MultisampleState
 };
 
 class rComputePipeline

@@ -20,6 +20,7 @@ public:
 		}
 	}
 
+	void present() override final;
 public:
 	inline rShader *createVertexShader(const std::string &shaderName) override final
 	{

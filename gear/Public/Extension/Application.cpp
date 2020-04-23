@@ -130,6 +130,8 @@ void application::loop()
 
 				renterToWindow();
 
+				m_Renderer->present();
+
 				updateFPS();
 			}
 			else

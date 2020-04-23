@@ -45,29 +45,20 @@ void rRenderTest::postInitialize()
 	};
 	/// alignment ??? Try to create based on shader reflection(Format) ??? 
 	vertexShader->setInputLayout(vertexAttrs);
-	/// m_DiffuseTexture = g_rDevicePtr->createTexture("WoodCrate01.dds");
-
-	/// m_DiffuseTexture.bindSampler();
-	/// m_VertexShader.setIntputLayout();
-	/// m_FragmentShader.pushUniformBuffer();
-	/// m_FragmentShader.pushTexture(m_DiffuseTexture);
-
-	/// GraphicPipline0.create();
-	/// GraphicPipline0.setShader(m_VertexShader);
-	/// GraphicPipline0.setShader(m_FragmentShader);
-
-	/// RenderPass.create("Opaque");
 }
 
 void rRenderTest::renterToWindow()
 {
-	/// RenderPass.bindPipline(GraphicPipline0);
-	/// RenderPass.execute();
+	/// RenderPass.create("Opaque");
+	rGraphicsPipelineState graphicsPipelineState{};
 
-	/// RenderPass.bindPipline(GraphicPipline1);
-	/// RenderPass.execute();
-
-	/// UI Pass
+	/*
+	renderpass.begin(graphicsPipelineState)
+	bindVertexBuffer
+	bindIndexBuffer
+	drawIndexed
+	renderpass.end()
+	*/
 }
 
 appMainEntry(rRenderTest)
