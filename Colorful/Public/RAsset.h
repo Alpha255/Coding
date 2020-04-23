@@ -9,12 +9,7 @@ struct rShaderBinary
 	std::shared_ptr<byte> Binary = nullptr;
 	size_t Size = 0ull;
 
-	struct rShaderReflection
-	{
-		uint32_t Type = eRDescriptorType_MaxEnum;
-		uint32_t Binding = 0u;
-	};
-	std::vector<rShaderReflection> Reflections;
+	std::vector<rShader::rShaderReflection> Reflections;
 };
 
 struct rTextureBinary

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "RDeclaration.h"
-#include "RAsset.h"
 
 namespace gear
 {
@@ -98,6 +97,12 @@ struct rDescriptorLayoutDesc
 class rShader : public rGpuResource
 {
 public:
+	struct rShaderReflection
+	{
+		uint32_t Type = eRDescriptorType_MaxEnum;
+		uint32_t Binding = 0u;
+	};
+
 	rShader(eRShaderUsage usage)
 		: m_Usage(usage)
 	{
@@ -128,7 +133,7 @@ protected:
 	std::vector<const rTexture *> m_Textures;
 	std::vector<const rSampler *> m_Samplers;
 	const rBuffer *m_UniformBuffer = nullptr;
-	rAsset::rShaderBinary::rShaderReflection m_Reflections;
+	std::vector<rShaderReflection> m_Reflections;
 private:
 };
 

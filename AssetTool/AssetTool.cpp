@@ -96,7 +96,7 @@ void buildShaderReflections(appConfig::eRenderEngine engine, rAsset::rShaderBina
 		{
 			for each (auto &res in resources)
 			{
-				rAsset::rShaderBinary::rShaderReflection reflection
+				rShader::rShaderReflection reflection
 				{
 					///compiler.get_decoration(res.id, spv::DecorationDescriptorSet), uniform (set = 0, binding = 1)
 					type,
