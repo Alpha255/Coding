@@ -27,8 +27,8 @@ void rRenderTest::postInitialize()
 	std::vector<uint32_t> indices{
 		0u, 1u, 2u
 	};
-	//m_VertexBuffer = g_rEnginePtr->createBuffer(eVertexBuffer, eGpuReadWrite, vertices.size() * sizeof(vertex), vertices.data());
-	//m_IndexBuffer = g_rEnginePtr->createBuffer(eIndexBuffer, eGpuReadWrite, indices.size() * sizeof(uint32_t), indices.data());
+	auto vertexBuffer = m_Renderer->createVertexBuffer(eGpuReadWrite, vertices.size() * sizeof(vertex), vertices.data());
+	auto indexBuffer = m_Renderer->createIndexBuffer(eGpuReadWrite, indices.size() * sizeof(uint32_t), indices.data());
 
 	std::vector<rVertexAttributes> vertexAttrs
 	{
@@ -44,7 +44,7 @@ void rRenderTest::postInitialize()
 		}
 	};
 	/// alignment ??? Try to create based on shader reflection(Format) ??? 
-	///m_VertexShader->setInputLayout(vertexAttrs);
+	vertexShader->setInputLayout(vertexAttrs);
 	/// m_DiffuseTexture = g_rDevicePtr->createTexture("WoodCrate01.dds");
 
 	/// m_DiffuseTexture.bindSampler();

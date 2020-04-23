@@ -39,7 +39,7 @@ public:
 		bool8_t enableLogicOp,
 		eRLogicOp logicOp,
 		uint32_t attachmentCount,
-		const rColorBlendState * const clrBlendState) override final;
+		const rColorBlendStateDesc * const clrBlendState) override final;
 
 	void setDepthStencilState(
 		bool8_t enableDepth,
@@ -48,8 +48,8 @@ public:
 		bool8_t enableStencil,
 		uint8_t stencilReadMask,
 		uint8_t stencilWriteMask,
-		const rStencilOp &front,
-		const rStencilOp &back) override final;
+		const rStencilOpDesc &front,
+		const rStencilOpDesc &back) override final;
 
 	void create(
 		const class vkDevice &device, 

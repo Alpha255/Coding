@@ -1,29 +1,9 @@
 #pragma once
 
-#include "RObject.h"
+#include "RGpuResource.h"
 
 class rSampler
 {
-};
-
-struct rStencilOp
-{
-	eRStencilOp FailOp = eRStencilOp::eRStencilOp_MaxEnum;
-	eRStencilOp PassOp = eRStencilOp::eRStencilOp_MaxEnum;
-	eRStencilOp DepthFailOp = eRStencilOp::eRStencilOp_MaxEnum;
-	eRCompareOp CompareOp = eRCompareOp::eRCompareOp_MaxEnum;
-};
-
-struct rColorBlendState
-{
-	bool8_t Enable = false;
-	eRBlendFactor SrcColor = eRBlendFactor::eRBlendFactor_MaxEnum;
-	eRBlendFactor DstColor = eRBlendFactor::eRBlendFactor_MaxEnum;
-	eRBlendOp ColorOp = eRBlendOp::eRBlendOp_MaxEnum;
-	eRBlendFactor SrcAlpha = eRBlendFactor::eRBlendFactor_MaxEnum;
-	eRBlendFactor DstAlpha = eRBlendFactor::eRBlendFactor_MaxEnum;
-	eRBlendOp AlphaOp = eRBlendOp::eRBlendOp_MaxEnum;
-	uint32_t ColorMask = eRColorWriteMask::eColorNone;
 };
 
 class rRenderpass
@@ -35,6 +15,56 @@ public:
 protected:
 private:
 	std::string m_Description;
+};
+
+struct rStencilOpDesc
+{
+	eRStencilOp FailOp = eRStencilOp::eKeep;
+	eRStencilOp PassOp = eRStencilOp::eKeep;
+	eRStencilOp DepthFailOp = eRStencilOp::eKeep;
+	eRCompareOp CompareOp = eRCompareOp::eAlways;
+};
+
+struct rColorBlendStateDesc
+{
+	bool8_t Enable = false;
+	eRBlendFactor SrcColor = eRBlendFactor::eSrcColor;
+	eRBlendFactor DstColor = eRBlendFactor::eZero;
+	eRBlendOp ColorOp = eRBlendOp::eAdd;
+	eRBlendFactor SrcAlpha = eRBlendFactor::eSrcAlpha;
+	eRBlendFactor DstAlpha = eRBlendFactor::eZero;
+	eRBlendOp AlphaOp = eRBlendOp::eAdd;
+	uint32_t ColorMask = eRColorWriteMask::eColorNone;
+};
+
+struct rRasterizerStateDesc
+{
+	eRPolygonMode PolygonMode = eSolid;
+	eRCullMode CullMode = eCullNone;
+	eRFrontFace FrontFace = eClockwise;
+	bool8_t EnableDepthBias = false;
+	float32_t DepthBias = 0.0f;
+	float32_t DepthBiasClamp = 0.0f;
+	float32_t DepthBiasSlope = 0.0f;
+};
+
+struct rBlendStateDesc
+{
+	bool8_t EnableLogicOp = false;
+	eRLogicOp logicOp = eRLogicOp::eNo;
+	rColorBlendStateDesc ColorBlendStateDesc[eMaxRenderTargets]{};
+};
+
+struct rDepthStencilStateDesc
+{
+	bool8_t EnableDepth = true;
+	bool8_t EnableDepthWrite = false;
+	eRCompareOp DepthCompareOp = eRCompareOp::eAlways;
+	bool8_t EnableStencil = false;
+	uint8_t StencilReadMask = 0xF;
+	uint8_t StencilWriteMask = 0xF;
+	rStencilOpDesc FrontFace{};
+	rStencilOpDesc BackFace{};
 };
 
 class rGraphicsPipeline
@@ -73,7 +103,7 @@ public:
 		bool8_t enableLogicOp,
 		eRLogicOp logicOp,
 		uint32_t attachmentCount,
-		const rColorBlendState * const clrBlendState) = 0;
+		const rColorBlendStateDesc * const clrBlendState) = 0;
 
 	virtual void setDepthStencilState(
 		bool8_t enableDepth,
@@ -82,8 +112,8 @@ public:
 		bool8_t enableStencil,
 		uint8_t stencilReadMask,
 		uint8_t stencilWriteMask,
-		const rStencilOp &front,
-		const rStencilOp &back) = 0;
+		const rStencilOpDesc &front,
+		const rStencilOpDesc &back) = 0;
 
 	virtual void setDescriptorLayout(const rDescriptorLayoutDesc &desc) = 0;
 
@@ -103,6 +133,58 @@ protected:
 
 	const rShader *m_Shaders[eRShaderUsage_MaxEnum]{};
 private:
+};
+
+struct rGraphicsPipelineState
+{
+	eRPrimitiveTopology PrimitiveTopology = eTriangleList;
+	struct ClearValue
+	{
+		vec4 Color;
+		float32_t Depth = 1.0f;
+		uint8_t Stencil = 0u;
+	} ClearValue;
+
+	const rShader *Shaders[eRShaderUsage_MaxEnum]{};
+
+	inline void setPrimitiveTopology(eRPrimitiveTopology primitiveTopology)
+	{
+		PrimitiveTopology = primitiveTopology;
+	}
+
+	inline void setClearValue(const vec4 &color, const float32_t depth, const uint8_t stencil)
+	{
+		ClearValue.Color = color;
+		ClearValue.Depth = depth;
+		ClearValue.Stencil = stencil;
+	}
+
+	inline void setShader(const rShader *shader)
+	{
+		assert(shader);
+		assert(shader->getUsage() < eRShaderUsage_MaxEnum);
+		assert(Shaders[shader->getUsage()] == nullptr);
+		Shaders[shader->getUsage()] = shader;
+	}
+
+	inline void setRasterizerState(const rRasterizerStateDesc &desc)
+	{
+		RasterizerStateDesc = desc;
+	}
+
+	inline void setBlendState(const rBlendStateDesc &desc)
+	{
+		BlendStateDesc = desc;
+	}
+
+	inline void setDepthStencilState(const rDepthStencilStateDesc &desc)
+	{
+		DepthStencilStateDesc = desc;
+	}
+
+	rRasterizerStateDesc RasterizerStateDesc{};
+	rBlendStateDesc BlendStateDesc{};
+	rDepthStencilStateDesc DepthStencilStateDesc{};
 };
 
 class rComputePipeline

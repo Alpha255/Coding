@@ -28,7 +28,7 @@ public:
 		bool8_t enableLogicOp,
 		eRLogicOp logicOp,
 		uint32_t renderTargetCount,
-		const rColorBlendState * const clrBlendState) override final
+		const rColorBlendStateDesc * const clrBlendState) override final
 	{
 		assert(renderTargetCount < eMaxRenderTargets);
 
@@ -46,8 +46,8 @@ public:
 		bool8_t enableStencil,
 		uint8_t stencilReadMask,
 		uint8_t stencilWriteMask,
-		const rStencilOp &front,
-		const rStencilOp &back) override final
+		const rStencilOpDesc &front,
+		const rStencilOpDesc &back) override final
 	{
 		m_DepthStencilState.create(
 			enableDepth,

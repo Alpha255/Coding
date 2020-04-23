@@ -75,7 +75,7 @@ void vkGraphicsPipeline::setBlendState(
 	bool8_t enableLogicOp, 
 	eRLogicOp logicOp, 
 	uint32_t attachmentCount, 
-	const rColorBlendState * const clrBlendState)
+	const rColorBlendStateDesc * const clrBlendState)
 {
 	assert(m_ColorBlendState.sType == 0);
 	assert(attachmentCount <= eMaxRenderTargets);
@@ -115,8 +115,8 @@ void vkGraphicsPipeline::setDepthStencilState(
 	bool8_t enableStencil, 
 	uint8_t stencilReadMask, 
 	uint8_t stencilWriteMask, 
-	const rStencilOp &front, 
-	const rStencilOp &back)
+	const rStencilOpDesc &front, 
+	const rStencilOpDesc &back)
 {
 	assert(m_DepthStencilState.sType == 0);
 
@@ -235,7 +235,7 @@ void vkGraphicsPipeline::create(
 
 	if (m_DepthStencilState.sType == 0)
 	{
-		rStencilOp stencilOp
+		rStencilOpDesc stencilOp
 		{
 			eRStencilOp::eKeep,
 			eRStencilOp::eKeep,

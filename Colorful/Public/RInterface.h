@@ -89,9 +89,11 @@ public:
 
 	virtual class rShader *createVertexShader(const std::string &shaderName) = 0;
 	virtual class rShader *createFragmentShader(const std::string &shaderName) = 0;
+
+	virtual class rBuffer *createIndexBuffer(eRBufferUsage usage, size_t size, const void *data) { return nullptr; }
+	virtual class rBuffer *createVertexBuffer(eRBufferUsage usage, size_t size, const void *data) { return nullptr; }
 protected:
 private:
 };
 
-#include "RGpuResource.h"
 #include "RRenderState.h"

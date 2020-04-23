@@ -29,6 +29,15 @@ public:
 	{
 		return createShader<eFragmentShader>(shaderName);
 	}
+
+	inline rBuffer *createIndexBuffer(eRBufferUsage usage, size_t size, const void *data) override final
+	{ 
+		return m_Device.createBuffer(eIndexBuffer, usage, size, data);
+	}
+	inline rBuffer *createVertexBuffer(eRBufferUsage usage, size_t size, const void *data) override final
+	{ 
+		return m_Device.createBuffer(eVertexBuffer, usage, size, data);
+	}
 public:
 	class enumTranslator
 	{
