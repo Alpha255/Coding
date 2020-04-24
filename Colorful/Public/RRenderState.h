@@ -120,8 +120,6 @@ public:
 	virtual void setViewport(const vec4 &) = 0;
 
 	virtual void setScissor(const vec4 &) = 0;
-
-	virtual void build(const rRenderpass &renderpass) = 0;
 protected:
 	eRPrimitiveTopology m_PrimitiveTopology = eTriangleList;
 	struct ClearValue

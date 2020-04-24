@@ -59,8 +59,6 @@ public:
 			front,
 			back);
 	}
-
-	void build(const rRenderpass &renderpass) override final {}
 protected:
 private:
 	d3d11RasterizerState m_RasterizerState;

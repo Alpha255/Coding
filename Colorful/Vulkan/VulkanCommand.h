@@ -35,7 +35,7 @@ public:
 
 	void end();
 
-	inline void resetBuffer()
+	inline void resetCommand()
 	{
 		/// The command buffer can be in any state other than pending, and is moved into the initial state
 
@@ -48,8 +48,6 @@ public:
 		setState(eInitial);
 	}
 protected:
-	friend class vkCommandBufferArray;
-
 	enum eState
 	{
 		eInitial,
@@ -69,51 +67,6 @@ private:
 	eState m_State = eState_MaxEnum;
 };
 
-class vkCommandBufferArray
-{
-public:
-	inline vkCommandBuffer get(uint32_t index = 0u) const
-	{
-		assert(m_CommandBuffers.size() > 0u && index < m_CommandBuffers.size());
-		return m_CommandBuffers[index];
-	}
-
-	inline void begin(uint32_t index)
-	{
-		assert(index < m_CommandBuffers.size());
-		m_CommandBuffers[index].begin();
-	}
-
-	inline void end(uint32_t index)
-	{
-		assert(index < m_CommandBuffers.size());
-		m_CommandBuffers[index].end();
-	}
-
-	inline void reset(uint32_t index)
-	{
-		assert(index < m_CommandBuffers.size());
-		m_CommandBuffers[index].resetBuffer();
-	}
-
-	inline void execute(const vkCommandBuffer &primaryCommandBuffer, uint32_t index)
-	{
-		assert(index < m_CommandBuffers.size());
-		m_CommandBuffers[index].execute(primaryCommandBuffer);
-	}
-
-	void execute(const vkCommandBuffer &primaryCommandBuffer);
-protected:
-	friend class vkCommandPool;
-
-	inline void destory()
-	{
-		m_CommandBuffers.clear();
-	}
-private:
-	std::vector<vkCommandBuffer> m_CommandBuffers;
-};
-
 class vkCommandPool : public vkDeviceObject<VkCommandPool>
 {
 public:
@@ -121,9 +74,6 @@ public:
 	void destroy(const class vkDevice &device) override final;
 	void resetPool(const class vkDevice &device);
 	void trimPool(const class vkDevice &device);
-
-	vkCommandBufferArray allocCommandBuffers(const class vkDevice &device, VkCommandBufferLevel level, uint32_t count) const;
-	void freeCommandBuffers(const class vkDevice &device, vkCommandBufferArray &commandBuffers) const;
 
 	vkCommandBuffer allocCommandBuffer(const class vkDevice &device, VkCommandBufferLevel level) const;
 	void freeCommandBuffer(const class vkDevice &device, vkCommandBuffer &commandBuffer) const;

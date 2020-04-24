@@ -53,7 +53,7 @@ void vkShader::setInputLayout(const std::vector<rVertexAttributes>& vertexAttrib
 			vkEngine::enumTranslator::toFormat(vertexAttributes[i].Format),
 			stride
 		};
-		stride += rVertexAttributes::getFormatStride(vertexAttributes[i].Format);
+		stride += (uint32_t)rVertexAttributes::getFormatStride(vertexAttributes[i].Format);
 	}
 
 	m_InputLayout.InputBindings[0] = VkVertexInputBindingDescription

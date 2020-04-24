@@ -112,48 +112,6 @@ void vkCommandPool::destroy(const vkDevice &device)
 		Resetting or freeing a primary command buffer removes the linkage to any secondary command buffers that were recorded to it.
 ********************************/
 
-vkCommandBufferArray vkCommandPool::allocCommandBuffers(const vkDevice &device, VkCommandBufferLevel level, uint32_t count) const
-{
-	assert(isValid() && device.isValid() && count);
-
-	VkCommandBufferAllocateInfo allocateInfo
-	{
-		VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-		nullptr,
-		**this,
-		level,
-		count
-	};
-
-	vkCommandBufferArray commandBuffers;
-	std::vector<VkCommandBuffer> handles(count);
-	rVerifyVk(vkAllocateCommandBuffers(*device, &allocateInfo, handles.data()));
-
-	for (uint32_t i = 0u; i < count; ++i)
-	{
-		commandBuffers.m_CommandBuffers.emplace_back(level, handles[i]);
-	}
-
-	return commandBuffers;
-}
-
-void vkCommandPool::freeCommandBuffers(const vkDevice &device, vkCommandBufferArray &commandBuffers) const
-{
-	assert(isValid() && device.isValid());
-
-	std::vector<VkCommandBuffer> handles;
-	for (uint32_t i = 0u; i < commandBuffers.m_CommandBuffers.size(); ++i)
-	{
-		if (commandBuffers.m_CommandBuffers[i].isValid())
-		{
-			handles.emplace_back(*commandBuffers.m_CommandBuffers[i]);
-		}
-	}
-
-	vkFreeCommandBuffers(*device, **this, (uint32_t)commandBuffers.m_CommandBuffers.size(), handles.data());
-	commandBuffers.destory();
-}
-
 vkCommandBuffer vkCommandPool::allocCommandBuffer(const vkDevice &device, VkCommandBufferLevel level) const
 {
 	assert(isValid() && device.isValid());
@@ -295,20 +253,4 @@ void vkCommandBuffer::queueSubmit()
 			The order that command buffers appear in pCommandBuffers is used to determine submission order, and thus all the implicit ordering guarantees that respect it. 
 			Other than these implicit ordering guarantees and any explicit synchronization primitives, these command buffers may overlap or otherwise execute out of order.
 	*********************************/
-}
-
-void vkCommandBufferArray::execute(const vkCommandBuffer &primaryCommandBuffer)
-{
-	assert(primaryCommandBuffer.isValid() && primaryCommandBuffer.m_Level == VK_COMMAND_BUFFER_LEVEL_PRIMARY && primaryCommandBuffer.m_State == vkCommandBuffer::eRecording);
-
-	std::vector<VkCommandBuffer> handles;
-	for (uint32_t i = 0u; i < m_CommandBuffers.size(); ++i)
-	{
-		assert(m_CommandBuffers[i].isValid());
-		assert(m_CommandBuffers[i].m_State == vkCommandBuffer::ePending || m_CommandBuffers[i].m_State == vkCommandBuffer::eExecutable);
-
-		handles.emplace_back(*m_CommandBuffers[i]);
-	}
-
-	vkCmdExecuteCommands(*primaryCommandBuffer, (uint32_t)handles.size(), handles.data());
 }

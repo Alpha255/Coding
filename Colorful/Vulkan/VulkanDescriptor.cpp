@@ -117,7 +117,7 @@ void vkDescriptorSetLayout::create(const vkDevice &device, const rDescriptorLayo
 					reflection.Binding,
 					(VkDescriptorType)reflection.Type,
 					1u,
-					vkEngine::enumTranslator::toShaderStage(static_cast<eRShaderUsage>(i)),
+					(VkShaderStageFlags)vkEngine::enumTranslator::toShaderStage(static_cast<eRShaderUsage>(i)),
 					nullptr
 				};
 				bindings.emplace_back(std::move(binding));
