@@ -24,6 +24,7 @@
 	action(vkEnumeratePhysicalDevices)                \
 	action(vkGetPhysicalDeviceFeatures)               \
 	action(vkGetPhysicalDeviceProperties)             \
+	action(vkGetPhysicalDeviceFormatProperties)       \
 	action(vkGetPhysicalDeviceMemoryProperties)       \
 	action(vkEnumerateDeviceExtensionProperties)      \
 	action(vkGetPhysicalDeviceSurfaceSupportKHR)      \

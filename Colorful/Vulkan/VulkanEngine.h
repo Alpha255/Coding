@@ -2,6 +2,7 @@
 
 #include "Colorful/Vulkan/VulkanDevice.h"
 #include "Colorful/Vulkan/VulkanSwapChain.h"
+#include "Colorful/Vulkan/VulkanQueue.h"
 
 class vkEngine : public rEngine, public singleton<vkEngine>
 {
@@ -38,6 +39,16 @@ public:
 	inline rBuffer *createVertexBuffer(eRBufferUsage usage, size_t size, const void *data) override final
 	{ 
 		return m_Device.createBuffer(eVertexBuffer, usage, size, data);
+	}
+
+	inline rRenderSurface *createDepthStencilView(uint32_t width, uint32_t height, eRFormat format) override final
+	{
+		return m_Device.createDepthStencilView(width, height, format);
+	}
+
+	inline rRenderPass *createRenderPass(const rFrameBufferDesc &desc) override final
+	{
+		return m_Device.createRenderPass(m_Swapchain, desc);
 	}
 public:
 	class enumTranslator

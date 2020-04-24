@@ -1,5 +1,6 @@
 #include "VulkanBuffer.h"
 #include "VulkanEngine.h"
+#include "VulkanRenderPass.h"
 
 void vkDeviceMemory::create(const vkDevice &device, eRBufferUsage usage, const VkMemoryRequirements &memoryRequirements)
 {
@@ -156,6 +157,45 @@ vkGpuBuffer::vkGpuBuffer(const vkDevice &device, eRBufferBindFlags bindFlags, eR
 		m_Memory.update(device, pData);
 		rVerifyVk(vkBindBufferMemory(*device, **this, *m_Memory, 0u));
 	}
+}
+
+void vkFrameBuffer::create(const vkDevice &device, const vkRenderPass &renderPass, const rFrameBufferDesc &desc)
+{
+	assert(device.isValid() && renderPass.isValid() && !isValid());
+
+	std::vector<VkImageView> attachments;
+	for (uint32_t i = 0u; i < eMaxRenderTargets; ++i)
+	{
+		if (desc.ColorSurface[i])
+		{
+			auto imageView = static_cast<vkImageView *>(desc.ColorSurface[i]);
+			assert(imageView);
+			attachments.emplace_back(**imageView);
+		}
+	}
+	if (desc.DepthSurface)
+	{
+		auto depthImageView = static_cast<vkImageView *>(desc.DepthSurface);
+		assert(depthImageView);
+		attachments.emplace_back(**depthImageView);
+	}
+
+	VkFramebufferCreateInfo createInfo
+	{
+		VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+		nullptr,
+		0u,
+		*renderPass,
+		(uint32_t)attachments.size(),
+		attachments.data(),
+		desc.Width,
+		desc.Height,
+		desc.Layers
+	};
+
+	VkFramebuffer handle = VK_NULL_HANDLE;
+	rVerifyVk(vkCreateFramebuffer(*device, &createInfo, vkMemoryAllocator, &handle));
+	reset(handle);
 }
 
 void vkFrameBuffer::destroy(const vkDevice &device)

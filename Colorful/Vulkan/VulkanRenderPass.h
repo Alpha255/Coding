@@ -1,6 +1,6 @@
 #pragma once
 
-#include "VulkanLoader.h"
+#include "Colorful/Vulkan/VulkanBuffer.h"
 
 /*******VkPipelineStageFlagBits*******
 	VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT specifies the stage of the pipeline where any commands are initially received by the queue.
@@ -93,9 +93,15 @@
 
 /// https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/vkspec.html#memory-model
 
-class vkRenderPass : public vkDeviceObject<VkRenderPass>, public rRenderpass
+class vkRenderPass : public vkDeviceObject<VkRenderPass>, public rRenderPass
 {
 public:
-	void create(const class vkDevice &device, const rRenderpassDesc &desc);
+	void create(const class vkDevice &device, const rFrameBufferDesc &desc);
 	void destroy(const class vkDevice &device) override final;
+
+	void begin(const struct rGraphicsPipelineState &graphicsPipelineState) override final;
+	void end() override final;
+protected:
+private:
+	std::vector<vkFrameBuffer> m_FrameBuffers;
 };

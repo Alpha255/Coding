@@ -35,6 +35,6 @@ public:
 class vkFrameBuffer : public vkDeviceObject<VkFramebuffer>
 {
 public:
-	void create(const class vkDevice &device, const class vkRenderPass &renderPass);
+	void create(const class vkDevice &device, const class vkRenderPass &renderPass, const rFrameBufferDesc &desc);
 	void destroy(const class vkDevice &device) override final;
 };

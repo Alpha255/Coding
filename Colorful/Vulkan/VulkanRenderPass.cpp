@@ -31,20 +31,104 @@
 	A render pass must have at least one subpass.
 **************************************************/
 
-void vkRenderPass::create(const vkDevice &device, const rRenderpassDesc &)
+void vkRenderPass::create(const vkDevice &device, const rFrameBufferDesc &desc)
 {
 	assert(device.isValid() && !isValid());
+
+	std::vector<VkAttachmentDescription> attachmentDescs;
+	std::vector<VkAttachmentReference> colorRefs;
+	uint32_t index = 0u;
+	for (uint32_t i = 0u; i < eMaxRenderTargets; ++i)
+	{
+		if (desc.ColorSurface[i])
+		{
+			auto imageView = static_cast<vkImageView *>(desc.ColorSurface[i]);
+			assert(imageView);
+
+			VkAttachmentDescription attachmentDesc
+			{
+				0u,
+				imageView->getFormat(),
+				VK_SAMPLE_COUNT_1_BIT,
+				VK_ATTACHMENT_LOAD_OP_CLEAR,
+				VK_ATTACHMENT_STORE_OP_STORE,
+				VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+				VK_ATTACHMENT_STORE_OP_DONT_CARE,
+				VK_IMAGE_LAYOUT_UNDEFINED,
+				VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+			};
+			attachmentDescs.emplace_back(std::move(attachmentDesc));
+
+			VkAttachmentReference colorRef
+			{
+				index++,
+				VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+			};
+			colorRefs.emplace_back(std::move(colorRef));
+		}
+	}
+
+	VkAttachmentReference depthRef
+	{
+		index,
+		VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+	};
+
+
+	if (desc.DepthSurface)
+	{
+		auto depthImageView = static_cast<vkImageView *>(desc.DepthSurface);
+		assert(depthImageView);
+
+		VkAttachmentDescription attachmentDesc
+		{
+			0u,
+			depthImageView->getFormat(),
+			VK_SAMPLE_COUNT_1_BIT,
+			VK_ATTACHMENT_LOAD_OP_CLEAR,
+			VK_ATTACHMENT_STORE_OP_DONT_CARE,
+			VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+			VK_ATTACHMENT_STORE_OP_DONT_CARE,
+			VK_IMAGE_LAYOUT_UNDEFINED,
+			VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+		};
+		attachmentDescs.emplace_back(std::move(attachmentDesc));
+	}
 
 	VkSubpassDescription subpassDesc
 	{
 		0u,
 		VK_PIPELINE_BIND_POINT_GRAPHICS,
 		0u,
+		nullptr,
+		(uint32_t)colorRefs.size(),
+		colorRefs.data(),
+		nullptr,
+		desc.DepthSurface ? &depthRef : nullptr,
+		0u,
 		nullptr
 	};
 
-	VkSubpassDependency subpassDependency
+	std::vector<VkSubpassDependency> subpassDependencies
 	{
+		{
+			VK_SUBPASS_EXTERNAL,
+			0u,
+			VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+			VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+			VK_ACCESS_MEMORY_READ_BIT,
+			VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+			VK_DEPENDENCY_BY_REGION_BIT
+		},
+		{
+			0u,
+			VK_SUBPASS_EXTERNAL,
+			VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+			VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+			VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+			VK_ACCESS_MEMORY_READ_BIT,
+			VK_DEPENDENCY_BY_REGION_BIT
+		}
 	};
 
 	VkRenderPassCreateInfo createInfo
@@ -52,12 +136,12 @@ void vkRenderPass::create(const vkDevice &device, const rRenderpassDesc &)
 		VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
 		nullptr,
 		0u,
-		0u,
-		nullptr,
-		0u,
-		nullptr,
-		0u,
-		nullptr
+		(uint32_t)attachmentDescs.size(),
+		attachmentDescs.data(),
+		1u,
+		&subpassDesc,
+		(uint32_t)subpassDependencies.size(),
+		subpassDependencies.data()
 	};
 
 	VkRenderPass handle = VK_NULL_HANDLE;
@@ -71,7 +155,21 @@ void vkRenderPass::destroy(const vkDevice &device)
 
 	if (isValid())
 	{
+		for (uint32_t i = 0u; i < m_FrameBuffers.size(); ++i)
+		{
+			m_FrameBuffers[i].destroy(device);
+		}
+		m_FrameBuffers.clear();
+
 		vkDestroyRenderPass(*device, **this, vkMemoryAllocator);
 		reset();
 	}
+}
+
+void vkRenderPass::begin(const rGraphicsPipelineState &)
+{
+}
+
+void vkRenderPass::end()
+{
 }

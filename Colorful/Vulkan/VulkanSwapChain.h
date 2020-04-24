@@ -1,6 +1,6 @@
 #pragma once
 
-#include "VulkanLoader.h"
+#include "Colorful/Vulkan/VulkanView.h"
 
 class vkSwapchain : public vkObject<VkSwapchainKHR>
 {
@@ -30,6 +30,12 @@ public:
 	{
 		recreate(width, height, m_bVSync, m_bFullScreen, physicalDevice, device);
 	}
+
+	uint32_t acquireBackBuffer();
+	inline const std::vector<vkBackBuffer> &getBackBuffers() const
+	{
+		return m_BackBuffers;
+	}
 protected:
 	struct vkSurface : public vkObject<VkSurfaceKHR>
 	{
@@ -41,8 +47,11 @@ protected:
 		VkSurfaceCapabilitiesKHR SurfaceCapabilities = {};
 		std::vector<VkPresentModeKHR> PresentModes;
 	};
+
+	void clearBackBuffers(const class vkDevice &device);
 private:
 	vkSurface m_Surface;
+	std::vector<vkBackBuffer> m_BackBuffers;
 	bool8_t m_bVSync = false;
 	bool8_t m_bFullScreen = false;
 };

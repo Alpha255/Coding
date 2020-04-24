@@ -17,7 +17,7 @@ public:
 	void destroy(const class vkDevice &device) override final;
 };
 
-class vkPipeline : public vkDeviceObject<VkPipeline>
+class vkPipeline : public vkDeviceObject<VkPipeline>, public rGpuResource
 {
 public:
 	void destroy(const class vkDevice &device) override;

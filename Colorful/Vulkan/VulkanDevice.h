@@ -3,6 +3,12 @@
 #include "VulkanPipeline.h"
 #include "VulkanCommand.h"
 #include "VulkanDescriptor.h"
+#include "Colorful/Vulkan/VulkanShader.h"
+#include "Colorful/Vulkan/VulkanBuffer.h"
+#include "Colorful/Vulkan/VulkanView.h"
+#include "Colorful/Vulkan/VulkanSwapChain.h"
+#include "Colorful/Vulkan/VulkanRenderPass.h"
+#include "Colorful/Vulkan/VulkanPipeline.h"
 
 class vkInstance : public vkObject<VkInstance>
 {
@@ -36,9 +42,9 @@ public:
 
 	void waitIdle();
 
-	vkFence *createFence(vkFence::eFenceStatus status, bool8_t autoReset = false);
-	vkSemaphore *createSemaphore(bool8_t autoReset = false);
-	vkEvent *createEvent(bool8_t autoReset = false);
+	vkFence *createFence(vkFence::eFenceStatus status) const;
+	vkSemaphore *createSemaphore() const;
+	vkEvent *createEvent() const;
 
 	void destroy();
 
@@ -46,12 +52,12 @@ public:
 
 	inline vkCommandBuffer allocCommandBuffer(VkCommandBufferLevel level) const
 	{
-		return m_CommandPool.allocCommandBuffer(*this, level);
+		return m_CommandPool.alloc(*this, level);
 	}
 
 	inline void freeCommandBuffer(vkCommandBuffer &commandBuffer) const
 	{
-		m_CommandPool.freeCommandBuffer(*this, commandBuffer);
+		m_CommandPool.free(*this, commandBuffer);
 	}
 
 	inline const VkPhysicalDeviceLimits &getDeviceLimits() const
@@ -62,7 +68,8 @@ public:
 	rShader *createShader(eRShaderUsage usage, const std::string &shaderName);
 	rTexture *createTexture(const std::string &textureName);
 	rBuffer *createBuffer(eRBufferBindFlags bindFlags, eRBufferUsage usage, size_t size, const void *pData);
-	
+	rRenderSurface *createDepthStencilView(uint32_t width, uint32_t height, eRFormat format);
+	rRenderPass *createRenderPass(const vkSwapchain &swapchain, const rFrameBufferDesc &desc);
 protected:
 	class vkGpuResourcePool
 	{
@@ -73,6 +80,11 @@ protected:
 			eTexture,
 			eBuffer,
 			ePipeline,
+			eRenderPass,
+			eFence,
+			eSemaphore,
+			eEvent,
+			eImageView,
 			eResourceType_MaxEnum
 		};
 
@@ -87,6 +99,7 @@ protected:
 			assert(resource);
 			uint64_t id = makeID(Type);
 			resource->setID(id);
+			assert(m_Resources.find(id) == m_Resources.end());
 			m_Resources.insert(std::make_pair(id, resource));
 		}
 
@@ -100,9 +113,59 @@ protected:
 			}
 		}
 
-		void destory(rGpuResource *resource);
+		inline void destroy(rGpuResource *)
+		{
+			///eResourceType type = getResourceType(resource->getID());
+			//destroyResource<type>(resource);
+		}
 		void destoryAll();
 	protected:
+		template<eResourceType Type>
+		inline void destroyResource(rGpuResource *resource)
+		{
+			assert(0);
+		}
+		template<>
+		inline void destroyResource<eShader>(rGpuResource *resource)
+		{
+			auto shader = static_cast<vkShader *>(resource);
+			assert(shader);
+			shader->destroy(m_Device);
+			//pop(resource);
+		}
+		template<>
+		inline void destroyResource<eBuffer>(rGpuResource *resource)
+		{
+			auto buffer = static_cast<vkBuffer *>(resource);
+			assert(buffer);
+			buffer->destroy(m_Device);
+			//pop(resource);
+		}
+		template<>
+		inline void destroyResource<eImageView>(rGpuResource *resource)
+		{
+			auto imageView = static_cast<vkImageView *>(resource);
+			assert(imageView);
+			imageView->destroy(m_Device);
+			//pop(resource);
+		}
+		template<>
+		inline void destroyResource<eRenderPass>(rGpuResource *resource)
+		{
+			auto renderPass = static_cast<vkRenderPass *>(resource);
+			assert(renderPass);
+			renderPass->destroy(m_Device);
+			//pop(resource);
+		}
+		template<>
+		inline void destroyResource<ePipeline>(rGpuResource *resource)
+		{
+			auto pipeline = static_cast<vkPipeline *>(resource);
+			assert(pipeline);
+			pipeline->destroy(m_Device);
+			//pop(resource);
+		}
+
 		inline uint64_t makeID(eResourceType type)
 		{
 			/// Duplicate ????????
@@ -125,6 +188,30 @@ protected:
 		std::unordered_map<uint64_t, rGpuResource *> m_Resources;
 		const vkDevice &m_Device;
 	};
+
+	class vkPipelinePool
+	{
+	public:
+		vkPipelinePool(const vkDevice &device)
+			: m_Device(device)
+		{
+		}
+
+		vkPipeline *getOrCreateGraphicsPipeline(const rGraphicsPipelineState &graphicsPipelineState);
+
+		inline void destroyAll()
+		{
+			for (auto &it : m_Pipelines)
+			{
+				it.first->destroy(m_Device);
+			}
+			m_Pipelines.clear();
+		}
+	protected:
+	private:
+		const vkDevice &m_Device;
+		std::unordered_map<vkPipeline *, rGraphicsPipelineState> m_Pipelines;
+	};
 private:
 	VkPhysicalDeviceMemoryProperties m_DeviceMemoryProperties{};
 	VkPhysicalDeviceFeatures m_DeviceFeatures{};
@@ -132,27 +219,5 @@ private:
 	vkCommandPool m_CommandPool;
 	vkPipelineCache m_PipelineCache;
 	std::unique_ptr<vkGpuResourcePool> m_GpuResourcePool;
-};
-
-class vkDeviceQueue : public vkObject<VkQueue>
-{
-public:
-	void create(uint32_t queueFamilyIndex, const vkDevice &device)
-	{
-		assert(!isValid() && device.isValid());
-
-		/// vkGetDeviceQueue must only be used to get queues that were created with the flags parameter of VkDeviceQueueCreateInfo set to zero. 
-		/// To get queues that were created with a non-zero flags parameter use vkGetDeviceQueue2.
-		m_FamilyIndex = queueFamilyIndex;
-		VkQueue handle = VK_NULL_HANDLE;
-		vkGetDeviceQueue(*device, queueFamilyIndex, 0u, &handle);
-		reset(handle);
-
-		/// All queues associated with a logical device are destroyed when vkDestroyDevice is called on that device
-	}
-
-	void waitIdle();
-protected:
-private:
-	uint32_t m_FamilyIndex = UINT32_MAX;
+	std::unique_ptr<vkPipelinePool> m_PipelinePool;
 };

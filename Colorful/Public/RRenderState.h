@@ -6,12 +6,11 @@ class rSampler
 {
 };
 
-class rRenderpass
+class rRenderPass : public rGpuResource
 {
 public:
-	virtual void begin() = 0;
+	virtual void begin(const struct rGraphicsPipelineState &) = 0;
 	virtual void end() = 0;
-	virtual void execute(const class rGraphicsPipeline *pipline) = 0;
 protected:
 private:
 	std::string m_Description;
@@ -170,7 +169,7 @@ struct rGraphicsPipelineState
 	{
 		assert(shader);
 		assert(shader->getUsage() < eRShaderUsage_MaxEnum);
-		assert(Shaders[shader->getUsage()] == nullptr);
+		///assert(Shaders[shader->getUsage()] == nullptr);
 		Shaders[shader->getUsage()] = shader;
 	}
 
@@ -208,9 +207,34 @@ struct rGraphicsPipelineState
 	rDepthStencilStateDesc DepthStencilStateDesc{};
 	rViewport Viewport;
 	rScissor Scissor;
+
+	friend bool8_t operator==(const rGraphicsPipelineState &left, const rGraphicsPipelineState &right)
+	{
+		for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
+		{
+			if (left.Shaders[i] != right.Shaders[i])
+			{
+				return false;
+			}
+		}
+		return gear::isEqual(left.RasterizerStateDesc, right.RasterizerStateDesc) &&
+			gear::isEqual(left.BlendStateDesc, right.BlendStateDesc) &&
+			gear::isEqual(left.DepthStencilStateDesc, right.DepthStencilStateDesc) &&
+			left.PrimitiveTopology == right.PrimitiveTopology;
+	}
 	/// MultisampleState
 };
 
 class rComputePipeline
 {
+};
+
+struct rFrameBufferDesc
+{
+	rRenderSurface *ColorSurface[eMaxRenderTargets]{};
+	rRenderSurface *DepthSurface = nullptr;
+
+	uint32_t Width = 0u;
+	uint32_t Height = 0u;
+	uint32_t Layers = 1u;
 };

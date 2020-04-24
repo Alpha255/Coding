@@ -42,11 +42,6 @@ struct rAdapter
 	}
 };
 
-class rRenderpassDesc
-{
-
-};
-
 class rRenderSurface
 {
 };
@@ -93,6 +88,9 @@ public:
 
 	virtual class rBuffer *createIndexBuffer(eRBufferUsage, size_t, const void *) { return nullptr; }
 	virtual class rBuffer *createVertexBuffer(eRBufferUsage, size_t, const void *) { return nullptr; }
+
+	virtual class rRenderSurface *createDepthStencilView(uint32_t, uint32_t, eRFormat) { return nullptr; }
+	virtual class rRenderPass *createRenderPass(const struct rFrameBufferDesc &) { return nullptr; }
 protected:
 private:
 };

@@ -8,16 +8,29 @@ class vkSampler : public vkDeviceObject<VkSampler>
 
 };
 
-class vkTexture : public vkDeviceObject<VkImage>, public rTexture
+class vkImage : public vkDeviceObject<VkImage>, public rTexture
 {
 public:
-	vkTexture(const class vkDevice &device);
-	vkTexture(const class vkDevice &device, const rAsset::rTextureBinary &binary);
+	vkImage() = default;
+	vkImage(const class vkDevice &device, const rAsset::rTextureBinary &binary);
+
+	void create(
+		const class vkDevice &device,
+		uint32_t width,
+		uint32_t height,
+		uint32_t depth,
+		uint32_t mipLevels,
+		uint32_t arrayLayers,
+		VkFormat format,
+		VkImageType type,
+		VkImageUsageFlags usage);
+
 	void destroy(const class vkDevice &device) override final;
 protected:
+	friend class vkImageView;
 	void transitionImageLayout();
-	VkImageType getImageType(eRTextureType type);
-	VkFormat getImageFormat(eRFormat format);
+	VkImageType getImageType(eRTextureType type) const;
+	VkFormat getImageFormat(eRFormat format) const;
 	void copyBufferToImage(const class vkDevice &device, const rAsset::rTextureBinary &binary);
 	void insertMemoryBarrier(
 		const class vkCommandBuffer &commandBuffer, 
@@ -30,44 +43,4 @@ protected:
 		const VkImageSubresourceRange &subresourceRange);
 private:
 	vkDeviceMemory m_Memory;
-};
-
-class vkTexture1D : public vkTexture
-{
-
-};
-
-class vkTexture2D : public vkTexture
-{
-
-};
-
-class vkTexture3D : public vkTexture
-{
-
-};
-
-class vkTextureCube : public vkTexture
-{
-
-};
-
-class vkTexture1DArray : public vkTexture
-{
-
-};
-
-class vkTexture2DArray : public vkTexture
-{
-
-};
-
-class vkTexture3DArray : public vkTexture
-{
-
-};
-
-class vkTextureCubeArray : public vkTexture
-{
-
 };

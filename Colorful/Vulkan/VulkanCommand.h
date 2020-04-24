@@ -19,8 +19,9 @@
 class vkCommandBuffer : public vkObject<VkCommandBuffer>
 {
 public:
-	vkCommandBuffer(VkCommandBufferLevel level, VkCommandBuffer handle)
+	vkCommandBuffer(VkCommandBufferLevel level, VkCommandBuffer handle, class vkFence *fence)
 		: m_Level(level)
+		, m_Fence(fence)
 	{
 		assert(handle != VK_NULL_HANDLE);
 		reset(handle);
@@ -35,6 +36,12 @@ public:
 
 	void end();
 
+	inline class vkFence *getFence()
+	{
+		assert(m_Fence);
+		return m_Fence;
+	}
+
 	inline void resetCommand()
 	{
 		/// The command buffer can be in any state other than pending, and is moved into the initial state
@@ -48,6 +55,7 @@ public:
 		setState(eInitial);
 	}
 protected:
+	friend class vkCommandPool;
 	enum eState
 	{
 		eInitial,
@@ -65,6 +73,7 @@ protected:
 private:
 	VkCommandBufferLevel m_Level = VK_COMMAND_BUFFER_LEVEL_MAX_ENUM;
 	eState m_State = eState_MaxEnum;
+	class vkFence *m_Fence;
 };
 
 class vkCommandPool : public vkDeviceObject<VkCommandPool>
@@ -75,8 +84,8 @@ public:
 	void resetPool(const class vkDevice &device);
 	void trimPool(const class vkDevice &device);
 
-	vkCommandBuffer allocCommandBuffer(const class vkDevice &device, VkCommandBufferLevel level) const;
-	void freeCommandBuffer(const class vkDevice &device, vkCommandBuffer &commandBuffer) const;
+	vkCommandBuffer alloc(const class vkDevice &device, VkCommandBufferLevel level) const;
+	void free(const class vkDevice &device, vkCommandBuffer &commandBuffer) const;
 
 	inline vkCommandBuffer *getActiveCommandBuffer() const
 	{

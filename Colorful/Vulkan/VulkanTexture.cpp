@@ -1,7 +1,7 @@
 #include "VulkanTexture.h"
 #include "VulkanEngine.h"
 
-void vkTexture::transitionImageLayout()
+void vkImage::transitionImageLayout()
 {
 	/// The old layout must match the current layout of the image subresource range, with one exception. 
 	/// The old layout can always be specified as VK_IMAGE_LAYOUT_UNDEFINED, though doing so invalidates the contents of the image subresource range.
@@ -20,7 +20,7 @@ void vkTexture::transitionImageLayout()
 	/// The new layout used in a transition must not be VK_IMAGE_LAYOUT_UNDEFINED or VK_IMAGE_LAYOUT_PREINITIALIZED.
 }
 
-VkImageType vkTexture::getImageType(eRTextureType type)
+VkImageType vkImage::getImageType(eRTextureType type) const
 {
 	VkImageType imageType = VK_IMAGE_TYPE_MAX_ENUM;
 	switch (type)
@@ -44,13 +44,13 @@ VkImageType vkTexture::getImageType(eRTextureType type)
 	return imageType;
 }
 
-VkFormat vkTexture::getImageFormat(eRFormat)
+VkFormat vkImage::getImageFormat(eRFormat) const
 {
 	/// Need translate formats
 	return VK_FORMAT_R8G8B8A8_UNORM;
 }
 
-void vkTexture::copyBufferToImage(const vkDevice &device, const rAsset::rTextureBinary &binary)
+void vkImage::copyBufferToImage(const vkDevice &device, const rAsset::rTextureBinary &binary)
 {
 	std::vector<VkBufferImageCopy> bufferImageCopy(binary.ArrayLayers * binary.MipLevels);
 	uint32_t bufferOffsets = 0u;
@@ -135,7 +135,7 @@ void vkTexture::copyBufferToImage(const vkDevice &device, const rAsset::rTexture
 	stagingBuffer.destroy(device);
 }
 
-void vkTexture::insertMemoryBarrier(
+void vkImage::insertMemoryBarrier(
 	const vkCommandBuffer &commandBuffer, 
 	VkPipelineStageFlags srcStageMask, 
 	VkPipelineStageFlags dstStageMask, 
@@ -173,7 +173,7 @@ void vkTexture::insertMemoryBarrier(
 		&imageMemoryBarrier);
 }
 
-vkTexture::vkTexture(const vkDevice &device, const rAsset::rTextureBinary &binary)
+vkImage::vkImage(const vkDevice &device, const rAsset::rTextureBinary &binary)
 {
 	assert(!isValid() && binary.Size > 0u);
 
@@ -212,7 +212,53 @@ vkTexture::vkTexture(const vkDevice &device, const rAsset::rTextureBinary &binar
 	copyBufferToImage(device, binary);
 }
 
-void vkTexture::destroy(const vkDevice &device)
+void vkImage::create(
+	const vkDevice &device, 
+	uint32_t width, 
+	uint32_t height, 
+	uint32_t depth, 
+	uint32_t mipLevels,
+	uint32_t arrayLayers,
+	VkFormat format, 
+	VkImageType type, 
+	VkImageUsageFlags usage)
+{
+	assert(device.isValid() && !isValid());
+
+	VkImageCreateInfo createInfo
+	{
+		VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+		nullptr,
+		0u,
+		type,
+		format,
+		{
+			width,
+			height,
+			depth
+		},
+		mipLevels,
+		arrayLayers,
+		VK_SAMPLE_COUNT_1_BIT,
+		VK_IMAGE_TILING_OPTIMAL,
+		usage,
+		VK_SHARING_MODE_EXCLUSIVE,
+		0u,
+		nullptr,
+		VK_IMAGE_LAYOUT_UNDEFINED
+	};
+
+	VkImage handle = VK_NULL_HANDLE;
+	rVerifyVk(vkCreateImage(*device, &createInfo, vkMemoryAllocator, &handle));
+	reset(handle);
+
+	VkMemoryRequirements memoryRequirements{};
+	vkGetImageMemoryRequirements(*device, handle, &memoryRequirements);
+	m_Memory.create(device, eGpuReadOnly, memoryRequirements);
+	rVerifyVk(vkBindImageMemory(*device, handle, *m_Memory, 0u));
+}
+
+void vkImage::destroy(const vkDevice &device)
 {
 	assert(device.isValid());
 

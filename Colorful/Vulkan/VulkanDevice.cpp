@@ -392,6 +392,7 @@ uint32_t vkDevice::create(
 	m_PipelineCache.create(*this);
 
 	m_GpuResourcePool = std::make_unique<vkGpuResourcePool>(*this);
+	m_PipelinePool = std::make_unique<vkPipelinePool>(*this);
 
 	return gpuIndex;
 }
@@ -450,6 +451,7 @@ void vkDevice::destroy()
 		rVerifyVk(vkDeviceWaitIdle(**this));
 
 		m_GpuResourcePool->destoryAll();
+		m_PipelinePool->destroyAll();
 
 		m_CommandPool.destroy(*this);
 
@@ -457,15 +459,5 @@ void vkDevice::destroy()
 
 		vkDestroyDevice(**this, vkMemoryAllocator);
 		reset();
-	}
-}
-
-void vkDeviceQueue::waitIdle()
-{
-	/// To wait on the host for the completion of outstanding queue operations for a given queue
-	/// equivalent to submitting a fence to a queue and waiting with an infinite timeout for that fence to signal.
-	if (isValid())
-	{
-		rVerifyVk(vkQueueWaitIdle(**this));
 	}
 }

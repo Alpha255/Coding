@@ -198,7 +198,7 @@ void vkSwapchain::recreate(
 	
 	/// VK_SHARING_MODE_CONCURRENT: Images can be used across multiple queue families without explicit ownership transfers,
 	/// concurrent mode requires you to specify at least two distinct queue families
-
+	VkSwapchainKHR oldSwapchain = **this;
 	VkSwapchainCreateInfoKHR createInfo
 	{
 		VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
@@ -218,7 +218,7 @@ void vkSwapchain::recreate(
 		compositeAlphaFlagBits,  /// The compositeAlpha field specifies if the alpha channel should be used for blending with other windows in the window system
 		presentMode,
 		VK_TRUE,
-		m_Object ? (**this) : VK_NULL_HANDLE
+		oldSwapchain
 	};
 
 	/// If the clipped member is set to VK_TRUE then that means that we don¡¯t care about the color of pixels that are
@@ -230,6 +230,25 @@ void vkSwapchain::recreate(
 	VkSwapchainKHR handle = VK_NULL_HANDLE;
 	rVerifyVk(vkCreateSwapchainKHR(*device, &createInfo, vkMemoryAllocator, &handle));
 	reset(handle);
+
+	if (oldSwapchain != VK_NULL_HANDLE)
+	{
+		vkDestroySwapchainKHR(*device, oldSwapchain, vkMemoryAllocator);
+		clearBackBuffers(device);
+	}
+
+	uint32_t imageCount = 0u;
+	rVerifyVk(vkGetSwapchainImagesKHR(*device, **this, &imageCount, nullptr));
+	std::vector<VkImage> images(imageCount);
+	m_BackBuffers.resize(imageCount);
+	rVerifyVk(vkGetSwapchainImagesKHR(*device, **this, &imageCount, images.data()));
+	for (uint32_t i = 0u; i < images.size(); ++i)
+	{
+		vkImage image;
+		image.reset(images[i]);
+
+		m_BackBuffers[i].create(device, image, m_Surface.SurfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT);
+	}
 }
 
 void vkSwapchain::destroy(const vkInstance &instance, const vkDevice &device)
@@ -239,4 +258,22 @@ void vkSwapchain::destroy(const vkInstance &instance, const vkDevice &device)
 	vkDestroySwapchainKHR(*device, **this, vkMemoryAllocator);
 	m_Surface.destroy(instance);
 	reset();
+
+	clearBackBuffers(device);
+}
+
+uint32_t vkSwapchain::acquireBackBuffer()
+{
+	uint32_t index = UINT32_MAX;
+
+	return index;
+}
+
+void vkSwapchain::clearBackBuffers(const vkDevice &device)
+{
+	for (uint32_t i = 0u; i < m_BackBuffers.size(); ++i)
+	{
+		m_BackBuffers[i].destroy(device);
+	}
+	m_BackBuffers.clear();
 }
