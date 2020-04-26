@@ -56,6 +56,7 @@
 	action(vkWaitForFences)              \
 	action(vkCmdCopyBuffer)              \
 	action(vkCreateSampler)              \
+	action(vkCmdDrawIndexed)             \
 	action(vkAllocateMemory)             \
 	action(vkCmdSetViewport)             \
 	action(vkDestroySampler)             \
@@ -90,6 +91,7 @@
 	action(vkDestroyCommandPool)         \
 	action(vkCreateSwapchainKHR)         \
 	action(vkCreateShaderModule)         \
+	action(vkCmdBindIndexBuffer)         \
 	action(vkResetDescriptorPool)        \
 	action(vkAcquireNextImageKHR)        \
 	action(vkDestroySwapchainKHR)        \

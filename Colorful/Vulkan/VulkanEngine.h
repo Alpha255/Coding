@@ -40,15 +40,32 @@ public:
 	{ 
 		return m_Device.createBuffer(eVertexBuffer, usage, size, data);
 	}
+	inline rBuffer *createUniformBuffer(size_t size, const void *data) override final
+	{
+		return m_Device.createBuffer(eUniformBuffer, eGpuReadCpuWrite, size, data);
+	}
 
 	inline rRenderSurface *createDepthStencilView(uint32_t width, uint32_t height, eRFormat format) override final
 	{
 		return m_Device.createDepthStencilView(width, height, format);
 	}
 
-	inline rRenderPass *createRenderPass(const rFrameBufferDesc &desc) override final
+	inline rRenderPass *createRenderPass(rFrameBufferDesc &desc) override final
 	{
 		return m_Device.createRenderPass(m_Swapchain, desc);
+	}
+
+	inline void updateUniformBuffer(rBuffer *buffer, const void *data, size_t size, size_t offset) override final
+	{
+		assert(buffer);
+		auto uniformBuffer = static_cast<vkGpuBuffer *>(buffer);
+		assert(uniformBuffer);
+		uniformBuffer->update(m_Device, data, size, offset);
+	}
+
+	inline vkGraphicsPipeline *getOrCreateGraphicsPipeline(const rGraphicsPipelineState &state)
+	{
+		return m_Device.getOrCreateGraphicsPipeline(state);
 	}
 public:
 	class enumTranslator

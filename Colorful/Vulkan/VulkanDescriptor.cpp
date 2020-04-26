@@ -101,6 +101,29 @@ void vkDescriptorPool::destroy(const vkDevice &device)
 	}
 }
 
+vkDescriptorSet vkDescriptorPool::alloc(const class vkDevice &device, const vkDescriptorSetLayout &layout)
+{
+	assert(isValid() && layout.isValid());
+
+	const VkDescriptorSetLayout descriptorSetlayout = *layout;
+	VkDescriptorSetAllocateInfo allocInfo
+	{
+		VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+		nullptr,
+		**this,
+		1u,
+		&descriptorSetlayout
+	};
+
+	VkDescriptorSet handle = VK_NULL_HANDLE;
+	rVerifyVk(vkAllocateDescriptorSets(*device, &allocInfo, &handle));
+
+	vkDescriptorSet descriptorSet;
+	descriptorSet.reset(handle);
+
+	return descriptorSet;
+}
+
 void vkDescriptorSetLayout::create(const vkDevice &device, const rDescriptorLayoutDesc &desc)
 {
 	assert(device.isValid() && !isValid());

@@ -100,7 +100,15 @@ public:
 	void destroy(const class vkDevice &device) override final;
 
 	void begin(const struct rGraphicsPipelineState &graphicsPipelineState) override final;
+	void execute(const struct rGraphicsPipelineState &) override final;
 	void end() override final;
+
+	inline void bindFrameBuffers(const std::vector<vkFrameBuffer> &frameBuffers)
+	{
+		m_FrameBuffers = frameBuffers;
+	}
+
+	void drawIndexed(uint32_t indexCount, uint32_t firstIndex, uint32_t vertexOffset) override final;
 protected:
 private:
 	std::vector<vkFrameBuffer> m_FrameBuffers;

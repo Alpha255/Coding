@@ -57,10 +57,16 @@ public:
 		return m_Reflections;
 	}
 
+	inline void setUniformBuffer(class rBuffer *uniformBuffer)
+	{
+		m_UniformBuffer = uniformBuffer;
+	}
+
 	virtual void setInputLayout(const std::vector<rVertexAttributes>&) {}
 protected:
 	eRShaderUsage m_Usage = eRShaderUsage_MaxEnum;
 	rReflectionInfos m_Reflections;
+	class rBuffer *m_UniformBuffer = nullptr;
 private:
 };
 

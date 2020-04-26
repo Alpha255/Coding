@@ -69,7 +69,12 @@ public:
 	rTexture *createTexture(const std::string &textureName);
 	rBuffer *createBuffer(eRBufferBindFlags bindFlags, eRBufferUsage usage, size_t size, const void *pData);
 	rRenderSurface *createDepthStencilView(uint32_t width, uint32_t height, eRFormat format);
-	rRenderPass *createRenderPass(const vkSwapchain &swapchain, const rFrameBufferDesc &desc);
+	rRenderPass *createRenderPass(const vkSwapchain &swapchain, rFrameBufferDesc &desc);
+	
+	inline vkGraphicsPipeline *getOrCreateGraphicsPipeline(const rGraphicsPipelineState &graphicsPipelineState)
+	{
+		return m_PipelinePool->getOrCreateGraphicsPipeline(graphicsPipelineState);
+	}
 protected:
 	class vkGpuResourcePool
 	{
@@ -197,7 +202,7 @@ protected:
 		{
 		}
 
-		vkPipeline *getOrCreateGraphicsPipeline(const rGraphicsPipelineState &graphicsPipelineState);
+		vkGraphicsPipeline *getOrCreateGraphicsPipeline(const rGraphicsPipelineState &graphicsPipelineState);
 
 		inline void destroyAll()
 		{

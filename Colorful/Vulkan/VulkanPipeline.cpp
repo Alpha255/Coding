@@ -39,135 +39,23 @@ void vkPipelineLayout::destroy(const vkDevice &device)
 	}
 }
 
-void vkGraphicsPipeline::setRasterizerState(
-	eRPolygonMode polygonMode,
-	eRCullMode cullMode,
-	eRFrontFace frontFace,
-	bool8_t enableDepthBias,
-	float32_t depthBias,
-	float32_t depthBiasClamp,
-	float32_t depthBiasSlope)
-{
-	assert(polygonMode < eRPolygonMode_MaxEnum);
-	assert(cullMode < eRCullMode_MaxEnum);
-	assert(frontFace < eRFrontFace_MaxEnum);
-	assert(m_RasterizationState.sType == 0);
-
-	m_RasterizationState = VkPipelineRasterizationStateCreateInfo
-	{
-		VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
-		nullptr,
-		0u, /// flags is reserved for future use
-		false,
-		false,
-		vkEngine::enumTranslator::toPolygonMode(polygonMode),
-		vkEngine::enumTranslator::toCullMode(cullMode),
-		vkEngine::enumTranslator::toFrontFace(frontFace),
-		enableDepthBias,
-		depthBias,
-		depthBiasClamp,
-		depthBiasSlope,
-		0.0f
-	};
-}
-
-void vkGraphicsPipeline::setBlendState(
-	bool8_t enableLogicOp, 
-	eRLogicOp logicOp, 
-	uint32_t attachmentCount, 
-	const rColorBlendStateDesc * const clrBlendState)
-{
-	assert(m_ColorBlendState.sType == 0);
-	assert(attachmentCount <= eMaxRenderTargets);
-
-	for (uint32_t i = 0u; i < attachmentCount; ++i)
-	{
-		assert(clrBlendState);
-		m_ColorBlendAttachmentState[i] = VkPipelineColorBlendAttachmentState
-		{
-			clrBlendState[i].Enable,
-			vkEngine::enumTranslator::toBlendFactor(clrBlendState[i].SrcColor),
-			vkEngine::enumTranslator::toBlendFactor(clrBlendState[i].DstColor),
-			vkEngine::enumTranslator::toBlendOp(clrBlendState[i].ColorOp),
-			vkEngine::enumTranslator::toBlendFactor(clrBlendState[i].SrcAlpha),
-			vkEngine::enumTranslator::toBlendFactor(clrBlendState[i].DstAlpha),
-			vkEngine::enumTranslator::toBlendOp(clrBlendState[i].AlphaOp),
-			vkEngine::enumTranslator::toColorComponentFlags(clrBlendState[i].ColorMask)
-		};
-	}
-
-	m_ColorBlendState = VkPipelineColorBlendStateCreateInfo
-	{
-		VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
-		nullptr,
-		0u,  /// flags is reserved for future use.
-		enableLogicOp,
-		vkEngine::enumTranslator::toLogicOp(logicOp),
-		attachmentCount,
-		m_ColorBlendAttachmentState
-	};
-}
-
-void vkGraphicsPipeline::setDepthStencilState(
-	bool8_t enableDepth, 
-	bool8_t enableDepthWrite, 
-	eRCompareOp depthCompareOp, 
-	bool8_t enableStencil, 
-	uint8_t stencilReadMask, 
-	uint8_t stencilWriteMask, 
-	const rStencilOpDesc &front, 
-	const rStencilOpDesc &back)
-{
-	assert(m_DepthStencilState.sType == 0);
-
-	m_DepthStencilState = VkPipelineDepthStencilStateCreateInfo
-	{
-		VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
-		nullptr,
-		0u,  /// flags is reserved for future use.
-		enableDepth,
-		enableDepthWrite,
-		vkEngine::enumTranslator::toCompareOp(depthCompareOp),
-		false,  /// depthBoundsTestEnable?
-		enableStencil,
-		{
-			vkEngine::enumTranslator::toStencilOp(front.FailOp),
-			vkEngine::enumTranslator::toStencilOp(front.PassOp),
-			vkEngine::enumTranslator::toStencilOp(front.DepthFailOp),
-			vkEngine::enumTranslator::toCompareOp(front.CompareOp),
-			stencilReadMask,
-			stencilWriteMask,
-			0u
-		},
-		{
-			vkEngine::enumTranslator::toStencilOp(back.FailOp),
-			vkEngine::enumTranslator::toStencilOp(back.PassOp),
-			vkEngine::enumTranslator::toStencilOp(back.DepthFailOp),
-			vkEngine::enumTranslator::toCompareOp(back.CompareOp),
-			stencilReadMask,
-			stencilWriteMask,
-			0u
-		},
-		0.0f,
-		1.0f
-	};
-}
-
 void vkGraphicsPipeline::create(
 	const vkDevice &device, 
 	const vkRenderPass &renderpass, 
-	const vkPipelineCache &cache)
+	const vkPipelineCache &cache, 
+	const rGraphicsPipelineState &state)
 {
 	assert(device.isValid() && !isValid());
-	assert(m_Shaders[eVertexShader]);
+	assert(state.Shaders[eVertexShader]);
+	assert(renderpass.isValid() && cache.isValid());
 
 	rDescriptorLayoutDesc descriptorLayoutDesc{};
 	std::vector<VkPipelineShaderStageCreateInfo> shaderStageCreateInfos;
 	for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
 	{
-		if (m_Shaders[i])
+		if (state.Shaders[i])
 		{
-			auto shader = static_cast<const vkShader *>(m_Shaders[i]);
+			auto shader = static_cast<const vkShader *>(state.Shaders[i]);
 
 			VkPipelineShaderStageCreateInfo shaderStageCreateInfo
 			{
@@ -188,14 +76,14 @@ void vkGraphicsPipeline::create(
 	m_DescriptorSetLayout.create(device, descriptorLayoutDesc);
 	m_PipelineLayout.create(device, m_DescriptorSetLayout);
 
-	auto vertexShader = static_cast<const vkShader *>(m_Shaders[eVertexShader]);
+	auto vertexShader = static_cast<const vkShader *>(state.Shaders[eVertexShader]);
 
 	VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo
 	{
 		VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
 		nullptr,
 		0u,
-		vkEngine::enumTranslator::toPrimitiveTopology(m_PrimitiveTopology),
+		vkEngine::enumTranslator::toPrimitiveTopology(state.PrimitiveTopology),
 		false
 	};
 
@@ -215,11 +103,6 @@ void vkGraphicsPipeline::create(
 		nullptr
 	};
 
-	if (m_RasterizationState.sType == 0)
-	{
-		setRasterizerState(eRPolygonMode::eSolid, eRCullMode::eCullNone, eRFrontFace::eClockwise);
-	}
-
 	VkPipelineMultisampleStateCreateInfo multisampleStateCreateInfo
 	{
 		VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
@@ -233,36 +116,15 @@ void vkGraphicsPipeline::create(
 		false
 	};
 
-	if (m_DepthStencilState.sType == 0)
-	{
-		rStencilOpDesc stencilOp
-		{
-			eRStencilOp::eKeep,
-			eRStencilOp::eKeep,
-			eRStencilOp::eKeep,
-			eRCompareOp::eAlways
-		};
-		setDepthStencilState(
-			false,
-			false,
-			eRCompareOp::eAlways,
-			false,
-			0u,
-			0u,
-			stencilOp,
-			stencilOp
-		);
-	}
-
-	if (m_ColorBlendState.sType == 0)
-	{
-		setBlendState(false, eRLogicOp::eAnd, 0u, nullptr);
-	}
+	VkPipelineColorBlendAttachmentState colorBlendAttachments[eMaxRenderTargets]{};
+	auto depthStencilState = getDepthStencilState(state.DepthStencilStateDesc);
+	auto rasterizationState = getRasterizationState(state.RasterizerStateDesc);
+	auto blendState = getColorBlendState(colorBlendAttachments, state.BlendStateDesc);
 
 	std::vector<VkDynamicState> dynamicStates
-	{ 
+	{
 		VK_DYNAMIC_STATE_VIEWPORT,
-		VK_DYNAMIC_STATE_SCISSOR 
+		VK_DYNAMIC_STATE_SCISSOR
 	};
 	VkPipelineDynamicStateCreateInfo dynamicStateCreateInfo
 	{
@@ -284,10 +146,10 @@ void vkGraphicsPipeline::create(
 		&inputAssemblyStateCreateInfo,
 		nullptr,
 		&viewportStateCreateInfo,
-		&m_RasterizationState,
+		&rasterizationState,
 		&multisampleStateCreateInfo,
-		&m_DepthStencilState,
-		&m_ColorBlendState,
+		&depthStencilState,
+		&blendState,
 		&dynamicStateCreateInfo,
 		*m_PipelineLayout,
 		*renderpass,
@@ -307,6 +169,112 @@ void vkGraphicsPipeline::destroy(const vkDevice &device)
 	m_PipelineLayout.destroy(device);
 	m_DescriptorSetLayout.destroy(device);
 	vkPipeline::destroy(device);
+}
+
+void vkGraphicsPipeline::bind(const vkCommandBuffer &cmdBuffer)
+{
+	assert(isValid() && cmdBuffer.isValid());
+
+	VkDescriptorSet descriptorSet = *m_DescriptorSet;
+	vkCmdBindDescriptorSets(*cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, *m_PipelineLayout, 0u, 1u, &descriptorSet, 0u, nullptr);
+
+	vkCmdBindPipeline(*cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, **this);
+}
+
+VkPipelineRasterizationStateCreateInfo vkGraphicsPipeline::getRasterizationState(const rRasterizerStateDesc &stateDesc) const
+{
+	assert(stateDesc.PolygonMode < eRPolygonMode_MaxEnum);
+	assert(stateDesc.CullMode < eRCullMode_MaxEnum);
+	assert(stateDesc.FrontFace < eRFrontFace_MaxEnum);
+
+	VkPipelineRasterizationStateCreateInfo rasterizationState
+	{
+		VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
+		nullptr,
+		0u, /// flags is reserved for future use
+		false,
+		false,
+		vkEngine::enumTranslator::toPolygonMode(stateDesc.PolygonMode),
+		vkEngine::enumTranslator::toCullMode(stateDesc.CullMode),
+		vkEngine::enumTranslator::toFrontFace(stateDesc.FrontFace),
+		stateDesc.EnableDepthBias,
+		stateDesc.DepthBias,
+		stateDesc.DepthBiasClamp,
+		stateDesc.DepthBiasSlope,
+		0.0f
+	};
+
+	return rasterizationState;
+}
+
+VkPipelineDepthStencilStateCreateInfo vkGraphicsPipeline::getDepthStencilState(const rDepthStencilStateDesc &stateDesc) const
+{
+	VkPipelineDepthStencilStateCreateInfo depthStencilState
+	{
+		VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
+		nullptr,
+		0u,  /// flags is reserved for future use.
+		stateDesc.EnableDepth,
+		stateDesc.EnableDepthWrite,
+		vkEngine::enumTranslator::toCompareOp(stateDesc.DepthCompareOp),
+		false,  /// depthBoundsTestEnable?
+		stateDesc.EnableStencil,
+		{
+			vkEngine::enumTranslator::toStencilOp(stateDesc.FrontFace.FailOp),
+			vkEngine::enumTranslator::toStencilOp(stateDesc.FrontFace.PassOp),
+			vkEngine::enumTranslator::toStencilOp(stateDesc.FrontFace.DepthFailOp),
+			vkEngine::enumTranslator::toCompareOp(stateDesc.FrontFace.CompareOp),
+			stateDesc.StencilReadMask,
+			stateDesc.StencilWriteMask,
+			0u
+		},
+		{
+			vkEngine::enumTranslator::toStencilOp(stateDesc.BackFace.FailOp),
+			vkEngine::enumTranslator::toStencilOp(stateDesc.BackFace.PassOp),
+			vkEngine::enumTranslator::toStencilOp(stateDesc.BackFace.DepthFailOp),
+			vkEngine::enumTranslator::toCompareOp(stateDesc.BackFace.CompareOp),
+			stateDesc.StencilReadMask,
+			stateDesc.StencilWriteMask,
+			0u
+		},
+		0.0f,
+		1.0f
+	};
+
+	return depthStencilState;
+}
+
+VkPipelineColorBlendStateCreateInfo vkGraphicsPipeline::getColorBlendState(
+	VkPipelineColorBlendAttachmentState attachments[eMaxRenderTargets],
+	const rBlendStateDesc &stateDesc) const
+{
+	for (uint32_t i = 0u; i < eMaxRenderTargets; ++i)
+	{
+		attachments[i] = VkPipelineColorBlendAttachmentState
+		{
+			stateDesc.ColorBlendStateDesc[i].Enable,
+			vkEngine::enumTranslator::toBlendFactor(stateDesc.ColorBlendStateDesc[i].SrcColor),
+			vkEngine::enumTranslator::toBlendFactor(stateDesc.ColorBlendStateDesc[i].DstColor),
+			vkEngine::enumTranslator::toBlendOp(stateDesc.ColorBlendStateDesc[i].ColorOp),
+			vkEngine::enumTranslator::toBlendFactor(stateDesc.ColorBlendStateDesc[i].SrcAlpha),
+			vkEngine::enumTranslator::toBlendFactor(stateDesc.ColorBlendStateDesc[i].DstAlpha),
+			vkEngine::enumTranslator::toBlendOp(stateDesc.ColorBlendStateDesc[i].AlphaOp),
+			vkEngine::enumTranslator::toColorComponentFlags(stateDesc.ColorBlendStateDesc[i].ColorMask)
+		};
+	}
+
+	VkPipelineColorBlendStateCreateInfo blendState
+	{
+		VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
+		nullptr,
+		0u,  /// flags is reserved for future use.
+		stateDesc.EnableLogicOp,
+		vkEngine::enumTranslator::toLogicOp(stateDesc.LogicOp),
+		eMaxRenderTargets,
+		attachments
+	};
+
+	return blendState;
 }
 
 void vkPipelineCache::create(const vkDevice &device)

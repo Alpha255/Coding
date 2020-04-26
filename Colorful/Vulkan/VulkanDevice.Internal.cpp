@@ -63,12 +63,12 @@ rRenderSurface *vkDevice::createDepthStencilView(uint32_t width, uint32_t height
 	return depthStencilView;
 }
 
-vkPipeline *vkDevice::vkPipelinePool::getOrCreateGraphicsPipeline(const rGraphicsPipelineState &)
+vkGraphicsPipeline *vkDevice::vkPipelinePool::getOrCreateGraphicsPipeline(const rGraphicsPipelineState &)
 {
 	return nullptr;
 }
 
-rRenderPass *vkDevice::createRenderPass(const vkSwapchain &swapchain, const rFrameBufferDesc &desc)
+rRenderPass *vkDevice::createRenderPass(const vkSwapchain &swapchain, rFrameBufferDesc &desc)
 {
 	assert(isValid() && swapchain.isValid());
 
@@ -82,12 +82,40 @@ rRenderPass *vkDevice::createRenderPass(const vkSwapchain &swapchain, const rFra
 		}
 	}
 
+	std::vector<vkFrameBuffer> frameBuffers;
+
 	if (usingBackBuffer)
 	{
-
+		auto &backBuffers = swapchain.getBackBuffers();
+		desc.ColorSurface[0] = (rRenderSurface *)&backBuffers[0];
 	}
 
-	return nullptr;
+	vkRenderPass *renderPass = new vkRenderPass();
+	renderPass->create(*this, desc);
+
+	if (usingBackBuffer)
+	{
+		auto &backBuffers = swapchain.getBackBuffers();
+		for (uint32_t i = 0u; i < backBuffers.size(); ++i)
+		{
+			desc.ColorSurface[0] = (rRenderSurface *)&backBuffers[i];
+			vkFrameBuffer frameBuffer;
+			frameBuffer.create(*this, *renderPass, desc);
+			frameBuffers.emplace_back(std::move(frameBuffer));
+		}
+	}
+	else
+	{
+		vkFrameBuffer frameBuffer;
+		frameBuffer.create(*this, *renderPass, desc);
+		frameBuffers.emplace_back(std::move(frameBuffer));
+	}
+
+	renderPass->bindFrameBuffers(frameBuffers);
+
+	m_GpuResourcePool->push<vkGpuResourcePool::eRenderPass>(renderPass);
+
+	return renderPass;
 }
 
 void vkDevice::vkGpuResourcePool::destoryAll()
@@ -106,6 +134,9 @@ void vkDevice::vkGpuResourcePool::destoryAll()
 			break;
 		case eImageView:
 			destroyResource<eImageView>(resource.second);
+			break;
+		case eRenderPass:
+			destroyResource<eRenderPass>(resource.second);
 			break;
 		default:
 			assert(0);

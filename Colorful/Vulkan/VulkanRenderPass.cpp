@@ -170,6 +170,100 @@ void vkRenderPass::begin(const rGraphicsPipelineState &)
 {
 }
 
+void vkRenderPass::execute(const rGraphicsPipelineState &graphicsPipelineState)
+{
+	auto graphicsPipeline = vkEngine::instance().getOrCreateGraphicsPipeline(graphicsPipelineState);
+
+	vkCommandBuffer *activeCmdBuffer = nullptr;
+	assert(activeCmdBuffer);
+
+	activeCmdBuffer->begin();
+
+	VkClearValue clearValue[2u]{};
+	clearValue[0].color = 
+	{ 
+		graphicsPipelineState.ClearValue.Color.x,
+		graphicsPipelineState.ClearValue.Color.y,
+		graphicsPipelineState.ClearValue.Color.z,
+		graphicsPipelineState.ClearValue.Color.w,
+	};
+	clearValue[1].depthStencil = 
+	{
+		graphicsPipelineState.ClearValue.Depth,
+		graphicsPipelineState.ClearValue.Stencil
+	};
+
+	VkRenderPassBeginInfo beginInfo
+	{
+		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
+		nullptr,
+		**this,
+	};
+	vkCmdBeginRenderPass(**activeCmdBuffer, &beginInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+	VkViewport viewport
+	{
+		graphicsPipelineState.Viewport.x,
+		graphicsPipelineState.Viewport.y,
+		graphicsPipelineState.Viewport.z,
+		graphicsPipelineState.Viewport.w,
+		graphicsPipelineState.Viewport.minDepth(),
+		graphicsPipelineState.Viewport.maxDepth()
+	};
+	vkCmdSetViewport(**activeCmdBuffer, 0u, 1u, &viewport);
+
+	VkRect2D scissor
+	{
+		{
+			(int32_t)graphicsPipelineState.Scissor.x,
+			(int32_t)graphicsPipelineState.Scissor.y
+		},
+		{
+			(uint32_t)graphicsPipelineState.Scissor.z,
+			(uint32_t)graphicsPipelineState.Scissor.w
+		}
+	};
+	vkCmdSetScissor(**activeCmdBuffer, 0u, 1u, &scissor);
+
+	graphicsPipeline->bind(*activeCmdBuffer);
+
+	if (graphicsPipelineState.VertexBuffer)
+	{
+		auto vertexBuffer = static_cast<vkBuffer *>(graphicsPipelineState.VertexBuffer);
+		VkBuffer buffer = **vertexBuffer;
+		VkDeviceSize offsets[1u]{};
+		vkCmdBindVertexBuffers(**activeCmdBuffer, 0u, 1u, &buffer, offsets);
+	}
+	if (graphicsPipelineState.IndexBuffer)
+	{
+		auto indexBuffer = static_cast<vkBuffer *>(graphicsPipelineState.IndexBuffer);
+		vkCmdBindIndexBuffer(**activeCmdBuffer, **indexBuffer, 0u, VK_INDEX_TYPE_UINT32);
+	}
+
+	if (graphicsPipelineState.DrawOperation.DrawOp == rGraphicsPipelineState::rDrawOperation::eDrawIndexed)
+	{
+		vkCmdDrawIndexed(
+			**activeCmdBuffer,
+			(uint32_t)graphicsPipelineState.DrawOperation.IndexCount,
+			1u,
+			(uint32_t)graphicsPipelineState.DrawOperation.FirstIndex,
+			(int32_t)graphicsPipelineState.DrawOperation.VertexOffset,
+			1u);
+	}
+	else
+	{
+		assert(0);
+	}
+
+	vkCmdEndRenderPass(**activeCmdBuffer);
+
+	activeCmdBuffer->end();
+}
+
 void vkRenderPass::end()
+{
+}
+
+void vkRenderPass::drawIndexed(uint32_t, uint32_t, uint32_t)
 {
 }

@@ -30,6 +30,11 @@ class vkGpuBuffer : public vkBuffer
 {
 public:
 	vkGpuBuffer(const class vkDevice &device, eRBufferBindFlags bindFlags, eRBufferUsage usage, size_t size, const void *pData);
+	
+	inline void update(const class vkDevice &device, const void *data, size_t size, size_t offset)
+	{
+		m_Memory.update(device, data, size, offset);
+	}
 };
 
 class vkFrameBuffer : public vkDeviceObject<VkFramebuffer>

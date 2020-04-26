@@ -45,6 +45,7 @@ void vkDeviceMemory::update(const vkDevice &device, const void *pData, size_t si
 	/// VkMemoryMapFlags is a bitmask type for setting a mask, but is currently reserved for future use.
 	void *pGpuMemory = nullptr;
 	rVerifyVk(vkMapMemory(*device, **this, offset, size, 0u, &pGpuMemory));
+	assert(pGpuMemory);
 	verify(memcpy_s(pGpuMemory, size, pData, size) == 0);
 	vkUnmapMemory(*device, **this);
 }
@@ -154,7 +155,10 @@ vkGpuBuffer::vkGpuBuffer(const vkDevice &device, eRBufferBindFlags bindFlags, eR
 	}
 	else
 	{
-		m_Memory.update(device, pData);
+		if (pData)
+		{
+			m_Memory.update(device, pData, size, 0u);
+		}
 		rVerifyVk(vkBindBufferMemory(*device, **this, *m_Memory, 0u));
 	}
 }

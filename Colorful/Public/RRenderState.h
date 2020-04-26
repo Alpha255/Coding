@@ -10,7 +10,10 @@ class rRenderPass : public rGpuResource
 {
 public:
 	virtual void begin(const struct rGraphicsPipelineState &) = 0;
+	virtual void execute(const struct rGraphicsPipelineState &) = 0;
 	virtual void end() = 0;
+
+	virtual void drawIndexed(uint32_t, uint32_t, uint32_t) = 0;
 protected:
 private:
 	std::string m_Description;
@@ -50,7 +53,7 @@ struct rRasterizerStateDesc
 struct rBlendStateDesc
 {
 	bool8_t EnableLogicOp = false;
-	eRLogicOp logicOp = eRLogicOp::eNo;
+	eRLogicOp LogicOp = eRLogicOp::eNo;
 	rColorBlendStateDesc ColorBlendStateDesc[eMaxRenderTargets]{};
 };
 
@@ -64,72 +67,6 @@ struct rDepthStencilStateDesc
 	uint8_t StencilWriteMask = 0xF;
 	rStencilOpDesc FrontFace{};
 	rStencilOpDesc BackFace{};
-};
-
-class rGraphicsPipeline
-{
-public:
-	inline void setPrimitiveTopology(eRPrimitiveTopology primitiveTopology)
-	{
-		m_PrimitiveTopology = primitiveTopology;
-	}
-
-	inline void setClearValue(const vec4 &color, const float32_t depth, const uint8_t stencil)
-	{
-		m_ClearValue.Color = color;
-		m_ClearValue.Depth = depth;
-		m_ClearValue.Stencil = stencil;
-	}
-
-	inline void setShader(const rShader *shader)
-	{
-		assert(shader);
-		assert(shader->getUsage() < eRShaderUsage_MaxEnum);
-		assert(m_Shaders[shader->getUsage()] == nullptr);
-		m_Shaders[shader->getUsage()] = shader;
-	}
-
-	virtual void setRasterizerState(
-		eRPolygonMode polygonMode,
-		eRCullMode cullMode,
-		eRFrontFace frontFace,
-		bool8_t enableDepthBias = false,
-		float32_t depthBias = 0.0f,
-		float32_t depthBiasClamp = 0.0f,
-		float32_t depthBiasSlope = 0.0f) = 0;
-
-	virtual void setBlendState(
-		bool8_t enableLogicOp,
-		eRLogicOp logicOp,
-		uint32_t attachmentCount,
-		const rColorBlendStateDesc * const clrBlendState) = 0;
-
-	virtual void setDepthStencilState(
-		bool8_t enableDepth,
-		bool8_t enableDepthWrite,
-		eRCompareOp depthCompareOp,
-		bool8_t enableStencil,
-		uint8_t stencilReadMask,
-		uint8_t stencilWriteMask,
-		const rStencilOpDesc &front,
-		const rStencilOpDesc &back) = 0;
-
-	virtual void setDescriptorLayout(const rDescriptorLayoutDesc &desc) = 0;
-
-	virtual void setViewport(const vec4 &) = 0;
-
-	virtual void setScissor(const vec4 &) = 0;
-protected:
-	eRPrimitiveTopology m_PrimitiveTopology = eTriangleList;
-	struct ClearValue
-	{
-		vec4 Color;
-		float32_t Depth = 1.0f;
-		uint8_t Stencil = 0u;
-	} m_ClearValue;
-
-	const rShader *m_Shaders[eRShaderUsage_MaxEnum]{};
-private:
 };
 
 struct rViewport : public vec4
@@ -198,6 +135,16 @@ struct rGraphicsPipelineState
 		DepthStencilStateDesc = desc;
 	}
 
+	inline void bindVertexBuffer(rBuffer *buffer)
+	{
+		VertexBuffer = buffer;
+	}
+
+	inline void bindIndexBuffer(rBuffer *buffer)
+	{
+		IndexBuffer = buffer;
+	}
+
 	eRPrimitiveTopology PrimitiveTopology = eTriangleList;
 
 	const rShader *Shaders[eRShaderUsage_MaxEnum]{};
@@ -207,6 +154,8 @@ struct rGraphicsPipelineState
 	rDepthStencilStateDesc DepthStencilStateDesc{};
 	rViewport Viewport;
 	rScissor Scissor;
+	rBuffer *VertexBuffer = nullptr;
+	rBuffer *IndexBuffer = nullptr;
 
 	friend bool8_t operator==(const rGraphicsPipelineState &left, const rGraphicsPipelineState &right)
 	{
@@ -223,6 +172,47 @@ struct rGraphicsPipelineState
 			left.PrimitiveTopology == right.PrimitiveTopology;
 	}
 	/// MultisampleState
+
+	struct rDrawOperation
+	{
+		enum eDrawOp
+		{
+			eDraw,
+			eDrawIndexed,
+			eDrawOp_MaxEnum
+		};
+
+		eDrawOp DrawOp = eDrawIndexed;
+		size_t IndexCount = 0u;
+		size_t FirstIndex = 0u;
+		size_t VertexOffset = 0u;
+	};
+	rDrawOperation DrawOperation{};
+
+	inline void drawIndexed(size_t indexCount, size_t firstIndex, size_t vertexOffset)
+	{
+		DrawOperation = rDrawOperation
+		{
+			rDrawOperation::eDrawIndexed,
+			indexCount,
+			firstIndex,
+			vertexOffset
+		};
+	}
+
+	struct rClearValue
+	{
+		vec4 Color = color::g_DarkBlue;
+		float32_t Depth = 1.0f;
+		uint32_t Stencil = 0u;
+	};
+	rClearValue ClearValue{};
+	inline void setClearValue(const vec4 &color = color::g_DarkBlue, float32_t depth = 1.0f, uint32_t stencil = 0u)
+	{
+		ClearValue.Color = color;
+		ClearValue.Depth = depth;
+		ClearValue.Stencil = stencil;
+	}
 };
 
 class rComputePipeline

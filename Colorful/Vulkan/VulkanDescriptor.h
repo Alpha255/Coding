@@ -2,6 +2,10 @@
 
 #include "VulkanLoader.h"
 
+class vkDescriptorSet : public vkObject<VkDescriptorSet>
+{
+};
+
 class vkDescriptorPool : public vkDeviceObject<VkDescriptorPool>
 {
 public:
@@ -9,11 +13,7 @@ public:
 	void resetPool(const class vkDevice &device);
 	void destroy(const class vkDevice &device) override final;
 
-	void allocDescriptorSets();
-	void freeDescriptorSets();
-
-	void allocDescriptorSet();
-	void freeDescriptorSet();
+	vkDescriptorSet alloc(const class vkDevice &device, const class vkDescriptorSetLayout &layout);
 };
 
 class vkDescriptorSetLayout : public vkDeviceObject<VkDescriptorSetLayout>

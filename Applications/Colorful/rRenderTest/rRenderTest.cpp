@@ -1,9 +1,20 @@
 #include "rRenderTest.h"
 
+rBuffer *mUniformBuffer = nullptr;
+
+struct uniformBufferVS
+{
+	matrix World;
+	matrix View;
+	matrix Proj;
+};
+
 void rRenderTest::postInitialize()
 {
 	auto vertexShader = m_Renderer->createVertexShader("rRenderTest.shader");
 	auto fragmentShader = m_Renderer->createFragmentShader("rRenderTest.shader");
+
+	mUniformBuffer = m_Renderer->createUniformBuffer(sizeof(uniformBufferVS), nullptr);
 
 	struct vertex
 	{
@@ -46,7 +57,7 @@ void rRenderTest::postInitialize()
 	/// alignment ??? Try to create based on shader reflection(Format) ??? 
 	vertexShader->setInputLayout(vertexAttrs);
 
-	auto depthStencilView = m_Renderer->createDepthStencilView(m_WindowSize.x, m_WindowSize.y, eD24_UNorm_S8_UInt);
+	auto depthStencilView = m_Renderer->createDepthStencilView((uint32_t)m_WindowSize.x, (uint32_t)m_WindowSize.y, eD24_UNorm_S8_UInt);
 
 	rFrameBufferDesc frameBufferDesc{};
 	frameBufferDesc.DepthSurface = depthStencilView;
@@ -54,20 +65,48 @@ void rRenderTest::postInitialize()
 	frameBufferDesc.Height = (uint32_t)m_WindowSize.y;
 
 	auto renderPass = m_Renderer->createRenderPass(frameBufferDesc);
+
+	rViewport viewport
+	{
+		0.0f,
+		0.0f,
+		m_WindowSize.x,
+		m_WindowSize.y
+	};
+	rScissor scissor
+	{
+		m_WindowSize.x,
+		m_WindowSize.y,
+		0.0f,
+		0.0f
+	};
+
+	vertexShader->setUniformBuffer(mUniformBuffer);
+	rGraphicsPipelineState graphicsPipelineState{};
+	graphicsPipelineState.setShader(vertexShader);
+	graphicsPipelineState.setShader(fragmentShader);
+	graphicsPipelineState.setViewport(viewport);
+	graphicsPipelineState.setScissor(scissor);
+	graphicsPipelineState.bindVertexBuffer(vertexBuffer);
+	graphicsPipelineState.bindIndexBuffer(indexBuffer);
+	graphicsPipelineState.drawIndexed((uint32_t)indices.size(), 0u, 0u);
+
+	renderPass->execute(graphicsPipelineState);
 }
 
 void rRenderTest::renterToWindow()
 {
-	/// RenderPass.create("Opaque");
-	rGraphicsPipelineState graphicsPipelineState{};
+	matrix world = m_Camera.getWorldMatrix();
+	matrix view = m_Camera.getViewMatrix();
+	matrix proj = m_Camera.getProjMatrix();
 
-	/*
-	renderpass.begin(graphicsPipelineState)
-	bindVertexBuffer
-	bindIndexBuffer
-	drawIndexed
-	renderpass.end()
-	*/
+	uniformBufferVS uboVS
+	{
+		world,
+		view,
+		proj
+	};
+	m_Renderer->updateUniformBuffer(mUniformBuffer, &uboVS, sizeof(uniformBufferVS), 0u);
 }
 
 appMainEntry(rRenderTest)
