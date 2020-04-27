@@ -63,9 +63,30 @@ rRenderSurface *vkDevice::createDepthStencilView(uint32_t width, uint32_t height
 	return depthStencilView;
 }
 
-vkGraphicsPipeline *vkDevice::vkPipelinePool::getOrCreateGraphicsPipeline(const rGraphicsPipelineState &)
+vkDevice::vkPipelinePool::vkPipelinePool(const vkDevice &device)
+	: m_Device(device)
 {
-	return nullptr;
+	m_PipelineCache.create(m_Device);
+}
+
+vkGraphicsPipeline *vkDevice::vkPipelinePool::getOrCreateGraphicsPipeline(const vkRenderPass &renderpass, const rGraphicsPipelineState &state)
+{
+	assert(renderpass.isValid());
+
+	for (auto &it : m_Pipelines)
+	{
+		if (it.first == state)
+		{
+			return (vkGraphicsPipeline *)it.second;
+		}
+	}
+
+	auto graphicsPipeline = new vkGraphicsPipeline;
+	graphicsPipeline->create(m_Device, renderpass, m_PipelineCache, state);
+
+	m_Pipelines.emplace_back(std::make_pair(state, graphicsPipeline));
+
+	return graphicsPipeline;
 }
 
 rRenderPass *vkDevice::createRenderPass(const vkSwapchain &swapchain, rFrameBufferDesc &desc)

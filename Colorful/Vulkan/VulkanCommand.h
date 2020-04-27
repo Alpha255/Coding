@@ -28,6 +28,18 @@ public:
 		setState(eInitial);
 	}
 
+	vkCommandBuffer(vkCommandBuffer &&other)
+		: m_Level(other.m_Level)
+		, m_Fence(other.m_Fence)
+	{
+		assert(other.isValid());
+		reset(*other);
+		setState(eInitial);
+
+		other.m_Fence = nullptr;
+		other.reset();
+	}
+
 	void begin();
 
 	void execute(const vkCommandBuffer &primaryCommandBuffer);
@@ -36,11 +48,13 @@ public:
 
 	void end();
 
-	inline class vkFence *getFence()
+	inline class vkFence *getFence() const
 	{
 		assert(m_Fence);
 		return m_Fence;
 	}
+
+	void waitFence(const class vkDevice &device);
 
 	inline void resetCommand()
 	{
@@ -87,10 +101,8 @@ public:
 	vkCommandBuffer alloc(const class vkDevice &device, VkCommandBufferLevel level) const;
 	void free(const class vkDevice &device, vkCommandBuffer &commandBuffer) const;
 
-	inline vkCommandBuffer *getActiveCommandBuffer() const
-	{
-		return nullptr;
-	}
+	vkCommandBuffer *getActiveCommandBuffer(const class vkDevice &device);
 protected:
 private:
+	vkCommandBuffer *m_ActiveCmdBuffer = nullptr;
 };

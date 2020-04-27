@@ -75,6 +75,7 @@ void vkGraphicsPipeline::create(
 
 	m_DescriptorSetLayout.create(device, descriptorLayoutDesc);
 	m_PipelineLayout.create(device, m_DescriptorSetLayout);
+	setupDescriptorSet(device, state);
 
 	auto vertexShader = static_cast<const vkShader *>(state.Shaders[eVertexShader]);
 
@@ -116,7 +117,7 @@ void vkGraphicsPipeline::create(
 		false
 	};
 
-	VkPipelineColorBlendAttachmentState colorBlendAttachments[eMaxRenderTargets]{};
+	std::vector<VkPipelineColorBlendAttachmentState> colorBlendAttachments;
 	auto depthStencilState = getDepthStencilState(state.DepthStencilStateDesc);
 	auto rasterizationState = getRasterizationState(state.RasterizerStateDesc);
 	auto blendState = getColorBlendState(colorBlendAttachments, state.BlendStateDesc);
@@ -173,7 +174,7 @@ void vkGraphicsPipeline::destroy(const vkDevice &device)
 
 void vkGraphicsPipeline::bind(const vkCommandBuffer &cmdBuffer)
 {
-	assert(isValid() && cmdBuffer.isValid());
+	assert(isValid() && cmdBuffer.isValid() && m_DescriptorSet.isValid());
 
 	VkDescriptorSet descriptorSet = *m_DescriptorSet;
 	vkCmdBindDescriptorSets(*cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, *m_PipelineLayout, 0u, 1u, &descriptorSet, 0u, nullptr);
@@ -245,24 +246,43 @@ VkPipelineDepthStencilStateCreateInfo vkGraphicsPipeline::getDepthStencilState(c
 }
 
 VkPipelineColorBlendStateCreateInfo vkGraphicsPipeline::getColorBlendState(
-	VkPipelineColorBlendAttachmentState attachments[eMaxRenderTargets],
+	std::vector<VkPipelineColorBlendAttachmentState> &attachments,
 	const rBlendStateDesc &stateDesc) const
 {
 	for (uint32_t i = 0u; i < eMaxRenderTargets; ++i)
 	{
-		attachments[i] = VkPipelineColorBlendAttachmentState
+		if (stateDesc.ColorBlendStateDesc[i].Enable)
 		{
-			stateDesc.ColorBlendStateDesc[i].Enable,
-			vkEngine::enumTranslator::toBlendFactor(stateDesc.ColorBlendStateDesc[i].SrcColor),
-			vkEngine::enumTranslator::toBlendFactor(stateDesc.ColorBlendStateDesc[i].DstColor),
-			vkEngine::enumTranslator::toBlendOp(stateDesc.ColorBlendStateDesc[i].ColorOp),
-			vkEngine::enumTranslator::toBlendFactor(stateDesc.ColorBlendStateDesc[i].SrcAlpha),
-			vkEngine::enumTranslator::toBlendFactor(stateDesc.ColorBlendStateDesc[i].DstAlpha),
-			vkEngine::enumTranslator::toBlendOp(stateDesc.ColorBlendStateDesc[i].AlphaOp),
-			vkEngine::enumTranslator::toColorComponentFlags(stateDesc.ColorBlendStateDesc[i].ColorMask)
-		};
+			VkPipelineColorBlendAttachmentState attachment
+			{
+				stateDesc.ColorBlendStateDesc[i].Enable,
+				vkEngine::enumTranslator::toBlendFactor(stateDesc.ColorBlendStateDesc[i].SrcColor),
+				vkEngine::enumTranslator::toBlendFactor(stateDesc.ColorBlendStateDesc[i].DstColor),
+				vkEngine::enumTranslator::toBlendOp(stateDesc.ColorBlendStateDesc[i].ColorOp),
+				vkEngine::enumTranslator::toBlendFactor(stateDesc.ColorBlendStateDesc[i].SrcAlpha),
+				vkEngine::enumTranslator::toBlendFactor(stateDesc.ColorBlendStateDesc[i].DstAlpha),
+				vkEngine::enumTranslator::toBlendOp(stateDesc.ColorBlendStateDesc[i].AlphaOp),
+				vkEngine::enumTranslator::toColorComponentFlags(stateDesc.ColorBlendStateDesc[i].ColorMask)
+			};
+			attachments.emplace_back(std::move(attachment));
+		}
 	}
 
+	if (attachments.size() == 0u)
+	{
+		VkPipelineColorBlendAttachmentState attachment
+		{
+			false,
+			VK_BLEND_FACTOR_ONE,
+			VK_BLEND_FACTOR_ZERO,
+			VK_BLEND_OP_ADD,
+			VK_BLEND_FACTOR_ONE,
+			VK_BLEND_FACTOR_ZERO,
+			VK_BLEND_OP_ADD,
+			0xF
+		};
+		attachments.emplace_back(std::move(attachment));
+	}
 	VkPipelineColorBlendStateCreateInfo blendState
 	{
 		VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
@@ -270,11 +290,50 @@ VkPipelineColorBlendStateCreateInfo vkGraphicsPipeline::getColorBlendState(
 		0u,  /// flags is reserved for future use.
 		stateDesc.EnableLogicOp,
 		vkEngine::enumTranslator::toLogicOp(stateDesc.LogicOp),
-		eMaxRenderTargets,
-		attachments
+		(uint32_t)attachments.size(),
+		attachments.data()
 	};
 
 	return blendState;
+}
+
+void vkGraphicsPipeline::setupDescriptorSet(const vkDevice &device, const rGraphicsPipelineState &state)
+{
+	m_DescriptorSet = device.allocDescriptorSet(m_DescriptorSetLayout);
+
+	for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
+	{
+		if (state.Shaders[i])
+		{
+			auto uniformBuffer = state.Shaders[i]->getUniformBuffer();
+			if (uniformBuffer)
+			{
+				auto buffer = static_cast<vkBuffer *>(uniformBuffer);
+
+				VkDescriptorBufferInfo bufferInfo
+				{
+					**buffer,
+					buffer->getOffset(),
+					buffer->getSize()
+				};
+
+				VkWriteDescriptorSet writeDescriptorSet
+				{
+					VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+					nullptr,
+					*m_DescriptorSet,
+					0u,
+					0u,
+					1u,
+					VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+					nullptr,
+					&bufferInfo,
+					nullptr
+				};
+				vkUpdateDescriptorSets(*device, 1u, &writeDescriptorSet, 0u, nullptr);
+			}
+		}
+	}
 }
 
 void vkPipelineCache::create(const vkDevice &device)

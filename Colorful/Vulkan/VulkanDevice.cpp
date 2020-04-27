@@ -388,8 +388,7 @@ uint32_t vkDevice::create(
 	transferQueueIndex = transferQueueFamilyIndex;
 
 	m_CommandPool.create(*this, graphicsQueueFamilyIndex);
-
-	m_PipelineCache.create(*this);
+	m_DescriptorPool.create(*this);
 
 	m_GpuResourcePool = std::make_unique<vkGpuResourcePool>(*this);
 	m_PipelinePool = std::make_unique<vkPipelinePool>(*this);
@@ -454,8 +453,6 @@ void vkDevice::destroy()
 		m_PipelinePool->destroyAll();
 
 		m_CommandPool.destroy(*this);
-
-		m_PipelineCache.destroy(*this);
 
 		vkDestroyDevice(**this, vkMemoryAllocator);
 		reset();

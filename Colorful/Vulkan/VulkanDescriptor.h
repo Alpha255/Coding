@@ -13,7 +13,7 @@ public:
 	void resetPool(const class vkDevice &device);
 	void destroy(const class vkDevice &device) override final;
 
-	vkDescriptorSet alloc(const class vkDevice &device, const class vkDescriptorSetLayout &layout);
+	vkDescriptorSet alloc(const class vkDevice &device, const class vkDescriptorSetLayout &layout) const;
 };
 
 class vkDescriptorSetLayout : public vkDeviceObject<VkDescriptorSetLayout>

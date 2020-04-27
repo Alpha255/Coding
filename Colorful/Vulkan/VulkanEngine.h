@@ -63,9 +63,19 @@ public:
 		uniformBuffer->update(m_Device, data, size, offset);
 	}
 
-	inline vkGraphicsPipeline *getOrCreateGraphicsPipeline(const rGraphicsPipelineState &state)
+	inline vkGraphicsPipeline *getOrCreateGraphicsPipeline(const vkRenderPass &renderpass, const rGraphicsPipelineState &state)
 	{
-		return m_Device.getOrCreateGraphicsPipeline(state);
+		return m_Device.getOrCreateGraphicsPipeline(renderpass, state);
+	}
+
+	inline vkCommandBuffer *getActiveCommandBuffer()
+	{
+		return m_Device.getActiveCommandBuffer();
+	}
+
+	inline uint32_t acquireNextFrame()
+	{
+		return m_Swapchain.acquireBackBuffer(m_Device);
 	}
 public:
 	class enumTranslator

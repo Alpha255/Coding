@@ -61,6 +61,10 @@ public:
 	{
 		m_UniformBuffer = uniformBuffer;
 	}
+	inline class rBuffer *getUniformBuffer() const
+	{
+		return m_UniformBuffer;
+	}
 
 	virtual void setInputLayout(const std::vector<rVertexAttributes>&) {}
 protected:
@@ -83,6 +87,20 @@ protected:
 
 class rBuffer : public rGpuResource
 {
+public:
+	inline size_t getSize() const
+	{
+		return m_Size;
+	}
+
+	inline size_t getOffset() const
+	{
+		return m_Offset;
+	}
+protected:
+	size_t m_Size = 0u;
+	size_t m_Offset = 0u;
+private:
 };
 
 using rDescriptorLayoutDesc = std::array<rShader::rReflectionInfos, eRShaderUsage_MaxEnum>;

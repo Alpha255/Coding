@@ -145,6 +145,11 @@ struct rGraphicsPipelineState
 		IndexBuffer = buffer;
 	}
 
+	inline void setRenderArea(const vec4 &area)
+	{
+		RenderArea = area;
+	}
+
 	eRPrimitiveTopology PrimitiveTopology = eTriangleList;
 
 	const rShader *Shaders[eRShaderUsage_MaxEnum]{};
@@ -213,6 +218,7 @@ struct rGraphicsPipelineState
 		ClearValue.Depth = depth;
 		ClearValue.Stencil = stencil;
 	}
+	vec4 RenderArea;
 };
 
 class rComputePipeline

@@ -1,8 +1,9 @@
 #include "VulkanQueue.h"
 #include "VulkanEngine.h"
 #include "VulkanSwapChain.h"
+#include "VulkanAsync.h"
 
-void vkDeviceQueue::create(uint32_t queueFamilyIndex, const class vkDevice &device)
+void vkDeviceQueue::create(uint32_t queueFamilyIndex, const vkDevice &device)
 {
 	assert(!isValid() && device.isValid());
 
@@ -14,14 +15,36 @@ void vkDeviceQueue::create(uint32_t queueFamilyIndex, const class vkDevice &devi
 	reset(handle);
 
 	/// All queues associated with a logical device are destroyed when vkDestroyDevice is called on that device
+	m_RenderCompleteSemaphore = device.createSemaphore();
 }
 
 void vkDeviceQueue::submit(const vkCommandBuffer &cmdBuffer, const vkSemaphore *waitSemaphores, uint32_t waitSemaphoreCount)
 {
 }
 
-void vkDeviceQueue::present(const vkSwapchain &swapchain, const vkSemaphore *waitSemaphores, uint32_t waitSemaphoreCount)
+void vkDeviceQueue::present(
+	const class vkCommandBuffer &cmdBuffer,
+	const vkSwapchain &swapchain, 
+	const vkSemaphore *waitSemaphores, 
+	uint32_t waitSemaphoreCount)
 {
+	VkPipelineStageFlags waitStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
+	VkSubmitInfo submitInfo
+	{
+		VK_STRUCTURE_TYPE_SUBMIT_INFO,
+		nullptr,
+		waitSemaphoreCount,
+		nullptr,
+		&waitStageMask,
+		1u,
+		nullptr,
+		1u,
+		nullptr
+	};
+
+	rVerifyVk(vkQueueSubmit(**this, 1u, &submitInfo, **(cmdBuffer.getFence())));
+
 }
 
 void vkDeviceQueue::waitIdle()

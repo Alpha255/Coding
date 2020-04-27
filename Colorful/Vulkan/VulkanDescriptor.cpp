@@ -101,7 +101,7 @@ void vkDescriptorPool::destroy(const vkDevice &device)
 	}
 }
 
-vkDescriptorSet vkDescriptorPool::alloc(const class vkDevice &device, const vkDescriptorSetLayout &layout)
+vkDescriptorSet vkDescriptorPool::alloc(const class vkDevice &device, const vkDescriptorSetLayout &layout) const
 {
 	assert(isValid() && layout.isValid());
 

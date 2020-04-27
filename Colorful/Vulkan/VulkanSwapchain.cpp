@@ -113,6 +113,8 @@ void vkSwapchain::create(
 	m_Surface.PresentModes.resize(count);
 	rVerifyVk(vkGetPhysicalDeviceSurfacePresentModesKHR(*physicalDevice, *m_Surface, &count, m_Surface.PresentModes.data()));
 
+	m_PresentCompleteSemaphore = new vkSemaphore(device);
+
 	recreate(width, height, vSync, fullscreen, physicalDevice, device);
 }
 
@@ -262,10 +264,12 @@ void vkSwapchain::destroy(const vkInstance &instance, const vkDevice &device)
 	clearBackBuffers(device);
 }
 
-uint32_t vkSwapchain::acquireBackBuffer()
+uint32_t vkSwapchain::acquireBackBuffer(const vkDevice &device)
 {
+	assert(isValid() && device.isValid());
 	uint32_t index = UINT32_MAX;
 
+	rVerifyVk(vkAcquireNextImageKHR(*device, **this, UINT64_MAX, **m_PresentCompleteSemaphore, VK_NULL_HANDLE, &index));
 	return index;
 }
 

@@ -39,8 +39,10 @@ protected:
 	VkPipelineRasterizationStateCreateInfo getRasterizationState(const rRasterizerStateDesc &stateDesc) const;
 	VkPipelineDepthStencilStateCreateInfo getDepthStencilState(const rDepthStencilStateDesc &stateDesc) const;
 	VkPipelineColorBlendStateCreateInfo getColorBlendState(
-		VkPipelineColorBlendAttachmentState attachments[eMaxRenderTargets], 
+		std::vector<VkPipelineColorBlendAttachmentState> &attachments, 
 		const rBlendStateDesc &stateDesc) const;
+
+	void setupDescriptorSet(const class vkDevice &device, const rGraphicsPipelineState &state);
 private:
 	vkPipelineLayout m_PipelineLayout;
 	vkDescriptorSetLayout m_DescriptorSetLayout;

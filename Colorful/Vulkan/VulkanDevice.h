@@ -60,6 +60,11 @@ public:
 		m_CommandPool.free(*this, commandBuffer);
 	}
 
+	inline vkDescriptorSet allocDescriptorSet(const vkDescriptorSetLayout &layout) const
+	{
+		return m_DescriptorPool.alloc(*this, layout);
+	}
+
 	inline const VkPhysicalDeviceLimits &getDeviceLimits() const
 	{
 		return m_DeviceLimits;
@@ -71,9 +76,14 @@ public:
 	rRenderSurface *createDepthStencilView(uint32_t width, uint32_t height, eRFormat format);
 	rRenderPass *createRenderPass(const vkSwapchain &swapchain, rFrameBufferDesc &desc);
 	
-	inline vkGraphicsPipeline *getOrCreateGraphicsPipeline(const rGraphicsPipelineState &graphicsPipelineState)
+	inline vkGraphicsPipeline *getOrCreateGraphicsPipeline(const vkRenderPass &renderpass, const rGraphicsPipelineState &graphicsPipelineState)
 	{
-		return m_PipelinePool->getOrCreateGraphicsPipeline(graphicsPipelineState);
+		return m_PipelinePool->getOrCreateGraphicsPipeline(renderpass, graphicsPipelineState);
+	}
+
+	inline vkCommandBuffer *getActiveCommandBuffer()
+	{
+		return m_CommandPool.getActiveCommandBuffer(*this);
 	}
 protected:
 	class vkGpuResourcePool
@@ -197,32 +207,33 @@ protected:
 	class vkPipelinePool
 	{
 	public:
-		vkPipelinePool(const vkDevice &device)
-			: m_Device(device)
-		{
-		}
+		vkPipelinePool(const vkDevice &device);
 
-		vkGraphicsPipeline *getOrCreateGraphicsPipeline(const rGraphicsPipelineState &graphicsPipelineState);
+		vkGraphicsPipeline *getOrCreateGraphicsPipeline(const vkRenderPass &renderpass, const rGraphicsPipelineState &graphicsPipelineState);
 
 		inline void destroyAll()
 		{
 			for (auto &it : m_Pipelines)
 			{
-				it.first->destroy(m_Device);
+				it.second->destroy(m_Device);
 			}
 			m_Pipelines.clear();
+
+			m_PipelineCache.destroy(m_Device);
 		}
 	protected:
 	private:
 		const vkDevice &m_Device;
-		std::unordered_map<vkPipeline *, rGraphicsPipelineState> m_Pipelines;
+		///std::unordered_map<rGraphicsPipelineState, vkPipeline *> m_Pipelines;
+		std::vector<std::pair<rGraphicsPipelineState, vkPipeline *>> m_Pipelines;
+		vkPipelineCache m_PipelineCache;
 	};
 private:
 	VkPhysicalDeviceMemoryProperties m_DeviceMemoryProperties{};
 	VkPhysicalDeviceFeatures m_DeviceFeatures{};
 	VkPhysicalDeviceLimits m_DeviceLimits{};
 	vkCommandPool m_CommandPool;
-	vkPipelineCache m_PipelineCache;
+	vkDescriptorPool m_DescriptorPool;
 	std::unique_ptr<vkGpuResourcePool> m_GpuResourcePool;
 	std::unique_ptr<vkPipelinePool> m_PipelinePool;
 };

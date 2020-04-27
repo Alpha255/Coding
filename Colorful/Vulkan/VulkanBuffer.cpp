@@ -95,6 +95,9 @@ vkGpuBuffer::vkGpuBuffer(const vkDevice &device, eRBufferBindFlags bindFlags, eR
 {
 	assert(!isValid() && device.isValid());
 
+	m_Size = size;
+	m_Offset = 0u;
+
 	VkBufferUsageFlagBits usageFlagBits = VK_BUFFER_USAGE_FLAG_BITS_MAX_ENUM;
 	switch (bindFlags)
 	{

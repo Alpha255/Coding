@@ -107,12 +107,16 @@ case enumValue:                                      \
 
 #undef vkResultCaseMessage
 
-	logger::instance().log(logger::eError, "Faile to invoke VulkanAPI, VKResult = %s", errorMsg.c_str());
+	logger::instance().log(logger::eError, "Failed to invoke VulkanAPI, VKResult = %s", errorMsg.c_str());
 	assert(0);
 }
 
 void vkEngine::present()
 {
+	auto activeCmdBuffer = m_Device.getActiveCommandBuffer();
+	activeCmdBuffer->waitFence(m_Device);
+
+
 }
 
 void vkEngine::finalize()

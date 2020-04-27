@@ -1,6 +1,8 @@
 #include "rRenderTest.h"
 
 rBuffer *mUniformBuffer = nullptr;
+rGraphicsPipelineState mGraphicsPipelineState{};
+rRenderPass *mRenderPass = nullptr;
 
 struct uniformBufferVS
 {
@@ -64,7 +66,7 @@ void rRenderTest::postInitialize()
 	frameBufferDesc.Width = (uint32_t)m_WindowSize.x;
 	frameBufferDesc.Height = (uint32_t)m_WindowSize.y;
 
-	auto renderPass = m_Renderer->createRenderPass(frameBufferDesc);
+	mRenderPass = m_Renderer->createRenderPass(frameBufferDesc);
 
 	rViewport viewport
 	{
@@ -82,16 +84,14 @@ void rRenderTest::postInitialize()
 	};
 
 	vertexShader->setUniformBuffer(mUniformBuffer);
-	rGraphicsPipelineState graphicsPipelineState{};
-	graphicsPipelineState.setShader(vertexShader);
-	graphicsPipelineState.setShader(fragmentShader);
-	graphicsPipelineState.setViewport(viewport);
-	graphicsPipelineState.setScissor(scissor);
-	graphicsPipelineState.bindVertexBuffer(vertexBuffer);
-	graphicsPipelineState.bindIndexBuffer(indexBuffer);
-	graphicsPipelineState.drawIndexed((uint32_t)indices.size(), 0u, 0u);
-
-	renderPass->execute(graphicsPipelineState);
+	mGraphicsPipelineState.setShader(vertexShader);
+	mGraphicsPipelineState.setShader(fragmentShader);
+	mGraphicsPipelineState.setViewport(viewport);
+	mGraphicsPipelineState.setScissor(scissor);
+	mGraphicsPipelineState.bindVertexBuffer(vertexBuffer);
+	mGraphicsPipelineState.bindIndexBuffer(indexBuffer);
+	mGraphicsPipelineState.drawIndexed((uint32_t)indices.size(), 0u, 0u);
+	mGraphicsPipelineState.setRenderArea(viewport);
 }
 
 void rRenderTest::renterToWindow()
@@ -107,6 +107,8 @@ void rRenderTest::renterToWindow()
 		proj
 	};
 	m_Renderer->updateUniformBuffer(mUniformBuffer, &uboVS, sizeof(uniformBufferVS), 0u);
+
+	mRenderPass->execute(mGraphicsPipelineState);
 }
 
 appMainEntry(rRenderTest)

@@ -71,6 +71,11 @@ void vkCommandPool::destroy(const vkDevice &device)
 	/// All VkCommandBuffer objects allocated from commandPool must not be in the pending state.
 	if (isValid())
 	{
+		if (m_ActiveCmdBuffer)
+		{
+			free(device, *m_ActiveCmdBuffer);
+		}
+
 		vkDestroyCommandPool(*device, **this, vkMemoryAllocator);
 		reset();
 	}
@@ -157,6 +162,18 @@ void vkCommandPool::free(const vkDevice &device, vkCommandBuffer &commandBuffer)
 	}
 }
 
+vkCommandBuffer *vkCommandPool::getActiveCommandBuffer(const vkDevice &device)
+{
+	assert(device.isValid());
+	if (!m_ActiveCmdBuffer)
+	{
+		auto cmdBuffer = alloc(device, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+		m_ActiveCmdBuffer = new vkCommandBuffer(std::move(cmdBuffer));
+	}
+
+	return m_ActiveCmdBuffer;
+}
+
 void vkCommandBuffer::begin()
 {
 	assert(isValid() && m_State != ePending && m_State != eRecording);
@@ -197,6 +214,15 @@ void vkCommandBuffer::end()
 	assert(isValid() && m_State == eRecording);
 	rVerifyVk(vkEndCommandBuffer(**this));
 	setState(eExecutable);
+}
+
+void vkCommandBuffer::waitFence(const vkDevice &device)
+{
+	assert(m_Fence && device.isValid());
+
+	VkFence fence = **m_Fence;
+	rVerifyVk(vkWaitForFences(*device, 1u, &fence, VK_TRUE, UINT64_MAX));
+	rVerifyVk(vkResetFences(*device, 1u, &fence));
 }
 
 void vkCommandBuffer::execute(const vkCommandBuffer &primaryCommandBuffer)

@@ -172,9 +172,10 @@ void vkRenderPass::begin(const rGraphicsPipelineState &)
 
 void vkRenderPass::execute(const rGraphicsPipelineState &graphicsPipelineState)
 {
-	auto graphicsPipeline = vkEngine::instance().getOrCreateGraphicsPipeline(graphicsPipelineState);
+	auto graphicsPipeline = vkEngine::instance().getOrCreateGraphicsPipeline(*this, graphicsPipelineState);
+	assert(graphicsPipeline);
 
-	vkCommandBuffer *activeCmdBuffer = nullptr;
+	vkCommandBuffer *activeCmdBuffer = vkEngine::instance().getActiveCommandBuffer();
 	assert(activeCmdBuffer);
 
 	activeCmdBuffer->begin();
@@ -193,11 +194,27 @@ void vkRenderPass::execute(const rGraphicsPipelineState &graphicsPipelineState)
 		graphicsPipelineState.ClearValue.Stencil
 	};
 
+	uint32_t frameIndex = vkEngine::instance().acquireNextFrame();
+	assert(frameIndex < m_FrameBuffers.size());
+
 	VkRenderPassBeginInfo beginInfo
 	{
 		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
 		nullptr,
 		**this,
+		*m_FrameBuffers[frameIndex],
+		{
+			{
+				(int32_t)graphicsPipelineState.RenderArea.x,
+				(int32_t)graphicsPipelineState.RenderArea.y,
+			},
+			{
+				(uint32_t)graphicsPipelineState.RenderArea.z,
+				(uint32_t)graphicsPipelineState.RenderArea.w,
+			}
+		},
+		ARRAYSIZE(clearValue),
+		clearValue
 	};
 	vkCmdBeginRenderPass(**activeCmdBuffer, &beginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
