@@ -250,6 +250,7 @@ void vkSwapchain::recreate(
 		image.reset(images[i]);
 
 		m_BackBuffers[i].create(device, image, m_Surface.SurfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT);
+		m_BackBuffers[i].m_Fence = device.createFence(vkFence::eSignaled);
 	}
 }
 
@@ -267,10 +268,28 @@ void vkSwapchain::destroy(const vkInstance &instance, const vkDevice &device)
 uint32_t vkSwapchain::acquireBackBuffer(const vkDevice &device)
 {
 	assert(isValid() && device.isValid());
-	uint32_t index = UINT32_MAX;
+	m_CurrentFrameIndex = UINT32_MAX;
 
-	rVerifyVk(vkAcquireNextImageKHR(*device, **this, UINT64_MAX, **m_PresentCompleteSemaphore, VK_NULL_HANDLE, &index));
-	return index;
+	rVerifyVk(vkAcquireNextImageKHR(*device, **this, UINT64_MAX, **m_PresentCompleteSemaphore, VK_NULL_HANDLE, &m_CurrentFrameIndex));
+	return m_CurrentFrameIndex;
+}
+
+void vkSwapchain::present(const vkDeviceQueue &queue, const vkSemaphore &renderCompleteSephore) const
+{
+	VkSwapchainKHR handle = **this;
+	VkSemaphore semaphore = *renderCompleteSephore;
+	VkPresentInfoKHR presentInfo
+	{
+		VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+		nullptr,
+		1u,
+		&semaphore,
+		1u,
+		&handle,
+		&m_CurrentFrameIndex,
+		nullptr
+	};
+	rVerifyVk(vkQueuePresentKHR(*queue, &presentInfo));
 }
 
 void vkSwapchain::clearBackBuffers(const vkDevice &device)

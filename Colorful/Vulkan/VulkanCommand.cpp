@@ -133,7 +133,7 @@ vkCommandBuffer vkCommandPool::alloc(const vkDevice &device, VkCommandBufferLeve
 	VkCommandBuffer handle = VK_NULL_HANDLE;
 	rVerifyVk(vkAllocateCommandBuffers(*device, &allocateInfo, &handle));
 
-	vkFence *fence = device.createFence(vkFence::eUnsignaled);
+	vkFence *fence = device.createFence(vkFence::eSignaled);
 	assert(fence);
 
 	return vkCommandBuffer(level, handle, fence);
@@ -201,7 +201,7 @@ void vkCommandBuffer::begin()
 	{
 		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
 		nullptr,   /// pNext must be NULL or a pointer to a valid instance of VkDeviceGroupCommandBufferBeginInfo
-		VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
+		0u, ///VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
 		nullptr
 	};
 

@@ -55,6 +55,10 @@ private:
 
 class vkBackBuffer : public vkImageView
 {
+public:
+	class vkFence *m_Fence = nullptr;
+protected:
+private:
 };
 
 class vkRenderTargetView : public vkImageView

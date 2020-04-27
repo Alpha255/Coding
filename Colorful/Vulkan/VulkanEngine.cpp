@@ -114,9 +114,14 @@ case enumValue:                                      \
 void vkEngine::present()
 {
 	auto activeCmdBuffer = m_Device.getActiveCommandBuffer();
-	activeCmdBuffer->waitFence(m_Device);
+	uint32_t currentFrameIndex = m_Swapchain.m_CurrentFrameIndex;
+	VkFence fence = **(m_Swapchain.getBackBuffers()[currentFrameIndex].m_Fence);
 
+	rVerifyVk(vkWaitForFences(*m_Device, 1u, &fence, VK_TRUE, UINT64_MAX));
+	rVerifyVk(vkResetFences(*m_Device, 1u, &fence));
+	///activeCmdBuffer->waitFence(m_Device);
 
+	m_GraphicsQueue.present(*activeCmdBuffer, m_Swapchain, fence);
 }
 
 void vkEngine::finalize()

@@ -11,9 +11,8 @@ public:
 
 	void present(
 		const class vkCommandBuffer &cmdBuffer,
-		const class vkSwapchain &swapchain, 
-		const class vkSemaphore *waitSemaphores, 
-		uint32_t waitSemaphoreCount);
+		const class vkSwapchain &swapchain,
+		VkFence fence);
 
 	void waitIdle();
 protected:

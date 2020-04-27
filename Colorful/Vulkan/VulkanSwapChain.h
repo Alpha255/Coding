@@ -37,7 +37,11 @@ public:
 		return m_BackBuffers;
 	}
 
-	void present() const;
+	void present(const class vkDeviceQueue &queue, const class vkSemaphore &renderCompleteSephore) const;
+	inline class vkSemaphore * getPresentCompleteSemaphore() const
+	{
+		return m_PresentCompleteSemaphore;
+	}
 protected:
 	struct vkSurface : public vkObject<VkSurfaceKHR>
 	{
@@ -57,4 +61,6 @@ private:
 	class vkSemaphore *m_PresentCompleteSemaphore = nullptr;
 	bool8_t m_bVSync = false;
 	bool8_t m_bFullScreen = false;
+public:
+	uint32_t m_CurrentFrameIndex = 0u;
 };

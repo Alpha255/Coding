@@ -18,33 +18,35 @@ void vkDeviceQueue::create(uint32_t queueFamilyIndex, const vkDevice &device)
 	m_RenderCompleteSemaphore = device.createSemaphore();
 }
 
-void vkDeviceQueue::submit(const vkCommandBuffer &cmdBuffer, const vkSemaphore *waitSemaphores, uint32_t waitSemaphoreCount)
+void vkDeviceQueue::submit(const vkCommandBuffer &, const vkSemaphore *, uint32_t)
 {
 }
 
 void vkDeviceQueue::present(
-	const class vkCommandBuffer &cmdBuffer,
-	const vkSwapchain &swapchain, 
-	const vkSemaphore *waitSemaphores, 
-	uint32_t waitSemaphoreCount)
+	const vkCommandBuffer &cmdBuffer,
+	const vkSwapchain &swapchain,
+	VkFence fence)
 {
 	VkPipelineStageFlags waitStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
+	VkCommandBuffer cmdBufferHandle = *cmdBuffer;
+	VkSemaphore presentCompleteSemaphore = **(swapchain.getPresentCompleteSemaphore());
+	VkSemaphore renderCompleteSemaphore = **m_RenderCompleteSemaphore;
 	VkSubmitInfo submitInfo
 	{
 		VK_STRUCTURE_TYPE_SUBMIT_INFO,
 		nullptr,
-		waitSemaphoreCount,
-		nullptr,
+		1u,
+		&presentCompleteSemaphore,
 		&waitStageMask,
 		1u,
-		nullptr,
+		&cmdBufferHandle,
 		1u,
-		nullptr
+		&renderCompleteSemaphore
 	};
 
-	rVerifyVk(vkQueueSubmit(**this, 1u, &submitInfo, **(cmdBuffer.getFence())));
-
+	rVerifyVk(vkQueueSubmit(**this, 1u, &submitInfo, fence));
+	swapchain.present(*this, *m_RenderCompleteSemaphore);
 }
 
 void vkDeviceQueue::waitIdle()
