@@ -277,6 +277,7 @@ workspace "Miscellaneous"
 				"./ThirdParty/assimp/contrib/zlib/contrib/inflate86/**",
 				"./ThirdParty/assimp/code/Importer/IFC/IFCReaderGen_4.h",
 				"./ThirdParty/assimp/code/Importer/IFC/IFCReaderGen_4.cpp",
+				"./ThirdParty/assimp/code/Importer/StepFile/**",
 				"./ThirdParty/assimp/contrib/zlib/contrib/**",
 			}
 			includedirs { 
