@@ -22,6 +22,16 @@ public:
 	}
 
 	void present() override final;
+	void waitDone();
+
+	inline vkDevice &getDevice()
+	{
+		return m_Device;
+	}
+	inline vkDeviceQueue &getQueue()
+	{
+		return m_GraphicsQueue;
+	}
 public:
 	inline rShader *createVertexShader(const std::string &shaderName) override final
 	{

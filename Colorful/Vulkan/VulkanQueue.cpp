@@ -18,12 +18,27 @@ void vkDeviceQueue::create(uint32_t queueFamilyIndex, const vkDevice &device)
 	m_RenderCompleteSemaphore = device.createSemaphore();
 }
 
-void vkDeviceQueue::submit(const vkCommandBuffer &, const vkSemaphore *, uint32_t)
+void vkDeviceQueue::submit(vkCommandBuffer &cmdBuffer)
 {
+	VkCommandBuffer cmdBufferHandle = *cmdBuffer;
+	VkSubmitInfo submitInfo
+	{
+		VK_STRUCTURE_TYPE_SUBMIT_INFO,
+		nullptr,
+		0u,
+		nullptr,
+		nullptr,
+		1u,
+		&cmdBufferHandle,
+		0u,
+		nullptr
+	};
+	rVerifyVk(vkQueueSubmit(**this, 1u, &submitInfo, **cmdBuffer.getFence()));
+	cmdBuffer.waitFence(vkEngine::instance().getDevice());
 }
 
 void vkDeviceQueue::present(
-	const vkCommandBuffer &cmdBuffer,
+	vkCommandBuffer &cmdBuffer,
 	const vkSwapchain &swapchain,
 	VkFence fence)
 {
@@ -45,7 +60,11 @@ void vkDeviceQueue::present(
 		&renderCompleteSemaphore
 	};
 
+	/// Submission can be a high overhead operation, and applications should attempt to batch work together into as few calls to vkQueueSubmit as possible.
+	/// vkQueueSubmit is a queue submission command, with each batch defined by an element of pSubmits. 
+	/// Batches begin execution in the order they appear in pSubmits, but may complete out of order.
 	rVerifyVk(vkQueueSubmit(**this, 1u, &submitInfo, fence));
+	cmdBuffer.setState(vkCommandBuffer::ePending);
 	swapchain.present(*this, *m_RenderCompleteSemaphore);
 }
 
@@ -57,4 +76,9 @@ void vkDeviceQueue::waitIdle()
 	{
 		rVerifyVk(vkQueueWaitIdle(**this));
 	}
+}
+
+void vkDeviceQueue::destroy(const vkDevice &device)
+{
+	m_RenderCompleteSemaphore->destroy(device);
 }

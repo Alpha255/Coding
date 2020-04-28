@@ -34,6 +34,11 @@ protected:
 private:
 };
 
+template<typename T> struct VkObject
+{
+	T Handle = nullptr;
+};
+
 template <typename T> class vkObject : public rObject<T>
 {
 public:

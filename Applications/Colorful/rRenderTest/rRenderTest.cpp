@@ -57,7 +57,7 @@ void rRenderTest::postInitialize()
 		}
 	};
 	/// alignment ??? Try to create based on shader reflection(Format) ??? 
-	vertexShader->setInputLayout(vertexAttrs);
+	vertexShader->setInputLayout(vertexAttrs, alignof(vertex));
 
 	auto depthStencilView = m_Renderer->createDepthStencilView((uint32_t)m_WindowSize.x, (uint32_t)m_WindowSize.y, eD24_UNorm_S8_UInt);
 

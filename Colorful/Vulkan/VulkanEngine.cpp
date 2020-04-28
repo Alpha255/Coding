@@ -113,20 +113,30 @@ case enumValue:                                      \
 
 void vkEngine::present()
 {
-	auto activeCmdBuffer = m_Device.getActiveCommandBuffer();
-	uint32_t currentFrameIndex = m_Swapchain.m_CurrentFrameIndex;
-	VkFence fence = **(m_Swapchain.getBackBuffers()[currentFrameIndex].m_Fence);
-
-	rVerifyVk(vkWaitForFences(*m_Device, 1u, &fence, VK_TRUE, UINT64_MAX));
-	rVerifyVk(vkResetFences(*m_Device, 1u, &fence));
 	///activeCmdBuffer->waitFence(m_Device);
+	auto activeCmdBuffer = m_Device.getActiveCommandBuffer();
 
+	VkFence fence = **activeCmdBuffer->getFence();
 	m_GraphicsQueue.present(*activeCmdBuffer, m_Swapchain, fence);
+}
+
+void vkEngine::waitDone()
+{
+	auto activeCmdBuffer = m_Device.getActiveCommandBuffer();
+	activeCmdBuffer->waitFence(m_Device);
+	if (activeCmdBuffer->m_State == vkCommandBuffer::ePending)
+	{
+		activeCmdBuffer->setState(vkCommandBuffer::eExecutable);
+	}
 }
 
 void vkEngine::finalize()
 {
 	m_Device.waitIdle();
+
+	m_GraphicsQueue.destroy(m_Device);
+	m_ComputeQueue.destroy(m_Device);
+	m_TransferQueue.destroy(m_Device);
 
 	m_Swapchain.destroy(m_Instance, m_Device);
 

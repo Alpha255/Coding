@@ -22,12 +22,12 @@ public:
 
 	explicit linearAllocator(size_t size, size_t alignment = eDefaultAlignment)
 	{
-		size_t alignment = align_to(alignment, 2ull);
-		m_Alignment = alignment < eDefaultAlignment ? eDefaultAlignment : alignment;
+		size_t align = align_to(alignment, 2ull);
+		m_Alignment = align < eDefaultAlignment ? eDefaultAlignment : align;
 		assert(m_Current.is_lock_free());
 
 		m_Size = align_to(size, m_Alignment);
-		m_Memory = std::make_unique<byte8_t>(new byte8_t[m_Size]());
+		///m_Memory = std::make_unique<byte8_t>(new byte8_t[m_Size]());
 		///assert(atomic_is_lock_free(m_Memory));
 	}
 
@@ -53,15 +53,15 @@ public:
 
 	static inline size_t align_to(size_t size, size_t alignment)
 	{
-		return size + size % alignment;
+		return size + (alignment - size % alignment);
 	}
 
-	memoryPack alloc(size_t size, size_t alignment)
+	memoryPack alloc(size_t, size_t)
 	{
 		return memoryPack();
 	}
 
-	void dealloc(memoryPack &pack)
+	void dealloc(memoryPack &)
 	{
 	}
 
@@ -72,11 +72,11 @@ public:
 			return;
 		}
 
-		size_t newSize = align_to(size, m_Alignment);
-		std::unique_ptr<byte8_t> newMemory = std::make_unique<byte8_t>(new byte8_t[newSize]());
-		::memcpy_s(reinterpret_cast<void*>(*newMemory), m_Size, reinterpret_cast<const void*>(*m_Memory), m_Size);
-		m_Size = newSize;
-		m_Memory.reset(newMemory.release());
+		//size_t newSize = align_to(size, m_Alignment);
+		//std::unique_ptr<byte8_t> newMemory = std::make_unique<byte8_t>(new byte8_t[newSize]());
+		//::memcpy_s(reinterpret_cast<void*>(*newMemory), m_Size, reinterpret_cast<const void*>(*m_Memory), m_Size);
+		//m_Size = newSize;
+		//m_Memory.reset(newMemory.release());
 	}
 
 private:

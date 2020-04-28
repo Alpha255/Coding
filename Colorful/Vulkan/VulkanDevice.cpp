@@ -453,6 +453,7 @@ void vkDevice::destroy()
 		m_PipelinePool->destroyAll();
 
 		m_CommandPool.destroy(*this);
+		m_DescriptorPool.destroy(*this);
 
 		vkDestroyDevice(**this, vkMemoryAllocator);
 		reset();

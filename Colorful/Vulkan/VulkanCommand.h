@@ -64,12 +64,14 @@ public:
 
 		/// VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT specifies that most or all memory resources currently owned by the command buffer should be returned to the parent command pool. 
 		/// If this flag is not set, then the command buffer may hold onto memory resources and reuse them when recording commands.
-		assert(m_State != ePending && isValid());
+		//assert(m_State != ePending && isValid());
 		vkResetCommandBuffer(**this, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
 		setState(eInitial);
 	}
 protected:
 	friend class vkCommandPool;
+	friend class vkDeviceQueue;
+	friend class vkEngine;
 	enum eState
 	{
 		eInitial,
@@ -98,7 +100,7 @@ public:
 	void resetPool(const class vkDevice &device);
 	void trimPool(const class vkDevice &device);
 
-	vkCommandBuffer alloc(const class vkDevice &device, VkCommandBufferLevel level) const;
+	vkCommandBuffer alloc(const class vkDevice &device, VkCommandBufferLevel level, bool8_t signaleFence = true) const;
 	void free(const class vkDevice &device, vkCommandBuffer &commandBuffer) const;
 
 	vkCommandBuffer *getActiveCommandBuffer(const class vkDevice &device);

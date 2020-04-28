@@ -175,8 +175,12 @@ void vkRenderPass::execute(const rGraphicsPipelineState &graphicsPipelineState)
 	auto graphicsPipeline = vkEngine::instance().getOrCreateGraphicsPipeline(*this, graphicsPipelineState);
 	assert(graphicsPipeline);
 
+	vkEngine::instance().waitDone();
+
 	vkCommandBuffer *activeCmdBuffer = vkEngine::instance().getActiveCommandBuffer();
 	assert(activeCmdBuffer);
+
+	activeCmdBuffer->resetCommand();
 
 	activeCmdBuffer->begin();
 

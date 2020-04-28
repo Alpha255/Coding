@@ -15,7 +15,7 @@ public:
 		return m_InputLayout.InputState;
 	}
 
-	void setInputLayout(const std::vector<rVertexAttributes>& vertexAttributes) override final;
+	void setInputLayout(const std::vector<rVertexAttributes>& vertexAttributes, size_t align) override final;
 protected:
 	struct vkInputLayout
 	{

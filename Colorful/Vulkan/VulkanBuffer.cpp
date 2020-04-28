@@ -142,7 +142,7 @@ vkGpuBuffer::vkGpuBuffer(const vkDevice &device, eRBufferBindFlags bindFlags, eR
 		rVerifyVk(vkBindBufferMemory(*device, **this, *m_Memory, 0u));
 
 		vkStagingBuffer stagingBuffer(device, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, size, pData);
-		vkCommandBuffer commandBuffer = device.allocCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+		vkCommandBuffer commandBuffer = device.allocCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, false);
 		commandBuffer.begin();
 		VkBufferCopy bufferCopy
 		{
@@ -150,8 +150,9 @@ vkGpuBuffer::vkGpuBuffer(const vkDevice &device, eRBufferBindFlags bindFlags, eR
 			0u,
 			size
 		};
-		vkCmdCopyBuffer(*commandBuffer, *stagingBuffer, handle, 1u, &bufferCopy);
+		vkCmdCopyBuffer(*commandBuffer, *stagingBuffer, **this, 1u, &bufferCopy);
 		commandBuffer.end();
+		vkEngine::instance().getQueue().submit(commandBuffer);
 		device.freeCommandBuffer(commandBuffer);
 
 		stagingBuffer.destroy(device);

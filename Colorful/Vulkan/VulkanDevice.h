@@ -50,9 +50,9 @@ public:
 
 	uint32_t getMemoryTypeIndex(eRBufferUsage usage, uint32_t memoryTypeBits) const;
 
-	inline vkCommandBuffer allocCommandBuffer(VkCommandBufferLevel level) const
+	inline vkCommandBuffer allocCommandBuffer(VkCommandBufferLevel level, bool8_t signaleFence = true) const
 	{
-		return m_CommandPool.alloc(*this, level);
+		return m_CommandPool.alloc(*this, level, signaleFence);
 	}
 
 	inline void freeCommandBuffer(vkCommandBuffer &commandBuffer) const

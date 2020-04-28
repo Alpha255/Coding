@@ -66,7 +66,7 @@ public:
 		return m_UniformBuffer;
 	}
 
-	virtual void setInputLayout(const std::vector<rVertexAttributes>&) {}
+	virtual void setInputLayout(const std::vector<rVertexAttributes>&, size_t) {}
 protected:
 	eRShaderUsage m_Usage = eRShaderUsage_MaxEnum;
 	rReflectionInfos m_Reflections;

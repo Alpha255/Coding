@@ -117,7 +117,7 @@ void vkCommandPool::destroy(const vkDevice &device)
 		Resetting or freeing a primary command buffer removes the linkage to any secondary command buffers that were recorded to it.
 ********************************/
 
-vkCommandBuffer vkCommandPool::alloc(const vkDevice &device, VkCommandBufferLevel level) const
+vkCommandBuffer vkCommandPool::alloc(const vkDevice &device, VkCommandBufferLevel level, bool8_t signaleFence) const
 {
 	assert(isValid() && device.isValid());
 
@@ -133,7 +133,7 @@ vkCommandBuffer vkCommandPool::alloc(const vkDevice &device, VkCommandBufferLeve
 	VkCommandBuffer handle = VK_NULL_HANDLE;
 	rVerifyVk(vkAllocateCommandBuffers(*device, &allocateInfo, &handle));
 
-	vkFence *fence = device.createFence(vkFence::eSignaled);
+	vkFence *fence = device.createFence(signaleFence ? vkFence::eSignaled : vkFence::eUnsignaled);
 	assert(fence);
 
 	return vkCommandBuffer(level, handle, fence);
@@ -201,7 +201,7 @@ void vkCommandBuffer::begin()
 	{
 		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
 		nullptr,   /// pNext must be NULL or a pointer to a valid instance of VkDeviceGroupCommandBufferBeginInfo
-		0u, ///VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
+		0u,///VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT ///VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
 		nullptr
 	};
 

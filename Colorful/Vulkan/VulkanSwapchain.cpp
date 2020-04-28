@@ -250,7 +250,6 @@ void vkSwapchain::recreate(
 		image.reset(images[i]);
 
 		m_BackBuffers[i].create(device, image, m_Surface.SurfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT);
-		m_BackBuffers[i].m_Fence = device.createFence(vkFence::eSignaled);
 	}
 }
 
@@ -261,6 +260,7 @@ void vkSwapchain::destroy(const vkInstance &instance, const vkDevice &device)
 	vkDestroySwapchainKHR(*device, **this, vkMemoryAllocator);
 	m_Surface.destroy(instance);
 	reset();
+	m_PresentCompleteSemaphore->destroy(device);
 
 	clearBackBuffers(device);
 }
