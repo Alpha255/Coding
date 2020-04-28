@@ -43,7 +43,7 @@ struct rRasterizerStateDesc
 {
 	eRPolygonMode PolygonMode = eSolid;
 	eRCullMode CullMode = eCullNone;
-	eRFrontFace FrontFace = eClockwise;
+	eRFrontFace FrontFace = eCounterclockwise;
 	bool8_t EnableDepthBias = false;
 	float32_t DepthBias = 0.0f;
 	float32_t DepthBiasClamp = 0.0f;

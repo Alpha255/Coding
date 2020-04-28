@@ -4,7 +4,7 @@
 #include <DirectXMath.h>
 #include <DirectXCollision.h>
 
-///#define UsingSSE
+#define UsingSSE
 
 namespaceStart(gear)
 namespaceStart(math)

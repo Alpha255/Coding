@@ -77,10 +77,10 @@ void rRenderTest::postInitialize()
 	};
 	rScissor scissor
 	{
-		m_WindowSize.x,
-		m_WindowSize.y,
 		0.0f,
-		0.0f
+		0.0f,
+		m_WindowSize.x,
+		m_WindowSize.y
 	};
 
 	vertexShader->setUniformBuffer(mUniformBuffer);
@@ -92,11 +92,15 @@ void rRenderTest::postInitialize()
 	mGraphicsPipelineState.bindIndexBuffer(indexBuffer);
 	mGraphicsPipelineState.drawIndexed((uint32_t)indices.size(), 0u, 0u);
 	mGraphicsPipelineState.setRenderArea(viewport);
+
+	m_Camera.setProjParams(math::g_pi_div4, m_WindowSize.x / m_WindowSize.y, 0.1f, 500.0f);
+	m_Camera.setViewParams(vec3(0.0f, 0.0f, 4.0f), vec3(0.0f, 0.0f, 0.0f));
+	m_Camera.setScalers(0.01f, 15.0f);
 }
 
 void rRenderTest::renterToWindow()
 {
-	matrix world = m_Camera.getWorldMatrix();
+	matrix world = matrix();
 	matrix view = m_Camera.getViewMatrix();
 	matrix proj = m_Camera.getProjMatrix();
 
@@ -109,6 +113,8 @@ void rRenderTest::renterToWindow()
 	m_Renderer->updateUniformBuffer(mUniformBuffer, &uboVS, sizeof(uniformBufferVS), 0u);
 
 	mRenderPass->execute(mGraphicsPipelineState);
+
+	m_Camera.update(m_cpuTimer.getElapsedTime());
 }
 
 appMainEntry(rRenderTest)
