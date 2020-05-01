@@ -3,12 +3,16 @@
 #include "VulkanBuffer.h"
 #include "Colorful/Public/RAsset.h"
 
-class vkSampler : public vkDeviceObject<VkSampler>
+class vkSampler : public vkDeviceObject<VkSampler>, public rSampler
 {
-
+public:
+	vkSampler(const class vkDevice &device, const rSamplerDesc &desc);
+	void destroy(const class vkDevice &device) override final;
+protected:
+private:
 };
 
-class vkImage : public vkDeviceObject<VkImage>, public rTexture
+class vkImage : public vkDeviceObject<VkImage>
 {
 public:
 	vkImage() = default;
@@ -26,11 +30,15 @@ public:
 		VkImageUsageFlags usage);
 
 	void destroy(const class vkDevice &device) override final;
+
+	inline VkFormat getFormat() const
+	{
+		return m_Format;
+	}
 protected:
 	friend class vkImageView;
 	void transitionImageLayout();
 	VkImageType getImageType(eRTextureType type) const;
-	VkFormat getImageFormat(eRFormat format) const;
 	void copyBufferToImage(const class vkDevice &device, const rAsset::rTextureBinary &binary);
 	void insertMemoryBarrier(
 		const class vkCommandBuffer &commandBuffer, 
@@ -43,4 +51,5 @@ protected:
 		const VkImageSubresourceRange &subresourceRange);
 private:
 	vkDeviceMemory m_Memory;
+	VkFormat m_Format = VK_FORMAT_UNDEFINED;
 };

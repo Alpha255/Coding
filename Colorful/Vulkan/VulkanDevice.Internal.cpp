@@ -16,10 +16,13 @@ rShader *vkDevice::createShader(eRShaderUsage usage, const std::string &shaderNa
 rTexture *vkDevice::createTexture(const std::string &textureName)
 {
 	auto textureBinary = rAsset::rAssetBucket::instance().getTextureBinary(textureName);
-	auto texture = new vkImage(*this, textureBinary);
-	m_GpuResourcePool->push<vkGpuResourcePool::eTexture>(texture);
+	vkImage image(*this, textureBinary);
+	auto imageView = new vkImageView();
+	imageView->create(*this, image, image.getFormat(), VK_IMAGE_ASPECT_COLOR_BIT);
 
-	return texture;
+	m_GpuResourcePool->push<vkGpuResourcePool::eImageView>(imageView);
+
+	return imageView;
 }
 
 rBuffer *vkDevice::createBuffer(eRBufferBindFlags bindFlags, eRBufferUsage usage, size_t size, const void * pData)
@@ -139,6 +142,14 @@ rRenderPass *vkDevice::createRenderPass(const vkSwapchain &swapchain, rFrameBuff
 	return renderPass;
 }
 
+rSampler *vkDevice::createSampler(const rSamplerDesc &desc)
+{
+	auto sampler = new vkSampler(*this, desc);
+	m_GpuResourcePool->push<vkGpuResourcePool::eSampler>(sampler);
+
+	return sampler;
+}
+
 void vkDevice::vkGpuResourcePool::destoryAll()
 {
 	for (auto &resource : m_Resources)
@@ -158,6 +169,9 @@ void vkDevice::vkGpuResourcePool::destoryAll()
 			break;
 		case eRenderPass:
 			destroyResource<eRenderPass>(resource.second);
+			break;
+		case eSampler:
+			destroyResource<eSampler>(resource.second);
 			break;
 		default:
 			assert(0);

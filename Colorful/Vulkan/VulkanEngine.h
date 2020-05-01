@@ -65,6 +65,16 @@ public:
 		return m_Device.createRenderPass(m_Swapchain, desc);
 	}
 
+	inline rTexture *createTexture(const std::string &textureName) override final
+	{
+		return m_Device.createTexture(textureName);
+	}
+
+	inline rSampler *createSampler(const rSamplerDesc &desc) override final
+	{
+		return m_Device.createSampler(desc);
+	}
+
 	inline void updateUniformBuffer(rBuffer *buffer, const void *data, size_t size, size_t offset) override final
 	{
 		assert(buffer);
@@ -87,6 +97,8 @@ public:
 	{
 		return m_Swapchain.acquireBackBuffer(m_Device);
 	}
+
+	VkFormatProperties getFormatProperties(VkFormat format);
 public:
 	class enumTranslator
 	{
@@ -104,6 +116,9 @@ public:
 		static VkShaderStageFlagBits toShaderStage(eRShaderUsage usage);
 		static VkPrimitiveTopology toPrimitiveTopology(eRPrimitiveTopology primitiveTopology);
 		static VkDescriptorType toDescriptorType(eRDescriptorType type);
+		static VkFilter toFilter(eRFilter filter);
+		static VkSamplerAddressMode toAddressMode(eRSamplerAddressMode addressMode);
+		static VkBorderColor toBorderColor(eRBorderColor borderColor);
 	};
 protected:
 	template<eRShaderUsage Usage>

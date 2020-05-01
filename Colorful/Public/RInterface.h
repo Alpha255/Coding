@@ -93,7 +93,11 @@ public:
 	virtual class rRenderSurface *createDepthStencilView(uint32_t, uint32_t, eRFormat) { return nullptr; }
 	virtual class rRenderPass *createRenderPass(struct rFrameBufferDesc &) { return nullptr; }
 
+	virtual class rTexture *createTexture(const std::string &) { return nullptr; }
+
 	virtual void updateUniformBuffer(class rBuffer *, const void *, size_t, size_t) {}
+
+	virtual class rSampler *createSampler(const struct rSamplerDesc &) { return nullptr; }
 protected:
 private:
 };

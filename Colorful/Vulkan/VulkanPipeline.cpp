@@ -301,6 +301,9 @@ void vkGraphicsPipeline::setupDescriptorSet(const vkDevice &device, const rGraph
 {
 	m_DescriptorSet = device.allocDescriptorSet(m_DescriptorSetLayout);
 
+	std::vector<VkWriteDescriptorSet> writeDescriptorSets;
+	std::vector<VkDescriptorImageInfo> imageInfos;
+	uint32_t bindingIndex = 0u;
 	for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
 	{
 		if (state.Shaders[i])
@@ -317,23 +320,61 @@ void vkGraphicsPipeline::setupDescriptorSet(const vkDevice &device, const rGraph
 					buffer->getSize()
 				};
 
-				VkWriteDescriptorSet writeDescriptorSet
+				VkWriteDescriptorSet writeDescriptorSetUniforBuffer
 				{
 					VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
 					nullptr,
 					*m_DescriptorSet,
+					bindingIndex++,  /// Need get binding from shader reflection
 					0u,
-					0u,
-					1u,
+					1u,   
 					VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
 					nullptr,
 					&bufferInfo,
 					nullptr
 				};
-				vkUpdateDescriptorSets(*device, 1u, &writeDescriptorSet, 0u, nullptr);
+				writeDescriptorSets.emplace_back(std::move(writeDescriptorSetUniforBuffer));
+			}
+
+			auto &textures = state.Shaders[i]->getTextures();
+			for (uint32_t j = 0u; j < textures.size(); ++j)
+			{
+				auto imageView = static_cast<const vkImageView *>(textures[j]);
+				const vkSampler *sampler = nullptr;
+				auto combinedSampler = imageView->getSampler();
+				if (combinedSampler)
+				{
+					sampler = static_cast<const vkSampler *>(combinedSampler);
+				}
+
+				VkDescriptorImageInfo imageInfo
+				{
+					sampler ? **sampler : VK_NULL_HANDLE,
+					**imageView,
+					VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+				};
+				imageInfos.emplace_back(std::move(imageInfo));
+
+				VkWriteDescriptorSet writeDescriptorSetImageView
+				{
+					VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+					nullptr,
+					*m_DescriptorSet,
+					bindingIndex++,
+					0u,
+					1u,
+					sampler ? VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER : VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+					&imageInfos[imageInfos.size() - 1u],
+					nullptr,
+					nullptr,
+				};
+				writeDescriptorSets.emplace_back(std::move(writeDescriptorSetImageView));
 			}
 		}
 	}
+
+	assert(writeDescriptorSets.size() > 0u);
+	vkUpdateDescriptorSets(*device, (uint32_t)writeDescriptorSets.size(), writeDescriptorSets.data(), 0u, nullptr);
 }
 
 void vkPipelineCache::create(const vkDevice &device)

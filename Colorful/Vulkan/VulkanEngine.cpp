@@ -130,6 +130,14 @@ void vkEngine::waitDone()
 	}
 }
 
+VkFormatProperties vkEngine::getFormatProperties(VkFormat format)
+{
+	VkFormatProperties formatProperties{};
+	vkGetPhysicalDeviceFormatProperties(*m_PhysicalDevice, format, &formatProperties);
+
+	return formatProperties;
+}
+
 void vkEngine::finalize()
 {
 	m_Device.waitIdle();
@@ -488,4 +496,45 @@ VkDescriptorType vkEngine::enumTranslator::toDescriptorType(eRDescriptorType typ
 	case eDescriptor_InputAttachment:        return VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
 	}
 	return VK_DESCRIPTOR_TYPE_MAX_ENUM;
+}
+
+VkFilter vkEngine::enumTranslator::toFilter(eRFilter filter)
+{
+	switch (filter)
+	{
+	case eNearest:  return VK_FILTER_NEAREST;
+	case eAnisotropic:
+	case eLinear:   return VK_FILTER_LINEAR;
+	}
+
+	return VK_FILTER_MAX_ENUM;
+}
+
+VkSamplerAddressMode vkEngine::enumTranslator::toAddressMode(eRSamplerAddressMode addressMode)
+{
+	switch (addressMode)
+	{
+	case eRepeat:            return VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	case eMirroredRepeat:    return VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+	case eClampToEdge:       return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	case eClampToBorder:     return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+	case eMirrorClampToEdge: return VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE;
+	}
+
+	return VK_SAMPLER_ADDRESS_MODE_MAX_ENUM;
+}
+
+VkBorderColor vkEngine::enumTranslator::toBorderColor(eRBorderColor borderColor)
+{
+	switch (borderColor)
+	{
+	case eFloatTransparentBlack: return VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
+	case eIntTransparentBlack:   return VK_BORDER_COLOR_INT_TRANSPARENT_BLACK;
+	case eFloatOpaqueBlack:      return VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
+	case eIntOpaqueBlack:        return VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+	case eFloatOpaqueWhite:      return VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+	case eIntOpaqueWhite:        return VK_BORDER_COLOR_INT_OPAQUE_WHITE;
+	}
+
+	return VK_BORDER_COLOR_MAX_ENUM;
 }

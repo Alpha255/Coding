@@ -23,7 +23,7 @@ struct rTextureBinary
 	};
 
 	eRTextureType Type = eRTextureType_MaxEnum;
-	eRFormat Format = eRFormat_MaxEnum;
+	uint32_t Format = eRFormat_MaxEnum;
 
 	uint32_t Depth = 0u;
 	uint32_t Width = 0u;

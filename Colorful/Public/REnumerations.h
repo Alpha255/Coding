@@ -79,6 +79,17 @@ enum eRFilter
 	eRFilter_MaxEnum
 };
 
+enum eRBorderColor
+{
+	eFloatTransparentBlack,
+	eIntTransparentBlack,
+	eFloatOpaqueBlack,
+	eIntOpaqueBlack,
+	eFloatOpaqueWhite,
+	eIntOpaqueWhite,
+	eRBorderColor_MaxEnum
+};
+
 enum eRSamplerAddressMode
 {
 	eRepeat,

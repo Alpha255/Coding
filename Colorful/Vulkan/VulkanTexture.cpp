@@ -44,95 +44,102 @@ VkImageType vkImage::getImageType(eRTextureType type) const
 	return imageType;
 }
 
-VkFormat vkImage::getImageFormat(eRFormat) const
-{
-	/// Need translate formats
-	return VK_FORMAT_R8G8B8A8_UNORM;
-}
-
 void vkImage::copyBufferToImage(const vkDevice &device, const rAsset::rTextureBinary &binary)
 {
-	std::vector<VkBufferImageCopy> bufferImageCopy(binary.ArrayLayers * binary.MipLevels);
-	uint32_t bufferOffsets = 0u;
-	for (uint32_t i = 0u; i < binary.Images.size(); ++i)   /// array
+	bool8_t useStaging = true;
+	//VkFormatProperties formatProperties = vkEngine::instance().getFormatProperties(m_Format);
+	//useStaging = !(formatProperties.linearTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT);
+
+	if (useStaging)
 	{
-		for (uint32_t j = 0u; j < binary.Images[i].size(); ++j)  /// mip
+		std::vector<VkBufferImageCopy> bufferImageCopy(binary.ArrayLayers * binary.MipLevels);
+		uint32_t bufferOffsets = 0u;
+		for (uint32_t i = 0u; i < binary.Images.size(); ++i)   /// array
 		{
-			/// bufferRowLength and bufferImageHeight specify in texels a subregion of a larger two- or three-dimensional image in buffer memory, 
-			/// and control the addressing calculations. If either of these values is zero, 
-			/// that aspect of the buffer memory is considered to be tightly packed according to the imageExtent.
-			bufferImageCopy[i] = VkBufferImageCopy
+			for (uint32_t j = 0u; j < binary.Images[i].size(); ++j)  /// mip
 			{
-				bufferOffsets,
-				0u,
-				0u,
+				/// bufferRowLength and bufferImageHeight specify in texels a subregion of a larger two- or three-dimensional image in buffer memory, 
+				/// and control the addressing calculations. If either of these values is zero, 
+				/// that aspect of the buffer memory is considered to be tightly packed according to the imageExtent.
+				bufferImageCopy[i] = VkBufferImageCopy
 				{
-					VK_IMAGE_ASPECT_COLOR_BIT,
-					j,
+					bufferOffsets,
 					0u,
-					1u
-				},
-				{
-					0,
-					0,
-					0
-				},
-				{
-					binary.Images[i][j].Width,
-					binary.Images[i][j].Height,
-					binary.Images[i][j].Depth,
-				}
-			};
+					0u,
+					{
+						VK_IMAGE_ASPECT_COLOR_BIT,
+						j,
+						0u,
+						1u
+					},
+					{
+						0,
+						0,
+						0
+					},
+					{
+						binary.Images[i][j].Width,
+						binary.Images[i][j].Height,
+						binary.Images[i][j].Depth,
+					}
+				};
 
-			bufferOffsets += (uint32_t)binary.Images[i][j].Size;
+				bufferOffsets += (uint32_t)binary.Images[i][j].Size;
+			}
 		}
+
+		vkStagingBuffer stagingBuffer(device, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, binary.Size, binary.Binary.get());
+		vkCommandBuffer commandBuffer = device.allocCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, false);
+		commandBuffer.begin();
+
+		VkImageSubresourceRange subresourceRange
+		{
+			VK_IMAGE_ASPECT_COLOR_BIT,
+			0u,
+			binary.MipLevels,
+			0u,
+			binary.ArrayLayers
+		};
+		insertMemoryBarrier(
+			commandBuffer,
+			VK_PIPELINE_STAGE_HOST_BIT,
+			VK_PIPELINE_STAGE_TRANSFER_BIT,
+			0u,
+			VK_ACCESS_TRANSFER_WRITE_BIT,
+			VK_IMAGE_LAYOUT_UNDEFINED,
+			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+			subresourceRange);
+
+		vkCmdCopyBufferToImage(
+			*commandBuffer,
+			*stagingBuffer,
+			**this,
+			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+			(uint32_t)bufferImageCopy.size(),
+			bufferImageCopy.data());
+
+		insertMemoryBarrier(
+			commandBuffer,
+			VK_PIPELINE_STAGE_TRANSFER_BIT,
+			VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+			VK_ACCESS_TRANSFER_WRITE_BIT,
+			VK_ACCESS_SHADER_READ_BIT,
+			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+			subresourceRange);
+
+		commandBuffer.end();
+		
+		vkEngine::instance().getQueue().submit(commandBuffer);
+
+		device.freeCommandBuffer(commandBuffer);
+
+		stagingBuffer.destroy(device);
 	}
-
-	vkStagingBuffer stagingBuffer(device, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, binary.Size, binary.Binary.get());
-	vkCommandBuffer commandBuffer = device.allocCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
-	commandBuffer.begin();
-
-	VkImageSubresourceRange subresourceRange
+	else
 	{
-		VK_IMAGE_ASPECT_COLOR_BIT,
-		0u,
-		binary.MipLevels,
-		0u,
-		binary.ArrayLayers
-	};
-	insertMemoryBarrier(
-		commandBuffer,
-		VK_PIPELINE_STAGE_HOST_BIT,
-		VK_PIPELINE_STAGE_TRANSFER_BIT,
-		0u,
-		VK_ACCESS_TRANSFER_WRITE_BIT,
-		VK_IMAGE_LAYOUT_UNDEFINED,
-		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-		subresourceRange);
-
-	vkCmdCopyBufferToImage(
-		*commandBuffer,
-		*stagingBuffer, 
-		**this, 
-		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-		(uint32_t)bufferImageCopy.size(), 
-		bufferImageCopy.data());
-
-	insertMemoryBarrier(
-		commandBuffer,
-		VK_PIPELINE_STAGE_TRANSFER_BIT,
-		VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-		VK_ACCESS_TRANSFER_WRITE_BIT,
-		VK_ACCESS_SHADER_READ_BIT,
-		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-		subresourceRange);
-	
-	commandBuffer.end();
-
-	device.freeCommandBuffer(commandBuffer);
-
-	stagingBuffer.destroy(device);
+		assert(0);
+	}
 }
 
 void vkImage::insertMemoryBarrier(
@@ -183,7 +190,7 @@ vkImage::vkImage(const vkDevice &device, const rAsset::rTextureBinary &binary)
 		nullptr,
 		0u,   /// flags is a bitmask of VkImageCreateFlagBits describing additional parameters of the image.
 		getImageType(binary.Type),
-		getImageFormat(binary.Format),
+		(VkFormat)binary.Format,
 		{
 			binary.Width,
 			binary.Height,
@@ -199,6 +206,7 @@ vkImage::vkImage(const vkDevice &device, const rAsset::rTextureBinary &binary)
 		nullptr,
 		VK_IMAGE_LAYOUT_UNDEFINED
 	};
+	m_Format = createInfo.format;
 
 	VkImage handle = VK_NULL_HANDLE;
 	rVerifyVk(vkCreateImage(*device, &createInfo, vkMemoryAllocator, &handle));
@@ -224,6 +232,8 @@ void vkImage::create(
 	VkImageUsageFlags usage)
 {
 	assert(device.isValid() && !isValid());
+
+	m_Format = format;
 
 	VkImageCreateInfo createInfo
 	{
@@ -266,6 +276,49 @@ void vkImage::destroy(const vkDevice &device)
 	{
 		m_Memory.destroy(device);
 		vkDestroyImage(*device, **this, vkMemoryAllocator);
+		reset();
+	}
+}
+
+vkSampler::vkSampler(const vkDevice &device, const rSamplerDesc &desc)
+{
+	assert(device.isValid() && !isValid());
+	assert(desc.MaxAnisotropy < 16u);
+
+	VkSamplerCreateInfo createInfo
+	{
+		VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
+		nullptr,
+		0u,
+		vkEngine::enumTranslator::toFilter(desc.MinMagFilter),
+		vkEngine::enumTranslator::toFilter(desc.MinMagFilter),
+		VK_SAMPLER_MIPMAP_MODE_LINEAR,
+		vkEngine::enumTranslator::toAddressMode(desc.AddressModeU),
+		vkEngine::enumTranslator::toAddressMode(desc.AddressModeV),
+		vkEngine::enumTranslator::toAddressMode(desc.AddressModeW),
+		desc.MipLodBias,
+		desc.MinMagFilter == eAnisotropic ? true : false,
+		(float32_t)desc.MaxAnisotropy,
+		false,
+		vkEngine::enumTranslator::toCompareOp(desc.CompareOp),
+		desc.MinLod,
+		desc.MaxLod,
+		vkEngine::enumTranslator::toBorderColor(desc.BorderColor),
+		false
+	};
+	
+	VkSampler handle = VK_NULL_HANDLE;
+	rVerifyVk(vkCreateSampler(*device, &createInfo, vkMemoryAllocator, &handle));
+	reset(handle);
+}
+
+void vkSampler::destroy(const vkDevice &device)
+{
+	assert(device.isValid());
+
+	if (isValid())
+	{
+		vkDestroySampler(*device, **this, vkMemoryAllocator);
 		reset();
 	}
 }

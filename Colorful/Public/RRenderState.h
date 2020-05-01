@@ -2,10 +2,6 @@
 
 #include "RGpuResource.h"
 
-class rSampler
-{
-};
-
 class rRenderPass : public rGpuResource
 {
 public:
@@ -67,6 +63,24 @@ struct rDepthStencilStateDesc
 	uint8_t StencilWriteMask = 0xF;
 	rStencilOpDesc FrontFace{};
 	rStencilOpDesc BackFace{};
+};
+
+struct rSamplerDesc
+{
+	eRFilter MinMagFilter = eLinear;
+	eRSamplerAddressMode AddressModeU = eRepeat;
+	eRSamplerAddressMode AddressModeV = eRepeat;
+	eRSamplerAddressMode AddressModeW = eRepeat;
+	float32_t MipLodBias = 0.0f;
+	uint32_t MaxAnisotropy = 0u;
+	eRCompareOp CompareOp = eRCompareOp::eNever;
+	float32_t MinLod = 0.0f;
+	float32_t MaxLod = 0.0f;
+	eRBorderColor BorderColor = eFloatTransparentBlack;
+};
+
+class rSampler : public rGpuResource
+{
 };
 
 struct rViewport : public vec4

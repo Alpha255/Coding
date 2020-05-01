@@ -65,21 +65,36 @@ public:
 	{
 		return m_UniformBuffer;
 	}
+	inline void bindTexture(const class rTexture *texture)
+	{
+		Textures.emplace_back(texture);
+	}
+
+	inline const std::vector<const class rTexture *> &getTextures() const
+	{
+		return Textures;
+	}
 
 	virtual void setInputLayout(const std::vector<rVertexAttributes>&, size_t) {}
 protected:
 	eRShaderUsage m_Usage = eRShaderUsage_MaxEnum;
 	rReflectionInfos m_Reflections;
 	class rBuffer *m_UniformBuffer = nullptr;
+	std::vector<const class rTexture *> Textures;
 private:
 };
 
 class rTexture : public rGpuResource
 {
 public:
-	void bindSampler(const class rSampler *sampler)
+	inline void bindSampler(const class rSampler *sampler)
 	{
 		m_Sampler = sampler;
+	}
+
+	inline const class rSampler *getSampler() const
+	{
+		return m_Sampler;
 	}
 protected:
 	const class rSampler *m_Sampler = nullptr;

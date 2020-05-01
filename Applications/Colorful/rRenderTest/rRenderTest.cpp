@@ -15,30 +15,40 @@ void rRenderTest::postInitialize()
 {
 	auto vertexShader = m_Renderer->createVertexShader("rRenderTest.shader");
 	auto fragmentShader = m_Renderer->createFragmentShader("rRenderTest.shader");
+	auto texture = m_Renderer->createTexture("brickwall.dds");
+
+	rSamplerDesc samplerDesc{};
+	auto sampler = m_Renderer->createSampler(samplerDesc);
+	texture->bindSampler(sampler);
+	fragmentShader->bindTexture(texture);
 
 	mUniformBuffer = m_Renderer->createUniformBuffer(sizeof(uniformBufferVS), nullptr);
 
 	struct vertex
 	{
 		vec3 Position;
-		vec3 Color;
+		vec2 UV;
 	};
 	std::vector<vertex> vertices{
 		{
 			{ 1.0f, 1.0f, 0.0f },
-			{ 1.0f, 0.0f, 0.0f }
+			{ 1.0f, 1.0f }
 		},
 		{
 			{ -1.0f, 1.0f, 0.0f },
-			{  0.0f, 1.0f, 0.0f }
+			{  0.0f, 1.0f }
 		},
 		{
-			{  0.0f, -1.0f, 0.0f },
-			{  0.0f,  0.0f, 1.0f }
+			{  -1.0f, -1.0f, 0.0f },
+			{  0.0f,  0.0f }
+		},
+		{
+			{  1.0f, -1.0f, 0.0f },
+			{  1.0f,  0.0f }
 		}
 	};
 	std::vector<uint32_t> indices{
-		0u, 1u, 2u
+		0u, 1u, 2u, 2u, 3u, 0u
 	};
 	auto vertexBuffer = m_Renderer->createVertexBuffer(eGpuReadWrite, vertices.size() * sizeof(vertex), vertices.data());
 	auto indexBuffer = m_Renderer->createIndexBuffer(eGpuReadWrite, indices.size() * sizeof(uint32_t), indices.data());

@@ -75,6 +75,7 @@ public:
 	rBuffer *createBuffer(eRBufferBindFlags bindFlags, eRBufferUsage usage, size_t size, const void *pData);
 	rRenderSurface *createDepthStencilView(uint32_t width, uint32_t height, eRFormat format);
 	rRenderPass *createRenderPass(const vkSwapchain &swapchain, rFrameBufferDesc &desc);
+	rSampler *createSampler(const rSamplerDesc &desc);
 	
 	inline vkGraphicsPipeline *getOrCreateGraphicsPipeline(const vkRenderPass &renderpass, const rGraphicsPipelineState &graphicsPipelineState)
 	{
@@ -94,6 +95,7 @@ protected:
 			eShader,
 			eTexture,
 			eBuffer,
+			eSampler,
 			ePipeline,
 			eRenderPass,
 			eFence,
@@ -178,6 +180,14 @@ protected:
 			auto pipeline = static_cast<vkPipeline *>(resource);
 			assert(pipeline);
 			pipeline->destroy(m_Device);
+			//pop(resource);
+		}
+		template<>
+		inline void destroyResource<eSampler>(rGpuResource *resource)
+		{
+			auto sampler = static_cast<vkSampler *>(resource);
+			assert(sampler);
+			sampler->destroy(m_Device);
 			//pop(resource);
 		}
 
