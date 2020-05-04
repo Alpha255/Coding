@@ -53,6 +53,11 @@ public:
 
 	static inline size_t align_to(size_t size, size_t alignment)
 	{
+		if (size % alignment == 0u)
+		{
+			return size;
+		}
+
 		return size + (alignment - size % alignment);
 	}
 

@@ -2,7 +2,7 @@
 
 #include "Gear/gear.h"
 #include "Gear/Public/Extension/Config.h"
-#include "Colorful/Public/RInterface.h"
+#include "Colorful/Public/ImGui/ImGui.h"
 
 namespaceStart(gear)
 
@@ -46,6 +46,7 @@ protected:
 	dxutCamera m_Camera;
 	appConfig m_Config;
 	rEngine *m_Renderer = nullptr;
+	ImGuiRenderer m_GuiRender;
 private:
 	bool8_t m_bNeedResize = false;
 	uint32_t m_FrameCount = 0U;

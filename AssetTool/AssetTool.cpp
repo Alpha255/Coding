@@ -92,7 +92,8 @@ void buildShaderReflections(appConfig::eRenderEngine engine, rAsset::rShaderBina
 
 		auto pushReflection = [&](
 			const spirv_cross::SmallVector<spirv_cross::Resource> &resources,
-			VkDescriptorType type)
+			VkDescriptorType type,
+			bool8_t useConstantRange = false)
 		{
 			for each (auto &res in resources)
 			{
@@ -100,13 +101,14 @@ void buildShaderReflections(appConfig::eRenderEngine engine, rAsset::rShaderBina
 				{
 					///compiler.get_decoration(res.id, spv::DecorationDescriptorSet), uniform (set = 0, binding = 1)
 					(uint32_t)type,
-					compiler.get_decoration(res.id, spv::DecorationBinding)
+					useConstantRange ? UINT32_MAX : compiler.get_decoration(res.id, spv::DecorationBinding)
 				};
 				binary.Reflections.emplace_back(std::move(reflection));
 			}
 		};
 
 		pushReflection(shaderResources.uniform_buffers, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+		pushReflection(shaderResources.push_constant_buffers, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, true);
 		pushReflection(shaderResources.storage_buffers, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER);
 		pushReflection(shaderResources.storage_images, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE);
 		pushReflection(shaderResources.sampled_images, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
@@ -212,8 +214,8 @@ rAsset::rTextureBinary getTextureBinary(appConfig::eRenderEngine engine, const a
 	binary.ArrayLayers = (uint32_t)tex.layers();
 	binary.Format = (uint32_t)(static_cast<VkFormat>(tex.format()));
 	binary.Images.resize(binary.ArrayLayers);
-	binary.Binary.reset(new byte[binary.Size]());
-	verify(memcpy_s(binary.Binary.get(), binary.Size, tex.data(), binary.Size) == 0);
+	binary.SharedBinary.reset(new byte[binary.Size]());
+	verify(memcpy_s(binary.SharedBinary.get(), binary.Size, tex.data(), binary.Size) == 0);
 
 	switch (tex.target())
 	{

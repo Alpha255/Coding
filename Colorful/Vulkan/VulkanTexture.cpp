@@ -88,7 +88,12 @@ void vkImage::copyBufferToImage(const vkDevice &device, const rAsset::rTextureBi
 			}
 		}
 
-		vkStagingBuffer stagingBuffer(device, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, binary.Size, binary.Binary.get());
+		vkStagingBuffer stagingBuffer(
+			device, 
+			VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
+			binary.Size, 
+			binary.Binary ? binary.Binary : binary.SharedBinary.get()
+		);
 		vkCommandBuffer commandBuffer = device.allocCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, false);
 		commandBuffer.begin();
 
@@ -121,7 +126,7 @@ void vkImage::copyBufferToImage(const vkDevice &device, const rAsset::rTextureBi
 		insertMemoryBarrier(
 			commandBuffer,
 			VK_PIPELINE_STAGE_TRANSFER_BIT,
-			VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+			VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,  //// ???
 			VK_ACCESS_TRANSFER_WRITE_BIT,
 			VK_ACCESS_SHADER_READ_BIT,
 			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,

@@ -25,6 +25,24 @@ rTexture *vkDevice::createTexture(const std::string &textureName)
 	return imageView;
 }
 
+rTexture * vkDevice::createTexture(
+	eRTextureType type, 
+	eRFormat format, 
+	uint32_t width, 
+	uint32_t height, 
+	uint32_t mipLevels, 
+	uint32_t arrayLayers, 
+	const void *data, 
+	size_t dataSize)
+{
+	auto imageView = new vkImageView();
+	imageView->create(*this, type, format, width, height, mipLevels, arrayLayers, data, dataSize);
+
+	m_GpuResourcePool->push<vkGpuResourcePool::eImageView>(imageView);
+
+	return imageView;
+}
+
 rBuffer *vkDevice::createBuffer(eRBufferBindFlags bindFlags, eRBufferUsage usage, size_t size, const void * pData)
 {
 	auto buffer = new vkGpuBuffer(*this, bindFlags, usage, size, pData);

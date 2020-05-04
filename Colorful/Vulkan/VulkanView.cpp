@@ -92,6 +92,54 @@ void vkImageView::create(
 	m_Format = format;
 }
 
+void vkImageView::create(
+	const vkDevice &device,
+	eRTextureType type, 
+	eRFormat format, 
+	uint32_t width, 
+	uint32_t height, 
+	uint32_t mipLevels, 
+	uint32_t arrayLayers, 
+	const void *data, 
+	size_t dataSize)
+{
+	rAsset::rTextureBinary texBinary
+	{
+		type,
+		(uint32_t)vkEngine::enumTranslator::toFormat(format),
+		width,
+		height,
+		1u,
+		mipLevels,
+		arrayLayers,
+		dataSize
+	};
+	texBinary.Binary = static_cast<const byte8_t *>(data);
+	texBinary.Images.resize(1u);
+	uint32_t mipWidth = width;
+	uint32_t mipHeight = height;
+	size_t mipSize = dataSize;
+	for (uint32_t i = 0u; i < mipLevels; ++i)
+	{
+		rAsset::rTextureBinary::rImage image
+		{
+			mipWidth,
+			mipHeight,
+			1u,
+			mipSize
+		};
+		texBinary.Images[0].emplace_back(std::move(image));
+
+		mipWidth /= 2u;
+		mipHeight /= 2u;
+		mipSize = (size_t)(((float32_t)(mipWidth * mipHeight) / (width * height)) * dataSize); /// May incorrect
+	}
+
+	vkImage image(device, texBinary);
+
+	create(device, image, image.getFormat(), VK_IMAGE_ASPECT_COLOR_BIT);
+}
+
 void vkImageView::destroy(const vkDevice &device)
 {
 	assert(device.isValid());

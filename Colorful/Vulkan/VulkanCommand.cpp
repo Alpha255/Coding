@@ -136,7 +136,10 @@ vkCommandBuffer vkCommandPool::alloc(const vkDevice &device, VkCommandBufferLeve
 	vkFence *fence = device.createFence(signaleFence ? vkFence::eSignaled : vkFence::eUnsignaled);
 	assert(fence);
 
-	return vkCommandBuffer(level, handle, fence);
+	vkSemaphore *semaphore = device.createSemaphore();
+	assert(semaphore);
+
+	return vkCommandBuffer(level, handle, fence, semaphore);
 }
 
 void vkCommandPool::free(const vkDevice &device, vkCommandBuffer &commandBuffer) const
@@ -178,6 +181,29 @@ void vkCommandBuffer::begin()
 {
 	assert(isValid() && m_State != ePending && m_State != eRecording);
 
+	VkCommandBufferBeginInfo cmdBufferBeginInfo
+	{
+		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+		nullptr,   /// pNext must be NULL or a pointer to a valid instance of VkDeviceGroupCommandBufferBeginInfo
+		0u,
+		nullptr
+	};
+	rVerifyVk(vkBeginCommandBuffer(**this, &cmdBufferBeginInfo));
+	setState(eRecording);
+}
+
+void vkCommandBuffer::end()
+{
+	assert(isValid() && m_State == eRecording);
+
+	rVerifyVk(vkEndCommandBuffer(**this));
+	setState(eExecutable);
+}
+
+void vkCommandBuffer::beginRenderPass(const VkRenderPassBeginInfo &renderPassBeginInfo, VkSubpassContents subpassContents)
+{
+	assert(isValid() && m_State != ePending && m_State != eRecording);
+
 	/// commandBuffer must not be in the recording or pending state.
 
 	/// If commandBuffer was allocated from a VkCommandPool which did not have the VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT flag set, commandBuffer must be in the initial state.
@@ -197,22 +223,27 @@ void vkCommandBuffer::begin()
 
 	/// pInheritanceInfo is a pointer to a VkCommandBufferInheritanceInfo structure, used if commandBuffer is a secondary command buffer. If this is a primary command buffer, then this value is ignored.
 
-	VkCommandBufferBeginInfo beginInfo
+	VkCommandBufferBeginInfo cmdBufferBeginInfo
 	{
 		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
 		nullptr,   /// pNext must be NULL or a pointer to a valid instance of VkDeviceGroupCommandBufferBeginInfo
-		0u,///VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT ///VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
+		0u,
 		nullptr
 	};
 
-	rVerifyVk(vkBeginCommandBuffer(**this, &beginInfo));
+	rVerifyVk(vkBeginCommandBuffer(**this, &cmdBufferBeginInfo));
+	vkCmdBeginRenderPass(**this, &renderPassBeginInfo, subpassContents);
+
 	setState(eRecording);
 }
 
-void vkCommandBuffer::end()
+void vkCommandBuffer::endRenderPass()
 {
 	assert(isValid() && m_State == eRecording);
+
+	vkCmdEndRenderPass(**this);
 	rVerifyVk(vkEndCommandBuffer(**this));
+
 	setState(eExecutable);
 }
 
@@ -262,29 +293,4 @@ void vkCommandBuffer::execute(const vkCommandBuffer &primaryCommandBuffer)
 		**this
 	};
 	vkCmdExecuteCommands(*primaryCommandBuffer, 1u, commandBuffers);
-}
-
-void vkCommandBuffer::queueSubmit()
-{
-	/********************************
-		vkQueueSubmit:
-			Each element of pCommandBuffers must not have been allocated with VK_COMMAND_BUFFER_LEVEL_SECONDARY
-
-			Each element of pWaitDstStageMask must not include VK_PIPELINE_STAGE_HOST_BIT.
-
-			If fence is not VK_NULL_HANDLE, fence must be unsignaled, and must not be associated with any other queue command that has not yet completed execution on that queue
-
-			Each element of the pCommandBuffers member of each element of pSubmits must be in the pending or executable state
-
-			If any element of the pCommandBuffers member of any element of pSubmits was not recorded with the VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT, it must not be in the pending state
-
-			Any secondary command buffers recorded into any element of the pCommandBuffers member of any element of pSubmits must be in the pending or executable state
-
-			If any secondary command buffers recorded into any element of the pCommandBuffers member of any element of pSubmits was not recorded with the VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT, it must not be in the pending state
-
-			Each element of the pCommandBuffers member of each element of pSubmits must have been allocated from a VkCommandPool that was created for the same queue family queue belongs to
-
-			The order that command buffers appear in pCommandBuffers is used to determine submission order, and thus all the implicit ordering guarantees that respect it. 
-			Other than these implicit ordering guarantees and any explicit synchronization primitives, these command buffers may overlap or otherwise execute out of order.
-	*********************************/
 }

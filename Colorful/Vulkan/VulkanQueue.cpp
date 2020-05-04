@@ -68,6 +68,66 @@ void vkDeviceQueue::present(
 	swapchain.present(*this, *m_RenderCompleteSemaphore);
 }
 
+void vkDeviceQueue::queueCommandBuffer(vkCommandBuffer *cmdBuffer)
+{
+	bool8_t contain = false;
+	for (uint32_t i = 0u; i < m_QueuedCmdBuffers.size(); ++i)
+	{
+		if (m_QueuedCmdBuffers[i] == cmdBuffer)
+		{
+			contain = true;
+			break;
+		}
+	}
+
+	if (!contain)
+	{
+		m_QueuedCmdBuffers.emplace_back(cmdBuffer);
+	}
+}
+
+void vkDeviceQueue::submit(const vkSwapchain &swapchain)
+{
+	assert(m_QueuedCmdBuffers.size() > 0u);
+
+	VkPipelineStageFlags waitStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
+	VkFence fence = VK_NULL_HANDLE;
+	std::vector<VkCommandBuffer> submitCmdBuffers;
+	for (uint32_t i = 0u; i < m_QueuedCmdBuffers.size(); ++i)
+	{
+		submitCmdBuffers.emplace_back(**m_QueuedCmdBuffers[i]);
+
+		if (m_QueuedCmdBuffers[i]->isInsideRenderPass())
+		{
+			m_QueuedCmdBuffers[i]->endRenderPass();
+		}
+		fence = **m_QueuedCmdBuffers[i]->getFence();
+		m_QueuedCmdBuffers[i]->setState(vkCommandBuffer::eExecutable);
+	}
+
+	VkSemaphore presentCompleteSemaphore = **(swapchain.getPresentCompleteSemaphore());
+	VkSemaphore renderCompleteSemaphore = **m_RenderCompleteSemaphore;
+	VkSubmitInfo submitInfo
+	{
+		VK_STRUCTURE_TYPE_SUBMIT_INFO,
+		nullptr,
+		1u,
+		&presentCompleteSemaphore,
+		&waitStageMask,
+		(uint32_t)submitCmdBuffers.size(),
+		submitCmdBuffers.data(),
+		1u,
+		&renderCompleteSemaphore
+	};
+
+	/// Submission can be a high overhead operation, and applications should attempt to batch work together into as few calls to vkQueueSubmit as possible.
+	/// vkQueueSubmit is a queue submission command, with each batch defined by an element of pSubmits. 
+	/// Batches begin execution in the order they appear in pSubmits, but may complete out of order.
+	rVerifyVk(vkQueueSubmit(**this, 1u, &submitInfo, fence));
+	swapchain.present(*this, *m_RenderCompleteSemaphore);
+}
+
 void vkDeviceQueue::waitIdle()
 {
 	/// To wait on the host for the completion of outstanding queue operations for a given queue

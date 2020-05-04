@@ -119,6 +119,10 @@ public:
 	{
 		m_WindowSizeLimitations = limitations;
 	}
+
+	static bool8_t isFocusWindow(uint64_t windowHandle);
+	static void focusWindow(uint64_t windowHandle);
+	static void unFocusWindow();
 protected:
 private:
 	eMouseEvent m_MouseEvent = eMouseEvent::eMouseEvent_None;

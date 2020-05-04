@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Colorful/Vulkan/VulkanBuffer.h"
+#include "Colorful/Vulkan/VulkanCommand.h"
 
 /*******VkPipelineStageFlagBits*******
 	VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT specifies the stage of the pipeline where any commands are initially received by the queue.
@@ -99,17 +100,19 @@ public:
 	void create(const class vkDevice &device, const rFrameBufferDesc &desc);
 	void destroy(const class vkDevice &device) override final;
 
-	void begin(const struct rGraphicsPipelineState &graphicsPipelineState) override final;
-	void execute(const struct rGraphicsPipelineState &) override final;
-	void end() override final;
+	void pendingGfxPipline(const struct rGraphicsPipelineState &) override final;
+	void bindGfxPipeline(const struct rGraphicsPipelineState &) override final;
 
 	inline void bindFrameBuffers(const std::vector<vkFrameBuffer> &frameBuffers)
 	{
 		m_FrameBuffers = frameBuffers;
 	}
 
-	void drawIndexed(uint32_t indexCount, uint32_t firstIndex, uint32_t vertexOffset) override final;
+	void drawIndexed(uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset) override final;
 protected:
+	void setDynamicGfxState(const struct rGraphicsPipelineState &graphicsPipelineState);
 private:
 	std::vector<vkFrameBuffer> m_FrameBuffers;
+	class vkGraphicsPipeline *m_CurGfxPipeline = nullptr;
+	vkCommandBuffer m_CmdBuffer;
 };

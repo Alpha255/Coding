@@ -22,6 +22,17 @@ public:
 		VkImageUsageFlags usage,
 		VkImageAspectFlags aspectFlags);
 
+	void create(
+		const class vkDevice &device,
+		eRTextureType type,
+		eRFormat format,
+		uint32_t width,
+		uint32_t height,
+		uint32_t mipLevels,
+		uint32_t arrayLayers,
+		const void *data,
+		size_t dataSize);
+
 	void destroy(const class vkDevice &device) override final;
 
 	inline VkFormat getFormat() const

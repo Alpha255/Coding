@@ -113,21 +113,26 @@ case enumValue:                                      \
 
 void vkEngine::present()
 {
-	///activeCmdBuffer->waitFence(m_Device);
-	auto activeCmdBuffer = m_Device.getActiveCommandBuffer();
-
-	VkFence fence = **activeCmdBuffer->getFence();
-	m_GraphicsQueue.present(*activeCmdBuffer, m_Swapchain, fence);
+	m_GraphicsQueue.submit(m_Swapchain);
 }
 
-void vkEngine::waitDone()
+void vkEngine::waitDone(vkCommandBuffer *cmdBuffer)
 {
-	auto activeCmdBuffer = m_Device.getActiveCommandBuffer();
-	activeCmdBuffer->waitFence(m_Device);
-	if (activeCmdBuffer->m_State == vkCommandBuffer::ePending)
+	cmdBuffer->waitFence(m_Device);
+	if (cmdBuffer->m_State == vkCommandBuffer::ePending)
 	{
-		activeCmdBuffer->setState(vkCommandBuffer::eExecutable);
+		cmdBuffer->setState(vkCommandBuffer::eExecutable);
 	}
+}
+
+void vkEngine::createOpaqueRenderPass()
+{
+	rFrameBufferDesc frameBufferDesc{};
+	frameBufferDesc.Width = m_Swapchain.getWidth();
+	frameBufferDesc.Height = m_Swapchain.getHeight();
+	frameBufferDesc.DepthSurface = createDepthStencilView(frameBufferDesc.Width, frameBufferDesc.Height, eD24_UNorm_S8_UInt);
+
+	m_OpaqueRenderPass = m_Device.createRenderPass(m_Swapchain, frameBufferDesc);
 }
 
 VkFormatProperties vkEngine::getFormatProperties(VkFormat format)
@@ -342,8 +347,8 @@ VkFormat vkEngine::enumTranslator::toFormat(eRFormat format)
 	case eRGBA16_UInt:              return VK_FORMAT_R16G16B16A16_UINT;
 	case eRGBA16_SNorm:             return VK_FORMAT_R16G16B16A16_SNORM;
 	case eRGBA16_SInt:              return VK_FORMAT_R16G16B16A16_SINT;
-	case eRG32_Typeless:            return VK_FORMAT_R32_SFLOAT;
-	case eRG32_Float:               return VK_FORMAT_R32_SFLOAT;
+	case eRG32_Typeless:            return VK_FORMAT_R32G32_SFLOAT;
+	case eRG32_Float:               return VK_FORMAT_R32G32_SFLOAT;
 	case eRG32_UInt:                return VK_FORMAT_R32G32_UINT;
 	case eRG32_SInt:                return VK_FORMAT_R32G32_SINT;
 	case eRGBA8_Typeless:           return VK_FORMAT_R8G8B8A8_UNORM;

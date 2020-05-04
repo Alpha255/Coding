@@ -19,39 +19,40 @@
 class vkCommandBuffer : public vkObject<VkCommandBuffer>
 {
 public:
-	vkCommandBuffer(VkCommandBufferLevel level, VkCommandBuffer handle, class vkFence *fence)
+	vkCommandBuffer() = default;
+	vkCommandBuffer(VkCommandBufferLevel level, VkCommandBuffer handle, class vkFence *fence, class vkSemaphore *semaphore)
 		: m_Level(level)
 		, m_Fence(fence)
+		, m_Semaphore(semaphore)
 	{
 		assert(handle != VK_NULL_HANDLE);
 		reset(handle);
 		setState(eInitial);
 	}
 
-	vkCommandBuffer(vkCommandBuffer &&other)
-		: m_Level(other.m_Level)
-		, m_Fence(other.m_Fence)
-	{
-		assert(other.isValid());
-		reset(*other);
-		setState(eInitial);
-
-		other.m_Fence = nullptr;
-		other.reset();
-	}
+	void beginRenderPass(const VkRenderPassBeginInfo &renderPassBeginInfo, VkSubpassContents subpassContents);
+	void endRenderPass();
 
 	void begin();
+	void end();
 
 	void execute(const vkCommandBuffer &primaryCommandBuffer);
 
-	void queueSubmit();
-
-	void end();
+	inline bool8_t isInsideRenderPass() const
+	{
+		return m_State == eRecording;
+	}
 
 	inline class vkFence *getFence() const
 	{
 		assert(m_Fence);
 		return m_Fence;
+	}
+
+	inline class vkSemaphore *getWaitSemaphore() const
+	{
+		assert(m_Semaphore);
+		return m_Semaphore;
 	}
 
 	void waitFence(const class vkDevice &device);
@@ -90,6 +91,7 @@ private:
 	VkCommandBufferLevel m_Level = VK_COMMAND_BUFFER_LEVEL_MAX_ENUM;
 	eState m_State = eState_MaxEnum;
 	class vkFence *m_Fence;
+	class vkSemaphore *m_Semaphore = nullptr;
 };
 
 class vkCommandPool : public vkDeviceObject<VkCommandPool>

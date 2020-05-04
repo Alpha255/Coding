@@ -147,6 +147,8 @@ void vkRenderPass::create(const vkDevice &device, const rFrameBufferDesc &desc)
 	VkRenderPass handle = VK_NULL_HANDLE;
 	rVerifyVk(vkCreateRenderPass(*device, &createInfo, vkMemoryAllocator, &handle));
 	reset(handle);
+
+	m_CmdBuffer = device.allocCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true);
 }
 
 void vkRenderPass::destroy(const vkDevice &device)
@@ -166,125 +168,129 @@ void vkRenderPass::destroy(const vkDevice &device)
 	}
 }
 
-void vkRenderPass::begin(const rGraphicsPipelineState &)
+void vkRenderPass::pendingGfxPipline(const rGraphicsPipelineState &state)
 {
+	vkEngine::instance().getOrCreateGraphicsPipeline(*this, state);
 }
 
-void vkRenderPass::execute(const rGraphicsPipelineState &graphicsPipelineState)
+void vkRenderPass::bindGfxPipeline(const rGraphicsPipelineState &state)
 {
-	auto graphicsPipeline = vkEngine::instance().getOrCreateGraphicsPipeline(*this, graphicsPipelineState);
-	assert(graphicsPipeline);
+	///m_CmdBuffer.waitFence();
 
-	vkEngine::instance().waitDone();
+	///m_CmdBuffer.resetCommand();
 
-	vkCommandBuffer *activeCmdBuffer = vkEngine::instance().getActiveCommandBuffer();
-	assert(activeCmdBuffer);
-
-	activeCmdBuffer->resetCommand();
-
-	activeCmdBuffer->begin();
-
-	VkClearValue clearValue[2u]{};
-	clearValue[0].color = 
-	{ 
-		graphicsPipelineState.ClearValue.Color.x,
-		graphicsPipelineState.ClearValue.Color.y,
-		graphicsPipelineState.ClearValue.Color.z,
-		graphicsPipelineState.ClearValue.Color.w,
-	};
-	clearValue[1].depthStencil = 
+	if (!m_CmdBuffer.isInsideRenderPass())
 	{
-		graphicsPipelineState.ClearValue.Depth,
-		graphicsPipelineState.ClearValue.Stencil
-	};
+		vkEngine::instance().waitDone(&m_CmdBuffer);
 
-	uint32_t frameIndex = vkEngine::instance().acquireNextFrame();
-	assert(frameIndex < m_FrameBuffers.size());
+		VkClearValue clearValue[2u]{};
+		clearValue[0].color =
+		{
+			state.ClearValue.Color.x,
+			state.ClearValue.Color.y,
+			state.ClearValue.Color.z,
+			state.ClearValue.Color.w,
+		};
+		clearValue[1].depthStencil =
+		{
+			state.ClearValue.Depth,
+			state.ClearValue.Stencil
+		};
 
-	VkRenderPassBeginInfo beginInfo
+		uint32_t frameIndex = vkEngine::instance().acquireNextFrame();
+		assert(frameIndex < m_FrameBuffers.size());
+
+		VkRenderPassBeginInfo beginInfo
+		{
+			VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
+			nullptr,
+			**this,
+			*m_FrameBuffers[frameIndex],
+			{
+				{
+					(int32_t)state.RenderArea.x,
+					(int32_t)state.RenderArea.y,
+				},
+				{
+					(uint32_t)state.RenderArea.z,
+					(uint32_t)state.RenderArea.w,
+				}
+			},
+			ARRAYSIZE(clearValue),
+			clearValue
+		};
+
+		m_CmdBuffer.beginRenderPass(beginInfo, VK_SUBPASS_CONTENTS_INLINE);
+	}
+
+	m_CurGfxPipeline = vkEngine::instance().getOrCreateGraphicsPipeline(*this, state);
+	m_CurGfxPipeline->bind(m_CmdBuffer);
+
+	setDynamicGfxState(state);
+
+	vkEngine::instance().getQueue().queueCommandBuffer(&m_CmdBuffer);
+}
+
+void vkRenderPass::drawIndexed(uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset)
+{
+	assert(isValid() && m_CurGfxPipeline && m_CmdBuffer.isValid());
+
+	vkCmdDrawIndexed(
+		*m_CmdBuffer,
+		indexCount,
+		1u,
+		firstIndex,
+		vertexOffset,
+		1u);
+}
+
+void vkRenderPass::setDynamicGfxState(const rGraphicsPipelineState &state)
+{
+	assert(m_CmdBuffer.isValid());
+
+	if (state.isDirty(rGraphicsPipelineState::eViewport))
 	{
-		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
-		nullptr,
-		**this,
-		*m_FrameBuffers[frameIndex],
+		VkViewport viewport
+		{
+			state.Viewport.x,
+			state.Viewport.y,
+			state.Viewport.z,
+			state.Viewport.w,
+			state.Viewport.minDepth(),
+			state.Viewport.maxDepth()
+		};
+		vkCmdSetViewport(*m_CmdBuffer, 0u, 1u, &viewport);
+	}
+
+	if (state.isDirty(rGraphicsPipelineState::eScissor))
+	{
+		VkRect2D scissor
 		{
 			{
-				(int32_t)graphicsPipelineState.RenderArea.x,
-				(int32_t)graphicsPipelineState.RenderArea.y,
+				(int32_t)state.Scissor.x,
+				(int32_t)state.Scissor.y
 			},
 			{
-				(uint32_t)graphicsPipelineState.RenderArea.z,
-				(uint32_t)graphicsPipelineState.RenderArea.w,
+				(uint32_t)state.Scissor.z,
+				(uint32_t)state.Scissor.w
 			}
-		},
-		ARRAYSIZE(clearValue),
-		clearValue
-	};
-	vkCmdBeginRenderPass(**activeCmdBuffer, &beginInfo, VK_SUBPASS_CONTENTS_INLINE);
+		};
+		vkCmdSetScissor(*m_CmdBuffer, 0u, 1u, &scissor);
+	}
 
-	VkViewport viewport
+	if (state.isDirty(rGraphicsPipelineState::eVertexBuffer))
 	{
-		graphicsPipelineState.Viewport.x,
-		graphicsPipelineState.Viewport.y,
-		graphicsPipelineState.Viewport.z,
-		graphicsPipelineState.Viewport.w,
-		graphicsPipelineState.Viewport.minDepth(),
-		graphicsPipelineState.Viewport.maxDepth()
-	};
-	vkCmdSetViewport(**activeCmdBuffer, 0u, 1u, &viewport);
-
-	VkRect2D scissor
-	{
-		{
-			(int32_t)graphicsPipelineState.Scissor.x,
-			(int32_t)graphicsPipelineState.Scissor.y
-		},
-		{
-			(uint32_t)graphicsPipelineState.Scissor.z,
-			(uint32_t)graphicsPipelineState.Scissor.w
-		}
-	};
-	vkCmdSetScissor(**activeCmdBuffer, 0u, 1u, &scissor);
-
-	graphicsPipeline->bind(*activeCmdBuffer);
-
-	if (graphicsPipelineState.VertexBuffer)
-	{
-		auto vertexBuffer = static_cast<vkBuffer *>(graphicsPipelineState.VertexBuffer);
+		assert(state.VertexBuffer);
+		auto vertexBuffer = static_cast<vkBuffer *>(state.VertexBuffer);
 		VkBuffer buffer = **vertexBuffer;
 		VkDeviceSize offsets[1u]{};
-		vkCmdBindVertexBuffers(**activeCmdBuffer, 0u, 1u, &buffer, offsets);
+		vkCmdBindVertexBuffers(*m_CmdBuffer, 0u, 1u, &buffer, offsets);
 	}
-	if (graphicsPipelineState.IndexBuffer)
+
+	if (state.isDirty(rGraphicsPipelineState::eIndexBuffer))
 	{
-		auto indexBuffer = static_cast<vkBuffer *>(graphicsPipelineState.IndexBuffer);
-		vkCmdBindIndexBuffer(**activeCmdBuffer, **indexBuffer, 0u, VK_INDEX_TYPE_UINT32);
+		assert(state.IndexBuffer);
+		auto indexBuffer = static_cast<vkBuffer *>(state.IndexBuffer);
+		vkCmdBindIndexBuffer(*m_CmdBuffer, **indexBuffer, 0u, state.IndexType == eRIndexType::eUInt16 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32);
 	}
-
-	if (graphicsPipelineState.DrawOperation.DrawOp == rGraphicsPipelineState::rDrawOperation::eDrawIndexed)
-	{
-		vkCmdDrawIndexed(
-			**activeCmdBuffer,
-			(uint32_t)graphicsPipelineState.DrawOperation.IndexCount,
-			1u,
-			(uint32_t)graphicsPipelineState.DrawOperation.FirstIndex,
-			(int32_t)graphicsPipelineState.DrawOperation.VertexOffset,
-			1u);
-	}
-	else
-	{
-		assert(0);
-	}
-
-	vkCmdEndRenderPass(**activeCmdBuffer);
-
-	activeCmdBuffer->end();
-}
-
-void vkRenderPass::end()
-{
-}
-
-void vkRenderPass::drawIndexed(uint32_t, uint32_t, uint32_t)
-{
 }

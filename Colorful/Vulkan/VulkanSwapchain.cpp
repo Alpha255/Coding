@@ -128,6 +128,8 @@ void vkSwapchain::recreate(
 {
 	assert(device.isValid() && m_Surface.isValid());
 
+	m_Width = width;
+	m_Height = height;
 	m_bVSync = vSync;
 	m_bFullScreen = fullscreen;
 

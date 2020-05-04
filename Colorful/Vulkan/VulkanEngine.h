@@ -22,7 +22,7 @@ public:
 	}
 
 	void present() override final;
-	void waitDone();
+	void waitDone(vkCommandBuffer *cmdBuffer);
 
 	inline vkDevice &getDevice()
 	{
@@ -54,6 +54,10 @@ public:
 	{
 		return m_Device.createBuffer(eUniformBuffer, eGpuReadCpuWrite, size, data);
 	}
+	inline void destroyBuffer(rBuffer *buffer) override final
+	{
+		m_Device.destroyBuffer(buffer);
+	}
 
 	inline rRenderSurface *createDepthStencilView(uint32_t width, uint32_t height, eRFormat format) override final
 	{
@@ -64,10 +68,23 @@ public:
 	{
 		return m_Device.createRenderPass(m_Swapchain, desc);
 	}
+	void createOpaqueRenderPass() override final;
 
 	inline rTexture *createTexture(const std::string &textureName) override final
 	{
 		return m_Device.createTexture(textureName);
+	}
+	inline rTexture *createTexture(
+		eRTextureType type,
+		eRFormat format,
+		uint32_t width,
+		uint32_t height,
+		uint32_t mipLevels,
+		uint32_t arrayLayers,
+		const void *data,
+		size_t dataSize) override final
+	{
+		return m_Device.createTexture(type, format, width, height, mipLevels, arrayLayers, data, dataSize);
 	}
 
 	inline rSampler *createSampler(const rSamplerDesc &desc) override final
@@ -75,7 +92,7 @@ public:
 		return m_Device.createSampler(desc);
 	}
 
-	inline void updateUniformBuffer(rBuffer *buffer, const void *data, size_t size, size_t offset) override final
+	inline void updateGpuBuffer(rBuffer *buffer, const void *data, size_t size, size_t offset) override final
 	{
 		assert(buffer);
 		auto uniformBuffer = static_cast<vkGpuBuffer *>(buffer);

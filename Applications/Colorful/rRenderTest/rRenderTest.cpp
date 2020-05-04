@@ -2,7 +2,6 @@
 
 rBuffer *mUniformBuffer = nullptr;
 rGraphicsPipelineState mGraphicsPipelineState{};
-rRenderPass *mRenderPass = nullptr;
 
 struct uniformBufferVS
 {
@@ -61,22 +60,13 @@ void rRenderTest::postInitialize()
 			eVertex
 		},
 		{
-			eColor,
+			eTexcoord,
 			eRGB32_Float,
 			eVertex
 		}
 	};
 	/// alignment ??? Try to create based on shader reflection(Format) ??? 
 	vertexShader->setInputLayout(vertexAttrs, alignof(vertex));
-
-	auto depthStencilView = m_Renderer->createDepthStencilView((uint32_t)m_WindowSize.x, (uint32_t)m_WindowSize.y, eD24_UNorm_S8_UInt);
-
-	rFrameBufferDesc frameBufferDesc{};
-	frameBufferDesc.DepthSurface = depthStencilView;
-	frameBufferDesc.Width = (uint32_t)m_WindowSize.x;
-	frameBufferDesc.Height = (uint32_t)m_WindowSize.y;
-
-	mRenderPass = m_Renderer->createRenderPass(frameBufferDesc);
 
 	rViewport viewport
 	{
@@ -100,8 +90,8 @@ void rRenderTest::postInitialize()
 	mGraphicsPipelineState.setScissor(scissor);
 	mGraphicsPipelineState.bindVertexBuffer(vertexBuffer);
 	mGraphicsPipelineState.bindIndexBuffer(indexBuffer);
-	mGraphicsPipelineState.drawIndexed((uint32_t)indices.size(), 0u, 0u);
 	mGraphicsPipelineState.setRenderArea(viewport);
+	///m_Renderer->getOpaqueRenderPass()->pendingGfxPipline(mGraphicsPipelineState);
 
 	m_Camera.setProjParams(math::g_pi_div4, m_WindowSize.x / m_WindowSize.y, 0.1f, 500.0f);
 	m_Camera.setViewParams(vec3(0.0f, 0.0f, 4.0f), vec3(0.0f, 0.0f, 0.0f));
@@ -120,9 +110,10 @@ void rRenderTest::renterToWindow()
 		view,
 		proj
 	};
-	m_Renderer->updateUniformBuffer(mUniformBuffer, &uboVS, sizeof(uniformBufferVS), 0u);
+	m_Renderer->updateGpuBuffer(mUniformBuffer, &uboVS, sizeof(uniformBufferVS), 0u);
 
-	mRenderPass->execute(mGraphicsPipelineState);
+	m_Renderer->getOpaqueRenderPass()->bindGfxPipeline(mGraphicsPipelineState);
+	m_Renderer->getOpaqueRenderPass()->drawIndexed(6u, 0u, 0);
 
 	m_Camera.update(m_cpuTimer.getElapsedTime());
 }

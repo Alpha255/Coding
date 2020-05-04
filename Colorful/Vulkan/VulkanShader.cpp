@@ -54,6 +54,7 @@ void vkShader::setInputLayout(const std::vector<rVertexAttributes>& vertexAttrib
 			vkEngine::enumTranslator::toFormat(vertexAttributes[i].Format),
 			stride
 		};
+
 		stride += ((uint32_t)rVertexAttributes::getFormatStride(vertexAttributes[i].Format) / 8ull);
 		stride = (uint32_t)gear::linearAllocator::align_to(stride, align);
 	}

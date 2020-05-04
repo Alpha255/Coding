@@ -89,16 +89,37 @@ public:
 	virtual class rBuffer *createIndexBuffer(eRBufferUsage, size_t, const void *) { return nullptr; }
 	virtual class rBuffer *createVertexBuffer(eRBufferUsage, size_t, const void *) { return nullptr; }
 	virtual class rBuffer *createUniformBuffer(size_t, const void *) { return nullptr; }
+	virtual void destroyBuffer(class rBuffer *) {}
 
 	virtual class rRenderSurface *createDepthStencilView(uint32_t, uint32_t, eRFormat) { return nullptr; }
 	virtual class rRenderPass *createRenderPass(struct rFrameBufferDesc &) { return nullptr; }
+	virtual void createOpaqueRenderPass() {}
 
 	virtual class rTexture *createTexture(const std::string &) { return nullptr; }
+	virtual class rTexture *createTexture(
+		eRTextureType,
+		eRFormat,
+		uint32_t,
+		uint32_t,
+		uint32_t,
+		uint32_t,
+		const void *,
+		size_t) 
+	{
+		return nullptr;
+	}
 
-	virtual void updateUniformBuffer(class rBuffer *, const void *, size_t, size_t) {}
+	virtual void updateGpuBuffer(class rBuffer *, const void *, size_t, size_t) {}
 
 	virtual class rSampler *createSampler(const struct rSamplerDesc &) { return nullptr; }
+
+	inline class rRenderPass *getOpaqueRenderPass()
+	{
+		assert(m_OpaqueRenderPass);
+		return m_OpaqueRenderPass;
+	}
 protected:
+	class rRenderPass *m_OpaqueRenderPass = nullptr;
 private:
 };
 

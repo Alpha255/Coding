@@ -72,7 +72,20 @@ public:
 public:
 	rShader *createShader(eRShaderUsage usage, const std::string &shaderName);
 	rTexture *createTexture(const std::string &textureName);
+	rTexture *createTexture(
+		eRTextureType type,
+		eRFormat format,
+		uint32_t width,
+		uint32_t height,
+		uint32_t mipLevels,
+		uint32_t arrayLayers,
+		const void *data,
+		size_t dataSize);
 	rBuffer *createBuffer(eRBufferBindFlags bindFlags, eRBufferUsage usage, size_t size, const void *pData);
+	inline void destroyBuffer(rBuffer *buffer)
+	{
+		m_GpuResourcePool->destroyBuffer(buffer);
+	}
 	rRenderSurface *createDepthStencilView(uint32_t width, uint32_t height, eRFormat format);
 	rRenderPass *createRenderPass(const vkSwapchain &swapchain, rFrameBufferDesc &desc);
 	rSampler *createSampler(const rSamplerDesc &desc);
@@ -126,14 +139,17 @@ protected:
 			auto it = m_Resources.find(resource->getID());
 			if (it != m_Resources.end())
 			{
+				auto buffer = static_cast<vkBuffer *>(resource);
+				delete buffer;
+				it->second = nullptr;
 				m_Resources.erase(resource->getID());
 			}
 		}
 
-		inline void destroy(rGpuResource *)
+		inline void destroyBuffer(rGpuResource *resource)
 		{
-			///eResourceType type = getResourceType(resource->getID());
-			//destroyResource<type>(resource);
+			destroyResource<eBuffer>(resource);
+			pop(resource);
 		}
 		void destoryAll();
 	protected:
@@ -154,8 +170,10 @@ protected:
 		inline void destroyResource<eBuffer>(rGpuResource *resource)
 		{
 			auto buffer = static_cast<vkBuffer *>(resource);
-			assert(buffer);
-			buffer->destroy(m_Device);
+			if (buffer)
+			{
+				buffer->destroy(m_Device);
+			}
 			//pop(resource);
 		}
 		template<>

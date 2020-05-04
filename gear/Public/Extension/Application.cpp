@@ -40,6 +40,10 @@ void application::initialize(const std::string &title, uint32_t extraWindowStyle
 
 	eventHandler::instance().setWindowSizeLimitations(math::vec2(640.0f, 480.0f));
 
+	m_Renderer->createOpaqueRenderPass();
+
+	m_GuiRender.initialize(m_WindowHandle, m_Renderer);
+
 	postInitialize();
 }
 
@@ -78,6 +82,7 @@ void application::processEvent()
 	}
 
 	m_Camera.processEvent();
+	m_GuiRender.processEvent();
 }
 
 void application::updateWindow()
@@ -128,7 +133,11 @@ void application::loop()
 			{
 				updateWindow();
 
+				m_GuiRender.begin(m_WindowSize.x, m_WindowSize.y);
+
 				renterToWindow();
+
+				m_GuiRender.end();
 
 				m_Renderer->present();
 
@@ -147,6 +156,7 @@ void application::loop()
 void application::finalize()
 {
 	assert(m_Renderer);
+	m_GuiRender.finalize();
 	m_Renderer->finalize();
 }
 

@@ -77,6 +77,21 @@ bool8_t eventHandler::dispatchEvent()
 	return false;
 }
 
+bool8_t eventHandler::isFocusWindow(uint64_t windowHandle)
+{
+	return ::GetCapture() == reinterpret_cast<::HWND>(windowHandle);
+}
+
+void eventHandler::focusWindow(uint64_t windowHandle)
+{
+	::SetCapture(reinterpret_cast<::HWND>(windowHandle));
+}
+
+void eventHandler::unFocusWindow()
+{
+	::ReleaseCapture();
+}
+
 namespaceEnd(gear)
 
 #endif

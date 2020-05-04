@@ -42,6 +42,16 @@ public:
 	{
 		return m_PresentCompleteSemaphore;
 	}
+
+	inline uint32_t getWidth() const
+	{
+		return m_Width;
+	}
+
+	inline uint32_t getHeight() const
+	{
+		return m_Height;
+	}
 protected:
 	struct vkSurface : public vkObject<VkSurfaceKHR>
 	{
@@ -61,6 +71,8 @@ private:
 	class vkSemaphore *m_PresentCompleteSemaphore = nullptr;
 	bool8_t m_bVSync = false;
 	bool8_t m_bFullScreen = false;
+	uint32_t m_Width = 0u;
+	uint32_t m_Height = 0u;
 public:
 	uint32_t m_CurrentFrameIndex = 0u;
 };

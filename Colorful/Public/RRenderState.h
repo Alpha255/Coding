@@ -5,11 +5,10 @@
 class rRenderPass : public rGpuResource
 {
 public:
-	virtual void begin(const struct rGraphicsPipelineState &) = 0;
-	virtual void execute(const struct rGraphicsPipelineState &) = 0;
-	virtual void end() = 0;
+	virtual void pendingGfxPipline(const struct rGraphicsPipelineState &) = 0;
+	virtual void bindGfxPipeline(const struct rGraphicsPipelineState &) = 0;
 
-	virtual void drawIndexed(uint32_t, uint32_t, uint32_t) = 0;
+	virtual void drawIndexed(uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset) = 0;
 protected:
 private:
 	std::string m_Description;
@@ -103,14 +102,39 @@ struct rViewport : public vec4
 struct rScissor : public vec4
 {
 	rScissor() = default;
-	rScissor(float32_t extentWidth, float32_t extentHeight, float32_t offsetX, float32_t offsetY)
-		: vec4(extentWidth, extentHeight, offsetX, offsetY)
+	rScissor(float32_t offsetX, float32_t offsetY, float32_t extentWidth, float32_t extentHeight)
+		: vec4(offsetX, offsetY, extentWidth, extentHeight)
 	{
 	}
 };
 
 struct rGraphicsPipelineState
 {
+	enum eDirtyFlags : uint8_t
+	{
+		eViewport = 1u,
+		eScissor = 2u,
+		eVertexBuffer = 4u,
+		eIndexBuffer = 8u
+	};
+	uint8_t Dirty = 0u;
+	inline bool8_t isDirty() const
+	{
+		return Dirty == 0u;
+	}
+	inline bool8_t isDirty(eDirtyFlags flags) const
+	{
+		return flags & Dirty;
+	}
+	inline void setDirty(eDirtyFlags flags)
+	{
+		Dirty |= flags;
+	}
+	inline void clearDirty()
+	{
+		Dirty = 0u;
+	}
+
 	inline void setPrimitiveTopology(eRPrimitiveTopology primitiveTopology)
 	{
 		PrimitiveTopology = primitiveTopology;
@@ -127,11 +151,13 @@ struct rGraphicsPipelineState
 	inline void setViewport(const rViewport &viewport)
 	{
 		Viewport = viewport;
+		setDirty(eViewport);
 	}
 
 	inline void setScissor(const rScissor &scissor)
 	{
 		Scissor = scissor;
+		setDirty(eScissor);
 	}
 
 	inline void setRasterizerState(const rRasterizerStateDesc &desc)
@@ -152,11 +178,14 @@ struct rGraphicsPipelineState
 	inline void bindVertexBuffer(rBuffer *buffer)
 	{
 		VertexBuffer = buffer;
+		setDirty(eVertexBuffer);
 	}
 
-	inline void bindIndexBuffer(rBuffer *buffer)
+	inline void bindIndexBuffer(rBuffer *buffer, eRIndexType type = eRIndexType::eUInt32)
 	{
 		IndexBuffer = buffer;
+		setDirty(eIndexBuffer);
+		IndexType = type;
 	}
 
 	inline void setRenderArea(const vec4 &area)
@@ -233,6 +262,7 @@ struct rGraphicsPipelineState
 		ClearValue.Stencil = stencil;
 	}
 	vec4 RenderArea;
+	eRIndexType IndexType = eRIndexType::eUInt32;
 };
 
 class rComputePipeline
