@@ -62,7 +62,7 @@ workspace "Miscellaneous"
 	filter {}
 
 	group "Dlls"
-		project "assetTool"
+		project "AssetTool"
 			kind "SharedLib"
 			language "C++"
 			location "./Projects"
@@ -96,7 +96,7 @@ workspace "Miscellaneous"
 			disablewarnings { "4201", "4458", "4100" }
 
 	group "Libs"
-		project "gear"
+		project "Gear"
 			kind "StaticLib"
 			language "C++"
 			location "./Projects"
@@ -104,7 +104,7 @@ workspace "Miscellaneous"
 			includedirs { "$(SolutionDir)", "$(SolutionDir)ThirdParty\\VulkanSDK\\Include" }
 			targetdir "$(SolutionDir)Out\\Libs\\"
 
-		project "colorful"
+		project "Colorful"
 			kind "StaticLib"
 			language "C++"
 			location "./Projects"
@@ -395,7 +395,7 @@ workspace "Miscellaneous"
 						}
 
 	group "Colorful"
-		project "rRenderTest"
+		project "RenderTest"
 			kind "WindowedApp"
 			language "C++"
 			location "./Projects"
@@ -406,13 +406,13 @@ workspace "Miscellaneous"
 					"./Assets/Icon/vulkan.ico",
 					"./Applications/Resource.h"
 					},
-				[""] = { "./Applications/Colorful/rRenderTest/**" },
+				[""] = { "./Applications/Colorful/RenderTest/**" },
 				["Configuration"] = { "./Out/appConfig.json" },
-				["Shaders"] = { "./Assets/Shaders/rRenderTest.shader" },
+				["Shaders"] = { "./Assets/Shaders/RenderTest.shader" },
 			}
 			files { 
-				"./Applications/Colorful/rRenderTest/**",
-				"./Assets/Shaders/rRenderTest.shader",
+				"./Applications/Colorful/RenderTest/**",
+				"./Assets/Shaders/RenderTest.shader",
 				"./Applications/Resource.h"
 			}
 			appInclude()
