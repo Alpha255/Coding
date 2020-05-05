@@ -89,6 +89,11 @@ public:
 	rRenderSurface *createDepthStencilView(uint32_t width, uint32_t height, eRFormat format);
 	rRenderPass *createRenderPass(const vkSwapchain &swapchain, rFrameBufferDesc &desc);
 	rSampler *createSampler(const rSamplerDesc &desc);
+
+	const rGraphicsPipelineState *getGraphicsPipelineState(vkGraphicsPipeline *pipeline) const
+	{
+		return m_PipelinePool->getGraphicsPipelineState(pipeline);
+	}
 	
 	inline vkGraphicsPipeline *getOrCreateGraphicsPipeline(const vkRenderPass &renderpass, const rGraphicsPipelineState &graphicsPipelineState)
 	{
@@ -248,6 +253,19 @@ protected:
 			m_Pipelines.clear();
 
 			m_PipelineCache.destroy(m_Device);
+		}
+
+		const rGraphicsPipelineState *getGraphicsPipelineState(vkGraphicsPipeline *pipeline) const
+		{
+			for (uint32_t i = 0u; i < m_Pipelines.size(); ++i)
+			{
+				if (m_Pipelines[i].second == pipeline)
+				{
+					return &m_Pipelines[i].first;
+				}
+			}
+
+			return nullptr;
 		}
 	protected:
 	private:

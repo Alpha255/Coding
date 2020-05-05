@@ -19,6 +19,16 @@ public:
 	void end();
 
 	bool8_t isMouseButtonDown(ImGuiIO &io);
+
+	inline bool8_t isFocus() const
+	{
+		if (!m_WindowHandle)
+		{
+			return false;
+		}
+		const ImGuiIO &io = ImGui::GetIO();
+		return io.WantCaptureMouse || io.WantCaptureKeyboard;
+	}
 protected:
 	void frame();
 	bool8_t update();

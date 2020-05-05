@@ -228,56 +228,6 @@ void vkRenderPass::bindGfxPipeline(const rGraphicsPipelineState &state)
 
 	setDynamicGfxState(state);
 
-	vkEngine::instance().getQueue().queueCommandBuffer(&m_CmdBuffer);
-}
-
-void vkRenderPass::drawIndexed(uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset)
-{
-	assert(isValid() && m_CurGfxPipeline && m_CmdBuffer.isValid());
-
-	vkCmdDrawIndexed(
-		*m_CmdBuffer,
-		indexCount,
-		1u,
-		firstIndex,
-		vertexOffset,
-		1u);
-}
-
-void vkRenderPass::setDynamicGfxState(const rGraphicsPipelineState &state)
-{
-	assert(m_CmdBuffer.isValid());
-
-	if (state.isDirty(rGraphicsPipelineState::eViewport))
-	{
-		VkViewport viewport
-		{
-			state.Viewport.x,
-			state.Viewport.y,
-			state.Viewport.z,
-			state.Viewport.w,
-			state.Viewport.minDepth(),
-			state.Viewport.maxDepth()
-		};
-		vkCmdSetViewport(*m_CmdBuffer, 0u, 1u, &viewport);
-	}
-
-	if (state.isDirty(rGraphicsPipelineState::eScissor))
-	{
-		VkRect2D scissor
-		{
-			{
-				(int32_t)state.Scissor.x,
-				(int32_t)state.Scissor.y
-			},
-			{
-				(uint32_t)state.Scissor.z,
-				(uint32_t)state.Scissor.w
-			}
-		};
-		vkCmdSetScissor(*m_CmdBuffer, 0u, 1u, &scissor);
-	}
-
 	if (state.isDirty(rGraphicsPipelineState::eVertexBuffer))
 	{
 		assert(state.VertexBuffer);
@@ -292,5 +242,57 @@ void vkRenderPass::setDynamicGfxState(const rGraphicsPipelineState &state)
 		assert(state.IndexBuffer);
 		auto indexBuffer = static_cast<vkBuffer *>(state.IndexBuffer);
 		vkCmdBindIndexBuffer(*m_CmdBuffer, **indexBuffer, 0u, state.IndexType == eRIndexType::eUInt16 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32);
+	}
+
+	vkEngine::instance().getQueue().queueCommandBuffer(&m_CmdBuffer);
+}
+
+void vkRenderPass::drawIndexed(const rGraphicsPipelineState &state, uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset)
+{
+	assert(isValid() && m_CurGfxPipeline && m_CmdBuffer.isValid());
+
+	setDynamicGfxState(state);
+
+	vkCmdDrawIndexed(
+		*m_CmdBuffer,
+		indexCount,
+		1u,
+		firstIndex,
+		vertexOffset,
+		1u);
+}
+
+void vkRenderPass::setDynamicGfxState(const rGraphicsPipelineState &state)
+{
+	assert(m_CmdBuffer.isValid());
+
+	///if (state.isDirty(rGraphicsPipelineState::eViewport))
+	{
+		VkViewport viewport
+		{
+			state.Viewport.x,
+			state.Viewport.y,
+			state.Viewport.z,
+			state.Viewport.w,
+			state.Viewport.minDepth(),
+			state.Viewport.maxDepth()
+		};
+		vkCmdSetViewport(*m_CmdBuffer, 0u, 1u, &viewport);
+	}
+
+	///if (state.isDirty(rGraphicsPipelineState::eScissor))
+	{
+		VkRect2D scissor
+		{
+			{
+				(int32_t)state.Scissor.x,
+				(int32_t)state.Scissor.y
+			},
+			{
+				(uint32_t)state.Scissor.z,
+				(uint32_t)state.Scissor.w
+			}
+		};
+		vkCmdSetScissor(*m_CmdBuffer, 0u, 1u, &scissor);
 	}
 }

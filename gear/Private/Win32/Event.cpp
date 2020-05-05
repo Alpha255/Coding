@@ -60,7 +60,40 @@ void eventHandler::processEvent()
 	{
 		::LPMINMAXINFO lpMinMaxInfo = (::LPMINMAXINFO)event.LParam;
 		lpMinMaxInfo->ptMinTrackSize = { (long32_t)m_WindowSizeLimitations.x, (long32_t)m_WindowSizeLimitations.y };
+		break;
 	}
+	case WM_LBUTTONDOWN:
+		m_MouseEvent = eMouseEvent::eLeftClick;
+		break;
+	case WM_LBUTTONUP:
+		m_MouseEvent = eMouseEvent::eLeftUp;
+		break;
+	case WM_LBUTTONDBLCLK:
+		m_MouseEvent = eMouseEvent::eLeftDoubleClick;
+		break;
+	case WM_RBUTTONDOWN:
+		m_MouseEvent = eMouseEvent::eRightClick;
+		break;
+	case WM_RBUTTONUP:
+		m_MouseEvent = eMouseEvent::eRightUp;
+		break;
+	case WM_RBUTTONDBLCLK:
+		m_MouseEvent = eMouseEvent::eRightDoubleClick;
+		break;
+	case WM_MBUTTONDOWN:
+		m_MouseEvent = eMouseEvent::eMiddleClick;
+		break;
+	case WM_MBUTTONUP:
+		m_MouseEvent = eMouseEvent::eMiddleUp;
+		break;
+	case WM_MBUTTONDBLCLK:
+		m_MouseEvent = eMouseEvent::eMiddleDoubleClick;
+		break;
+	case WM_MOUSEMOVE:
+		m_MouseEvent = eMouseEvent::eMove;
+		m_MousePosition.x = (float32_t)((int16_t)(event.LParam));
+		m_MousePosition.y = (float32_t)((int16_t)(event.LParam >> 16ull));
+		break;
 	}
 }
 

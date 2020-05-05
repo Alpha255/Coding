@@ -55,6 +55,7 @@ void application::processEvent()
 	case eAppEvent::eInactive:
 		m_bActive = false;
 		m_cpuTimer.stop();
+		m_LastUpdateTime = 0.0f;
 		break;
 	case eAppEvent::eActive:
 	case eAppEvent::eRestore:
@@ -68,7 +69,7 @@ void application::processEvent()
 		break;
 	case eAppEvent::eResizing:
 		m_bActive = false;
-		m_cpuTimer.stop();
+		///m_cpuTimer.stop();
 		m_bNeedResize = true;
 		break;
 	case eAppEvent::eQuit:
@@ -81,8 +82,11 @@ void application::processEvent()
 		break;
 	}
 
-	m_Camera.processEvent();
 	m_GuiRender.processEvent();
+	if (!m_GuiRender.isFocus())
+	{
+		m_Camera.processEvent();
+	}
 }
 
 void application::updateWindow()
@@ -106,7 +110,7 @@ void application::updateWindow()
 
 void application::updateFPS()
 {
-	float32_t totalTime = m_cpuTimer.getTotalTime();
+	float32_t totalTime = m_cpuTimer.getElapsedTimeInSeconds();
 	++m_FrameCount;
 
 	float32_t elapsedTime = totalTime - m_LastUpdateTime;

@@ -132,27 +132,28 @@ void ImGuiRenderer::processEvent()
 		mouseBtn = 2;
 	}
 
-	bool8_t isFocus = eventHandler::isFocusWindow(m_WindowHandle);
+	///bool8_t isFocus = eventHandler::isFocusWindow(m_WindowHandle);
 
 	switch (mouseEvent)
 	{
 	case eMouseEvent::eLeftClick:
 	case eMouseEvent::eRightClick:
 	case eMouseEvent::eMiddleClick:
-		if (!isMouseButtonDown(io) && !isFocus)
-		{
-			eventHandler::focusWindow(m_WindowHandle);
-		}
+		//if (!isMouseButtonDown(io) && !isFocus)
+		//{
+		//	eventHandler::focusWindow(m_WindowHandle);
+		//}
 		io.MouseDown[mouseBtn] = true;
 		return;
 
 	case eMouseEvent::eLeftUp:
 	case eMouseEvent::eRightUp:
 	case eMouseEvent::eMiddleUp:
-		if (!isMouseButtonDown(io) && isFocus)
-		{
-			eventHandler::unFocusWindow();
-		}
+		io.MouseDown[mouseBtn] = false;
+		//if (!isMouseButtonDown(io) && isFocus)
+		//{
+		//	eventHandler::unFocusWindow();
+		//}
 		return;
 
 	case eMouseEvent::eMove:
@@ -193,21 +194,21 @@ void ImGuiRenderer::begin(float32_t displayWidth, float32_t displayHeight)
 		displayHeight
 	};
 
-	//io.KeyCtrl = (::GetKeyState(VK_CONTROL) & 0x8000) != 0;
-	//io.KeyShift = (::GetKeyState(VK_SHIFT) & 0x8000) != 0;
-	//io.KeyAlt = (::GetKeyState(VK_MENU) & 0x8000) != 0;
-	//io.KeySuper = false;
+	io.KeyCtrl = (::GetKeyState(VK_CONTROL) & 0x8000) != 0;
+	io.KeyShift = (::GetKeyState(VK_SHIFT) & 0x8000) != 0;
+	io.KeyAlt = (::GetKeyState(VK_MENU) & 0x8000) != 0;
+	io.KeySuper = false;
 
 	if (io.WantCaptureMouse)
 	{
-		//::POINT pos = { (LONG)io.MousePos.x, (LONG)io.MousePos.y };
-		//::ClientToScreen((::HWND)m_WindowHandle, &pos);
-		//::SetCursorPos(pos.x, pos.y);
+		::POINT pos = { (LONG)io.MousePos.x, (LONG)io.MousePos.y };
+		::ClientToScreen((::HWND)m_WindowHandle, &pos);
+		::SetCursorPos(pos.x, pos.y);
 	}
 
 	if (io.MouseDrawCursor)
 	{
-		///::SetCursor(nullptr);
+		::SetCursor(nullptr);
 	}
 
 	ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f), ImGuiCond_FirstUseEver);
@@ -284,7 +285,7 @@ void ImGuiRenderer::frame()
 			};
 
 			m_PipelineState.setScissor(scissor);
-			m_Renderer->getOpaqueRenderPass()->drawIndexed(drawCmd->ElemCount, (uint32_t)indexOffset, vertexOffset);
+			m_Renderer->getOpaqueRenderPass()->drawIndexed(m_PipelineState, drawCmd->ElemCount, (uint32_t)indexOffset, vertexOffset);
 			indexOffset += drawCmd->ElemCount;
 		}
 		vertexOffset += drawList->VtxBuffer.Size;

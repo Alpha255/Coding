@@ -113,7 +113,11 @@ void rRenderTest::renterToWindow()
 	m_Renderer->updateGpuBuffer(mUniformBuffer, &uboVS, sizeof(uniformBufferVS), 0u);
 
 	m_Renderer->getOpaqueRenderPass()->bindGfxPipeline(mGraphicsPipelineState);
-	m_Renderer->getOpaqueRenderPass()->drawIndexed(6u, 0u, 0);
+	m_Renderer->getOpaqueRenderPass()->drawIndexed(mGraphicsPipelineState, 6u, 0u, 0);
+
+	static bool8_t checked = true;
+	ImGui::Checkbox("TestCheckBox", &checked);
+	ImGui::Text("FPS %.2f", m_FPS);
 
 	m_Camera.update(m_cpuTimer.getElapsedTime());
 }

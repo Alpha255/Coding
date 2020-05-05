@@ -8,7 +8,7 @@ public:
 	virtual void pendingGfxPipline(const struct rGraphicsPipelineState &) = 0;
 	virtual void bindGfxPipeline(const struct rGraphicsPipelineState &) = 0;
 
-	virtual void drawIndexed(uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset) = 0;
+	virtual void drawIndexed(const struct rGraphicsPipelineState &, uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset) = 0;
 protected:
 private:
 	std::string m_Description;

@@ -108,7 +108,7 @@ public:
 		m_FrameBuffers = frameBuffers;
 	}
 
-	void drawIndexed(uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset) override final;
+	void drawIndexed(const struct rGraphicsPipelineState &state, uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset) override final;
 protected:
 	void setDynamicGfxState(const struct rGraphicsPipelineState &graphicsPipelineState);
 private:
