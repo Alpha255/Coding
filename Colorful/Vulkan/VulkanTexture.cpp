@@ -281,7 +281,7 @@ void vkImage::destroy(const VulkanDevice &device)
 	}
 }
 
-vkSampler::vkSampler(const VulkanDevice &device, const rSamplerDesc &desc)
+vkSampler::vkSampler(const VulkanDevice &device, const GfxSamplerDesc &desc)
 {
 	assert(device.isValid() && !isValid());
 	assert(desc.MaxAnisotropy < 16u);

@@ -127,7 +127,7 @@ void vkEngine::waitDone(vkCommandBuffer *cmdBuffer)
 
 void vkEngine::createOpaqueRenderPass()
 {
-	rFrameBufferDesc frameBufferDesc{};
+	GfxFrameBufferDesc frameBufferDesc{};
 	frameBufferDesc.Width = m_Swapchain.getWidth();
 	frameBufferDesc.Height = m_Swapchain.getHeight();
 	frameBufferDesc.DepthSurface = createDepthStencilView(frameBufferDesc.Width, frameBufferDesc.Height, eD24_UNorm_S8_UInt);

@@ -90,7 +90,7 @@ VulkanDevice::vkPipelinePool::vkPipelinePool(const VulkanDevice &device)
 	m_PipelineCache.create(m_Device);
 }
 
-vkGraphicsPipeline *VulkanDevice::vkPipelinePool::getOrCreateGraphicsPipeline(const vkRenderPass &renderpass, const rGraphicsPipelineState &state)
+vkGraphicsPipeline *VulkanDevice::vkPipelinePool::getOrCreateGraphicsPipeline(const vkRenderPass &renderpass, const GfxPipelineState &state)
 {
 	assert(renderpass.isValid());
 
@@ -110,7 +110,7 @@ vkGraphicsPipeline *VulkanDevice::vkPipelinePool::getOrCreateGraphicsPipeline(co
 	return graphicsPipeline;
 }
 
-rRenderPass *VulkanDevice::createRenderPass(const vkSwapchain &swapchain, rFrameBufferDesc &desc)
+GfxRenderPass *VulkanDevice::createRenderPass(const vkSwapchain &swapchain, GfxFrameBufferDesc &desc)
 {
 	assert(isValid() && swapchain.isValid());
 
@@ -160,7 +160,7 @@ rRenderPass *VulkanDevice::createRenderPass(const vkSwapchain &swapchain, rFrame
 	return renderPass;
 }
 
-rSampler *VulkanDevice::createSampler(const rSamplerDesc &desc)
+rSampler *VulkanDevice::createSampler(const GfxSamplerDesc &desc)
 {
 	auto sampler = new vkSampler(*this, desc);
 	m_GpuResourcePool->push<vkGpuResourcePool::eSampler>(sampler);

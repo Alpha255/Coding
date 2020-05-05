@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Colorful/Public/RInterface.h"
+#include "Colorful/Public/GfxDefinitions.h"
+#include "Colorful/Public/RGpuResource.h"
 
 namespaceStart(rAsset)
 

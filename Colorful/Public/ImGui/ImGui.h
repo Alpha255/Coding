@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Colorful/Public/RInterface.h"
+#include "Colorful/Public/GfxEngine.h"
 #include <ThirdParty/ImGUI/imgui.h>
 
 class ImGuiRenderer
 {
 public:
-	void initialize(uint64_t windowHandle, rEngine *renderEngine);
+	void initialize(uint64_t windowHandle, GfxEngine *renderEngine);
 
 	void finalize()
 	{
@@ -38,9 +38,9 @@ protected:
 		Vec4 ScaleTranslate;
 	};
 private:
-	rEngine *m_Renderer = nullptr;
-	rGraphicsPipelineState m_PipelineState{};
-	rRenderPass *m_Renderpass = nullptr;
+	GfxEngine *m_Renderer = nullptr;
+	GfxPipelineState m_PipelineState{};
+	GfxRenderPass *m_Renderpass = nullptr;
 	rBuffer *m_UniformBuffer = nullptr;
 	uint64_t m_WindowHandle = 0u;
 };

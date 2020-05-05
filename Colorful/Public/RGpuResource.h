@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RObject.h"
+#include "GfxDefinitions.h"
 
 struct rVertexAttributes
 {

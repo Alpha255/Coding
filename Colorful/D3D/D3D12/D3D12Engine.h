@@ -3,7 +3,7 @@
 #include "D3D12Device.h"
 #include "D3D12Swapchain.h"
 
-class d3d12Engine : public rEngine, public Singleton<d3d12Engine>
+class d3d12Engine : public GfxEngine, public Singleton<d3d12Engine>
 {
 	singletonDeclare(d3d12Engine);
 public:

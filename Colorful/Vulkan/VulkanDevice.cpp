@@ -365,7 +365,7 @@ uint32_t VulkanDevice::create(
 	m_Adapter.DeviceID = properties.deviceID;
 	m_Adapter.VendorID = properties.vendorID;
 	Logger::instance().log(Logger::eInfo, "Created vulkan device on adapter: \"%s %s\", DeviceID = %d. VulkanAPI Version: %d.%d.%d",
-		rAdapter::getVendorName(m_Adapter.VendorID).c_str(),
+		GfxAdapter::vendorName(m_Adapter.VendorID).c_str(),
 		m_Adapter.DeviceName.c_str(),
 		m_Adapter.DeviceID,
 		VK_VERSION_MAJOR(properties.apiVersion),

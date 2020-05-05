@@ -9,7 +9,7 @@ public:
 	void create(const class d3d12Device &device);
 };
 
-class d3d12Device : public D3DObject<ID3D12Device>, public rDevice
+class d3d12Device : public D3DObject<ID3D12Device>, public GfxDevice
 {
 public:
 	void create(const dxgiFactory7 &inDxgiFactory);

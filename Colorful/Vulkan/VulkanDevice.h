@@ -1,8 +1,8 @@
 #pragma once
 
-#include "VulkanPipeline.h"
-#include "VulkanCommand.h"
-#include "VulkanDescriptor.h"
+#include "Colorful/Vulkan/VulkanPipeline.h"
+#include "Colorful/Vulkan/VulkanCommand.h"
+#include "Colorful/Vulkan/VulkanDescriptor.h"
 #include "Colorful/Vulkan/VulkanShader.h"
 #include "Colorful/Vulkan/VulkanBuffer.h"
 #include "Colorful/Vulkan/VulkanView.h"
@@ -30,7 +30,7 @@ public:
 	static std::vector<vkPhysicalDevice> enumeratePhysicalDevices(const vkInstance &instance);
 };
 
-class VulkanDevice : public VulkanObject<VkDevice>, public rDevice
+class VulkanDevice : public VulkanObject<VkDevice>, public GfxDevice
 {
 public:
 	uint32_t create(
@@ -87,15 +87,15 @@ public:
 		m_GpuResourcePool->destroyBuffer(buffer);
 	}
 	rRenderSurface *createDepthStencilView(uint32_t width, uint32_t height, eRFormat format);
-	rRenderPass *createRenderPass(const vkSwapchain &swapchain, rFrameBufferDesc &desc);
-	rSampler *createSampler(const rSamplerDesc &desc);
+	GfxRenderPass *createRenderPass(const vkSwapchain &swapchain, GfxFrameBufferDesc &desc);
+	rSampler *createSampler(const GfxSamplerDesc &desc);
 
-	const rGraphicsPipelineState *getGraphicsPipelineState(vkGraphicsPipeline *pipeline) const
+	const GfxPipelineState *getGraphicsPipelineState(vkGraphicsPipeline *pipeline) const
 	{
 		return m_PipelinePool->getGraphicsPipelineState(pipeline);
 	}
 	
-	inline vkGraphicsPipeline *getOrCreateGraphicsPipeline(const vkRenderPass &renderpass, const rGraphicsPipelineState &graphicsPipelineState)
+	inline vkGraphicsPipeline *getOrCreateGraphicsPipeline(const vkRenderPass &renderpass, const GfxPipelineState &graphicsPipelineState)
 	{
 		return m_PipelinePool->getOrCreateGraphicsPipeline(renderpass, graphicsPipelineState);
 	}
@@ -242,7 +242,7 @@ protected:
 	public:
 		vkPipelinePool(const VulkanDevice &device);
 
-		vkGraphicsPipeline *getOrCreateGraphicsPipeline(const vkRenderPass &renderpass, const rGraphicsPipelineState &graphicsPipelineState);
+		vkGraphicsPipeline *getOrCreateGraphicsPipeline(const vkRenderPass &renderpass, const GfxPipelineState &graphicsPipelineState);
 
 		inline void destroyAll()
 		{
@@ -255,7 +255,7 @@ protected:
 			m_PipelineCache.destroy(m_Device);
 		}
 
-		const rGraphicsPipelineState *getGraphicsPipelineState(vkGraphicsPipeline *pipeline) const
+		const GfxPipelineState *getGraphicsPipelineState(vkGraphicsPipeline *pipeline) const
 		{
 			for (uint32_t i = 0u; i < m_Pipelines.size(); ++i)
 			{
@@ -270,8 +270,8 @@ protected:
 	protected:
 	private:
 		const VulkanDevice &m_Device;
-		///std::unordered_map<rGraphicsPipelineState, vkPipeline *> m_Pipelines;
-		std::vector<std::pair<rGraphicsPipelineState, vkPipeline *>> m_Pipelines;
+		///std::unordered_map<GfxPipelineState, vkPipeline *> m_Pipelines;
+		std::vector<std::pair<GfxPipelineState, vkPipeline *>> m_Pipelines;
 		vkPipelineCache m_PipelineCache;
 	};
 private:

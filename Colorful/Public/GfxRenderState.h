@@ -2,80 +2,8 @@
 
 #include "RGpuResource.h"
 
-class rRenderPass : public rGpuResource
+class rComputePipeline
 {
-public:
-	virtual void pendingGfxPipline(const struct rGraphicsPipelineState &) = 0;
-	virtual void bindGfxPipeline(const struct rGraphicsPipelineState &) = 0;
-
-	virtual void drawIndexed(const struct rGraphicsPipelineState &, uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset) = 0;
-protected:
-private:
-	std::string m_Description;
-};
-
-struct rStencilOpDesc
-{
-	eRStencilOp FailOp = eRStencilOp::eKeep;
-	eRStencilOp PassOp = eRStencilOp::eKeep;
-	eRStencilOp DepthFailOp = eRStencilOp::eKeep;
-	eRCompareOp CompareOp = eRCompareOp::eAlways;
-};
-
-struct rColorBlendStateDesc
-{
-	bool8_t Enable = false;
-	eRBlendFactor SrcColor = eRBlendFactor::eSrcColor;
-	eRBlendFactor DstColor = eRBlendFactor::eZero;
-	eRBlendOp ColorOp = eRBlendOp::eAdd;
-	eRBlendFactor SrcAlpha = eRBlendFactor::eSrcAlpha;
-	eRBlendFactor DstAlpha = eRBlendFactor::eZero;
-	eRBlendOp AlphaOp = eRBlendOp::eAdd;
-	uint32_t ColorMask = eRColorWriteMask::eColorNone;
-};
-
-struct rRasterizerStateDesc
-{
-	eRPolygonMode PolygonMode = eSolid;
-	eRCullMode CullMode = eCullNone;
-	eRFrontFace FrontFace = eCounterclockwise;
-	bool8_t EnableDepthBias = false;
-	float32_t DepthBias = 0.0f;
-	float32_t DepthBiasClamp = 0.0f;
-	float32_t DepthBiasSlope = 0.0f;
-};
-
-struct rBlendStateDesc
-{
-	bool8_t EnableLogicOp = false;
-	eRLogicOp LogicOp = eRLogicOp::eNo;
-	rColorBlendStateDesc ColorBlendStateDesc[eMaxRenderTargets]{};
-};
-
-struct rDepthStencilStateDesc
-{
-	bool8_t EnableDepth = true;
-	bool8_t EnableDepthWrite = false;
-	eRCompareOp DepthCompareOp = eRCompareOp::eAlways;
-	bool8_t EnableStencil = false;
-	uint8_t StencilReadMask = 0xF;
-	uint8_t StencilWriteMask = 0xF;
-	rStencilOpDesc FrontFace{};
-	rStencilOpDesc BackFace{};
-};
-
-struct rSamplerDesc
-{
-	eRFilter MinMagFilter = eLinear;
-	eRSamplerAddressMode AddressModeU = eRepeat;
-	eRSamplerAddressMode AddressModeV = eRepeat;
-	eRSamplerAddressMode AddressModeW = eRepeat;
-	float32_t MipLodBias = 0.0f;
-	uint32_t MaxAnisotropy = 0u;
-	eRCompareOp CompareOp = eRCompareOp::eNever;
-	float32_t MinLod = 0.0f;
-	float32_t MaxLod = 0.0f;
-	eRBorderColor BorderColor = eFloatTransparentBlack;
 };
 
 class rSampler : public rGpuResource
@@ -108,7 +36,93 @@ struct rScissor : public Vec4
 	}
 };
 
-struct rGraphicsPipelineState
+class GfxRenderPass : public rGpuResource
+{
+public:
+	virtual void pendingGfxPipline(const struct GfxPipelineState &) = 0;
+	virtual void bindGfxPipeline(const struct GfxPipelineState &) = 0;
+
+	virtual void drawIndexed(const struct GfxPipelineState &, uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset) = 0;
+protected:
+private:
+	std::string m_Description;
+};
+
+struct GfxRasterizerStateDesc
+{
+	eRPolygonMode PolygonMode = eSolid;
+	eRCullMode CullMode = eCullNone;
+	eRFrontFace FrontFace = eCounterclockwise;
+	bool8_t EnableDepthBias = false;
+	float32_t DepthBias = 0.0f;
+	float32_t DepthBiasClamp = 0.0f;
+	float32_t DepthBiasSlope = 0.0f;
+};
+
+struct GfxBlendStateDesc
+{
+	struct ColorBlendState
+	{
+		bool8_t Enable = false;
+		eRBlendFactor SrcColor = eRBlendFactor::eSrcColor;
+		eRBlendFactor DstColor = eRBlendFactor::eZero;
+		eRBlendOp ColorOp = eRBlendOp::eAdd;
+		eRBlendFactor SrcAlpha = eRBlendFactor::eSrcAlpha;
+		eRBlendFactor DstAlpha = eRBlendFactor::eZero;
+		eRBlendOp AlphaOp = eRBlendOp::eAdd;
+		uint32_t ColorMask = eRColorWriteMask::eColorNone;
+	};
+
+	bool8_t EnableLogicOp = false;
+	eRLogicOp LogicOp = eRLogicOp::eNo;
+	ColorBlendState ColorBlendStates[eMaxRenderTargets]{};
+};
+
+struct GfxDepthStencilStateDesc
+{
+	struct StencilOp
+	{
+		eRStencilOp FailOp = eRStencilOp::eKeep;
+		eRStencilOp PassOp = eRStencilOp::eKeep;
+		eRStencilOp DepthFailOp = eRStencilOp::eKeep;
+		eRCompareOp CompareOp = eRCompareOp::eAlways;
+	};
+
+	bool8_t EnableDepth = true;
+	bool8_t EnableDepthWrite = false;
+	eRCompareOp DepthCompareOp = eRCompareOp::eAlways;
+	bool8_t EnableStencil = false;
+	uint8_t StencilReadMask = 0xF;
+	uint8_t StencilWriteMask = 0xF;
+	StencilOp FrontFace{};
+	StencilOp BackFace{};
+};
+
+struct GfxSamplerDesc
+{
+	eRFilter MinMagFilter = eLinear;
+	eRSamplerAddressMode AddressModeU = eRepeat;
+	eRSamplerAddressMode AddressModeV = eRepeat;
+	eRSamplerAddressMode AddressModeW = eRepeat;
+	float32_t MipLodBias = 0.0f;
+	uint32_t MaxAnisotropy = 0u;
+	eRCompareOp CompareOp = eRCompareOp::eNever;
+	float32_t MinLod = 0.0f;
+	float32_t MaxLod = 0.0f;
+	eRBorderColor BorderColor = eFloatTransparentBlack;
+};
+
+struct GfxFrameBufferDesc
+{
+	class rRenderSurface *ColorSurface[eMaxRenderTargets]{};
+	class rRenderSurface *DepthSurface = nullptr;
+
+	uint32_t Width = 0u;
+	uint32_t Height = 0u;
+	uint32_t Layers = 1u;
+};
+
+struct GfxPipelineState
 {
 	enum eDirtyFlags : uint8_t
 	{
@@ -160,17 +174,17 @@ struct rGraphicsPipelineState
 		setDirty(eScissor);
 	}
 
-	inline void setRasterizerState(const rRasterizerStateDesc &desc)
+	inline void setRasterizerState(const GfxRasterizerStateDesc &desc)
 	{
 		RasterizerStateDesc = desc;
 	}
 
-	inline void setBlendState(const rBlendStateDesc &desc)
+	inline void setBlendState(const GfxBlendStateDesc &desc)
 	{
 		BlendStateDesc = desc;
 	}
 
-	inline void setDepthStencilState(const rDepthStencilStateDesc &desc)
+	inline void setDepthStencilState(const GfxDepthStencilStateDesc &desc)
 	{
 		DepthStencilStateDesc = desc;
 	}
@@ -197,15 +211,15 @@ struct rGraphicsPipelineState
 
 	const rShader *Shaders[eRShaderUsage_MaxEnum]{};
 
-	rRasterizerStateDesc RasterizerStateDesc{};
-	rBlendStateDesc BlendStateDesc{};
-	rDepthStencilStateDesc DepthStencilStateDesc{};
+	GfxRasterizerStateDesc RasterizerStateDesc{};
+	GfxBlendStateDesc BlendStateDesc{};
+	GfxDepthStencilStateDesc DepthStencilStateDesc{};
 	rViewport Viewport;
 	rScissor Scissor;
 	rBuffer *VertexBuffer = nullptr;
 	rBuffer *IndexBuffer = nullptr;
 
-	friend bool8_t operator==(const rGraphicsPipelineState &left, const rGraphicsPipelineState &right)
+	friend bool8_t operator==(const GfxPipelineState &left, const GfxPipelineState &right)
 	{
 		for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
 		{
@@ -220,33 +234,6 @@ struct rGraphicsPipelineState
 			left.PrimitiveTopology == right.PrimitiveTopology;
 	}
 	/// MultisampleState
-
-	struct rDrawOperation
-	{
-		enum eDrawOp
-		{
-			eDraw,
-			eDrawIndexed,
-			eDrawOp_MaxEnum
-		};
-
-		eDrawOp DrawOp = eDrawIndexed;
-		size_t IndexCount = 0u;
-		size_t FirstIndex = 0u;
-		size_t VertexOffset = 0u;
-	};
-	rDrawOperation DrawOperation{};
-
-	inline void drawIndexed(size_t indexCount, size_t firstIndex, size_t vertexOffset)
-	{
-		DrawOperation = rDrawOperation
-		{
-			rDrawOperation::eDrawIndexed,
-			indexCount,
-			firstIndex,
-			vertexOffset
-		};
-	}
 
 	struct rClearValue
 	{
@@ -263,18 +250,4 @@ struct rGraphicsPipelineState
 	}
 	Vec4 RenderArea;
 	eRIndexType IndexType = eRIndexType::eUInt32;
-};
-
-class rComputePipeline
-{
-};
-
-struct rFrameBufferDesc
-{
-	rRenderSurface *ColorSurface[eMaxRenderTargets]{};
-	rRenderSurface *DepthSurface = nullptr;
-
-	uint32_t Width = 0u;
-	uint32_t Height = 0u;
-	uint32_t Layers = 1u;
 };

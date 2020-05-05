@@ -40,7 +40,7 @@ void vkGraphicsPipeline::create(
 	const VulkanDevice &device, 
 	const vkRenderPass &renderpass, 
 	const vkPipelineCache &cache, 
-	const rGraphicsPipelineState &state)
+	const GfxPipelineState &state)
 {
 	assert(device.isValid() && !isValid());
 	assert(state.Shaders[eVertexShader]);
@@ -176,7 +176,7 @@ void vkGraphicsPipeline::bind(const vkCommandBuffer &cmdBuffer)
 	vkCmdBindPipeline(cmdBuffer.Handle, VK_PIPELINE_BIND_POINT_GRAPHICS, Handle);
 }
 
-VkPipelineRasterizationStateCreateInfo vkGraphicsPipeline::getRasterizationState(const rRasterizerStateDesc &stateDesc) const
+VkPipelineRasterizationStateCreateInfo vkGraphicsPipeline::getRasterizationState(const GfxRasterizerStateDesc &stateDesc) const
 {
 	assert(stateDesc.PolygonMode < eRPolygonMode_MaxEnum);
 	assert(stateDesc.CullMode < eRCullMode_MaxEnum);
@@ -202,7 +202,7 @@ VkPipelineRasterizationStateCreateInfo vkGraphicsPipeline::getRasterizationState
 	return rasterizationState;
 }
 
-VkPipelineDepthStencilStateCreateInfo vkGraphicsPipeline::getDepthStencilState(const rDepthStencilStateDesc &stateDesc) const
+VkPipelineDepthStencilStateCreateInfo vkGraphicsPipeline::getDepthStencilState(const GfxDepthStencilStateDesc &stateDesc) const
 {
 	VkPipelineDepthStencilStateCreateInfo depthStencilState
 	{
@@ -241,22 +241,22 @@ VkPipelineDepthStencilStateCreateInfo vkGraphicsPipeline::getDepthStencilState(c
 
 VkPipelineColorBlendStateCreateInfo vkGraphicsPipeline::getColorBlendState(
 	std::vector<VkPipelineColorBlendAttachmentState> &attachments,
-	const rBlendStateDesc &stateDesc) const
+	const GfxBlendStateDesc &stateDesc) const
 {
 	for (uint32_t i = 0u; i < eMaxRenderTargets; ++i)
 	{
-		if (stateDesc.ColorBlendStateDesc[i].Enable)
+		if (stateDesc.ColorBlendStates[i].Enable)
 		{
 			VkPipelineColorBlendAttachmentState attachment
 			{
-				stateDesc.ColorBlendStateDesc[i].Enable,
-				vkEngine::enumTranslator::toBlendFactor(stateDesc.ColorBlendStateDesc[i].SrcColor),
-				vkEngine::enumTranslator::toBlendFactor(stateDesc.ColorBlendStateDesc[i].DstColor),
-				vkEngine::enumTranslator::toBlendOp(stateDesc.ColorBlendStateDesc[i].ColorOp),
-				vkEngine::enumTranslator::toBlendFactor(stateDesc.ColorBlendStateDesc[i].SrcAlpha),
-				vkEngine::enumTranslator::toBlendFactor(stateDesc.ColorBlendStateDesc[i].DstAlpha),
-				vkEngine::enumTranslator::toBlendOp(stateDesc.ColorBlendStateDesc[i].AlphaOp),
-				vkEngine::enumTranslator::toColorComponentFlags(stateDesc.ColorBlendStateDesc[i].ColorMask)
+				stateDesc.ColorBlendStates[i].Enable,
+				vkEngine::enumTranslator::toBlendFactor(stateDesc.ColorBlendStates[i].SrcColor),
+				vkEngine::enumTranslator::toBlendFactor(stateDesc.ColorBlendStates[i].DstColor),
+				vkEngine::enumTranslator::toBlendOp(stateDesc.ColorBlendStates[i].ColorOp),
+				vkEngine::enumTranslator::toBlendFactor(stateDesc.ColorBlendStates[i].SrcAlpha),
+				vkEngine::enumTranslator::toBlendFactor(stateDesc.ColorBlendStates[i].DstAlpha),
+				vkEngine::enumTranslator::toBlendOp(stateDesc.ColorBlendStates[i].AlphaOp),
+				vkEngine::enumTranslator::toColorComponentFlags(stateDesc.ColorBlendStates[i].ColorMask)
 			};
 			attachments.emplace_back(std::move(attachment));
 		}
@@ -291,7 +291,7 @@ VkPipelineColorBlendStateCreateInfo vkGraphicsPipeline::getColorBlendState(
 	return blendState;
 }
 
-void vkGraphicsPipeline::setupDescriptorSet(const VulkanDevice &device, const rGraphicsPipelineState &state)
+void vkGraphicsPipeline::setupDescriptorSet(const VulkanDevice &device, const GfxPipelineState &state)
 {
 	m_DescriptorSet = device.allocDescriptorSet(m_DescriptorSetLayout);
 

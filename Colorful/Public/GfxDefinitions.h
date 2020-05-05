@@ -34,22 +34,6 @@ protected:
 private:
 };
 
-template<typename T> struct VulkanObject
-{
-	T Handle = nullptr;
-
-	inline bool8_t isValid() const
-	{
-		return Handle != nullptr;
-	}
-};
-
-template <typename T> class VulkanDeviceObject : public VulkanObject<T>
-{
-public:
-	virtual void destroy(const class VulkanDevice &device) = 0;
-};
-
 template <typename T> class D3DObject : public SharedObject<T>
 {
 public:
@@ -72,6 +56,22 @@ public:
 			}
 		}
 	}
+};
+
+template<typename T> struct VulkanObject
+{
+	T Handle = nullptr;
+
+	inline bool8_t isValid() const
+	{
+		return Handle != nullptr;
+	}
+};
+
+template <typename T> class VulkanDeviceObject : public VulkanObject<T>
+{
+public:
+	virtual void destroy(const class VulkanDevice &device) = 0;
 };
 
 #define rVerifyD3D11(func)                        \

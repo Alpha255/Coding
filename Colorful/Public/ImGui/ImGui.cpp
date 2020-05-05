@@ -1,6 +1,6 @@
 #include "ImGui.h"
 
-void ImGuiRenderer::initialize(uint64_t windowHandle, rEngine *renderEngine)
+void ImGuiRenderer::initialize(uint64_t windowHandle, GfxEngine *renderEngine)
 {
 	assert(windowHandle && renderEngine);
 
@@ -72,7 +72,7 @@ void ImGuiRenderer::initialize(uint64_t windowHandle, rEngine *renderEngine)
 	m_UniformBuffer = m_Renderer->createUniformBuffer(sizeof(UniformBuffer), nullptr);
 	vertexShader->setUniformBuffer(m_UniformBuffer);
 
-	rSamplerDesc samplerDesc{};
+	GfxSamplerDesc samplerDesc{};
 	auto sampler = m_Renderer->createSampler(samplerDesc);
 	fontTex->bindSampler(sampler);
 	fragmentShader->bindTexture(fontTex);
@@ -80,8 +80,8 @@ void ImGuiRenderer::initialize(uint64_t windowHandle, rEngine *renderEngine)
 	m_PipelineState.setShader(vertexShader);
 	m_PipelineState.setShader(fragmentShader);
 
-	rBlendStateDesc blendDesc{};
-	blendDesc.ColorBlendStateDesc[0] = rColorBlendStateDesc
+	GfxBlendStateDesc blendDesc{};
+	blendDesc.ColorBlendStates[0] = GfxBlendStateDesc::ColorBlendState
 	{
 		true,
 		eRBlendFactor::eSrcAlpha,
@@ -94,7 +94,7 @@ void ImGuiRenderer::initialize(uint64_t windowHandle, rEngine *renderEngine)
 	};
 	m_PipelineState.setBlendState(blendDesc);
 
-	rDepthStencilStateDesc depthStencilDesc
+	GfxDepthStencilStateDesc depthStencilDesc
 	{
 		false,
 		false,

@@ -35,7 +35,7 @@ void d3d11BlendState::create(
 	bool8_t enableLogicOp,
 	eRLogicOp logicOp, 
 	uint32_t renderTargetCount,
-	const rColorBlendStateDesc * const clrBlendState)
+	const GfxBlendStateDesc::ColorBlendState * const clrBlendState)
 {
 	assert(!isValid());
 
@@ -75,8 +75,8 @@ void d3d11DepthStencilState::create(
 	bool8_t enableStencil, 
 	uint8_t stencilReadMask, 
 	uint8_t stencilWriteMask, 
-	const rStencilOpDesc &front, 
-	const rStencilOpDesc &back)
+	const GfxDepthStencilStateDesc::StencilOp &front,
+	const GfxDepthStencilStateDesc::StencilOp &back)
 {
 	assert(!isValid());
 

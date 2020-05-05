@@ -21,7 +21,7 @@ public:
 		bool8_t enableLogicOp,
 		eRLogicOp logicOp,
 		uint32_t renderTargetCount,
-		const rColorBlendStateDesc * const clrBlendState);
+		const GfxBlendStateDesc::ColorBlendState * const clrBlendState);
 };
 
 class d3d11DepthStencilState : public D3DObject<ID3D11DepthStencilState>
@@ -34,6 +34,6 @@ public:
 		bool8_t enableStencil,
 		uint8_t stencilReadMask,
 		uint8_t stencilWriteMask,
-		const rStencilOpDesc &front,
-		const rStencilOpDesc &back);
+		const GfxDepthStencilStateDesc::StencilOp &front,
+		const GfxDepthStencilStateDesc::StencilOp &back);
 };

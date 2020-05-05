@@ -6,7 +6,7 @@
 class vkSampler : public VulkanDeviceObject<VkSampler>, public rSampler
 {
 public:
-	vkSampler(const class VulkanDevice &device, const rSamplerDesc &desc);
+	vkSampler(const class VulkanDevice &device, const GfxSamplerDesc &desc);
 	void destroy(const class VulkanDevice &device) override final;
 protected:
 private:

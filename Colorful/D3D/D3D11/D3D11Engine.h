@@ -3,7 +3,7 @@
 #include "D3D11Device.h"
 #include "D3D11Swapchain.h"
 
-class d3d11Engine : public rEngine, public Singleton<d3d11Engine>
+class d3d11Engine : public GfxEngine, public Singleton<d3d11Engine>
 {
 	singletonDeclare(d3d11Engine);
 public:

@@ -30,19 +30,19 @@ public:
 		const class VulkanDevice &device,
 		const class vkRenderPass &renderpass,
 		const vkPipelineCache &cache,
-		const rGraphicsPipelineState &state);
+		const GfxPipelineState &state);
 
 	void destroy(const class VulkanDevice &device) override final;
 
 	void bind(const class vkCommandBuffer &cmdBuffer);
 protected:
-	VkPipelineRasterizationStateCreateInfo getRasterizationState(const rRasterizerStateDesc &stateDesc) const;
-	VkPipelineDepthStencilStateCreateInfo getDepthStencilState(const rDepthStencilStateDesc &stateDesc) const;
+	VkPipelineRasterizationStateCreateInfo getRasterizationState(const GfxRasterizerStateDesc &stateDesc) const;
+	VkPipelineDepthStencilStateCreateInfo getDepthStencilState(const GfxDepthStencilStateDesc &stateDesc) const;
 	VkPipelineColorBlendStateCreateInfo getColorBlendState(
 		std::vector<VkPipelineColorBlendAttachmentState> &attachments, 
-		const rBlendStateDesc &stateDesc) const;
+		const GfxBlendStateDesc &stateDesc) const;
 
-	void setupDescriptorSet(const class VulkanDevice &device, const rGraphicsPipelineState &state);
+	void setupDescriptorSet(const class VulkanDevice &device, const GfxPipelineState &state);
 private:
 	vkPipelineLayout m_PipelineLayout;
 	vkDescriptorSetLayout m_DescriptorSetLayout;

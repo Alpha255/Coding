@@ -40,6 +40,6 @@ public:
 class vkFrameBuffer : public VulkanDeviceObject<VkFramebuffer>
 {
 public:
-	void create(const class VulkanDevice &device, const class vkRenderPass &renderPass, const rFrameBufferDesc &desc);
+	void create(const class VulkanDevice &device, const class vkRenderPass &renderPass, const GfxFrameBufferDesc &desc);
 	void destroy(const class VulkanDevice &device) override final;
 };

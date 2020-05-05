@@ -161,7 +161,7 @@ vkGpuBuffer::vkGpuBuffer(const VulkanDevice &device, eRBufferBindFlags bindFlags
 	}
 }
 
-void vkFrameBuffer::create(const VulkanDevice &device, const vkRenderPass &renderPass, const rFrameBufferDesc &desc)
+void vkFrameBuffer::create(const VulkanDevice &device, const vkRenderPass &renderPass, const GfxFrameBufferDesc &desc)
 {
 	assert(device.isValid() && renderPass.isValid() && !isValid());
 

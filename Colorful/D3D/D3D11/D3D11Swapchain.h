@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Colorful/Public/RInterface.h"
+#include "Colorful/Public/GfxDefinitions.h"
 
 class d3d11Swapchain : public D3DObject<IDXGISwapChain1>
 {

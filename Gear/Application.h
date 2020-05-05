@@ -44,7 +44,7 @@ protected:
 	CpuTimer m_cpuTimer;
 	dxutCamera m_Camera;
 	Configurations m_Config;
-	rEngine *m_Renderer = nullptr;
+	GfxEngine *m_Renderer = nullptr;
 	ImGuiRenderer m_GuiRender;
 private:
 	bool8_t m_bNeedResize = false;

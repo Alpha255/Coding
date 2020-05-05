@@ -94,23 +94,23 @@
 
 /// https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/vkspec.html#memory-model
 
-class vkRenderPass : public VulkanDeviceObject<VkRenderPass>, public rRenderPass
+class vkRenderPass : public VulkanDeviceObject<VkRenderPass>, public GfxRenderPass
 {
 public:
-	void create(const class VulkanDevice &device, const rFrameBufferDesc &desc);
+	void create(const class VulkanDevice &device, const GfxFrameBufferDesc &desc);
 	void destroy(const class VulkanDevice &device) override final;
 
-	void pendingGfxPipline(const struct rGraphicsPipelineState &) override final;
-	void bindGfxPipeline(const struct rGraphicsPipelineState &) override final;
+	void pendingGfxPipline(const struct GfxPipelineState &) override final;
+	void bindGfxPipeline(const struct GfxPipelineState &) override final;
 
 	inline void bindFrameBuffers(const std::vector<vkFrameBuffer> &frameBuffers)
 	{
 		m_FrameBuffers = frameBuffers;
 	}
 
-	void drawIndexed(const struct rGraphicsPipelineState &state, uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset) override final;
+	void drawIndexed(const struct GfxPipelineState &state, uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset) override final;
 protected:
-	void setDynamicGfxState(const struct rGraphicsPipelineState &graphicsPipelineState);
+	void setDynamicGfxState(const struct GfxPipelineState &graphicsPipelineState);
 private:
 	std::vector<vkFrameBuffer> m_FrameBuffers;
 	class vkGraphicsPipeline *m_CurGfxPipeline = nullptr;

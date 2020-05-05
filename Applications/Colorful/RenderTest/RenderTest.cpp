@@ -1,7 +1,7 @@
 #include "RenderTest.h"
 
 rBuffer *mUniformBuffer = nullptr;
-rGraphicsPipelineState mGraphicsPipelineState{};
+GfxPipelineState mGraphicsPipelineState{};
 
 struct uniformBufferVS
 {
@@ -12,11 +12,11 @@ struct uniformBufferVS
 
 void RenderTest::postInitialize()
 {
-	auto vertexShader = m_Renderer->createVertexShader("rRenderTest.shader");
-	auto fragmentShader = m_Renderer->createFragmentShader("rRenderTest.shader");
+	auto vertexShader = m_Renderer->createVertexShader("RenderTest.shader");
+	auto fragmentShader = m_Renderer->createFragmentShader("RenderTest.shader");
 	auto texture = m_Renderer->createTexture("brickwall.dds");
 
-	rSamplerDesc samplerDesc{};
+	GfxSamplerDesc samplerDesc{};
 	auto sampler = m_Renderer->createSampler(samplerDesc);
 	texture->bindSampler(sampler);
 	fragmentShader->bindTexture(texture);

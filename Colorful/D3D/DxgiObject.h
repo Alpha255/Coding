@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Colorful/Public/RInterface.h"
+#include "Colorful/Public/GfxEngine.h"
 
 class dxgiFactory : public D3DObject<IDXGIFactory>
 {

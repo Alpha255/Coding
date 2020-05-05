@@ -1,45 +1,52 @@
 #pragma once
 
-#include "RObject.h"
+#include "GfxDefinitions.h"
+#include "GfxRenderState.h"
 
-namespace gear
+namespace Gear
 {
 	struct Configurations;
 }
 
-struct rAdapter
+struct GfxAdapter
 {
 	std::string DeviceName;
 	uint32_t VendorID = 0u;
 	uint32_t DeviceID = 0u;                      
 
-	static std::string getVendorName(uint32_t verdorID)
+	static std::string vendorName(uint32_t verdorID)
 	{
-		std::string vendorName("Unknown");
+		std::string name("Unknown");
 		switch (verdorID)
 		{
 		case 0x1002: 
-			vendorName = std::string("AMD");
+			name = std::string("AMD");
 			break;
 		case 0x1010: 
-			vendorName = std::string("ImgTec");
+			name = std::string("ImgTec");
 			break;
 		case 0x10DE: 
-			vendorName = std::string("NVIDIA");
+			name = std::string("NVIDIA");
 			break;
 		case 0x13B5: 
-			vendorName = std::string("ARM");
+			name = std::string("ARM");
 			break;
 		case 0x5143: 
-			vendorName = std::string("Qualcomm");
+			name = std::string("Qualcomm");
 			break;
 		case 0x8086: 
-			vendorName = std::string("Intel");
+			name = std::string("Intel");
 			break;
 		}
 
-		return vendorName;
+		return name;
 	}
+};
+
+class GfxDevice
+{
+protected:
+	GfxAdapter m_Adapter;
 };
 
 class rRenderSurface
@@ -47,14 +54,6 @@ class rRenderSurface
 };
 
 class rGeometryBuffer
-{
-};
-
-class rCommandList
-{
-};
-
-class rCommandBuffer
 {
 };
 
@@ -66,21 +65,13 @@ class rGpuTimer
 {
 };
 
-class rDevice
+class GfxEngine
 {
 public:
-protected:
-	rAdapter m_Adapter;
-private:
-};
-
-class rEngine
-{
-public:
-	virtual void initialize(uint64_t windowHandle, const Configurations &config) = 0;
+	virtual void initialize(uint64_t windowHandle, const Gear::Configurations &config) = 0;
 	virtual void finalize() = 0;
 	virtual void logError(uint32_t result) const = 0;
-	virtual void handleWindowResize(uint32_t width, uint32_t height, const Configurations &config) = 0;
+	virtual void handleWindowResize(uint32_t width, uint32_t height, const Gear::Configurations &config) = 0;
 	virtual void present() {}
 
 	virtual class rShader *createVertexShader(const std::string &shaderName) = 0;
@@ -91,8 +82,8 @@ public:
 	virtual class rBuffer *createUniformBuffer(size_t, const void *) { return nullptr; }
 	virtual void destroyBuffer(class rBuffer *) {}
 
-	virtual class rRenderSurface *createDepthStencilView(uint32_t, uint32_t, eRFormat) { return nullptr; }
-	virtual class rRenderPass *createRenderPass(struct rFrameBufferDesc &) { return nullptr; }
+	virtual rRenderSurface *createDepthStencilView(uint32_t, uint32_t, eRFormat) { return nullptr; }
+	virtual GfxRenderPass *createRenderPass(GfxFrameBufferDesc &) { return nullptr; }
 	virtual void createOpaqueRenderPass() {}
 
 	virtual class rTexture *createTexture(const std::string &) { return nullptr; }
@@ -111,16 +102,14 @@ public:
 
 	virtual void updateGpuBuffer(class rBuffer *, const void *, size_t, size_t) {}
 
-	virtual class rSampler *createSampler(const struct rSamplerDesc &) { return nullptr; }
+	virtual rSampler *createSampler(const GfxSamplerDesc &) { return nullptr; }
 
-	inline class rRenderPass *getOpaqueRenderPass()
+	inline GfxRenderPass *getOpaqueRenderPass()
 	{
 		assert(m_OpaqueRenderPass);
 		return m_OpaqueRenderPass;
 	}
 protected:
-	class rRenderPass *m_OpaqueRenderPass = nullptr;
+	GfxRenderPass *m_OpaqueRenderPass = nullptr;
 private:
 };
-
-#include "RRenderState.h"

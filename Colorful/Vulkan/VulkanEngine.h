@@ -4,7 +4,7 @@
 #include "Colorful/Vulkan/VulkanSwapChain.h"
 #include "Colorful/Vulkan/VulkanQueue.h"
 
-class vkEngine : public rEngine, public Singleton<vkEngine>
+class vkEngine : public GfxEngine, public Singleton<vkEngine>
 {
 	singletonDeclare(vkEngine);
 public:
@@ -64,7 +64,7 @@ public:
 		return m_Device.createDepthStencilView(width, height, format);
 	}
 
-	inline rRenderPass *createRenderPass(rFrameBufferDesc &desc) override final
+	inline GfxRenderPass *createRenderPass(GfxFrameBufferDesc &desc) override final
 	{
 		return m_Device.createRenderPass(m_Swapchain, desc);
 	}
@@ -87,7 +87,7 @@ public:
 		return m_Device.createTexture(type, format, width, height, mipLevels, arrayLayers, data, dataSize);
 	}
 
-	inline rSampler *createSampler(const rSamplerDesc &desc) override final
+	inline rSampler *createSampler(const GfxSamplerDesc &desc) override final
 	{
 		return m_Device.createSampler(desc);
 	}
@@ -100,7 +100,7 @@ public:
 		uniformBuffer->update(m_Device, data, size, offset);
 	}
 
-	inline vkGraphicsPipeline *getOrCreateGraphicsPipeline(const vkRenderPass &renderpass, const rGraphicsPipelineState &state)
+	inline vkGraphicsPipeline *getOrCreateGraphicsPipeline(const vkRenderPass &renderpass, const GfxPipelineState &state)
 	{
 		return m_Device.getOrCreateGraphicsPipeline(renderpass, state);
 	}

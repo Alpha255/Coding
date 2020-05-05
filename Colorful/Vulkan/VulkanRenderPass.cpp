@@ -31,7 +31,7 @@
 	A render pass must have at least one subpass.
 **************************************************/
 
-void vkRenderPass::create(const VulkanDevice &device, const rFrameBufferDesc &desc)
+void vkRenderPass::create(const VulkanDevice &device, const GfxFrameBufferDesc &desc)
 {
 	assert(device.isValid() && !isValid());
 
@@ -166,12 +166,12 @@ void vkRenderPass::destroy(const VulkanDevice &device)
 	}
 }
 
-void vkRenderPass::pendingGfxPipline(const rGraphicsPipelineState &state)
+void vkRenderPass::pendingGfxPipline(const GfxPipelineState &state)
 {
 	vkEngine::instance().getOrCreateGraphicsPipeline(*this, state);
 }
 
-void vkRenderPass::bindGfxPipeline(const rGraphicsPipelineState &state)
+void vkRenderPass::bindGfxPipeline(const GfxPipelineState &state)
 {
 	///m_CmdBuffer.waitFence();
 
@@ -226,7 +226,7 @@ void vkRenderPass::bindGfxPipeline(const rGraphicsPipelineState &state)
 
 	setDynamicGfxState(state);
 
-	if (state.isDirty(rGraphicsPipelineState::eVertexBuffer))
+	if (state.isDirty(GfxPipelineState::eVertexBuffer))
 	{
 		assert(state.VertexBuffer);
 		auto vertexBuffer = static_cast<vkBuffer *>(state.VertexBuffer);
@@ -234,7 +234,7 @@ void vkRenderPass::bindGfxPipeline(const rGraphicsPipelineState &state)
 		vkCmdBindVertexBuffers(m_CmdBuffer.Handle, 0u, 1u, &vertexBuffer->Handle, offsets);
 	}
 
-	if (state.isDirty(rGraphicsPipelineState::eIndexBuffer))
+	if (state.isDirty(GfxPipelineState::eIndexBuffer))
 	{
 		assert(state.IndexBuffer);
 		auto indexBuffer = static_cast<vkBuffer *>(state.IndexBuffer);
@@ -244,7 +244,7 @@ void vkRenderPass::bindGfxPipeline(const rGraphicsPipelineState &state)
 	vkEngine::instance().getQueue().queueCommandBuffer(&m_CmdBuffer);
 }
 
-void vkRenderPass::drawIndexed(const rGraphicsPipelineState &state, uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset)
+void vkRenderPass::drawIndexed(const GfxPipelineState &state, uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset)
 {
 	assert(isValid() && m_CurGfxPipeline && m_CmdBuffer.isValid());
 
@@ -259,11 +259,11 @@ void vkRenderPass::drawIndexed(const rGraphicsPipelineState &state, uint32_t ind
 		1u);
 }
 
-void vkRenderPass::setDynamicGfxState(const rGraphicsPipelineState &state)
+void vkRenderPass::setDynamicGfxState(const GfxPipelineState &state)
 {
 	assert(m_CmdBuffer.isValid());
 
-	///if (state.isDirty(rGraphicsPipelineState::eViewport))
+	///if (state.isDirty(GfxPipelineState::eViewport))
 	{
 		VkViewport viewport
 		{
@@ -277,7 +277,7 @@ void vkRenderPass::setDynamicGfxState(const rGraphicsPipelineState &state)
 		vkCmdSetViewport(m_CmdBuffer.Handle, 0u, 1u, &viewport);
 	}
 
-	///if (state.isDirty(rGraphicsPipelineState::eScissor))
+	///if (state.isDirty(GfxPipelineState::eScissor))
 	{
 		VkRect2D scissor
 		{
