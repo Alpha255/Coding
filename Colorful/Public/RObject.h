@@ -1,13 +1,13 @@
 #pragma once
 
 #include "Gear/Gear.h"
-#include "Colorful/Public/REnumerations.h"
+#include "Colorful/Public/Enumerations.h"
 
-template <typename T> class rObject
+template <typename T> class SharedObject
 {
 public:
-	inline rObject() = default;
-	virtual ~rObject() = default;
+	inline SharedObject() = default;
+	virtual ~SharedObject() = default;
 
 	inline bool8_t isValid() const
 	{
@@ -25,7 +25,7 @@ public:
 		return get();
 	}
 
-	inline uint32_t getRefCount() const
+	inline uint32_t refCount() const
 	{
 		return m_Object.use_count();
 	}
@@ -34,53 +34,23 @@ protected:
 private:
 };
 
-template<typename T> struct VkObject
+template<typename T> struct VulkanObject
 {
 	T Handle = nullptr;
+
+	inline bool8_t isValid() const
+	{
+		return Handle != nullptr;
+	}
 };
 
-template <typename T> class vkObject : public rObject<T>
+template <typename T> class VulkanDeviceObject : public VulkanObject<T>
 {
 public:
-	inline T operator*() const
-	{
-		return (T)(m_Object.get());
-	}
-
-	inline void reset(T other = NULL)
-	{
-		if (other)
-		{
-			m_Object.reset((T *)other, std::function<void(T *&)>([](T *&pObject)
-			{
-				pObject = NULL;
-			}));
-		}
-		else
-		{
-			if (m_Object)
-			{
-				m_Object.reset();
-				m_Object = nullptr;
-			}
-		}
-	}
+	virtual void destroy(const class VulkanDevice &device) = 0;
 };
 
-template <typename T> class vkDeviceObject : public vkObject<T>
-{
-public:
-	virtual void destroy(const class vkDevice &device) = 0;
-
-	inline void setDebugName(const std::string &debugName)
-	{
-		m_DebugName = debugName;
-	}
-protected:
-	std::string m_DebugName;
-};
-
-template <typename T> class d3dObject : public rObject<T>
+template <typename T> class D3DObject : public SharedObject<T>
 {
 public:
 	inline void reset(T *other = nullptr)

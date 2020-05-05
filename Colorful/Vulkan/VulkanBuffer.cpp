@@ -2,7 +2,7 @@
 #include "VulkanEngine.h"
 #include "VulkanRenderPass.h"
 
-void vkDeviceMemory::create(const vkDevice &device, eRBufferUsage usage, const VkMemoryRequirements &memoryRequirements)
+void vkDeviceMemory::create(const VulkanDevice &device, eRBufferUsage usage, const VkMemoryRequirements &memoryRequirements)
 {
 	assert(!isValid() && device.isValid());
 
@@ -14,9 +14,7 @@ void vkDeviceMemory::create(const vkDevice &device, eRBufferUsage usage, const V
 		device.getMemoryTypeIndex(usage, memoryRequirements.memoryTypeBits)
 	};
 
-	VkDeviceMemory handle = VK_NULL_HANDLE;
-	rVerifyVk(vkAllocateMemory(*device, &allocateInfo, vkMemoryAllocator, &handle));
-	reset(handle);
+	rVerifyVk(vkAllocateMemory(device.Handle, &allocateInfo, vkMemoryAllocator, &Handle));
 
 	/// If a memory object does not have the VK_MEMORY_PROPERTY_HOST_COHERENT_BIT property, 
 	/// then vkFlushMappedMemoryRanges must be called in order to guarantee that writes to the memory object from the host are made available to the host domain, 
@@ -27,42 +25,42 @@ void vkDeviceMemory::create(const vkDevice &device, eRBufferUsage usage, const V
 	/// writes made available to the host domain are automatically made visible to the host.
 }
 
-void vkDeviceMemory::destroy(const vkDevice &device)
+void vkDeviceMemory::destroy(const VulkanDevice &device)
 {
 	assert(device.isValid());
 
 	if (isValid())
 	{
-		vkFreeMemory(*device, **this, vkMemoryAllocator);
-		reset();
+		vkFreeMemory(device.Handle, Handle, vkMemoryAllocator);
+		Handle = VK_NULL_HANDLE;
 	}
 }
 
-void vkDeviceMemory::update(const vkDevice &device, const void *pData, size_t size, size_t offset)
+void vkDeviceMemory::update(const VulkanDevice &device, const void *pData, size_t size, size_t offset)
 {
 	assert(isValid());
 
 	/// VkMemoryMapFlags is a bitmask type for setting a mask, but is currently reserved for future use.
 	void *pGpuMemory = nullptr;
-	rVerifyVk(vkMapMemory(*device, **this, offset, size, 0u, &pGpuMemory));
+	rVerifyVk(vkMapMemory(device.Handle, Handle, offset, size, 0u, &pGpuMemory));
 	assert(pGpuMemory);
 	verify(memcpy_s(pGpuMemory, size, pData, size) == 0);
-	vkUnmapMemory(*device, **this);
+	vkUnmapMemory(device.Handle, Handle);
 }
 
-void vkBuffer::destroy(const vkDevice &device)
+void vkBuffer::destroy(const VulkanDevice &device)
 {
 	assert(device.isValid());
 
 	if (isValid())
 	{
 		m_Memory.destroy(device);
-		vkDestroyBuffer(*device, **this, vkMemoryAllocator);
-		reset();
+		vkDestroyBuffer(device.Handle, Handle, vkMemoryAllocator);
+		Handle = VK_NULL_HANDLE;
 	}
 }
 
-vkStagingBuffer::vkStagingBuffer(const vkDevice &device, VkBufferUsageFlags usageFlagBits, size_t size, const void *pData)
+vkStagingBuffer::vkStagingBuffer(const VulkanDevice &device, VkBufferUsageFlags usageFlagBits, size_t size, const void *pData)
 {
 	assert(!isValid() && device.isValid() && pData);
 	assert(usageFlagBits == VK_BUFFER_USAGE_TRANSFER_SRC_BIT || usageFlagBits == VK_BUFFER_USAGE_TRANSFER_DST_BIT);
@@ -80,18 +78,16 @@ vkStagingBuffer::vkStagingBuffer(const vkDevice &device, VkBufferUsageFlags usag
 		0u,
 		nullptr  /// Ignored if sharingMode is not VK_SHARING_MODE_CONCURRENT
 	};
-	VkBuffer handle = VK_NULL_HANDLE;
-	rVerifyVk(vkCreateBuffer(*device, &createInfo, vkMemoryAllocator, &handle));
-	reset(handle);
+	rVerifyVk(vkCreateBuffer(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
 
 	VkMemoryRequirements memoryRequirements{};
-	vkGetBufferMemoryRequirements(*device, handle, &memoryRequirements);
+	vkGetBufferMemoryRequirements(device.Handle, Handle, &memoryRequirements);
 	m_Memory.create(device, eGpuReadCpuWrite, memoryRequirements);
 	m_Memory.update(device, pData, size);
-	rVerifyVk(vkBindBufferMemory(*device, **this, *m_Memory, 0u));
+	rVerifyVk(vkBindBufferMemory(device.Handle, Handle, m_Memory.Handle, 0u));
 }
 
-vkGpuBuffer::vkGpuBuffer(const vkDevice &device, eRBufferBindFlags bindFlags, eRBufferUsage usage, size_t size, const void *pData)
+vkGpuBuffer::vkGpuBuffer(const VulkanDevice &device, eRBufferBindFlags bindFlags, eRBufferUsage usage, size_t size, const void *pData)
 {
 	assert(!isValid() && device.isValid());
 
@@ -129,17 +125,15 @@ vkGpuBuffer::vkGpuBuffer(const vkDevice &device, eRBufferBindFlags bindFlags, eR
 		0u,
 		nullptr
 	};
-	VkBuffer handle = VK_NULL_HANDLE;
-	rVerifyVk(vkCreateBuffer(*device, &createInfo, vkMemoryAllocator, &handle));
-	reset(handle);
+	rVerifyVk(vkCreateBuffer(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
 
 	VkMemoryRequirements memoryRequirements{};
-	vkGetBufferMemoryRequirements(*device, handle, &memoryRequirements);
+	vkGetBufferMemoryRequirements(device.Handle, Handle, &memoryRequirements);
 	m_Memory.create(device, usage, memoryRequirements);
 	
 	if (useStagingBuffer)
 	{
-		rVerifyVk(vkBindBufferMemory(*device, **this, *m_Memory, 0u));
+		rVerifyVk(vkBindBufferMemory(device.Handle, Handle, m_Memory.Handle, 0u));
 
 		vkStagingBuffer stagingBuffer(device, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, size, pData);
 		vkCommandBuffer commandBuffer = device.allocCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, false);
@@ -150,7 +144,7 @@ vkGpuBuffer::vkGpuBuffer(const vkDevice &device, eRBufferBindFlags bindFlags, eR
 			0u,
 			size
 		};
-		vkCmdCopyBuffer(*commandBuffer, *stagingBuffer, **this, 1u, &bufferCopy);
+		vkCmdCopyBuffer(commandBuffer.Handle, stagingBuffer.Handle, Handle, 1u, &bufferCopy);
 		commandBuffer.end();
 		vkEngine::instance().getQueue().submit(commandBuffer);
 		device.freeCommandBuffer(commandBuffer);
@@ -163,11 +157,11 @@ vkGpuBuffer::vkGpuBuffer(const vkDevice &device, eRBufferBindFlags bindFlags, eR
 		{
 			m_Memory.update(device, pData, size, 0u);
 		}
-		rVerifyVk(vkBindBufferMemory(*device, **this, *m_Memory, 0u));
+		rVerifyVk(vkBindBufferMemory(device.Handle, Handle, m_Memory.Handle, 0u));
 	}
 }
 
-void vkFrameBuffer::create(const vkDevice &device, const vkRenderPass &renderPass, const rFrameBufferDesc &desc)
+void vkFrameBuffer::create(const VulkanDevice &device, const vkRenderPass &renderPass, const rFrameBufferDesc &desc)
 {
 	assert(device.isValid() && renderPass.isValid() && !isValid());
 
@@ -178,14 +172,14 @@ void vkFrameBuffer::create(const vkDevice &device, const vkRenderPass &renderPas
 		{
 			auto imageView = static_cast<vkImageView *>(desc.ColorSurface[i]);
 			assert(imageView);
-			attachments.emplace_back(**imageView);
+			attachments.emplace_back(imageView->Handle);
 		}
 	}
 	if (desc.DepthSurface)
 	{
 		auto depthImageView = static_cast<vkImageView *>(desc.DepthSurface);
 		assert(depthImageView);
-		attachments.emplace_back(**depthImageView);
+		attachments.emplace_back(depthImageView->Handle);
 	}
 
 	VkFramebufferCreateInfo createInfo
@@ -193,7 +187,7 @@ void vkFrameBuffer::create(const vkDevice &device, const vkRenderPass &renderPas
 		VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
 		nullptr,
 		0u,
-		*renderPass,
+		renderPass.Handle,
 		(uint32_t)attachments.size(),
 		attachments.data(),
 		desc.Width,
@@ -201,18 +195,16 @@ void vkFrameBuffer::create(const vkDevice &device, const vkRenderPass &renderPas
 		desc.Layers
 	};
 
-	VkFramebuffer handle = VK_NULL_HANDLE;
-	rVerifyVk(vkCreateFramebuffer(*device, &createInfo, vkMemoryAllocator, &handle));
-	reset(handle);
+	rVerifyVk(vkCreateFramebuffer(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
 }
 
-void vkFrameBuffer::destroy(const vkDevice &device)
+void vkFrameBuffer::destroy(const VulkanDevice &device)
 {
 	assert(device.isValid());
 
 	if (isValid())
 	{
-		vkDestroyFramebuffer(*device, **this, vkMemoryAllocator);
-		reset();
+		vkDestroyFramebuffer(device.Handle, Handle, vkMemoryAllocator);
+		Handle = VK_NULL_HANDLE;
 	}
 }

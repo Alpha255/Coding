@@ -44,7 +44,7 @@ VkImageType vkImage::getImageType(eRTextureType type) const
 	return imageType;
 }
 
-void vkImage::copyBufferToImage(const vkDevice &device, const rAsset::rTextureBinary &binary)
+void vkImage::copyBufferToImage(const VulkanDevice &device, const rAsset::rTextureBinary &binary)
 {
 	bool8_t useStaging = true;
 	//VkFormatProperties formatProperties = vkEngine::instance().getFormatProperties(m_Format);
@@ -116,9 +116,9 @@ void vkImage::copyBufferToImage(const vkDevice &device, const rAsset::rTextureBi
 			subresourceRange);
 
 		vkCmdCopyBufferToImage(
-			*commandBuffer,
-			*stagingBuffer,
-			**this,
+			commandBuffer.Handle,
+			stagingBuffer.Handle,
+			Handle,
 			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 			(uint32_t)bufferImageCopy.size(),
 			bufferImageCopy.data());
@@ -169,11 +169,11 @@ void vkImage::insertMemoryBarrier(
 		newLayout,
 		VK_QUEUE_FAMILY_IGNORED,
 		VK_QUEUE_FAMILY_IGNORED,
-		**this,
+		Handle,
 		subresourceRange
 	};
 	vkCmdPipelineBarrier(
-		*commandBuffer,
+		commandBuffer.Handle,
 		srcStageMask,
 		dstStageMask,
 		0u,
@@ -185,7 +185,7 @@ void vkImage::insertMemoryBarrier(
 		&imageMemoryBarrier);
 }
 
-vkImage::vkImage(const vkDevice &device, const rAsset::rTextureBinary &binary)
+vkImage::vkImage(const VulkanDevice &device, const rAsset::rTextureBinary &binary)
 {
 	assert(!isValid() && binary.Size > 0u);
 
@@ -213,20 +213,18 @@ vkImage::vkImage(const vkDevice &device, const rAsset::rTextureBinary &binary)
 	};
 	m_Format = createInfo.format;
 
-	VkImage handle = VK_NULL_HANDLE;
-	rVerifyVk(vkCreateImage(*device, &createInfo, vkMemoryAllocator, &handle));
-	reset(handle);
+	rVerifyVk(vkCreateImage(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
 
 	VkMemoryRequirements memoryRequirements{};
-	vkGetImageMemoryRequirements(*device, handle, &memoryRequirements);
+	vkGetImageMemoryRequirements(device.Handle, Handle, &memoryRequirements);
 	m_Memory.create(device, eGpuReadOnly, memoryRequirements);
-	rVerifyVk(vkBindImageMemory(*device, handle, *m_Memory, 0u));
+	rVerifyVk(vkBindImageMemory(device.Handle, Handle, m_Memory.Handle, 0u));
 
 	copyBufferToImage(device, binary);
 }
 
 void vkImage::create(
-	const vkDevice &device, 
+	const VulkanDevice &device, 
 	uint32_t width, 
 	uint32_t height, 
 	uint32_t depth, 
@@ -263,29 +261,27 @@ void vkImage::create(
 		VK_IMAGE_LAYOUT_UNDEFINED
 	};
 
-	VkImage handle = VK_NULL_HANDLE;
-	rVerifyVk(vkCreateImage(*device, &createInfo, vkMemoryAllocator, &handle));
-	reset(handle);
+	rVerifyVk(vkCreateImage(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
 
 	VkMemoryRequirements memoryRequirements{};
-	vkGetImageMemoryRequirements(*device, handle, &memoryRequirements);
+	vkGetImageMemoryRequirements(device.Handle, Handle, &memoryRequirements);
 	m_Memory.create(device, eGpuReadOnly, memoryRequirements);
-	rVerifyVk(vkBindImageMemory(*device, handle, *m_Memory, 0u));
+	rVerifyVk(vkBindImageMemory(device.Handle, Handle, m_Memory.Handle, 0u));
 }
 
-void vkImage::destroy(const vkDevice &device)
+void vkImage::destroy(const VulkanDevice &device)
 {
 	assert(device.isValid());
 
 	if (isValid())
 	{
 		m_Memory.destroy(device);
-		vkDestroyImage(*device, **this, vkMemoryAllocator);
-		reset();
+		vkDestroyImage(device.Handle, Handle, vkMemoryAllocator);
+		Handle = VK_NULL_HANDLE;
 	}
 }
 
-vkSampler::vkSampler(const vkDevice &device, const rSamplerDesc &desc)
+vkSampler::vkSampler(const VulkanDevice &device, const rSamplerDesc &desc)
 {
 	assert(device.isValid() && !isValid());
 	assert(desc.MaxAnisotropy < 16u);
@@ -312,18 +308,16 @@ vkSampler::vkSampler(const vkDevice &device, const rSamplerDesc &desc)
 		false
 	};
 	
-	VkSampler handle = VK_NULL_HANDLE;
-	rVerifyVk(vkCreateSampler(*device, &createInfo, vkMemoryAllocator, &handle));
-	reset(handle);
+	rVerifyVk(vkCreateSampler(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
 }
 
-void vkSampler::destroy(const vkDevice &device)
+void vkSampler::destroy(const VulkanDevice &device)
 {
 	assert(device.isValid());
 
 	if (isValid())
 	{
-		vkDestroySampler(*device, **this, vkMemoryAllocator);
-		reset();
+		vkDestroySampler(device.Handle, Handle, vkMemoryAllocator);
+		Handle = VK_NULL_HANDLE;
 	}
 }

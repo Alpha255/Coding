@@ -2,10 +2,10 @@
 
 #include "Colorful/Vulkan/VulkanLoader.h"
 
-class vkDeviceQueue : public vkObject<VkQueue>
+class vkDeviceQueue : public VulkanObject<VkQueue>
 {
 public:
-	void create(uint32_t queueFamilyIndex, const class vkDevice &device);
+	void create(uint32_t queueFamilyIndex, const class VulkanDevice &device);
 
 	void submit(class vkCommandBuffer &cmdBuffer);
 
@@ -19,7 +19,7 @@ public:
 
 	void waitIdle();
 
-	void destroy(const class vkDevice &device);
+	void destroy(const class VulkanDevice &device);
 protected:
 private:
 	uint32_t m_FamilyIndex = UINT32_MAX;

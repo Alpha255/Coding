@@ -2,7 +2,7 @@
 
 #include "Colorful/Public/RInterface.h"
 
-class d3d11Swapchain : public d3dObject<IDXGISwapChain1>
+class d3d11Swapchain : public D3DObject<IDXGISwapChain1>
 {
 public:
 	void create(uint64_t windowHandle,

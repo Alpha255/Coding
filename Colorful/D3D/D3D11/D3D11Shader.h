@@ -2,11 +2,11 @@
 
 #include "Colorful/Public/RAsset.h"
 
-class d3d11InputLayout : public d3dObject<ID3D11InputLayout>
+class d3d11InputLayout : public D3DObject<ID3D11InputLayout>
 {
 };
 
-class d3d11Shader : public d3dObject<ID3D11DeviceChild>, public rShader
+class d3d11Shader : public D3DObject<ID3D11DeviceChild>, public rShader
 {
 public:
 	d3d11Shader(const class d3d11Device &device, eRShaderUsage usage, const rAsset::rShaderBinary &binary);

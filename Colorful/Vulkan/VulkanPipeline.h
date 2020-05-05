@@ -3,36 +3,36 @@
 #include "Colorful/Vulkan/VulkanAsync.h"
 #include "Colorful/Vulkan/VulkanDescriptor.h"
 
-class vkPipelineLayout : public vkDeviceObject<VkPipelineLayout>
+class vkPipelineLayout : public VulkanDeviceObject<VkPipelineLayout>
 {
 public:
-	void create(const class vkDevice &device, const vkDescriptorSetLayout &descriptorSetLayout);
-	void destroy(const class vkDevice &device) override final;
+	void create(const class VulkanDevice &device, const vkDescriptorSetLayout &descriptorSetLayout);
+	void destroy(const class VulkanDevice &device) override final;
 };
 
-class vkPipelineCache : public vkDeviceObject<VkPipelineCache>
+class vkPipelineCache : public VulkanDeviceObject<VkPipelineCache>
 {
 public:
-	void create(const class vkDevice &device);
-	void destroy(const class vkDevice &device) override final;
+	void create(const class VulkanDevice &device);
+	void destroy(const class VulkanDevice &device) override final;
 };
 
-class vkPipeline : public vkDeviceObject<VkPipeline>, public rGpuResource
+class vkPipeline : public VulkanDeviceObject<VkPipeline>, public rGpuResource
 {
 public:
-	void destroy(const class vkDevice &device) override;
+	void destroy(const class VulkanDevice &device) override;
 };
 
 class vkGraphicsPipeline : public vkPipeline
 {
 public:
 	void create(
-		const class vkDevice &device,
+		const class VulkanDevice &device,
 		const class vkRenderPass &renderpass,
 		const vkPipelineCache &cache,
 		const rGraphicsPipelineState &state);
 
-	void destroy(const class vkDevice &device) override final;
+	void destroy(const class VulkanDevice &device) override final;
 
 	void bind(const class vkCommandBuffer &cmdBuffer);
 protected:
@@ -42,7 +42,7 @@ protected:
 		std::vector<VkPipelineColorBlendAttachmentState> &attachments, 
 		const rBlendStateDesc &stateDesc) const;
 
-	void setupDescriptorSet(const class vkDevice &device, const rGraphicsPipelineState &state);
+	void setupDescriptorSet(const class VulkanDevice &device, const rGraphicsPipelineState &state);
 private:
 	vkPipelineLayout m_PipelineLayout;
 	vkDescriptorSetLayout m_DescriptorSetLayout;

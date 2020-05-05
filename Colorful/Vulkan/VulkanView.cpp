@@ -2,7 +2,7 @@
 #include "VulkanEngine.h"
 
 void vkImageView::create(
-	const vkDevice &device, 
+	const VulkanDevice &device, 
 	const vkImage &image, 
 	VkFormat format,
 	VkImageAspectFlags aspectFlags)
@@ -14,7 +14,7 @@ void vkImageView::create(
 		VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
 		nullptr,
 		0u,
-		*image,
+		image.Handle,
 		VK_IMAGE_VIEW_TYPE_2D,
 		format,
 		{
@@ -32,15 +32,13 @@ void vkImageView::create(
 		}
 	};
 
-	VkImageView handle = VK_NULL_HANDLE;
-	rVerifyVk(vkCreateImageView(*device, &createInfo, vkMemoryAllocator, &handle));
-	reset(handle);
+	rVerifyVk(vkCreateImageView(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
 	m_Image = image;
 	m_Format = format;
 }
 
 void vkImageView::create(
-	const vkDevice &device, 
+	const VulkanDevice &device, 
 	uint32_t width, 
 	uint32_t height, 
 	uint32_t mipLevels,
@@ -68,7 +66,7 @@ void vkImageView::create(
 		VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
 		nullptr,
 		0u,
-		*m_Image,
+		m_Image.Handle,
 		type,
 		format,
 		{
@@ -85,15 +83,13 @@ void vkImageView::create(
 			arrayLayers
 		}
 	};
-	VkImageView handle = VK_NULL_HANDLE;
-	rVerifyVk(vkCreateImageView(*device, &createInfo, vkMemoryAllocator, &handle));
-	reset(handle);
+	rVerifyVk(vkCreateImageView(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
 
 	m_Format = format;
 }
 
 void vkImageView::create(
-	const vkDevice &device,
+	const VulkanDevice &device,
 	eRTextureType type, 
 	eRFormat format, 
 	uint32_t width, 
@@ -140,13 +136,13 @@ void vkImageView::create(
 	create(device, image, image.getFormat(), VK_IMAGE_ASPECT_COLOR_BIT);
 }
 
-void vkImageView::destroy(const vkDevice &device)
+void vkImageView::destroy(const VulkanDevice &device)
 {
 	assert(device.isValid());
 	if (isValid())
 	{
-		vkDestroyImageView(*device, **this, vkMemoryAllocator);
-		reset();
+		vkDestroyImageView(device.Handle, Handle, vkMemoryAllocator);
+		Handle = VK_NULL_HANDLE;
 
 		if (m_Image.m_Memory.isValid())
 		{
@@ -154,7 +150,7 @@ void vkImageView::destroy(const vkDevice &device)
 		}
 		else
 		{
-			m_Image.reset();
+			m_Image.Handle = VK_NULL_HANDLE;
 		}
 	}
 }

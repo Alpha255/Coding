@@ -1,7 +1,7 @@
 #include "VulkanAsync.h"
 #include "VulkanEngine.h"
 
-vkFence::vkFence(const vkDevice &device, eFenceStatus status)
+vkFence::vkFence(const VulkanDevice &device, eFenceStatus status)
 {
 	assert(!isValid() && device.isValid() && status < eFenceStatus_MaxEnum);
 
@@ -18,28 +18,21 @@ vkFence::vkFence(const vkDevice &device, eFenceStatus status)
 		eUnsignaled == status ? 0u : VK_FENCE_CREATE_SIGNALED_BIT
 	};
 
-	VkFence handle = VK_NULL_HANDLE;
-	rVerifyVk(vkCreateFence(*device, &createInfo, vkMemoryAllocator, &handle));
-	reset(handle);
+	rVerifyVk(vkCreateFence(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
 }
 
-void vkFence::resetStatus(const vkDevice &device)
+void vkFence::resetStatus(const VulkanDevice &device)
 {
 	/// Resets the fence to the unsignaled state.
 	/// If any member of pFences is already in the unsignaled state when vkResetFences is executed, then vkResetFences has no effect on that fence.
 	assert(device.isValid() && isValid());
-
-	const VkFence fences[] =
-	{
-		**this
-	};
-	rVerifyVk(vkResetFences(*device, _countof(fences), fences));
+	rVerifyVk(vkResetFences(device.Handle, 1u, &Handle));
 }
 
-vkFence::eFenceStatus vkFence::getStatus(const vkDevice &device)
+vkFence::eFenceStatus vkFence::getStatus(const VulkanDevice &device)
 {
 	assert(device.isValid() && isValid());
-	VkResult result = vkGetFenceStatus(*device, **this);
+	VkResult result = vkGetFenceStatus(device.Handle, Handle);
 
 	/// If a queue submission command is pending execution, then the value returned by this command may immediately be out of date.
 	/// If the device has been lost, vkGetFenceStatus may return any of the (VK_SUCCESS|VK_NOT_READY|VK_ERROR_DEVICE_LOST). 
@@ -63,7 +56,7 @@ vkFence::eFenceStatus vkFence::getStatus(const vkDevice &device)
 	return status;
 }
 
-void vkFence::destroy(const vkDevice &device)
+void vkFence::destroy(const VulkanDevice &device)
 {
 	/// All queue submission commands that refer to fence must have completed execution
 
@@ -71,12 +64,12 @@ void vkFence::destroy(const vkDevice &device)
 
 	if (isValid())
 	{
-		vkDestroyFence(*device, **this, vkMemoryAllocator);
-		reset();
+		vkDestroyFence(device.Handle, Handle, vkMemoryAllocator);
+		Handle = VK_NULL_HANDLE;
 	}
 }
 
-vkSemaphore::vkSemaphore(const vkDevice &device)
+vkSemaphore::vkSemaphore(const VulkanDevice &device)
 {
 	/// Semaphores have two states - signaled and unsignaled. The state of a semaphore can be signaled after execution of a batch of commands is completed. 
 	/// A batch can wait for a semaphore to become signaled before it begins execution, and the semaphore is also unsignaled before the batch begins execution.
@@ -89,9 +82,7 @@ vkSemaphore::vkSemaphore(const vkDevice &device)
 		0u  /// flags is reserved for future use
 	};
 
-	VkSemaphore handle = VK_NULL_HANDLE;
-	rVerifyVk(vkCreateSemaphore(*device, &createInfo, vkMemoryAllocator, &handle));
-	reset(handle);
+	rVerifyVk(vkCreateSemaphore(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
 
 	/// When a batch is submitted to a queue via a queue submission, and it includes semaphores to be signaled, 
 	/// it defines a memory dependency on the batch, and defines semaphore signal operations which set the semaphores to the signaled state.
@@ -102,19 +93,19 @@ vkSemaphore::vkSemaphore(const vkDevice &device)
 	/// 2. There must be no other queue waiting on the same semaphore when the operation executes.
 }
 
-void vkSemaphore::destroy(const vkDevice &device)
+void vkSemaphore::destroy(const VulkanDevice &device)
 {
 	/// All submitted batches that refer to semaphore must have completed execution
 	assert(device.isValid());
 
 	if (isValid())
 	{
-		vkDestroySemaphore(*device, **this, vkMemoryAllocator);
-		reset();
+		vkDestroySemaphore(device.Handle, Handle, vkMemoryAllocator);
+		Handle = VK_NULL_HANDLE;
 	}
 }
 
-vkEvent::vkEvent(const vkDevice &device)
+vkEvent::vkEvent(const VulkanDevice &device)
 {
 	/// An application can signal an event, or unsignal it, on either the host or the device. 
 	/// A device can wait for an event to become signaled before executing further operations. 
@@ -128,19 +119,17 @@ vkEvent::vkEvent(const vkDevice &device)
 		0u  /// flags is reserved for future use
 	};
 
-	VkEvent handle = VK_NULL_HANDLE;
-	rVerifyVk(vkCreateEvent(*device, &createInfo, vkMemoryAllocator, &handle));
-	reset(handle);
+	rVerifyVk(vkCreateEvent(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
 
 	/// The state of an event can also be updated on the device by commands inserted in command buffers.
 	/// To set the state of an event to signaled from a device, call: vkCmdSetEvent
 }
 
-vkEvent::eEventStatus vkEvent::getStatus(const vkDevice &device)
+vkEvent::eEventStatus vkEvent::getStatus(const VulkanDevice &device)
 {
 	assert(!isValid() && device.isValid());
 
-	VkResult result = vkGetEventStatus(*device, **this);
+	VkResult result = vkGetEventStatus(device.Handle, Handle);
 	eEventStatus status = eEventStatus_MaxEnum;
 	switch (result)
 	{
@@ -158,31 +147,31 @@ vkEvent::eEventStatus vkEvent::getStatus(const vkDevice &device)
 	return status;
 }
 
-void vkEvent::setStatus(const vkDevice &device, eEventStatus status)
+void vkEvent::setStatus(const VulkanDevice &device, eEventStatus status)
 {
 	assert(!isValid() && device.isValid() && status < eEventStatus_MaxEnum);
 
 	if (eSignaled == status)
 	{
 		/// Set the state of an event to signaled from the host
-		rVerifyVk(vkSetEvent(*device, **this));
+		rVerifyVk(vkSetEvent(device.Handle, Handle));
 	}
 	else if (eUnsignaled == status)
 	{
 		/// Set the state of an event to unsignaled from the host
-		rVerifyVk(vkResetEvent(*device, **this));
+		rVerifyVk(vkResetEvent(device.Handle, Handle));
 	}
 }
 
-void vkEvent::destroy(const vkDevice &device)
+void vkEvent::destroy(const VulkanDevice &device)
 {
 	/// All submitted commands that refer to event must have completed execution
 	assert(device.isValid());
 
 	if (isValid())
 	{
-		vkDestroyEvent(*device, **this, vkMemoryAllocator);
-		reset();
+		vkDestroyEvent(device.Handle, Handle, vkMemoryAllocator);
+		Handle = VK_NULL_HANDLE;
 	}
 }
 

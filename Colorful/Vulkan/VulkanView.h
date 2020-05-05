@@ -2,17 +2,17 @@
 
 #include "Colorful/Vulkan/VulkanTexture.h"
 
-class vkImageView : public vkDeviceObject<VkImageView>, public rRenderSurface, public rTexture
+class vkImageView : public VulkanDeviceObject<VkImageView>, public rRenderSurface, public rTexture
 {
 public:
 	void create(
-		const class vkDevice &device, 
+		const class VulkanDevice &device, 
 		const vkImage &image, 
 		VkFormat format,
 		VkImageAspectFlags aspectFlags);
 
 	void create(
-		const class vkDevice &device,
+		const class VulkanDevice &device,
 		uint32_t width,
 		uint32_t height,
 		uint32_t mipLevels,
@@ -23,7 +23,7 @@ public:
 		VkImageAspectFlags aspectFlags);
 
 	void create(
-		const class vkDevice &device,
+		const class VulkanDevice &device,
 		eRTextureType type,
 		eRFormat format,
 		uint32_t width,
@@ -33,7 +33,7 @@ public:
 		const void *data,
 		size_t dataSize);
 
-	void destroy(const class vkDevice &device) override final;
+	void destroy(const class VulkanDevice &device) override final;
 
 	inline VkFormat getFormat() const
 	{
@@ -71,7 +71,7 @@ class vkBackBuffer : public vkImageView
 class vkRenderTargetView : public vkImageView
 {
 	inline void create(
-		const class vkDevice &device,
+		const class VulkanDevice &device,
 		uint32_t width,
 		uint32_t height,
 		VkFormat format)
@@ -93,7 +93,7 @@ class vkDepthStencilView : public vkImageView
 {
 public:
 	inline void create(
-		const class vkDevice &device,
+		const class VulkanDevice &device,
 		uint32_t width,
 		uint32_t height,
 		VkFormat format)

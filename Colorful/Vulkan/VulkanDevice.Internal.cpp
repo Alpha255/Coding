@@ -2,7 +2,7 @@
 #include "VulkanTexture.h"
 #include "VulkanShader.h"
 
-rShader *vkDevice::createShader(eRShaderUsage usage, const std::string &shaderName)
+rShader *VulkanDevice::createShader(eRShaderUsage usage, const std::string &shaderName)
 {
 	/// try to get shader binary from cache at first
 
@@ -13,7 +13,7 @@ rShader *vkDevice::createShader(eRShaderUsage usage, const std::string &shaderNa
 	return shader;
 }
 
-rTexture *vkDevice::createTexture(const std::string &textureName)
+rTexture *VulkanDevice::createTexture(const std::string &textureName)
 {
 	auto textureBinary = rAsset::rAssetBucket::instance().getTextureBinary(textureName);
 	vkImage image(*this, textureBinary);
@@ -25,7 +25,7 @@ rTexture *vkDevice::createTexture(const std::string &textureName)
 	return imageView;
 }
 
-rTexture * vkDevice::createTexture(
+rTexture * VulkanDevice::createTexture(
 	eRTextureType type, 
 	eRFormat format, 
 	uint32_t width, 
@@ -43,7 +43,7 @@ rTexture * vkDevice::createTexture(
 	return imageView;
 }
 
-rBuffer *vkDevice::createBuffer(eRBufferBindFlags bindFlags, eRBufferUsage usage, size_t size, const void * pData)
+rBuffer *VulkanDevice::createBuffer(eRBufferBindFlags bindFlags, eRBufferUsage usage, size_t size, const void * pData)
 {
 	auto buffer = new vkGpuBuffer(*this, bindFlags, usage, size, pData);
 	m_GpuResourcePool->push<vkGpuResourcePool::eBuffer>(buffer);
@@ -51,7 +51,7 @@ rBuffer *vkDevice::createBuffer(eRBufferBindFlags bindFlags, eRBufferUsage usage
 	return buffer;
 }
 
-vkFence *vkDevice::createFence(vkFence::eFenceStatus status) const
+vkFence *VulkanDevice::createFence(vkFence::eFenceStatus status) const
 {
 	vkFence *fencePtr = new vkFence(*this, status);
 	assert(fencePtr);
@@ -59,7 +59,7 @@ vkFence *vkDevice::createFence(vkFence::eFenceStatus status) const
 	return fencePtr;
 }
 
-vkSemaphore *vkDevice::createSemaphore() const
+vkSemaphore *VulkanDevice::createSemaphore() const
 {
 	vkSemaphore *semaphorePtr = new vkSemaphore(*this);
 	assert(semaphorePtr);
@@ -67,7 +67,7 @@ vkSemaphore *vkDevice::createSemaphore() const
 	return semaphorePtr;
 }
 
-vkEvent *vkDevice::createEvent() const
+vkEvent *VulkanDevice::createEvent() const
 {
 	vkEvent *eventPtr = new vkEvent(*this);
 	assert(eventPtr);
@@ -75,7 +75,7 @@ vkEvent *vkDevice::createEvent() const
 	return eventPtr;
 }
 
-rRenderSurface *vkDevice::createDepthStencilView(uint32_t width, uint32_t height, eRFormat format)
+rRenderSurface *VulkanDevice::createDepthStencilView(uint32_t width, uint32_t height, eRFormat format)
 {
 	vkDepthStencilView *depthStencilView = new vkDepthStencilView();
 	depthStencilView->create(*this, width, height, vkEngine::enumTranslator::toFormat(format));
@@ -84,13 +84,13 @@ rRenderSurface *vkDevice::createDepthStencilView(uint32_t width, uint32_t height
 	return depthStencilView;
 }
 
-vkDevice::vkPipelinePool::vkPipelinePool(const vkDevice &device)
+VulkanDevice::vkPipelinePool::vkPipelinePool(const VulkanDevice &device)
 	: m_Device(device)
 {
 	m_PipelineCache.create(m_Device);
 }
 
-vkGraphicsPipeline *vkDevice::vkPipelinePool::getOrCreateGraphicsPipeline(const vkRenderPass &renderpass, const rGraphicsPipelineState &state)
+vkGraphicsPipeline *VulkanDevice::vkPipelinePool::getOrCreateGraphicsPipeline(const vkRenderPass &renderpass, const rGraphicsPipelineState &state)
 {
 	assert(renderpass.isValid());
 
@@ -110,7 +110,7 @@ vkGraphicsPipeline *vkDevice::vkPipelinePool::getOrCreateGraphicsPipeline(const 
 	return graphicsPipeline;
 }
 
-rRenderPass *vkDevice::createRenderPass(const vkSwapchain &swapchain, rFrameBufferDesc &desc)
+rRenderPass *VulkanDevice::createRenderPass(const vkSwapchain &swapchain, rFrameBufferDesc &desc)
 {
 	assert(isValid() && swapchain.isValid());
 
@@ -160,7 +160,7 @@ rRenderPass *vkDevice::createRenderPass(const vkSwapchain &swapchain, rFrameBuff
 	return renderPass;
 }
 
-rSampler *vkDevice::createSampler(const rSamplerDesc &desc)
+rSampler *VulkanDevice::createSampler(const rSamplerDesc &desc)
 {
 	auto sampler = new vkSampler(*this, desc);
 	m_GpuResourcePool->push<vkGpuResourcePool::eSampler>(sampler);
@@ -168,7 +168,7 @@ rSampler *vkDevice::createSampler(const rSamplerDesc &desc)
 	return sampler;
 }
 
-void vkDevice::vkGpuResourcePool::destoryAll()
+void VulkanDevice::vkGpuResourcePool::destoryAll()
 {
 	for (auto &resource : m_Resources)
 	{

@@ -31,7 +31,7 @@
 	A render pass must have at least one subpass.
 **************************************************/
 
-void vkRenderPass::create(const vkDevice &device, const rFrameBufferDesc &desc)
+void vkRenderPass::create(const VulkanDevice &device, const rFrameBufferDesc &desc)
 {
 	assert(device.isValid() && !isValid());
 
@@ -144,14 +144,12 @@ void vkRenderPass::create(const vkDevice &device, const rFrameBufferDesc &desc)
 		subpassDependencies.data()
 	};
 
-	VkRenderPass handle = VK_NULL_HANDLE;
-	rVerifyVk(vkCreateRenderPass(*device, &createInfo, vkMemoryAllocator, &handle));
-	reset(handle);
+	rVerifyVk(vkCreateRenderPass(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
 
 	m_CmdBuffer = device.allocCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true);
 }
 
-void vkRenderPass::destroy(const vkDevice &device)
+void vkRenderPass::destroy(const VulkanDevice &device)
 {
 	assert(device.isValid());
 
@@ -163,8 +161,8 @@ void vkRenderPass::destroy(const vkDevice &device)
 		}
 		m_FrameBuffers.clear();
 
-		vkDestroyRenderPass(*device, **this, vkMemoryAllocator);
-		reset();
+		vkDestroyRenderPass(device.Handle, Handle, vkMemoryAllocator);
+		Handle = VK_NULL_HANDLE;
 	}
 }
 
@@ -204,8 +202,8 @@ void vkRenderPass::bindGfxPipeline(const rGraphicsPipelineState &state)
 		{
 			VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
 			nullptr,
-			**this,
-			*m_FrameBuffers[frameIndex],
+			Handle,
+			m_FrameBuffers[frameIndex].Handle,
 			{
 				{
 					(int32_t)state.RenderArea.x,
@@ -232,16 +230,15 @@ void vkRenderPass::bindGfxPipeline(const rGraphicsPipelineState &state)
 	{
 		assert(state.VertexBuffer);
 		auto vertexBuffer = static_cast<vkBuffer *>(state.VertexBuffer);
-		VkBuffer buffer = **vertexBuffer;
 		VkDeviceSize offsets[1u]{};
-		vkCmdBindVertexBuffers(*m_CmdBuffer, 0u, 1u, &buffer, offsets);
+		vkCmdBindVertexBuffers(m_CmdBuffer.Handle, 0u, 1u, &vertexBuffer->Handle, offsets);
 	}
 
 	if (state.isDirty(rGraphicsPipelineState::eIndexBuffer))
 	{
 		assert(state.IndexBuffer);
 		auto indexBuffer = static_cast<vkBuffer *>(state.IndexBuffer);
-		vkCmdBindIndexBuffer(*m_CmdBuffer, **indexBuffer, 0u, state.IndexType == eRIndexType::eUInt16 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32);
+		vkCmdBindIndexBuffer(m_CmdBuffer.Handle, indexBuffer->Handle, 0u, state.IndexType == eRIndexType::eUInt16 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32);
 	}
 
 	vkEngine::instance().getQueue().queueCommandBuffer(&m_CmdBuffer);
@@ -254,7 +251,7 @@ void vkRenderPass::drawIndexed(const rGraphicsPipelineState &state, uint32_t ind
 	setDynamicGfxState(state);
 
 	vkCmdDrawIndexed(
-		*m_CmdBuffer,
+		m_CmdBuffer.Handle,
 		indexCount,
 		1u,
 		firstIndex,
@@ -277,7 +274,7 @@ void vkRenderPass::setDynamicGfxState(const rGraphicsPipelineState &state)
 			state.Viewport.minDepth(),
 			state.Viewport.maxDepth()
 		};
-		vkCmdSetViewport(*m_CmdBuffer, 0u, 1u, &viewport);
+		vkCmdSetViewport(m_CmdBuffer.Handle, 0u, 1u, &viewport);
 	}
 
 	///if (state.isDirty(rGraphicsPipelineState::eScissor))
@@ -293,6 +290,6 @@ void vkRenderPass::setDynamicGfxState(const rGraphicsPipelineState &state)
 				(uint32_t)state.Scissor.w
 			}
 		};
-		vkCmdSetScissor(*m_CmdBuffer, 0u, 1u, &scissor);
+		vkCmdSetScissor(m_CmdBuffer.Handle, 0u, 1u, &scissor);
 	}
 }

@@ -10,27 +10,27 @@
 #include "Colorful/Vulkan/VulkanRenderPass.h"
 #include "Colorful/Vulkan/VulkanPipeline.h"
 
-class vkInstance : public vkObject<VkInstance>
+class vkInstance : public VulkanObject<VkInstance>
 {
 public:
 	void create();
 	void destroy();
 };
 
-class vkDebugUtilsMessenger : public vkObject<VkDebugUtilsMessengerEXT>
+class vkDebugUtilsMessenger : public VulkanObject<VkDebugUtilsMessengerEXT>
 {
 public:
 	void create(const vkInstance &instance, bool8_t verbose);
 	void destroy(const vkInstance &instance);
 };
 
-class vkPhysicalDevice : public vkObject<VkPhysicalDevice>
+class vkPhysicalDevice : public VulkanObject<VkPhysicalDevice>
 {
 public:
 	static std::vector<vkPhysicalDevice> enumeratePhysicalDevices(const vkInstance &instance);
 };
 
-class vkDevice : public vkObject<VkDevice>, public rDevice
+class VulkanDevice : public VulkanObject<VkDevice>, public rDevice
 {
 public:
 	uint32_t create(
@@ -123,7 +123,7 @@ protected:
 			eResourceType_MaxEnum
 		};
 
-		vkGpuResourcePool(const vkDevice &device)
+		vkGpuResourcePool(const VulkanDevice &device)
 			: m_Device(device)
 		{
 		}
@@ -234,13 +234,13 @@ protected:
 	private:
 		uint32_t m_IDPool = 0u;
 		std::unordered_map<uint64_t, rGpuResource *> m_Resources;
-		const vkDevice &m_Device;
+		const VulkanDevice &m_Device;
 	};
 
 	class vkPipelinePool
 	{
 	public:
-		vkPipelinePool(const vkDevice &device);
+		vkPipelinePool(const VulkanDevice &device);
 
 		vkGraphicsPipeline *getOrCreateGraphicsPipeline(const vkRenderPass &renderpass, const rGraphicsPipelineState &graphicsPipelineState);
 
@@ -269,7 +269,7 @@ protected:
 		}
 	protected:
 	private:
-		const vkDevice &m_Device;
+		const VulkanDevice &m_Device;
 		///std::unordered_map<rGraphicsPipelineState, vkPipeline *> m_Pipelines;
 		std::vector<std::pair<rGraphicsPipelineState, vkPipeline *>> m_Pipelines;
 		vkPipelineCache m_PipelineCache;

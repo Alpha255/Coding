@@ -2,7 +2,7 @@
 
 #include "Colorful/D3D/DxgiObject.h"
 
-class d3d11RasterizerState : public d3dObject<ID3D11RasterizerState>
+class d3d11RasterizerState : public D3DObject<ID3D11RasterizerState>
 {
 public:
 	void create(eRPolygonMode polygonMode,
@@ -14,7 +14,7 @@ public:
 		float32_t depthBiasSlope);
 };
 
-class d3d11BlendState : public d3dObject<ID3D11BlendState>
+class d3d11BlendState : public D3DObject<ID3D11BlendState>
 {
 public:
 	void create(
@@ -24,7 +24,7 @@ public:
 		const rColorBlendStateDesc * const clrBlendState);
 };
 
-class d3d11DepthStencilState : public d3dObject<ID3D11DepthStencilState>
+class d3d11DepthStencilState : public D3DObject<ID3D11DepthStencilState>
 {
 public:
 	void create(

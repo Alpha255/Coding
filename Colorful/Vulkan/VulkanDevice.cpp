@@ -118,17 +118,15 @@ void vkInstance::create()
 		extensions.data()
 	};
 
-	VkInstance handle = VK_NULL_HANDLE;
-	rVerifyVk(vkCreateInstance(&createInfo, vkMemoryAllocator, &handle));
-	reset(handle);
+	rVerifyVk(vkCreateInstance(&createInfo, vkMemoryAllocator, &Handle));
 }
 
 void vkInstance::destroy()
 {
 	if (isValid())
 	{
-		vkDestroyInstance(**this, vkMemoryAllocator);
-		reset();
+		vkDestroyInstance(Handle, vkMemoryAllocator);
+		Handle = VK_NULL_HANDLE;
 	}
 }
 
@@ -137,7 +135,7 @@ void vkDebugUtilsMessenger::create(const vkInstance &instance, bool8_t verbose)
 	assert(!isValid() && instance.isValid());
 
 	PFN_vkCreateDebugUtilsMessengerEXT vkCreateDebugUtilsMesserger = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
-		vkGetInstanceProcAddr(*instance, "vkCreateDebugUtilsMessengerEXT"));
+		vkGetInstanceProcAddr(instance.Handle, "vkCreateDebugUtilsMessengerEXT"));
 	assert(vkCreateDebugUtilsMesserger);
 
 	VkDebugUtilsMessageSeverityFlagsEXT messageServityFlags = verbose ? (VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT 
@@ -159,9 +157,7 @@ void vkDebugUtilsMessenger::create(const vkInstance &instance, bool8_t verbose)
 		nullptr
 	};
 
-	VkDebugUtilsMessengerEXT handle = VK_NULL_HANDLE;
-	rVerifyVk(vkCreateDebugUtilsMesserger(*instance, &createInfo, vkMemoryAllocator, &handle));
-	reset(handle);
+	rVerifyVk(vkCreateDebugUtilsMesserger(instance.Handle, &createInfo, vkMemoryAllocator, &Handle));
 }
 
 void vkDebugUtilsMessenger::destroy(const vkInstance &instance)
@@ -171,11 +167,11 @@ void vkDebugUtilsMessenger::destroy(const vkInstance &instance)
 	if (isValid())
 	{
 		PFN_vkDestroyDebugUtilsMessengerEXT vkDestroyDebugUtilsMessenger = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
-			vkGetInstanceProcAddr(*instance, "vkDestroyDebugUtilsMessengerEXT")
+			vkGetInstanceProcAddr(instance.Handle, "vkDestroyDebugUtilsMessengerEXT")
 			);
 		assert(vkDestroyDebugUtilsMessenger);
-		vkDestroyDebugUtilsMessenger(*instance, **this, vkMemoryAllocator);
-		reset();
+		vkDestroyDebugUtilsMessenger(instance.Handle, Handle, vkMemoryAllocator);
+		Handle = VK_NULL_HANDLE;
 	}
 }
 
@@ -187,20 +183,20 @@ std::vector<vkPhysicalDevice> vkPhysicalDevice::enumeratePhysicalDevices(const v
 	std::vector<VkPhysicalDevice> physicalDeviceHandles;
 
 	uint32_t count = 0U;
-	rVerifyVk(vkEnumeratePhysicalDevices(*instance, &count, nullptr));
+	rVerifyVk(vkEnumeratePhysicalDevices(instance.Handle, &count, nullptr));
 	assert(count > 0U);
 	physicalDevices.resize(count);
 	physicalDeviceHandles.resize(count);
-	rVerifyVk(vkEnumeratePhysicalDevices(*instance, &count, physicalDeviceHandles.data()));
+	rVerifyVk(vkEnumeratePhysicalDevices(instance.Handle, &count, physicalDeviceHandles.data()));
 	for (uint32_t i = 0u; i < count; ++i)
 	{
-		physicalDevices[i].reset(physicalDeviceHandles[i]);
+		physicalDevices[i].Handle = physicalDeviceHandles[i];
 	}
 
 	return physicalDevices;
 }
 
-uint32_t vkDevice::create(
+uint32_t VulkanDevice::create(
 	const std::vector<vkPhysicalDevice> &physicalDevices,
 	uint32_t &graphicsQueueIndex,
 	uint32_t &computeQueueIndex,
@@ -221,7 +217,7 @@ uint32_t vkDevice::create(
 	for (uint32_t i = 0u; i < physicalDevices.size(); ++i)
 	{
 		VkPhysicalDeviceProperties properties = {};
-		vkGetPhysicalDeviceProperties(*physicalDevices[i], &properties);
+		vkGetPhysicalDeviceProperties(physicalDevices[i].Handle, &properties);
 
 		switch (properties.deviceType)
 		{
@@ -249,11 +245,11 @@ uint32_t vkDevice::create(
 		gpuIndex = i;
 
 		uint32_t count = 0u;
-		vkGetPhysicalDeviceQueueFamilyProperties(*physicalDevices[i], &count, nullptr);
+		vkGetPhysicalDeviceQueueFamilyProperties(physicalDevices[i].Handle, &count, nullptr);
 		assert(count > 0u);
 
 		std::vector<VkQueueFamilyProperties> queueFamilyProperties(count);
-		vkGetPhysicalDeviceQueueFamilyProperties(*physicalDevices[i], &count, queueFamilyProperties.data());
+		vkGetPhysicalDeviceQueueFamilyProperties(physicalDevices[i].Handle, &count, queueFamilyProperties.data());
 
 		for (uint32_t j = 0U; j < queueFamilyProperties.size(); ++j)
 		{
@@ -331,17 +327,17 @@ uint32_t vkDevice::create(
 	};
 
 	uint32_t count = 0U;
-	rVerifyVk(vkEnumerateDeviceLayerProperties(*physicalDevices[gpuIndex], &count, nullptr));
+	rVerifyVk(vkEnumerateDeviceLayerProperties(physicalDevices[gpuIndex].Handle, &count, nullptr));
 	std::vector<VkLayerProperties> supportedLayers(count);
-	rVerifyVk(vkEnumerateDeviceLayerProperties(*physicalDevices[gpuIndex], &count, supportedLayers.data()));
+	rVerifyVk(vkEnumerateDeviceLayerProperties(physicalDevices[gpuIndex].Handle, &count, supportedLayers.data()));
 	layers = getSupportedProperties<VkLayerProperties>(supportedLayers, layers);
 
-	rVerifyVk(vkEnumerateDeviceExtensionProperties(*physicalDevices[gpuIndex], nullptr, &count, nullptr));
+	rVerifyVk(vkEnumerateDeviceExtensionProperties(physicalDevices[gpuIndex].Handle, nullptr, &count, nullptr));
 	std::vector<VkExtensionProperties> supportedExtensions(count);
-	rVerifyVk(vkEnumerateDeviceExtensionProperties(*physicalDevices[gpuIndex], nullptr, &count, supportedExtensions.data()));
+	rVerifyVk(vkEnumerateDeviceExtensionProperties(physicalDevices[gpuIndex].Handle, nullptr, &count, supportedExtensions.data()));
 	extensions = getSupportedProperties<VkExtensionProperties>(supportedExtensions, extensions);
 
-	vkGetPhysicalDeviceFeatures(*physicalDevices[gpuIndex], &m_DeviceFeatures);
+	vkGetPhysicalDeviceFeatures(physicalDevices[gpuIndex].Handle, &m_DeviceFeatures);
 
 	VkDeviceCreateInfo createInfo
 	{
@@ -357,16 +353,14 @@ uint32_t vkDevice::create(
 		&m_DeviceFeatures
 	};
 
-	VkDevice handle = VK_NULL_HANDLE;
-	rVerifyVk(vkCreateDevice(*physicalDevices[gpuIndex], &createInfo, vkMemoryAllocator, &handle));
-	reset(handle);
+	rVerifyVk(vkCreateDevice(physicalDevices[gpuIndex].Handle, &createInfo, vkMemoryAllocator, &Handle));
 
 #if defined(UsingVkLoader)
 	vkLoader::initializeDeviceFunctionTable(*this);
 #endif
 
 	VkPhysicalDeviceProperties properties = {};
-	vkGetPhysicalDeviceProperties(*physicalDevices[gpuIndex], &properties);
+	vkGetPhysicalDeviceProperties(physicalDevices[gpuIndex].Handle, &properties);
 	m_Adapter.DeviceName = properties.deviceName;
 	m_Adapter.DeviceID = properties.deviceID;
 	m_Adapter.VendorID = properties.vendorID;
@@ -381,7 +375,7 @@ uint32_t vkDevice::create(
 	m_DeviceLimits = properties.limits;
 	assert(m_DeviceLimits.maxColorAttachments >= eRMax_RenderTargets);
 
-	vkGetPhysicalDeviceMemoryProperties(*physicalDevices[gpuIndex], &m_DeviceMemoryProperties);
+	vkGetPhysicalDeviceMemoryProperties(physicalDevices[gpuIndex].Handle, &m_DeviceMemoryProperties);
 
 	graphicsQueueIndex = graphicsQueueFamilyIndex;
 	computeQueueIndex = computeQueueFamilyIndex;
@@ -396,17 +390,17 @@ uint32_t vkDevice::create(
 	return gpuIndex;
 }
 
-void vkDevice::waitIdle()
+void VulkanDevice::waitIdle()
 {
 	/// To wait on the host for the completion of outstanding queue operations for all queues on a given logical device
 	/// equivalent to calling vkQueueWaitIdle for all queues owned by device
 	if (isValid())
 	{
-		rVerifyVk(vkDeviceWaitIdle(**this));
+		rVerifyVk(vkDeviceWaitIdle(Handle));
 	}
 }
 
-uint32_t vkDevice::getMemoryTypeIndex(eRBufferUsage usage, uint32_t memoryTypeBits) const
+uint32_t VulkanDevice::getMemoryTypeIndex(eRBufferUsage usage, uint32_t memoryTypeBits) const
 {
 	assert(isValid() && usage < eRBufferUsage_MaxEnum);
 
@@ -443,11 +437,11 @@ uint32_t vkDevice::getMemoryTypeIndex(eRBufferUsage usage, uint32_t memoryTypeBi
 	return UINT32_MAX;
 }
 
-void vkDevice::destroy()
+void VulkanDevice::destroy()
 {
 	if (isValid())
 	{
-		rVerifyVk(vkDeviceWaitIdle(**this));
+		rVerifyVk(vkDeviceWaitIdle(Handle));
 
 		m_GpuResourcePool->destoryAll();
 		m_PipelinePool->destroyAll();
@@ -455,7 +449,7 @@ void vkDevice::destroy()
 		m_CommandPool.destroy(*this);
 		m_DescriptorPool.destroy(*this);
 
-		vkDestroyDevice(**this, vkMemoryAllocator);
-		reset();
+		vkDestroyDevice(Handle, vkMemoryAllocator);
+		Handle = VK_NULL_HANDLE;
 	}
 }

@@ -2,7 +2,7 @@
 
 #include "Colorful/Vulkan/VulkanView.h"
 
-class vkSwapchain : public vkObject<VkSwapchainKHR>
+class vkSwapchain : public VulkanObject<VkSwapchainKHR>
 {
 public:
 	void create(
@@ -14,7 +14,7 @@ public:
 		bool8_t fullscreen,
 		const class vkInstance &instance,
 		const class vkPhysicalDevice &physicalDevice,
-		class vkDevice &device);
+		class VulkanDevice &device);
 
 	void recreate(
 		uint32_t width, 
@@ -22,16 +22,16 @@ public:
 		bool8_t vSync, 
 		bool8_t fullscreen,
 		const class vkPhysicalDevice &physicalDevice,
-		class vkDevice &device);
+		class VulkanDevice &device);
 
-	void destroy(const class vkInstance &instance, const class vkDevice &device);
+	void destroy(const class vkInstance &instance, const class VulkanDevice &device);
 
-	inline void resize(uint32_t width, uint32_t height, const class vkPhysicalDevice &physicalDevice, class vkDevice &device)
+	inline void resize(uint32_t width, uint32_t height, const class vkPhysicalDevice &physicalDevice, class VulkanDevice &device)
 	{
 		recreate(width, height, m_bVSync, m_bFullScreen, physicalDevice, device);
 	}
 
-	uint32_t acquireBackBuffer(const class vkDevice &device);
+	uint32_t acquireBackBuffer(const class VulkanDevice &device);
 	inline const std::vector<vkBackBuffer> &getBackBuffers() const
 	{
 		return m_BackBuffers;
@@ -53,7 +53,7 @@ public:
 		return m_Height;
 	}
 protected:
-	struct vkSurface : public vkObject<VkSurfaceKHR>
+	struct vkSurface : public VulkanObject<VkSurfaceKHR>
 	{
 		void create(uint64_t appInstance, uint64_t windowHandle, const class vkInstance &instance);
 
@@ -64,7 +64,7 @@ protected:
 		std::vector<VkPresentModeKHR> PresentModes;
 	};
 
-	void clearBackBuffers(const class vkDevice &device);
+	void clearBackBuffers(const class VulkanDevice &device);
 private:
 	vkSurface m_Surface;
 	std::vector<vkBackBuffer> m_BackBuffers;

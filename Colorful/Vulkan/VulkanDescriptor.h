@@ -2,29 +2,29 @@
 
 #include "VulkanLoader.h"
 
-class vkDescriptorSet : public vkObject<VkDescriptorSet>
+class vkDescriptorSet : public VulkanObject<VkDescriptorSet>
 {
 };
 
-class vkDescriptorPool : public vkDeviceObject<VkDescriptorPool>
+class vkDescriptorPool : public VulkanDeviceObject<VkDescriptorPool>
 {
 public:
-	void create(const class vkDevice &device);
-	void resetPool(const class vkDevice &device);
-	void destroy(const class vkDevice &device) override final;
+	void create(const class VulkanDevice &device);
+	void resetPool(const class VulkanDevice &device);
+	void destroy(const class VulkanDevice &device) override final;
 
-	vkDescriptorSet alloc(const class vkDevice &device, const class vkDescriptorSetLayout &layout) const;
+	vkDescriptorSet alloc(const class VulkanDevice &device, const class vkDescriptorSetLayout &layout) const;
 };
 
-class vkDescriptorSetLayout : public vkDeviceObject<VkDescriptorSetLayout>
+class vkDescriptorSetLayout : public VulkanDeviceObject<VkDescriptorSetLayout>
 {
 public:
-	void create(const class vkDevice &device, const rDescriptorLayoutDesc &desc);
-	void destroy(const class vkDevice &device) override final;
+	void create(const class VulkanDevice &device, const rDescriptorLayoutDesc &desc);
+	void destroy(const class VulkanDevice &device) override final;
 };
 
-class vkDescriptorUpdateTemplate : public vkDeviceObject<VkDescriptorUpdateTemplate>
+class vkDescriptorUpdateTemplate : public VulkanDeviceObject<VkDescriptorUpdateTemplate>
 {
 public:
-	void destroy(const class vkDevice &device) override final;
+	void destroy(const class VulkanDevice &device) override final;
 };

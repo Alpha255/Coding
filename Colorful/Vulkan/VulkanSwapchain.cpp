@@ -15,9 +15,7 @@ void vkSwapchain::vkSurface::create(uint64_t appInstance, uint64_t windowHandle,
 		(::HWND)windowHandle
 	};
 
-	VkSurfaceKHR handle = VK_NULL_HANDLE;
-	rVerifyVk(vkCreateWin32SurfaceKHR(*instance, &createInfo, vkMemoryAllocator, &handle));
-	reset(handle);
+	rVerifyVk(vkCreateWin32SurfaceKHR(instance.Handle, &createInfo, vkMemoryAllocator, &Handle));
 #else
 	assert(0);
 #endif
@@ -29,8 +27,8 @@ void vkSwapchain::vkSurface::destroy(const vkInstance &instance)
 
 	if (isValid())
 	{
-		vkDestroySurfaceKHR(*instance, **this, vkMemoryAllocator);
-		reset();
+		vkDestroySurfaceKHR(instance.Handle, Handle, vkMemoryAllocator);
+		Handle = VK_NULL_HANDLE;
 	}
 }
 
@@ -43,23 +41,23 @@ void vkSwapchain::create(
 	bool8_t fullscreen, 
 	const vkInstance &instance, 
 	const vkPhysicalDevice &physicalDevice,
-	vkDevice &device)
+	VulkanDevice &device)
 {
 	assert(!isValid() && instance.isValid() && physicalDevice.isValid());
 
 	m_Surface.create(appInstance, windowHandle, instance);
 
 	uint32_t count = 0u;
-	vkGetPhysicalDeviceQueueFamilyProperties(*physicalDevice, &count, nullptr);
+	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice.Handle, &count, nullptr);
 	assert(count > 0u);
 	
 	std::vector<VkQueueFamilyProperties> queueFamilyProperties(count);
-	vkGetPhysicalDeviceQueueFamilyProperties(*physicalDevice, &count, queueFamilyProperties.data());
+	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice.Handle, &count, queueFamilyProperties.data());
 
 	std::vector<VkBool32> surfaceSupportKHR(count);
 	for (uint32_t i = 0u; i < count; ++i)
 	{
-		rVerifyVk(vkGetPhysicalDeviceSurfaceSupportKHR(*physicalDevice, i, *m_Surface, &surfaceSupportKHR[i]));
+		rVerifyVk(vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice.Handle, i, m_Surface.Handle, &surfaceSupportKHR[i]));
 	}
 
 	uint32_t graphicQueue = UINT32_MAX;
@@ -92,10 +90,10 @@ void vkSwapchain::create(
 
 	assert(graphicQueue != UINT32_MAX && presentQueue != UINT32_MAX && graphicQueue == presentQueue);
 
-	rVerifyVk(vkGetPhysicalDeviceSurfaceFormatsKHR(*physicalDevice, *m_Surface, &count, nullptr));
+	rVerifyVk(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice.Handle, m_Surface.Handle, &count, nullptr));
 	assert(count > 0u);
 	std::vector<VkSurfaceFormatKHR> surfaceFormats(count);
-	rVerifyVk(vkGetPhysicalDeviceSurfaceFormatsKHR(*physicalDevice, *m_Surface, &count, surfaceFormats.data()));
+	rVerifyVk(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice.Handle, m_Surface.Handle, &count, surfaceFormats.data()));
 
 	m_Surface.SurfaceFormat = surfaceFormats[0];
 	for (auto const &surfaceFormat : surfaceFormats)
@@ -108,10 +106,10 @@ void vkSwapchain::create(
 	}
 	assert(m_Surface.SurfaceFormat.colorSpace != VK_COLOR_SPACE_MAX_ENUM_KHR);
 
-	rVerifyVk(vkGetPhysicalDeviceSurfacePresentModesKHR(*physicalDevice, *m_Surface, &count, nullptr));
+	rVerifyVk(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice.Handle, m_Surface.Handle, &count, nullptr));
 	assert(count > 0u);
 	m_Surface.PresentModes.resize(count);
-	rVerifyVk(vkGetPhysicalDeviceSurfacePresentModesKHR(*physicalDevice, *m_Surface, &count, m_Surface.PresentModes.data()));
+	rVerifyVk(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice.Handle, m_Surface.Handle, &count, m_Surface.PresentModes.data()));
 
 	m_PresentCompleteSemaphore = new vkSemaphore(device);
 
@@ -124,7 +122,7 @@ void vkSwapchain::recreate(
 	bool8_t vSync, 
 	bool8_t fullscreen, 
 	const vkPhysicalDevice &physicalDevice,
-	vkDevice &device)
+	VulkanDevice &device)
 {
 	assert(device.isValid() && m_Surface.isValid());
 
@@ -133,7 +131,7 @@ void vkSwapchain::recreate(
 	m_bVSync = vSync;
 	m_bFullScreen = fullscreen;
 
-	rVerifyVk(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(*physicalDevice, *m_Surface, &m_Surface.SurfaceCapabilities));
+	rVerifyVk(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice.Handle, m_Surface.Handle, &m_Surface.SurfaceCapabilities));
 
 	VkExtent2D sizeExtent{};
 	sizeExtent.width = std::min<uint32_t>(width, m_Surface.SurfaceCapabilities.maxImageExtent.width);
@@ -202,13 +200,13 @@ void vkSwapchain::recreate(
 	
 	/// VK_SHARING_MODE_CONCURRENT: Images can be used across multiple queue families without explicit ownership transfers,
 	/// concurrent mode requires you to specify at least two distinct queue families
-	VkSwapchainKHR oldSwapchain = **this;
+	VkSwapchainKHR oldSwapchain = Handle;
 	VkSwapchainCreateInfoKHR createInfo
 	{
 		VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
 		nullptr,
 		0u,
-		*m_Surface,
+		m_Surface.Handle,
 		presentMode == VK_PRESENT_MODE_MAILBOX_KHR ? m_Surface.SurfaceCapabilities.minImageCount + 1u : m_Surface.SurfaceCapabilities.minImageCount,
 		m_Surface.SurfaceFormat.format,
 		m_Surface.SurfaceFormat.colorSpace,
@@ -231,70 +229,66 @@ void vkSwapchain::recreate(
 
 	device.waitIdle();
 
-	VkSwapchainKHR handle = VK_NULL_HANDLE;
-	rVerifyVk(vkCreateSwapchainKHR(*device, &createInfo, vkMemoryAllocator, &handle));
-	reset(handle);
+	rVerifyVk(vkCreateSwapchainKHR(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
 
 	if (oldSwapchain != VK_NULL_HANDLE)
 	{
-		vkDestroySwapchainKHR(*device, oldSwapchain, vkMemoryAllocator);
+		vkDestroySwapchainKHR(device.Handle, oldSwapchain, vkMemoryAllocator);
 		clearBackBuffers(device);
 	}
 
 	uint32_t imageCount = 0u;
-	rVerifyVk(vkGetSwapchainImagesKHR(*device, **this, &imageCount, nullptr));
+	rVerifyVk(vkGetSwapchainImagesKHR(device.Handle, Handle, &imageCount, nullptr));
 	std::vector<VkImage> images(imageCount);
 	m_BackBuffers.resize(imageCount);
-	rVerifyVk(vkGetSwapchainImagesKHR(*device, **this, &imageCount, images.data()));
+	rVerifyVk(vkGetSwapchainImagesKHR(device.Handle, Handle, &imageCount, images.data()));
 	for (uint32_t i = 0u; i < images.size(); ++i)
 	{
 		vkImage image;
-		image.reset(images[i]);
+		image.Handle = images[i];
 
 		m_BackBuffers[i].create(device, image, m_Surface.SurfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT);
 	}
 }
 
-void vkSwapchain::destroy(const vkInstance &instance, const vkDevice &device)
+void vkSwapchain::destroy(const vkInstance &instance, const VulkanDevice &device)
 {
 	assert(instance.isValid() && device.isValid());
 
-	vkDestroySwapchainKHR(*device, **this, vkMemoryAllocator);
+	vkDestroySwapchainKHR(device.Handle, Handle, vkMemoryAllocator);
 	m_Surface.destroy(instance);
-	reset();
+	Handle = VK_NULL_HANDLE;
 	m_PresentCompleteSemaphore->destroy(device);
 
 	clearBackBuffers(device);
 }
 
-uint32_t vkSwapchain::acquireBackBuffer(const vkDevice &device)
+uint32_t vkSwapchain::acquireBackBuffer(const VulkanDevice &device)
 {
 	assert(isValid() && device.isValid());
 	m_CurrentFrameIndex = UINT32_MAX;
 
-	rVerifyVk(vkAcquireNextImageKHR(*device, **this, UINT64_MAX, **m_PresentCompleteSemaphore, VK_NULL_HANDLE, &m_CurrentFrameIndex));
+	rVerifyVk(vkAcquireNextImageKHR(device.Handle, Handle, UINT64_MAX, m_PresentCompleteSemaphore->Handle, VK_NULL_HANDLE, &m_CurrentFrameIndex));
 	return m_CurrentFrameIndex;
 }
 
 void vkSwapchain::present(const vkDeviceQueue &queue, const vkSemaphore &renderCompleteSephore) const
 {
-	VkSwapchainKHR handle = **this;
-	VkSemaphore semaphore = *renderCompleteSephore;
 	VkPresentInfoKHR presentInfo
 	{
 		VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
 		nullptr,
 		1u,
-		&semaphore,
+		&renderCompleteSephore.Handle,
 		1u,
-		&handle,
+		&Handle,
 		&m_CurrentFrameIndex,
 		nullptr
 	};
-	rVerifyVk(vkQueuePresentKHR(*queue, &presentInfo));
+	rVerifyVk(vkQueuePresentKHR(queue.Handle, &presentInfo));
 }
 
-void vkSwapchain::clearBackBuffers(const vkDevice &device)
+void vkSwapchain::clearBackBuffers(const VulkanDevice &device)
 {
 	for (uint32_t i = 0u; i < m_BackBuffers.size(); ++i)
 	{

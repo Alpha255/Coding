@@ -1,7 +1,7 @@
 #include "VulkanDescriptor.h"
 #include "VulkanEngine.h"
 
-void vkDescriptorPool::create(const vkDevice &device)
+void vkDescriptorPool::create(const VulkanDevice &device)
 {
 	assert(device.isValid() && !isValid());
 
@@ -75,56 +75,51 @@ void vkDescriptorPool::create(const vkDevice &device)
 		descriptorPoolSizes.data()
 	};
 
-	VkDescriptorPool handle = VK_NULL_HANDLE;
-	rVerifyVk(vkCreateDescriptorPool(*device, &createInfo, vkMemoryAllocator, &handle));
-	reset(handle);
+	rVerifyVk(vkCreateDescriptorPool(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
 }
 
-void vkDescriptorPool::resetPool(const vkDevice &device)
+void vkDescriptorPool::resetPool(const VulkanDevice &device)
 {
 	/// return all descriptor sets allocated from a given pool to the pool
 	/// flags is reserved for future use
 	/// Resetting a descriptor pool recycles all of the resources from all of the descriptor sets allocated from the descriptor pool back to the descriptor pool, 
 	/// and the descriptor sets are implicitly freed.
 	assert(device.isValid() && isValid());
-	vkResetDescriptorPool(*device, **this, 0u);
+	vkResetDescriptorPool(device.Handle, Handle, 0u);
 }
 
-void vkDescriptorPool::destroy(const vkDevice &device)
+void vkDescriptorPool::destroy(const VulkanDevice &device)
 {
 	assert(device.isValid());
 
 	if (isValid())
 	{
-		vkDestroyDescriptorPool(*device, **this, vkMemoryAllocator);
-		reset();
+		vkDestroyDescriptorPool(device.Handle, Handle, vkMemoryAllocator);
+		Handle = VK_NULL_HANDLE;
 	}
 }
 
-vkDescriptorSet vkDescriptorPool::alloc(const class vkDevice &device, const vkDescriptorSetLayout &layout) const
+vkDescriptorSet vkDescriptorPool::alloc(const class VulkanDevice &device, const vkDescriptorSetLayout &layout) const
 {
 	assert(isValid() && layout.isValid());
 
-	const VkDescriptorSetLayout descriptorSetlayout = *layout;
+	const VkDescriptorSetLayout descriptorSetlayout = layout.Handle;
 	VkDescriptorSetAllocateInfo allocInfo
 	{
 		VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
 		nullptr,
-		**this,
+		Handle,
 		1u,
 		&descriptorSetlayout
 	};
 
-	VkDescriptorSet handle = VK_NULL_HANDLE;
-	rVerifyVk(vkAllocateDescriptorSets(*device, &allocInfo, &handle));
-
 	vkDescriptorSet descriptorSet;
-	descriptorSet.reset(handle);
+	rVerifyVk(vkAllocateDescriptorSets(device.Handle, &allocInfo, &descriptorSet.Handle));
 
 	return descriptorSet;
 }
 
-void vkDescriptorSetLayout::create(const vkDevice &device, const rDescriptorLayoutDesc &desc)
+void vkDescriptorSetLayout::create(const VulkanDevice &device, const rDescriptorLayoutDesc &desc)
 {
 	assert(device.isValid() && !isValid());
 
@@ -157,23 +152,21 @@ void vkDescriptorSetLayout::create(const vkDevice &device, const rDescriptorLayo
 		bindings.data()
 	};
 
-	VkDescriptorSetLayout handle = VK_NULL_HANDLE;
-	rVerifyVk(vkCreateDescriptorSetLayout(*device, &createInfo, vkMemoryAllocator, &handle));
-	reset(handle);
+	rVerifyVk(vkCreateDescriptorSetLayout(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
 }
 
-void vkDescriptorSetLayout::destroy(const vkDevice &device)
+void vkDescriptorSetLayout::destroy(const VulkanDevice &device)
 {
 	assert(device.isValid());
 
 	if (isValid())
 	{
-		vkDestroyDescriptorSetLayout(*device, **this, vkMemoryAllocator);
-		reset();
+		vkDestroyDescriptorSetLayout(device.Handle, Handle, vkMemoryAllocator);
+		Handle = VK_NULL_HANDLE;
 	}
 }
 
-void vkDescriptorUpdateTemplate::destroy(const vkDevice &device)
+void vkDescriptorUpdateTemplate::destroy(const VulkanDevice &device)
 {
 	/// A descriptor update template specifies a mapping from descriptor update information in host memory to descriptors in a descriptor set.
 	/// It is designed to avoid passing redundant information to the driver when frequently updating the same set of descriptors in descriptor sets.
@@ -183,7 +176,7 @@ void vkDescriptorUpdateTemplate::destroy(const vkDevice &device)
 
 	if (isValid())
 	{
-		///vkDestroyDescriptorUpdateTemplate(*device, **this, vkMemoryAllocator);
-		reset();
+		///vkDestroyDescriptorUpdateTemplate(device.Handle, Handle, vkMemoryAllocator);
+		Handle = VK_NULL_HANDLE;
 	}
 }

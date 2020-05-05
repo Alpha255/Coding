@@ -3,13 +3,13 @@
 #include "Colorful/D3D/D3D11/D3D11Pipeline.h"
 
 /// ID3D11Device5
-class d3d12CommandQueue : public d3dObject<ID3D12CommandQueue>
+class d3d12CommandQueue : public D3DObject<ID3D12CommandQueue>
 {
 public:
 	void create(const class d3d12Device &device);
 };
 
-class d3d12Device : public d3dObject<ID3D12Device>, public rDevice
+class d3d12Device : public D3DObject<ID3D12Device>, public rDevice
 {
 public:
 	void create(const dxgiFactory7 &inDxgiFactory);

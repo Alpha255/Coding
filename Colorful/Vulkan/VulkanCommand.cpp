@@ -1,7 +1,7 @@
 #include "VulkanCommand.h"
 #include "VulkanEngine.h"
 
-void vkCommandPool::create(const vkDevice &device, uint32_t queueIndex)
+void vkCommandPool::create(const VulkanDevice &device, uint32_t queueIndex)
 {
 	assert(!isValid() && device.isValid());
 
@@ -28,12 +28,10 @@ void vkCommandPool::create(const vkDevice &device, uint32_t queueIndex)
 		queueIndex  /// All command buffers allocated from this command pool must be submitted on queues from the same queue family.
 	};
 
-	VkCommandPool handle = VK_NULL_HANDLE;
-	rVerifyVk(vkCreateCommandPool(*device, &createInfo, vkMemoryAllocator, &handle));
-	reset(handle);
+	rVerifyVk(vkCreateCommandPool(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
 }
 
-void vkCommandPool::resetPool(const vkDevice &device)
+void vkCommandPool::reset(const VulkanDevice &device)
 {
 	assert(device.isValid() && isValid());
 
@@ -45,10 +43,10 @@ void vkCommandPool::resetPool(const vkDevice &device)
 	/// VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT specifies that resetting a command pool recycles all of the resources from the command pool back to the system.
 
 	/// All VkCommandBuffer objects allocated from commandPool must not be in the pending state
-	rVerifyVk(vkResetCommandPool(*device, **this, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT));
+	rVerifyVk(vkResetCommandPool(device.Handle, Handle, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT));
 }
 
-void vkCommandPool::trimPool(const vkDevice &device)
+void vkCommandPool::trim(const VulkanDevice &device)
 {
 	/// Trimming a command pool recycles unused memory from the command pool back to the system. 
 	/// Command buffers allocated from the pool are not affected by the command. vkTrimCommandPool/vkTrimCommandPoolKHR
@@ -56,11 +54,11 @@ void vkCommandPool::trimPool(const vkDevice &device)
 
 	assert(0);
 	/// flags is reserved for future use
-	/// vkTrimCommandPool(*device, **this, 0u);
-	/// vkTrimCommandPoolKHR(*device, **this, 0u);
+	/// vkTrimCommandPool(device.Handle, Handle, 0u);
+	/// vkTrimCommandPoolKHR(device.Handle, Handle, 0u);
 }
 
-void vkCommandPool::destroy(const vkDevice &device)
+void vkCommandPool::destroy(const VulkanDevice &device)
 {
 	assert(device.isValid());
 
@@ -76,8 +74,8 @@ void vkCommandPool::destroy(const vkDevice &device)
 			free(device, *m_ActiveCmdBuffer);
 		}
 
-		vkDestroyCommandPool(*device, **this, vkMemoryAllocator);
-		reset();
+		vkDestroyCommandPool(device.Handle, Handle, vkMemoryAllocator);
+		Handle = VK_NULL_HANDLE;
 	}
 }
 
@@ -117,7 +115,7 @@ void vkCommandPool::destroy(const vkDevice &device)
 		Resetting or freeing a primary command buffer removes the linkage to any secondary command buffers that were recorded to it.
 ********************************/
 
-vkCommandBuffer vkCommandPool::alloc(const vkDevice &device, VkCommandBufferLevel level, bool8_t signaleFence) const
+vkCommandBuffer vkCommandPool::alloc(const VulkanDevice &device, VkCommandBufferLevel level, bool8_t signaleFence) const
 {
 	assert(isValid() && device.isValid());
 
@@ -125,13 +123,13 @@ vkCommandBuffer vkCommandPool::alloc(const vkDevice &device, VkCommandBufferLeve
 	{
 		VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
 		nullptr,
-		**this,
+		Handle,
 		level,
 		1u
 	};
 
 	VkCommandBuffer handle = VK_NULL_HANDLE;
-	rVerifyVk(vkAllocateCommandBuffers(*device, &allocateInfo, &handle));
+	rVerifyVk(vkAllocateCommandBuffers(device.Handle, &allocateInfo, &handle));
 
 	vkFence *fence = device.createFence(signaleFence ? vkFence::eSignaled : vkFence::eUnsignaled);
 	assert(fence);
@@ -142,7 +140,7 @@ vkCommandBuffer vkCommandPool::alloc(const vkDevice &device, VkCommandBufferLeve
 	return vkCommandBuffer(level, handle, fence, semaphore);
 }
 
-void vkCommandPool::free(const vkDevice &device, vkCommandBuffer &commandBuffer) const
+void vkCommandPool::free(const VulkanDevice &device, vkCommandBuffer &commandBuffer) const
 {
 	assert(isValid() && device.isValid());
 
@@ -153,19 +151,19 @@ void vkCommandPool::free(const vkDevice &device, vkCommandBuffer &commandBuffer)
 	{
 		const VkCommandBuffer commandBuffers[]
 		{
-			*commandBuffer
+			commandBuffer.Handle
 		};
-		vkFreeCommandBuffers(*device, **this, 1u, commandBuffers);
+		vkFreeCommandBuffers(device.Handle, Handle, 1u, commandBuffers);
 		if (commandBuffer.m_Fence)
 		{
 			commandBuffer.m_Fence->destroy(device);
 			commandBuffer.m_Fence = nullptr;
 		}
-		commandBuffer.reset();
+		commandBuffer.Handle = VK_NULL_HANDLE;
 	}
 }
 
-vkCommandBuffer *vkCommandPool::getActiveCommandBuffer(const vkDevice &device)
+vkCommandBuffer *vkCommandPool::getActiveCommandBuffer(const VulkanDevice &device)
 {
 	assert(device.isValid());
 	if (!m_ActiveCmdBuffer)
@@ -188,7 +186,7 @@ void vkCommandBuffer::begin()
 		0u,
 		nullptr
 	};
-	rVerifyVk(vkBeginCommandBuffer(**this, &cmdBufferBeginInfo));
+	rVerifyVk(vkBeginCommandBuffer(Handle, &cmdBufferBeginInfo));
 	setState(eRecording);
 }
 
@@ -196,7 +194,7 @@ void vkCommandBuffer::end()
 {
 	assert(isValid() && m_State == eRecording);
 
-	rVerifyVk(vkEndCommandBuffer(**this));
+	rVerifyVk(vkEndCommandBuffer(Handle));
 	setState(eExecutable);
 }
 
@@ -231,8 +229,8 @@ void vkCommandBuffer::beginRenderPass(const VkRenderPassBeginInfo &renderPassBeg
 		nullptr
 	};
 
-	rVerifyVk(vkBeginCommandBuffer(**this, &cmdBufferBeginInfo));
-	vkCmdBeginRenderPass(**this, &renderPassBeginInfo, subpassContents);
+	rVerifyVk(vkBeginCommandBuffer(Handle, &cmdBufferBeginInfo));
+	vkCmdBeginRenderPass(Handle, &renderPassBeginInfo, subpassContents);
 
 	setState(eRecording);
 }
@@ -241,19 +239,19 @@ void vkCommandBuffer::endRenderPass()
 {
 	assert(isValid() && m_State == eRecording);
 
-	vkCmdEndRenderPass(**this);
-	rVerifyVk(vkEndCommandBuffer(**this));
+	vkCmdEndRenderPass(Handle);
+	rVerifyVk(vkEndCommandBuffer(Handle));
 
 	setState(eExecutable);
 }
 
-void vkCommandBuffer::waitFence(const vkDevice &device)
+void vkCommandBuffer::waitFence(const VulkanDevice &device)
 {
 	assert(m_Fence && device.isValid());
 
-	VkFence fence = **m_Fence;
-	rVerifyVk(vkWaitForFences(*device, 1u, &fence, VK_TRUE, UINT64_MAX));
-	rVerifyVk(vkResetFences(*device, 1u, &fence));
+	VkFence fence = m_Fence->Handle;
+	rVerifyVk(vkWaitForFences(device.Handle, 1u, &fence, VK_TRUE, UINT64_MAX));
+	rVerifyVk(vkResetFences(device.Handle, 1u, &fence));
 }
 
 void vkCommandBuffer::execute(const vkCommandBuffer &primaryCommandBuffer)
@@ -290,7 +288,7 @@ void vkCommandBuffer::execute(const vkCommandBuffer &primaryCommandBuffer)
 
 	const VkCommandBuffer commandBuffers[]
 	{
-		**this
+		Handle
 	};
-	vkCmdExecuteCommands(*primaryCommandBuffer, 1u, commandBuffers);
+	vkCmdExecuteCommands(primaryCommandBuffer.Handle, 1u, commandBuffers);
 }

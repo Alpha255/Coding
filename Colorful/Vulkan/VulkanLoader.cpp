@@ -30,19 +30,19 @@ void vkLoader::initializeInstanceFunctionTable(const vkInstance &instance)
 	assert(instance.isValid() && vkGetInstanceProcAddr);
 
 #define createFunctionTable(func) \
-	func = (PFN_##func)(vkGetInstanceProcAddr(*instance, #func)); \
+	func = (PFN_##func)(vkGetInstanceProcAddr(instance.Handle, #func)); \
 	logIfFunctionIsNull(func)
 
 	vkInstanceFunctionTable(createFunctionTable)
 #undef createFunctionTable
 }
 
-void vkLoader::initializeDeviceFunctionTable(const vkDevice &device)
+void vkLoader::initializeDeviceFunctionTable(const VulkanDevice &device)
 {
 	assert(device.isValid() && vkGetDeviceProcAddr);
 
 #define createFunctionTable(func) \
-	func = (PFN_##func)(vkGetDeviceProcAddr(*device, #func)); \
+	func = (PFN_##func)(vkGetDeviceProcAddr(device.Handle, #func)); \
 	logIfFunctionIsNull(func)
 
 	vkDeviceFunctionTable(createFunctionTable)

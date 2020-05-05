@@ -3,23 +3,23 @@
 #include "VulkanBuffer.h"
 #include "Colorful/Public/RAsset.h"
 
-class vkSampler : public vkDeviceObject<VkSampler>, public rSampler
+class vkSampler : public VulkanDeviceObject<VkSampler>, public rSampler
 {
 public:
-	vkSampler(const class vkDevice &device, const rSamplerDesc &desc);
-	void destroy(const class vkDevice &device) override final;
+	vkSampler(const class VulkanDevice &device, const rSamplerDesc &desc);
+	void destroy(const class VulkanDevice &device) override final;
 protected:
 private:
 };
 
-class vkImage : public vkDeviceObject<VkImage>
+class vkImage : public VulkanDeviceObject<VkImage>
 {
 public:
 	vkImage() = default;
-	vkImage(const class vkDevice &device, const rAsset::rTextureBinary &binary);
+	vkImage(const class VulkanDevice &device, const rAsset::rTextureBinary &binary);
 
 	void create(
-		const class vkDevice &device,
+		const class VulkanDevice &device,
 		uint32_t width,
 		uint32_t height,
 		uint32_t depth,
@@ -29,7 +29,7 @@ public:
 		VkImageType type,
 		VkImageUsageFlags usage);
 
-	void destroy(const class vkDevice &device) override final;
+	void destroy(const class VulkanDevice &device) override final;
 
 	inline VkFormat getFormat() const
 	{
@@ -39,7 +39,7 @@ protected:
 	friend class vkImageView;
 	void transitionImageLayout();
 	VkImageType getImageType(eRTextureType type) const;
-	void copyBufferToImage(const class vkDevice &device, const rAsset::rTextureBinary &binary);
+	void copyBufferToImage(const class VulkanDevice &device, const rAsset::rTextureBinary &binary);
 	void insertMemoryBarrier(
 		const class vkCommandBuffer &commandBuffer, 
 		VkPipelineStageFlags srcStageMask,

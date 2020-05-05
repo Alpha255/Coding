@@ -24,7 +24,7 @@ public:
 	void present() override final;
 	void waitDone(vkCommandBuffer *cmdBuffer);
 
-	inline vkDevice &getDevice()
+	inline VulkanDevice &getDevice()
 	{
 		return m_Device;
 	}
@@ -146,7 +146,7 @@ protected:
 private:
 	vkInstance m_Instance;
 	vkDebugUtilsMessenger m_DebugUtilsMessenger;
-	vkDevice m_Device;
+	VulkanDevice m_Device;
 	vkPhysicalDevice m_PhysicalDevice;
 	vkDeviceQueue m_GraphicsQueue;
 	vkDeviceQueue m_ComputeQueue;

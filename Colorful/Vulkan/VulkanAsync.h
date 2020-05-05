@@ -32,7 +32,7 @@
 		Many cases that would otherwise need an application to use other synchronization primitives can be expressed more efficiently as part of a render pass.
 ********************/
 
-class vkFence : public vkDeviceObject<VkFence>
+class vkFence : public VulkanDeviceObject<VkFence>
 {
 public:
 	enum eFenceStatus
@@ -42,20 +42,20 @@ public:
 		eFenceStatus_MaxEnum
 	};
 
-	vkFence(const class vkDevice &device, eFenceStatus status);
-	void destroy(const class vkDevice &device) override final;
-	eFenceStatus getStatus(const class vkDevice &device);
-	void resetStatus(const class vkDevice &device);
+	vkFence(const class VulkanDevice &device, eFenceStatus status);
+	void destroy(const class VulkanDevice &device) override final;
+	eFenceStatus getStatus(const class VulkanDevice &device);
+	void resetStatus(const class VulkanDevice &device);
 };
 
-class vkSemaphore : public vkDeviceObject<VkSemaphore>
+class vkSemaphore : public VulkanDeviceObject<VkSemaphore>
 {
 public:
-	vkSemaphore(const class vkDevice &device);
-	void destroy(const class vkDevice &device) override final;
+	vkSemaphore(const class VulkanDevice &device);
+	void destroy(const class VulkanDevice &device) override final;
 };
 
-class vkEvent : public vkDeviceObject<VkEvent>
+class vkEvent : public VulkanDeviceObject<VkEvent>
 {
 public:
 	enum eEventStatus
@@ -65,8 +65,8 @@ public:
 		eEventStatus_MaxEnum
 	};
 
-	vkEvent(const class vkDevice &device);
-	void destroy(const class vkDevice &device) override final;
-	eEventStatus getStatus(const class vkDevice &device);
-	void setStatus(const class vkDevice &device, eEventStatus status);
+	vkEvent(const class VulkanDevice &device);
+	void destroy(const class VulkanDevice &device) override final;
+	eEventStatus getStatus(const class VulkanDevice &device);
+	void setStatus(const class VulkanDevice &device, eEventStatus status);
 };

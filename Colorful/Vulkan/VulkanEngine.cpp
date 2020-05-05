@@ -138,7 +138,7 @@ void vkEngine::createOpaqueRenderPass()
 VkFormatProperties vkEngine::getFormatProperties(VkFormat format)
 {
 	VkFormatProperties formatProperties{};
-	vkGetPhysicalDeviceFormatProperties(*m_PhysicalDevice, format, &formatProperties);
+	vkGetPhysicalDeviceFormatProperties(m_PhysicalDevice.Handle, format, &formatProperties);
 
 	return formatProperties;
 }

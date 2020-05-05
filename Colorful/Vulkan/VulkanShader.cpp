@@ -1,7 +1,7 @@
 #include "VulkanShader.h"
 #include "VulkanEngine.h"
 
-vkShader::vkShader(const vkDevice &device, eRShaderUsage usage, const rAsset::rShaderBinary &binary)
+vkShader::vkShader(const VulkanDevice &device, eRShaderUsage usage, const rAsset::rShaderBinary &binary)
 	: rShader(usage)
 {
 	assert(!isValid() && device.isValid());
@@ -17,22 +17,20 @@ vkShader::vkShader(const vkDevice &device, eRShaderUsage usage, const rAsset::rS
 		(uint32_t *)binary.Binary.get()
 	};
 
-	VkShaderModule handle = VK_NULL_HANDLE;
-	rVerifyVk(vkCreateShaderModule(*device, &createInfo, vkMemoryAllocator, &handle));
-	reset(handle);
+	rVerifyVk(vkCreateShaderModule(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
 
 	m_Reflections = binary.Reflections;
 }
 
-void vkShader::destroy(const vkDevice &device)
+void vkShader::destroy(const VulkanDevice &device)
 {
 	/// A shader module can be destroyed while pipelines created using its shaders are still in use.
 	assert(device.isValid());
 
 	if (isValid())
 	{
-		vkDestroyShaderModule(*device, **this, vkMemoryAllocator);
-		reset();
+		vkDestroyShaderModule(device.Handle, Handle, vkMemoryAllocator);
+		Handle = VK_NULL_HANDLE;
 	}
 }
 

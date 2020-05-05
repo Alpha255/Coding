@@ -16,7 +16,7 @@
 /// Also, the memory side-effects of those commands may not be directly visible to other commands without explicit memory dependencies. This is true within a command buffer, and across command buffers submitted to a given queue. 
 
 
-class vkCommandBuffer : public vkObject<VkCommandBuffer>
+class vkCommandBuffer : public VulkanObject<VkCommandBuffer>
 {
 public:
 	vkCommandBuffer() = default;
@@ -26,8 +26,8 @@ public:
 		, m_Semaphore(semaphore)
 	{
 		assert(handle != VK_NULL_HANDLE);
-		reset(handle);
 		setState(eInitial);
+		Handle = handle;
 	}
 
 	void beginRenderPass(const VkRenderPassBeginInfo &renderPassBeginInfo, VkSubpassContents subpassContents);
@@ -55,7 +55,7 @@ public:
 		return m_Semaphore;
 	}
 
-	void waitFence(const class vkDevice &device);
+	void waitFence(const class VulkanDevice &device);
 
 	inline void resetCommand()
 	{
@@ -66,7 +66,7 @@ public:
 		/// VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT specifies that most or all memory resources currently owned by the command buffer should be returned to the parent command pool. 
 		/// If this flag is not set, then the command buffer may hold onto memory resources and reuse them when recording commands.
 		//assert(m_State != ePending && isValid());
-		vkResetCommandBuffer(**this, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
+		vkResetCommandBuffer(Handle, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
 		setState(eInitial);
 	}
 protected:
@@ -94,18 +94,18 @@ private:
 	class vkSemaphore *m_Semaphore = nullptr;
 };
 
-class vkCommandPool : public vkDeviceObject<VkCommandPool>
+class vkCommandPool : public VulkanDeviceObject<VkCommandPool>
 {
 public:
-	void create(const class vkDevice &device, uint32_t queueIndex);
-	void destroy(const class vkDevice &device) override final;
-	void resetPool(const class vkDevice &device);
-	void trimPool(const class vkDevice &device);
+	void create(const class VulkanDevice &device, uint32_t queueIndex);
+	void destroy(const class VulkanDevice &device) override final;
+	void reset(const class VulkanDevice &device);
+	void trim(const class VulkanDevice &device);
 
-	vkCommandBuffer alloc(const class vkDevice &device, VkCommandBufferLevel level, bool8_t signaleFence = true) const;
-	void free(const class vkDevice &device, vkCommandBuffer &commandBuffer) const;
+	vkCommandBuffer alloc(const class VulkanDevice &device, VkCommandBufferLevel level, bool8_t signaleFence = true) const;
+	void free(const class VulkanDevice &device, vkCommandBuffer &commandBuffer) const;
 
-	vkCommandBuffer *getActiveCommandBuffer(const class vkDevice &device);
+	vkCommandBuffer *getActiveCommandBuffer(const class VulkanDevice &device);
 protected:
 private:
 	vkCommandBuffer *m_ActiveCmdBuffer = nullptr;

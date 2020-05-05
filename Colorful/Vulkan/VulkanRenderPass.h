@@ -94,11 +94,11 @@
 
 /// https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/vkspec.html#memory-model
 
-class vkRenderPass : public vkDeviceObject<VkRenderPass>, public rRenderPass
+class vkRenderPass : public VulkanDeviceObject<VkRenderPass>, public rRenderPass
 {
 public:
-	void create(const class vkDevice &device, const rFrameBufferDesc &desc);
-	void destroy(const class vkDevice &device) override final;
+	void create(const class VulkanDevice &device, const rFrameBufferDesc &desc);
+	void destroy(const class VulkanDevice &device) override final;
 
 	void pendingGfxPipline(const struct rGraphicsPipelineState &) override final;
 	void bindGfxPipeline(const struct rGraphicsPipelineState &) override final;

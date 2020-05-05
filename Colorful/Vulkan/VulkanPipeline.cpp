@@ -4,28 +4,25 @@
 #include "VulkanRenderPass.h"
 #include "VulkanEngine.h"
 
-void vkPipelineLayout::create(const vkDevice &device, const vkDescriptorSetLayout &descriptorSetLayout)
+void vkPipelineLayout::create(const VulkanDevice &device, const vkDescriptorSetLayout &descriptorSetLayout)
 {
 	assert(device.isValid() && !isValid() && descriptorSetLayout.isValid());
 
-	VkDescriptorSetLayout descriptorSetLayoutHandle = *descriptorSetLayout;
 	VkPipelineLayoutCreateInfo createInfo
 	{
 		VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
 		nullptr,
 		0u,
 		1u,
-		&descriptorSetLayoutHandle,
+		&descriptorSetLayout.Handle,
 		0u,
 		nullptr /// PushRange ?????
 	};
 
-	VkPipelineLayout handle = VK_NULL_HANDLE;
-	rVerifyVk(vkCreatePipelineLayout(*device, &createInfo, vkMemoryAllocator, &handle));
-	reset(handle);
+	rVerifyVk(vkCreatePipelineLayout(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
 }
 
-void vkPipelineLayout::destroy(const vkDevice &device)
+void vkPipelineLayout::destroy(const VulkanDevice &device)
 {
 	/// The pipeline layout represents a sequence of descriptor sets with each having a specific layout. 
 	/// This sequence of layouts is used to determine the interface between shader stages and shader resources. 
@@ -34,13 +31,13 @@ void vkPipelineLayout::destroy(const vkDevice &device)
 
 	if (isValid())
 	{
-		vkDestroyPipelineLayout(*device, **this, vkMemoryAllocator);
-		reset();
+		vkDestroyPipelineLayout(device.Handle, Handle, vkMemoryAllocator);
+		Handle = VK_NULL_HANDLE;
 	}
 }
 
 void vkGraphicsPipeline::create(
-	const vkDevice &device, 
+	const VulkanDevice &device, 
 	const vkRenderPass &renderpass, 
 	const vkPipelineCache &cache, 
 	const rGraphicsPipelineState &state)
@@ -63,7 +60,7 @@ void vkGraphicsPipeline::create(
 				nullptr,
 				0u,
 				vkEngine::enumTranslator::toShaderStage(shader->getUsage()),
-				**shader,
+				shader->Handle,
 				"main",
 				nullptr
 			};
@@ -152,20 +149,18 @@ void vkGraphicsPipeline::create(
 		&depthStencilState,
 		&blendState,
 		&dynamicStateCreateInfo,
-		*m_PipelineLayout,
-		*renderpass,
+		m_PipelineLayout.Handle,
+		renderpass.Handle,
 		0u,
 		VK_NULL_HANDLE,
 		0u
 	};
 
 	/// Pending creations ???
-	VkPipeline handle = VK_NULL_HANDLE;
-	rVerifyVk(vkCreateGraphicsPipelines(*device, *cache, 1u, &createInfo, vkMemoryAllocator, &handle));
-	reset(handle);
+	rVerifyVk(vkCreateGraphicsPipelines(device.Handle, cache.Handle, 1u, &createInfo, vkMemoryAllocator, &Handle));
 }
 
-void vkGraphicsPipeline::destroy(const vkDevice &device)
+void vkGraphicsPipeline::destroy(const VulkanDevice &device)
 {
 	m_PipelineLayout.destroy(device);
 	m_DescriptorSetLayout.destroy(device);
@@ -176,10 +171,9 @@ void vkGraphicsPipeline::bind(const vkCommandBuffer &cmdBuffer)
 {
 	assert(isValid() && cmdBuffer.isValid() && m_DescriptorSet.isValid());
 
-	VkDescriptorSet descriptorSet = *m_DescriptorSet;
-	vkCmdBindDescriptorSets(*cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, *m_PipelineLayout, 0u, 1u, &descriptorSet, 0u, nullptr);
+	vkCmdBindDescriptorSets(cmdBuffer.Handle, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout.Handle, 0u, 1u, &m_DescriptorSet.Handle, 0u, nullptr);
 
-	vkCmdBindPipeline(*cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, **this);
+	vkCmdBindPipeline(cmdBuffer.Handle, VK_PIPELINE_BIND_POINT_GRAPHICS, Handle);
 }
 
 VkPipelineRasterizationStateCreateInfo vkGraphicsPipeline::getRasterizationState(const rRasterizerStateDesc &stateDesc) const
@@ -297,7 +291,7 @@ VkPipelineColorBlendStateCreateInfo vkGraphicsPipeline::getColorBlendState(
 	return blendState;
 }
 
-void vkGraphicsPipeline::setupDescriptorSet(const vkDevice &device, const rGraphicsPipelineState &state)
+void vkGraphicsPipeline::setupDescriptorSet(const VulkanDevice &device, const rGraphicsPipelineState &state)
 {
 	m_DescriptorSet = device.allocDescriptorSet(m_DescriptorSetLayout);
 
@@ -315,7 +309,7 @@ void vkGraphicsPipeline::setupDescriptorSet(const vkDevice &device, const rGraph
 
 				VkDescriptorBufferInfo bufferInfo
 				{
-					**buffer,
+					buffer->Handle,
 					buffer->getOffset(),
 					buffer->getSize()
 				};
@@ -324,7 +318,7 @@ void vkGraphicsPipeline::setupDescriptorSet(const vkDevice &device, const rGraph
 				{
 					VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
 					nullptr,
-					*m_DescriptorSet,
+					m_DescriptorSet.Handle,
 					bindingIndex++,  /// Need get binding from shader reflection
 					0u,
 					1u,   
@@ -349,8 +343,8 @@ void vkGraphicsPipeline::setupDescriptorSet(const vkDevice &device, const rGraph
 
 				VkDescriptorImageInfo imageInfo
 				{
-					sampler ? **sampler : VK_NULL_HANDLE,
-					**imageView,
+					sampler ? sampler->Handle : VK_NULL_HANDLE,
+					imageView->Handle,
 					VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
 				};
 				imageInfos.emplace_back(std::move(imageInfo));
@@ -359,7 +353,7 @@ void vkGraphicsPipeline::setupDescriptorSet(const vkDevice &device, const rGraph
 				{
 					VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
 					nullptr,
-					*m_DescriptorSet,
+					m_DescriptorSet.Handle,
 					bindingIndex++,
 					0u,
 					1u,
@@ -374,10 +368,10 @@ void vkGraphicsPipeline::setupDescriptorSet(const vkDevice &device, const rGraph
 	}
 
 	assert(writeDescriptorSets.size() > 0u);
-	vkUpdateDescriptorSets(*device, (uint32_t)writeDescriptorSets.size(), writeDescriptorSets.data(), 0u, nullptr);
+	vkUpdateDescriptorSets(device.Handle, (uint32_t)writeDescriptorSets.size(), writeDescriptorSets.data(), 0u, nullptr);
 }
 
-void vkPipelineCache::create(const vkDevice &device)
+void vkPipelineCache::create(const VulkanDevice &device)
 {
 	assert(device.isValid() && !isValid());
 
@@ -390,29 +384,27 @@ void vkPipelineCache::create(const vkDevice &device)
 		nullptr
 	};
 
-	VkPipelineCache handle = VK_NULL_HANDLE;
-	rVerifyVk(vkCreatePipelineCache(*device, &createInfo, vkMemoryAllocator, &handle));
-	reset(handle);
+	rVerifyVk(vkCreatePipelineCache(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
 }
 
-void vkPipelineCache::destroy(const vkDevice &device)
+void vkPipelineCache::destroy(const VulkanDevice &device)
 {
 	assert(device.isValid());
 
 	if (isValid())
 	{
-		vkDestroyPipelineCache(*device, **this, vkMemoryAllocator);
-		reset();
+		vkDestroyPipelineCache(device.Handle, Handle, vkMemoryAllocator);
+		Handle = VK_NULL_HANDLE;
 	}
 }
 
-void vkPipeline::destroy(const vkDevice &device)
+void vkPipeline::destroy(const VulkanDevice &device)
 {
 	assert(device.isValid());
 
 	if (isValid())
 	{
-		vkDestroyPipeline(*device, **this, vkMemoryAllocator);
-		reset();
+		vkDestroyPipeline(device.Handle, Handle, vkMemoryAllocator);
+		Handle = VK_NULL_HANDLE;
 	}
 }
