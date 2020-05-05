@@ -4,7 +4,7 @@
 
 namespace gear
 {
-	struct appConfig;
+	struct Configurations;
 }
 
 struct rAdapter
@@ -77,10 +77,10 @@ private:
 class rEngine
 {
 public:
-	virtual void initialize(uint64_t windowHandle, const appConfig &config) = 0;
+	virtual void initialize(uint64_t windowHandle, const Configurations &config) = 0;
 	virtual void finalize() = 0;
 	virtual void logError(uint32_t result) const = 0;
-	virtual void handleWindowResize(uint32_t width, uint32_t height, const appConfig &config) = 0;
+	virtual void handleWindowResize(uint32_t width, uint32_t height, const Configurations &config) = 0;
 	virtual void present() {}
 
 	virtual class rShader *createVertexShader(const std::string &shaderName) = 0;

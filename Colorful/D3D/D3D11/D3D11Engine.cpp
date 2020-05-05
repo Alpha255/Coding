@@ -1,6 +1,6 @@
 #include "D3D11Engine.h"
 
-void d3d11Engine::initialize(uint64_t windowHandle, const appConfig &config)
+void d3d11Engine::initialize(uint64_t windowHandle, const Configurations &config)
 {
 	uint32_t flags = 0u;
 #if defined(_DEBUG)
@@ -75,7 +75,7 @@ void d3d11Engine::logError(uint32_t result) const
 		break;
 	}
 
-	logger::instance().log(logger::eError, "Failed to invoke D3D11API, error message: %s", errorMsg.c_str());
+	Logger::instance().log(Logger::eError, "Failed to invoke D3D11API, error message: %s", errorMsg.c_str());
 	assert(0);
 }
 

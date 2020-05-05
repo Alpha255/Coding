@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Gear/Public/Extension/Application.h"
+#include "Gear/Application.h"
 
-class rRenderTest : public application
+class RenderTest : public Application
 {
 public:
 	void postInitialize() override;

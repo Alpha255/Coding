@@ -31,22 +31,22 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vkDebugUtilsMessengerFunc(
 	(void)(pUserData);
 	(void)(messageTypeFlags);
 
-	logger::eLogLevel logLevel = logger::eError;
+	Logger::eLogLevel logLevel = Logger::eError;
 	if (messageServerityFlagBits & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
 	{
-		logLevel = logger::eInfo;
+		logLevel = Logger::eInfo;
 	}
 	else if (messageServerityFlagBits & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)
 	{
-		logLevel = logger::eInfo;
+		logLevel = Logger::eInfo;
 	}
 	else if (messageServerityFlagBits & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
 	{
-		logLevel = logger::eWarning;
+		logLevel = Logger::eWarning;
 	}
 	else if (messageServerityFlagBits & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
 	{
-		logLevel = logger::eError;
+		logLevel = Logger::eError;
 	}
 
 	std::string message = format("[%3d][%10s]: %s", 
@@ -54,7 +54,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vkDebugUtilsMessengerFunc(
 		pMessengerCallbackData->pMessageIdName,
 		pMessengerCallbackData->pMessage);
 	
-	logger::instance().log(logLevel, "Vulkan Validation: %s.", message.c_str());
+	Logger::instance().log(logLevel, "Vulkan Validation: %s.", message.c_str());
 	return VK_FALSE;
 }
 
@@ -306,7 +306,7 @@ uint32_t vkDevice::create(
 	assert(gpuIndex == discreteGpuIndex);
 	if (gpuIndex != discreteGpuIndex)
 	{
-		logger::instance().log(logger::eInfo, "Can't find discrete gpu, the valid gpu type is \"%s\"", gpuTypeName.c_str());
+		Logger::instance().log(Logger::eInfo, "Can't find discrete gpu, the valid gpu type is \"%s\"", gpuTypeName.c_str());
 	}
 
 	std::vector<float32_t> queuePriorities(numQueuePriority, 1.0f);
@@ -370,7 +370,7 @@ uint32_t vkDevice::create(
 	m_Adapter.DeviceName = properties.deviceName;
 	m_Adapter.DeviceID = properties.deviceID;
 	m_Adapter.VendorID = properties.vendorID;
-	logger::instance().log(logger::eInfo, "Created vulkan device on adapter: \"%s %s\", DeviceID = %d. VulkanAPI Version: %d.%d.%d",
+	Logger::instance().log(Logger::eInfo, "Created vulkan device on adapter: \"%s %s\", DeviceID = %d. VulkanAPI Version: %d.%d.%d",
 		rAdapter::getVendorName(m_Adapter.VendorID).c_str(),
 		m_Adapter.DeviceName.c_str(),
 		m_Adapter.DeviceID,

@@ -24,7 +24,7 @@ def generateHeaderFile():
 	else:
 		raise Exception('Unknown platform!')
 
-	includeFile = os.getcwd() + '\\gear\\Public\\Definitions.Generated.h'
+	includeFile = os.getcwd() + '\\Gear\\Definitions.Generated.h'
 	try:
 		with open(includeFile, 'w') as file:
 			file.write(Content)

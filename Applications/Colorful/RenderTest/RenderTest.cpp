@@ -5,12 +5,12 @@ rGraphicsPipelineState mGraphicsPipelineState{};
 
 struct uniformBufferVS
 {
-	matrix World;
-	matrix View;
-	matrix Proj;
+	Matrix World;
+	Matrix View;
+	Matrix Proj;
 };
 
-void rRenderTest::postInitialize()
+void RenderTest::postInitialize()
 {
 	auto vertexShader = m_Renderer->createVertexShader("rRenderTest.shader");
 	auto fragmentShader = m_Renderer->createFragmentShader("rRenderTest.shader");
@@ -25,8 +25,8 @@ void rRenderTest::postInitialize()
 
 	struct vertex
 	{
-		vec3 Position;
-		vec2 UV;
+		Vec3 Position;
+		Vec2 UV;
 	};
 	std::vector<vertex> vertices{
 		{
@@ -93,16 +93,16 @@ void rRenderTest::postInitialize()
 	mGraphicsPipelineState.setRenderArea(viewport);
 	///m_Renderer->getOpaqueRenderPass()->pendingGfxPipline(mGraphicsPipelineState);
 
-	m_Camera.setProjParams(math::g_pi_div4, m_WindowSize.x / m_WindowSize.y, 0.1f, 500.0f);
-	m_Camera.setViewParams(vec3(0.0f, 0.0f, 4.0f), vec3(0.0f, 0.0f, 0.0f));
+	m_Camera.setProjParams(Math::PI_Div4, m_WindowSize.x / m_WindowSize.y, 0.1f, 500.0f);
+	m_Camera.setViewParams(Vec3(0.0f, 0.0f, 4.0f), Vec3(0.0f, 0.0f, 0.0f));
 	m_Camera.setScalers(0.01f, 15.0f);
 }
 
-void rRenderTest::renterToWindow()
+void RenderTest::renterToWindow()
 {
-	matrix world = matrix();
-	matrix view = m_Camera.getViewMatrix();
-	matrix proj = m_Camera.getProjMatrix();
+	Matrix world = Matrix();
+	Matrix view = m_Camera.viewMatrix();
+	Matrix proj = m_Camera.projMatrix();
 
 	uniformBufferVS uboVS
 	{
@@ -119,7 +119,7 @@ void rRenderTest::renterToWindow()
 	ImGui::Checkbox("TestCheckBox", &checked);
 	ImGui::Text("FPS %.2f", m_FPS);
 
-	m_Camera.update(m_cpuTimer.getElapsedTime());
+	m_Camera.update(m_cpuTimer.elapsedTime());
 }
 
-appMainEntry(rRenderTest)
+appMainEntry(RenderTest)

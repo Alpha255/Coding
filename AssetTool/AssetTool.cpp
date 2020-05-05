@@ -1,18 +1,18 @@
 #include "AssetTool.h"
-#include "Gear/Public/Extension/Log.h"
+#include "Gear/Gear.h"
 #include <ThirdParty/SPIRV-Cross/spirv_hlsl.hpp>
 #include <ThirdParty/gli/gli/gli.hpp>
 
 namespaceStart(assetTool)
 
-std::string getShaderCode(const std::shared_ptr<byte> &shaderBinary, size_t shaderBinarySize, appConfig::eRenderEngine engine)
+std::string getShaderCode(const std::shared_ptr<byte> &shaderBinary, size_t shaderBinarySize, Configurations::eRenderEngine engine)
 {
 	std::vector<uint32_t> spirvBinary(shaderBinarySize / sizeof(uint32_t));
 	verify(memcpy_s((void *)spirvBinary.data(), shaderBinarySize, (void *)shaderBinary.get(), shaderBinarySize) == 0);
 
 	std::string result;
 
-	if (engine == appConfig::eD3D11)
+	if (engine == Configurations::eD3D11)
 	{
 		spirv_cross::CompilerHLSL hlsl(std::move(spirvBinary));
 		spirv_cross::CompilerHLSL::Options options;
@@ -66,7 +66,7 @@ rAsset::rShaderBinary compileD3DShader(eRShaderUsage usage, const std::string &s
 
 	if (compileResult != 0)
 	{
-		logger::instance().log(logger::eError, "Failed to compile shader, error info: %s", (char8_t *)pErrMsg->GetBufferPointer());
+		Logger::instance().log(Logger::eError, "Failed to compile shader, error info: %s", (char8_t *)pErrMsg->GetBufferPointer());
 		assert(0);
 	}
 
@@ -79,9 +79,9 @@ rAsset::rShaderBinary compileD3DShader(eRShaderUsage usage, const std::string &s
 	return result;
 }
 
-void buildShaderReflections(appConfig::eRenderEngine engine, rAsset::rShaderBinary &binary)
+void buildShaderReflections(Configurations::eRenderEngine engine, rAsset::rShaderBinary &binary)
 {
-	if (engine == appConfig::eVulkan)
+	if (engine == Configurations::eVulkan)
 	{
 		std::vector<uint32_t> spirv(binary.Size / sizeof(uint32_t));
 		verify(memcpy_s((void *)spirv.data(), binary.Size, (void *)binary.Binary.get(), binary.Size) == 0);
@@ -115,7 +115,7 @@ void buildShaderReflections(appConfig::eRenderEngine engine, rAsset::rShaderBina
 		pushReflection(shaderResources.separate_images, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE);
 		pushReflection(shaderResources.separate_samplers, VK_DESCRIPTOR_TYPE_SAMPLER);
 	}
-	else if (engine == appConfig::eD3D11)
+	else if (engine == Configurations::eD3D11)
 	{
 
 	}
@@ -125,68 +125,68 @@ void buildShaderReflections(appConfig::eRenderEngine engine, rAsset::rShaderBina
 	}
 }
 
-rAsset::rShaderBinary getShaderBinary(appConfig::eRenderEngine engine, eRShaderUsage usage,	assetFilePtr &shaderAssetPtr)
+rAsset::rShaderBinary getShaderBinary(Configurations::eRenderEngine engine, eRShaderUsage usage,	assetFilePtr &shaderAssetPtr)
 {
 	assert(shaderAssetPtr);
 
-	auto pCode = shaderAssetPtr->getData();
+	auto pCode = shaderAssetPtr->data();
 	assert(pCode);
 
-	std::string inputFile(shaderAssetPtr->getFullPath());
-	std::string outputPath = file::getFileDirectory(getApplicationPath()) + "\\Intermediate\\AssetTool";
-	if (!file::isDirectoryExists(outputPath))
+	std::string inputFile(shaderAssetPtr->fullPath());
+	std::string outputPath = File::directory(getApplicationPath()) + "\\Intermediate\\AssetTool";
+	if (!File::isDirectoryExists(outputPath))
 	{
-		file::createDirectory(outputPath);
+		File::createDirectory(outputPath);
 	}
 	std::string outputFile = outputPath + "\\";
-	outputFile += shaderAssetPtr->getName() + ".spirv";
+	outputFile += shaderAssetPtr->name() + ".spirv";
 
-	std::string commandline = getEnvironmentVariable("VK_SDK_PATH") + "\\Bin\\glslangValidator ";
+	std::string Commandline = getEnvironmentVariable("VK_SDK_PATH") + "\\Bin\\glslangValidator ";
 
 	switch (usage)
 	{
 	case eVertexShader:
-		commandline += "-S vert ";
-		commandline += "-DVertexShader ";
+		Commandline += "-S vert ";
+		Commandline += "-DVertexShader ";
 		break;
 	case eFragmentShader:
-		commandline += "-S frag ";
-		commandline += "-DFragmentShader ";
+		Commandline += "-S frag ";
+		Commandline += "-DFragmentShader ";
 		break;
 	default:
 		assert(0);
 		break;
 	}
 
-	commandline += "-e main ";
+	Commandline += "-e main ";
 
 #if defined(_DEBUG)
-	commandline += "-g ";
+	Commandline += "-g ";
 #endif
-	commandline += "-V ";
+	Commandline += "-V ";
 
-	commandline += "-o ";
-	commandline += outputFile;
-	commandline += " ";
-	commandline += inputFile;
+	Commandline += "-o ";
+	Commandline += outputFile;
+	Commandline += " ";
+	Commandline += inputFile;
 
-	assert(gear::executeProcess(commandline, true));
+	assert(Gear::executeProcess(Commandline, true));
 
-	gear::file spirvFile(outputFile);
-	size_t spirvSize = spirvFile.getSize();
+	Gear::File spirvFile(outputFile);
+	size_t spirvSize = spirvFile.size();
 	assert((spirvSize % sizeof(uint32_t)) == 0u);
 
 	rAsset::rShaderBinary result;
 
-	if (engine == appConfig::eVulkan)
+	if (engine == Configurations::eVulkan)
 	{
 		result.Binary.reset(new byte[spirvSize]());
 		result.Size = spirvSize;
-		verify(memcpy_s((void *)result.Binary.get(), spirvSize, (void *)spirvFile.getData(file::eBinary).get(), spirvSize) == 0);
+		verify(memcpy_s((void *)result.Binary.get(), spirvSize, (void *)spirvFile.data(File::eBinary).get(), spirvSize) == 0);
 	}
-	else if (engine == appConfig::eD3D11)
+	else if (engine == Configurations::eD3D11)
 	{
-		std::string shaderCode = getShaderCode(spirvFile.getData(file::eBinary), spirvSize, engine);
+		std::string shaderCode = getShaderCode(spirvFile.data(File::eBinary), spirvSize, engine);
 		assert(shaderCode.length() > 0u);
 		result = compileD3DShader(usage, shaderCode);
 	}
@@ -200,12 +200,12 @@ rAsset::rShaderBinary getShaderBinary(appConfig::eRenderEngine engine, eRShaderU
 	return result;
 }
 
-rAsset::rTextureBinary getTextureBinary(appConfig::eRenderEngine engine, const assetFilePtr &textureAssetPtr)
+rAsset::rTextureBinary getTextureBinary(Configurations::eRenderEngine engine, const assetFilePtr &textureAssetPtr)
 {
-	assert(textureAssetPtr && engine == appConfig::eVulkan);
+	assert(textureAssetPtr && engine == Configurations::eVulkan);
 
 	rAsset::rTextureBinary binary;
-	gli::texture tex = gli::load(textureAssetPtr->getFullPath());
+	gli::texture tex = gli::load(textureAssetPtr->fullPath());
 	binary.Size = tex.size();
 	binary.Width = tex.extent().x;
 	binary.Height = tex.extent().y;

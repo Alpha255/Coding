@@ -35,7 +35,7 @@ protected:
 
 	struct UniformBuffer
 	{
-		vec4 ScaleTranslate;
+		Vec4 ScaleTranslate;
 	};
 private:
 	rEngine *m_Renderer = nullptr;

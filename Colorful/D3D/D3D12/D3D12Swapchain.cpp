@@ -24,7 +24,7 @@ void d3d12Swapchain::create(
 	m_bFullScreen = fullscreen;
 	m_bTripleBuffer = tripleBuffer;
 
-	math::vec2 desktopWindowSize = getDesktopWindowSize();
+	Math::Vec2 desktopWindowSize = getDesktopWindowSize();
 
 	DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM;
 

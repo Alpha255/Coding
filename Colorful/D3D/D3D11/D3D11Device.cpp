@@ -109,7 +109,7 @@ void d3d11Device::create(__out d3d11Context &context, const dxgiFactory7 &inDxgi
 	createResult resultAttr = tryToCreateDevice(*this, context);
 	if (FAILED(resultAttr.Result))
 	{
-		logger::instance().log(logger::eError, "Failed to create d3d11 device.");
+		Logger::instance().log(Logger::eError, "Failed to create d3d11 device.");
 		d3d11Engine::instance().logError((uint32_t)resultAttr.Result);
 		assert(0);
 	}
@@ -123,7 +123,7 @@ void d3d11Device::create(__out d3d11Context &context, const dxgiFactory7 &inDxgi
 	std::wstring wDeviceName(adapterDesc.Description);
 	m_Adapter.DeviceName = std::string(wDeviceName.cbegin(), wDeviceName.cend());
 
-	logger::instance().log(logger::eInfo, "Created d3d11 device on adapter: \"%s\", DeviceID = %d.",
+	Logger::instance().log(Logger::eInfo, "Created d3d11 device on adapter: \"%s\", DeviceID = %d.",
 		m_Adapter.DeviceName.c_str(),
 		m_Adapter.DeviceID);
 }

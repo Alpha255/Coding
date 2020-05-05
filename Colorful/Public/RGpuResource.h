@@ -2,9 +2,6 @@
 
 #include "RObject.h"
 
-#if defined(max)
-#undef max
-
 struct rVertexAttributes
 {
 	eRVertexUsage Usage = eRVertexUsge_MaxEnum;
@@ -126,5 +123,3 @@ public:
 	virtual void bindVertexBuffer() = 0;
 	virtual void bindIndexBuffer() = 0;
 };
-
-#endif

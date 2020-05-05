@@ -4,16 +4,16 @@
 #include "Colorful/Vulkan/VulkanSwapChain.h"
 #include "Colorful/Vulkan/VulkanQueue.h"
 
-class vkEngine : public rEngine, public singleton<vkEngine>
+class vkEngine : public rEngine, public Singleton<vkEngine>
 {
 	singletonDeclare(vkEngine);
 public:
-	void initialize(uint64_t windowHandle, const appConfig &config) override final;
+	void initialize(uint64_t windowHandle, const Configurations &config) override final;
 	void finalize() override final;
 
 	void logError(uint32_t result) const override final;
 
-	inline void handleWindowResize(uint32_t width, uint32_t height, const appConfig &config) override final
+	inline void handleWindowResize(uint32_t width, uint32_t height, const Configurations &config) override final
 	{
 		if (m_Swapchain.isValid())
 		{

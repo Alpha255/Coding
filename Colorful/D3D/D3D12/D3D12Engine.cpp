@@ -1,6 +1,6 @@
 #include "D3D12Engine.h"
 
-void d3d12Engine::initialize(uint64_t windowHandle, const appConfig &config)
+void d3d12Engine::initialize(uint64_t windowHandle, const Configurations &config)
 {
 	uint32_t flags = 0u;
 	ID3D12Debug *d3d12DebugPtr = nullptr;
@@ -80,7 +80,7 @@ void d3d12Engine::logError(uint32_t result) const
 		break;
 	}
 
-	logger::instance().log(logger::eError, "Failed to invoke D3D12API, error message: %s", errorMsg.c_str());
+	Logger::instance().log(Logger::eError, "Failed to invoke D3D12API, error message: %s", errorMsg.c_str());
 	assert(0);
 }
 

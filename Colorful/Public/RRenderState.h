@@ -82,11 +82,11 @@ class rSampler : public rGpuResource
 {
 };
 
-struct rViewport : public vec4
+struct rViewport : public Vec4
 {
 	rViewport() = default;
 	rViewport(float32_t x, float32_t y, float32_t width, float32_t height)
-		: vec4(x, y, width, height)
+		: Vec4(x, y, width, height)
 	{
 	}
 	inline constexpr float32_t minDepth() const
@@ -99,11 +99,11 @@ struct rViewport : public vec4
 	}
 };
 
-struct rScissor : public vec4
+struct rScissor : public Vec4
 {
 	rScissor() = default;
 	rScissor(float32_t offsetX, float32_t offsetY, float32_t extentWidth, float32_t extentHeight)
-		: vec4(offsetX, offsetY, extentWidth, extentHeight)
+		: Vec4(offsetX, offsetY, extentWidth, extentHeight)
 	{
 	}
 };
@@ -188,7 +188,7 @@ struct rGraphicsPipelineState
 		IndexType = type;
 	}
 
-	inline void setRenderArea(const vec4 &area)
+	inline void setRenderArea(const Vec4 &area)
 	{
 		RenderArea = area;
 	}
@@ -214,9 +214,9 @@ struct rGraphicsPipelineState
 				return false;
 			}
 		}
-		return gear::isEqual(left.RasterizerStateDesc, right.RasterizerStateDesc) &&
-			gear::isEqual(left.BlendStateDesc, right.BlendStateDesc) &&
-			gear::isEqual(left.DepthStencilStateDesc, right.DepthStencilStateDesc) &&
+		return Gear::isEqual(left.RasterizerStateDesc, right.RasterizerStateDesc) &&
+			Gear::isEqual(left.BlendStateDesc, right.BlendStateDesc) &&
+			Gear::isEqual(left.DepthStencilStateDesc, right.DepthStencilStateDesc) &&
 			left.PrimitiveTopology == right.PrimitiveTopology;
 	}
 	/// MultisampleState
@@ -250,18 +250,18 @@ struct rGraphicsPipelineState
 
 	struct rClearValue
 	{
-		vec4 Color = color::g_DarkBlue;
+		Vec4 Color = Color::DarkBlue;
 		float32_t Depth = 1.0f;
 		uint32_t Stencil = 0u;
 	};
 	rClearValue ClearValue{};
-	inline void setClearValue(const vec4 &color = color::g_DarkBlue, float32_t depth = 1.0f, uint32_t stencil = 0u)
+	inline void setClearValue(const Vec4 &color = Color::DarkBlue, float32_t depth = 1.0f, uint32_t stencil = 0u)
 	{
 		ClearValue.Color = color;
 		ClearValue.Depth = depth;
 		ClearValue.Stencil = stencil;
 	}
-	vec4 RenderArea;
+	Vec4 RenderArea;
 	eRIndexType IndexType = eRIndexType::eUInt32;
 };
 

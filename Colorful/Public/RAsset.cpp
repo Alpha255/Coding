@@ -13,7 +13,7 @@ rShaderBinary rAssetBucket::getShaderBinary(eRShaderUsage usage, const std::stri
 	}
 
 	auto shaderAssetPtr = m_Bucket.getAsset(shaderName);
-	assert(shaderAssetPtr->getType() == assetFile::eShader);
+	assert(shaderAssetPtr->type() == AssetFile::eShader);
 
 	shaderBinary = assetTool::getShaderBinary(m_Engine, usage, shaderAssetPtr);
 	assert(shaderBinary.Binary && shaderBinary.Size > 0ull);
@@ -24,12 +24,12 @@ rShaderBinary rAssetBucket::getShaderBinary(eRShaderUsage usage, const std::stri
 rTextureBinary rAssetBucket::getTextureBinary(const std::string &textureName)
 {
 	auto textureAssetPtr = m_Bucket.getAsset(textureName);
-	assert(textureAssetPtr->getType() == assetFile::eWICTexture || 
-		textureAssetPtr->getType() == assetFile::eDDSTexture || 
-		textureAssetPtr->getType() == assetFile::eVulkanTexture);
+	assert(textureAssetPtr->type() == AssetFile::eWICTexture || 
+		textureAssetPtr->type() == AssetFile::eDDSTexture || 
+		textureAssetPtr->type() == AssetFile::eVulkanTexture);
 
 	rTextureBinary textureBinary;
-	if (m_Engine == appConfig::eVulkan)
+	if (m_Engine == Configurations::eVulkan)
 	{
 		textureBinary = assetTool::getTextureBinary(m_Engine, textureAssetPtr);
 	}

@@ -113,7 +113,7 @@ void ImGuiRenderer::processEvent()
 	}
 
 	ImGuiIO &io = ImGui::GetIO();
-	auto &eventer = eventHandler::instance();
+	auto &eventer = SystemEventHandler::instance();
 
 	auto keyEvent = eventer.getKeyboardEvent();
 	auto mouseEvent = eventer.getMouseEvent();
@@ -132,7 +132,7 @@ void ImGuiRenderer::processEvent()
 		mouseBtn = 2;
 	}
 
-	///bool8_t isFocus = eventHandler::isFocusWindow(m_WindowHandle);
+	///bool8_t isFocus = SystemEventHandler::isFocusWindow(m_WindowHandle);
 
 	switch (mouseEvent)
 	{
@@ -141,7 +141,7 @@ void ImGuiRenderer::processEvent()
 	case eMouseEvent::eMiddleClick:
 		//if (!isMouseButtonDown(io) && !isFocus)
 		//{
-		//	eventHandler::focusWindow(m_WindowHandle);
+		//	SystemEventHandler::focusWindow(m_WindowHandle);
 		//}
 		io.MouseDown[mouseBtn] = true;
 		return;
@@ -152,7 +152,7 @@ void ImGuiRenderer::processEvent()
 		io.MouseDown[mouseBtn] = false;
 		//if (!isMouseButtonDown(io) && isFocus)
 		//{
-		//	eventHandler::unFocusWindow();
+		//	SystemEventHandler::unFocusWindow();
 		//}
 		return;
 
@@ -249,7 +249,7 @@ void ImGuiRenderer::frame()
 	ImGuiIO& io = ImGui::GetIO();
 
 	UniformBuffer uniformBuffer;
-	uniformBuffer.ScaleTranslate = vec4(
+	uniformBuffer.ScaleTranslate = Vec4(
 		2.0f / io.DisplaySize.x, 
 		2.0f / io.DisplaySize.y,
 		-1.0f,

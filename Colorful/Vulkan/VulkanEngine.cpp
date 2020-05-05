@@ -3,7 +3,7 @@
 #include "VulkanShader.h"
 #include "VulkanBuffer.h"
 
-void vkEngine::initialize(uint64_t windowHandle, const appConfig &config)
+void vkEngine::initialize(uint64_t windowHandle, const Configurations &config)
 {
 #if defined(UsingVkLoader)
 	vkLoader::initializeGlobalFunctionTable();
@@ -107,7 +107,7 @@ case enumValue:                                      \
 
 #undef vkResultCaseMessage
 
-	logger::instance().log(logger::eError, "Failed to invoke VulkanAPI, VKResult = %s", errorMsg.c_str());
+	Logger::instance().log(Logger::eError, "Failed to invoke VulkanAPI, VKResult = %s", errorMsg.c_str());
 	assert(0);
 }
 

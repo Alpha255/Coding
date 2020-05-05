@@ -7,11 +7,11 @@ vkFunctionTableDefinition
 #define logIfFunctionIsNull(func)                                                              \
 	if (!func)                                                                                 \
 	{                                                                                          \
-		logger::instance().log(logger::eError, "Can't get entry point of function %s", #func); \
+		Logger::instance().log(Logger::eError, "Can't get entry point of function %s", #func); \
 		assert(0);                                                                             \
 	}
 
-static gear::dynamicLibrary s_VulkanLoader;
+static Gear::DynamicLibrary s_VulkanLoader;
 
 void vkLoader::initializeGlobalFunctionTable()
 {

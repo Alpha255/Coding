@@ -1,6 +1,5 @@
 #include "VulkanShader.h"
 #include "VulkanEngine.h"
-#include "Gear/Public/Independent/Memory/LinearAllocator.h"
 
 vkShader::vkShader(const vkDevice &device, eRShaderUsage usage, const rAsset::rShaderBinary &binary)
 	: rShader(usage)
@@ -56,7 +55,7 @@ void vkShader::setInputLayout(const std::vector<rVertexAttributes>& vertexAttrib
 		};
 
 		stride += ((uint32_t)rVertexAttributes::getFormatStride(vertexAttributes[i].Format) / 8ull);
-		stride = (uint32_t)gear::linearAllocator::align_to(stride, align);
+		stride = (uint32_t)Gear::LinearAllocator::align_to(stride, align);
 	}
 
 	m_InputLayout.InputBindings[0] = VkVertexInputBindingDescription

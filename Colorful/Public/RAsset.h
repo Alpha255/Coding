@@ -42,7 +42,7 @@ struct rTextureBinary
 class rShaderCache
 {
 public:
-	rShaderBinary getShaderBinary(eRShaderUsage, const std::string &, appConfig::eRenderEngine)
+	rShaderBinary getShaderBinary(eRShaderUsage, const std::string &, Configurations::eRenderEngine)
 	{
 		return rShaderBinary();
 	}
@@ -50,11 +50,11 @@ protected:
 private:
 };
 
-class rAssetBucket : public singleton<rAssetBucket>
+class rAssetBucket : public Singleton<rAssetBucket>
 {
 	singletonDeclare(rAssetBucket);
 public:
-	inline void initialize(appConfig::eRenderEngine engine)
+	inline void initialize(Configurations::eRenderEngine engine)
 	{
 		m_Engine = engine;
 		m_Bucket.initialize();
@@ -69,7 +69,7 @@ protected:
 private:
 	rShaderCache m_ShaderCache;
 	assetBucket m_Bucket;
-	appConfig::eRenderEngine m_Engine = appConfig::eD3D11;
+	Configurations::eRenderEngine m_Engine = Configurations::eD3D11;
 };
 
 namespaceEnd(rAsset)

@@ -31,7 +31,7 @@ function appResourceFiles()
 		"./Assets/Icon/Resource.rc",
 		"./Assets/Icon/directx.ico",
 		"./Assets/Icon/vulkan.ico",
-		"./Out/appConfig.json",
+		"./Out/Configurations.json",
 	}
 end
 
@@ -407,7 +407,7 @@ workspace "Miscellaneous"
 					"./Applications/Resource.h"
 					},
 				[""] = { "./Applications/Colorful/RenderTest/**" },
-				["Configuration"] = { "./Out/appConfig.json" },
+				["Configuration"] = { "./Out/Configurations.json" },
 				["Shaders"] = { "./Assets/Shaders/RenderTest.shader" },
 			}
 			files { 
