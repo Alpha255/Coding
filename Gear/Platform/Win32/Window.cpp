@@ -87,21 +87,26 @@ void Window::processMessage(uint32_t message, uint64_t wParam, int64_t lParam)
 	case WM_SYSCOMMAND:
 		if (SC_MAXIMIZE == wParam)
 		{
+			m_Message.State = eWindowState::eResized;
 		}
 		else if (SC_RESTORE == wParam)
 		{
+			m_Message.State = eWindowState::eRestore;
 		}
 		break;
 	case WM_SIZING:
 	case WM_ENTERSIZEMOVE:
+		m_Message.State = eWindowState::eResizing;
 		break;
 	case WM_EXITSIZEMOVE:
+		m_Message.State = eWindowState::eResized;
 		break;
 	case WM_DESTROY:
 		m_Message.State = eWindowState::eDestroy;
 		::PostQuitMessage(0);
 		break;
 	case WM_NCLBUTTONDBLCLK:
+		m_Message.State = eWindowState::eResized;
 		break;
 	case WM_GETMINMAXINFO:
 	{
@@ -110,26 +115,83 @@ void Window::processMessage(uint32_t message, uint64_t wParam, int64_t lParam)
 		break;
 	}
 	case WM_LBUTTONDOWN:
+		m_Message.Mouse.Left.KeyDown = true;
+		m_Message.Mouse.Pos = Vec2(LOWORD(lParam), HIWORD(lParam));
 		break;
 	case WM_LBUTTONUP:
+		m_Message.Mouse.Left.KeyDown = false;
 		break;
 	case WM_LBUTTONDBLCLK:
+		m_Message.Mouse.Left.KeyDown = true;
+		m_Message.Mouse.Left.DoubleClick = true;
 		break;
 	case WM_RBUTTONDOWN:
+		m_Message.Mouse.Right.KeyDown = true;
+		m_Message.Mouse.Pos = Vec2(LOWORD(lParam), HIWORD(lParam));
 		break;
 	case WM_RBUTTONUP:
+		m_Message.Mouse.Right.KeyDown = false;
 		break;
 	case WM_RBUTTONDBLCLK:
+		m_Message.Mouse.Right.KeyDown = true;
+		m_Message.Mouse.Right.DoubleClick = true;
 		break;
 	case WM_MBUTTONDOWN:
+		m_Message.Mouse.Middle.KeyDown = true;
 		break;
 	case WM_MBUTTONUP:
+		m_Message.Mouse.Middle.KeyDown = false;
 		break;
 	case WM_MBUTTONDBLCLK:
+		m_Message.Mouse.Middle.KeyDown = true;
+		m_Message.Mouse.Middle.DoubleClick = true;
 		break;
 	case WM_MOUSEMOVE:
+		m_Message.Mouse.Pos = Vec2(LOWORD(lParam), HIWORD(lParam));
 		break;
 	case WM_MOUSEWHEEL:
+		m_Message.Mouse.WheelDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+		break;
+	case WM_KEYDOWN:
+		switch (wParam)
+		{
+		case VK_LEFT:
+			m_Message.Key = eKeyboardKey::eKey_Left;
+			break;
+		case VK_RIGHT:
+			m_Message.Key = eKeyboardKey::eKey_Right;
+			break;
+		case VK_UP:
+			m_Message.Key = eKeyboardKey::eKey_Up;
+			break;
+		case VK_DOWN:
+			m_Message.Key = eKeyboardKey::eKey_Down;
+			break;
+		case VK_HOME:
+			m_Message.Key = eKeyboardKey::eKey_Home;
+			break;
+		case VK_CONTROL:
+			m_Message.Key = eKeyboardKey::eKey_Ctrl;
+			break;
+		case VK_SHIFT:
+			m_Message.Key = eKeyboardKey::eKey_Shift;
+			break;
+		case VK_PRIOR:
+			m_Message.Key = eKeyboardKey::eKey_PageUp;
+			break;
+		case VK_NEXT:
+			m_Message.Key = eKeyboardKey::eKey_PageDown;
+			break;
+		case VK_F1:
+			m_Message.Key = eKeyboardKey::eKey_F1;
+			break;
+		default:
+			m_Message.Key = eKeyboardKey::eKey_Other;
+			break;
+		}
+		break;
+	case WM_KEYUP:
+		m_Message.Key = eKeyboardKey::eKey_None;
 		break;
 	}
 }

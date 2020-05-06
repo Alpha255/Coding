@@ -41,6 +41,7 @@ struct MouseMessage
 	MouseKey Middle;
 
 	Math::Vec2 Pos;
+	int16_t WheelDelta = 0;
 };
 
 enum class eWindowState
