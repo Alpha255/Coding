@@ -49,9 +49,6 @@ enum class eWindowState
 	eActive,
 	eInactive,
 	eDestroy,
-	eMinimize,
-	eRestore,
-	eResizing,
 	eResized,
 	eWindowState_MaxEnum
 };
@@ -68,7 +65,7 @@ struct WindowMessage
 class Window
 {
 public:
-	Window(const std::string& title, uint32_t width, uint32_t height, uint16_t iconID);
+	Window(const std::string& title, uint32_t width, uint32_t height);
 
 	void setMinSize(uint32_t width, uint32_t height)
 	{

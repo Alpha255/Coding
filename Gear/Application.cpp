@@ -11,8 +11,7 @@ void Application::initialize(const std::string& windowTitle)
 {
 	m_Config.load();
 
-	uint16_t iconID = IconDirectX;
-	m_Window = std::make_unique<Window>(windowTitle, m_Config.WindowWidth, m_Config.WindowHeight, iconID);
+	m_Window = std::make_unique<Window>(windowTitle, m_Config.WindowWidth, m_Config.WindowHeight);
 	m_Window->setMinSize(640u, 480u);
 
 	rAsset::rAssetBucket::instance().initialize(m_Config.RenderEngine);
@@ -27,6 +26,15 @@ void Application::loop()
 		auto &message = m_Window->message();
 		if (message.State == eWindowState::eDestroy)
 		{
+			break;
+		}
+
+		switch (message.State)
+		{
+		case eWindowState::eResized:
+			Logger::instance().log(Logger::eInfo, "Window resized.\n");
+			break;
+		case eWindowState::eInactive:
 			break;
 		}
 

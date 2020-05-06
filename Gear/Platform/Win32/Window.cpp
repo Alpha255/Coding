@@ -1,5 +1,6 @@
 #include "Gear/gear.h"
 #include "Gear/Window.h"
+#include "Applications/Resource.h"
 
 namespaceStart(Gear)
 
@@ -20,14 +21,14 @@ static ::LRESULT messageProc(::HWND hWnd, uint32_t message, ::WPARAM wParam, ::L
 	return ::DefWindowProcA(hWnd, message, wParam, lParam);
 }
 
-Window::Window(const std::string& title, uint32_t width, uint32_t height, uint16_t iconID)
+Window::Window(const std::string& title, uint32_t width, uint32_t height)
 	: m_Width(width)
 	, m_Height(height)
 {
 	::HINSTANCE hInstance = ::GetModuleHandleW(nullptr);
 	verify_Log(hInstance);
 
-	::HICON hIcon = ::LoadIcon(hInstance, MAKEINTRESOURCE(iconID));
+	::HICON hIcon = ::LoadIcon(hInstance, MAKEINTRESOURCE(IconNvidia));
 	verify_Log(hIcon);
 	::WNDCLASSEXA wndClassEx
 	{
@@ -89,17 +90,21 @@ void Window::processMessage(uint32_t message, uint64_t wParam, int64_t lParam)
 		{
 			m_Message.State = eWindowState::eResized;
 		}
+		else if (SC_MINIMIZE == wParam)
+		{
+			m_Message.State = eWindowState::eInactive;
+		}
 		else if (SC_RESTORE == wParam)
 		{
-			m_Message.State = eWindowState::eRestore;
+			m_Message.State = eWindowState::eActive;
 		}
 		break;
 	case WM_SIZING:
 	case WM_ENTERSIZEMOVE:
-		m_Message.State = eWindowState::eResizing;
+		m_Message.State = eWindowState::eInactive;
 		break;
 	case WM_EXITSIZEMOVE:
-		m_Message.State = eWindowState::eResized;
+		m_Message.State = eWindowState::eResized;  /// Include window move message
 		break;
 	case WM_DESTROY:
 		m_Message.State = eWindowState::eDestroy;
@@ -194,10 +199,23 @@ void Window::processMessage(uint32_t message, uint64_t wParam, int64_t lParam)
 		m_Message.Key = eKeyboardKey::eKey_None;
 		break;
 	}
+
+	if (m_Message.State == eWindowState::eResized)
+	{
+		::RECT rect{};
+		::GetWindowRect((::HWND)m_Handle, &rect);
+		m_Width = static_cast<uint32_t>(rect.right - rect.left);
+		m_Height = static_cast<uint32_t>(rect.bottom - rect.top);
+	}
 }
 
 void Window::update()
 {
+	if (m_Message.State == eWindowState::eResized)
+	{
+		m_Message.State = eWindowState::eActive;
+	}
+
 	::MSG message{};
 	if (::PeekMessageW(&message, nullptr, 0u, 0u, PM_REMOVE))
 	{
