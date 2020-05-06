@@ -125,8 +125,9 @@ void buildShaderReflections(Configurations::eRenderEngine engine, rAsset::rShade
 	}
 }
 
-rAsset::rShaderBinary getShaderBinary(Configurations::eRenderEngine engine, eRShaderUsage usage,	assetFilePtr &shaderAssetPtr)
+rAsset::rShaderBinary getShaderBinary(Configurations::eRenderEngine engine, eRShaderUsage usage, assetFilePtr &shaderAssetPtr)
 {
+	/// SPIR-V: The Standard, Portable Intermediate Representation
 	assert(shaderAssetPtr);
 
 	auto pCode = shaderAssetPtr->data();

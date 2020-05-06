@@ -5,9 +5,7 @@
 class RenderTest : public Application
 {
 public:
-	void postInitialize() override;
-
-	void renterToWindow() override;
+	void postInitialize() override {};
 protected:
 private:
 };

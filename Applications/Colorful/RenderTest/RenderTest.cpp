@@ -1,5 +1,6 @@
 #include "RenderTest.h"
 
+#if 0
 rBuffer *mUniformBuffer = nullptr;
 GfxPipelineState mGraphicsPipelineState{};
 
@@ -121,5 +122,6 @@ void RenderTest::renterToWindow()
 
 	m_Camera.update(m_cpuTimer.elapsedTime());
 }
+#endif
 
 appMainEntry(RenderTest)

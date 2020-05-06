@@ -117,7 +117,7 @@ static_assert(sizeof(byte8_t) == 1ull, "Size of byte miss match.");
 int32_t WINAPI wWinMain(HINSTANCE, HINSTANCE, LPWSTR, int32_t) \
 {                                                              \
 	appName app_##appName;                                     \
-	app_##appName.initialize(#appName, 0);                     \
+	app_##appName.initialize(#appName);                        \
 	app_##appName.loop();                                      \
 	app_##appName.finalize();                                  \
 }

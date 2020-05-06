@@ -9,61 +9,61 @@ dxutCamera::dxutCamera()
 	setViewParams(Math::Vec3(0.0f, 0.0f, 0.0f), Math::Vec3(0.0f, 0.0f, 1.0f));
 	setProjParams(Math::PI_Div4, 1.0f, 1.0f, 1000.0f);
 
-	m_MouseAction.LastPosition = SystemEventHandler::instance().getMousePosition();
+	///m_MouseAction.LastPosition = SystemEventHandler::instance().getMousePosition();
 }
 
 void dxutCamera::keyboardAction::processEvent()
 {
-	auto action = getKeyAction();
-	if (action != keyboardAction::eOther)
-	{
-		auto keyEvent = SystemEventHandler::instance().getKeyboardEvent();
-		switch (keyEvent)
-		{
-		case eKeyboardEvent::eKeyDown:
-			activeKey(action);
-			break;
-		case eKeyboardEvent::eKeyUp:
-			inactiveKey(action);
-			break;
-		}
-	}
+	//auto action = getKeyAction();
+	//if (action != keyboardAction::eOther)
+	//{
+	//	auto keyEvent = SystemEventHandler::instance().getKeyboardEvent();
+	//	switch (keyEvent)
+	//	{
+	//	case eKeyboardEvent::eKeyDown:
+	//		activeKey(action);
+	//		break;
+	//	case eKeyboardEvent::eKeyUp:
+	//		inactiveKey(action);
+	//		break;
+	//	}
+	//}
 }
 
 void dxutCamera::mouseAction::processEvent()
 {
-	auto mouseEvent = SystemEventHandler::instance().getMouseEvent();
-	switch (mouseEvent)
-	{
-	case eMouseEvent::eRightClick:
-	case eMouseEvent::eRightDoubleClick:
-		ButtonDown[eRightButton] = true;
-		LastPosition = SystemEventHandler::instance().getMousePosition();
-		break;
-	case eMouseEvent::eMiddleClick:
-	case eMouseEvent::eMiddleDoubleClick:
-		ButtonDown[eMiddleButton] = true;
-		LastPosition = SystemEventHandler::instance().getMousePosition();
-		break;
-	case eMouseEvent::eLeftClick:
-	case eMouseEvent::eLeftDoubleClick:
-		ButtonDown[eLeftButton] = true;
-		LastPosition = SystemEventHandler::instance().getMousePosition();
-		break;
-	case eMouseEvent::eRightUp:
-		ButtonDown[eRightButton] = false;
-		break;
-	case eMouseEvent::eMiddleUp:
-		ButtonDown[eMiddleButton] = false;
-		break;
-	case eMouseEvent::eLeftUp:
-		ButtonDown[eLeftButton] = false;
-		break;
-	///case WM_MOUSEWHEEL:
-		///WheelDelta += ((GET_WHEEL_DELTA_WPARAM(wParam)) * 0.005f);
-		///ButtonDown[eWheel] = true;
-		///break;
-	}
+	//auto mouseEvent = SystemEventHandler::instance().getMouseEvent();
+	//switch (mouseEvent)
+	//{
+	//case eMouseEvent::eRightClick:
+	//case eMouseEvent::eRightDoubleClick:
+	//	ButtonDown[eRightButton] = true;
+	//	LastPosition = SystemEventHandler::instance().getMousePosition();
+	//	break;
+	//case eMouseEvent::eMiddleClick:
+	//case eMouseEvent::eMiddleDoubleClick:
+	//	ButtonDown[eMiddleButton] = true;
+	//	LastPosition = SystemEventHandler::instance().getMousePosition();
+	//	break;
+	//case eMouseEvent::eLeftClick:
+	//case eMouseEvent::eLeftDoubleClick:
+	//	ButtonDown[eLeftButton] = true;
+	//	LastPosition = SystemEventHandler::instance().getMousePosition();
+	//	break;
+	//case eMouseEvent::eRightUp:
+	//	ButtonDown[eRightButton] = false;
+	//	break;
+	//case eMouseEvent::eMiddleUp:
+	//	ButtonDown[eMiddleButton] = false;
+	//	break;
+	//case eMouseEvent::eLeftUp:
+	//	ButtonDown[eLeftButton] = false;
+	//	break;
+	/////case WM_MOUSEWHEEL:
+	//	///WheelDelta += ((GET_WHEEL_DELTA_WPARAM(wParam)) * 0.005f);
+	//	///ButtonDown[eWheel] = true;
+	//	///break;
+	//}
 }
 
 void dxutCamera::keyboardAction::updateInput()
@@ -103,20 +103,20 @@ void dxutCamera::keyboardAction::updateInput()
 
 void dxutCamera::mouseAction::updateInput()
 {
-	if (isRotateButtonDown())
-	{
-		Math::Vec2 curPos = SystemEventHandler::instance().getMousePosition();
-		Math::Vec2 deltaPos = curPos - LastPosition;
-		LastPosition = curPos;
+	//if (isRotateButtonDown())
+	//{
+	//	Math::Vec2 curPos = SystemEventHandler::instance().getMousePosition();
+	//	Math::Vec2 deltaPos = curPos - LastPosition;
+	//	LastPosition = curPos;
 
-		float32_t percentNew = 1.0f / FrameCountToSmoothMouseData;
-		float32_t percentOld = 1.0f - percentNew;
+	//	float32_t percentNew = 1.0f / FrameCountToSmoothMouseData;
+	//	float32_t percentOld = 1.0f - percentNew;
 
-		Delta.x = Delta.x * percentOld + deltaPos.x * percentNew;
-		Delta.y = Delta.y * percentOld + deltaPos.y * percentNew;
+	//	Delta.x = Delta.x * percentOld + deltaPos.x * percentNew;
+	//	Delta.y = Delta.y * percentOld + deltaPos.y * percentNew;
 
-		RotateVelocity = Delta * RotateScaler;
-	}
+	//	RotateVelocity = Delta * RotateScaler;
+	//}
 }
 
 void dxutCamera::setViewParams(const Math::Vec3 &eye, const Math::Vec3 &lookAt)
@@ -147,32 +147,34 @@ void dxutCamera::setProjParams(float32_t fov, float32_t aspect, float32_t nearPl
 
 dxutCamera::keyboardAction::eKeyAction dxutCamera::keyboardAction::getKeyAction()
 {
-	auto key = SystemEventHandler::instance().getKeyboardKey();
-	switch (key)
-	{
-	case eKeyboardKey::eKey_Left:
-	case eKeyboardKey::eKey_A:
-		return eStrafeLeft;
-	case eKeyboardKey::eKey_Right:
-	case eKeyboardKey::eKey_D:
-		return eStrafeRight;
-	case eKeyboardKey::eKey_Up:
-	case eKeyboardKey::eKey_W:
-		return eMoveForward;
-	case eKeyboardKey::eKey_Down:
-	case eKeyboardKey::eKey_S:
-		return eMoveBackward;
-	case eKeyboardKey::eKey_PageUp:
-	case eKeyboardKey::eKey_E:
-		return eMoveUp;
-	case eKeyboardKey::eKey_PageDown:
-	case eKeyboardKey::eKey_Q:
-		return eMoveDown;
-	case eKeyboardKey::eKey_Home:
-		return eReset;
-	}
+	//auto key = SystemEventHandler::instance().getKeyboardKey();
+	//switch (key)
+	//{
+	//case eKeyboardKey::eKey_Left:
+	//case eKeyboardKey::eKey_A:
+	//	return eStrafeLeft;
+	//case eKeyboardKey::eKey_Right:
+	//case eKeyboardKey::eKey_D:
+	//	return eStrafeRight;
+	//case eKeyboardKey::eKey_Up:
+	//case eKeyboardKey::eKey_W:
+	//	return eMoveForward;
+	//case eKeyboardKey::eKey_Down:
+	//case eKeyboardKey::eKey_S:
+	//	return eMoveBackward;
+	//case eKeyboardKey::eKey_PageUp:
+	//case eKeyboardKey::eKey_E:
+	//	return eMoveUp;
+	//case eKeyboardKey::eKey_PageDown:
+	//case eKeyboardKey::eKey_Q:
+	//	return eMoveDown;
+	//case eKeyboardKey::eKey_Home:
+	//	return eReset;
+	//}
 
-	return eOther;
+	//return eOther;
+
+	return keyboardAction::eKeyAction::eOther;
 }
 
 void dxutCamera::updateVelocity(float32_t elapsedTime)

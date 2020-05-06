@@ -6,7 +6,6 @@
 #include "Gear/CPUTimer.h"
 #include "Gear/Async/TaskScheduler.h"
 #include "Gear/Log.h"
-#include "Gear/SystemEvent.h"
 #include "Gear/ConfigParser.h"
 #include "Gear/SystemUtil.h"
 #include "Gear/Camera/Camera.h"
