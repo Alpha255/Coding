@@ -41,6 +41,7 @@ struct MouseMessage
 	MouseKey Middle;
 
 	Math::Vec2 Pos;
+	Math::Vec2 DeltaPos;
 	int16_t WheelDelta = 0;
 };
 

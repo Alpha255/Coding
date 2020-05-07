@@ -29,8 +29,7 @@ end
 function appResourceFiles()
 	files { 
 		"./Assets/Icon/Resource.rc",
-		"./Assets/Icon/directx.ico",
-		"./Assets/Icon/vulkan.ico",
+		"./Assets/Icon/nvidia.ico",
 		"./Out/Configurations.json",
 	}
 end
@@ -401,9 +400,8 @@ workspace "Miscellaneous"
 			location "./Projects"
 			vpaths {
 				["Resource"] = { 
-					"./Assets/Icon/Resource.rc", 
-					"./Assets/Icon/directx.ico", 
-					"./Assets/Icon/vulkan.ico",
+					"./Assets/Icon/Resource.rc",  
+					"./Assets/Icon/nvidia.ico",
 					"./Applications/Resource.h"
 					},
 				[""] = { "./Applications/Colorful/RenderTest/**" },

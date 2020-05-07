@@ -28,5 +28,15 @@ template<typename T> inline T clamp(const T& x, const T& low, const T& high)
 	return x < low ? low : (x > high ? high : x);
 }
 
+inline float32_t radians(float32_t degree)
+{
+	return DirectX::XMConvertToRadians(degree);
+}
+
+inline float32_t degree(float32_t radians)
+{
+	return DirectX::XMConvertToDegrees(radians);
+}
+
 namespaceEnd(Math)
 namespaceEnd(Gear)
