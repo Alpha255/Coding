@@ -47,7 +47,7 @@ void Application::loop()
 		switch (message.State)
 		{
 		case eWindowState::eResized:
-			Logger::instance().log(Logger::eInfo, "Window resized.\n");
+			Logger::instance().log(Logger::eInfo, "Window resized Width = %d, Height = %d.\n", m_Window->width(), m_Window->height());
 			break;
 		case eWindowState::eInactive:
 			break;

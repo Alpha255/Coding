@@ -103,7 +103,7 @@ void Window::processMessage(uint32_t message, uint64_t wParam, int64_t lParam)
 		}
 		else if (SC_RESTORE == wParam)
 		{
-			m_Message.State = eWindowState::eActive;
+			m_Message.State = eWindowState::eResized;
 		}
 		break;
 	case WM_SIZING:
@@ -210,7 +210,7 @@ void Window::processMessage(uint32_t message, uint64_t wParam, int64_t lParam)
 	if (m_Message.State == eWindowState::eResized)
 	{
 		::RECT rect{};
-		::GetWindowRect((::HWND)m_Handle, &rect);
+		::GetClientRect((::HWND)m_Handle, &rect);
 		m_Width = static_cast<uint32_t>(rect.right - rect.left);
 		m_Height = static_cast<uint32_t>(rect.bottom - rect.top);
 	}
