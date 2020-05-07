@@ -117,7 +117,7 @@ assetFilePtr assetBucket::getAsset(const std::string &assetName)
 	std::string assetPath = File::find(m_AssetsPath, assetName);
 	if (assetPath.length() != 0u)
 	{
-		assetFilePtr assetPtr = std::make_shared<AssetFile>(assetPath, getAssetType(assetName), UINT32_MAX);
+		assetFilePtr assetPtr = std::make_shared<AssetFile>(assetPath, getAssetType(assetName), std::numeric_limits<uint32_t>().max());
 		m_Assets.insert(std::make_pair(lowerName, assetPtr));
 		return assetPtr;
 	}

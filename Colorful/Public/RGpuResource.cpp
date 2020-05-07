@@ -1,6 +1,6 @@
 #include "RGpuResource.h"
 
-uint32_t rVertexAttributes::getUsageStride(eRVertexUsage usage)
+uint32_t GfxVertexAttributes::getUsageStride(eRVertexUsage usage)
 {
 	assert(usage < eRVertexUsge_MaxEnum);
 	switch (usage)
@@ -18,7 +18,7 @@ uint32_t rVertexAttributes::getUsageStride(eRVertexUsage usage)
 	return (uint32_t)-1;
 }
 
-size_t rVertexAttributes::getFormatStride(eRFormat format)
+size_t GfxVertexAttributes::getFormatStride(eRFormat format)
 {
 	switch (format)
 	{

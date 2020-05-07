@@ -11,7 +11,7 @@ public:
 	void update(const class VulkanDevice &device, const void *pData, size_t size = VK_WHOLE_SIZE, size_t offset = 0u);
 };
 
-class vkBuffer : public VulkanDeviceObject<VkBuffer>, public rBuffer
+class vkBuffer : public VulkanDeviceObject<VkBuffer>, public GfxGpuBuffer
 {
 public:
 	void destroy(const class VulkanDevice &device) override final;

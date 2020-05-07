@@ -56,7 +56,7 @@ void d3d11Swapchain::create(
 		dxgiModeDescs.insert(dxgiModeDescs.end(), tempDxgiModeDescs.cbegin(), tempDxgiModeDescs.cend());
 	}
 
-	uint32_t tempWidth = 0u; uint32_t dxgiModeIndex = UINT32_MAX; float32_t tempRefreshRate = 0.0f;
+	uint32_t tempWidth = 0u; uint32_t dxgiModeIndex = std::numeric_limits<uint32_t>().max(); float32_t tempRefreshRate = 0.0f;
 	for (uint32_t i = 0u; i < dxgiModeDescs.size(); ++i)
 	{
 		if ((uint32_t)desktopWindowSize.x == dxgiModeDescs[i].Width &&
@@ -74,7 +74,7 @@ void d3d11Swapchain::create(
 			}
 		}
 	}
-	assert(dxgiModeIndex != UINT32_MAX);
+	assert(dxgiModeIndex != std::numeric_limits<uint32_t>().max());
 
 	DXGI_SWAP_CHAIN_FULLSCREEN_DESC fullscreenDesc
 	{

@@ -1,7 +1,8 @@
 #pragma once
 
-#include "GfxDefinitions.h"
-#include "GfxRenderState.h"
+#include "Colorful/Public/GfxDefinitions.h"
+#include "Colorful/Public/GfxRenderState.h"
+#include "Colorful/Public/ImGui/ImGui.h"
 
 namespace Gear
 {
@@ -49,7 +50,7 @@ protected:
 	GfxAdapter m_Adapter;
 };
 
-class rRenderSurface
+class GfxRenderSurface
 {
 };
 
@@ -68,21 +69,48 @@ class rGpuTimer
 class GfxEngine
 {
 public:
-	virtual void initialize(uint64_t windowHandle, const Gear::Configurations &config) = 0;
+	typedef void (*renderFrameCallback)(void);
+
+	void registerRenderFrameCallback(renderFrameCallback callback)
+	{
+		assert(!m_RenderFrameCallback);
+		m_RenderFrameCallback = callback;
+	}
+
+	void renderFrame()
+	{
+		m_ImGuiRenderer->begin();
+
+		if (m_RenderFrameCallback)
+		{
+			m_RenderFrameCallback();
+		}
+
+		m_ImGuiRenderer->end();
+
+		present();
+	}
+
+	void processMessage(const struct WindowMessage& message, uint32_t width, uint32_t height)
+	{
+		m_ImGuiRenderer->processMessage(message, width, height);
+		handleWindowResize(width, height);
+	}
+
+	virtual void initialize(uint64_t windowHandle, const Gear::Configurations& config) = 0;
 	virtual void finalize() = 0;
-	virtual void logError(uint32_t result) const = 0;
-	virtual void handleWindowResize(uint32_t width, uint32_t height, const Gear::Configurations &config) = 0;
-	virtual void present() {}
+	virtual void present() = 0;
+	virtual void handleWindowResize(uint32_t width, uint32_t height) = 0;
 
-	virtual class rShader *createVertexShader(const std::string &shaderName) = 0;
-	virtual class rShader *createFragmentShader(const std::string &shaderName) = 0;
+	virtual class GfxShader* createVertexShader(const std::string& shaderName) = 0;
+	virtual class GfxShader* createFragmentShader(const std::string& shaderName) = 0;
 
-	virtual class rBuffer *createIndexBuffer(eRBufferUsage, size_t, const void *) { return nullptr; }
-	virtual class rBuffer *createVertexBuffer(eRBufferUsage, size_t, const void *) { return nullptr; }
-	virtual class rBuffer *createUniformBuffer(size_t, const void *) { return nullptr; }
-	virtual void destroyBuffer(class rBuffer *) {}
+	virtual class GfxGpuBuffer *createIndexBuffer(eRBufferUsage, size_t, const void *) { return nullptr; }
+	virtual class GfxGpuBuffer *createVertexBuffer(eRBufferUsage, size_t, const void *) { return nullptr; }
+	virtual class GfxGpuBuffer *createUniformBuffer(size_t, const void *) { return nullptr; }
+	virtual void destroyBuffer(class GfxGpuBuffer *) {}
 
-	virtual rRenderSurface *createDepthStencilView(uint32_t, uint32_t, eRFormat) { return nullptr; }
+	virtual GfxRenderSurface *createDepthStencilView(uint32_t, uint32_t, eRFormat) { return nullptr; }
 	virtual GfxRenderPass *createRenderPass(GfxFrameBufferDesc &) { return nullptr; }
 	virtual void createOpaqueRenderPass() {}
 
@@ -100,7 +128,7 @@ public:
 		return nullptr;
 	}
 
-	virtual void updateGpuBuffer(class rBuffer *, const void *, size_t, size_t) {}
+	virtual void updateGpuBuffer(class GfxGpuBuffer *, const void *, size_t, size_t) {}
 
 	virtual rSampler *createSampler(const GfxSamplerDesc &) { return nullptr; }
 
@@ -111,5 +139,8 @@ public:
 	}
 protected:
 	GfxRenderPass *m_OpaqueRenderPass = nullptr;
+	renderFrameCallback m_RenderFrameCallback = nullptr;
+	ImGuiRendererPtr m_ImGuiRenderer = nullptr;
 private:
 };
+using GfxEnginePtr = std::unique_ptr<GfxEngine>;

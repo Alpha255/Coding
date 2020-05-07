@@ -14,7 +14,7 @@ class d3d12Device : public D3DObject<ID3D12Device>, public GfxDevice
 public:
 	void create(const dxgiFactory7 &inDxgiFactory);
 	
-	rShader *createShader(eRShaderUsage usage, const std::string &shaderName);
+	GfxShader *createShader(eRShaderUsage usage, const std::string &shaderName);
 
 	rTexture *createTexture(const std::string &textureName);
 

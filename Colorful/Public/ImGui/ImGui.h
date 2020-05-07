@@ -1,31 +1,32 @@
 #pragma once
 
-#include "Colorful/Public/GfxEngine.h"
+#include "Colorful/Public/GfxRenderState.h"
 #include <ThirdParty/ImGUI/imgui.h>
 
 class ImGuiRenderer
 {
 public:
-	void initialize(uint64_t windowHandle, GfxEngine *renderEngine);
+	void initialize(class GfxEngine *renderEngine);
 
 	void finalize()
 	{
 		ImGui::DestroyContext();
 	}
 
-	void processEvent();
+	void processMessage(const struct WindowMessage& message, uint32_t width, uint32_t height);
 
-	void begin(float32_t displayWidth, float32_t displayHeight);
+	void begin();
 	void end();
+
+	void setEnable(bool8_t enable)
+	{
+		m_Enable = enable;
+	}
 
 	bool8_t isMouseButtonDown(ImGuiIO &io);
 
 	inline bool8_t isFocus() const
 	{
-		if (!m_WindowHandle)
-		{
-			return false;
-		}
 		const ImGuiIO &io = ImGui::GetIO();
 		return io.WantCaptureMouse || io.WantCaptureKeyboard;
 	}
@@ -38,9 +39,9 @@ protected:
 		Vec4 ScaleTranslate;
 	};
 private:
-	GfxEngine *m_Renderer = nullptr;
+	class GfxEngine *m_Renderer = nullptr;
 	GfxPipelineState m_PipelineState{};
-	GfxRenderPass *m_Renderpass = nullptr;
-	rBuffer *m_UniformBuffer = nullptr;
-	uint64_t m_WindowHandle = 0u;
+	GfxGpuBuffer *m_UniformBuffer = nullptr;
+	bool8_t m_Enable = true;
 };
+using ImGuiRendererPtr = std::unique_ptr<ImGuiRenderer>;

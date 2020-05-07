@@ -8,7 +8,7 @@ class d3d11Device : public D3DObject<ID3D11Device>, public GfxDevice
 public:
 	void create(__out d3d11Context &context, const dxgiFactory7 &inDxgiFactory);
 	
-	rShader *createShader(eRShaderUsage usage, const std::string &shaderName);
+	GfxShader *createShader(eRShaderUsage usage, const std::string &shaderName);
 
 	rTexture *createTexture(const std::string &textureName);
 

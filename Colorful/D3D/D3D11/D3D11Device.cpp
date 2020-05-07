@@ -90,7 +90,7 @@ void d3d11Device::create(__out d3d11Context &context, const dxgiFactory7 &inDxgi
 		return resultAttr;
 	};
 
-	adapterIndex = UINT32_MAX;
+	adapterIndex = std::numeric_limits<uint32_t>().max();
 	createResult tempResultAttr = {};
 	for (uint32_t i = 0u; i < dxgiAdapters.size(); ++i)
 	{
@@ -104,7 +104,7 @@ void d3d11Device::create(__out d3d11Context &context, const dxgiFactory7 &inDxgi
 			adapterIndex = i;
 		}
 	}
-	assert(adapterIndex != UINT32_MAX);
+	assert(adapterIndex != std::numeric_limits<uint32_t>().max());
 
 	createResult resultAttr = tryToCreateDevice(*this, context);
 	if (FAILED(resultAttr.Result))

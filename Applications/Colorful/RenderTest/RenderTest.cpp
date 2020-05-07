@@ -1,7 +1,7 @@
 #include "RenderTest.h"
 
 #if 0
-rBuffer *mUniformBuffer = nullptr;
+GfxGpuBuffer *mUniformBuffer = nullptr;
 GfxPipelineState mGraphicsPipelineState{};
 
 struct uniformBufferVS
@@ -53,7 +53,7 @@ void RenderTest::postInitialize()
 	auto vertexBuffer = m_Renderer->createVertexBuffer(eGpuReadWrite, vertices.size() * sizeof(vertex), vertices.data());
 	auto indexBuffer = m_Renderer->createIndexBuffer(eGpuReadWrite, indices.size() * sizeof(uint32_t), indices.data());
 
-	std::vector<rVertexAttributes> vertexAttrs
+	std::vector<GfxVertexAttributes> vertexAttrs
 	{
 		{
 			ePosition,

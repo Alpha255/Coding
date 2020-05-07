@@ -30,7 +30,7 @@ void d3d12Engine::initialize(uint64_t windowHandle, const Configurations &config
 	safeRelease(d3d12DebugPtr);
 }
 
-void d3d12Engine::logError(uint32_t result) const
+void d3d12Engine::logError(uint32_t result)
 {
 	std::string errorMsg;
 	switch (result)

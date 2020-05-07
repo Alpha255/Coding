@@ -6,12 +6,12 @@ class d3d11InputLayout : public D3DObject<ID3D11InputLayout>
 {
 };
 
-class d3d11Shader : public D3DObject<ID3D11DeviceChild>, public rShader
+class d3d11Shader : public D3DObject<ID3D11DeviceChild>, public GfxShader
 {
 public:
 	d3d11Shader(const class d3d11Device &device, eRShaderUsage usage, const rAsset::rShaderBinary &binary);
 
-	void setInputLayout(const std::vector<rVertexAttributes> &vertexAttributes);
+	void setInputLayout(const std::vector<GfxVertexAttributes> &vertexAttributes);
 
 	inline d3d11InputLayout getInputLayout() const
 	{

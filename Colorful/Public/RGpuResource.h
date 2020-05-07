@@ -2,7 +2,7 @@
 
 #include "GfxDefinitions.h"
 
-struct rVertexAttributes
+struct GfxVertexAttributes
 {
 	eRVertexUsage Usage = eRVertexUsge_MaxEnum;
 	eRFormat Format = eRFormat_MaxEnum;
@@ -29,7 +29,7 @@ protected:
 private:
 };
 
-class rShader : public rGpuResource
+class GfxShader : public rGpuResource
 {
 public:
 	struct rReflectionInfo
@@ -39,7 +39,7 @@ public:
 	};
 	using rReflectionInfos = std::vector<rReflectionInfo>;
 
-	rShader(eRShaderUsage usage)
+	GfxShader(eRShaderUsage usage)
 		: m_Usage(usage)
 	{
 	}
@@ -54,11 +54,11 @@ public:
 		return m_Reflections;
 	}
 
-	inline void setUniformBuffer(class rBuffer *uniformBuffer)
+	inline void setUniformBuffer(class GfxGpuBuffer *uniformBuffer)
 	{
 		m_UniformBuffer = uniformBuffer;
 	}
-	inline class rBuffer *getUniformBuffer() const
+	inline class GfxGpuBuffer *getUniformBuffer() const
 	{
 		return m_UniformBuffer;
 	}
@@ -72,14 +72,15 @@ public:
 		return Textures;
 	}
 
-	virtual void setInputLayout(const std::vector<rVertexAttributes>&, size_t) {}
+	virtual void setInputLayout(const std::vector<GfxVertexAttributes>&, size_t) {}
 protected:
 	eRShaderUsage m_Usage = eRShaderUsage_MaxEnum;
 	rReflectionInfos m_Reflections;
-	class rBuffer *m_UniformBuffer = nullptr;
+	class GfxGpuBuffer *m_UniformBuffer = nullptr;
 	std::vector<const class rTexture *> Textures;
 private:
 };
+using GfxShaderPtr = std::shared_ptr<GfxShader>;
 
 class rTexture : public rGpuResource
 {
@@ -97,7 +98,7 @@ protected:
 	const class rSampler *m_Sampler = nullptr;
 };
 
-class rBuffer : public rGpuResource
+class GfxGpuBuffer : public rGpuResource
 {
 public:
 	inline size_t getSize() const
@@ -115,7 +116,7 @@ protected:
 private:
 };
 
-using rDescriptorLayoutDesc = std::array<rShader::rReflectionInfos, eRShaderUsage_MaxEnum>;
+using rDescriptorLayoutDesc = std::array<GfxShader::rReflectionInfos, eRShaderUsage_MaxEnum>;
 
 class rDescriptor
 {

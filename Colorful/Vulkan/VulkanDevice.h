@@ -70,7 +70,7 @@ public:
 		return m_DeviceLimits;
 	}
 public:
-	rShader *createShader(eRShaderUsage usage, const std::string &shaderName);
+	GfxShader *createShader(eRShaderUsage usage, const std::string &shaderName);
 	rTexture *createTexture(const std::string &textureName);
 	rTexture *createTexture(
 		eRTextureType type,
@@ -81,12 +81,12 @@ public:
 		uint32_t arrayLayers,
 		const void *data,
 		size_t dataSize);
-	rBuffer *createBuffer(eRBufferBindFlags bindFlags, eRBufferUsage usage, size_t size, const void *pData);
-	inline void destroyBuffer(rBuffer *buffer)
+	GfxGpuBuffer *createBuffer(eRBufferBindFlags bindFlags, eRBufferUsage usage, size_t size, const void *pData);
+	inline void destroyBuffer(GfxGpuBuffer *buffer)
 	{
 		m_GpuResourcePool->destroyBuffer(buffer);
 	}
-	rRenderSurface *createDepthStencilView(uint32_t width, uint32_t height, eRFormat format);
+	GfxRenderSurface *createDepthStencilView(uint32_t width, uint32_t height, eRFormat format);
 	GfxRenderPass *createRenderPass(const vkSwapchain &swapchain, GfxFrameBufferDesc &desc);
 	rSampler *createSampler(const GfxSamplerDesc &desc);
 

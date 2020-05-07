@@ -1,38 +1,18 @@
-#include "ImGui.h"
+#include "Colorful/Public/ImGui/ImGui.h"
+#include "Colorful/Public/GfxEngine.h"
+#include "Gear/Window.h"
 
-void ImGuiRenderer::initialize(uint64_t windowHandle, GfxEngine *renderEngine)
+void ImGuiRenderer::initialize(GfxEngine *renderEngine)
 {
-	assert(windowHandle && renderEngine);
+	assert(renderEngine);
 
 	m_Renderer = renderEngine;
-	m_WindowHandle = windowHandle;
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-	ImGuiIO &io = ImGui::GetIO();
-	//io.KeyMap[ImGuiKey_Tab] = VK_TAB;
-	//io.KeyMap[ImGuiKey_LeftArrow] = VK_LEFT;
-	//io.KeyMap[ImGuiKey_RightArrow] = VK_RIGHT;
-	//io.KeyMap[ImGuiKey_UpArrow] = VK_UP;
-	//io.KeyMap[ImGuiKey_DownArrow] = VK_DOWN;
-	//io.KeyMap[ImGuiKey_PageUp] = VK_PRIOR;
-	//io.KeyMap[ImGuiKey_PageDown] = VK_NEXT;
-	//io.KeyMap[ImGuiKey_Home] = VK_HOME;
-	//io.KeyMap[ImGuiKey_End] = VK_END;
-	//io.KeyMap[ImGuiKey_Delete] = VK_DELETE;
-	//io.KeyMap[ImGuiKey_Backspace] = VK_BACK;
-	//io.KeyMap[ImGuiKey_Enter] = VK_RETURN;
-	//io.KeyMap[ImGuiKey_Escape] = VK_ESCAPE;
-	//io.KeyMap[ImGuiKey_A] = 'A';
-	//io.KeyMap[ImGuiKey_C] = 'C';
-	//io.KeyMap[ImGuiKey_V] = 'V';
-	//io.KeyMap[ImGuiKey_X] = 'X';
-	//io.KeyMap[ImGuiKey_Y] = 'Y';
-	//io.KeyMap[ImGuiKey_Z] = 'Z';
-	//io.RenderDrawListsFn = nullptr;
-	//io.ImeWindowHandle = reinterpret_cast<void *>(windowHandle);
+	ImGuiIO& io = ImGui::GetIO();
 
-	byte8_t *pixels = nullptr;
+	byte8_t* pixels = nullptr;
 	int32_t width = 0;
 	int32_t height = 0;
 	io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
@@ -50,7 +30,7 @@ void ImGuiRenderer::initialize(uint64_t windowHandle, GfxEngine *renderEngine)
 	auto vertexShader = m_Renderer->createVertexShader("ImGui.shader");
 	auto fragmentShader = m_Renderer->createFragmentShader("ImGui.shader");
 
-	std::vector<rVertexAttributes> vertexAttrs
+	std::vector<GfxVertexAttributes> vertexAttrs
 	{
 		{
 			ePosition,
@@ -101,132 +81,51 @@ void ImGuiRenderer::initialize(uint64_t windowHandle, GfxEngine *renderEngine)
 		eRCompareOp::eLessOrEqual
 	};
 	m_PipelineState.setDepthStencilState(depthStencilDesc);
-
-	///m_Renderer->getOpaqueRenderPass()->pendingGfxPipline(m_PipelineState);
 }
 
-void ImGuiRenderer::processEvent()
+void ImGuiRenderer::processMessage(const WindowMessage& message, uint32_t width, uint32_t height)
 {
-	if (!m_WindowHandle)
-	{
-		return;
-	}
+	ImGuiIO& io = ImGui::GetIO();
 
-	//ImGuiIO &io = ImGui::GetIO();
-	//auto &eventer = SystemEventHandler::instance();
-
-	//auto keyEvent = eventer.getKeyboardEvent();
-	//auto mouseEvent = eventer.getMouseEvent();
-
-	//int32_t mouseBtn = -1;
-	//if (eMouseEvent::eLeftClick == mouseEvent || eMouseEvent::eLeftUp == mouseEvent)
-	//{
-	//	mouseBtn = 0;
-	//}
-	//if (eMouseEvent::eRightClick == mouseEvent || eMouseEvent::eRightClick == mouseEvent)
-	//{
-	//	mouseBtn = 1;
-	//}
-	//if (eMouseEvent::eMiddleClick == mouseEvent || eMouseEvent::eMiddleUp == mouseEvent)
-	//{
-	//	mouseBtn = 2;
-	//}
-
-	/////bool8_t isFocus = SystemEventHandler::isFocusWindow(m_WindowHandle);
-
-	//switch (mouseEvent)
-	//{
-	//case eMouseEvent::eLeftClick:
-	//case eMouseEvent::eRightClick:
-	//case eMouseEvent::eMiddleClick:
-	//	//if (!isMouseButtonDown(io) && !isFocus)
-	//	//{
-	//	//	SystemEventHandler::focusWindow(m_WindowHandle);
-	//	//}
-	//	io.MouseDown[mouseBtn] = true;
-	//	return;
-
-	//case eMouseEvent::eLeftUp:
-	//case eMouseEvent::eRightUp:
-	//case eMouseEvent::eMiddleUp:
-	//	io.MouseDown[mouseBtn] = false;
-	//	//if (!isMouseButtonDown(io) && isFocus)
-	//	//{
-	//	//	SystemEventHandler::unFocusWindow();
-	//	//}
-	//	return;
-
-	//case eMouseEvent::eMove:
-	//{
-	//	auto mousePos = eventer.getMousePosition();
-	//	io.MousePos = ImVec2
-	//	{
-	//		mousePos.x,
-	//		mousePos.y
-	//	};
-	//	return;
-	//}
-
-	//case eMouseEvent::eWheel:
-	//{
-	//	auto mouseWheelDelta = eventer.getMouseWheelDelta();
-	//	io.MouseWheel += mouseWheelDelta > 0.0f ? 1.0f : -1.0f;
-	//	return;
-	//}
-	//}
-
-	//switch (keyEvent)
-	//{
-	//case eKeyboardEvent::eKeyDown:
-	//	return;
-	//case eKeyboardEvent::eKeyUp:
-	//	return;
-	//}
-}
-
-void ImGuiRenderer::begin(float32_t displayWidth, float32_t displayHeight)
-{
-	ImGuiIO &io = ImGui::GetIO();
-	
 	io.DisplaySize = ImVec2
 	{
-		displayWidth,
-		displayHeight
+		(float32_t)width,
+		(float32_t)height
 	};
 
-	io.KeyCtrl = (::GetKeyState(VK_CONTROL) & 0x8000) != 0;
-	io.KeyShift = (::GetKeyState(VK_SHIFT) & 0x8000) != 0;
-	io.KeyAlt = (::GetKeyState(VK_MENU) & 0x8000) != 0;
-	io.KeySuper = false;
+	io.MouseDown[0] = message.Mouse.Left.KeyDown;
+	io.MouseDown[1] = message.Mouse.Right.KeyDown;
+	io.MouseDown[2] = message.Mouse.Middle.KeyDown;
+	io.MousePos = ImVec2(message.Mouse.Pos.x, message.Mouse.Pos.y);
+	io.MouseWheel += message.Mouse.WheelDelta > 0.0f ? 1.0f : -1.0f;
 
-	if (io.WantCaptureMouse)
+	/// Keyboard
+}
+
+void ImGuiRenderer::begin()
+{
+	if (m_Enable)
 	{
-		::POINT pos = { (LONG)io.MousePos.x, (LONG)io.MousePos.y };
-		::ClientToScreen((::HWND)m_WindowHandle, &pos);
-		::SetCursorPos(pos.x, pos.y);
+		ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f), ImGuiCond_FirstUseEver);
+
+		ImGui::NewFrame();
+
+		ImGui::Begin("ImGui");
 	}
-
-	if (io.MouseDrawCursor)
-	{
-		::SetCursor(nullptr);
-	}
-
-	ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f), ImGuiCond_FirstUseEver);
-
-	ImGui::NewFrame();
-
-	ImGui::Begin("ImGui");
 }
 
 void ImGuiRenderer::end()
 {
-	ImGui::End();
-	ImGui::Render();
+	if (m_Enable)
+	{
+		ImGui::End();
+		ImGui::Render();
 
-	frame();
+		frame();
+	}
 }
 
-bool8_t ImGuiRenderer::isMouseButtonDown(ImGuiIO &io)
+bool8_t ImGuiRenderer::isMouseButtonDown(ImGuiIO& io)
 {
 	for (uint32_t i = 0u; i < ARRAYSIZE(io.MouseDown); ++i)
 	{
@@ -271,10 +170,10 @@ void ImGuiRenderer::frame()
 	assert(drawData);
 	for (int32_t i = 0, vertexOffset = 0, indexOffset = 0; i < drawData->CmdListsCount; ++i)
 	{
-		const ImDrawList *drawList = drawData->CmdLists[i];
+		const ImDrawList* drawList = drawData->CmdLists[i];
 		for (int32_t j = 0; j < drawList->CmdBuffer.Size; ++j)
 		{
-			const ImDrawCmd *drawCmd = &drawList->CmdBuffer[j];
+			const ImDrawCmd* drawCmd = &drawList->CmdBuffer[j];
 
 			rScissor scissor
 			{
@@ -294,7 +193,7 @@ void ImGuiRenderer::frame()
 
 bool8_t ImGuiRenderer::update()
 {
-	ImDrawData *drawData = ImGui::GetDrawData();
+	ImDrawData* drawData = ImGui::GetDrawData();
 	if (!drawData || drawData->CmdListsCount == 0U)
 	{
 		return false;
@@ -325,7 +224,7 @@ bool8_t ImGuiRenderer::update()
 
 	for (int32_t i = 0, vertexOffset = 0, indexOffset = 0; i < drawData->CmdListsCount; ++i)
 	{
-		const ImDrawList *drawList = drawData->CmdLists[i];
+		const ImDrawList* drawList = drawData->CmdLists[i];
 
 		auto vertexBufferSize = drawList->VtxBuffer.Size * sizeof(ImDrawVert);
 		verify(memcpy_s(verties.get() + vertexOffset, vertexBufferSize, drawList->VtxBuffer.Data, vertexBufferSize) == 0);

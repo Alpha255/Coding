@@ -79,7 +79,7 @@ public:
 	::HRESULT result = (func);                    \
 	if (FAILED(result))                           \
 	{                                             \
-		d3d11Engine::instance().logError(result); \
+		d3d11Engine::logError(result);            \
 	}                                             \
 }
 
@@ -88,7 +88,7 @@ public:
 	::HRESULT result = (func);                    \
 	if (FAILED(result))                           \
 	{                                             \
-		d3d12Engine::instance().logError(result); \
+		d3d12Engine::logError(result);            \
 	}                                             \
 }
 
@@ -97,7 +97,7 @@ public:
 	VkResult result = (func);                  \
 	if (result != VK_SUCCESS)                  \
 	{                                          \
-		vkEngine::instance().logError(result); \
+		vkEngine::logError(result);            \
 	}                                          \
 }
 

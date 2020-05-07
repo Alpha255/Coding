@@ -10,9 +10,17 @@ public:
 	void initialize(uint64_t windowHandle, const Configurations &config) override final;
 	void finalize() override final;
 
-	void logError(uint32_t result) const override final;
+	static void logError(uint32_t result);
 
-	inline void handleWindowResize(uint32_t width, uint32_t height, const Configurations &) override final
+	void handleWindowResize(uint32_t, uint32_t) override final
+	{
+	}
+
+	void present() override final
+	{
+	}
+
+	inline void handleWindowResize(uint32_t width, uint32_t height, const Configurations &)
 	{
 		if (m_Swapchain.isValid())
 		{
@@ -27,11 +35,11 @@ public:
 	}
 
 public:
-	rShader *createVertexShader(const std::string &) override final
+	GfxShader *createVertexShader(const std::string &) override final
 	{
 		return nullptr;
 	}
-	rShader *createFragmentShader(const std::string &) override final
+	GfxShader *createFragmentShader(const std::string &) override final
 	{
 		return nullptr;
 	}

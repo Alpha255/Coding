@@ -18,7 +18,11 @@ public:
 	virtual void loop();
 
 	virtual void finalize();
+
+	virtual void renderFrame() {}
 protected:
+	void createGfxRenderer();
+
 	Configurations m_Config;
 	WindowPtr m_Window = nullptr;
 private:

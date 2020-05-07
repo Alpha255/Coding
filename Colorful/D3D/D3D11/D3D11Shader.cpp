@@ -2,7 +2,7 @@
 #include "D3D11Engine.h"
 
 d3d11Shader::d3d11Shader(const d3d11Device &device, eRShaderUsage usage, const rAsset::rShaderBinary &binary)
-	: rShader(usage)
+	: GfxShader(usage)
 {
 	assert(!isValid() && device.isValid());
 	assert(binary.Binary && binary.Size > 0u && usage < eRShaderUsage_MaxEnum);
@@ -56,7 +56,7 @@ d3d11Shader::d3d11Shader(const d3d11Device &device, eRShaderUsage usage, const r
 	}
 }
 
-void d3d11Shader::setInputLayout(const std::vector<rVertexAttributes> &vertexAttributes)
+void d3d11Shader::setInputLayout(const std::vector<GfxVertexAttributes> &vertexAttributes)
 {
 	assert(isValid() && m_Usage == eVertexShader);
 	assert(!m_InputLayout.isValid());
@@ -86,7 +86,7 @@ void d3d11Shader::setInputLayout(const std::vector<rVertexAttributes> &vertexAtt
 			vertexAttributes[i].InputRate == eVertex ? D3D11_INPUT_PER_VERTEX_DATA : D3D11_INPUT_PER_INSTANCE_DATA,
 			0u
 		};
-		vertexStride += rVertexAttributes::getFormatStride(vertexAttributes[i].Format);
+		vertexStride += GfxVertexAttributes::getFormatStride(vertexAttributes[i].Format);
 	}
 
 	ID3D11InputLayout *pLayout = nullptr;

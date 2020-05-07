@@ -23,6 +23,7 @@ struct Configurations
 	bool8_t D3DTripleBuffer = true;
 	bool8_t EnableVulkanValidation = true;
 	bool8_t VulkanValidationVerbose = false;
+	bool8_t EnableGui = true;
 	eRenderEngine RenderEngine = eD3D11;
 
 	void load();

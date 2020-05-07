@@ -9,7 +9,7 @@ class TaskScheduler : public Singleton<TaskScheduler>
 	singletonDeclare(TaskScheduler);
 
 public:
-	void initialize(uint32_t threadCount = UINT32_MAX);
+	void initialize(uint32_t threadCount = std::numeric_limits<uint32_t>().max());
 	void finalize();
 
 	inline void appendTask(std::function<void()> taskFunction)

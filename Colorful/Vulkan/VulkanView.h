@@ -2,7 +2,7 @@
 
 #include "Colorful/Vulkan/VulkanTexture.h"
 
-class vkImageView : public VulkanDeviceObject<VkImageView>, public rRenderSurface, public rTexture
+class vkImageView : public VulkanDeviceObject<VkImageView>, public GfxRenderSurface, public rTexture
 {
 public:
 	void create(

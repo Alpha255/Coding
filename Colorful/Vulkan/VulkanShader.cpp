@@ -2,7 +2,7 @@
 #include "VulkanEngine.h"
 
 vkShader::vkShader(const VulkanDevice &device, eRShaderUsage usage, const rAsset::rShaderBinary &binary)
-	: rShader(usage)
+	: GfxShader(usage)
 {
 	assert(!isValid() && device.isValid());
 	assert(binary.Binary && binary.Size > 0u && usage < eRShaderUsage_MaxEnum);
@@ -34,7 +34,7 @@ void vkShader::destroy(const VulkanDevice &device)
 	}
 }
 
-void vkShader::setInputLayout(const std::vector<rVertexAttributes>& vertexAttributes, size_t align)
+void vkShader::setInputLayout(const std::vector<GfxVertexAttributes>& vertexAttributes, size_t align)
 {
 	assert(m_Usage == eVertexShader && m_InputLayout.InputState.sType == 0);
 
@@ -52,7 +52,7 @@ void vkShader::setInputLayout(const std::vector<rVertexAttributes>& vertexAttrib
 			stride
 		};
 
-		stride += ((uint32_t)rVertexAttributes::getFormatStride(vertexAttributes[i].Format) / 8ull);
+		stride += ((uint32_t)GfxVertexAttributes::getFormatStride(vertexAttributes[i].Format) / 8ull);
 		stride = (uint32_t)Gear::LinearAllocator::align_to(stride, align);
 	}
 

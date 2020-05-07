@@ -7,6 +7,10 @@
 
 namespaceStart(Gear)
 
+void Application::createGfxRenderer()
+{
+}
+
 void Application::initialize(const std::string& windowTitle)
 {
 	m_Config.load();
@@ -14,7 +18,9 @@ void Application::initialize(const std::string& windowTitle)
 	m_Window = std::make_unique<Window>(windowTitle, m_Config.WindowWidth, m_Config.WindowHeight);
 	m_Window->setMinSize(640u, 480u);
 
-	rAsset::rAssetBucket::instance().initialize(m_Config.RenderEngine);
+	createGfxRenderer();
+
+	///rAsset::rAssetBucket::instance().initialize(m_Config.RenderEngine);
 
 	postInitialize();
 }
@@ -27,6 +33,15 @@ void Application::loop()
 		if (message.State == eWindowState::eDestroy)
 		{
 			break;
+		}
+
+		if (message.State == eWindowState::eInactive)
+		{
+			Gear::sleep(100u);
+		}
+		else
+		{
+			/// RenderFrame()
 		}
 
 		switch (message.State)

@@ -22,27 +22,27 @@ void vkEngine::initialize(uint64_t windowHandle, const Configurations &config)
 	auto physicalDevices = vkPhysicalDevice::enumeratePhysicalDevices(m_Instance);
 	assert(physicalDevices.size() == 1u); /// Only allow single video card for now...
 
-	uint32_t graphicsQueueFamilyIndex = UINT32_MAX;
-	uint32_t computeQueueFamilyIndex = UINT32_MAX;
-	uint32_t transferQueueFamilyIndex = UINT32_MAX;
+	uint32_t graphicsQueueFamilyIndex = std::numeric_limits<uint32_t>().max();
+	uint32_t computeQueueFamilyIndex = std::numeric_limits<uint32_t>().max();
+	uint32_t transferQueueFamilyIndex = std::numeric_limits<uint32_t>().max();
 	uint32_t gpuIndex = m_Device.create(
 		physicalDevices,
 		graphicsQueueFamilyIndex,
 		computeQueueFamilyIndex,
 		transferQueueFamilyIndex);
-	assert(graphicsQueueFamilyIndex != UINT32_MAX);
+	assert(graphicsQueueFamilyIndex != std::numeric_limits<uint32_t>().max());
 
 	m_GraphicsQueue.create(graphicsQueueFamilyIndex, m_Device);
-	if (computeQueueFamilyIndex != UINT32_MAX)
+	if (computeQueueFamilyIndex != std::numeric_limits<uint32_t>().max())
 	{
 		m_ComputeQueue.create(computeQueueFamilyIndex, m_Device);
 	}
-	if (transferQueueFamilyIndex != UINT32_MAX)
+	if (transferQueueFamilyIndex != std::numeric_limits<uint32_t>().max())
 	{
 		m_TransferQueue.create(transferQueueFamilyIndex, m_Device);
 	}
 
-	assert(gpuIndex != UINT32_MAX);
+	assert(gpuIndex != std::numeric_limits<uint32_t>().max());
 	m_PhysicalDevice = physicalDevices[gpuIndex];
 
 	m_Swapchain.create(
@@ -57,7 +57,7 @@ void vkEngine::initialize(uint64_t windowHandle, const Configurations &config)
 		m_Device);
 }
 
-void vkEngine::logError(uint32_t result) const
+void vkEngine::logError(uint32_t result)
 {
 	std::string errorMsg;
 

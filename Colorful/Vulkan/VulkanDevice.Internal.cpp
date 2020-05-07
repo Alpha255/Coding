@@ -2,7 +2,7 @@
 #include "VulkanTexture.h"
 #include "VulkanShader.h"
 
-rShader *VulkanDevice::createShader(eRShaderUsage usage, const std::string &shaderName)
+GfxShader *VulkanDevice::createShader(eRShaderUsage usage, const std::string &shaderName)
 {
 	/// try to get shader binary from cache at first
 
@@ -43,7 +43,7 @@ rTexture * VulkanDevice::createTexture(
 	return imageView;
 }
 
-rBuffer *VulkanDevice::createBuffer(eRBufferBindFlags bindFlags, eRBufferUsage usage, size_t size, const void * pData)
+GfxGpuBuffer *VulkanDevice::createBuffer(eRBufferBindFlags bindFlags, eRBufferUsage usage, size_t size, const void * pData)
 {
 	auto buffer = new vkGpuBuffer(*this, bindFlags, usage, size, pData);
 	m_GpuResourcePool->push<vkGpuResourcePool::eBuffer>(buffer);
@@ -75,7 +75,7 @@ vkEvent *VulkanDevice::createEvent() const
 	return eventPtr;
 }
 
-rRenderSurface *VulkanDevice::createDepthStencilView(uint32_t width, uint32_t height, eRFormat format)
+GfxRenderSurface *VulkanDevice::createDepthStencilView(uint32_t width, uint32_t height, eRFormat format)
 {
 	vkDepthStencilView *depthStencilView = new vkDepthStencilView();
 	depthStencilView->create(*this, width, height, vkEngine::enumTranslator::toFormat(format));
@@ -129,7 +129,7 @@ GfxRenderPass *VulkanDevice::createRenderPass(const vkSwapchain &swapchain, GfxF
 	if (usingBackBuffer)
 	{
 		auto &backBuffers = swapchain.getBackBuffers();
-		desc.ColorSurface[0] = (rRenderSurface *)&backBuffers[0];
+		desc.ColorSurface[0] = (GfxRenderSurface *)&backBuffers[0];
 	}
 
 	vkRenderPass *renderPass = new vkRenderPass();
@@ -140,7 +140,7 @@ GfxRenderPass *VulkanDevice::createRenderPass(const vkSwapchain &swapchain, GfxF
 		auto &backBuffers = swapchain.getBackBuffers();
 		for (uint32_t i = 0u; i < backBuffers.size(); ++i)
 		{
-			desc.ColorSurface[0] = (rRenderSurface *)&backBuffers[i];
+			desc.ColorSurface[0] = (GfxRenderSurface *)&backBuffers[i];
 			vkFrameBuffer frameBuffer;
 			frameBuffer.create(*this, *renderPass, desc);
 			frameBuffers.emplace_back(std::move(frameBuffer));

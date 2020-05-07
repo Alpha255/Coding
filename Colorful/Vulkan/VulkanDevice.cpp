@@ -204,13 +204,13 @@ uint32_t VulkanDevice::create(
 {
 	assert(!isValid() && physicalDevices.size() > 0u);
 
-	uint32_t gpuIndex = UINT32_MAX;
-	uint32_t discreteGpuIndex = UINT32_MAX;
+	uint32_t gpuIndex = std::numeric_limits<uint32_t>().max();
+	uint32_t discreteGpuIndex = std::numeric_limits<uint32_t>().max();
 	std::string gpuTypeName;
 
-	uint32_t graphicsQueueFamilyIndex = UINT32_MAX;
-	uint32_t computeQueueFamilyIndex = UINT32_MAX;
-	uint32_t transferQueueFamilyIndex = UINT32_MAX;
+	uint32_t graphicsQueueFamilyIndex = std::numeric_limits<uint32_t>().max();
+	uint32_t computeQueueFamilyIndex = std::numeric_limits<uint32_t>().max();
+	uint32_t transferQueueFamilyIndex = std::numeric_limits<uint32_t>().max();
 	uint32_t numQueuePriority = 0u;
 
 	std::vector<VkDeviceQueueCreateInfo> deviceQueueCreateInfos;
@@ -254,13 +254,13 @@ uint32_t VulkanDevice::create(
 		for (uint32_t j = 0U; j < queueFamilyProperties.size(); ++j)
 		{
 			if (((queueFamilyProperties[j].queueFlags & VK_QUEUE_GRAPHICS_BIT) == VK_QUEUE_GRAPHICS_BIT) &&
-				graphicsQueueFamilyIndex == UINT32_MAX)
+				graphicsQueueFamilyIndex == std::numeric_limits<uint32_t>().max())
 			{
 				graphicsQueueFamilyIndex = j;
 			}
 
 			if (((queueFamilyProperties[j].queueFlags & VK_QUEUE_COMPUTE_BIT) == VK_QUEUE_COMPUTE_BIT) &&
-				computeQueueFamilyIndex == UINT32_MAX &&
+				computeQueueFamilyIndex == std::numeric_limits<uint32_t>().max() &&
 				computeQueueFamilyIndex != j &&
 				graphicsQueueFamilyIndex != j)
 			{
@@ -268,7 +268,7 @@ uint32_t VulkanDevice::create(
 			}
 
 			if (((queueFamilyProperties[j].queueFlags & VK_QUEUE_TRANSFER_BIT) == VK_QUEUE_TRANSFER_BIT) &&
-				transferQueueFamilyIndex == UINT32_MAX && 
+				transferQueueFamilyIndex == std::numeric_limits<uint32_t>().max() && 
 				transferQueueFamilyIndex != j && 
 				((queueFamilyProperties[j].queueFlags & VK_QUEUE_GRAPHICS_BIT) == 0) &&
 				((queueFamilyProperties[j].queueFlags & VK_QUEUE_COMPUTE_BIT) == 0))
@@ -276,9 +276,9 @@ uint32_t VulkanDevice::create(
 				transferQueueFamilyIndex = j;
 			}
 
-			if (graphicsQueueFamilyIndex == UINT32_MAX &&
-				computeQueueFamilyIndex == UINT32_MAX &&
-				transferQueueFamilyIndex == UINT32_MAX)
+			if (graphicsQueueFamilyIndex == std::numeric_limits<uint32_t>().max() &&
+				computeQueueFamilyIndex == std::numeric_limits<uint32_t>().max() &&
+				transferQueueFamilyIndex == std::numeric_limits<uint32_t>().max())
 			{
 				continue;
 			}
@@ -434,7 +434,7 @@ uint32_t VulkanDevice::getMemoryTypeIndex(eRBufferUsage usage, uint32_t memoryTy
 	}
 
 	assert(0);
-	return UINT32_MAX;
+	return std::numeric_limits<uint32_t>().max();
 }
 
 void VulkanDevice::destroy()

@@ -3,7 +3,7 @@
 #include "Colorful/Public/RAsset.h"
 #include "VulkanLoader.h"
 
-class vkShader : public VulkanDeviceObject<VkShaderModule>, public rShader
+class vkShader : public VulkanDeviceObject<VkShaderModule>, public GfxShader
 {
 public:
 	vkShader(const class VulkanDevice &device, eRShaderUsage usage, const rAsset::rShaderBinary &binary);
@@ -15,7 +15,7 @@ public:
 		return m_InputLayout.InputState;
 	}
 
-	void setInputLayout(const std::vector<rVertexAttributes>& vertexAttributes, size_t align) override final;
+	void setInputLayout(const std::vector<GfxVertexAttributes>& vertexAttributes, size_t align) override final;
 protected:
 	struct vkInputLayout
 	{

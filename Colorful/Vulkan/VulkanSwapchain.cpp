@@ -60,13 +60,13 @@ void vkSwapchain::create(
 		rVerifyVk(vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice.Handle, i, m_Surface.Handle, &surfaceSupportKHR[i]));
 	}
 
-	uint32_t graphicQueue = UINT32_MAX;
-	uint32_t presentQueue = UINT32_MAX;
+	uint32_t graphicQueue = std::numeric_limits<uint32_t>().max();
+	uint32_t presentQueue = std::numeric_limits<uint32_t>().max();
 	for (uint32_t i = 0u; i < count; ++i)
 	{
 		if ((queueFamilyProperties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) == VK_QUEUE_GRAPHICS_BIT)
 		{
-			graphicQueue == UINT32_MAX ? graphicQueue = i : graphicQueue = graphicQueue;
+			graphicQueue == std::numeric_limits<uint32_t>().max() ? graphicQueue = i : graphicQueue = graphicQueue;
 
 			if (surfaceSupportKHR[i] == VK_TRUE)
 			{
@@ -76,7 +76,7 @@ void vkSwapchain::create(
 			}
 		}
 	}
-	if (presentQueue == UINT32_MAX)
+	if (presentQueue == std::numeric_limits<uint32_t>().max())
 	{
 		for (uint32_t i = 0u; i < count; ++i)
 		{
@@ -88,7 +88,7 @@ void vkSwapchain::create(
 		}
 	}
 
-	assert(graphicQueue != UINT32_MAX && presentQueue != UINT32_MAX && graphicQueue == presentQueue);
+	assert(graphicQueue != std::numeric_limits<uint32_t>().max() && presentQueue != std::numeric_limits<uint32_t>().max() && graphicQueue == presentQueue);
 
 	rVerifyVk(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice.Handle, m_Surface.Handle, &count, nullptr));
 	assert(count > 0u);
@@ -266,7 +266,7 @@ void vkSwapchain::destroy(const vkInstance &instance, const VulkanDevice &device
 uint32_t vkSwapchain::acquireBackBuffer(const VulkanDevice &device)
 {
 	assert(isValid() && device.isValid());
-	m_CurrentFrameIndex = UINT32_MAX;
+	m_CurrentFrameIndex = std::numeric_limits<uint32_t>().max();
 
 	rVerifyVk(vkAcquireNextImageKHR(device.Handle, Handle, UINT64_MAX, m_PresentCompleteSemaphore->Handle, VK_NULL_HANDLE, &m_CurrentFrameIndex));
 	return m_CurrentFrameIndex;

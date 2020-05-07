@@ -11,9 +11,13 @@ public:
 	void initialize(uint64_t windowHandle, const Configurations &config) override final;
 	void finalize() override final;
 
-	void logError(uint32_t result) const override final;
+	static void logError(uint32_t result);
 
-	inline void handleWindowResize(uint32_t width, uint32_t height, const Configurations &config) override final
+	void handleWindowResize(uint32_t, uint32_t) override final
+	{
+	}
+
+	inline void handleWindowResize(uint32_t width, uint32_t height, const Configurations &config)
 	{
 		if (m_Swapchain.isValid())
 		{
@@ -33,33 +37,33 @@ public:
 		return m_GraphicsQueue;
 	}
 public:
-	inline rShader *createVertexShader(const std::string &shaderName) override final
+	inline GfxShader *createVertexShader(const std::string &shaderName) override final
 	{
 		return createShader<eVertexShader>(shaderName);
 	}
-	inline rShader *createFragmentShader(const std::string &shaderName) override final
+	inline GfxShader *createFragmentShader(const std::string &shaderName) override final
 	{
 		return createShader<eFragmentShader>(shaderName);
 	}
 
-	inline rBuffer *createIndexBuffer(eRBufferUsage usage, size_t size, const void *data) override final
+	inline GfxGpuBuffer *createIndexBuffer(eRBufferUsage usage, size_t size, const void *data) override final
 	{ 
 		return m_Device.createBuffer(eIndexBuffer, usage, size, data);
 	}
-	inline rBuffer *createVertexBuffer(eRBufferUsage usage, size_t size, const void *data) override final
+	inline GfxGpuBuffer *createVertexBuffer(eRBufferUsage usage, size_t size, const void *data) override final
 	{ 
 		return m_Device.createBuffer(eVertexBuffer, usage, size, data);
 	}
-	inline rBuffer *createUniformBuffer(size_t size, const void *data) override final
+	inline GfxGpuBuffer *createUniformBuffer(size_t size, const void *data) override final
 	{
 		return m_Device.createBuffer(eUniformBuffer, eGpuReadCpuWrite, size, data);
 	}
-	inline void destroyBuffer(rBuffer *buffer) override final
+	inline void destroyBuffer(GfxGpuBuffer *buffer) override final
 	{
 		m_Device.destroyBuffer(buffer);
 	}
 
-	inline rRenderSurface *createDepthStencilView(uint32_t width, uint32_t height, eRFormat format) override final
+	inline GfxRenderSurface *createDepthStencilView(uint32_t width, uint32_t height, eRFormat format) override final
 	{
 		return m_Device.createDepthStencilView(width, height, format);
 	}
@@ -92,7 +96,7 @@ public:
 		return m_Device.createSampler(desc);
 	}
 
-	inline void updateGpuBuffer(rBuffer *buffer, const void *data, size_t size, size_t offset) override final
+	inline void updateGpuBuffer(GfxGpuBuffer *buffer, const void *data, size_t size, size_t offset) override final
 	{
 		assert(buffer);
 		auto uniformBuffer = static_cast<vkGpuBuffer *>(buffer);
@@ -139,7 +143,7 @@ public:
 	};
 protected:
 	template<eRShaderUsage Usage>
-	inline rShader *createShader(const std::string &shaderName)
+	inline GfxShader *createShader(const std::string &shaderName)
 	{
 		return m_Device.createShader(Usage, shaderName);
 	}

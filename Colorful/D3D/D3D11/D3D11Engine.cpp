@@ -25,7 +25,7 @@ void d3d11Engine::initialize(uint64_t windowHandle, const Configurations &config
 		m_Device);
 }
 
-void d3d11Engine::logError(uint32_t result) const
+void d3d11Engine::logError(uint32_t result)
 {
 	std::string errorMsg;
 	switch (result)

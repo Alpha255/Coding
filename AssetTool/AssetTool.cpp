@@ -97,11 +97,11 @@ void buildShaderReflections(Configurations::eRenderEngine engine, rAsset::rShade
 		{
 			for each (auto &res in resources)
 			{
-				rShader::rReflectionInfo reflection
+				GfxShader::rReflectionInfo reflection
 				{
 					///compiler.get_decoration(res.id, spv::DecorationDescriptorSet), uniform (set = 0, binding = 1)
 					(uint32_t)type,
-					useConstantRange ? UINT32_MAX : compiler.get_decoration(res.id, spv::DecorationBinding)
+					useConstantRange ? std::numeric_limits<uint32_t>().max() : compiler.get_decoration(res.id, spv::DecorationBinding)
 				};
 				binary.Reflections.emplace_back(std::move(reflection));
 			}

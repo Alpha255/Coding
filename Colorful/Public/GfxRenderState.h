@@ -114,8 +114,8 @@ struct GfxSamplerDesc
 
 struct GfxFrameBufferDesc
 {
-	class rRenderSurface *ColorSurface[eMaxRenderTargets]{};
-	class rRenderSurface *DepthSurface = nullptr;
+	class GfxRenderSurface *ColorSurface[eMaxRenderTargets]{};
+	class GfxRenderSurface *DepthSurface = nullptr;
 
 	uint32_t Width = 0u;
 	uint32_t Height = 0u;
@@ -154,7 +154,7 @@ struct GfxPipelineState
 		PrimitiveTopology = primitiveTopology;
 	}
 
-	inline void setShader(const rShader *shader)
+	inline void setShader(const GfxShader *shader)
 	{
 		assert(shader);
 		assert(shader->getUsage() < eRShaderUsage_MaxEnum);
@@ -189,13 +189,13 @@ struct GfxPipelineState
 		DepthStencilStateDesc = desc;
 	}
 
-	inline void bindVertexBuffer(rBuffer *buffer)
+	inline void bindVertexBuffer(GfxGpuBuffer *buffer)
 	{
 		VertexBuffer = buffer;
 		setDirty(eVertexBuffer);
 	}
 
-	inline void bindIndexBuffer(rBuffer *buffer, eRIndexType type = eRIndexType::eUInt32)
+	inline void bindIndexBuffer(GfxGpuBuffer *buffer, eRIndexType type = eRIndexType::eUInt32)
 	{
 		IndexBuffer = buffer;
 		setDirty(eIndexBuffer);
@@ -209,15 +209,15 @@ struct GfxPipelineState
 
 	eRPrimitiveTopology PrimitiveTopology = eTriangleList;
 
-	const rShader *Shaders[eRShaderUsage_MaxEnum]{};
+	const GfxShader *Shaders[eRShaderUsage_MaxEnum]{};
 
 	GfxRasterizerStateDesc RasterizerStateDesc{};
 	GfxBlendStateDesc BlendStateDesc{};
 	GfxDepthStencilStateDesc DepthStencilStateDesc{};
 	rViewport Viewport;
 	rScissor Scissor;
-	rBuffer *VertexBuffer = nullptr;
-	rBuffer *IndexBuffer = nullptr;
+	GfxGpuBuffer *VertexBuffer = nullptr;
+	GfxGpuBuffer *IndexBuffer = nullptr;
 
 	friend bool8_t operator==(const GfxPipelineState &left, const GfxPipelineState &right)
 	{

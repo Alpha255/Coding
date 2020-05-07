@@ -22,7 +22,7 @@ public:
 	void destroy(const class VulkanDevice &device);
 protected:
 private:
-	uint32_t m_FamilyIndex = UINT32_MAX;
+	uint32_t m_FamilyIndex = std::numeric_limits<uint32_t>().max();
 	class vkSemaphore *m_RenderCompleteSemaphore = nullptr;
 	std::vector<class vkCommandBuffer *> m_QueuedCmdBuffers;
 };
