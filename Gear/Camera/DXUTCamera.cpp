@@ -1,125 +1,9 @@
 #include "Gear/Gear.h"
+#include "Gear/Window.h"
 
 namespaceStart(Gear)
 
-dxutCamera::dxutCamera()
-{
-	m_World.identity();
-
-	setViewParams(Math::Vec3(0.0f, 0.0f, 0.0f), Math::Vec3(0.0f, 0.0f, 1.0f));
-	setProjParams(Math::PI_Div4, 1.0f, 1.0f, 1000.0f);
-
-	///m_MouseAction.LastPosition = SystemEventHandler::instance().getMousePosition();
-}
-
-void dxutCamera::keyboardAction::processEvent()
-{
-	//auto action = getKeyAction();
-	//if (action != keyboardAction::eOther)
-	//{
-	//	auto keyEvent = SystemEventHandler::instance().getKeyboardEvent();
-	//	switch (keyEvent)
-	//	{
-	//	case eKeyboardEvent::eKeyDown:
-	//		activeKey(action);
-	//		break;
-	//	case eKeyboardEvent::eKeyUp:
-	//		inactiveKey(action);
-	//		break;
-	//	}
-	//}
-}
-
-void dxutCamera::mouseAction::processEvent()
-{
-	//auto mouseEvent = SystemEventHandler::instance().getMouseEvent();
-	//switch (mouseEvent)
-	//{
-	//case eMouseEvent::eRightClick:
-	//case eMouseEvent::eRightDoubleClick:
-	//	ButtonDown[eRightButton] = true;
-	//	LastPosition = SystemEventHandler::instance().getMousePosition();
-	//	break;
-	//case eMouseEvent::eMiddleClick:
-	//case eMouseEvent::eMiddleDoubleClick:
-	//	ButtonDown[eMiddleButton] = true;
-	//	LastPosition = SystemEventHandler::instance().getMousePosition();
-	//	break;
-	//case eMouseEvent::eLeftClick:
-	//case eMouseEvent::eLeftDoubleClick:
-	//	ButtonDown[eLeftButton] = true;
-	//	LastPosition = SystemEventHandler::instance().getMousePosition();
-	//	break;
-	//case eMouseEvent::eRightUp:
-	//	ButtonDown[eRightButton] = false;
-	//	break;
-	//case eMouseEvent::eMiddleUp:
-	//	ButtonDown[eMiddleButton] = false;
-	//	break;
-	//case eMouseEvent::eLeftUp:
-	//	ButtonDown[eLeftButton] = false;
-	//	break;
-	/////case WM_MOUSEWHEEL:
-	//	///WheelDelta += ((GET_WHEEL_DELTA_WPARAM(wParam)) * 0.005f);
-	//	///ButtonDown[eWheel] = true;
-	//	///break;
-	//}
-}
-
-void dxutCamera::keyboardAction::updateInput()
-{
-	KeyDirection = Math::Vec3(0.0f, 0.0f, 0.0f);
-
-	if (isKeyActive(eStrafeRight))
-	{
-		KeyDirection.x += 1.0f;
-	}
-	if (isKeyActive(eStrafeLeft))
-	{
-		KeyDirection.x -= 1.0f;
-	}
-
-	if (EnableYAxisMovement)
-	{
-		if (isKeyActive(eMoveUp))
-		{
-			KeyDirection.y += 1.0f;
-		}
-		if (isKeyActive(eMoveDown))
-		{
-			KeyDirection.y -= 1.0f;
-		}
-	}
-
-	if (isKeyActive(eMoveForward))
-	{
-		KeyDirection.z += 1.0f;
-	}
-	if (isKeyActive(eMoveBackward))
-	{
-		KeyDirection.z -= 1.0f;
-	}
-}
-
-void dxutCamera::mouseAction::updateInput()
-{
-	//if (isRotateButtonDown())
-	//{
-	//	Math::Vec2 curPos = SystemEventHandler::instance().getMousePosition();
-	//	Math::Vec2 deltaPos = curPos - LastPosition;
-	//	LastPosition = curPos;
-
-	//	float32_t percentNew = 1.0f / FrameCountToSmoothMouseData;
-	//	float32_t percentOld = 1.0f - percentNew;
-
-	//	Delta.x = Delta.x * percentOld + deltaPos.x * percentNew;
-	//	Delta.y = Delta.y * percentOld + deltaPos.y * percentNew;
-
-	//	RotateVelocity = Delta * RotateScaler;
-	//}
-}
-
-void dxutCamera::setViewParams(const Math::Vec3 &eye, const Math::Vec3 &lookAt)
+void DXUTCamera::setView(const Math::Vec3 &eye, const Math::Vec3 &lookAt)
 {
 	m_DefaultEye = m_Eye = eye;
 	m_DefaultLookAt = m_LookAt = lookAt;
@@ -135,53 +19,21 @@ void dxutCamera::setViewParams(const Math::Vec3 &eye, const Math::Vec3 &lookAt)
 	m_Pitch = -atan2f(zBasis.y, len);
 }
 
-void dxutCamera::setProjParams(float32_t fov, float32_t aspect, float32_t nearPlane, float32_t farPlane)
+void DXUTCamera::setPerspective(float32_t fov, float32_t aspect, float32_t nearPlane, float32_t farPlane)
 {
-	m_FOV = fov;
+	m_Fov = fov;
 	m_Aspect = aspect;
 	m_NearPlane = nearPlane;
 	m_FarPlane = farPlane;
 
-	m_Proj = Math::Matrix::perspectiveFovLH(fov, aspect, nearPlane, farPlane);
+	m_Projection = Math::Matrix::perspectiveFovLH(fov, aspect, nearPlane, farPlane);
 }
 
-dxutCamera::keyboardAction::eKeyAction dxutCamera::keyboardAction::getKeyAction()
+void DXUTCamera::updateVelocity(float32_t elapsedTime)
 {
-	//auto key = SystemEventHandler::instance().getKeyboardKey();
-	//switch (key)
-	//{
-	//case eKeyboardKey::eKey_Left:
-	//case eKeyboardKey::eKey_A:
-	//	return eStrafeLeft;
-	//case eKeyboardKey::eKey_Right:
-	//case eKeyboardKey::eKey_D:
-	//	return eStrafeRight;
-	//case eKeyboardKey::eKey_Up:
-	//case eKeyboardKey::eKey_W:
-	//	return eMoveForward;
-	//case eKeyboardKey::eKey_Down:
-	//case eKeyboardKey::eKey_S:
-	//	return eMoveBackward;
-	//case eKeyboardKey::eKey_PageUp:
-	//case eKeyboardKey::eKey_E:
-	//	return eMoveUp;
-	//case eKeyboardKey::eKey_PageDown:
-	//case eKeyboardKey::eKey_Q:
-	//	return eMoveDown;
-	//case eKeyboardKey::eKey_Home:
-	//	return eReset;
-	//}
-
-	//return eOther;
-
-	return keyboardAction::eKeyAction::eOther;
-}
-
-void dxutCamera::updateVelocity(float32_t elapsedTime)
-{
-	Math::Vec3 accel = m_KeyAction.KeyDirection;
+	Math::Vec3 accel = m_KeyDirection;
 	accel.normalize();
-	accel *= m_MouseAction.MoveScaler;
+	accel *= m_Scaler.y;
 
 	if (dot(accel, accel) > 0.0f)
 	{
@@ -203,23 +55,78 @@ void dxutCamera::updateVelocity(float32_t elapsedTime)
 	}
 }
 
-void dxutCamera::update(float32_t elapsedTime)
+void DXUTCamera::updateKeys(const WindowMessage& message)
 {
-	if (m_KeyAction.isKeyActive(keyboardAction::eReset))
+	m_KeyDirection = Math::Vec3(0.0f, 0.0f, 0.0f);
+
+	switch (message.Key)
+	{
+	case eKeyboardKey::eKey_A:
+	case eKeyboardKey::eKey_Left:
+		m_KeyDirection.x += 1.0f;
+		break;
+	case eKeyboardKey::eKey_D:
+	case eKeyboardKey::eKey_Right:
+		m_KeyDirection.x += 1.0f;
+		break;
+	case eKeyboardKey::eKey_W:
+	case eKeyboardKey::eKey_Up:
+		m_KeyDirection.z += 1.0f;
+		break;
+	case eKeyboardKey::eKey_S:
+	case eKeyboardKey::eKey_Down:
+		m_KeyDirection.z -= 1.0f;
+		break;
+	case eKeyboardKey::eKey_Q:
+	case eKeyboardKey::eKey_PageUp:
+		m_KeyDirection.y += 1.0f;
+		break;
+	case eKeyboardKey::eKey_E:
+	case eKeyboardKey::eKey_PageDown:
+		m_KeyDirection.y -= 1.0f;
+		break;
+	}
+
+	if (isRotate(message))
+	{
+		float32_t percentNew = 1.0f / m_SmoothMouse;
+		float32_t percentOld = 1.0f - percentNew;
+
+		Math::Vec2 curDelta = message.Mouse.DeltaPos;
+		m_MouseDelta.x = m_MouseDelta.x * percentOld + curDelta.x * percentNew;
+		m_MouseDelta.y = m_MouseDelta.y * percentOld + curDelta.y * percentNew;
+
+		m_RotateVelocity = m_MouseDelta * m_Scaler.x;
+	}
+}
+
+bool8_t DXUTCamera::isReset(const WindowMessage& message) const
+{
+	return message.Key == eKeyboardKey::eKey_Home;
+}
+
+bool8_t DXUTCamera::isRotate(const WindowMessage& message) const
+{
+	return message.Mouse.Left.KeyDown;
+}
+
+void DXUTCamera::processMessage(const WindowMessage& message, float32_t elapsedTime)
+{
+	if (isReset(message))
 	{
 		reset();
 	}
 
-	updateInput();
+	updateKeys(message);
 
 	updateVelocity(elapsedTime);
 
 	Math::Vec3 deltaPos = m_Velocity * elapsedTime;
 
-	if (m_MouseAction.isRotateButtonDown())
+	if (isRotate(message))
 	{
-		float32_t deltaYaw = m_MouseAction.RotateVelocity.x;
-		float32_t deltaPitch = m_MouseAction.RotateVelocity.y;
+		float32_t deltaYaw = m_RotateVelocity.x;
+		float32_t deltaPitch = m_RotateVelocity.y;
 
 		m_Pitch += deltaPitch;
 		m_Yaw += deltaYaw;
@@ -245,8 +152,6 @@ void dxutCamera::update(float32_t elapsedTime)
 
 	m_View = Math::Matrix::lookAtLH(m_Eye, m_LookAt, worldUp);
 	m_World = Math::Matrix::inverse(m_View);
-
-	m_MouseAction.ButtonDown[mouseAction::eWheel] = false;
 }
 
 namespaceEnd(Gear)
