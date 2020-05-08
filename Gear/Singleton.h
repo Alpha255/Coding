@@ -10,8 +10,8 @@ public:
 	NoneCopyable() = default;
 	~NoneCopyable() = default;
 
-	NoneCopyable(const NoneCopyable &) = delete;
-	void operator=(const NoneCopyable &) = delete;
+	NoneCopyable(const NoneCopyable&) = delete;
+	void operator=(const NoneCopyable&) = delete;
 protected:
 private:
 };
@@ -40,36 +40,40 @@ private:                                     \
 	~className() = default;                  \
 	friend class Gear::Singleton<className>;
 
-template <typename T> class LazySingleton
+template<class T> class LazySingleton : public NoneCopyable
 {
 public:
-	template <typename... Args> static T *instance(Args &&... args)
+	template <typename... Args> static void initialize(Args&&... args)
 	{
-		if (nullptr == s_Instance)
+		if (!s_Instance)
 		{
 			s_Instance = new T(std::forward<Args>(args)...);
-			assert(s_Instance);
 		}
+	}
+
+	static void finalize()
+	{
+		safeDelete(s_Instance);
+	}
+
+	static T* instance()
+	{
+		assert(s_Instance);
 		return s_Instance;
 	}
-
-	static void destroy()
-	{
-		if (s_Instance)
-		{
-			delete s_Instance;
-			s_Instance = nullptr;
-		}
-	}
-private:
+protected:
 	LazySingleton() = default;
 	virtual ~LazySingleton() = default;
-	LazySingleton(const LazySingleton &) {}
-	void operator=(const LazySingleton &) {}
-
-	static T *s_Instance;
+private:
+	static T* s_Instance;
 };
-template <typename T> T *LazySingleton<T>::s_Instance = nullptr;
+template <class T> T* LazySingleton<T>::s_Instance = nullptr;
+
+#define lazySingletonDeclare(className)      \
+private:                                     \
+	className() = default;                   \
+	~className() = default;                  \
+	friend class Gear::LazySingleton<className>;
 
 namespaceEnd(Gear)
 
