@@ -51,9 +51,9 @@ GfxGpuBuffer *VulkanDevice::createBuffer(eRBufferBindFlags bindFlags, eRBufferUs
 	return buffer;
 }
 
-vkFence *VulkanDevice::createFence(vkFence::eFenceStatus status) const
+VulkanFence *VulkanDevice::createFence(VulkanFence::eFenceStatus status) const
 {
-	vkFence *fencePtr = new vkFence(*this, status);
+	VulkanFence *fencePtr = new VulkanFence(*this, status);
 	assert(fencePtr);
 
 	return fencePtr;

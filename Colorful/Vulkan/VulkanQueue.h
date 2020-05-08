@@ -26,3 +26,8 @@ private:
 	class vkSemaphore *m_RenderCompleteSemaphore = nullptr;
 	std::vector<class vkCommandBuffer *> m_QueuedCmdBuffers;
 };
+
+class VulkanQueueManager : public LazySingleton<VulkanQueueManager>
+{
+	lazySingletonDeclare(VulkanQueueManager);
+};

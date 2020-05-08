@@ -20,7 +20,7 @@ class vkCommandBuffer : public VulkanObject<VkCommandBuffer>
 {
 public:
 	vkCommandBuffer() = default;
-	vkCommandBuffer(VkCommandBufferLevel level, VkCommandBuffer handle, class vkFence *fence, class vkSemaphore *semaphore)
+	vkCommandBuffer(VkCommandBufferLevel level, VkCommandBuffer handle, class VulkanFence *fence, class vkSemaphore *semaphore)
 		: m_Level(level)
 		, m_Fence(fence)
 		, m_Semaphore(semaphore)
@@ -43,7 +43,7 @@ public:
 		return m_State == eRecording;
 	}
 
-	inline class vkFence *getFence() const
+	inline class VulkanFence *getFence() const
 	{
 		assert(m_Fence);
 		return m_Fence;
@@ -90,7 +90,7 @@ protected:
 private:
 	VkCommandBufferLevel m_Level = VK_COMMAND_BUFFER_LEVEL_MAX_ENUM;
 	eState m_State = eState_MaxEnum;
-	class vkFence *m_Fence;
+	class VulkanFence *m_Fence;
 	class vkSemaphore *m_Semaphore = nullptr;
 };
 

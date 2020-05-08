@@ -131,7 +131,7 @@ vkCommandBuffer vkCommandPool::alloc(const VulkanDevice &device, VkCommandBuffer
 	VkCommandBuffer handle = VK_NULL_HANDLE;
 	rVerifyVk(vkAllocateCommandBuffers(device.Handle, &allocateInfo, &handle));
 
-	vkFence *fence = device.createFence(signaleFence ? vkFence::eSignaled : vkFence::eUnsignaled);
+	VulkanFence *fence = device.createFence(signaleFence ? VulkanFence::eSignaled : VulkanFence::eUnsignaled);
 	assert(fence);
 
 	vkSemaphore *semaphore = device.createSemaphore();

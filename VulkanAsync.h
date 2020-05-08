@@ -32,7 +32,7 @@
 		Many cases that would otherwise need an application to use other synchronization primitives can be expressed more efficiently as part of a render pass.
 ********************/
 
-class VulkanFence : public VulkanDeviceObject<VkFence>
+class VulkanFence : public VulkanObject<VkFence>
 {
 public:
 	enum eFenceStatus
@@ -42,10 +42,45 @@ public:
 		eFenceStatus_MaxEnum
 	};
 
-	VulkanFence(const class VulkanDevice &device, eFenceStatus status);
-	void destroy(const class VulkanDevice &device) override final;
-	eFenceStatus getStatus(const class VulkanDevice &device);
-	void resetStatus(const class VulkanDevice &device);
+	VulkanFence(uint32_t ID, VkFence handle)
+		: m_ID(ID)
+	{
+		Handle = handle;
+	}
+
+	inline uint32_t ID() const
+	{
+		return m_ID;
+	}
+protected:
+private:
+	uint32_t m_ID = 0u;
+};
+using VulkanFencePtr = std::shared_ptr<VulkanFence>;
+
+class VulkanFenceManager : public LazySingleton<VulkanFenceManager>
+{
+	lazySingletonDeclare(VulkanFenceManager);
+public:
+	VulkanFencePtr allocFence(bool8_t signaled);
+	void freeFence(VulkanFencePtr& fence);
+
+	void resetFence(VulkanFencePtr& fence);
+	void waitFence(VulkanFencePtr& fence, uint32_t timeout);
+	VulkanFence::eFenceStatus fenceStatus(const VulkanFencePtr& fence);
+
+	void cleanup() override final;
+protected:
+	VulkanFenceManager(const VkDevice device)
+		: m_Device(device)
+	{
+		assert(device != VK_NULL_HANDLE);
+	}
+private:
+	const VkDevice m_Device;
+	uint32_t m_FenceID = 0u;
+	std::unordered_map<uint32_t, VulkanFencePtr> m_Fences;
+	std::vector<VulkanFencePtr> m_FreeFences;
 };
 
 class vkSemaphore : public VulkanDeviceObject<VkSemaphore>

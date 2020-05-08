@@ -42,7 +42,7 @@ public:
 
 	void waitIdle();
 
-	vkFence *createFence(vkFence::eFenceStatus status) const;
+	VulkanFence *createFence(VulkanFence::eFenceStatus status) const;
 	vkSemaphore *createSemaphore() const;
 	vkEvent *createEvent() const;
 

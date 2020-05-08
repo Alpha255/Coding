@@ -1,74 +1,6 @@
 #include "VulkanAsync.h"
 #include "VulkanEngine.h"
 
-VulkanFence::VulkanFence(const VulkanDevice &device, eFenceStatus status)
-{
-	assert(!isValid() && device.isValid() && status < eFenceStatus_MaxEnum);
-
-	/// To create a fence whose payload can be exported to external handles, 
-	/// add a VkExportFenceCreateInfo structure to the pNext chain of the VkFenceCreateInfo structure.
-
-	/// To specify additional attributes of NT handles exported from a fence, 
-	/// add a VkExportFenceWin32HandleInfoKHR structure to the pNext chain of the VkFenceCreateInfo structure.
-
-	VkFenceCreateInfo createInfo
-	{
-		VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
-		nullptr,
-		eUnsignaled == status ? 0u : VK_FENCE_CREATE_SIGNALED_BIT
-	};
-
-	rVerifyVk(vkCreateFence(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
-}
-
-void VulkanFence::resetStatus(const VulkanDevice &device)
-{
-	/// Resets the fence to the unsignaled state.
-	/// If any member of pFences is already in the unsignaled state when vkResetFences is executed, then vkResetFences has no effect on that fence.
-	assert(device.isValid() && isValid());
-	rVerifyVk(vkResetFences(device.Handle, 1u, &Handle));
-}
-
-VulkanFence::eFenceStatus VulkanFence::getStatus(const VulkanDevice &device)
-{
-	assert(device.isValid() && isValid());
-	VkResult result = vkGetFenceStatus(device.Handle, Handle);
-
-	/// If a queue submission command is pending execution, then the value returned by this command may immediately be out of date.
-	/// If the device has been lost, vkGetFenceStatus may return any of the (VK_SUCCESS|VK_NOT_READY|VK_ERROR_DEVICE_LOST). 
-	/// If the device has been lost and vkGetFenceStatus is called repeatedly, it will eventually return either VK_SUCCESS or VK_ERROR_DEVICE_LOST.
-
-	eFenceStatus status = eFenceStatus_MaxEnum;
-	switch (result)
-	{
-	case VK_SUCCESS:
-		status = eSignaled;
-		break;
-	case VK_NOT_READY:
-		status = eUnsignaled;
-		break;
-	case VK_ERROR_DEVICE_LOST:
-	default:
-		assert(0);
-		break;
-	}
-
-	return status;
-}
-
-void VulkanFence::destroy(const VulkanDevice &device)
-{
-	/// All queue submission commands that refer to fence must have completed execution
-
-	assert(device.isValid());
-
-	if (isValid())
-	{
-		vkDestroyFence(device.Handle, Handle, vkMemoryAllocator);
-		Handle = VK_NULL_HANDLE;
-	}
-}
-
 vkSemaphore::vkSemaphore(const VulkanDevice &device)
 {
 	/// Semaphores have two states - signaled and unsignaled. The state of a semaphore can be signaled after execution of a batch of commands is completed. 
@@ -175,3 +107,86 @@ void vkEvent::destroy(const VulkanDevice &device)
 	}
 }
 
+VulkanFencePtr VulkanFenceManager::allocFence(bool8_t signaled)
+{
+	if (m_FreeFences.size() > 0u)
+	{
+		auto fence = m_FreeFences.end();
+		m_FreeFences.pop_back();
+		return *fence;
+	}
+
+	VkFenceCreateInfo createInfo
+	{
+		VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+		nullptr,
+		signaled ? VK_FENCE_CREATE_SIGNALED_BIT : 0u
+	};
+
+	VkFence fence = VK_NULL_HANDLE;
+	rVerifyVk(vkCreateFence(m_Device, &createInfo, vkMemoryAllocator, &fence));
+	auto fencePtr = std::make_shared<VulkanFence>(m_FenceID, fence);
+	m_Fences.emplace(std::make_pair(m_FenceID, fencePtr));
+	return fencePtr;
+}
+
+void VulkanFenceManager::freeFence(VulkanFencePtr& fence)
+{
+	auto it = m_Fences.find(fence->ID());
+	assert(it != m_Fences.end());
+
+	m_FreeFences.emplace_back(it->second);
+	m_Fences.erase(it->second->ID());
+}
+
+void VulkanFenceManager::resetFence(VulkanFencePtr& fence)
+{
+	assert(fence);
+	rVerifyVk(vkResetFences(m_Device, 1u, &fence->Handle));
+}
+
+void VulkanFenceManager::waitFence(VulkanFencePtr& fence, uint32_t timeout)
+{
+	assert(fence);
+
+}
+
+VulkanFence::eFenceStatus VulkanFenceManager::fenceStatus(const VulkanFencePtr& fence)
+{
+	assert(fence);
+	VkResult result = vkGetFenceStatus(m_Device, fence->Handle);
+
+	/// If a queue submission command is pending execution, then the value returned by this command may immediately be out of date.
+	/// If the device has been lost, vkGetFenceStatus may return any of the (VK_SUCCESS|VK_NOT_READY|VK_ERROR_DEVICE_LOST). 
+	/// If the device has been lost and vkGetFenceStatus is called repeatedly, it will eventually return either VK_SUCCESS or VK_ERROR_DEVICE_LOST.
+
+	VulkanFence::eFenceStatus status = VulkanFence::eFenceStatus_MaxEnum;
+	switch (result)
+	{
+	case VK_SUCCESS:
+		status = VulkanFence::eSignaled;
+		break;
+	case VK_NOT_READY:
+		status = VulkanFence::eUnsignaled;
+		break;
+	case VK_ERROR_DEVICE_LOST:
+	default:
+		assert(0);
+		break;
+	}
+
+	return status;
+}
+
+void VulkanFenceManager::cleanup()
+{
+	/// All queue submission commands that refer to fence must have completed execution
+
+	//assert(device.isValid());
+
+	//if (isValid())
+	//{
+	//	vkDestroyFence(device.Handle, Handle, vkMemoryAllocator);
+	//	Handle = VK_NULL_HANDLE;
+	//}
+}

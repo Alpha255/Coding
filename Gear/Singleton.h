@@ -24,8 +24,8 @@ public:
 		return s_Instance;
 	}
 
-	Singleton(const Singleton &) = delete;
-	void operator=(const Singleton &) = delete;
+	Singleton(const Singleton&) = delete;
+	void operator=(const Singleton&) = delete;
 protected:
 	Singleton() = default;
 	virtual ~Singleton() = default;
@@ -51,8 +51,9 @@ public:
 		}
 	}
 
-	static void finalize()
+	void finalize()
 	{
+		cleanup();
 		safeDelete(s_Instance);
 	}
 
@@ -60,6 +61,10 @@ public:
 	{
 		assert(s_Instance);
 		return s_Instance;
+	}
+
+	virtual void cleanup()
+	{
 	}
 protected:
 	LazySingleton() = default;
