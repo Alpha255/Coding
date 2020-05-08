@@ -10,7 +10,7 @@
 #include "Colorful/Vulkan/VulkanRenderPass.h"
 #include "Colorful/Vulkan/VulkanPipeline.h"
 
-class vkInstance : public VulkanObject<VkInstance>
+class VulkanInstance : public VulkanObject<VkInstance>
 {
 public:
 	void create();
@@ -20,14 +20,34 @@ public:
 class vkDebugUtilsMessenger : public VulkanObject<VkDebugUtilsMessengerEXT>
 {
 public:
-	void create(const vkInstance &instance, bool8_t verbose);
-	void destroy(const vkInstance &instance);
+	void create(const VulkanInstance &instance, bool8_t verbose);
+	void destroy(const VulkanInstance &instance);
 };
 
 class vkPhysicalDevice : public VulkanObject<VkPhysicalDevice>
 {
 public:
-	static std::vector<vkPhysicalDevice> enumeratePhysicalDevices(const vkInstance &instance);
+	static std::vector<vkPhysicalDevice> enumeratePhysicalDevices(const VulkanInstance &instance);
+};
+
+class VulkanDevice_2 : public GfxDevice
+{
+public:
+	class VulkanPhysicalDevice : public VulkanObject<VkPhysicalDevice>
+	{
+	};
+
+	class VulkanLogicalDevice : public VulkanObject<VkDevice>
+	{
+	};
+
+	void create(const VulkanInstance& instance);
+
+	void destroy();
+protected:
+private:
+	VulkanPhysicalDevice m_PhysicalDevice;
+	VulkanLogicalDevice m_LogicalDevice;
 };
 
 class VulkanDevice : public VulkanObject<VkDevice>, public GfxDevice
@@ -42,7 +62,6 @@ public:
 
 	void waitIdle();
 
-	VulkanFence *createFence(VulkanFence::eFenceStatus status) const;
 	vkSemaphore *createSemaphore() const;
 	vkEvent *createEvent() const;
 
@@ -116,7 +135,6 @@ protected:
 			eSampler,
 			ePipeline,
 			eRenderPass,
-			eFence,
 			eSemaphore,
 			eEvent,
 			eImageView,

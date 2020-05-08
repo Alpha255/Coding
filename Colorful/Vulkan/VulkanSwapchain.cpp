@@ -1,7 +1,7 @@
 #include "VulkanSwapChain.h"
 #include "VulkanEngine.h"
 
-void vkSwapchain::vkSurface::create(uint64_t appInstance, uint64_t windowHandle, const vkInstance &instance)
+void vkSwapchain::vkSurface::create(uint64_t appInstance, uint64_t windowHandle, const VulkanInstance &instance)
 {
 	assert(!isValid() && appInstance && windowHandle && instance.isValid());
 
@@ -21,7 +21,7 @@ void vkSwapchain::vkSurface::create(uint64_t appInstance, uint64_t windowHandle,
 #endif
 }
 
-void vkSwapchain::vkSurface::destroy(const vkInstance &instance)
+void vkSwapchain::vkSurface::destroy(const VulkanInstance &instance)
 {
 	assert(instance.isValid());
 
@@ -39,7 +39,7 @@ void vkSwapchain::create(
 	uint32_t height, 
 	bool8_t vSync, 
 	bool8_t fullscreen, 
-	const vkInstance &instance, 
+	const VulkanInstance &instance, 
 	const vkPhysicalDevice &physicalDevice,
 	VulkanDevice &device)
 {
@@ -251,7 +251,7 @@ void vkSwapchain::recreate(
 	}
 }
 
-void vkSwapchain::destroy(const vkInstance &instance, const VulkanDevice &device)
+void vkSwapchain::destroy(const VulkanInstance &instance, const VulkanDevice &device)
 {
 	assert(instance.isValid() && device.isValid());
 

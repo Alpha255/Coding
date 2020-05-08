@@ -30,4 +30,10 @@ private:
 class VulkanQueueManager : public LazySingleton<VulkanQueueManager>
 {
 	lazySingletonDeclare(VulkanQueueManager);
+public:
+protected:
+	VulkanQueueManager(uint32_t, uint32_t, uint32_t)
+	{
+	}
+private:
 };

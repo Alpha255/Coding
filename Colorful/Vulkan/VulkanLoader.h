@@ -142,7 +142,7 @@ class vkLoader
 {
 public:
 	static void initializeGlobalFunctionTable();
-	static void initializeInstanceFunctionTable(const class vkInstance &instance);
+	static void initializeInstanceFunctionTable(const class VulkanInstance &instance);
 	static void initializeDeviceFunctionTable(const class VulkanDevice &device);
 
 	static void finalize();

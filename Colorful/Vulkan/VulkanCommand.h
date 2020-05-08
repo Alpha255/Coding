@@ -1,6 +1,6 @@
 #pragma once
 
-#include "VulkanLoader.h"
+#include "Colorful/Vulkan/VulkanAsync.h"
 
 /// Command buffers are objects used to record commands which can be subsequently submitted to a device queue for execution. 
 /// There are two levels of command buffers - primary command buffers, which can execute secondary command buffers, and which are submitted to queues, 
@@ -20,9 +20,8 @@ class vkCommandBuffer : public VulkanObject<VkCommandBuffer>
 {
 public:
 	vkCommandBuffer() = default;
-	vkCommandBuffer(VkCommandBufferLevel level, VkCommandBuffer handle, class VulkanFence *fence, class vkSemaphore *semaphore)
+	vkCommandBuffer(VkCommandBufferLevel level, VkCommandBuffer handle, class vkSemaphore *semaphore)
 		: m_Level(level)
-		, m_Fence(fence)
 		, m_Semaphore(semaphore)
 	{
 		assert(handle != VK_NULL_HANDLE);
@@ -43,7 +42,7 @@ public:
 		return m_State == eRecording;
 	}
 
-	inline class VulkanFence *getFence() const
+	inline VulkanFencePtr& fence()
 	{
 		assert(m_Fence);
 		return m_Fence;
@@ -54,8 +53,6 @@ public:
 		assert(m_Semaphore);
 		return m_Semaphore;
 	}
-
-	void waitFence(const class VulkanDevice &device);
 
 	inline void resetCommand()
 	{
@@ -90,8 +87,8 @@ protected:
 private:
 	VkCommandBufferLevel m_Level = VK_COMMAND_BUFFER_LEVEL_MAX_ENUM;
 	eState m_State = eState_MaxEnum;
-	class VulkanFence *m_Fence;
-	class vkSemaphore *m_Semaphore = nullptr;
+	VulkanFencePtr m_Fence = nullptr;
+	vkSemaphore *m_Semaphore = nullptr;
 };
 
 class vkCommandPool : public VulkanDeviceObject<VkCommandPool>

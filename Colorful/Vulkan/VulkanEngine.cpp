@@ -116,15 +116,6 @@ void vkEngine::present()
 	m_GraphicsQueue.submit(m_Swapchain);
 }
 
-void vkEngine::waitDone(vkCommandBuffer *cmdBuffer)
-{
-	cmdBuffer->waitFence(m_Device);
-	if (cmdBuffer->m_State == vkCommandBuffer::ePending)
-	{
-		cmdBuffer->setState(vkCommandBuffer::eExecutable);
-	}
-}
-
 void vkEngine::createOpaqueRenderPass()
 {
 	GfxFrameBufferDesc frameBufferDesc{};

@@ -179,7 +179,7 @@ void vkRenderPass::bindGfxPipeline(const GfxPipelineState &state)
 
 	if (!m_CmdBuffer.isInsideRenderPass())
 	{
-		vkEngine::instance().waitDone(&m_CmdBuffer);
+		VulkanFencePool::instance()->waitFence(m_CmdBuffer.fence());
 
 		VkClearValue clearValue[2u]{};
 		clearValue[0].color =

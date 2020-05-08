@@ -12,7 +12,7 @@ public:
 		uint32_t height,
 		bool8_t vSync,
 		bool8_t fullscreen,
-		const class vkInstance &instance,
+		const class VulkanInstance &instance,
 		const class vkPhysicalDevice &physicalDevice,
 		class VulkanDevice &device);
 
@@ -24,7 +24,7 @@ public:
 		const class vkPhysicalDevice &physicalDevice,
 		class VulkanDevice &device);
 
-	void destroy(const class vkInstance &instance, const class VulkanDevice &device);
+	void destroy(const class VulkanInstance &instance, const class VulkanDevice &device);
 
 	inline void resize(uint32_t width, uint32_t height, const class vkPhysicalDevice &physicalDevice, class VulkanDevice &device)
 	{
@@ -55,9 +55,9 @@ public:
 protected:
 	struct vkSurface : public VulkanObject<VkSurfaceKHR>
 	{
-		void create(uint64_t appInstance, uint64_t windowHandle, const class vkInstance &instance);
+		void create(uint64_t appInstance, uint64_t windowHandle, const class VulkanInstance &instance);
 
-		void destroy(const class vkInstance &instance);
+		void destroy(const class VulkanInstance &instance);
 
 		VkSurfaceFormatKHR SurfaceFormat = {};
 		VkSurfaceCapabilitiesKHR SurfaceCapabilities = {};

@@ -25,7 +25,7 @@ void vkLoader::initializeGlobalFunctionTable()
 #undef createFunctionTable
 }
 
-void vkLoader::initializeInstanceFunctionTable(const vkInstance &instance)
+void vkLoader::initializeInstanceFunctionTable(const VulkanInstance &instance)
 {
 	assert(instance.isValid() && vkGetInstanceProcAddr);
 

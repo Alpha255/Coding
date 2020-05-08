@@ -26,7 +26,6 @@ public:
 	}
 
 	void present() override final;
-	void waitDone(vkCommandBuffer *cmdBuffer);
 
 	inline VulkanDevice &getDevice()
 	{
@@ -148,7 +147,7 @@ protected:
 		return m_Device.createShader(Usage, shaderName);
 	}
 private:
-	vkInstance m_Instance;
+	VulkanInstance m_Instance;
 	vkDebugUtilsMessenger m_DebugUtilsMessenger;
 	VulkanDevice m_Device;
 	vkPhysicalDevice m_PhysicalDevice;

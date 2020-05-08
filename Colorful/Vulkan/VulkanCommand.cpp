@@ -131,13 +131,13 @@ vkCommandBuffer vkCommandPool::alloc(const VulkanDevice &device, VkCommandBuffer
 	VkCommandBuffer handle = VK_NULL_HANDLE;
 	rVerifyVk(vkAllocateCommandBuffers(device.Handle, &allocateInfo, &handle));
 
-	VulkanFence *fence = device.createFence(signaleFence ? VulkanFence::eSignaled : VulkanFence::eUnsignaled);
-	assert(fence);
-
 	vkSemaphore *semaphore = device.createSemaphore();
 	assert(semaphore);
 
-	return vkCommandBuffer(level, handle, fence, semaphore);
+	vkCommandBuffer result(level, handle, semaphore);
+	result.m_Fence = VulkanFencePool::instance()->allocFence(signaleFence);
+
+	return result;
 }
 
 void vkCommandPool::free(const VulkanDevice &device, vkCommandBuffer &commandBuffer) const
@@ -154,11 +154,6 @@ void vkCommandPool::free(const VulkanDevice &device, vkCommandBuffer &commandBuf
 			commandBuffer.Handle
 		};
 		vkFreeCommandBuffers(device.Handle, Handle, 1u, commandBuffers);
-		if (commandBuffer.m_Fence)
-		{
-			commandBuffer.m_Fence->destroy(device);
-			commandBuffer.m_Fence = nullptr;
-		}
 		commandBuffer.Handle = VK_NULL_HANDLE;
 	}
 }
@@ -243,15 +238,6 @@ void vkCommandBuffer::endRenderPass()
 	rVerifyVk(vkEndCommandBuffer(Handle));
 
 	setState(eExecutable);
-}
-
-void vkCommandBuffer::waitFence(const VulkanDevice &device)
-{
-	assert(m_Fence && device.isValid());
-
-	VkFence fence = m_Fence->Handle;
-	rVerifyVk(vkWaitForFences(device.Handle, 1u, &fence, VK_TRUE, UINT64_MAX));
-	rVerifyVk(vkResetFences(device.Handle, 1u, &fence));
 }
 
 void vkCommandBuffer::execute(const vkCommandBuffer &primaryCommandBuffer)

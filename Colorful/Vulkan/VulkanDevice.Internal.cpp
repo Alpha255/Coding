@@ -51,14 +51,6 @@ GfxGpuBuffer *VulkanDevice::createBuffer(eRBufferBindFlags bindFlags, eRBufferUs
 	return buffer;
 }
 
-VulkanFence *VulkanDevice::createFence(VulkanFence::eFenceStatus status) const
-{
-	VulkanFence *fencePtr = new VulkanFence(*this, status);
-	assert(fencePtr);
-
-	return fencePtr;
-}
-
 vkSemaphore *VulkanDevice::createSemaphore() const
 {
 	vkSemaphore *semaphorePtr = new vkSemaphore(*this);

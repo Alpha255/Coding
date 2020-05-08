@@ -30,8 +30,8 @@ void vkDeviceQueue::submit(vkCommandBuffer &cmdBuffer)
 		0u,
 		nullptr
 	};
-	rVerifyVk(vkQueueSubmit(Handle, 1u, &submitInfo, cmdBuffer.getFence()->Handle));
-	cmdBuffer.waitFence(vkEngine::instance().getDevice());
+	rVerifyVk(vkQueueSubmit(Handle, 1u, &submitInfo, cmdBuffer.fence()->Handle));
+	VulkanFencePool::instance()->waitFence(cmdBuffer.fence());
 }
 
 void vkDeviceQueue::present(
@@ -96,7 +96,7 @@ void vkDeviceQueue::submit(const vkSwapchain &swapchain)
 		{
 			m_QueuedCmdBuffers[i]->endRenderPass();
 		}
-		fence = m_QueuedCmdBuffers[i]->getFence()->Handle;
+		fence = m_QueuedCmdBuffers[i]->fence()->Handle;
 		m_QueuedCmdBuffers[i]->setState(vkCommandBuffer::eExecutable);
 	}
 
