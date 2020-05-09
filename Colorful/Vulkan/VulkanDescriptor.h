@@ -9,22 +9,22 @@ class vkDescriptorSet : public VulkanObject<VkDescriptorSet>
 class vkDescriptorPool : public VulkanDeviceObject<VkDescriptorPool>
 {
 public:
-	void create(const class VulkanDevice &device);
-	void resetPool(const class VulkanDevice &device);
-	void destroy(const class VulkanDevice &device) override final;
+	void create(VkDevice device);
+	void resetPool(VkDevice device);
+	void destroy(VkDevice device) override final;
 
-	vkDescriptorSet alloc(const class VulkanDevice &device, const class vkDescriptorSetLayout &layout) const;
+	vkDescriptorSet alloc(VkDevice device, const class vkDescriptorSetLayout &layout) const;
 };
 
 class vkDescriptorSetLayout : public VulkanDeviceObject<VkDescriptorSetLayout>
 {
 public:
-	void create(const class VulkanDevice &device, const rDescriptorLayoutDesc &desc);
-	void destroy(const class VulkanDevice &device) override final;
+	void create(VkDevice device, const rDescriptorLayoutDesc &desc);
+	void destroy(VkDevice device) override final;
 };
 
 class vkDescriptorUpdateTemplate : public VulkanDeviceObject<VkDescriptorUpdateTemplate>
 {
 public:
-	void destroy(const class VulkanDevice &device) override final;
+	void destroy(VkDevice device) override final;
 };

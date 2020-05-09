@@ -1,11 +1,11 @@
 #include "VulkanAsync.h"
 #include "VulkanEngine.h"
 
-vkSemaphore::vkSemaphore(const VulkanDevice &device)
+vkSemaphore::vkSemaphore(VkDevice device)
 {
 	/// Semaphores have two states - signaled and unsignaled. The state of a semaphore can be signaled after execution of a batch of commands is completed. 
 	/// A batch can wait for a semaphore to become signaled before it begins execution, and the semaphore is also unsignaled before the batch begins execution.
-	assert(!isValid() && device.isValid());
+	assert(!isValid());
 
 	VkSemaphoreCreateInfo createInfo
 	{
@@ -14,7 +14,7 @@ vkSemaphore::vkSemaphore(const VulkanDevice &device)
 		0u  /// flags is reserved for future use
 	};
 
-	rVerifyVk(vkCreateSemaphore(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
+	rVerifyVk(vkCreateSemaphore(device, &createInfo, vkMemoryAllocator, &Handle));
 
 	/// When a batch is submitted to a queue via a queue submission, and it includes semaphores to be signaled, 
 	/// it defines a memory dependency on the batch, and defines semaphore signal operations which set the semaphores to the signaled state.
@@ -25,24 +25,22 @@ vkSemaphore::vkSemaphore(const VulkanDevice &device)
 	/// 2. There must be no other queue waiting on the same semaphore when the operation executes.
 }
 
-void vkSemaphore::destroy(const VulkanDevice &device)
+void vkSemaphore::destroy(VkDevice device)
 {
 	/// All submitted batches that refer to semaphore must have completed execution
-	assert(device.isValid());
-
 	if (isValid())
 	{
-		vkDestroySemaphore(device.Handle, Handle, vkMemoryAllocator);
+		vkDestroySemaphore(device, Handle, vkMemoryAllocator);
 		Handle = VK_NULL_HANDLE;
 	}
 }
 
-vkEvent::vkEvent(const VulkanDevice &device)
+vkEvent::vkEvent(VkDevice device)
 {
 	/// An application can signal an event, or unsignal it, on either the host or the device. 
 	/// A device can wait for an event to become signaled before executing further operations. 
 	/// No command exists to wait for an event to become signaled on the host.
-	assert(!isValid() && device.isValid());
+	assert(!isValid());
 
 	VkEventCreateInfo createInfo
 	{
@@ -51,17 +49,17 @@ vkEvent::vkEvent(const VulkanDevice &device)
 		0u  /// flags is reserved for future use
 	};
 
-	rVerifyVk(vkCreateEvent(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
+	rVerifyVk(vkCreateEvent(device, &createInfo, vkMemoryAllocator, &Handle));
 
 	/// The state of an event can also be updated on the device by commands inserted in command buffers.
 	/// To set the state of an event to signaled from a device, call: vkCmdSetEvent
 }
 
-vkEvent::eEventStatus vkEvent::getStatus(const VulkanDevice &device)
+vkEvent::eEventStatus vkEvent::getStatus(VkDevice device)
 {
-	assert(!isValid() && device.isValid());
+	assert(!isValid());
 
-	VkResult result = vkGetEventStatus(device.Handle, Handle);
+	VkResult result = vkGetEventStatus(device, Handle);
 	eEventStatus status = eEventStatus_MaxEnum;
 	switch (result)
 	{
@@ -79,30 +77,28 @@ vkEvent::eEventStatus vkEvent::getStatus(const VulkanDevice &device)
 	return status;
 }
 
-void vkEvent::setStatus(const VulkanDevice &device, eEventStatus status)
+void vkEvent::setStatus(VkDevice device, eEventStatus status)
 {
-	assert(!isValid() && device.isValid() && status < eEventStatus_MaxEnum);
+	assert(!isValid() && status < eEventStatus_MaxEnum);
 
 	if (eSignaled == status)
 	{
 		/// Set the state of an event to signaled from the host
-		rVerifyVk(vkSetEvent(device.Handle, Handle));
+		rVerifyVk(vkSetEvent(device, Handle));
 	}
 	else if (eUnsignaled == status)
 	{
 		/// Set the state of an event to unsignaled from the host
-		rVerifyVk(vkResetEvent(device.Handle, Handle));
+		rVerifyVk(vkResetEvent(device, Handle));
 	}
 }
 
-void vkEvent::destroy(const VulkanDevice &device)
+void vkEvent::destroy(VkDevice device)
 {
 	/// All submitted commands that refer to event must have completed execution
-	assert(device.isValid());
-
 	if (isValid())
 	{
-		vkDestroyEvent(device.Handle, Handle, vkMemoryAllocator);
+		vkDestroyEvent(device, Handle, vkMemoryAllocator);
 		Handle = VK_NULL_HANDLE;
 	}
 }

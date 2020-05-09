@@ -6,8 +6,8 @@
 class vkShader : public VulkanDeviceObject<VkShaderModule>, public GfxShader
 {
 public:
-	vkShader(const class VulkanDevice &device, eRShaderUsage usage, const rAsset::rShaderBinary &binary);
-	void destroy(const class VulkanDevice &device) override final;
+	vkShader(VkDevice device, eRShaderUsage usage, const rAsset::rShaderBinary &binary);
+	void destroy(VkDevice device) override final;
 
 	inline const VkPipelineVertexInputStateCreateInfo &getInputLayout() const
 	{

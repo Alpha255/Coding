@@ -138,12 +138,12 @@
 
 vkFunctionTableDeclare
 
-class vkLoader
+class VulkanLoader
 {
 public:
 	static void initializeGlobalFunctionTable();
-	static void initializeInstanceFunctionTable(const class VulkanInstance &instance);
-	static void initializeDeviceFunctionTable(const class VulkanDevice &device);
+	static void initializeInstanceFunctionTable(VkInstance instance);
+	static void initializeDeviceFunctionTable(VkDevice device);
 
 	static void finalize();
 };

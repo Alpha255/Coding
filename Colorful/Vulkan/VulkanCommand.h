@@ -68,7 +68,7 @@ public:
 	}
 protected:
 	friend class vkCommandPool;
-	friend class vkDeviceQueue;
+	friend class VulkanQueue;
 	friend class vkEngine;
 	enum eState
 	{
@@ -94,15 +94,15 @@ private:
 class vkCommandPool : public VulkanDeviceObject<VkCommandPool>
 {
 public:
-	void create(const class VulkanDevice &device, uint32_t queueIndex);
-	void destroy(const class VulkanDevice &device) override final;
-	void reset(const class VulkanDevice &device);
-	void trim(const class VulkanDevice &device);
+	void create(VkDevice device, uint32_t queueIndex);
+	void destroy(VkDevice device) override final;
+	void reset(VkDevice device);
+	void trim(VkDevice device);
 
-	vkCommandBuffer alloc(const class VulkanDevice &device, VkCommandBufferLevel level, bool8_t signaleFence = true) const;
-	void free(const class VulkanDevice &device, vkCommandBuffer &commandBuffer) const;
+	vkCommandBuffer alloc(VkDevice device, VkCommandBufferLevel level, bool8_t signaleFence = true) const;
+	void free(VkDevice device, vkCommandBuffer &commandBuffer) const;
 
-	vkCommandBuffer *getActiveCommandBuffer(const class VulkanDevice &device);
+	vkCommandBuffer *getActiveCommandBuffer(VkDevice device);
 protected:
 private:
 	vkCommandBuffer *m_ActiveCmdBuffer = nullptr;

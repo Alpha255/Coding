@@ -1,10 +1,10 @@
 #include "VulkanShader.h"
 #include "VulkanEngine.h"
 
-vkShader::vkShader(const VulkanDevice &device, eRShaderUsage usage, const rAsset::rShaderBinary &binary)
+vkShader::vkShader(VkDevice device, eRShaderUsage usage, const rAsset::rShaderBinary &binary)
 	: GfxShader(usage)
 {
-	assert(!isValid() && device.isValid());
+	assert(!isValid());
 	assert(binary.Binary && binary.Size > 0u && usage < eRShaderUsage_MaxEnum);
 	assert((binary.Size % sizeof(uint32_t)) == 0);
 
@@ -17,19 +17,17 @@ vkShader::vkShader(const VulkanDevice &device, eRShaderUsage usage, const rAsset
 		(uint32_t *)binary.Binary.get()
 	};
 
-	rVerifyVk(vkCreateShaderModule(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
+	rVerifyVk(vkCreateShaderModule(device, &createInfo, vkMemoryAllocator, &Handle));
 
 	m_Reflections = binary.Reflections;
 }
 
-void vkShader::destroy(const VulkanDevice &device)
+void vkShader::destroy(VkDevice device)
 {
 	/// A shader module can be destroyed while pipelines created using its shaders are still in use.
-	assert(device.isValid());
-
 	if (isValid())
 	{
-		vkDestroyShaderModule(device.Handle, Handle, vkMemoryAllocator);
+		vkDestroyShaderModule(device, Handle, vkMemoryAllocator);
 		Handle = VK_NULL_HANDLE;
 	}
 }

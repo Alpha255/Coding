@@ -31,9 +31,9 @@
 	A render pass must have at least one subpass.
 **************************************************/
 
-void vkRenderPass::create(const VulkanDevice &device, const GfxFrameBufferDesc &desc)
+void vkRenderPass::create(VkDevice device, const GfxFrameBufferDesc &desc)
 {
-	assert(device.isValid() && !isValid());
+	assert(!isValid());
 
 	std::vector<VkAttachmentDescription> attachmentDescs;
 	std::vector<VkAttachmentReference> colorRefs;
@@ -144,15 +144,13 @@ void vkRenderPass::create(const VulkanDevice &device, const GfxFrameBufferDesc &
 		subpassDependencies.data()
 	};
 
-	rVerifyVk(vkCreateRenderPass(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
+	rVerifyVk(vkCreateRenderPass(device, &createInfo, vkMemoryAllocator, &Handle));
 
 	m_CmdBuffer = device.allocCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true);
 }
 
-void vkRenderPass::destroy(const VulkanDevice &device)
+void vkRenderPass::destroy(VkDevice device)
 {
-	assert(device.isValid());
-
 	if (isValid())
 	{
 		for (uint32_t i = 0u; i < m_FrameBuffers.size(); ++i)
@@ -161,7 +159,7 @@ void vkRenderPass::destroy(const VulkanDevice &device)
 		}
 		m_FrameBuffers.clear();
 
-		vkDestroyRenderPass(device.Handle, Handle, vkMemoryAllocator);
+		vkDestroyRenderPass(device, Handle, vkMemoryAllocator);
 		Handle = VK_NULL_HANDLE;
 	}
 }
@@ -229,7 +227,7 @@ void vkRenderPass::bindGfxPipeline(const GfxPipelineState &state)
 	if (state.isDirty(GfxPipelineState::eVertexBuffer))
 	{
 		assert(state.VertexBuffer);
-		auto vertexBuffer = static_cast<vkBuffer *>(state.VertexBuffer);
+		auto vertexBuffer = static_cast<VulkanBuffer *>(state.VertexBuffer);
 		VkDeviceSize offsets[1u]{};
 		vkCmdBindVertexBuffers(m_CmdBuffer.Handle, 0u, 1u, &vertexBuffer->Handle, offsets);
 	}
@@ -237,11 +235,11 @@ void vkRenderPass::bindGfxPipeline(const GfxPipelineState &state)
 	if (state.isDirty(GfxPipelineState::eIndexBuffer))
 	{
 		assert(state.IndexBuffer);
-		auto indexBuffer = static_cast<vkBuffer *>(state.IndexBuffer);
+		auto indexBuffer = static_cast<VulkanBuffer *>(state.IndexBuffer);
 		vkCmdBindIndexBuffer(m_CmdBuffer.Handle, indexBuffer->Handle, 0u, state.IndexType == eRIndexType::eUInt16 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32);
 	}
 
-	vkEngine::instance().getQueue().queueCommandBuffer(&m_CmdBuffer);
+	VulkanQueueManager::instance()->gfxQueue()->queueCommandBuffer(&m_CmdBuffer);
 }
 
 void vkRenderPass::drawIndexed(const GfxPipelineState &state, uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset)

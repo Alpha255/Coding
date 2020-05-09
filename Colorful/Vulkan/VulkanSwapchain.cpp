@@ -1,63 +1,69 @@
 #include "VulkanSwapChain.h"
 #include "VulkanEngine.h"
 
-void vkSwapchain::vkSurface::create(uint64_t appInstance, uint64_t windowHandle, const VulkanInstance &instance)
+void VulkanSwapchain::VulkanSurface::create(uint64_t windowHandle, VkInstance instance)
 {
-	assert(!isValid() && appInstance && windowHandle && instance.isValid());
+	assert(!isValid() && windowHandle);
 
 #if defined(Platform_Win32)
+	::HMODULE hInstance = ::GetModuleHandleA(nullptr);
+	verify_Log(hInstance);
+
 	VkWin32SurfaceCreateInfoKHR createInfo
 	{
 		VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
 		nullptr, 
 		0u,  /// reserved for future use
-		(::HINSTANCE)appInstance,
+		(::HINSTANCE)hInstance,
 		(::HWND)windowHandle
 	};
 
-	rVerifyVk(vkCreateWin32SurfaceKHR(instance.Handle, &createInfo, vkMemoryAllocator, &Handle));
+	rVerifyVk(vkCreateWin32SurfaceKHR(instance, &createInfo, vkMemoryAllocator, &Handle));
 #else
 	assert(0);
 #endif
 }
 
-void vkSwapchain::vkSurface::destroy(const VulkanInstance &instance)
+void VulkanSwapchain::VulkanSurface::destroy(VkInstance instance)
 {
-	assert(instance.isValid());
-
 	if (isValid())
 	{
-		vkDestroySurfaceKHR(instance.Handle, Handle, vkMemoryAllocator);
+		vkDestroySurfaceKHR(instance, Handle, vkMemoryAllocator);
 		Handle = VK_NULL_HANDLE;
 	}
 }
 
-void vkSwapchain::create(
-	uint64_t appInstance, 
-	uint64_t windowHandle, 
-	uint32_t width, 
-	uint32_t height, 
-	bool8_t vSync, 
-	bool8_t fullscreen, 
-	const VulkanInstance &instance, 
-	const vkPhysicalDevice &physicalDevice,
-	VulkanDevice &device)
+VulkanSwapchain::VulkanSwapchain(
+	uint64_t windowHandle,
+	uint32_t width,
+	uint32_t height,
+	bool8_t VSync,
+	bool8_t fullscreen,
+	VkInstance instance,
+	VkPhysicalDevice physicalDevice,
+	VkDevice device)
+	: m_LogicDevice(device)
+	, m_PhysicalDevice(physicalDevice)
+	, m_FullScreen(fullscreen)
+	, m_VSync(VSync)
+	, m_Width(width)
+	, m_Height(height)
 {
-	assert(!isValid() && instance.isValid() && physicalDevice.isValid());
+	assert(!isValid());
 
-	m_Surface.create(appInstance, windowHandle, instance);
+	m_Surface.create(windowHandle, instance);
 
 	uint32_t count = 0u;
-	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice.Handle, &count, nullptr);
+	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &count, nullptr);
 	assert(count > 0u);
 	
 	std::vector<VkQueueFamilyProperties> queueFamilyProperties(count);
-	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice.Handle, &count, queueFamilyProperties.data());
+	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &count, queueFamilyProperties.data());
 
 	std::vector<VkBool32> surfaceSupportKHR(count);
 	for (uint32_t i = 0u; i < count; ++i)
 	{
-		rVerifyVk(vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice.Handle, i, m_Surface.Handle, &surfaceSupportKHR[i]));
+		rVerifyVk(vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, m_Surface.Handle, &surfaceSupportKHR[i]));
 	}
 
 	uint32_t graphicQueue = std::numeric_limits<uint32_t>().max();
@@ -90,13 +96,13 @@ void vkSwapchain::create(
 
 	assert(graphicQueue != std::numeric_limits<uint32_t>().max() && presentQueue != std::numeric_limits<uint32_t>().max() && graphicQueue == presentQueue);
 
-	rVerifyVk(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice.Handle, m_Surface.Handle, &count, nullptr));
+	rVerifyVk(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, m_Surface.Handle, &count, nullptr));
 	assert(count > 0u);
 	std::vector<VkSurfaceFormatKHR> surfaceFormats(count);
-	rVerifyVk(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice.Handle, m_Surface.Handle, &count, surfaceFormats.data()));
+	rVerifyVk(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, m_Surface.Handle, &count, surfaceFormats.data()));
 
 	m_Surface.SurfaceFormat = surfaceFormats[0];
-	for (auto const &surfaceFormat : surfaceFormats)
+	for (auto const& surfaceFormat : surfaceFormats)
 	{
 		if (surfaceFormat.format == VK_FORMAT_B8G8R8A8_UNORM)
 		{
@@ -106,36 +112,25 @@ void vkSwapchain::create(
 	}
 	assert(m_Surface.SurfaceFormat.colorSpace != VK_COLOR_SPACE_MAX_ENUM_KHR);
 
-	rVerifyVk(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice.Handle, m_Surface.Handle, &count, nullptr));
+	rVerifyVk(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, m_Surface.Handle, &count, nullptr));
 	assert(count > 0u);
 	m_Surface.PresentModes.resize(count);
-	rVerifyVk(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice.Handle, m_Surface.Handle, &count, m_Surface.PresentModes.data()));
+	rVerifyVk(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, m_Surface.Handle, &count, m_Surface.PresentModes.data()));
 
 	m_PresentCompleteSemaphore = new vkSemaphore(device);
 
-	recreate(width, height, vSync, fullscreen, physicalDevice, device);
+	recreate();
 }
 
-void vkSwapchain::recreate(
-	uint32_t width, 
-	uint32_t height, 
-	bool8_t vSync, 
-	bool8_t fullscreen, 
-	const vkPhysicalDevice &physicalDevice,
-	VulkanDevice &device)
+void VulkanSwapchain::recreate()
 {
-	assert(device.isValid() && m_Surface.isValid());
+	assert(m_Surface.isValid());
 
-	m_Width = width;
-	m_Height = height;
-	m_bVSync = vSync;
-	m_bFullScreen = fullscreen;
-
-	rVerifyVk(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice.Handle, m_Surface.Handle, &m_Surface.SurfaceCapabilities));
+	rVerifyVk(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_PhysicalDevice, m_Surface.Handle, &m_Surface.SurfaceCapabilities));
 
 	VkExtent2D sizeExtent{};
-	sizeExtent.width = std::min<uint32_t>(width, m_Surface.SurfaceCapabilities.maxImageExtent.width);
-	sizeExtent.height = std::min<uint32_t>(height, m_Surface.SurfaceCapabilities.maxImageExtent.height);
+	sizeExtent.width = std::min<uint32_t>(m_Width, m_Surface.SurfaceCapabilities.maxImageExtent.width);
+	sizeExtent.height = std::min<uint32_t>(m_Height, m_Surface.SurfaceCapabilities.maxImageExtent.height);
 	sizeExtent.width = std::max<uint32_t>(sizeExtent.width, m_Surface.SurfaceCapabilities.minImageExtent.width);
 	sizeExtent.height = std::max<uint32_t>(sizeExtent.height, m_Surface.SurfaceCapabilities.minImageExtent.height);
 
@@ -153,7 +148,7 @@ void vkSwapchain::recreate(
 	/// to avoid tearing with significantly less latency issues than standard vertical sync that uses double buffering
 
 	VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;
-	if (!m_bVSync)
+	if (!m_VSync)
 	{
 		for (uint32_t i = 0u; i < m_Surface.PresentModes.size(); ++i)
 		{
@@ -227,52 +222,50 @@ void vkSwapchain::recreate(
 	/// obscured, for example because another window is in front of them.Unless you really need to be able to read these 
 	/// pixels back and get predictable results, you will get the best performance by enabling clipping
 
-	device.waitIdle();
+	///device.waitIdle();
 
-	rVerifyVk(vkCreateSwapchainKHR(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
+	rVerifyVk(vkCreateSwapchainKHR(m_LogicDevice, &createInfo, vkMemoryAllocator, &Handle));
 
 	if (oldSwapchain != VK_NULL_HANDLE)
 	{
-		vkDestroySwapchainKHR(device.Handle, oldSwapchain, vkMemoryAllocator);
-		clearBackBuffers(device);
+		vkDestroySwapchainKHR(m_LogicDevice, oldSwapchain, vkMemoryAllocator);
+		clearBackBuffers();
 	}
 
 	uint32_t imageCount = 0u;
-	rVerifyVk(vkGetSwapchainImagesKHR(device.Handle, Handle, &imageCount, nullptr));
+	rVerifyVk(vkGetSwapchainImagesKHR(m_LogicDevice, Handle, &imageCount, nullptr));
 	std::vector<VkImage> images(imageCount);
 	m_BackBuffers.resize(imageCount);
-	rVerifyVk(vkGetSwapchainImagesKHR(device.Handle, Handle, &imageCount, images.data()));
+	rVerifyVk(vkGetSwapchainImagesKHR(m_LogicDevice, Handle, &imageCount, images.data()));
 	for (uint32_t i = 0u; i < images.size(); ++i)
 	{
 		vkImage image;
 		image.Handle = images[i];
 
-		m_BackBuffers[i].create(device, image, m_Surface.SurfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT);
+		m_BackBuffers[i].create(m_LogicDevice, image, m_Surface.SurfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT);
 	}
 }
 
-void vkSwapchain::destroy(const VulkanInstance &instance, const VulkanDevice &device)
+void VulkanSwapchain::destroy(VkInstance instance)
 {
-	assert(instance.isValid() && device.isValid());
-
-	vkDestroySwapchainKHR(device.Handle, Handle, vkMemoryAllocator);
+	vkDestroySwapchainKHR(m_LogicDevice, Handle, vkMemoryAllocator);
 	m_Surface.destroy(instance);
 	Handle = VK_NULL_HANDLE;
-	m_PresentCompleteSemaphore->destroy(device);
+	m_PresentCompleteSemaphore->destroy(m_LogicDevice);
 
-	clearBackBuffers(device);
+	clearBackBuffers();
 }
 
-uint32_t vkSwapchain::acquireBackBuffer(const VulkanDevice &device)
+uint32_t VulkanSwapchain::acquireNextFrame()
 {
-	assert(isValid() && device.isValid());
+	assert(isValid());
 	m_CurrentFrameIndex = std::numeric_limits<uint32_t>().max();
 
-	rVerifyVk(vkAcquireNextImageKHR(device.Handle, Handle, UINT64_MAX, m_PresentCompleteSemaphore->Handle, VK_NULL_HANDLE, &m_CurrentFrameIndex));
+	rVerifyVk(vkAcquireNextImageKHR(m_LogicDevice, Handle, UINT64_MAX, m_PresentCompleteSemaphore->Handle, VK_NULL_HANDLE, &m_CurrentFrameIndex));
 	return m_CurrentFrameIndex;
 }
 
-void vkSwapchain::present(const vkDeviceQueue &queue, const vkSemaphore &renderCompleteSephore) const
+void VulkanSwapchain::present(const vkSemaphore &renderCompleteSephore) const
 {
 	VkPresentInfoKHR presentInfo
 	{
@@ -285,14 +278,14 @@ void vkSwapchain::present(const vkDeviceQueue &queue, const vkSemaphore &renderC
 		&m_CurrentFrameIndex,
 		nullptr
 	};
-	rVerifyVk(vkQueuePresentKHR(queue.Handle, &presentInfo));
+	rVerifyVk(vkQueuePresentKHR(VulkanQueueManager::instance()->gfxQueue()->Handle, &presentInfo));
 }
 
-void vkSwapchain::clearBackBuffers(const VulkanDevice &device)
+void VulkanSwapchain::clearBackBuffers()
 {
 	for (uint32_t i = 0u; i < m_BackBuffers.size(); ++i)
 	{
-		m_BackBuffers[i].destroy(device);
+		m_BackBuffers[i].destroy(m_LogicDevice);
 	}
 	m_BackBuffers.clear();
 }

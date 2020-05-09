@@ -2,12 +2,12 @@
 #include "VulkanEngine.h"
 
 void vkImageView::create(
-	const VulkanDevice &device, 
+	VkDevice device, 
 	const vkImage &image, 
 	VkFormat format,
 	VkImageAspectFlags aspectFlags)
 {
-	assert(device.isValid() && image.isValid() && !isValid());
+	assert(image.isValid() && !isValid());
 
 	VkImageViewCreateInfo createInfo
 	{
@@ -32,13 +32,13 @@ void vkImageView::create(
 		}
 	};
 
-	rVerifyVk(vkCreateImageView(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
+	rVerifyVk(vkCreateImageView(device, &createInfo, vkMemoryAllocator, &Handle));
 	m_Image = image;
 	m_Format = format;
 }
 
 void vkImageView::create(
-	const VulkanDevice &device, 
+	VkDevice device, 
 	uint32_t width, 
 	uint32_t height, 
 	uint32_t mipLevels,
@@ -48,7 +48,7 @@ void vkImageView::create(
 	VkImageUsageFlags usage,
 	VkImageAspectFlags aspect)
 {
-	assert(device.isValid() && !isValid() && !m_Image.isValid());
+	assert(!isValid() && !m_Image.isValid());
 
 	m_Image.create(
 		device,
@@ -83,13 +83,13 @@ void vkImageView::create(
 			arrayLayers
 		}
 	};
-	rVerifyVk(vkCreateImageView(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
+	rVerifyVk(vkCreateImageView(device, &createInfo, vkMemoryAllocator, &Handle));
 
 	m_Format = format;
 }
 
 void vkImageView::create(
-	const VulkanDevice &device,
+	VkDevice device,
 	eRTextureType type, 
 	eRFormat format, 
 	uint32_t width, 
@@ -136,12 +136,11 @@ void vkImageView::create(
 	create(device, image, image.getFormat(), VK_IMAGE_ASPECT_COLOR_BIT);
 }
 
-void vkImageView::destroy(const VulkanDevice &device)
+void vkImageView::destroy(VkDevice device)
 {
-	assert(device.isValid());
 	if (isValid())
 	{
-		vkDestroyImageView(device.Handle, Handle, vkMemoryAllocator);
+		vkDestroyImageView(device, Handle, vkMemoryAllocator);
 		Handle = VK_NULL_HANDLE;
 
 		if (m_Image.m_Memory.isValid())

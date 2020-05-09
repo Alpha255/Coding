@@ -88,8 +88,8 @@ private:
 class vkSemaphore : public VulkanDeviceObject<VkSemaphore>
 {
 public:
-	vkSemaphore(const class VulkanDevice &device);
-	void destroy(const class VulkanDevice &device) override final;
+	vkSemaphore(VkDevice device);
+	void destroy(VkDevice device) override final;
 };
 
 class vkEvent : public VulkanDeviceObject<VkEvent>
@@ -102,8 +102,8 @@ public:
 		eEventStatus_MaxEnum
 	};
 
-	vkEvent(const class VulkanDevice &device);
-	void destroy(const class VulkanDevice &device) override final;
-	eEventStatus getStatus(const class VulkanDevice &device);
-	void setStatus(const class VulkanDevice &device, eEventStatus status);
+	vkEvent(VkDevice device);
+	void destroy(VkDevice device) override final;
+	eEventStatus getStatus(VkDevice device);
+	void setStatus(VkDevice device, eEventStatus status);
 };

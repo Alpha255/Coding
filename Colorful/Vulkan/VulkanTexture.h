@@ -6,8 +6,8 @@
 class vkSampler : public VulkanDeviceObject<VkSampler>, public rSampler
 {
 public:
-	vkSampler(const class VulkanDevice &device, const GfxSamplerDesc &desc);
-	void destroy(const class VulkanDevice &device) override final;
+	vkSampler(VkDevice device, const GfxSamplerDesc &desc);
+	void destroy(VkDevice device) override final;
 protected:
 private:
 };
@@ -16,10 +16,10 @@ class vkImage : public VulkanDeviceObject<VkImage>
 {
 public:
 	vkImage() = default;
-	vkImage(const class VulkanDevice &device, const rAsset::rTextureBinary &binary);
+	vkImage(VkDevice device, const rAsset::rTextureBinary &binary);
 
 	void create(
-		const class VulkanDevice &device,
+		VkDevice device,
 		uint32_t width,
 		uint32_t height,
 		uint32_t depth,
@@ -29,7 +29,7 @@ public:
 		VkImageType type,
 		VkImageUsageFlags usage);
 
-	void destroy(const class VulkanDevice &device) override final;
+	void destroy(VkDevice device) override final;
 
 	inline VkFormat getFormat() const
 	{
@@ -39,7 +39,7 @@ protected:
 	friend class vkImageView;
 	void transitionImageLayout();
 	VkImageType getImageType(eRTextureType type) const;
-	void copyBufferToImage(const class VulkanDevice &device, const rAsset::rTextureBinary &binary);
+	void copyBufferToImage(VkDevice device, const rAsset::rTextureBinary &binary);
 	void insertMemoryBarrier(
 		const class vkCommandBuffer &commandBuffer, 
 		VkPipelineStageFlags srcStageMask,
@@ -50,6 +50,6 @@ protected:
 		VkImageLayout newLayout,
 		const VkImageSubresourceRange &subresourceRange);
 private:
-	vkDeviceMemory m_Memory;
+	VulkanDeviceMemory m_Memory;
 	VkFormat m_Format = VK_FORMAT_UNDEFINED;
 };

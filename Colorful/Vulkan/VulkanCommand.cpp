@@ -1,9 +1,9 @@
 #include "VulkanCommand.h"
 #include "VulkanEngine.h"
 
-void vkCommandPool::create(const VulkanDevice &device, uint32_t queueIndex)
+void vkCommandPool::create(VkDevice device, uint32_t queueIndex)
 {
-	assert(!isValid() && device.isValid());
+	assert(!isValid());
 
 	/*************************
 		VK_COMMAND_POOL_CREATE_TRANSIENT_BIT: 
@@ -28,12 +28,12 @@ void vkCommandPool::create(const VulkanDevice &device, uint32_t queueIndex)
 		queueIndex  /// All command buffers allocated from this command pool must be submitted on queues from the same queue family.
 	};
 
-	rVerifyVk(vkCreateCommandPool(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
+	rVerifyVk(vkCreateCommandPool(device, &createInfo, vkMemoryAllocator, &Handle));
 }
 
-void vkCommandPool::reset(const VulkanDevice &device)
+void vkCommandPool::reset(VkDevice device)
 {
-	assert(device.isValid() && isValid());
+	assert(isValid());
 
 	/// Resetting a command pool recycles all of the resources from all of the command buffers allocated from the command pool back to the command pool. 
 	/// All command buffers that have been allocated from the command pool are put in the initial state.
@@ -43,14 +43,14 @@ void vkCommandPool::reset(const VulkanDevice &device)
 	/// VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT specifies that resetting a command pool recycles all of the resources from the command pool back to the system.
 
 	/// All VkCommandBuffer objects allocated from commandPool must not be in the pending state
-	rVerifyVk(vkResetCommandPool(device.Handle, Handle, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT));
+	rVerifyVk(vkResetCommandPool(device, Handle, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT));
 }
 
-void vkCommandPool::trim(const VulkanDevice &device)
+void vkCommandPool::trim(VkDevice device)
 {
 	/// Trimming a command pool recycles unused memory from the command pool back to the system. 
 	/// Command buffers allocated from the pool are not affected by the command. vkTrimCommandPool/vkTrimCommandPoolKHR
-	assert(device.isValid() && isValid());
+	assert(isValid());
 
 	assert(0);
 	/// flags is reserved for future use
@@ -58,10 +58,8 @@ void vkCommandPool::trim(const VulkanDevice &device)
 	/// vkTrimCommandPoolKHR(device.Handle, Handle, 0u);
 }
 
-void vkCommandPool::destroy(const VulkanDevice &device)
+void vkCommandPool::destroy(VkDevice device)
 {
-	assert(device.isValid());
-
 	/// When a pool is destroyed, all command buffers allocated from the pool are freed.
 
 	/// Any primary command buffer allocated from another VkCommandPool that is in the recording or executable state and has a secondary command buffer allocated from commandPool recorded into it, becomes invalid.
@@ -74,7 +72,7 @@ void vkCommandPool::destroy(const VulkanDevice &device)
 			free(device, *m_ActiveCmdBuffer);
 		}
 
-		vkDestroyCommandPool(device.Handle, Handle, vkMemoryAllocator);
+		vkDestroyCommandPool(device, Handle, vkMemoryAllocator);
 		Handle = VK_NULL_HANDLE;
 	}
 }
@@ -115,9 +113,9 @@ void vkCommandPool::destroy(const VulkanDevice &device)
 		Resetting or freeing a primary command buffer removes the linkage to any secondary command buffers that were recorded to it.
 ********************************/
 
-vkCommandBuffer vkCommandPool::alloc(const VulkanDevice &device, VkCommandBufferLevel level, bool8_t signaleFence) const
+vkCommandBuffer vkCommandPool::alloc(VkDevice device, VkCommandBufferLevel level, bool8_t signaleFence) const
 {
-	assert(isValid() && device.isValid());
+	assert(isValid());
 
 	VkCommandBufferAllocateInfo allocateInfo
 	{
@@ -129,7 +127,7 @@ vkCommandBuffer vkCommandPool::alloc(const VulkanDevice &device, VkCommandBuffer
 	};
 
 	VkCommandBuffer handle = VK_NULL_HANDLE;
-	rVerifyVk(vkAllocateCommandBuffers(device.Handle, &allocateInfo, &handle));
+	rVerifyVk(vkAllocateCommandBuffers(device, &allocateInfo, &handle));
 
 	vkSemaphore *semaphore = device.createSemaphore();
 	assert(semaphore);
@@ -140,9 +138,9 @@ vkCommandBuffer vkCommandPool::alloc(const VulkanDevice &device, VkCommandBuffer
 	return result;
 }
 
-void vkCommandPool::free(const VulkanDevice &device, vkCommandBuffer &commandBuffer) const
+void vkCommandPool::free(VkDevice device, vkCommandBuffer &commandBuffer) const
 {
-	assert(isValid() && device.isValid());
+	assert(isValid());
 
 	/// Any primary command buffer that is in the recording or executable state and has any element of pCommandBuffers recorded into it, becomes invalid.
 
@@ -153,14 +151,13 @@ void vkCommandPool::free(const VulkanDevice &device, vkCommandBuffer &commandBuf
 		{
 			commandBuffer.Handle
 		};
-		vkFreeCommandBuffers(device.Handle, Handle, 1u, commandBuffers);
+		vkFreeCommandBuffers(device, Handle, 1u, commandBuffers);
 		commandBuffer.Handle = VK_NULL_HANDLE;
 	}
 }
 
-vkCommandBuffer *vkCommandPool::getActiveCommandBuffer(const VulkanDevice &device)
+vkCommandBuffer *vkCommandPool::getActiveCommandBuffer(VkDevice device)
 {
-	assert(device.isValid());
 	if (!m_ActiveCmdBuffer)
 	{
 		auto cmdBuffer = alloc(device, VK_COMMAND_BUFFER_LEVEL_PRIMARY);

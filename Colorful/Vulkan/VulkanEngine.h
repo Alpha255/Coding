@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Colorful/Vulkan/VulkanInstance.h"
 #include "Colorful/Vulkan/VulkanDevice.h"
 #include "Colorful/Vulkan/VulkanSwapChain.h"
 #include "Colorful/Vulkan/VulkanQueue.h"
@@ -8,7 +9,7 @@ class vkEngine : public GfxEngine, public Singleton<vkEngine>
 {
 	singletonDeclare(vkEngine);
 public:
-	void initialize(uint64_t windowHandle, const Configurations &config) override final;
+	void initialize(uint64_t windowHandle, const Gear::Configurations& config) override final;
 	void finalize() override final;
 
 	static void logError(uint32_t result);
@@ -17,23 +18,19 @@ public:
 	{
 	}
 
-	inline void handleWindowResize(uint32_t width, uint32_t height, const Configurations &config)
-	{
-		if (m_Swapchain.isValid())
-		{
-			m_Swapchain.recreate(width, height, config.VSync, config.FullScreen, m_PhysicalDevice, m_Device);
-		}
-	}
+	//inline void handleWindowResize(uint32_t width, uint32_t height, const Gear::Configurations& config)
+	//{
+	//	//if (m_Swapchain.isValid())
+	//	//{
+	//	//	m_Swapchain.recreate(width, height, config.VSync, config.FullScreen, m_PhysicalDevice, m_Device);
+	//	//}
+	//}
 
 	void present() override final;
 
 	inline VulkanDevice &getDevice()
 	{
 		return m_Device;
-	}
-	inline vkDeviceQueue &getQueue()
-	{
-		return m_GraphicsQueue;
 	}
 public:
 	inline GfxShader *createVertexShader(const std::string &shaderName) override final
@@ -98,9 +95,9 @@ public:
 	inline void updateGpuBuffer(GfxGpuBuffer *buffer, const void *data, size_t size, size_t offset) override final
 	{
 		assert(buffer);
-		auto uniformBuffer = static_cast<vkGpuBuffer *>(buffer);
+		auto uniformBuffer = static_cast<VulkanGpuBuffer *>(buffer);
 		assert(uniformBuffer);
-		uniformBuffer->update(m_Device, data, size, offset);
+		uniformBuffer->update(m_Device.logicalDevice(), data, size, offset);
 	}
 
 	inline vkGraphicsPipeline *getOrCreateGraphicsPipeline(const vkRenderPass &renderpass, const GfxPipelineState &state)
@@ -115,7 +112,7 @@ public:
 
 	inline uint32_t acquireNextFrame()
 	{
-		return m_Swapchain.acquireBackBuffer(m_Device);
+		return m_Swapchain->acquireNextFrame();
 	}
 
 	VkFormatProperties getFormatProperties(VkFormat format);
@@ -140,6 +137,27 @@ public:
 		static VkSamplerAddressMode toAddressMode(eRSamplerAddressMode addressMode);
 		static VkBorderColor toBorderColor(eRBorderColor borderColor);
 	};
+
+	template <typename T> static std::vector<const char8_t*> getSupportedProperties(
+		const std::vector<T>& supportedProperties,
+		const std::vector<const char8_t*>& targetProperties)
+	{
+		std::vector<const char8_t*> result;
+
+		for each (auto propertyName in targetProperties)
+		{
+			for (auto it = supportedProperties.begin(); it != supportedProperties.end(); ++it)
+			{
+				if (_stricmp((const char8_t*)(&(*it)), propertyName) == 0)
+				{
+					result.emplace_back(propertyName);
+					break;
+				}
+			}
+		}
+
+		return result;
+	}
 protected:
 	template<eRShaderUsage Usage>
 	inline GfxShader *createShader(const std::string &shaderName)
@@ -148,11 +166,6 @@ protected:
 	}
 private:
 	VulkanInstance m_Instance;
-	vkDebugUtilsMessenger m_DebugUtilsMessenger;
 	VulkanDevice m_Device;
-	vkPhysicalDevice m_PhysicalDevice;
-	vkDeviceQueue m_GraphicsQueue;
-	vkDeviceQueue m_ComputeQueue;
-	vkDeviceQueue m_TransferQueue;
-	vkSwapchain m_Swapchain;
+	VulkanSwapchainPtr m_Swapchain = nullptr;
 };

@@ -13,7 +13,7 @@ vkFunctionTableDefinition
 
 static Gear::DynamicLibrary s_VulkanLoader;
 
-void vkLoader::initializeGlobalFunctionTable()
+void VulkanLoader::initializeGlobalFunctionTable()
 {
 	s_VulkanLoader.load("vulkan-1.dll");
 
@@ -25,31 +25,31 @@ void vkLoader::initializeGlobalFunctionTable()
 #undef createFunctionTable
 }
 
-void vkLoader::initializeInstanceFunctionTable(const VulkanInstance &instance)
+void VulkanLoader::initializeInstanceFunctionTable(VkInstance instance)
 {
-	assert(instance.isValid() && vkGetInstanceProcAddr);
+	assert(instance != VK_NULL_HANDLE && vkGetInstanceProcAddr);
 
 #define createFunctionTable(func) \
-	func = (PFN_##func)(vkGetInstanceProcAddr(instance.Handle, #func)); \
+	func = (PFN_##func)(vkGetInstanceProcAddr(instance, #func)); \
 	logIfFunctionIsNull(func)
 
 	vkInstanceFunctionTable(createFunctionTable)
 #undef createFunctionTable
 }
 
-void vkLoader::initializeDeviceFunctionTable(const VulkanDevice &device)
+void VulkanLoader::initializeDeviceFunctionTable(VkDevice device)
 {
-	assert(device.isValid() && vkGetDeviceProcAddr);
+	assert(device != VK_NULL_HANDLE && vkGetDeviceProcAddr);
 
 #define createFunctionTable(func) \
-	func = (PFN_##func)(vkGetDeviceProcAddr(device.Handle, #func)); \
+	func = (PFN_##func)(vkGetDeviceProcAddr(device, #func)); \
 	logIfFunctionIsNull(func)
 
 	vkDeviceFunctionTable(createFunctionTable)
 #undef createFunctionTable
 }
 
-void vkLoader::finalize()
+void VulkanLoader::finalize()
 {
 	vkFunctionTableReset
 }

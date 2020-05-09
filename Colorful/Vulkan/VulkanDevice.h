@@ -10,85 +10,39 @@
 #include "Colorful/Vulkan/VulkanRenderPass.h"
 #include "Colorful/Vulkan/VulkanPipeline.h"
 
-class VulkanInstance : public VulkanObject<VkInstance>
+class VulkanDevice : public GfxDevice
 {
 public:
-	void create();
-	void destroy();
-};
-
-class vkDebugUtilsMessenger : public VulkanObject<VkDebugUtilsMessengerEXT>
-{
-public:
-	void create(const VulkanInstance &instance, bool8_t verbose);
-	void destroy(const VulkanInstance &instance);
-};
-
-class vkPhysicalDevice : public VulkanObject<VkPhysicalDevice>
-{
-public:
-	static std::vector<vkPhysicalDevice> enumeratePhysicalDevices(const VulkanInstance &instance);
-};
-
-class VulkanDevice_2 : public GfxDevice
-{
-public:
-	class VulkanPhysicalDevice : public VulkanObject<VkPhysicalDevice>
+	inline bool8_t isValid() const
 	{
-	};
-
-	class VulkanLogicalDevice : public VulkanObject<VkDevice>
-	{
-	};
-
-	void create(const VulkanInstance& instance);
-
-	void destroy();
-protected:
-private:
-	VulkanPhysicalDevice m_PhysicalDevice;
-	VulkanLogicalDevice m_LogicalDevice;
-};
-
-class VulkanDevice : public VulkanObject<VkDevice>, public GfxDevice
-{
-public:
-	uint32_t create(
-		const std::vector<vkPhysicalDevice> &physicalDevices,
-		uint32_t &graphicsQueueIndex,
-		uint32_t &computeQueueIndex,
-		uint32_t &transferQueueIndex
-	);
-
-	void waitIdle();
+		return m_LogicalDevice.isValid();
+	}
 
 	vkSemaphore *createSemaphore() const;
 	vkEvent *createEvent() const;
-
-	void destroy();
 
 	uint32_t getMemoryTypeIndex(eRBufferUsage usage, uint32_t memoryTypeBits) const;
 
 	inline vkCommandBuffer allocCommandBuffer(VkCommandBufferLevel level, bool8_t signaleFence = true) const
 	{
-		return m_CommandPool.alloc(*this, level, signaleFence);
+		return m_CommandPool.alloc(m_LogicalDevice.Handle, level, signaleFence);
 	}
 
 	inline void freeCommandBuffer(vkCommandBuffer &commandBuffer) const
 	{
-		m_CommandPool.free(*this, commandBuffer);
+		m_CommandPool.free(m_LogicalDevice.Handle, commandBuffer);
 	}
 
 	inline vkDescriptorSet allocDescriptorSet(const vkDescriptorSetLayout &layout) const
 	{
-		return m_DescriptorPool.alloc(*this, layout);
+		return m_DescriptorPool.alloc(m_LogicalDevice.Handle, layout);
 	}
 
 	inline const VkPhysicalDeviceLimits &getDeviceLimits() const
 	{
 		return m_DeviceLimits;
 	}
-public:
+
 	GfxShader *createShader(eRShaderUsage usage, const std::string &shaderName);
 	rTexture *createTexture(const std::string &textureName);
 	rTexture *createTexture(
@@ -106,14 +60,14 @@ public:
 		m_GpuResourcePool->destroyBuffer(buffer);
 	}
 	GfxRenderSurface *createDepthStencilView(uint32_t width, uint32_t height, eRFormat format);
-	GfxRenderPass *createRenderPass(const vkSwapchain &swapchain, GfxFrameBufferDesc &desc);
+	GfxRenderPass *createRenderPass(const VulkanSwapchain &swapchain, GfxFrameBufferDesc &desc);
 	rSampler *createSampler(const GfxSamplerDesc &desc);
 
 	const GfxPipelineState *getGraphicsPipelineState(vkGraphicsPipeline *pipeline) const
 	{
 		return m_PipelinePool->getGraphicsPipelineState(pipeline);
 	}
-	
+
 	inline vkGraphicsPipeline *getOrCreateGraphicsPipeline(const vkRenderPass &renderpass, const GfxPipelineState &graphicsPipelineState)
 	{
 		return m_PipelinePool->getOrCreateGraphicsPipeline(renderpass, graphicsPipelineState);
@@ -121,144 +75,35 @@ public:
 
 	inline vkCommandBuffer *getActiveCommandBuffer()
 	{
-		return m_CommandPool.getActiveCommandBuffer(*this);
+		return m_CommandPool.getActiveCommandBuffer(m_LogicalDevice.Handle);
 	}
-protected:
-	class vkGpuResourcePool
+public:
+	class VulkanPhysicalDevice : public VulkanObject<VkPhysicalDevice>
 	{
-	public:
-		enum eResourceType
-		{
-			eShader,
-			eTexture,
-			eBuffer,
-			eSampler,
-			ePipeline,
-			eRenderPass,
-			eSemaphore,
-			eEvent,
-			eImageView,
-			eResourceType_MaxEnum
-		};
-
-		vkGpuResourcePool(const VulkanDevice &device)
-			: m_Device(device)
-		{
-		}
-
-		template<eResourceType Type>
-		inline void push(rGpuResource *resource)
-		{
-			assert(resource);
-			uint64_t id = makeID(Type);
-			resource->setID(id);
-			assert(m_Resources.find(id) == m_Resources.end());
-			m_Resources.insert(std::make_pair(id, resource));
-		}
-
-		inline void pop(rGpuResource *resource)
-		{
-			assert(resource);
-			auto it = m_Resources.find(resource->getID());
-			if (it != m_Resources.end())
-			{
-				auto buffer = static_cast<vkBuffer *>(resource);
-				delete buffer;
-				it->second = nullptr;
-				m_Resources.erase(resource->getID());
-			}
-		}
-
-		inline void destroyBuffer(rGpuResource *resource)
-		{
-			destroyResource<eBuffer>(resource);
-			pop(resource);
-		}
-		void destoryAll();
-	protected:
-		template<eResourceType Type>
-		inline void destroyResource(rGpuResource *resource)
-		{
-			assert(0);
-		}
-		template<>
-		inline void destroyResource<eShader>(rGpuResource *resource)
-		{
-			auto shader = static_cast<vkShader *>(resource);
-			assert(shader);
-			shader->destroy(m_Device);
-			//pop(resource);
-		}
-		template<>
-		inline void destroyResource<eBuffer>(rGpuResource *resource)
-		{
-			auto buffer = static_cast<vkBuffer *>(resource);
-			if (buffer)
-			{
-				buffer->destroy(m_Device);
-			}
-			//pop(resource);
-		}
-		template<>
-		inline void destroyResource<eImageView>(rGpuResource *resource)
-		{
-			auto imageView = static_cast<vkImageView *>(resource);
-			assert(imageView);
-			imageView->destroy(m_Device);
-			//pop(resource);
-		}
-		template<>
-		inline void destroyResource<eRenderPass>(rGpuResource *resource)
-		{
-			auto renderPass = static_cast<vkRenderPass *>(resource);
-			assert(renderPass);
-			renderPass->destroy(m_Device);
-			//pop(resource);
-		}
-		template<>
-		inline void destroyResource<ePipeline>(rGpuResource *resource)
-		{
-			auto pipeline = static_cast<vkPipeline *>(resource);
-			assert(pipeline);
-			pipeline->destroy(m_Device);
-			//pop(resource);
-		}
-		template<>
-		inline void destroyResource<eSampler>(rGpuResource *resource)
-		{
-			auto sampler = static_cast<vkSampler *>(resource);
-			assert(sampler);
-			sampler->destroy(m_Device);
-			//pop(resource);
-		}
-
-		inline uint64_t makeID(eResourceType type)
-		{
-			/// Duplicate ????????
-			uint64_t id = m_IDPool++;
-			id |= (((uint64_t)type) << 32ull);
-			return id;
-		}
-
-		inline uint32_t getResourceID(uint64_t id) const
-		{
-			return (uint32_t)((id << 32ull) >> 32ull);
-		}
-
-		inline eResourceType getResourceType(uint64_t id) const
-		{
-			return (eResourceType)(id >> 32ull);
-		}
-	private:
-		uint32_t m_IDPool = 0u;
-		std::unordered_map<uint64_t, rGpuResource *> m_Resources;
-		const VulkanDevice &m_Device;
 	};
 
+	class VulkanLogicalDevice : public VulkanObject<VkDevice>
+	{
+	};
+
+	void create(VkInstance instance);
+
+	void destroy();
+
+	VkPhysicalDevice physicalDevice() const
+	{
+		return m_PhysicalDevice.Handle;
+	}
+
+	VkDevice logicalDevice() const
+	{
+		return m_LogicalDevice.Handle;
+	}
+protected:
 	class vkPipelinePool
 	{
 	public:
-		vkPipelinePool(const VulkanDevice &device);
+		vkPipelinePool(VkDevice device);
 
 		vkGraphicsPipeline *getOrCreateGraphicsPipeline(const vkRenderPass &renderpass, const GfxPipelineState &graphicsPipelineState);
 
@@ -293,11 +138,12 @@ protected:
 		vkPipelineCache m_PipelineCache;
 	};
 private:
-	VkPhysicalDeviceMemoryProperties m_DeviceMemoryProperties{};
 	VkPhysicalDeviceFeatures m_DeviceFeatures{};
 	VkPhysicalDeviceLimits m_DeviceLimits{};
 	vkCommandPool m_CommandPool;
 	vkDescriptorPool m_DescriptorPool;
-	std::unique_ptr<vkGpuResourcePool> m_GpuResourcePool;
 	std::unique_ptr<vkPipelinePool> m_PipelinePool;
+private:
+	VulkanPhysicalDevice m_PhysicalDevice;
+	VulkanLogicalDevice m_LogicalDevice;
 };

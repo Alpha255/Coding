@@ -4,9 +4,9 @@
 #include "VulkanRenderPass.h"
 #include "VulkanEngine.h"
 
-void vkPipelineLayout::create(const VulkanDevice &device, const vkDescriptorSetLayout &descriptorSetLayout)
+void vkPipelineLayout::create(VkDevice device, const vkDescriptorSetLayout &descriptorSetLayout)
 {
-	assert(device.isValid() && !isValid() && descriptorSetLayout.isValid());
+	assert(!isValid() && descriptorSetLayout.isValid());
 
 	VkPipelineLayoutCreateInfo createInfo
 	{
@@ -19,30 +19,28 @@ void vkPipelineLayout::create(const VulkanDevice &device, const vkDescriptorSetL
 		nullptr /// PushRange ?????
 	};
 
-	rVerifyVk(vkCreatePipelineLayout(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
+	rVerifyVk(vkCreatePipelineLayout(device, &createInfo, vkMemoryAllocator, &Handle));
 }
 
-void vkPipelineLayout::destroy(const VulkanDevice &device)
+void vkPipelineLayout::destroy(VkDevice device)
 {
 	/// The pipeline layout represents a sequence of descriptor sets with each having a specific layout. 
 	/// This sequence of layouts is used to determine the interface between shader stages and shader resources. 
 	/// Each pipeline is created using a pipeline layout.
-	assert(device.isValid());
-
 	if (isValid())
 	{
-		vkDestroyPipelineLayout(device.Handle, Handle, vkMemoryAllocator);
+		vkDestroyPipelineLayout(device, Handle, vkMemoryAllocator);
 		Handle = VK_NULL_HANDLE;
 	}
 }
 
 void vkGraphicsPipeline::create(
-	const VulkanDevice &device, 
+	VkDevice device, 
 	const vkRenderPass &renderpass, 
 	const vkPipelineCache &cache, 
 	const GfxPipelineState &state)
 {
-	assert(device.isValid() && !isValid());
+	assert(!isValid());
 	assert(state.Shaders[eVertexShader]);
 	assert(renderpass.isValid() && cache.isValid());
 
@@ -157,10 +155,10 @@ void vkGraphicsPipeline::create(
 	};
 
 	/// Pending creations ???
-	rVerifyVk(vkCreateGraphicsPipelines(device.Handle, cache.Handle, 1u, &createInfo, vkMemoryAllocator, &Handle));
+	rVerifyVk(vkCreateGraphicsPipelines(device, cache.Handle, 1u, &createInfo, vkMemoryAllocator, &Handle));
 }
 
-void vkGraphicsPipeline::destroy(const VulkanDevice &device)
+void vkGraphicsPipeline::destroy(VkDevice device)
 {
 	m_PipelineLayout.destroy(device);
 	m_DescriptorSetLayout.destroy(device);
@@ -291,7 +289,7 @@ VkPipelineColorBlendStateCreateInfo vkGraphicsPipeline::getColorBlendState(
 	return blendState;
 }
 
-void vkGraphicsPipeline::setupDescriptorSet(const VulkanDevice &device, const GfxPipelineState &state)
+void vkGraphicsPipeline::setupDescriptorSet(VkDevice device, const GfxPipelineState &state)
 {
 	m_DescriptorSet = device.allocDescriptorSet(m_DescriptorSetLayout);
 
@@ -305,7 +303,7 @@ void vkGraphicsPipeline::setupDescriptorSet(const VulkanDevice &device, const Gf
 			auto uniformBuffer = state.Shaders[i]->getUniformBuffer();
 			if (uniformBuffer)
 			{
-				auto buffer = static_cast<vkBuffer *>(uniformBuffer);
+				auto buffer = static_cast<VulkanBuffer *>(uniformBuffer);
 
 				VkDescriptorBufferInfo bufferInfo
 				{
@@ -368,12 +366,12 @@ void vkGraphicsPipeline::setupDescriptorSet(const VulkanDevice &device, const Gf
 	}
 
 	assert(writeDescriptorSets.size() > 0u);
-	vkUpdateDescriptorSets(device.Handle, (uint32_t)writeDescriptorSets.size(), writeDescriptorSets.data(), 0u, nullptr);
+	vkUpdateDescriptorSets(device, (uint32_t)writeDescriptorSets.size(), writeDescriptorSets.data(), 0u, nullptr);
 }
 
-void vkPipelineCache::create(const VulkanDevice &device)
+void vkPipelineCache::create(VkDevice device)
 {
-	assert(device.isValid() && !isValid());
+	assert(!isValid());
 
 	VkPipelineCacheCreateInfo createInfo
 	{
@@ -384,27 +382,23 @@ void vkPipelineCache::create(const VulkanDevice &device)
 		nullptr
 	};
 
-	rVerifyVk(vkCreatePipelineCache(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
+	rVerifyVk(vkCreatePipelineCache(device, &createInfo, vkMemoryAllocator, &Handle));
 }
 
-void vkPipelineCache::destroy(const VulkanDevice &device)
+void vkPipelineCache::destroy(VkDevice device)
 {
-	assert(device.isValid());
-
 	if (isValid())
 	{
-		vkDestroyPipelineCache(device.Handle, Handle, vkMemoryAllocator);
+		vkDestroyPipelineCache(device, Handle, vkMemoryAllocator);
 		Handle = VK_NULL_HANDLE;
 	}
 }
 
-void vkPipeline::destroy(const VulkanDevice &device)
+void vkPipeline::destroy(VkDevice device)
 {
-	assert(device.isValid());
-
 	if (isValid())
 	{
-		vkDestroyPipeline(device.Handle, Handle, vkMemoryAllocator);
+		vkDestroyPipeline(device, Handle, vkMemoryAllocator);
 		Handle = VK_NULL_HANDLE;
 	}
 }

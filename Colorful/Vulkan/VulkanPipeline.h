@@ -6,33 +6,33 @@
 class vkPipelineLayout : public VulkanDeviceObject<VkPipelineLayout>
 {
 public:
-	void create(const class VulkanDevice &device, const vkDescriptorSetLayout &descriptorSetLayout);
-	void destroy(const class VulkanDevice &device) override final;
+	void create(VkDevice device, const vkDescriptorSetLayout &descriptorSetLayout);
+	void destroy(VkDevice device) override final;
 };
 
 class vkPipelineCache : public VulkanDeviceObject<VkPipelineCache>
 {
 public:
-	void create(const class VulkanDevice &device);
-	void destroy(const class VulkanDevice &device) override final;
+	void create(VkDevice device);
+	void destroy(VkDevice device) override final;
 };
 
 class vkPipeline : public VulkanDeviceObject<VkPipeline>, public rGpuResource
 {
 public:
-	void destroy(const class VulkanDevice &device) override;
+	void destroy(VkDevice device) override;
 };
 
 class vkGraphicsPipeline : public vkPipeline
 {
 public:
 	void create(
-		const class VulkanDevice &device,
+		VkDevice device,
 		const class vkRenderPass &renderpass,
 		const vkPipelineCache &cache,
 		const GfxPipelineState &state);
 
-	void destroy(const class VulkanDevice &device) override final;
+	void destroy(VkDevice device) override final;
 
 	void bind(const class vkCommandBuffer &cmdBuffer);
 protected:
@@ -42,7 +42,7 @@ protected:
 		std::vector<VkPipelineColorBlendAttachmentState> &attachments, 
 		const GfxBlendStateDesc &stateDesc) const;
 
-	void setupDescriptorSet(const class VulkanDevice &device, const GfxPipelineState &state);
+	void setupDescriptorSet(VkDevice device, const GfxPipelineState &state);
 private:
 	vkPipelineLayout m_PipelineLayout;
 	vkDescriptorSetLayout m_DescriptorSetLayout;

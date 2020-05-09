@@ -71,7 +71,7 @@ template<typename T> struct VulkanObject
 template <typename T> class VulkanDeviceObject : public VulkanObject<T>
 {
 public:
-	virtual void destroy(const class VulkanDevice &device) = 0;
+	virtual void destroy(VkDevice device) = 0;
 };
 
 #define rVerifyD3D11(func)                        \

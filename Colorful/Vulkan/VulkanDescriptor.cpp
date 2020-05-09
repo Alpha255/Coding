@@ -1,9 +1,9 @@
 #include "VulkanDescriptor.h"
 #include "VulkanEngine.h"
 
-void vkDescriptorPool::create(const VulkanDevice &device)
+void vkDescriptorPool::create(VkDevice device)
 {
-	assert(device.isValid() && !isValid());
+	assert(!isValid());
 
 	/// ToDo-May need a better way
 	auto &deviceLimits = device.getDeviceLimits();
@@ -75,31 +75,29 @@ void vkDescriptorPool::create(const VulkanDevice &device)
 		descriptorPoolSizes.data()
 	};
 
-	rVerifyVk(vkCreateDescriptorPool(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
+	rVerifyVk(vkCreateDescriptorPool(device, &createInfo, vkMemoryAllocator, &Handle));
 }
 
-void vkDescriptorPool::resetPool(const VulkanDevice &device)
+void vkDescriptorPool::resetPool(VkDevice device)
 {
 	/// return all descriptor sets allocated from a given pool to the pool
 	/// flags is reserved for future use
 	/// Resetting a descriptor pool recycles all of the resources from all of the descriptor sets allocated from the descriptor pool back to the descriptor pool, 
 	/// and the descriptor sets are implicitly freed.
-	assert(device.isValid() && isValid());
-	vkResetDescriptorPool(device.Handle, Handle, 0u);
+	assert(isValid());
+	vkResetDescriptorPool(device, Handle, 0u);
 }
 
-void vkDescriptorPool::destroy(const VulkanDevice &device)
+void vkDescriptorPool::destroy(VkDevice device)
 {
-	assert(device.isValid());
-
 	if (isValid())
 	{
-		vkDestroyDescriptorPool(device.Handle, Handle, vkMemoryAllocator);
+		vkDestroyDescriptorPool(device, Handle, vkMemoryAllocator);
 		Handle = VK_NULL_HANDLE;
 	}
 }
 
-vkDescriptorSet vkDescriptorPool::alloc(const class VulkanDevice &device, const vkDescriptorSetLayout &layout) const
+vkDescriptorSet vkDescriptorPool::alloc(VkDevice device, const vkDescriptorSetLayout &layout) const
 {
 	assert(isValid() && layout.isValid());
 
@@ -114,14 +112,14 @@ vkDescriptorSet vkDescriptorPool::alloc(const class VulkanDevice &device, const 
 	};
 
 	vkDescriptorSet descriptorSet;
-	rVerifyVk(vkAllocateDescriptorSets(device.Handle, &allocInfo, &descriptorSet.Handle));
+	rVerifyVk(vkAllocateDescriptorSets(device, &allocInfo, &descriptorSet.Handle));
 
 	return descriptorSet;
 }
 
-void vkDescriptorSetLayout::create(const VulkanDevice &device, const rDescriptorLayoutDesc &desc)
+void vkDescriptorSetLayout::create(VkDevice device, const rDescriptorLayoutDesc &desc)
 {
-	assert(device.isValid() && !isValid());
+	assert(!isValid());
 
 	std::vector<VkDescriptorSetLayoutBinding> bindings;
 	for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
@@ -152,28 +150,24 @@ void vkDescriptorSetLayout::create(const VulkanDevice &device, const rDescriptor
 		bindings.data()
 	};
 
-	rVerifyVk(vkCreateDescriptorSetLayout(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
+	rVerifyVk(vkCreateDescriptorSetLayout(device, &createInfo, vkMemoryAllocator, &Handle));
 }
 
-void vkDescriptorSetLayout::destroy(const VulkanDevice &device)
+void vkDescriptorSetLayout::destroy(VkDevice device)
 {
-	assert(device.isValid());
-
 	if (isValid())
 	{
-		vkDestroyDescriptorSetLayout(device.Handle, Handle, vkMemoryAllocator);
+		vkDestroyDescriptorSetLayout(device, Handle, vkMemoryAllocator);
 		Handle = VK_NULL_HANDLE;
 	}
 }
 
-void vkDescriptorUpdateTemplate::destroy(const VulkanDevice &device)
+void vkDescriptorUpdateTemplate::destroy(VkDevice device)
 {
 	/// A descriptor update template specifies a mapping from descriptor update information in host memory to descriptors in a descriptor set.
 	/// It is designed to avoid passing redundant information to the driver when frequently updating the same set of descriptors in descriptor sets.
 	/// For cases when an application wishes to update the same set of descriptors in multiple descriptor sets allocated using the same VkDescriptorSetLayout, 
 	/// vkUpdateDescriptorSetWithTemplate can be used as a replacement for vkUpdateDescriptorSets.
-	assert(device.isValid());
-
 	if (isValid())
 	{
 		///vkDestroyDescriptorUpdateTemplate(device.Handle, Handle, vkMemoryAllocator);

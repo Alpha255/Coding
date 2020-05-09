@@ -7,8 +7,7 @@ GfxShader *VulkanDevice::createShader(eRShaderUsage usage, const std::string &sh
 	/// try to get shader binary from cache at first
 
 	auto shaderBinary = rAsset::rAssetBucket::instance().getShaderBinary(usage, shaderName);
-	auto shader = new vkShader(*this, usage, shaderBinary);
-	m_GpuResourcePool->push<vkGpuResourcePool::eShader>(shader);
+	auto shader = new vkShader(m_LogicalDevice.Handle, usage, shaderBinary);
 
 	return shader;
 }
@@ -16,11 +15,9 @@ GfxShader *VulkanDevice::createShader(eRShaderUsage usage, const std::string &sh
 rTexture *VulkanDevice::createTexture(const std::string &textureName)
 {
 	auto textureBinary = rAsset::rAssetBucket::instance().getTextureBinary(textureName);
-	vkImage image(*this, textureBinary);
+	vkImage image(m_LogicalDevice.Handle, textureBinary);
 	auto imageView = new vkImageView();
-	imageView->create(*this, image, image.getFormat(), VK_IMAGE_ASPECT_COLOR_BIT);
-
-	m_GpuResourcePool->push<vkGpuResourcePool::eImageView>(imageView);
+	imageView->create(m_LogicalDevice.Handle, image, image.getFormat(), VK_IMAGE_ASPECT_COLOR_BIT);
 
 	return imageView;
 }
@@ -36,24 +33,21 @@ rTexture * VulkanDevice::createTexture(
 	size_t dataSize)
 {
 	auto imageView = new vkImageView();
-	imageView->create(*this, type, format, width, height, mipLevels, arrayLayers, data, dataSize);
-
-	m_GpuResourcePool->push<vkGpuResourcePool::eImageView>(imageView);
+	imageView->create(m_LogicalDevice.Handle, type, format, width, height, mipLevels, arrayLayers, data, dataSize);
 
 	return imageView;
 }
 
 GfxGpuBuffer *VulkanDevice::createBuffer(eRBufferBindFlags bindFlags, eRBufferUsage usage, size_t size, const void * pData)
 {
-	auto buffer = new vkGpuBuffer(*this, bindFlags, usage, size, pData);
-	m_GpuResourcePool->push<vkGpuResourcePool::eBuffer>(buffer);
+	auto buffer = new VulkanGpuBuffer(m_LogicalDevice.Handle, bindFlags, usage, size, pData);
 
 	return buffer;
 }
 
 vkSemaphore *VulkanDevice::createSemaphore() const
 {
-	vkSemaphore *semaphorePtr = new vkSemaphore(*this);
+	vkSemaphore *semaphorePtr = new vkSemaphore(m_LogicalDevice.Handle);
 	assert(semaphorePtr);
 
 	return semaphorePtr;
@@ -61,7 +55,7 @@ vkSemaphore *VulkanDevice::createSemaphore() const
 
 vkEvent *VulkanDevice::createEvent() const
 {
-	vkEvent *eventPtr = new vkEvent(*this);
+	vkEvent *eventPtr = new vkEvent(m_LogicalDevice.Handle);
 	assert(eventPtr);
 
 	return eventPtr;
@@ -70,13 +64,11 @@ vkEvent *VulkanDevice::createEvent() const
 GfxRenderSurface *VulkanDevice::createDepthStencilView(uint32_t width, uint32_t height, eRFormat format)
 {
 	vkDepthStencilView *depthStencilView = new vkDepthStencilView();
-	depthStencilView->create(*this, width, height, vkEngine::enumTranslator::toFormat(format));
-
-	m_GpuResourcePool->push<vkGpuResourcePool::eImageView>(depthStencilView);
+	depthStencilView->create(m_LogicalDevice.Handle, width, height, vkEngine::enumTranslator::toFormat(format));
 	return depthStencilView;
 }
 
-VulkanDevice::vkPipelinePool::vkPipelinePool(const VulkanDevice &device)
+VulkanDevice::vkPipelinePool::vkPipelinePool(VkDevice device)
 	: m_Device(device)
 {
 	m_PipelineCache.create(m_Device);
@@ -102,7 +94,7 @@ vkGraphicsPipeline *VulkanDevice::vkPipelinePool::getOrCreateGraphicsPipeline(co
 	return graphicsPipeline;
 }
 
-GfxRenderPass *VulkanDevice::createRenderPass(const vkSwapchain &swapchain, GfxFrameBufferDesc &desc)
+GfxRenderPass *VulkanDevice::createRenderPass(const VulkanSwapchain &swapchain, GfxFrameBufferDesc &desc)
 {
 	assert(isValid() && swapchain.isValid());
 
@@ -116,7 +108,7 @@ GfxRenderPass *VulkanDevice::createRenderPass(const vkSwapchain &swapchain, GfxF
 		}
 	}
 
-	std::vector<vkFrameBuffer> frameBuffers;
+	std::vector<VulkanFrameBuffer> frameBuffers;
 
 	if (usingBackBuffer)
 	{
@@ -125,7 +117,7 @@ GfxRenderPass *VulkanDevice::createRenderPass(const vkSwapchain &swapchain, GfxF
 	}
 
 	vkRenderPass *renderPass = new vkRenderPass();
-	renderPass->create(*this, desc);
+	renderPass->create(m_LogicalDevice.Handle, desc);
 
 	if (usingBackBuffer)
 	{
@@ -133,61 +125,26 @@ GfxRenderPass *VulkanDevice::createRenderPass(const vkSwapchain &swapchain, GfxF
 		for (uint32_t i = 0u; i < backBuffers.size(); ++i)
 		{
 			desc.ColorSurface[0] = (GfxRenderSurface *)&backBuffers[i];
-			vkFrameBuffer frameBuffer;
-			frameBuffer.create(*this, *renderPass, desc);
+			VulkanFrameBuffer frameBuffer;
+			frameBuffer.create(m_LogicalDevice.Handle, *renderPass, desc);
 			frameBuffers.emplace_back(std::move(frameBuffer));
 		}
 	}
 	else
 	{
-		vkFrameBuffer frameBuffer;
-		frameBuffer.create(*this, *renderPass, desc);
+		VulkanFrameBuffer frameBuffer;
+		frameBuffer.create(m_LogicalDevice.Handle, *renderPass, desc);
 		frameBuffers.emplace_back(std::move(frameBuffer));
 	}
 
 	renderPass->bindFrameBuffers(frameBuffers);
-
-	m_GpuResourcePool->push<vkGpuResourcePool::eRenderPass>(renderPass);
 
 	return renderPass;
 }
 
 rSampler *VulkanDevice::createSampler(const GfxSamplerDesc &desc)
 {
-	auto sampler = new vkSampler(*this, desc);
-	m_GpuResourcePool->push<vkGpuResourcePool::eSampler>(sampler);
+	auto sampler = new vkSampler(m_LogicalDevice.Handle, desc);
 
 	return sampler;
-}
-
-void VulkanDevice::vkGpuResourcePool::destoryAll()
-{
-	for (auto &resource : m_Resources)
-	{
-		eResourceType type = getResourceType(resource.first);
-
-		switch (type)
-		{
-		case eShader:
-			destroyResource<eShader>(resource.second);
-			break;
-		case eBuffer:
-			destroyResource<eBuffer>(resource.second);
-			break;
-		case eImageView:
-			destroyResource<eImageView>(resource.second);
-			break;
-		case eRenderPass:
-			destroyResource<eRenderPass>(resource.second);
-			break;
-		case eSampler:
-			destroyResource<eSampler>(resource.second);
-			break;
-		default:
-			assert(0);
-			break;
-		}
-	}
-
-	m_Resources.clear();
 }

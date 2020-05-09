@@ -44,7 +44,7 @@ VkImageType vkImage::getImageType(eRTextureType type) const
 	return imageType;
 }
 
-void vkImage::copyBufferToImage(const VulkanDevice &device, const rAsset::rTextureBinary &binary)
+void vkImage::copyBufferToImage(VkDevice device, const rAsset::rTextureBinary &binary)
 {
 	bool8_t useStaging = true;
 	//VkFormatProperties formatProperties = vkEngine::instance().getFormatProperties(m_Format);
@@ -88,7 +88,7 @@ void vkImage::copyBufferToImage(const VulkanDevice &device, const rAsset::rTextu
 			}
 		}
 
-		vkStagingBuffer stagingBuffer(
+		VulkanStagingBuffer stagingBuffer(
 			device, 
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
 			binary.Size, 
@@ -135,7 +135,7 @@ void vkImage::copyBufferToImage(const VulkanDevice &device, const rAsset::rTextu
 
 		commandBuffer.end();
 		
-		vkEngine::instance().getQueue().submit(commandBuffer);
+		VulkanQueueManager::instance()->transferQueue()->submit(commandBuffer);
 
 		device.freeCommandBuffer(commandBuffer);
 
@@ -185,7 +185,7 @@ void vkImage::insertMemoryBarrier(
 		&imageMemoryBarrier);
 }
 
-vkImage::vkImage(const VulkanDevice &device, const rAsset::rTextureBinary &binary)
+vkImage::vkImage(VkDevice device, const rAsset::rTextureBinary &binary)
 {
 	assert(!isValid() && binary.Size > 0u);
 
@@ -213,18 +213,18 @@ vkImage::vkImage(const VulkanDevice &device, const rAsset::rTextureBinary &binar
 	};
 	m_Format = createInfo.format;
 
-	rVerifyVk(vkCreateImage(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
+	rVerifyVk(vkCreateImage(device, &createInfo, vkMemoryAllocator, &Handle));
 
 	VkMemoryRequirements memoryRequirements{};
-	vkGetImageMemoryRequirements(device.Handle, Handle, &memoryRequirements);
+	vkGetImageMemoryRequirements(device, Handle, &memoryRequirements);
 	m_Memory.create(device, eGpuReadOnly, memoryRequirements);
-	rVerifyVk(vkBindImageMemory(device.Handle, Handle, m_Memory.Handle, 0u));
+	rVerifyVk(vkBindImageMemory(device, Handle, m_Memory.Handle, 0u));
 
 	copyBufferToImage(device, binary);
 }
 
 void vkImage::create(
-	const VulkanDevice &device, 
+	VkDevice device, 
 	uint32_t width, 
 	uint32_t height, 
 	uint32_t depth, 
@@ -234,7 +234,7 @@ void vkImage::create(
 	VkImageType type, 
 	VkImageUsageFlags usage)
 {
-	assert(device.isValid() && !isValid());
+	assert(!isValid());
 
 	m_Format = format;
 
@@ -261,29 +261,27 @@ void vkImage::create(
 		VK_IMAGE_LAYOUT_UNDEFINED
 	};
 
-	rVerifyVk(vkCreateImage(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
+	rVerifyVk(vkCreateImage(device, &createInfo, vkMemoryAllocator, &Handle));
 
 	VkMemoryRequirements memoryRequirements{};
-	vkGetImageMemoryRequirements(device.Handle, Handle, &memoryRequirements);
+	vkGetImageMemoryRequirements(device, Handle, &memoryRequirements);
 	m_Memory.create(device, eGpuReadOnly, memoryRequirements);
-	rVerifyVk(vkBindImageMemory(device.Handle, Handle, m_Memory.Handle, 0u));
+	rVerifyVk(vkBindImageMemory(device, Handle, m_Memory.Handle, 0u));
 }
 
-void vkImage::destroy(const VulkanDevice &device)
+void vkImage::destroy(VkDevice device)
 {
-	assert(device.isValid());
-
 	if (isValid())
 	{
 		m_Memory.destroy(device);
-		vkDestroyImage(device.Handle, Handle, vkMemoryAllocator);
+		vkDestroyImage(device, Handle, vkMemoryAllocator);
 		Handle = VK_NULL_HANDLE;
 	}
 }
 
-vkSampler::vkSampler(const VulkanDevice &device, const GfxSamplerDesc &desc)
+vkSampler::vkSampler(VkDevice device, const GfxSamplerDesc &desc)
 {
-	assert(device.isValid() && !isValid());
+	assert(!isValid());
 	assert(desc.MaxAnisotropy < 16u);
 
 	VkSamplerCreateInfo createInfo
@@ -308,16 +306,14 @@ vkSampler::vkSampler(const VulkanDevice &device, const GfxSamplerDesc &desc)
 		false
 	};
 	
-	rVerifyVk(vkCreateSampler(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
+	rVerifyVk(vkCreateSampler(device, &createInfo, vkMemoryAllocator, &Handle));
 }
 
-void vkSampler::destroy(const VulkanDevice &device)
+void vkSampler::destroy(VkDevice device)
 {
-	assert(device.isValid());
-
 	if (isValid())
 	{
-		vkDestroySampler(device.Handle, Handle, vkMemoryAllocator);
+		vkDestroySampler(device, Handle, vkMemoryAllocator);
 		Handle = VK_NULL_HANDLE;
 	}
 }

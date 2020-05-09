@@ -3,58 +3,25 @@
 #include "VulkanShader.h"
 #include "VulkanBuffer.h"
 
-void vkEngine::initialize(uint64_t windowHandle, const Configurations &config)
+void vkEngine::initialize(uint64_t windowHandle, const Gear::Configurations& config)
 {
 #if defined(UsingVkLoader)
-	vkLoader::initializeGlobalFunctionTable();
+	VulkanLoader::initializeGlobalFunctionTable();
 #endif
 
-	m_Instance.create();
+	m_Instance.create(config);
 
-#if defined(UsingVkLoader)
-	vkLoader::initializeInstanceFunctionTable(m_Instance);
-#endif
+	m_Device.create(m_Instance.Handle);
 
-#if defined(_DEBUG)
-	m_DebugUtilsMessenger.create(m_Instance, config.VulkanValidationVerbose);
-#endif
-
-	auto physicalDevices = vkPhysicalDevice::enumeratePhysicalDevices(m_Instance);
-	assert(physicalDevices.size() == 1u); /// Only allow single video card for now...
-
-	uint32_t graphicsQueueFamilyIndex = std::numeric_limits<uint32_t>().max();
-	uint32_t computeQueueFamilyIndex = std::numeric_limits<uint32_t>().max();
-	uint32_t transferQueueFamilyIndex = std::numeric_limits<uint32_t>().max();
-	uint32_t gpuIndex = m_Device.create(
-		physicalDevices,
-		graphicsQueueFamilyIndex,
-		computeQueueFamilyIndex,
-		transferQueueFamilyIndex);
-	assert(graphicsQueueFamilyIndex != std::numeric_limits<uint32_t>().max());
-
-	m_GraphicsQueue.create(graphicsQueueFamilyIndex, m_Device);
-	if (computeQueueFamilyIndex != std::numeric_limits<uint32_t>().max())
-	{
-		m_ComputeQueue.create(computeQueueFamilyIndex, m_Device);
-	}
-	if (transferQueueFamilyIndex != std::numeric_limits<uint32_t>().max())
-	{
-		m_TransferQueue.create(transferQueueFamilyIndex, m_Device);
-	}
-
-	assert(gpuIndex != std::numeric_limits<uint32_t>().max());
-	m_PhysicalDevice = physicalDevices[gpuIndex];
-
-	m_Swapchain.create(
-		getAppInstance(),
+	m_Swapchain = std::make_shared<VulkanSwapchain>(
 		windowHandle,
 		config.WindowWidth,
 		config.WindowHeight,
 		config.VSync,
 		config.FullScreen,
 		m_Instance,
-		m_PhysicalDevice,
-		m_Device);
+		m_Device.physicalDevice(),
+		m_Device.logicalDevice());
 }
 
 void vkEngine::logError(uint32_t result)
@@ -113,14 +80,15 @@ case enumValue:                                      \
 
 void vkEngine::present()
 {
-	m_GraphicsQueue.submit(m_Swapchain);
+	///m_GraphicsQueue.submit(m_Swapchain);
+	VulkanQueueManager::instance()->gfxQueue()->submit(m_Swapchain);
 }
 
 void vkEngine::createOpaqueRenderPass()
 {
 	GfxFrameBufferDesc frameBufferDesc{};
-	frameBufferDesc.Width = m_Swapchain.getWidth();
-	frameBufferDesc.Height = m_Swapchain.getHeight();
+	frameBufferDesc.Width = m_Swapchain->width();
+	frameBufferDesc.Height = m_Swapchain->height();
 	frameBufferDesc.DepthSurface = createDepthStencilView(frameBufferDesc.Width, frameBufferDesc.Height, eD24_UNorm_S8_UInt);
 
 	m_OpaqueRenderPass = m_Device.createRenderPass(m_Swapchain, frameBufferDesc);
@@ -129,31 +97,23 @@ void vkEngine::createOpaqueRenderPass()
 VkFormatProperties vkEngine::getFormatProperties(VkFormat format)
 {
 	VkFormatProperties formatProperties{};
-	vkGetPhysicalDeviceFormatProperties(m_PhysicalDevice.Handle, format, &formatProperties);
+	vkGetPhysicalDeviceFormatProperties(m_Device.physicalDevice(), format, &formatProperties);
 
 	return formatProperties;
 }
 
 void vkEngine::finalize()
 {
-	m_Device.waitIdle();
+	//m_Device.waitIdle();
 
-	m_GraphicsQueue.destroy(m_Device);
-	m_ComputeQueue.destroy(m_Device);
-	m_TransferQueue.destroy(m_Device);
-
-	m_Swapchain.destroy(m_Instance, m_Device);
+	m_Swapchain->destroy(m_Instance.Handle);
 
 	m_Device.destroy();
-
-#if defined(DEBUG)
-	m_DebugUtilsMessenger.destroy(m_Instance);
-#endif
 
 	m_Instance.destroy();
 
 #if defined(UsingVkLoader)
-	vkLoader::finalize();
+	VulkanLoader::finalize();
 #endif
 }
 

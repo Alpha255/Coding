@@ -3,20 +3,20 @@
 #include "VulkanSwapChain.h"
 #include "VulkanAsync.h"
 
-void vkDeviceQueue::create(uint32_t queueFamilyIndex, const VulkanDevice &device)
+VulkanQueue::VulkanQueue(VkDevice device, uint32_t queueFamilyIndex)
 {
-	assert(!isValid() && device.isValid());
+	assert(!isValid());
 
 	/// vkGetDeviceQueue must only be used to get queues that were created with the flags parameter of VkDeviceQueueCreateInfo set to zero. 
 	/// To get queues that were created with a non-zero flags parameter use vkGetDeviceQueue2.
 	m_FamilyIndex = queueFamilyIndex;
-	vkGetDeviceQueue(device.Handle, queueFamilyIndex, 0u, &Handle);
+	vkGetDeviceQueue(device, queueFamilyIndex, 0u, &Handle);
 
 	/// All queues associated with a logical device are destroyed when vkDestroyDevice is called on that device
-	m_RenderCompleteSemaphore = device.createSemaphore();
+	///m_RenderCompleteSemaphore = device.createSemaphore();
 }
 
-void vkDeviceQueue::submit(vkCommandBuffer &cmdBuffer)
+void VulkanQueue::submit(vkCommandBuffer &cmdBuffer)
 {
 	VkSubmitInfo submitInfo
 	{
@@ -34,9 +34,9 @@ void vkDeviceQueue::submit(vkCommandBuffer &cmdBuffer)
 	VulkanFencePool::instance()->waitFence(cmdBuffer.fence());
 }
 
-void vkDeviceQueue::present(
+void VulkanQueue::present(
 	vkCommandBuffer &cmdBuffer,
-	const vkSwapchain &swapchain,
+	const VulkanSwapchain &swapchain,
 	VkFence fence)
 {
 	VkPipelineStageFlags waitStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
@@ -59,10 +59,10 @@ void vkDeviceQueue::present(
 	/// Batches begin execution in the order they appear in pSubmits, but may complete out of order.
 	rVerifyVk(vkQueueSubmit(Handle, 1u, &submitInfo, fence));
 	cmdBuffer.setState(vkCommandBuffer::ePending);
-	swapchain.present(*this, *m_RenderCompleteSemaphore);
+	swapchain.present(*m_RenderCompleteSemaphore);
 }
 
-void vkDeviceQueue::queueCommandBuffer(vkCommandBuffer *cmdBuffer)
+void VulkanQueue::queueCommandBuffer(vkCommandBuffer *cmdBuffer)
 {
 	bool8_t contain = false;
 	for (uint32_t i = 0u; i < m_QueuedCmdBuffers.size(); ++i)
@@ -80,7 +80,7 @@ void vkDeviceQueue::queueCommandBuffer(vkCommandBuffer *cmdBuffer)
 	}
 }
 
-void vkDeviceQueue::submit(const vkSwapchain &swapchain)
+void VulkanQueue::submit(const VulkanSwapchain &swapchain)
 {
 	assert(m_QueuedCmdBuffers.size() > 0u);
 
@@ -117,10 +117,10 @@ void vkDeviceQueue::submit(const vkSwapchain &swapchain)
 	/// vkQueueSubmit is a queue submission command, with each batch defined by an element of pSubmits. 
 	/// Batches begin execution in the order they appear in pSubmits, but may complete out of order.
 	rVerifyVk(vkQueueSubmit(Handle, 1u, &submitInfo, fence));
-	swapchain.present(*this, *m_RenderCompleteSemaphore);
+	swapchain.present(*m_RenderCompleteSemaphore);
 }
 
-void vkDeviceQueue::waitIdle()
+void VulkanQueue::waitIdle()
 {
 	/// To wait on the host for the completion of outstanding queue operations for a given queue
 	/// equivalent to submitting a fence to a queue and waiting with an infinite timeout for that fence to signal.
@@ -130,7 +130,27 @@ void vkDeviceQueue::waitIdle()
 	}
 }
 
-void vkDeviceQueue::destroy(const VulkanDevice &device)
+void VulkanQueue::destroy(VkDevice device)
 {
 	m_RenderCompleteSemaphore->destroy(device);
+}
+
+VulkanQueueManager::VulkanQueueManager(
+	const VkDevice device, 
+	uint32_t gfxQueueFamilyIndex, 
+	uint32_t computeQueueFamilyIndex, 
+	uint32_t transferQueueFamilyIndex)
+{
+	assert(gfxQueueFamilyIndex != std::numeric_limits<uint32_t>().max());
+	m_GfxQueue = std::make_shared<VulkanQueue>(device, gfxQueueFamilyIndex);
+
+	if (computeQueueFamilyIndex != std::numeric_limits<uint32_t>().max())
+	{
+		m_ComputeQueue = std::make_shared<VulkanQueue>(device, computeQueueFamilyIndex);
+	}
+
+	if (transferQueueFamilyIndex != std::numeric_limits<uint32_t>().max())
+	{
+		m_TransferQueue = std::make_shared<VulkanQueue>(device, transferQueueFamilyIndex);
+	}
 }

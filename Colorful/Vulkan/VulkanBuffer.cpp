@@ -2,9 +2,9 @@
 #include "VulkanEngine.h"
 #include "VulkanRenderPass.h"
 
-void vkDeviceMemory::create(const VulkanDevice &device, eRBufferUsage usage, const VkMemoryRequirements &memoryRequirements)
+void VulkanBuffer::VulkanDeviceMemory::create(VkDevice device, eRBufferUsage usage, const VkMemoryRequirements &memoryRequirements)
 {
-	assert(!isValid() && device.isValid());
+	assert(!isValid());
 
 	VkMemoryAllocateInfo allocateInfo
 	{
@@ -14,7 +14,7 @@ void vkDeviceMemory::create(const VulkanDevice &device, eRBufferUsage usage, con
 		device.getMemoryTypeIndex(usage, memoryRequirements.memoryTypeBits)
 	};
 
-	rVerifyVk(vkAllocateMemory(device.Handle, &allocateInfo, vkMemoryAllocator, &Handle));
+	rVerifyVk(vkAllocateMemory(device, &allocateInfo, vkMemoryAllocator, &Handle));
 
 	/// If a memory object does not have the VK_MEMORY_PROPERTY_HOST_COHERENT_BIT property, 
 	/// then vkFlushMappedMemoryRanges must be called in order to guarantee that writes to the memory object from the host are made available to the host domain, 
@@ -25,44 +25,34 @@ void vkDeviceMemory::create(const VulkanDevice &device, eRBufferUsage usage, con
 	/// writes made available to the host domain are automatically made visible to the host.
 }
 
-void vkDeviceMemory::destroy(const VulkanDevice &device)
-{
-	assert(device.isValid());
-
-	if (isValid())
-	{
-		vkFreeMemory(device.Handle, Handle, vkMemoryAllocator);
-		Handle = VK_NULL_HANDLE;
-	}
-}
-
-void vkDeviceMemory::update(const VulkanDevice &device, const void *pData, size_t size, size_t offset)
+void VulkanBuffer::VulkanDeviceMemory::update(VkDevice device, const void *pData, size_t size, size_t offset)
 {
 	assert(isValid());
 
 	/// VkMemoryMapFlags is a bitmask type for setting a mask, but is currently reserved for future use.
 	void *pGpuMemory = nullptr;
-	rVerifyVk(vkMapMemory(device.Handle, Handle, offset, size, 0u, &pGpuMemory));
+	rVerifyVk(vkMapMemory(device, Handle, offset, size, 0u, &pGpuMemory));
 	assert(pGpuMemory);
+
 	verify(memcpy_s(pGpuMemory, size, pData, size) == 0);
-	vkUnmapMemory(device.Handle, Handle);
+	vkUnmapMemory(device, Handle);
 }
 
-void vkBuffer::destroy(const VulkanDevice &device)
+void VulkanBuffer::destroy(VkDevice device)
 {
-	assert(device.isValid());
-
 	if (isValid())
 	{
-		m_Memory.destroy(device);
-		vkDestroyBuffer(device.Handle, Handle, vkMemoryAllocator);
+		vkFreeMemory(device, m_Memory.Handle, vkMemoryAllocator);
+		m_Memory.Handle = VK_NULL_HANDLE;
+
+		vkDestroyBuffer(device, Handle, vkMemoryAllocator);
 		Handle = VK_NULL_HANDLE;
 	}
 }
 
-vkStagingBuffer::vkStagingBuffer(const VulkanDevice &device, VkBufferUsageFlags usageFlagBits, size_t size, const void *pData)
+VulkanStagingBuffer::VulkanStagingBuffer(VkDevice device, VkBufferUsageFlags usageFlagBits, size_t size, const void *pData)
 {
-	assert(!isValid() && device.isValid() && pData);
+	assert(!isValid() && pData);
 	assert(usageFlagBits == VK_BUFFER_USAGE_TRANSFER_SRC_BIT || usageFlagBits == VK_BUFFER_USAGE_TRANSFER_DST_BIT);
 
 	/// VK_SHARING_MODE_EXCLUSIVE specifies that access to any range or image subresource of the object will be exclusive to a single queue family at a time
@@ -78,18 +68,18 @@ vkStagingBuffer::vkStagingBuffer(const VulkanDevice &device, VkBufferUsageFlags 
 		0u,
 		nullptr  /// Ignored if sharingMode is not VK_SHARING_MODE_CONCURRENT
 	};
-	rVerifyVk(vkCreateBuffer(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
+	rVerifyVk(vkCreateBuffer(device, &createInfo, vkMemoryAllocator, &Handle));
 
 	VkMemoryRequirements memoryRequirements{};
-	vkGetBufferMemoryRequirements(device.Handle, Handle, &memoryRequirements);
+	vkGetBufferMemoryRequirements(device, Handle, &memoryRequirements);
 	m_Memory.create(device, eGpuReadCpuWrite, memoryRequirements);
 	m_Memory.update(device, pData, size);
-	rVerifyVk(vkBindBufferMemory(device.Handle, Handle, m_Memory.Handle, 0u));
+	rVerifyVk(vkBindBufferMemory(device, Handle, m_Memory.Handle, 0u));
 }
 
-vkGpuBuffer::vkGpuBuffer(const VulkanDevice &device, eRBufferBindFlags bindFlags, eRBufferUsage usage, size_t size, const void *pData)
+VulkanGpuBuffer::VulkanGpuBuffer(VkDevice device, eRBufferBindFlags bindFlags, eRBufferUsage usage, size_t size, const void *pData)
 {
-	assert(!isValid() && device.isValid());
+	assert(!isValid());
 
 	m_Size = size;
 	m_Offset = 0u;
@@ -125,17 +115,17 @@ vkGpuBuffer::vkGpuBuffer(const VulkanDevice &device, eRBufferBindFlags bindFlags
 		0u,
 		nullptr
 	};
-	rVerifyVk(vkCreateBuffer(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
+	rVerifyVk(vkCreateBuffer(device, &createInfo, vkMemoryAllocator, &Handle));
 
 	VkMemoryRequirements memoryRequirements{};
-	vkGetBufferMemoryRequirements(device.Handle, Handle, &memoryRequirements);
+	vkGetBufferMemoryRequirements(device, Handle, &memoryRequirements);
 	m_Memory.create(device, usage, memoryRequirements);
 	
 	if (useStagingBuffer)
 	{
-		rVerifyVk(vkBindBufferMemory(device.Handle, Handle, m_Memory.Handle, 0u));
+		rVerifyVk(vkBindBufferMemory(device, Handle, m_Memory.Handle, 0u));
 
-		vkStagingBuffer stagingBuffer(device, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, size, pData);
+		VulkanStagingBuffer stagingBuffer(device, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, size, pData);
 		vkCommandBuffer commandBuffer = device.allocCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, false);
 		commandBuffer.begin();
 		VkBufferCopy bufferCopy
@@ -146,7 +136,7 @@ vkGpuBuffer::vkGpuBuffer(const VulkanDevice &device, eRBufferBindFlags bindFlags
 		};
 		vkCmdCopyBuffer(commandBuffer.Handle, stagingBuffer.Handle, Handle, 1u, &bufferCopy);
 		commandBuffer.end();
-		vkEngine::instance().getQueue().submit(commandBuffer);
+		VulkanQueueManager::instance()->transferQueue()->submit(commandBuffer);
 		device.freeCommandBuffer(commandBuffer);
 
 		stagingBuffer.destroy(device);
@@ -157,13 +147,13 @@ vkGpuBuffer::vkGpuBuffer(const VulkanDevice &device, eRBufferBindFlags bindFlags
 		{
 			m_Memory.update(device, pData, size, 0u);
 		}
-		rVerifyVk(vkBindBufferMemory(device.Handle, Handle, m_Memory.Handle, 0u));
+		rVerifyVk(vkBindBufferMemory(device, Handle, m_Memory.Handle, 0u));
 	}
 }
 
-void vkFrameBuffer::create(const VulkanDevice &device, const vkRenderPass &renderPass, const GfxFrameBufferDesc &desc)
+void VulkanFrameBuffer::create(VkDevice device, const vkRenderPass &renderPass, const GfxFrameBufferDesc &desc)
 {
-	assert(device.isValid() && renderPass.isValid() && !isValid());
+	assert(renderPass.isValid() && !isValid());
 
 	std::vector<VkImageView> attachments;
 	for (uint32_t i = 0u; i < eMaxRenderTargets; ++i)
@@ -195,16 +185,55 @@ void vkFrameBuffer::create(const VulkanDevice &device, const vkRenderPass &rende
 		desc.Layers
 	};
 
-	rVerifyVk(vkCreateFramebuffer(device.Handle, &createInfo, vkMemoryAllocator, &Handle));
+	rVerifyVk(vkCreateFramebuffer(device, &createInfo, vkMemoryAllocator, &Handle));
 }
 
-void vkFrameBuffer::destroy(const VulkanDevice &device)
+void VulkanFrameBuffer::destroy(VkDevice device)
 {
-	assert(device.isValid());
-
 	if (isValid())
 	{
-		vkDestroyFramebuffer(device.Handle, Handle, vkMemoryAllocator);
+		vkDestroyFramebuffer(device, Handle, vkMemoryAllocator);
 		Handle = VK_NULL_HANDLE;
 	}
+}
+
+uint32_t VulkanBufferPool::memoryTypeIndex(eRBufferUsage usage, uint32_t memoryTypeBits) const
+{
+	assert(usage < eRBufferUsage_MaxEnum);
+
+	VkMemoryPropertyFlags memoryPropertyFlags = 0u;
+	switch (usage)
+	{
+	case eGpuReadWrite:
+	case eGpuReadOnly:
+		memoryPropertyFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+		break;
+	case eGpuReadCpuWrite:
+		memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+		break;
+	case eGpuCopyToCpu:
+		memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
+		break;
+	default:
+		assert(0);
+		break;
+	}
+
+	for (uint32_t i = 0u; i < m_DeviceMemoryProperties.memoryTypeCount; ++i)
+	{
+		if (((memoryTypeBits >> i) & 1u) == 1u)
+		{
+			if ((m_DeviceMemoryProperties.memoryTypes[i].propertyFlags & memoryPropertyFlags) == memoryPropertyFlags)
+			{
+				return i;
+			}
+		}
+	}
+
+	assert(0);
+	return std::numeric_limits<uint32_t>().max();
+}
+
+void VulkanBufferPool::cleanup()
+{
 }
