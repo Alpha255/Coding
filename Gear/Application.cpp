@@ -1,9 +1,5 @@
 #include "Gear/Application.h"
 #include "Applications/Resource.h"
-#include "Colorful/Public/RAsset.h"
-#include "Colorful/D3D/D3D11/D3D11Engine.h"
-#include "Colorful/D3D/D3D12/D3D12Engine.h"
-#include "Colorful/Vulkan/VulkanEngine.h"
 
 namespaceStart(Gear)
 

@@ -30,12 +30,12 @@ void VulkanInstance::create(const Gear::Configurations& config)
 	rVerifyVk(vkEnumerateInstanceLayerProperties(&count, nullptr));
 	std::vector<VkLayerProperties> supportedLayers(count);
 	rVerifyVk(vkEnumerateInstanceLayerProperties(&count, supportedLayers.data()));
-	layers = vkEngine::getSupportedProperties<VkLayerProperties>(supportedLayers, layers);
+	layers = VulkanEngine::getSupportedProperties<VkLayerProperties>(supportedLayers, layers);
 
 	rVerifyVk(vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr));
 	std::vector<VkExtensionProperties> supportedExtensions(count);
 	rVerifyVk(vkEnumerateInstanceExtensionProperties(nullptr, &count, supportedExtensions.data()));
-	extensions = vkEngine::getSupportedProperties<VkExtensionProperties>(supportedExtensions, extensions);
+	extensions = VulkanEngine::getSupportedProperties<VkExtensionProperties>(supportedExtensions, extensions);
 
 	VkApplicationInfo appInfo
 	{
@@ -43,7 +43,7 @@ void VulkanInstance::create(const Gear::Configurations& config)
 		nullptr,
 		"vkApplication",
 		0U,
-		"vkEngine",
+		"VulkanEngine",
 		0U,
 		VK_API_VERSION_1_0
 	};

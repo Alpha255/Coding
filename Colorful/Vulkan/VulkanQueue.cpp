@@ -16,7 +16,7 @@ VulkanQueue::VulkanQueue(VkDevice device, uint32_t queueFamilyIndex)
 	///m_RenderCompleteSemaphore = device.createSemaphore();
 }
 
-void VulkanQueue::submit(vkCommandBuffer &cmdBuffer)
+void VulkanQueue::submit(VulkanCommandBuffer &cmdBuffer)
 {
 	VkSubmitInfo submitInfo
 	{
@@ -35,7 +35,7 @@ void VulkanQueue::submit(vkCommandBuffer &cmdBuffer)
 }
 
 void VulkanQueue::present(
-	vkCommandBuffer &cmdBuffer,
+	VulkanCommandBuffer &cmdBuffer,
 	const VulkanSwapchain &swapchain,
 	VkFence fence)
 {
@@ -58,11 +58,11 @@ void VulkanQueue::present(
 	/// vkQueueSubmit is a queue submission command, with each batch defined by an element of pSubmits. 
 	/// Batches begin execution in the order they appear in pSubmits, but may complete out of order.
 	rVerifyVk(vkQueueSubmit(Handle, 1u, &submitInfo, fence));
-	cmdBuffer.setState(vkCommandBuffer::ePending);
+	cmdBuffer.setState(VulkanCommandBuffer::ePending);
 	swapchain.present(*m_RenderCompleteSemaphore);
 }
 
-void VulkanQueue::queueCommandBuffer(vkCommandBuffer *cmdBuffer)
+void VulkanQueue::queueCommandBuffer(VulkanCommandBuffer *cmdBuffer)
 {
 	bool8_t contain = false;
 	for (uint32_t i = 0u; i < m_QueuedCmdBuffers.size(); ++i)
@@ -97,7 +97,7 @@ void VulkanQueue::submit(const VulkanSwapchain &swapchain)
 			m_QueuedCmdBuffers[i]->endRenderPass();
 		}
 		fence = m_QueuedCmdBuffers[i]->fence()->Handle;
-		m_QueuedCmdBuffers[i]->setState(vkCommandBuffer::eExecutable);
+		m_QueuedCmdBuffers[i]->setState(VulkanCommandBuffer::eExecutable);
 	}
 
 	VkSubmitInfo submitInfo

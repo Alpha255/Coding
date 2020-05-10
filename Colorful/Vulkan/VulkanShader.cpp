@@ -1,7 +1,7 @@
 #include "VulkanShader.h"
 #include "VulkanEngine.h"
 
-vkShader::vkShader(VkDevice device, eRShaderUsage usage, const rAsset::rShaderBinary &binary)
+VulkanShader::VulkanShader(VkDevice device, eRShaderUsage usage, const rAsset::rShaderBinary &binary)
 	: GfxShader(usage)
 {
 	assert(!isValid());
@@ -22,7 +22,7 @@ vkShader::vkShader(VkDevice device, eRShaderUsage usage, const rAsset::rShaderBi
 	m_Reflections = binary.Reflections;
 }
 
-void vkShader::destroy(VkDevice device)
+void VulkanShader::destroy(VkDevice device)
 {
 	/// A shader module can be destroyed while pipelines created using its shaders are still in use.
 	if (isValid())
@@ -32,7 +32,7 @@ void vkShader::destroy(VkDevice device)
 	}
 }
 
-void vkShader::setInputLayout(const std::vector<GfxVertexAttributes>& vertexAttributes, size_t align)
+void VulkanShader::setInputLayout(const std::vector<GfxVertexAttributes>& vertexAttributes, size_t align)
 {
 	assert(m_Usage == eVertexShader && m_InputLayout.InputState.sType == 0);
 
@@ -46,7 +46,7 @@ void vkShader::setInputLayout(const std::vector<GfxVertexAttributes>& vertexAttr
 		{
 			i,
 			0u,
-			vkEngine::enumTranslator::toFormat(vertexAttributes[i].Format),
+			VulkanEnum::toFormat(vertexAttributes[i].Format),
 			stride
 		};
 

@@ -42,7 +42,7 @@ void vkRenderPass::create(VkDevice device, const GfxFrameBufferDesc &desc)
 	{
 		if (desc.ColorSurface[i])
 		{
-			auto imageView = static_cast<vkImageView *>(desc.ColorSurface[i]);
+			auto imageView = static_cast<VulkanImageView *>(desc.ColorSurface[i]);
 			assert(imageView);
 
 			VkAttachmentDescription attachmentDesc
@@ -77,7 +77,7 @@ void vkRenderPass::create(VkDevice device, const GfxFrameBufferDesc &desc)
 
 	if (desc.DepthSurface)
 	{
-		auto depthImageView = static_cast<vkImageView *>(desc.DepthSurface);
+		auto depthImageView = static_cast<VulkanImageView *>(desc.DepthSurface);
 		assert(depthImageView);
 
 		VkAttachmentDescription attachmentDesc
@@ -166,7 +166,7 @@ void vkRenderPass::destroy(VkDevice device)
 
 void vkRenderPass::pendingGfxPipline(const GfxPipelineState &state)
 {
-	vkEngine::instance().getOrCreateGraphicsPipeline(*this, state);
+	VulkanEngine::instance().getOrCreateGraphicsPipeline(*this, state);
 }
 
 void vkRenderPass::bindGfxPipeline(const GfxPipelineState &state)
@@ -193,7 +193,7 @@ void vkRenderPass::bindGfxPipeline(const GfxPipelineState &state)
 			state.ClearValue.Stencil
 		};
 
-		uint32_t frameIndex = vkEngine::instance().acquireNextFrame();
+		uint32_t frameIndex = VulkanEngine::instance().acquireNextFrame();
 		assert(frameIndex < m_FrameBuffers.size());
 
 		VkRenderPassBeginInfo beginInfo
@@ -219,7 +219,7 @@ void vkRenderPass::bindGfxPipeline(const GfxPipelineState &state)
 		m_CmdBuffer.beginRenderPass(beginInfo, VK_SUBPASS_CONTENTS_INLINE);
 	}
 
-	m_CurGfxPipeline = vkEngine::instance().getOrCreateGraphicsPipeline(*this, state);
+	m_CurGfxPipeline = VulkanEngine::instance().getOrCreateGraphicsPipeline(*this, state);
 	m_CurGfxPipeline->bind(m_CmdBuffer);
 
 	setDynamicGfxState(state);

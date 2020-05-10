@@ -60,6 +60,40 @@ workspace "Miscellaneous"
 		architecture "x64"
 	filter {}
 
+	group "Dlls"
+		project "AssetTool"
+			kind "SharedLib"
+			language "C++"
+			location "./Projects"
+			files "./AssetTool/**"
+			implibname "$(SolutionDir)Out\\Libs\\$(ProjectName)"
+			includedirs { 
+				"$(SolutionDir)", 
+				"$(SolutionDir)ThirdParty\\assimp\\include",
+				"$(SolutionDir)ThirdParty\\assimp\\build\\include", 
+				"$(SolutionDir)ThirdParty\\gli\\external",
+				"$(SolutionDir)ThirdParty\\VulkanSDK\\Include"
+			}
+			libdirs {}
+			targetdir "$(SolutionDir)Out"
+			defines { "UsingAsDynamicLib" }
+			links {
+				"d3d11",
+				"dxgi", 
+				"d3dcompiler", 
+				"windowscodecs",
+				"Usp10",
+				"Comctl32",
+				"Shcore",
+
+				"Colorful",
+				"gear",
+				"assimp",
+				"DirectXTex",
+				"SPIRV-Cross"
+			}
+			disablewarnings { "4201", "4458", "4100" }
+
 	group "Libs"
 		project "Gear"
 			kind "StaticLib"
@@ -68,6 +102,14 @@ workspace "Miscellaneous"
 			files "./gear/**"
 			includedirs { "$(SolutionDir)", "$(SolutionDir)ThirdParty\\VulkanSDK\\Include" }
 			targetdir "$(SolutionDir)Out\\Libs\\"
+
+		project "Colorful"
+			kind "StaticLib"
+			language "C++"
+			location "./Projects"
+			files "./Colorful/**"
+			targetdir "$(SolutionDir)Out\\Libs\\"
+			includedirs { "$(SolutionDir)", "$(SolutionDir)ThirdParty\\VulkanSDK\\Include" }
 
 	
 	group "Fort"
@@ -351,6 +393,29 @@ workspace "Miscellaneous"
 							"_HAS_EXCEPTIONS=1"
 						}
 
+	group "Colorful"
+		project "RenderTest"
+			kind "WindowedApp"
+			language "C++"
+			location "./Projects"
+			vpaths {
+				["Resource"] = { 
+					"./Assets/Icon/Resource.rc",  
+					"./Assets/Icon/nvidia.ico",
+					"./Applications/Resource.h"
+					},
+				[""] = { "./Applications/Colorful/RenderTest/**" },
+				["Configuration"] = { "./Out/Configurations.json" },
+				["Shaders"] = { "./Assets/Shaders/RenderTest.shader" },
+			}
+			files { 
+				"./Applications/Colorful/RenderTest/**",
+				"./Assets/Shaders/RenderTest.shader",
+				"./Applications/Resource.h"
+			}
+			appInclude()
+			appLinks()
+			appResourceFiles()
 
 
 

@@ -117,7 +117,7 @@ vkDescriptorSet vkDescriptorPool::alloc(VkDevice device, const vkDescriptorSetLa
 	return descriptorSet;
 }
 
-void vkDescriptorSetLayout::create(VkDevice device, const rDescriptorLayoutDesc &desc)
+void vkDescriptorSetLayout::create(VkDevice device, const GfxDescriptorLayoutDesc &desc)
 {
 	assert(!isValid());
 
@@ -133,7 +133,7 @@ void vkDescriptorSetLayout::create(VkDevice device, const rDescriptorLayoutDesc 
 					reflection.Binding,
 					(VkDescriptorType)reflection.Type,
 					1u,
-					(VkShaderStageFlags)vkEngine::enumTranslator::toShaderStage(static_cast<eRShaderUsage>(i)),
+					(VkShaderStageFlags)VulkanEnum::toShaderStage(static_cast<eRShaderUsage>(i)),
 					nullptr
 				};
 				bindings.emplace_back(std::move(binding));

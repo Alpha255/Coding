@@ -113,7 +113,7 @@ void vkCommandPool::destroy(VkDevice device)
 		Resetting or freeing a primary command buffer removes the linkage to any secondary command buffers that were recorded to it.
 ********************************/
 
-vkCommandBuffer vkCommandPool::alloc(VkDevice device, VkCommandBufferLevel level, bool8_t signaleFence) const
+VulkanCommandBuffer vkCommandPool::alloc(VkDevice device, VkCommandBufferLevel level, bool8_t signaleFence) const
 {
 	assert(isValid());
 
@@ -129,16 +129,16 @@ vkCommandBuffer vkCommandPool::alloc(VkDevice device, VkCommandBufferLevel level
 	VkCommandBuffer handle = VK_NULL_HANDLE;
 	rVerifyVk(vkAllocateCommandBuffers(device, &allocateInfo, &handle));
 
-	vkSemaphore *semaphore = device.createSemaphore();
+	VulkanSemaphore *semaphore = device.createSemaphore();
 	assert(semaphore);
 
-	vkCommandBuffer result(level, handle, semaphore);
+	VulkanCommandBuffer result(level, handle, semaphore);
 	result.m_Fence = VulkanFencePool::instance()->allocFence(signaleFence);
 
 	return result;
 }
 
-void vkCommandPool::free(VkDevice device, vkCommandBuffer &commandBuffer) const
+void vkCommandPool::free(VkDevice device, VulkanCommandBuffer &commandBuffer) const
 {
 	assert(isValid());
 
@@ -156,18 +156,18 @@ void vkCommandPool::free(VkDevice device, vkCommandBuffer &commandBuffer) const
 	}
 }
 
-vkCommandBuffer *vkCommandPool::getActiveCommandBuffer(VkDevice device)
+VulkanCommandBuffer *vkCommandPool::getActiveCommandBuffer(VkDevice device)
 {
 	if (!m_ActiveCmdBuffer)
 	{
 		auto cmdBuffer = alloc(device, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
-		m_ActiveCmdBuffer = new vkCommandBuffer(std::move(cmdBuffer));
+		m_ActiveCmdBuffer = new VulkanCommandBuffer(std::move(cmdBuffer));
 	}
 
 	return m_ActiveCmdBuffer;
 }
 
-void vkCommandBuffer::begin()
+void VulkanCommandBuffer::begin()
 {
 	assert(isValid() && m_State != ePending && m_State != eRecording);
 
@@ -182,7 +182,7 @@ void vkCommandBuffer::begin()
 	setState(eRecording);
 }
 
-void vkCommandBuffer::end()
+void VulkanCommandBuffer::end()
 {
 	assert(isValid() && m_State == eRecording);
 
@@ -190,7 +190,7 @@ void vkCommandBuffer::end()
 	setState(eExecutable);
 }
 
-void vkCommandBuffer::beginRenderPass(const VkRenderPassBeginInfo &renderPassBeginInfo, VkSubpassContents subpassContents)
+void VulkanCommandBuffer::beginRenderPass(const VkRenderPassBeginInfo &renderPassBeginInfo, VkSubpassContents subpassContents)
 {
 	assert(isValid() && m_State != ePending && m_State != eRecording);
 
@@ -227,7 +227,7 @@ void vkCommandBuffer::beginRenderPass(const VkRenderPassBeginInfo &renderPassBeg
 	setState(eRecording);
 }
 
-void vkCommandBuffer::endRenderPass()
+void VulkanCommandBuffer::endRenderPass()
 {
 	assert(isValid() && m_State == eRecording);
 
@@ -237,7 +237,7 @@ void vkCommandBuffer::endRenderPass()
 	setState(eExecutable);
 }
 
-void vkCommandBuffer::execute(const vkCommandBuffer &primaryCommandBuffer)
+void VulkanCommandBuffer::execute(const VulkanCommandBuffer &primaryCommandBuffer)
 {
 	assert(isValid() && m_Level == VK_COMMAND_BUFFER_LEVEL_SECONDARY);
 	assert(primaryCommandBuffer.isValid() && primaryCommandBuffer.m_Level == VK_COMMAND_BUFFER_LEVEL_PRIMARY && primaryCommandBuffer.m_State == eRecording);

@@ -17,7 +17,7 @@ public:
 	void destroy(VkDevice device) override final;
 };
 
-class vkPipeline : public VulkanDeviceObject<VkPipeline>, public rGpuResource
+class vkPipeline : public VulkanDeviceObject<VkPipeline>
 {
 public:
 	void destroy(VkDevice device) override;
@@ -34,7 +34,7 @@ public:
 
 	void destroy(VkDevice device) override final;
 
-	void bind(const class vkCommandBuffer &cmdBuffer);
+	void bind(const class VulkanCommandBuffer &cmdBuffer);
 protected:
 	VkPipelineRasterizationStateCreateInfo getRasterizationState(const GfxRasterizerStateDesc &stateDesc) const;
 	VkPipelineDepthStencilStateCreateInfo getDepthStencilState(const GfxDepthStencilStateDesc &stateDesc) const;

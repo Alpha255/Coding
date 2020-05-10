@@ -10,7 +10,7 @@ public:
 	
 	GfxShader *createShader(eRShaderUsage usage, const std::string &shaderName);
 
-	rTexture *createTexture(const std::string &textureName);
+	GfxTexture *createTexture(const std::string &textureName);
 
 	inline dxgiAdapter4 *getDxgiAdapter()
 	{

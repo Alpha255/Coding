@@ -155,7 +155,7 @@ void ImGuiRenderer::frame()
 		-1.0f);
 	m_Renderer->updateGpuBuffer(m_UniformBuffer, &uniformBuffer, sizeof(UniformBuffer), 0u);
 
-	rViewport viewport
+	GfxViewport viewport
 	{
 		0.0f,
 		0.0f,
@@ -175,7 +175,7 @@ void ImGuiRenderer::frame()
 		{
 			const ImDrawCmd* drawCmd = &drawList->CmdBuffer[j];
 
-			rScissor scissor
+			GfxScissor scissor
 			{
 				std::max(drawCmd->ClipRect.x, 0.0f),
 				std::max(drawCmd->ClipRect.y, 0.0f),

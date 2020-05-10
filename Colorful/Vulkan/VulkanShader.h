@@ -3,10 +3,10 @@
 #include "Colorful/Public/RAsset.h"
 #include "VulkanLoader.h"
 
-class vkShader : public VulkanDeviceObject<VkShaderModule>, public GfxShader
+class VulkanShader : public VulkanDeviceObject<VkShaderModule>, public GfxShader
 {
 public:
-	vkShader(VkDevice device, eRShaderUsage usage, const rAsset::rShaderBinary &binary);
+	VulkanShader(VkDevice device, eRShaderUsage usage, const rAsset::rShaderBinary &binary);
 	void destroy(VkDevice device) override final;
 
 	inline const VkPipelineVertexInputStateCreateInfo &getInputLayout() const

@@ -1,19 +1,15 @@
 #pragma once
 
-#include "RGpuResource.h"
+#include "Colorful/Public/GfxResource.h"
 
-class rComputePipeline
+class GfxComputePipeline
 {
 };
 
-class rSampler : public rGpuResource
+struct GfxViewport : public Vec4
 {
-};
-
-struct rViewport : public Vec4
-{
-	rViewport() = default;
-	rViewport(float32_t x, float32_t y, float32_t width, float32_t height)
+	GfxViewport() = default;
+	GfxViewport(float32_t x, float32_t y, float32_t width, float32_t height)
 		: Vec4(x, y, width, height)
 	{
 	}
@@ -27,16 +23,16 @@ struct rViewport : public Vec4
 	}
 };
 
-struct rScissor : public Vec4
+struct GfxScissor : public Vec4
 {
-	rScissor() = default;
-	rScissor(float32_t offsetX, float32_t offsetY, float32_t extentWidth, float32_t extentHeight)
+	GfxScissor() = default;
+	GfxScissor(float32_t offsetX, float32_t offsetY, float32_t extentWidth, float32_t extentHeight)
 		: Vec4(offsetX, offsetY, extentWidth, extentHeight)
 	{
 	}
 };
 
-class GfxRenderPass : public rGpuResource
+class GfxRenderPass
 {
 public:
 	virtual void pendingGfxPipline(const struct GfxPipelineState &) = 0;
@@ -47,6 +43,7 @@ protected:
 private:
 	std::string m_Description;
 };
+using GfxRenderPassPtr = std::shared_ptr<GfxRenderPass>;
 
 struct GfxRasterizerStateDesc
 {
@@ -157,18 +154,18 @@ struct GfxPipelineState
 	inline void setShader(const GfxShader *shader)
 	{
 		assert(shader);
-		assert(shader->getUsage() < eRShaderUsage_MaxEnum);
+		assert(shader->usage() < eRShaderUsage_MaxEnum);
 		///assert(Shaders[shader->getUsage()] == nullptr);
-		Shaders[shader->getUsage()] = shader;
+		Shaders[shader->usage()] = shader;
 	}
 
-	inline void setViewport(const rViewport &viewport)
+	inline void setViewport(const GfxViewport &viewport)
 	{
 		Viewport = viewport;
 		setDirty(eViewport);
 	}
 
-	inline void setScissor(const rScissor &scissor)
+	inline void setScissor(const GfxScissor &scissor)
 	{
 		Scissor = scissor;
 		setDirty(eScissor);
@@ -214,8 +211,8 @@ struct GfxPipelineState
 	GfxRasterizerStateDesc RasterizerStateDesc{};
 	GfxBlendStateDesc BlendStateDesc{};
 	GfxDepthStencilStateDesc DepthStencilStateDesc{};
-	rViewport Viewport;
-	rScissor Scissor;
+	GfxViewport Viewport;
+	GfxScissor Scissor;
 	GfxGpuBuffer *VertexBuffer = nullptr;
 	GfxGpuBuffer *IndexBuffer = nullptr;
 

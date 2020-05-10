@@ -7,7 +7,7 @@ GfxShader *d3d11Device::createShader(eRShaderUsage usage, const std::string &sha
 	return nullptr;
 }
 
-rTexture *d3d11Device::createTexture(const std::string &)
+GfxTexture *d3d11Device::createTexture(const std::string &)
 {
 	return nullptr;
 }

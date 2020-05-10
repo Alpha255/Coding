@@ -44,27 +44,27 @@ void vkGraphicsPipeline::create(
 	assert(state.Shaders[eVertexShader]);
 	assert(renderpass.isValid() && cache.isValid());
 
-	rDescriptorLayoutDesc descriptorLayoutDesc{};
+	GfxDescriptorLayoutDesc descriptorLayoutDesc{};
 	std::vector<VkPipelineShaderStageCreateInfo> shaderStageCreateInfos;
 	for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
 	{
 		if (state.Shaders[i])
 		{
-			auto shader = static_cast<const vkShader *>(state.Shaders[i]);
+			auto shader = static_cast<const VulkanShader *>(state.Shaders[i]);
 
 			VkPipelineShaderStageCreateInfo shaderStageCreateInfo
 			{
 				VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
 				nullptr,
 				0u,
-				vkEngine::enumTranslator::toShaderStage(shader->getUsage()),
+				VulkanEnum::toShaderStage(shader->usage()),
 				shader->Handle,
 				"main",
 				nullptr
 			};
 			shaderStageCreateInfos.emplace_back(std::move(shaderStageCreateInfo));
 
-			descriptorLayoutDesc[i] = shader->getReflections();
+			descriptorLayoutDesc[i] = shader->reflections();
 		}
 	}
 
@@ -72,14 +72,14 @@ void vkGraphicsPipeline::create(
 	m_PipelineLayout.create(device, m_DescriptorSetLayout);
 	setupDescriptorSet(device, state);
 
-	auto vertexShader = static_cast<const vkShader *>(state.Shaders[eVertexShader]);
+	auto vertexShader = static_cast<const VulkanShader *>(state.Shaders[eVertexShader]);
 
 	VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo
 	{
 		VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
 		nullptr,
 		0u,
-		vkEngine::enumTranslator::toPrimitiveTopology(state.PrimitiveTopology),
+		VulkanEnum::toPrimitiveTopology(state.PrimitiveTopology),
 		false
 	};
 
@@ -165,7 +165,7 @@ void vkGraphicsPipeline::destroy(VkDevice device)
 	vkPipeline::destroy(device);
 }
 
-void vkGraphicsPipeline::bind(const vkCommandBuffer &cmdBuffer)
+void vkGraphicsPipeline::bind(const VulkanCommandBuffer &cmdBuffer)
 {
 	assert(isValid() && cmdBuffer.isValid() && m_DescriptorSet.isValid());
 
@@ -187,9 +187,9 @@ VkPipelineRasterizationStateCreateInfo vkGraphicsPipeline::getRasterizationState
 		0u, /// flags is reserved for future use
 		false,
 		false,
-		vkEngine::enumTranslator::toPolygonMode(stateDesc.PolygonMode),
-		vkEngine::enumTranslator::toCullMode(stateDesc.CullMode),
-		vkEngine::enumTranslator::toFrontFace(stateDesc.FrontFace),
+		VulkanEnum::toPolygonMode(stateDesc.PolygonMode),
+		VulkanEnum::toCullMode(stateDesc.CullMode),
+		VulkanEnum::toFrontFace(stateDesc.FrontFace),
 		stateDesc.EnableDepthBias,
 		stateDesc.DepthBias,
 		stateDesc.DepthBiasClamp,
@@ -209,23 +209,23 @@ VkPipelineDepthStencilStateCreateInfo vkGraphicsPipeline::getDepthStencilState(c
 		0u,  /// flags is reserved for future use.
 		stateDesc.EnableDepth,
 		stateDesc.EnableDepthWrite,
-		vkEngine::enumTranslator::toCompareOp(stateDesc.DepthCompareOp),
+		VulkanEnum::toCompareOp(stateDesc.DepthCompareOp),
 		false,  /// depthBoundsTestEnable?
 		stateDesc.EnableStencil,
 		{
-			vkEngine::enumTranslator::toStencilOp(stateDesc.FrontFace.FailOp),
-			vkEngine::enumTranslator::toStencilOp(stateDesc.FrontFace.PassOp),
-			vkEngine::enumTranslator::toStencilOp(stateDesc.FrontFace.DepthFailOp),
-			vkEngine::enumTranslator::toCompareOp(stateDesc.FrontFace.CompareOp),
+			VulkanEnum::toStencilOp(stateDesc.FrontFace.FailOp),
+			VulkanEnum::toStencilOp(stateDesc.FrontFace.PassOp),
+			VulkanEnum::toStencilOp(stateDesc.FrontFace.DepthFailOp),
+			VulkanEnum::toCompareOp(stateDesc.FrontFace.CompareOp),
 			stateDesc.StencilReadMask,
 			stateDesc.StencilWriteMask,
 			0u
 		},
 		{
-			vkEngine::enumTranslator::toStencilOp(stateDesc.BackFace.FailOp),
-			vkEngine::enumTranslator::toStencilOp(stateDesc.BackFace.PassOp),
-			vkEngine::enumTranslator::toStencilOp(stateDesc.BackFace.DepthFailOp),
-			vkEngine::enumTranslator::toCompareOp(stateDesc.BackFace.CompareOp),
+			VulkanEnum::toStencilOp(stateDesc.BackFace.FailOp),
+			VulkanEnum::toStencilOp(stateDesc.BackFace.PassOp),
+			VulkanEnum::toStencilOp(stateDesc.BackFace.DepthFailOp),
+			VulkanEnum::toCompareOp(stateDesc.BackFace.CompareOp),
 			stateDesc.StencilReadMask,
 			stateDesc.StencilWriteMask,
 			0u
@@ -248,13 +248,13 @@ VkPipelineColorBlendStateCreateInfo vkGraphicsPipeline::getColorBlendState(
 			VkPipelineColorBlendAttachmentState attachment
 			{
 				stateDesc.ColorBlendStates[i].Enable,
-				vkEngine::enumTranslator::toBlendFactor(stateDesc.ColorBlendStates[i].SrcColor),
-				vkEngine::enumTranslator::toBlendFactor(stateDesc.ColorBlendStates[i].DstColor),
-				vkEngine::enumTranslator::toBlendOp(stateDesc.ColorBlendStates[i].ColorOp),
-				vkEngine::enumTranslator::toBlendFactor(stateDesc.ColorBlendStates[i].SrcAlpha),
-				vkEngine::enumTranslator::toBlendFactor(stateDesc.ColorBlendStates[i].DstAlpha),
-				vkEngine::enumTranslator::toBlendOp(stateDesc.ColorBlendStates[i].AlphaOp),
-				vkEngine::enumTranslator::toColorComponentFlags(stateDesc.ColorBlendStates[i].ColorMask)
+				VulkanEnum::toBlendFactor(stateDesc.ColorBlendStates[i].SrcColor),
+				VulkanEnum::toBlendFactor(stateDesc.ColorBlendStates[i].DstColor),
+				VulkanEnum::toBlendOp(stateDesc.ColorBlendStates[i].ColorOp),
+				VulkanEnum::toBlendFactor(stateDesc.ColorBlendStates[i].SrcAlpha),
+				VulkanEnum::toBlendFactor(stateDesc.ColorBlendStates[i].DstAlpha),
+				VulkanEnum::toBlendOp(stateDesc.ColorBlendStates[i].AlphaOp),
+				VulkanEnum::toColorComponentFlags(stateDesc.ColorBlendStates[i].ColorMask)
 			};
 			attachments.emplace_back(std::move(attachment));
 		}
@@ -281,7 +281,7 @@ VkPipelineColorBlendStateCreateInfo vkGraphicsPipeline::getColorBlendState(
 		nullptr,
 		0u,  /// flags is reserved for future use.
 		stateDesc.EnableLogicOp,
-		vkEngine::enumTranslator::toLogicOp(stateDesc.LogicOp),
+		VulkanEnum::toLogicOp(stateDesc.LogicOp),
 		(uint32_t)attachments.size(),
 		attachments.data()
 	};
@@ -308,8 +308,8 @@ void vkGraphicsPipeline::setupDescriptorSet(VkDevice device, const GfxPipelineSt
 				VkDescriptorBufferInfo bufferInfo
 				{
 					buffer->Handle,
-					buffer->getOffset(),
-					buffer->getSize()
+					0u,
+					VK_WHOLE_SIZE   /// Use whole size for now
 				};
 
 				VkWriteDescriptorSet writeDescriptorSetUniforBuffer
@@ -331,12 +331,12 @@ void vkGraphicsPipeline::setupDescriptorSet(VkDevice device, const GfxPipelineSt
 			auto &textures = state.Shaders[i]->getTextures();
 			for (uint32_t j = 0u; j < textures.size(); ++j)
 			{
-				auto imageView = static_cast<const vkImageView *>(textures[j]);
-				const vkSampler *sampler = nullptr;
+				auto imageView = static_cast<const VulkanImageView *>(textures[j]);
+				const VulkanSampler *sampler = nullptr;
 				auto combinedSampler = imageView->getSampler();
 				if (combinedSampler)
 				{
-					sampler = static_cast<const vkSampler *>(combinedSampler);
+					sampler = static_cast<const VulkanSampler *>(combinedSampler);
 				}
 
 				VkDescriptorImageInfo imageInfo

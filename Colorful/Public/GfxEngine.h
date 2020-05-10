@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Colorful/Public/GfxDefinitions.h"
-#include "Colorful/Public/GfxRenderState.h"
 #include "Colorful/Public/ImGui/ImGui.h"
 
 namespace Gear
@@ -53,16 +51,17 @@ protected:
 class GfxRenderSurface
 {
 };
+using GfxRenderSurfacePtr = std::shared_ptr<GfxRenderSurface>;
 
-class rGeometryBuffer
+class GfxGeometryBuffer
 {
 };
 
-class rGpuMarker
+class GfxGpuMarker
 {
 };
 
-class rGpuTimer
+class GfxGpuTimer
 {
 };
 
@@ -102,43 +101,39 @@ public:
 	virtual void present() = 0;
 	virtual void handleWindowResize(uint32_t width, uint32_t height) = 0;
 
-	virtual class GfxShader* createVertexShader(const std::string& shaderName) = 0;
-	virtual class GfxShader* createFragmentShader(const std::string& shaderName) = 0;
+	virtual GfxShaderPtr createVertexShader(const std::string& shaderName) = 0;
+	virtual GfxShaderPtr createFragmentShader(const std::string& shaderName) = 0;
 
-	virtual class GfxGpuBuffer *createIndexBuffer(eRBufferUsage, size_t, const void *) { return nullptr; }
-	virtual class GfxGpuBuffer *createVertexBuffer(eRBufferUsage, size_t, const void *) { return nullptr; }
-	virtual class GfxGpuBuffer *createUniformBuffer(size_t, const void *) { return nullptr; }
-	virtual void destroyBuffer(class GfxGpuBuffer *) {}
+	virtual GfxGpuBufferPtr createIndexBuffer(eRBufferUsage usage, size_t size, const void* data) = 0;
+	virtual GfxGpuBufferPtr createVertexBuffer(eRBufferUsage usage, size_t size, const void* data) = 0;
+	virtual GfxGpuBufferPtr createUniformBuffer(size_t size, const void* data) = 0;
 
-	virtual GfxRenderSurface *createDepthStencilView(uint32_t, uint32_t, eRFormat) { return nullptr; }
-	virtual GfxRenderPass *createRenderPass(GfxFrameBufferDesc &) { return nullptr; }
-	virtual void createOpaqueRenderPass() {}
+	virtual GfxTexturePtr createTexture(const std::string& fileName) = 0;
+	virtual GfxTexturePtr createTexture(
+		eRTextureType type,
+		eRFormat format,
+		uint32_t width,
+		uint32_t height,
+		uint32_t depth,
+		uint32_t mipLevels,
+		uint32_t arrayLayers,
+		const void* data,
+		size_t dataSize) = 0;
 
-	virtual class rTexture *createTexture(const std::string &) { return nullptr; }
-	virtual class rTexture *createTexture(
-		eRTextureType,
-		eRFormat,
-		uint32_t,
-		uint32_t,
-		uint32_t,
-		uint32_t,
-		const void *,
-		size_t) 
-	{
-		return nullptr;
-	}
+	virtual GfxSamplerPtr createSampler(const GfxSamplerDesc& desc) = 0;
 
-	virtual void updateGpuBuffer(class GfxGpuBuffer *, const void *, size_t, size_t) {}
+	virtual GfxRenderSurfacePtr createDepthStencilView(uint32_t width, uint32_t height, eRFormat format) = 0;
+	virtual GfxRenderSurfacePtr createRenderTargetView() = 0;
 
-	virtual rSampler *createSampler(const GfxSamplerDesc &) { return nullptr; }
+	virtual GfxRenderPassPtr createRenderPass(GfxFrameBufferDesc& desc) = 0;
 
-	inline GfxRenderPass *getOpaqueRenderPass()
+	inline GfxRenderPassPtr& opaqueRenderPass()
 	{
 		assert(m_OpaqueRenderPass);
 		return m_OpaqueRenderPass;
 	}
 protected:
-	GfxRenderPass *m_OpaqueRenderPass = nullptr;
+	GfxRenderPassPtr m_OpaqueRenderPass = nullptr;
 	renderFrameCallback m_RenderFrameCallback = nullptr;
 	ImGuiRendererPtr m_ImGuiRenderer = nullptr;
 private:

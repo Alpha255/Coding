@@ -85,10 +85,10 @@ private:
 	std::vector<VulkanFencePtr> m_FreeFences;
 };
 
-class vkSemaphore : public VulkanDeviceObject<VkSemaphore>
+class VulkanSemaphore : public VulkanDeviceObject<VkSemaphore>
 {
 public:
-	vkSemaphore(VkDevice device);
+	VulkanSemaphore(VkDevice device);
 	void destroy(VkDevice device) override final;
 };
 

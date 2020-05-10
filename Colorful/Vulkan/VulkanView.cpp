@@ -1,9 +1,9 @@
 #include "VulkanView.h"
 #include "VulkanEngine.h"
 
-void vkImageView::create(
+void VulkanImageView::create(
 	VkDevice device, 
-	const vkImage &image, 
+	const VulkanImage &image, 
 	VkFormat format,
 	VkImageAspectFlags aspectFlags)
 {
@@ -37,7 +37,7 @@ void vkImageView::create(
 	m_Format = format;
 }
 
-void vkImageView::create(
+void VulkanImageView::create(
 	VkDevice device, 
 	uint32_t width, 
 	uint32_t height, 
@@ -88,7 +88,7 @@ void vkImageView::create(
 	m_Format = format;
 }
 
-void vkImageView::create(
+void VulkanImageView::create(
 	VkDevice device,
 	eRTextureType type, 
 	eRFormat format, 
@@ -102,7 +102,7 @@ void vkImageView::create(
 	rAsset::rTextureBinary texBinary
 	{
 		type,
-		(uint32_t)vkEngine::enumTranslator::toFormat(format),
+		(uint32_t)VulkanEnum::toFormat(format),
 		width,
 		height,
 		1u,
@@ -131,12 +131,12 @@ void vkImageView::create(
 		mipSize = (size_t)(((float32_t)(mipWidth * mipHeight) / (width * height)) * dataSize); /// May incorrect
 	}
 
-	vkImage image(device, texBinary);
+	VulkanImage image(device, texBinary);
 
 	create(device, image, image.getFormat(), VK_IMAGE_ASPECT_COLOR_BIT);
 }
 
-void vkImageView::destroy(VkDevice device)
+void VulkanImageView::destroy(VkDevice device)
 {
 	if (isValid())
 	{

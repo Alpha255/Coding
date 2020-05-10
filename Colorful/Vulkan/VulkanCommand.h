@@ -16,11 +16,11 @@
 /// Also, the memory side-effects of those commands may not be directly visible to other commands without explicit memory dependencies. This is true within a command buffer, and across command buffers submitted to a given queue. 
 
 
-class vkCommandBuffer : public VulkanObject<VkCommandBuffer>
+class VulkanCommandBuffer : public VulkanObject<VkCommandBuffer>
 {
 public:
-	vkCommandBuffer() = default;
-	vkCommandBuffer(VkCommandBufferLevel level, VkCommandBuffer handle, class vkSemaphore *semaphore)
+	VulkanCommandBuffer() = default;
+	VulkanCommandBuffer(VkCommandBufferLevel level, VkCommandBuffer handle, class VulkanSemaphore *semaphore)
 		: m_Level(level)
 		, m_Semaphore(semaphore)
 	{
@@ -35,7 +35,7 @@ public:
 	void begin();
 	void end();
 
-	void execute(const vkCommandBuffer &primaryCommandBuffer);
+	void execute(const VulkanCommandBuffer &primaryCommandBuffer);
 
 	inline bool8_t isInsideRenderPass() const
 	{
@@ -48,7 +48,7 @@ public:
 		return m_Fence;
 	}
 
-	inline class vkSemaphore *getWaitSemaphore() const
+	inline class VulkanSemaphore *getWaitSemaphore() const
 	{
 		assert(m_Semaphore);
 		return m_Semaphore;
@@ -69,7 +69,7 @@ public:
 protected:
 	friend class vkCommandPool;
 	friend class VulkanQueue;
-	friend class vkEngine;
+	friend class VulkanEngine;
 	enum eState
 	{
 		eInitial,
@@ -88,7 +88,7 @@ private:
 	VkCommandBufferLevel m_Level = VK_COMMAND_BUFFER_LEVEL_MAX_ENUM;
 	eState m_State = eState_MaxEnum;
 	VulkanFencePtr m_Fence = nullptr;
-	vkSemaphore *m_Semaphore = nullptr;
+	VulkanSemaphore *m_Semaphore = nullptr;
 };
 
 class vkCommandPool : public VulkanDeviceObject<VkCommandPool>
@@ -99,11 +99,11 @@ public:
 	void reset(VkDevice device);
 	void trim(VkDevice device);
 
-	vkCommandBuffer alloc(VkDevice device, VkCommandBufferLevel level, bool8_t signaleFence = true) const;
-	void free(VkDevice device, vkCommandBuffer &commandBuffer) const;
+	VulkanCommandBuffer alloc(VkDevice device, VkCommandBufferLevel level, bool8_t signaleFence = true) const;
+	void free(VkDevice device, VulkanCommandBuffer &commandBuffer) const;
 
-	vkCommandBuffer *getActiveCommandBuffer(VkDevice device);
+	VulkanCommandBuffer *getActiveCommandBuffer(VkDevice device);
 protected:
 private:
-	vkCommandBuffer *m_ActiveCmdBuffer = nullptr;
+	VulkanCommandBuffer *m_ActiveCmdBuffer = nullptr;
 };

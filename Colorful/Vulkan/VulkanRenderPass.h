@@ -114,5 +114,5 @@ protected:
 private:
 	std::vector<VulkanFrameBuffer> m_FrameBuffers;
 	class vkGraphicsPipeline *m_CurGfxPipeline = nullptr;
-	vkCommandBuffer m_CmdBuffer;
+	VulkanCommandBuffer m_CmdBuffer;
 };

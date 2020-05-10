@@ -10,7 +10,6 @@
 #include "Gear/SystemUtil.h"
 #include "Gear/Camera/Camera.h"
 #include "Gear/Camera/DXUTCamera.h"
-#include "Gear/Asset/AssetBucket.h"
 #include "Gear/Memory/LinearAllocator.h"
 
 using namespace Gear;

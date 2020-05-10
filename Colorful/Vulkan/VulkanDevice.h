@@ -13,22 +13,15 @@
 class VulkanDevice : public GfxDevice
 {
 public:
-	inline bool8_t isValid() const
-	{
-		return m_LogicalDevice.isValid();
-	}
-
-	vkSemaphore *createSemaphore() const;
+	VulkanSemaphore *createSemaphore() const;
 	vkEvent *createEvent() const;
 
-	uint32_t getMemoryTypeIndex(eRBufferUsage usage, uint32_t memoryTypeBits) const;
-
-	inline vkCommandBuffer allocCommandBuffer(VkCommandBufferLevel level, bool8_t signaleFence = true) const
+	inline VulkanCommandBuffer allocCommandBuffer(VkCommandBufferLevel level, bool8_t signaleFence = true) const
 	{
 		return m_CommandPool.alloc(m_LogicalDevice.Handle, level, signaleFence);
 	}
 
-	inline void freeCommandBuffer(vkCommandBuffer &commandBuffer) const
+	inline void freeCommandBuffer(VulkanCommandBuffer &commandBuffer) const
 	{
 		m_CommandPool.free(m_LogicalDevice.Handle, commandBuffer);
 	}
@@ -38,14 +31,14 @@ public:
 		return m_DescriptorPool.alloc(m_LogicalDevice.Handle, layout);
 	}
 
-	inline const VkPhysicalDeviceLimits &getDeviceLimits() const
+	inline const VkPhysicalDeviceLimits& deviceLimits() const
 	{
 		return m_DeviceLimits;
 	}
 
 	GfxShader *createShader(eRShaderUsage usage, const std::string &shaderName);
-	rTexture *createTexture(const std::string &textureName);
-	rTexture *createTexture(
+	GfxTexture *createTexture(const std::string &textureName);
+	GfxTexture *createTexture(
 		eRTextureType type,
 		eRFormat format,
 		uint32_t width,
@@ -55,13 +48,9 @@ public:
 		const void *data,
 		size_t dataSize);
 	GfxGpuBuffer *createBuffer(eRBufferBindFlags bindFlags, eRBufferUsage usage, size_t size, const void *pData);
-	inline void destroyBuffer(GfxGpuBuffer *buffer)
-	{
-		m_GpuResourcePool->destroyBuffer(buffer);
-	}
 	GfxRenderSurface *createDepthStencilView(uint32_t width, uint32_t height, eRFormat format);
 	GfxRenderPass *createRenderPass(const VulkanSwapchain &swapchain, GfxFrameBufferDesc &desc);
-	rSampler *createSampler(const GfxSamplerDesc &desc);
+	GfxSampler *createSampler(const GfxSamplerDesc &desc);
 
 	const GfxPipelineState *getGraphicsPipelineState(vkGraphicsPipeline *pipeline) const
 	{
@@ -73,7 +62,7 @@ public:
 		return m_PipelinePool->getOrCreateGraphicsPipeline(renderpass, graphicsPipelineState);
 	}
 
-	inline vkCommandBuffer *getActiveCommandBuffer()
+	inline VulkanCommandBuffer *getActiveCommandBuffer()
 	{
 		return m_CommandPool.getActiveCommandBuffer(m_LogicalDevice.Handle);
 	}
@@ -132,7 +121,7 @@ protected:
 		}
 	protected:
 	private:
-		const VulkanDevice &m_Device;
+		const VkDevice m_Device;
 		///std::unordered_map<GfxPipelineState, vkPipeline *> m_Pipelines;
 		std::vector<std::pair<GfxPipelineState, vkPipeline *>> m_Pipelines;
 		vkPipelineCache m_PipelineCache;

@@ -30,8 +30,8 @@ public:
 		return m_BackBuffers;
 	}
 
-	void present(const class vkSemaphore &renderCompleteSephore) const;
-	inline class vkSemaphore * getPresentCompleteSemaphore() const
+	void present(const class VulkanSemaphore &renderCompleteSephore) const;
+	inline class VulkanSemaphore * getPresentCompleteSemaphore() const
 	{
 		return m_PresentCompleteSemaphore;
 	}
@@ -61,7 +61,7 @@ protected:
 private:
 	VulkanSurface m_Surface;
 	std::vector<vkBackBuffer> m_BackBuffers;
-	class vkSemaphore *m_PresentCompleteSemaphore = nullptr;
+	class VulkanSemaphore *m_PresentCompleteSemaphore = nullptr;
 	bool8_t m_VSync = false;
 	bool8_t m_FullScreen = false;
 	uint32_t m_Width = 0u;

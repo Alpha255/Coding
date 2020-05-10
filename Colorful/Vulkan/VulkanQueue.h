@@ -1,30 +1,48 @@
 #pragma once
 
-#include "Colorful/Vulkan/VulkanLoader.h"
+#include "Colorful/Vulkan/VulkanBuffer.h"
 
 class VulkanQueue : public VulkanObject<VkQueue>
 {
 public:
 	VulkanQueue(VkDevice device, uint32_t queueFamilyIndex);
 
-	void submit(class vkCommandBuffer &cmdBuffer);
+	void submit(class VulkanCommandBuffer &cmdBuffer);
 
 	void present(
-		class vkCommandBuffer &cmdBuffer,
+		class VulkanCommandBuffer &cmdBuffer,
 		const class VulkanSwapchain &swapchain,
 		VkFence fence);
 
-	void queueCommandBuffer(class vkCommandBuffer *cmdBuffer);
+	void queueCommandBuffer(class VulkanCommandBuffer *cmdBuffer);
 	void submit(const class VulkanSwapchain &swapchain);
+
+	void queueSubmitCopyCommand(VkBuffer dstBuffer, const VulkanBuffer& stagingBuffer, const VkBufferCopy& copyInfo)
+	{
+		VulkanCopyCommand copyCommand
+		{
+			dstBuffer,
+			stagingBuffer,
+			copyInfo
+		};
+		m_CopyQueue.push(std::move(copyCommand));
+	}
 
 	void waitIdle();
 
 	void destroy(VkDevice device);
 protected:
+	struct VulkanCopyCommand
+	{
+		VkBuffer DstBuffer = VK_NULL_HANDLE;
+		VulkanBuffer StagingBuffer;
+		VkBufferCopy CopyInfo{};
+	};
 private:
 	uint32_t m_FamilyIndex = std::numeric_limits<uint32_t>().max();
-	class vkSemaphore *m_RenderCompleteSemaphore = nullptr;
-	std::vector<class vkCommandBuffer *> m_QueuedCmdBuffers;
+	class VulkanSemaphore *m_RenderCompleteSemaphore = nullptr;
+	std::vector<class VulkanCommandBuffer *> m_QueuedCmdBuffers;
+	std::stack<VulkanCopyCommand> m_CopyQueue;
 };
 using VulkanQueuePtr = std::shared_ptr<VulkanQueue>;
 

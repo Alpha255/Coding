@@ -19,7 +19,7 @@ public:
 class vkDescriptorSetLayout : public VulkanDeviceObject<VkDescriptorSetLayout>
 {
 public:
-	void create(VkDevice device, const rDescriptorLayoutDesc &desc);
+	void create(VkDevice device, const GfxDescriptorLayoutDesc &desc);
 	void destroy(VkDevice device) override final;
 };
 

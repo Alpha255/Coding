@@ -69,14 +69,14 @@ void RenderTest::postInitialize()
 	/// alignment ??? Try to create based on shader reflection(Format) ??? 
 	vertexShader->setInputLayout(vertexAttrs, alignof(vertex));
 
-	rViewport viewport
+	GfxViewport viewport
 	{
 		0.0f,
 		0.0f,
 		m_WindowSize.x,
 		m_WindowSize.y
 	};
-	rScissor scissor
+	GfxScissor scissor
 	{
 		0.0f,
 		0.0f,

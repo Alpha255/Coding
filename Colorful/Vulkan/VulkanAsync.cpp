@@ -1,7 +1,7 @@
 #include "VulkanAsync.h"
 #include "VulkanEngine.h"
 
-vkSemaphore::vkSemaphore(VkDevice device)
+VulkanSemaphore::VulkanSemaphore(VkDevice device)
 {
 	/// Semaphores have two states - signaled and unsignaled. The state of a semaphore can be signaled after execution of a batch of commands is completed. 
 	/// A batch can wait for a semaphore to become signaled before it begins execution, and the semaphore is also unsignaled before the batch begins execution.
@@ -25,7 +25,7 @@ vkSemaphore::vkSemaphore(VkDevice device)
 	/// 2. There must be no other queue waiting on the same semaphore when the operation executes.
 }
 
-void vkSemaphore::destroy(VkDevice device)
+void VulkanSemaphore::destroy(VkDevice device)
 {
 	/// All submitted batches that refer to semaphore must have completed execution
 	if (isValid())

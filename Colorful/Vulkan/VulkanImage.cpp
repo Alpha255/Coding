@@ -1,7 +1,7 @@
-#include "VulkanTexture.h"
+#include "VulkanImage.h"
 #include "VulkanEngine.h"
 
-void vkImage::transitionImageLayout()
+void VulkanImage::transitionImageLayout()
 {
 	/// The old layout must match the current layout of the image subresource range, with one exception. 
 	/// The old layout can always be specified as VK_IMAGE_LAYOUT_UNDEFINED, though doing so invalidates the contents of the image subresource range.
@@ -20,7 +20,7 @@ void vkImage::transitionImageLayout()
 	/// The new layout used in a transition must not be VK_IMAGE_LAYOUT_UNDEFINED or VK_IMAGE_LAYOUT_PREINITIALIZED.
 }
 
-VkImageType vkImage::getImageType(eRTextureType type) const
+VkImageType VulkanImage::getImageType(eRTextureType type) const
 {
 	VkImageType imageType = VK_IMAGE_TYPE_MAX_ENUM;
 	switch (type)
@@ -44,10 +44,10 @@ VkImageType vkImage::getImageType(eRTextureType type) const
 	return imageType;
 }
 
-void vkImage::copyBufferToImage(VkDevice device, const rAsset::rTextureBinary &binary)
+void VulkanImage::copyBufferToImage(VkDevice device, const rAsset::rTextureBinary &binary)
 {
 	bool8_t useStaging = true;
-	//VkFormatProperties formatProperties = vkEngine::instance().getFormatProperties(m_Format);
+	//VkFormatProperties formatProperties = VulkanEngine::instance().getFormatProperties(m_Format);
 	//useStaging = !(formatProperties.linearTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT);
 
 	if (useStaging)
@@ -94,7 +94,7 @@ void vkImage::copyBufferToImage(VkDevice device, const rAsset::rTextureBinary &b
 			binary.Size, 
 			binary.Binary ? binary.Binary : binary.SharedBinary.get()
 		);
-		vkCommandBuffer commandBuffer = device.allocCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, false);
+		VulkanCommandBuffer commandBuffer = device.allocCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, false);
 		commandBuffer.begin();
 
 		VkImageSubresourceRange subresourceRange
@@ -147,8 +147,8 @@ void vkImage::copyBufferToImage(VkDevice device, const rAsset::rTextureBinary &b
 	}
 }
 
-void vkImage::insertMemoryBarrier(
-	const vkCommandBuffer &commandBuffer, 
+void VulkanImage::insertMemoryBarrier(
+	const VulkanCommandBuffer &commandBuffer, 
 	VkPipelineStageFlags srcStageMask, 
 	VkPipelineStageFlags dstStageMask, 
 	VkAccessFlags srcAccessFlags,
@@ -185,7 +185,7 @@ void vkImage::insertMemoryBarrier(
 		&imageMemoryBarrier);
 }
 
-vkImage::vkImage(VkDevice device, const rAsset::rTextureBinary &binary)
+VulkanImage::VulkanImage(VkDevice device, const rAsset::rTextureBinary &binary)
 {
 	assert(!isValid() && binary.Size > 0u);
 
@@ -223,7 +223,7 @@ vkImage::vkImage(VkDevice device, const rAsset::rTextureBinary &binary)
 	copyBufferToImage(device, binary);
 }
 
-void vkImage::create(
+void VulkanImage::create(
 	VkDevice device, 
 	uint32_t width, 
 	uint32_t height, 
@@ -269,7 +269,7 @@ void vkImage::create(
 	rVerifyVk(vkBindImageMemory(device, Handle, m_Memory.Handle, 0u));
 }
 
-void vkImage::destroy(VkDevice device)
+void VulkanImage::destroy(VkDevice device)
 {
 	if (isValid())
 	{
@@ -279,7 +279,7 @@ void vkImage::destroy(VkDevice device)
 	}
 }
 
-vkSampler::vkSampler(VkDevice device, const GfxSamplerDesc &desc)
+VulkanSampler::VulkanSampler(VkDevice device, const GfxSamplerDesc &desc)
 {
 	assert(!isValid());
 	assert(desc.MaxAnisotropy < 16u);
@@ -289,27 +289,27 @@ vkSampler::vkSampler(VkDevice device, const GfxSamplerDesc &desc)
 		VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
 		nullptr,
 		0u,
-		vkEngine::enumTranslator::toFilter(desc.MinMagFilter),
-		vkEngine::enumTranslator::toFilter(desc.MinMagFilter),
+		VulkanEnum::toFilter(desc.MinMagFilter),
+		VulkanEnum::toFilter(desc.MinMagFilter),
 		VK_SAMPLER_MIPMAP_MODE_LINEAR,
-		vkEngine::enumTranslator::toAddressMode(desc.AddressModeU),
-		vkEngine::enumTranslator::toAddressMode(desc.AddressModeV),
-		vkEngine::enumTranslator::toAddressMode(desc.AddressModeW),
+		VulkanEnum::toAddressMode(desc.AddressModeU),
+		VulkanEnum::toAddressMode(desc.AddressModeV),
+		VulkanEnum::toAddressMode(desc.AddressModeW),
 		desc.MipLodBias,
 		desc.MinMagFilter == eAnisotropic ? true : false,
 		(float32_t)desc.MaxAnisotropy,
 		false,
-		vkEngine::enumTranslator::toCompareOp(desc.CompareOp),
+		VulkanEnum::toCompareOp(desc.CompareOp),
 		desc.MinLod,
 		desc.MaxLod,
-		vkEngine::enumTranslator::toBorderColor(desc.BorderColor),
+		VulkanEnum::toBorderColor(desc.BorderColor),
 		false
 	};
 	
 	rVerifyVk(vkCreateSampler(device, &createInfo, vkMemoryAllocator, &Handle));
 }
 
-void vkSampler::destroy(VkDevice device)
+void VulkanSampler::destroy(VkDevice device)
 {
 	if (isValid())
 	{

@@ -1,5 +1,5 @@
 #include "VulkanEngine.h"
-#include "VulkanTexture.h"
+#include "VulkanImage.h"
 #include "VulkanShader.h"
 
 GfxShader *VulkanDevice::createShader(eRShaderUsage usage, const std::string &shaderName)
@@ -7,22 +7,22 @@ GfxShader *VulkanDevice::createShader(eRShaderUsage usage, const std::string &sh
 	/// try to get shader binary from cache at first
 
 	auto shaderBinary = rAsset::rAssetBucket::instance().getShaderBinary(usage, shaderName);
-	auto shader = new vkShader(m_LogicalDevice.Handle, usage, shaderBinary);
+	auto shader = new VulkanShader(m_LogicalDevice.Handle, usage, shaderBinary);
 
 	return shader;
 }
 
-rTexture *VulkanDevice::createTexture(const std::string &textureName)
+GfxTexture *VulkanDevice::createTexture(const std::string &textureName)
 {
 	auto textureBinary = rAsset::rAssetBucket::instance().getTextureBinary(textureName);
-	vkImage image(m_LogicalDevice.Handle, textureBinary);
-	auto imageView = new vkImageView();
+	VulkanImage image(m_LogicalDevice.Handle, textureBinary);
+	auto imageView = new VulkanImageView();
 	imageView->create(m_LogicalDevice.Handle, image, image.getFormat(), VK_IMAGE_ASPECT_COLOR_BIT);
 
 	return imageView;
 }
 
-rTexture * VulkanDevice::createTexture(
+GfxTexture * VulkanDevice::createTexture(
 	eRTextureType type, 
 	eRFormat format, 
 	uint32_t width, 
@@ -32,7 +32,7 @@ rTexture * VulkanDevice::createTexture(
 	const void *data, 
 	size_t dataSize)
 {
-	auto imageView = new vkImageView();
+	auto imageView = new VulkanImageView();
 	imageView->create(m_LogicalDevice.Handle, type, format, width, height, mipLevels, arrayLayers, data, dataSize);
 
 	return imageView;
@@ -45,9 +45,9 @@ GfxGpuBuffer *VulkanDevice::createBuffer(eRBufferBindFlags bindFlags, eRBufferUs
 	return buffer;
 }
 
-vkSemaphore *VulkanDevice::createSemaphore() const
+VulkanSemaphore *VulkanDevice::createSemaphore() const
 {
-	vkSemaphore *semaphorePtr = new vkSemaphore(m_LogicalDevice.Handle);
+	VulkanSemaphore *semaphorePtr = new VulkanSemaphore(m_LogicalDevice.Handle);
 	assert(semaphorePtr);
 
 	return semaphorePtr;
@@ -63,8 +63,8 @@ vkEvent *VulkanDevice::createEvent() const
 
 GfxRenderSurface *VulkanDevice::createDepthStencilView(uint32_t width, uint32_t height, eRFormat format)
 {
-	vkDepthStencilView *depthStencilView = new vkDepthStencilView();
-	depthStencilView->create(m_LogicalDevice.Handle, width, height, vkEngine::enumTranslator::toFormat(format));
+	VulkanDepthStencilView *depthStencilView = new VulkanDepthStencilView();
+	depthStencilView->create(m_LogicalDevice.Handle, width, height, VulkanEnum::toFormat(format));
 	return depthStencilView;
 }
 
@@ -142,9 +142,9 @@ GfxRenderPass *VulkanDevice::createRenderPass(const VulkanSwapchain &swapchain, 
 	return renderPass;
 }
 
-rSampler *VulkanDevice::createSampler(const GfxSamplerDesc &desc)
+GfxSampler *VulkanDevice::createSampler(const GfxSamplerDesc &desc)
 {
-	auto sampler = new vkSampler(m_LogicalDevice.Handle, desc);
+	auto sampler = new VulkanSampler(m_LogicalDevice.Handle, desc);
 
 	return sampler;
 }

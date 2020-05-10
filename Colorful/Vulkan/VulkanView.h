@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Colorful/Vulkan/VulkanTexture.h"
+#include "Colorful/Vulkan/VulkanImage.h"
 
-class vkImageView : public VulkanDeviceObject<VkImageView>, public GfxRenderSurface, public rTexture
+class VulkanImageView : public VulkanDeviceObject<VkImageView>, public GfxRenderSurface, public GfxTexture
 {
 public:
 	void create(
 		VkDevice device, 
-		const vkImage &image, 
+		const VulkanImage &image, 
 		VkFormat format,
 		VkImageAspectFlags aspectFlags);
 
@@ -60,15 +60,15 @@ protected:
 		return VK_IMAGE_TYPE_MAX_ENUM;
 	}
 private:
-	vkImage m_Image;
+	VulkanImage m_Image;
 	VkFormat m_Format = VK_FORMAT_UNDEFINED;
 };
 
-class vkBackBuffer : public vkImageView
+class vkBackBuffer : public VulkanImageView
 {
 };
 
-class vkRenderTargetView : public vkImageView
+class VulkanRenderTargetView : public VulkanImageView
 {
 	inline void create(
 		VkDevice device,
@@ -76,7 +76,7 @@ class vkRenderTargetView : public vkImageView
 		uint32_t height,
 		VkFormat format)
 	{
-		vkImageView::create(
+		VulkanImageView::create(
 			device,
 			width,
 			height,
@@ -89,7 +89,7 @@ class vkRenderTargetView : public vkImageView
 	}
 };
 
-class vkDepthStencilView : public vkImageView
+class VulkanDepthStencilView : public VulkanImageView
 {
 public:
 	inline void create(
@@ -98,7 +98,7 @@ public:
 		uint32_t height,
 		VkFormat format)
 	{
-		vkImageView::create(
+		VulkanImageView::create(
 			device,
 			width,
 			height,

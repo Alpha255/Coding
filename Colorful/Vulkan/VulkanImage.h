@@ -1,22 +1,22 @@
 #pragma once
 
-#include "VulkanBuffer.h"
+#include "Colorful/Vulkan/VulkanBuffer.h"
 #include "Colorful/Public/RAsset.h"
 
-class vkSampler : public VulkanDeviceObject<VkSampler>, public rSampler
+class VulkanSampler : public VulkanDeviceObject<VkSampler>, public GfxSampler
 {
 public:
-	vkSampler(VkDevice device, const GfxSamplerDesc &desc);
+	VulkanSampler(VkDevice device, const GfxSamplerDesc &desc);
 	void destroy(VkDevice device) override final;
 protected:
 private:
 };
 
-class vkImage : public VulkanDeviceObject<VkImage>
+class VulkanImage : public VulkanDeviceObject<VkImage>
 {
 public:
-	vkImage() = default;
-	vkImage(VkDevice device, const rAsset::rTextureBinary &binary);
+	VulkanImage() = default;
+	VulkanImage(VkDevice device, const rAsset::rTextureBinary &binary);
 
 	void create(
 		VkDevice device,
@@ -36,12 +36,12 @@ public:
 		return m_Format;
 	}
 protected:
-	friend class vkImageView;
+	friend class VulkanImageView;
 	void transitionImageLayout();
 	VkImageType getImageType(eRTextureType type) const;
 	void copyBufferToImage(VkDevice device, const rAsset::rTextureBinary &binary);
 	void insertMemoryBarrier(
-		const class vkCommandBuffer &commandBuffer, 
+		const class VulkanCommandBuffer &commandBuffer, 
 		VkPipelineStageFlags srcStageMask,
 		VkPipelineStageFlags dstStageMask,
 		VkAccessFlags srcAccessFlags,

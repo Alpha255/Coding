@@ -134,12 +134,12 @@ void VulkanDevice::create(VkInstance instance)
 	rVerifyVk(vkEnumerateDeviceLayerProperties(m_PhysicalDevice.Handle, &count, nullptr));
 	std::vector<VkLayerProperties> supportedLayers(count);
 	rVerifyVk(vkEnumerateDeviceLayerProperties(m_PhysicalDevice.Handle, &count, supportedLayers.data()));
-	layers = vkEngine::getSupportedProperties<VkLayerProperties>(supportedLayers, layers);
+	layers = VulkanEngine::getSupportedProperties<VkLayerProperties>(supportedLayers, layers);
 
 	rVerifyVk(vkEnumerateDeviceExtensionProperties(m_PhysicalDevice.Handle, nullptr, &count, nullptr));
 	std::vector<VkExtensionProperties> supportedExtensions(count);
 	rVerifyVk(vkEnumerateDeviceExtensionProperties(m_PhysicalDevice.Handle, nullptr, &count, supportedExtensions.data()));
-	extensions = vkEngine::getSupportedProperties<VkExtensionProperties>(supportedExtensions, extensions);
+	extensions = VulkanEngine::getSupportedProperties<VkExtensionProperties>(supportedExtensions, extensions);
 
 	VkPhysicalDeviceFeatures deviceFeatures{};
 	vkGetPhysicalDeviceFeatures(m_PhysicalDevice.Handle, &deviceFeatures);
