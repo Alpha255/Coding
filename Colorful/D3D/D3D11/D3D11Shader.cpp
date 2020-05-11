@@ -80,7 +80,7 @@ void d3d11Shader::setInputLayout(const std::vector<GfxVertexAttributes> &vertexA
 		{
 			c_Semantic[vertexAttributes[i].Usage],
 			0u,
-			d3d11Engine::enumTranslator::toFormat(vertexAttributes[i].Format),
+			D3D11Enum::toFormat(vertexAttributes[i].Format),
 			0u,
 			D3D11_APPEND_ALIGNED_ELEMENT,
 			vertexAttributes[i].InputRate == eVertex ? D3D11_INPUT_PER_VERTEX_DATA : D3D11_INPUT_PER_INSTANCE_DATA,

@@ -2,6 +2,7 @@
 
 #include "D3D11Device.h"
 #include "D3D11Swapchain.h"
+#include "Colorful/D3D/D3D11/D3D11Enum.h"
 
 class d3d11Engine : public GfxEngine, public Singleton<d3d11Engine>
 {
@@ -94,18 +95,6 @@ public:
 		return nullptr;
 	}
 public:
-	class enumTranslator 
-	{
-	public:
-		static D3D11_FILL_MODE toPolygonMode(eRPolygonMode mode);
-		static D3D11_CULL_MODE toCullMode(eRCullMode mode);
-		static D3D11_BLEND_OP toBlendOp(eRBlendOp op);
-		static D3D11_BLEND toBlendFactor(eRBlendFactor factor);
-		static uint8_t toColorComponentFlags(uint32_t colorMask);
-		static D3D11_COMPARISON_FUNC toCompareOp(eRCompareOp op);
-		static D3D11_STENCIL_OP toStencilOp(eRStencilOp op);
-		static DXGI_FORMAT toFormat(eRFormat format);
-	};
 protected:
 private:
 	d3d11Device m_Device;

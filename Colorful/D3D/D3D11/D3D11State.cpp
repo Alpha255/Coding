@@ -14,8 +14,8 @@ void d3d11RasterizerState::create(
 
 	D3D11_RASTERIZER_DESC desc
 	{
-		d3d11Engine::enumTranslator::toPolygonMode(polygonMode),
-		d3d11Engine::enumTranslator::toCullMode(cullMode),
+		D3D11Enum::toPolygonMode(polygonMode),
+		D3D11Enum::toCullMode(cullMode),
 		frontFace == eCounterclockwise ? true : false,
 		enableDepthBias ? (int32_t)depthBias : 0,
 		depthBiasClamp,
@@ -53,13 +53,13 @@ void d3d11BlendState::create(
 		desc.RenderTarget[i] = D3D11_RENDER_TARGET_BLEND_DESC
 		{
 			clrBlendState[i].Enable,
-			d3d11Engine::enumTranslator::toBlendFactor(clrBlendState[i].SrcColor),
-			d3d11Engine::enumTranslator::toBlendFactor(clrBlendState[i].DstColor),
-			d3d11Engine::enumTranslator::toBlendOp(clrBlendState[i].ColorOp),
-			d3d11Engine::enumTranslator::toBlendFactor(clrBlendState[i].SrcAlpha),
-			d3d11Engine::enumTranslator::toBlendFactor(clrBlendState[i].DstColor),
-			d3d11Engine::enumTranslator::toBlendOp(clrBlendState[i].AlphaOp),
-			d3d11Engine::enumTranslator::toColorComponentFlags(clrBlendState[i].ColorMask)
+			D3D11Enum::toBlendFactor(clrBlendState[i].SrcColor),
+			D3D11Enum::toBlendFactor(clrBlendState[i].DstColor),
+			D3D11Enum::toBlendOp(clrBlendState[i].ColorOp),
+			D3D11Enum::toBlendFactor(clrBlendState[i].SrcAlpha),
+			D3D11Enum::toBlendFactor(clrBlendState[i].DstColor),
+			D3D11Enum::toBlendOp(clrBlendState[i].AlphaOp),
+			D3D11Enum::toColorComponentFlags(clrBlendState[i].ColorMask)
 		};
 	}
 
@@ -84,21 +84,21 @@ void d3d11DepthStencilState::create(
 	{
 		enableDepth,
 		enableDepthWrite ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO,
-		d3d11Engine::enumTranslator::toCompareOp(depthCompareOp),
+		D3D11Enum::toCompareOp(depthCompareOp),
 		enableStencil,
 		stencilReadMask,
 		stencilWriteMask,
 		{
-			d3d11Engine::enumTranslator::toStencilOp(front.FailOp),
-			d3d11Engine::enumTranslator::toStencilOp(front.DepthFailOp),
-			d3d11Engine::enumTranslator::toStencilOp(front.PassOp),
-			d3d11Engine::enumTranslator::toCompareOp(front.CompareOp),
+			D3D11Enum::toStencilOp(front.FailOp),
+			D3D11Enum::toStencilOp(front.DepthFailOp),
+			D3D11Enum::toStencilOp(front.PassOp),
+			D3D11Enum::toCompareOp(front.CompareOp),
 		},
 		{
-			d3d11Engine::enumTranslator::toStencilOp(back.FailOp),
-			d3d11Engine::enumTranslator::toStencilOp(back.DepthFailOp),
-			d3d11Engine::enumTranslator::toStencilOp(back.PassOp),
-			d3d11Engine::enumTranslator::toCompareOp(back.CompareOp),
+			D3D11Enum::toStencilOp(back.FailOp),
+			D3D11Enum::toStencilOp(back.DepthFailOp),
+			D3D11Enum::toStencilOp(back.PassOp),
+			D3D11Enum::toCompareOp(back.CompareOp),
 		},
 	};
 
