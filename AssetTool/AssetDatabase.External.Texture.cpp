@@ -1,15 +1,20 @@
-#include "AssetTool.h"
-#include "Gear/Gear.h"
+#include "AssetDatabase.h"
 #include <ThirdParty/gli/gli/gli.hpp>
 
-namespaceStart(assetTool)
+namespaceStart(AssetTool)
 
-rAsset::rTextureBinary getTextureBinary(Configurations::eRenderEngine engine, const assetFilePtr &textureAssetPtr)
+AssetTool::TextureBinary AssetDatabase::tryToGetTextureBinary(Configurations::eRenderEngine engine, const std::string& texName)
 {
-	assert(textureAssetPtr && engine == Configurations::eVulkan);
+	assert(engine == Configurations::eVulkan);
 
-	rAsset::rTextureBinary binary;
-	gli::texture tex = gli::load(textureAssetPtr->fullPath());
+	auto texture = tryToGetAsset(texName);
+	assert(texture->type() == Asset::eWICTexture ||
+		texture->type() == Asset::eDDSTexture ||
+		texture->type() == Asset::eVulkanTexture);
+
+	TextureBinary binary;
+
+	gli::texture tex = gli::load(texture->fullPath());
 	binary.Size = tex.size();
 	binary.Width = tex.extent().x;
 	binary.Height = tex.extent().y;
@@ -130,4 +135,4 @@ rAsset::rTextureBinary getTextureBinary(Configurations::eRenderEngine engine, co
 	return binary;
 }
 
-namespaceEnd(assetTool)
+namespaceEnd(AssetTool)

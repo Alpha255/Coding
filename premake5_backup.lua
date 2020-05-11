@@ -86,7 +86,6 @@ workspace "Miscellaneous"
 				"Comctl32",
 				"Shcore",
 
-				"Colorful",
 				"gear",
 				"assimp",
 				"DirectXTex",

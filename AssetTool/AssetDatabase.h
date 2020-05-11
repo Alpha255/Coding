@@ -4,7 +4,7 @@
 
 namespaceStart(AssetTool)
 
-exportAPI class AssetDatabase : public Singleton<AssetDatabase>
+class exportAPI AssetDatabase : public Singleton<AssetDatabase>
 {
 public:
 	void initialize();
@@ -14,13 +14,8 @@ public:
 	TextureBinary tryToGetTextureBinary(Configurations::eRenderEngine engine, const std::string& texName);
 
 	AssetPtr tryToGetAsset(const std::string& assetName);
-
-	Asset::eAssetType tryToGetAssetType(const std::string& assetName);
 protected:
-private:
-	std::string m_BasePath;
-	std::unordered_map<std::string, AssetPtr> m_Assets;
-	bool8_t m_Ready = false;
+	Asset::eAssetType tryToGetAssetType(const std::string& assetName);
 };
 
 namespaceEnd(AssetTool)

@@ -60,6 +60,39 @@ workspace "Miscellaneous"
 		architecture "x64"
 	filter {}
 
+	group "Dlls"
+		project "AssetTool"
+			kind "SharedLib"
+			language "C++"
+			location "./Projects"
+			files "./AssetTool/**"
+			implibname "$(SolutionDir)Out\\Libs\\$(ProjectName)"
+			includedirs { 
+				"$(SolutionDir)", 
+				"$(SolutionDir)ThirdParty\\assimp\\include",
+				"$(SolutionDir)ThirdParty\\assimp\\build\\include", 
+				"$(SolutionDir)ThirdParty\\gli\\external",
+				"$(SolutionDir)ThirdParty\\VulkanSDK\\Include"
+			}
+			libdirs {}
+			targetdir "$(SolutionDir)Out"
+			defines { "UsingAsDynamicLib" }
+			links {
+				"d3d11",
+				"dxgi", 
+				"d3dcompiler", 
+				"windowscodecs",
+				"Usp10",
+				"Comctl32",
+				"Shcore",
+
+				"gear",
+				"assimp",
+				"DirectXTex",
+				"SPIRV-Cross"
+			}
+			disablewarnings { "4201", "4458", "4100" }
+
 	group "Libs"
 		project "Gear"
 			kind "StaticLib"

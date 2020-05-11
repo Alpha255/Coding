@@ -6,7 +6,7 @@ void ShaderCache::initialize()
 {
 }
 
-ShaderBinary ShaderCache::tryToGetShaderBinary(eRShaderUsage, const std::string &, Configurations::eRenderEngine)
+ShaderBinary ShaderCache::tryToGetShaderBinary(Configurations::eRenderEngine, eRShaderUsage, const std::string &)
 {
 	return ShaderBinary();
 }

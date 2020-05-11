@@ -12,6 +12,7 @@ public:
 		std::chrono::high_resolution_clock::time_point totalTime;
 		if (m_Stopped)
 		{
+			return std::chrono::duration_cast<std::chrono::duration<float32_t, std::ratio<1, 1000>>>(m_Stop - m_Last).count() / 1000.0f;
 		}
 		else
 		{

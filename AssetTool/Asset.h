@@ -72,7 +72,6 @@ public:
 		return m_ID;
 	}
 protected:
-	friend class assetBucket;
 private:
 	eAssetType m_Type = eUnknown;
 	uint32_t m_ID = std::numeric_limits<uint32_t>().max();

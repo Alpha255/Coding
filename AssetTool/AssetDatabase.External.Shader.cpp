@@ -1,76 +1,29 @@
-#include "AssetTool.h"
-#include "Gear/Gear.h"
+#include "AssetDatabase.h"
+#include "ShaderCache.h"
 #include <ThirdParty/SPIRV-Cross/spirv_hlsl.hpp>
-#include <ThirdParty/gli/gli/gli.hpp>
 
-namespaceStart(assetTool)
+namespaceStart(AssetTool)
 
-rShaderBinary rAssetBucket::getShaderBinary(eRShaderUsage usage, const std::string &shaderName)
+std::string makeHLSLCode(const std::shared_ptr<byte>& spirv, size_t size)
 {
-	assert(usage < eRShaderUsage_MaxEnum);
-	rShaderBinary shaderBinary = m_ShaderCache.getShaderBinary(usage, shaderName, m_Engine);
-	if (shaderBinary.Binary)
-	{
-		return shaderBinary;
-	}
+	std::vector<uint32_t> spirvBinary(size / sizeof(uint32_t));
+	verify(memcpy_s((void *)spirvBinary.data(), size, (void *)spirv.get(), size) == 0);
 
-	auto shaderAssetPtr = m_Bucket.getAsset(shaderName);
-	assert(shaderAssetPtr->type() == AssetFile::eShader);
+	std::string hlsl;
+	spirv_cross::CompilerHLSL compiler(std::move(spirvBinary));
+	spirv_cross::CompilerHLSL::Options options;
+	options.shader_model = 50u;
+	compiler.set_hlsl_options(options);
 
-	shaderBinary = assetTool::getShaderBinary(m_Engine, usage, shaderAssetPtr);
-	assert(shaderBinary.Binary && shaderBinary.Size > 0ull);
+	hlsl = compiler.compile();
 
-	return shaderBinary;
+	return hlsl;
 }
 
-rTextureBinary rAssetBucket::getTextureBinary(const std::string &textureName)
+/// Macros, Includes???
+ShaderBinary compileHLSL(eRShaderUsage usage, const std::string& hlsl)
 {
-	auto textureAssetPtr = m_Bucket.getAsset(textureName);
-	assert(textureAssetPtr->type() == AssetFile::eWICTexture ||
-		textureAssetPtr->type() == AssetFile::eDDSTexture ||
-		textureAssetPtr->type() == AssetFile::eVulkanTexture);
-
-	rTextureBinary textureBinary;
-	if (m_Engine == Configurations::eVulkan)
-	{
-		textureBinary = assetTool::getTextureBinary(m_Engine, textureAssetPtr);
-	}
-	else
-	{
-		assert(0);
-	}
-
-	return textureBinary;
-}
-
-std::string getShaderCode(const std::shared_ptr<byte> &shaderBinary, size_t shaderBinarySize, Configurations::eRenderEngine engine)
-{
-	std::vector<uint32_t> spirvBinary(shaderBinarySize / sizeof(uint32_t));
-	verify(memcpy_s((void *)spirvBinary.data(), shaderBinarySize, (void *)shaderBinary.get(), shaderBinarySize) == 0);
-
-	std::string result;
-
-	if (engine == Configurations::eD3D11)
-	{
-		spirv_cross::CompilerHLSL hlsl(std::move(spirvBinary));
-		spirv_cross::CompilerHLSL::Options options;
-		options.shader_model = 50u;
-		hlsl.set_hlsl_options(options);
-
-		result = hlsl.compile();
-	}
-	else
-	{
-		assert(0);
-	}
-
-	return result;
-}
-
-/// Macros, Includes
-rAsset::rShaderBinary compileD3DShader(eRShaderUsage usage, const std::string &shaderCode)
-{
-	const char8_t *const shaderModels[eRShaderUsage_MaxEnum] =
+	const char8_t* const shaderModels[eRShaderUsage_MaxEnum] =
 	{
 		"vs_5_0",
 		"hs_5_0",
@@ -80,8 +33,8 @@ rAsset::rShaderBinary compileD3DShader(eRShaderUsage usage, const std::string &s
 		"cs_5_0"
 	};
 
-	ID3DBlob *pResult = nullptr;
-	ID3DBlob *pErrMsg = nullptr;
+	ID3DBlob* result = nullptr;
+	ID3DBlob* errMsg = nullptr;
 
 #if defined(DEBUG) || defined(_DEBUG)
 	uint32_t flags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG;
@@ -90,8 +43,8 @@ rAsset::rShaderBinary compileD3DShader(eRShaderUsage usage, const std::string &s
 #endif
 
 	auto compileResult = D3DCompile(
-		(const void *)shaderCode.c_str(),
-		shaderCode.length(),
+		(const void* )hlsl.c_str(),
+		hlsl.length(),
 		nullptr,
 		nullptr,
 		D3D_COMPILE_STANDARD_FILE_INCLUDE,
@@ -99,43 +52,43 @@ rAsset::rShaderBinary compileD3DShader(eRShaderUsage usage, const std::string &s
 		shaderModels[usage],
 		flags,
 		0U,
-		&pResult,
-		&pErrMsg);
+		&result,
+		&errMsg);
 
 	if (compileResult != 0)
 	{
-		Logger::instance().log(Logger::eError, "Failed to compile shader, error info: %s", (char8_t *)pErrMsg->GetBufferPointer());
+		Logger::instance().log(Logger::eError, "Failed to compile shader, error info: %s", (char8_t*)errMsg->GetBufferPointer());
 		assert(0);
 	}
 
-	size_t bufferSize = pResult->GetBufferSize();
-	rAsset::rShaderBinary result;
-	result.Size = bufferSize;
-	result.Binary.reset(new byte[bufferSize]);
-	verify(memcpy_s((void *)result.Binary.get(), bufferSize, (void *)pResult->GetBufferPointer(), bufferSize) == 0);
+	size_t size = result->GetBufferSize();
+	ShaderBinary binary;
+	binary.Size = size;
+	binary.Binary.reset(new byte[size]);
+	verify(memcpy_s((void*)binary.Binary.get(), size, (void*)result->GetBufferPointer(), size) == 0);
 	
-	return result;
+	return binary;
 }
 
-void buildShaderReflections(Configurations::eRenderEngine engine, rAsset::rShaderBinary &binary)
+void buildShaderReflections(Configurations::eRenderEngine engine, ShaderBinary& binary)
 {
 	if (engine == Configurations::eVulkan)
 	{
 		std::vector<uint32_t> spirv(binary.Size / sizeof(uint32_t));
-		verify(memcpy_s((void *)spirv.data(), binary.Size, (void *)binary.Binary.get(), binary.Size) == 0);
+		verify(memcpy_s((void*)spirv.data(), binary.Size, (void*)binary.Binary.get(), binary.Size) == 0);
 		spirv_cross::Compiler compiler(std::move(spirv));
 		auto activeVars = compiler.get_active_interface_variables();
 		spirv_cross::ShaderResources shaderResources = compiler.get_shader_resources(activeVars);
 		compiler.set_enabled_interface_variables(std::move(activeVars));
 
 		auto pushReflection = [&](
-			const spirv_cross::SmallVector<spirv_cross::Resource> &resources,
+			const spirv_cross::SmallVector<spirv_cross::Resource>& resources,
 			VkDescriptorType type,
 			bool8_t useConstantRange = false)
 		{
-			for each (auto &res in resources)
+			for each (auto& res in resources)
 			{
-				GfxShader::GfxShaderReflection reflection
+				GfxShaderReflection reflection
 				{
 					///compiler.get_decoration(res.id, spv::DecorationDescriptorSet), uniform (set = 0, binding = 1)
 					(uint32_t)type,
@@ -155,7 +108,7 @@ void buildShaderReflections(Configurations::eRenderEngine engine, rAsset::rShade
 	}
 	else if (engine == Configurations::eD3D11)
 	{
-
+		assert(0);
 	}
 	else
 	{
@@ -163,22 +116,35 @@ void buildShaderReflections(Configurations::eRenderEngine engine, rAsset::rShade
 	}
 }
 
-rAsset::rShaderBinary getShaderBinary(Configurations::eRenderEngine engine, eRShaderUsage usage, assetFilePtr &shaderAssetPtr)
+AssetTool::ShaderBinary AssetDatabase::tryTogetShaderBinary(
+	Configurations::eRenderEngine engine, 
+	eRShaderUsage usage, 
+	const std::string& shaderName)
 {
 	/// SPIR-V: The Standard, Portable Intermediate Representation
-	assert(shaderAssetPtr);
+	auto binary = ShaderCache::instance().tryToGetShaderBinary(engine, usage, shaderName);
+	if (binary.Size > 0ull && binary.Binary)
+	{
+		return binary;
+	}
 
-	auto pCode = shaderAssetPtr->data();
-	assert(pCode);
+	auto shader = tryToGetAsset(shaderName);
+	if (!shader)
+	{
+		return binary;
+	}
 
-	std::string inputFile(shaderAssetPtr->fullPath());
+	auto code = shader->data();
+	assert(code);
+
+	std::string inputFile(shader->fullPath());
 	std::string outputPath = File::directory(getApplicationPath()) + "\\Intermediate\\AssetTool";
 	if (!File::isDirectoryExists(outputPath))
 	{
 		File::createDirectory(outputPath);
 	}
 	std::string outputFile = outputPath + "\\";
-	outputFile += shaderAssetPtr->name() + ".spirv";
+	outputFile += shader->name() + ".spirv";
 
 	std::string Commandline = getEnvironmentVariable("VK_SDK_PATH") + "\\Bin\\glslangValidator ";
 
@@ -215,28 +181,26 @@ rAsset::rShaderBinary getShaderBinary(Configurations::eRenderEngine engine, eRSh
 	size_t spirvSize = spirvFile.size();
 	assert((spirvSize % sizeof(uint32_t)) == 0u);
 
-	rAsset::rShaderBinary result;
-
 	if (engine == Configurations::eVulkan)
 	{
-		result.Binary.reset(new byte[spirvSize]());
-		result.Size = spirvSize;
-		verify(memcpy_s((void *)result.Binary.get(), spirvSize, (void *)spirvFile.data(File::eBinary).get(), spirvSize) == 0);
+		binary.Binary.reset(new byte[spirvSize]());
+		binary.Size = spirvSize;
+		verify(memcpy_s((void *)binary.Binary.get(), spirvSize, (void *)spirvFile.data(File::eBinary).get(), spirvSize) == 0);
 	}
 	else if (engine == Configurations::eD3D11)
 	{
-		std::string shaderCode = getShaderCode(spirvFile.data(File::eBinary), spirvSize, engine);
-		assert(shaderCode.length() > 0u);
-		result = compileD3DShader(usage, shaderCode);
+		std::string hlsl = makeHLSLCode(spirvFile.data(File::eBinary), spirvSize);
+		assert(hlsl.length() > 0u);
+		binary = compileHLSL(usage, hlsl);
 	}
 	else
 	{
 		assert(0);
 	}
 
-	buildShaderReflections(engine, result);
+	buildShaderReflections(engine, binary);
 
-	return result;
+	return binary;
 }
 
-namespaceEnd(assetTool)
+namespaceEnd(AssetTool)

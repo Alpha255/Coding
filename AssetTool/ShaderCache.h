@@ -4,12 +4,12 @@
 
 namespaceStart(AssetTool)
 
-exportAPI class ShaderCache : public Singleton<ShaderCache>
+class exportAPI ShaderCache : public Singleton<ShaderCache>
 {
 public:
 	void initialize();
 
-	ShaderBinary tryToGetShaderBinary(eRShaderUsage usage, const std::string& shaderName, Configurations::eRenderEngine engine);
+	ShaderBinary tryToGetShaderBinary(Configurations::eRenderEngine engine, eRShaderUsage usage, const std::string& shaderName);
 protected:
 private:
 };

@@ -4,15 +4,20 @@
 namespaceStart(AssetTool)
 
 static nlohmann::json s_AssetConfigJson;
+static std::string s_BasePath;
+static std::unordered_map<std::string, AssetPtr> s_Assets;
+static bool8_t s_Ready = false;
 
 void AssetDatabase::initialize()
 {
 	auto initInOtherThread = [&]()
 	{
+		Gear::CpuTimer timer;
+		timer.start();
 		std::string currentPath = getApplicationPath();
-		m_BasePath = File::directory(File::directory(currentPath));
-		m_BasePath += "\\Assets";
-		verify(File::isDirectoryExists(m_BasePath));
+		s_BasePath = File::directory(File::directory(currentPath));
+		s_BasePath += "\\Assets";
+		verify(File::isDirectoryExists(s_BasePath));
 
 		std::string configPath(File::directory(getApplicationPath()) + "\\Configurations.json");
 		assert(File::isExists(configPath));
@@ -21,14 +26,16 @@ void AssetDatabase::initialize()
 		filestream.close();
 
 		std::vector<std::string> filters;
-		auto fileList = Gear::File::buildFileList(m_BasePath, filters, true);
+		auto fileList = Gear::File::buildFileList(s_BasePath, filters, true);
 
 		uint32_t index = 0;
 		for each (auto &file in fileList)
 		{
 			auto asset = std::make_shared<Asset>(file, tryToGetAssetType(file), index++);
-			m_Assets.insert(std::make_pair(asset->name(), asset));
+			s_Assets.insert(std::make_pair(asset->name(), asset));
 		}
+		timer.stop();
+		Logger::instance().log(Logger::eInfo, format("Find all assets takes %.2f ms\n", timer.totalTime()));
 	};
 
 	std::thread(initInOtherThread).detach();
@@ -122,17 +129,17 @@ AssetPtr AssetDatabase::tryToGetAsset(const std::string& assetName)
 	std::string lowerName(assetName);
 	Gear::toLower(lowerName);
 
-	auto it = m_Assets.find(lowerName);
-	if (it != m_Assets.cend())
+	auto it = s_Assets.find(lowerName);
+	if (it != s_Assets.cend())
 	{
 		return it->second;
 	}
 
-	std::string assetPath = File::find(m_BasePath, assetName);
+	std::string assetPath = File::find(s_BasePath, assetName);
 	if (assetPath.length() != 0u)
 	{
-		auto asset = std::make_shared<Asset>(assetPath, tryToGetAssetType(assetName), (uint32_t)(m_Assets.size() + 1u));
-		m_Assets.insert(std::make_pair(lowerName, asset));
+		auto asset = std::make_shared<Asset>(assetPath, tryToGetAssetType(assetName), (uint32_t)(s_Assets.size() + 1u));
+		s_Assets.insert(std::make_pair(lowerName, asset));
 		return asset;
 	}
 
