@@ -23,6 +23,7 @@ void ImGuiRenderer::initialize(GfxEngine *renderEngine)
 		height,
 		1u,
 		1u,
+		1u,
 		pixels,
 		width * height * 4ull
 	);
@@ -50,7 +51,7 @@ void ImGuiRenderer::initialize(GfxEngine *renderEngine)
 	};
 	vertexShader->setInputLayout(vertexAttrs, alignof(ImDrawVert));
 	m_UniformBuffer = m_Renderer->createUniformBuffer(sizeof(UniformBuffer), nullptr);
-	vertexShader->setUniformBuffer(m_UniformBuffer);
+	vertexShader->bindUniformBuffer(m_UniformBuffer);
 
 	GfxSamplerDesc samplerDesc{};
 	auto sampler = m_Renderer->createSampler(samplerDesc);
@@ -153,7 +154,7 @@ void ImGuiRenderer::frame()
 		2.0f / io.DisplaySize.y,
 		-1.0f,
 		-1.0f);
-	m_Renderer->updateGpuBuffer(m_UniformBuffer, &uniformBuffer, sizeof(UniformBuffer), 0u);
+	m_UniformBuffer->update(&uniformBuffer, sizeof(UniformBuffer), 0u);
 
 	GfxViewport viewport
 	{
@@ -164,7 +165,7 @@ void ImGuiRenderer::frame()
 	};
 	m_PipelineState.setViewport(viewport);
 
-	m_Renderer->getOpaqueRenderPass()->bindGfxPipeline(m_PipelineState);
+	m_Renderer->opaqueRenderPass()->bindGfxPipeline(m_PipelineState);
 
 	auto drawData = ImGui::GetDrawData();
 	assert(drawData);
@@ -184,7 +185,7 @@ void ImGuiRenderer::frame()
 			};
 
 			m_PipelineState.setScissor(scissor);
-			m_Renderer->getOpaqueRenderPass()->drawIndexed(m_PipelineState, drawCmd->ElemCount, (uint32_t)indexOffset, vertexOffset);
+			m_Renderer->opaqueRenderPass()->drawIndexed(m_PipelineState, drawCmd->ElemCount, (uint32_t)indexOffset, vertexOffset);
 			indexOffset += drawCmd->ElemCount;
 		}
 		vertexOffset += drawList->VtxBuffer.Size;
@@ -209,11 +210,11 @@ bool8_t ImGuiRenderer::update()
 
 	if (m_PipelineState.VertexBuffer)
 	{
-		m_Renderer->destroyBuffer(m_PipelineState.VertexBuffer);
+		m_PipelineState.VertexBuffer->free();
 	}
 	if (m_PipelineState.IndexBuffer)
 	{
-		m_Renderer->destroyBuffer(m_PipelineState.IndexBuffer);
+		m_PipelineState.IndexBuffer->free();
 	}
 
 	auto verties = std::make_unique<ImDrawVert[]>(drawData->TotalVtxCount);
@@ -235,8 +236,8 @@ bool8_t ImGuiRenderer::update()
 		indexOffset += drawList->IdxBuffer.Size;
 	}
 
-	m_Renderer->updateGpuBuffer(vertexBuffer, verties.get(), totalVertexBufferSize, 0u);
-	m_Renderer->updateGpuBuffer(indexBuffer, indices.get(), totalIndexBufferSize, 0u);
+	vertexBuffer->update(verties.get(), totalVertexBufferSize, 0u);
+	indexBuffer->update(indices.get(), totalIndexBufferSize, 0u);
 
 	m_PipelineState.bindVertexBuffer(vertexBuffer);
 	m_PipelineState.bindIndexBuffer(indexBuffer, eRIndexType::eUInt16);

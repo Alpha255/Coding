@@ -2,6 +2,7 @@
 
 #include "Colorful/Vulkan/VulkanInstance.h"
 #include "Colorful/Vulkan/VulkanDevice.h"
+#include "Colorful/Vulkan/VulkanRenderPass.h"
 #include "Colorful/Vulkan/VulkanSwapChain.h"
 #include "Colorful/Vulkan/VulkanQueue.h"
 #include "Colorful/Vulkan/VulkanEnum.h"
@@ -14,23 +15,58 @@ public:
 	void initialize(uint64_t windowHandle, const Gear::Configurations& config) override final;
 	void finalize() override final;
 
-	void handleWindowResize(uint32_t, uint32_t) override final;
-
 	void present() override final;
 
-	GfxShaderPtr createVertexShader(const std::string& shaderName) override final;
-	GfxShaderPtr createFragmentShader(const std::string& shaderName) override final;
+	void handleWindowResize(uint32_t width, uint32_t height) override final
+	{
+		m_Swapchain->resize(width, height);
+	}
 
-	GfxGpuBufferPtr createIndexBuffer(eRBufferUsage usage, size_t size, const void *data) override final;
-	GfxGpuBufferPtr createVertexBuffer(eRBufferUsage usage, size_t size, const void *data) override final;
+	GfxShaderPtr createVertexShader(const std::string& shaderName) override final
+	{
+		auto shader = std::make_shared<VulkanShader>(m_Device.logicalDevice(), eVertexShader, shaderName);
+		return std::static_pointer_cast<GfxShader>(shader);
+	}
+	GfxShaderPtr createFragmentShader(const std::string& shaderName) override final
+	{
+		auto shader = std::make_shared<VulkanShader>(m_Device.logicalDevice(), eFragmentShader, shaderName);
+		return std::static_pointer_cast<GfxShader>(shader);
+	}
 
-	GfxGpuBufferPtr createUniformBuffer(size_t size, const void *data) override final;
+	GfxGpuBufferPtr createIndexBuffer(eRBufferUsage usage, size_t size, const void* data) override final
+	{
+		auto buffer = VulkanBufferPool::instance()->allocIndexBuffer(usage, size, data);
+		return static_cast<GfxGpuBufferPtr>(buffer);
+	}
+	GfxGpuBufferPtr createVertexBuffer(eRBufferUsage usage, size_t size, const void* data) override final
+	{
+		auto buffer = VulkanBufferPool::instance()->allocVertexBuffer(usage, size, data);
+		return static_cast<GfxGpuBufferPtr>(buffer);
+	}
 
-	GfxRenderSurfacePtr createDepthStencilView(uint32_t width, uint32_t height, eRFormat format) override final;
+	GfxGpuBufferPtr createUniformBuffer(size_t size, const void* data) override final
+	{
+		auto buffer = VulkanBufferPool::instance()->allocUniformBuffer(size, data);
+		return static_cast<GfxGpuBufferPtr>(buffer);
+	}
 
-	GfxRenderPassPtr createRenderPass(GfxFrameBufferDesc &desc) override final;
+	GfxRenderSurfacePtr createDepthStencilView(uint32_t width, uint32_t height, eRFormat format) override final
+	{
+		auto depthStencilView = std::make_shared<VulkanDepthStencilView>(m_Device.logicalDevice(), width, height, format);
+		return std::static_pointer_cast<GfxRenderSurface>(depthStencilView);
+	}
 
-	GfxTexturePtr createTexture(const std::string& textureName) override final;
+	GfxRenderPassPtr createRenderPass(GfxFrameBufferDesc& desc) override final
+	{
+		auto renderPass = std::make_shared<VulkanRenderPass>(m_Device.logicalDevice(), desc);
+		return std::static_pointer_cast<GfxRenderPass>(renderPass);
+	}
+
+	GfxTexturePtr createTexture(const std::string& textureName) override final
+	{
+		auto texture = std::make_shared<VulkanImageView>(m_Device.logicalDevice(), textureName);
+		return std::static_pointer_cast<GfxTexture>(texture);
+	}
 	GfxTexturePtr createTexture(
 		eRTextureType type,
 		eRFormat format,
@@ -40,9 +76,27 @@ public:
 		uint32_t mipLevels,
 		uint32_t arrayLayers,
 		const void* data,
-		size_t dataSize) override final;
+		size_t dataSize) override final
+	{
+		auto texture = std::make_shared<VulkanImageView>(
+			m_Device.logicalDevice(),
+			type,
+			format,
+			width,
+			height,
+			depth,
+			mipLevels,
+			arrayLayers,
+			data,
+			dataSize);
+		return std::static_pointer_cast<GfxTexture>(texture);
+	}
 
-	GfxSamplerPtr createSampler(const GfxSamplerDesc& desc) override final;
+	GfxSamplerPtr createSampler(const GfxSamplerDesc& desc) override final
+	{
+		auto sampler = std::make_shared<VulkanSampler>(m_Device.logicalDevice(), desc);
+		return std::static_pointer_cast<GfxSampler>(sampler);
+	}
 
 	template <typename T> static std::vector<const char8_t*> getSupportedProperties(
 		const std::vector<T>& supportedProperties,

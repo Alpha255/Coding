@@ -1,20 +1,20 @@
-#include "VulkanView.h"
-#include "VulkanEngine.h"
+#include "Colorful/Vulkan/VulkanEngine.h"
+#include "AssetTool/Asset.h"
 
 void VulkanImageView::create(
 	VkDevice device, 
-	const VulkanImage &image, 
+	VulkanImagePtr& image,
 	VkFormat format,
 	VkImageAspectFlags aspectFlags)
 {
-	assert(image.isValid() && !isValid());
+	assert(image && image->isValid() && !isValid());
 
 	VkImageViewCreateInfo createInfo
 	{
 		VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
 		nullptr,
 		0u,
-		image.Handle,
+		image->Handle,
 		VK_IMAGE_VIEW_TYPE_2D,
 		format,
 		{
@@ -32,12 +32,12 @@ void VulkanImageView::create(
 		}
 	};
 
-	rVerifyVk(vkCreateImageView(device, &createInfo, vkMemoryAllocator, &Handle));
+	GfxVerifyVk(vkCreateImageView(device, &createInfo, vkMemoryAllocator, &Handle));
 	m_Image = image;
 	m_Format = format;
 }
 
-void VulkanImageView::create(
+VulkanImageView::VulkanImageView(
 	VkDevice device, 
 	uint32_t width, 
 	uint32_t height, 
@@ -48,9 +48,9 @@ void VulkanImageView::create(
 	VkImageUsageFlags usage,
 	VkImageAspectFlags aspect)
 {
-	assert(!isValid() && !m_Image.isValid());
+	assert(!isValid() && !m_Image->isValid());
 
-	m_Image.create(
+	m_Image = std::make_shared<VulkanImage>(
 		device,
 		width,
 		height,
@@ -66,7 +66,7 @@ void VulkanImageView::create(
 		VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
 		nullptr,
 		0u,
-		m_Image.Handle,
+		m_Image->Handle,
 		type,
 		format,
 		{
@@ -83,23 +83,24 @@ void VulkanImageView::create(
 			arrayLayers
 		}
 	};
-	rVerifyVk(vkCreateImageView(device, &createInfo, vkMemoryAllocator, &Handle));
+	GfxVerifyVk(vkCreateImageView(device, &createInfo, vkMemoryAllocator, &Handle));
 
 	m_Format = format;
 }
 
-void VulkanImageView::create(
+VulkanImageView::VulkanImageView(
 	VkDevice device,
 	eRTextureType type, 
 	eRFormat format, 
 	uint32_t width, 
 	uint32_t height, 
+	uint32_t depth,
 	uint32_t mipLevels, 
 	uint32_t arrayLayers, 
-	const void *data, 
+	const void* data, 
 	size_t dataSize)
 {
-	rAsset::rTextureBinary texBinary
+	AssetTool::TextureBinary texBinary
 	{
 		type,
 		(uint32_t)VulkanEnum::toFormat(format),
@@ -110,14 +111,14 @@ void VulkanImageView::create(
 		arrayLayers,
 		dataSize
 	};
-	texBinary.Binary = static_cast<const byte8_t *>(data);
+	texBinary.Binary = static_cast<const byte8_t*>(data);
 	texBinary.Images.resize(1u);
 	uint32_t mipWidth = width;
 	uint32_t mipHeight = height;
 	size_t mipSize = dataSize;
 	for (uint32_t i = 0u; i < mipLevels; ++i)
 	{
-		rAsset::rTextureBinary::rImage image
+		AssetTool::TextureBinary::Image image
 		{
 			mipWidth,
 			mipHeight,
@@ -131,9 +132,9 @@ void VulkanImageView::create(
 		mipSize = (size_t)(((float32_t)(mipWidth * mipHeight) / (width * height)) * dataSize); /// May incorrect
 	}
 
-	VulkanImage image(device, texBinary);
+	auto image = std::make_shared<VulkanImage>(device, texBinary);
 
-	create(device, image, image.getFormat(), VK_IMAGE_ASPECT_COLOR_BIT);
+	create(device, image, image->getFormat(), VK_IMAGE_ASPECT_COLOR_BIT);
 }
 
 void VulkanImageView::destroy(VkDevice device)
@@ -143,13 +144,13 @@ void VulkanImageView::destroy(VkDevice device)
 		vkDestroyImageView(device, Handle, vkMemoryAllocator);
 		Handle = VK_NULL_HANDLE;
 
-		if (m_Image.m_Memory.isValid())
+		if (m_Image->m_Memory.isValid())
 		{
-			m_Image.destroy(device);
+			m_Image->destroy(device);
 		}
 		else
 		{
-			m_Image.Handle = VK_NULL_HANDLE;
+			m_Image->Handle = VK_NULL_HANDLE;
 		}
 	}
 }

@@ -28,6 +28,11 @@ public:
 		m_CopyQueue.push(std::move(copyCommand));
 	}
 
+	void queueSubmitImageLayoutTransfer()
+	{
+
+	}
+
 	void waitIdle();
 
 	void destroy(VkDevice device);

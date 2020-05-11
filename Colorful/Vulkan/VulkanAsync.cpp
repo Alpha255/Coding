@@ -14,7 +14,7 @@ VulkanSemaphore::VulkanSemaphore(VkDevice device)
 		0u  /// flags is reserved for future use
 	};
 
-	rVerifyVk(vkCreateSemaphore(device, &createInfo, vkMemoryAllocator, &Handle));
+	GfxVerifyVk(vkCreateSemaphore(device, &createInfo, vkMemoryAllocator, &Handle));
 
 	/// When a batch is submitted to a queue via a queue submission, and it includes semaphores to be signaled, 
 	/// it defines a memory dependency on the batch, and defines semaphore signal operations which set the semaphores to the signaled state.
@@ -35,7 +35,7 @@ void VulkanSemaphore::destroy(VkDevice device)
 	}
 }
 
-vkEvent::vkEvent(VkDevice device)
+VulkanEvent::VulkanEvent(VkDevice device)
 {
 	/// An application can signal an event, or unsignal it, on either the host or the device. 
 	/// A device can wait for an event to become signaled before executing further operations. 
@@ -49,13 +49,13 @@ vkEvent::vkEvent(VkDevice device)
 		0u  /// flags is reserved for future use
 	};
 
-	rVerifyVk(vkCreateEvent(device, &createInfo, vkMemoryAllocator, &Handle));
+	GfxVerifyVk(vkCreateEvent(device, &createInfo, vkMemoryAllocator, &Handle));
 
 	/// The state of an event can also be updated on the device by commands inserted in command buffers.
 	/// To set the state of an event to signaled from a device, call: vkCmdSetEvent
 }
 
-vkEvent::eEventStatus vkEvent::getStatus(VkDevice device)
+VulkanEvent::eEventStatus VulkanEvent::getStatus(VkDevice device)
 {
 	assert(!isValid());
 
@@ -77,23 +77,23 @@ vkEvent::eEventStatus vkEvent::getStatus(VkDevice device)
 	return status;
 }
 
-void vkEvent::setStatus(VkDevice device, eEventStatus status)
+void VulkanEvent::setStatus(VkDevice device, eEventStatus status)
 {
 	assert(!isValid() && status < eEventStatus_MaxEnum);
 
 	if (eSignaled == status)
 	{
 		/// Set the state of an event to signaled from the host
-		rVerifyVk(vkSetEvent(device, Handle));
+		GfxVerifyVk(vkSetEvent(device, Handle));
 	}
 	else if (eUnsignaled == status)
 	{
 		/// Set the state of an event to unsignaled from the host
-		rVerifyVk(vkResetEvent(device, Handle));
+		GfxVerifyVk(vkResetEvent(device, Handle));
 	}
 }
 
-void vkEvent::destroy(VkDevice device)
+void VulkanEvent::destroy(VkDevice device)
 {
 	/// All submitted commands that refer to event must have completed execution
 	if (isValid())
@@ -120,7 +120,7 @@ VulkanFencePtr VulkanFencePool::allocFence(bool8_t signaled)
 	};
 
 	VkFence fence = VK_NULL_HANDLE;
-	rVerifyVk(vkCreateFence(m_Device, &createInfo, vkMemoryAllocator, &fence));
+	GfxVerifyVk(vkCreateFence(m_Device, &createInfo, vkMemoryAllocator, &fence));
 	auto fencePtr = std::make_shared<VulkanFence>(m_FenceID, fence);
 	m_Fences.emplace(std::make_pair(m_FenceID, fencePtr));
 	return fencePtr;
@@ -138,15 +138,15 @@ void VulkanFencePool::freeFence(VulkanFencePtr& fence)
 void VulkanFencePool::resetFence(VulkanFencePtr& fence)
 {
 	assert(fence);
-	rVerifyVk(vkResetFences(m_Device, 1u, &fence->Handle));
+	GfxVerifyVk(vkResetFences(m_Device, 1u, &fence->Handle));
 }
 
 void VulkanFencePool::waitFence(VulkanFencePtr& fence, uint64_t timeoutInNanosecond)
 {
 	assert(fence);
 
-	rVerifyVk(vkWaitForFences(m_Device, 1u, &fence->Handle, true, timeoutInNanosecond));
-	rVerifyVk(vkResetFences(m_Device, 1u, &fence->Handle));
+	GfxVerifyVk(vkWaitForFences(m_Device, 1u, &fence->Handle, true, timeoutInNanosecond));
+	GfxVerifyVk(vkResetFences(m_Device, 1u, &fence->Handle));
 }
 
 VulkanFence::eFenceState VulkanFencePool::fenceState(const VulkanFencePtr& fence)

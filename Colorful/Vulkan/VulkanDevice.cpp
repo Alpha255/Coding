@@ -3,11 +3,11 @@
 void VulkanDevice::create(VkInstance instance)
 {
 	uint32_t count = 0U;
-	rVerifyVk(vkEnumeratePhysicalDevices(instance, &count, nullptr));
+	GfxVerifyVk(vkEnumeratePhysicalDevices(instance, &count, nullptr));
 	assert(count > 0U);
 
 	std::vector<VkPhysicalDevice> physicalDevices(count);
-	rVerifyVk(vkEnumeratePhysicalDevices(instance, &count, physicalDevices.data()));
+	GfxVerifyVk(vkEnumeratePhysicalDevices(instance, &count, physicalDevices.data()));
 
 	uint32_t gpuIndex = std::numeric_limits<uint32_t>().max();
 	uint32_t discreteGpuIndex = std::numeric_limits<uint32_t>().max();
@@ -131,14 +131,14 @@ void VulkanDevice::create(VkInstance instance)
 		VK_EXT_DEBUG_MARKER_EXTENSION_NAME
 	};
 
-	rVerifyVk(vkEnumerateDeviceLayerProperties(m_PhysicalDevice.Handle, &count, nullptr));
+	GfxVerifyVk(vkEnumerateDeviceLayerProperties(m_PhysicalDevice.Handle, &count, nullptr));
 	std::vector<VkLayerProperties> supportedLayers(count);
-	rVerifyVk(vkEnumerateDeviceLayerProperties(m_PhysicalDevice.Handle, &count, supportedLayers.data()));
+	GfxVerifyVk(vkEnumerateDeviceLayerProperties(m_PhysicalDevice.Handle, &count, supportedLayers.data()));
 	layers = VulkanEngine::getSupportedProperties<VkLayerProperties>(supportedLayers, layers);
 
-	rVerifyVk(vkEnumerateDeviceExtensionProperties(m_PhysicalDevice.Handle, nullptr, &count, nullptr));
+	GfxVerifyVk(vkEnumerateDeviceExtensionProperties(m_PhysicalDevice.Handle, nullptr, &count, nullptr));
 	std::vector<VkExtensionProperties> supportedExtensions(count);
-	rVerifyVk(vkEnumerateDeviceExtensionProperties(m_PhysicalDevice.Handle, nullptr, &count, supportedExtensions.data()));
+	GfxVerifyVk(vkEnumerateDeviceExtensionProperties(m_PhysicalDevice.Handle, nullptr, &count, supportedExtensions.data()));
 	extensions = VulkanEngine::getSupportedProperties<VkExtensionProperties>(supportedExtensions, extensions);
 
 	VkPhysicalDeviceFeatures deviceFeatures{};
@@ -158,7 +158,7 @@ void VulkanDevice::create(VkInstance instance)
 		&deviceFeatures
 	};
 
-	rVerifyVk(vkCreateDevice(physicalDevices[gpuIndex], &createInfo, vkMemoryAllocator, &m_LogicalDevice.Handle));
+	GfxVerifyVk(vkCreateDevice(physicalDevices[gpuIndex], &createInfo, vkMemoryAllocator, &m_LogicalDevice.Handle));
 
 #if defined(UsingVkLoader)
 	VulkanLoader::initializeDeviceFunctionTable(m_LogicalDevice.Handle);
@@ -188,7 +188,7 @@ void VulkanDevice::create(VkInstance instance)
 
 void VulkanDevice::destroy()
 {
-	rVerifyVk(vkDeviceWaitIdle(m_LogicalDevice.Handle));
+	GfxVerifyVk(vkDeviceWaitIdle(m_LogicalDevice.Handle));
 
 	VulkanFencePool::instance()->finalize();
 	VulkanQueueManager::instance()->finalize();
@@ -201,4 +201,9 @@ void VulkanDevice::destroy()
 
 	vkDestroyDevice(m_LogicalDevice.Handle, vkMemoryAllocator);
 	m_LogicalDevice.Handle = VK_NULL_HANDLE;
+}
+
+void VulkanDevice::waitIdle()
+{
+	GfxVerifyVk(vkDeviceWaitIdle(m_LogicalDevice.Handle));
 }

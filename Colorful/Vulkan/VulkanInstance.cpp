@@ -27,14 +27,14 @@ void VulkanInstance::create(const Gear::Configurations& config)
 	};
 
 	uint32_t count = 0U;
-	rVerifyVk(vkEnumerateInstanceLayerProperties(&count, nullptr));
+	GfxVerifyVk(vkEnumerateInstanceLayerProperties(&count, nullptr));
 	std::vector<VkLayerProperties> supportedLayers(count);
-	rVerifyVk(vkEnumerateInstanceLayerProperties(&count, supportedLayers.data()));
+	GfxVerifyVk(vkEnumerateInstanceLayerProperties(&count, supportedLayers.data()));
 	layers = VulkanEngine::getSupportedProperties<VkLayerProperties>(supportedLayers, layers);
 
-	rVerifyVk(vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr));
+	GfxVerifyVk(vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr));
 	std::vector<VkExtensionProperties> supportedExtensions(count);
-	rVerifyVk(vkEnumerateInstanceExtensionProperties(nullptr, &count, supportedExtensions.data()));
+	GfxVerifyVk(vkEnumerateInstanceExtensionProperties(nullptr, &count, supportedExtensions.data()));
 	extensions = VulkanEngine::getSupportedProperties<VkExtensionProperties>(supportedExtensions, extensions);
 
 	VkApplicationInfo appInfo
@@ -60,7 +60,7 @@ void VulkanInstance::create(const Gear::Configurations& config)
 		extensions.data()
 	};
 
-	rVerifyVk(vkCreateInstance(&createInfo, vkMemoryAllocator, &Handle));
+	GfxVerifyVk(vkCreateInstance(&createInfo, vkMemoryAllocator, &Handle));
 
 #if defined(_DEBUG)
 	m_DebugUtilsMessenger.create(Handle, config.VulkanValidationVerbose);
@@ -147,7 +147,7 @@ void VulkanInstance::VulkanDebugUtilsMessenger::create(VkInstance instance, bool
 		nullptr
 	};
 
-	rVerifyVk(vkCreateDebugUtilsMesserger(instance, &createInfo, vkMemoryAllocator, &Handle));
+	GfxVerifyVk(vkCreateDebugUtilsMesserger(instance, &createInfo, vkMemoryAllocator, &Handle));
 }
 
 void VulkanInstance::VulkanDebugUtilsMessenger::destroy(VkInstance instance)

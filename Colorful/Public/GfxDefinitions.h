@@ -109,13 +109,13 @@ template<typename T> struct VulkanObject
 	}                                             \
 }
 
-#define rVerifyVk(func)                        \
-{                                              \
-	VkResult result = (func);                  \
-	if (result != VK_SUCCESS)                  \
-	{                                          \
-		VulkanEngine::logError(result);            \
-	}                                          \
+#define GfxVerifyVk(func)                           \
+{                                                 \
+	VkResult result = (func);                     \
+	if (result != VK_SUCCESS)                     \
+	{                                             \
+		VulkanEngine::logError(result);           \
+	}                                             \
 }
 
 template <typename T> class VulkanDeviceObject : public VulkanObject<T>

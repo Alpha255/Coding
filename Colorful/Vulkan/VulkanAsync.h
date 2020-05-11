@@ -92,7 +92,7 @@ public:
 	void destroy(VkDevice device) override final;
 };
 
-class vkEvent : public VulkanDeviceObject<VkEvent>
+class VulkanEvent : public VulkanDeviceObject<VkEvent>
 {
 public:
 	enum eEventStatus
@@ -102,7 +102,7 @@ public:
 		eEventStatus_MaxEnum
 	};
 
-	vkEvent(VkDevice device);
+	VulkanEvent(VkDevice device);
 	void destroy(VkDevice device) override final;
 	eEventStatus getStatus(VkDevice device);
 	void setStatus(VkDevice device, eEventStatus status);

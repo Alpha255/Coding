@@ -102,6 +102,14 @@ workspace "Miscellaneous"
 			includedirs { "$(SolutionDir)", "$(SolutionDir)ThirdParty\\VulkanSDK\\Include" }
 			targetdir "$(SolutionDir)Out\\Libs\\"
 
+		project "Colorful"
+			kind "StaticLib"
+			language "C++"
+			location "./Projects"
+			files "./Colorful/**"
+			targetdir "$(SolutionDir)Out\\Libs\\"
+			includedirs { "$(SolutionDir)", "$(SolutionDir)ThirdParty\\VulkanSDK\\Include" }
+
 	
 	group "Fort"
 		project "Learner"
@@ -384,6 +392,29 @@ workspace "Miscellaneous"
 							"_HAS_EXCEPTIONS=1"
 						}
 
+	group "Colorful"
+		project "RenderTest"
+			kind "WindowedApp"
+			language "C++"
+			location "./Projects"
+			vpaths {
+				["Resource"] = { 
+					"./Assets/Icon/Resource.rc",  
+					"./Assets/Icon/nvidia.ico",
+					"./Applications/Resource.h"
+					},
+				[""] = { "./Applications/Colorful/RenderTest/**" },
+				["Configuration"] = { "./Out/Configurations.json" },
+				["Shaders"] = { "./Assets/Shaders/RenderTest.shader" },
+			}
+			files { 
+				"./Applications/Colorful/RenderTest/**",
+				"./Assets/Shaders/RenderTest.shader",
+				"./Applications/Resource.h"
+			}
+			appInclude()
+			appLinks()
+			appResourceFiles()
 
 
 

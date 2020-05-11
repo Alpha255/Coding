@@ -1,12 +1,11 @@
 #pragma once
 
-#include "Colorful/Public/RAsset.h"
 #include "VulkanLoader.h"
 
 class VulkanShader : public VulkanDeviceObject<VkShaderModule>, public GfxShader
 {
 public:
-	VulkanShader(VkDevice device, eRShaderUsage usage, const rAsset::rShaderBinary &binary);
+	VulkanShader(VkDevice device, eRShaderUsage usage, const std::string& shaderName);
 	void destroy(VkDevice device) override final;
 
 	inline const VkPipelineVertexInputStateCreateInfo &getInputLayout() const

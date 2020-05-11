@@ -30,7 +30,7 @@ void VulkanQueue::submit(VulkanCommandBuffer &cmdBuffer)
 		0u,
 		nullptr
 	};
-	rVerifyVk(vkQueueSubmit(Handle, 1u, &submitInfo, cmdBuffer.fence()->Handle));
+	GfxVerifyVk(vkQueueSubmit(Handle, 1u, &submitInfo, cmdBuffer.fence()->Handle));
 	VulkanFencePool::instance()->waitFence(cmdBuffer.fence());
 }
 
@@ -57,7 +57,7 @@ void VulkanQueue::present(
 	/// Submission can be a high overhead operation, and applications should attempt to batch work together into as few calls to vkQueueSubmit as possible.
 	/// vkQueueSubmit is a queue submission command, with each batch defined by an element of pSubmits. 
 	/// Batches begin execution in the order they appear in pSubmits, but may complete out of order.
-	rVerifyVk(vkQueueSubmit(Handle, 1u, &submitInfo, fence));
+	GfxVerifyVk(vkQueueSubmit(Handle, 1u, &submitInfo, fence));
 	cmdBuffer.setState(VulkanCommandBuffer::ePending);
 	swapchain.present(*m_RenderCompleteSemaphore);
 }
@@ -116,7 +116,7 @@ void VulkanQueue::submit(const VulkanSwapchain &swapchain)
 	/// Submission can be a high overhead operation, and applications should attempt to batch work together into as few calls to vkQueueSubmit as possible.
 	/// vkQueueSubmit is a queue submission command, with each batch defined by an element of pSubmits. 
 	/// Batches begin execution in the order they appear in pSubmits, but may complete out of order.
-	rVerifyVk(vkQueueSubmit(Handle, 1u, &submitInfo, fence));
+	GfxVerifyVk(vkQueueSubmit(Handle, 1u, &submitInfo, fence));
 	swapchain.present(*m_RenderCompleteSemaphore);
 }
 
@@ -126,7 +126,7 @@ void VulkanQueue::waitIdle()
 	/// equivalent to submitting a fence to a queue and waiting with an infinite timeout for that fence to signal.
 	if (isValid())
 	{
-		rVerifyVk(vkQueueWaitIdle(Handle));
+		GfxVerifyVk(vkQueueWaitIdle(Handle));
 	}
 }
 

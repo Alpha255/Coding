@@ -28,7 +28,7 @@ class vkGraphicsPipeline : public vkPipeline
 public:
 	void create(
 		VkDevice device,
-		const class vkRenderPass &renderpass,
+		const class VulkanRenderPass &renderpass,
 		const vkPipelineCache &cache,
 		const GfxPipelineState &state);
 
@@ -49,7 +49,7 @@ private:
 	vkDescriptorSet m_DescriptorSet;
 };
 
-class vkComputePipeline : public vkPipeline, public rComputePipeline
+class vkComputePipeline : public vkPipeline, public GfxComputePipeline
 {
 };
 

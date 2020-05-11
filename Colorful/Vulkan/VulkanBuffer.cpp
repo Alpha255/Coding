@@ -14,7 +14,7 @@ void VulkanDeviceMemory::create(VkDevice device, eRBufferUsage usage, const VkMe
 		VulkanBufferPool::instance()->memoryTypeIndex(usage, memoryRequirements.memoryTypeBits)
 	};
 
-	rVerifyVk(vkAllocateMemory(device, &allocateInfo, vkMemoryAllocator, &Handle));
+	GfxVerifyVk(vkAllocateMemory(device, &allocateInfo, vkMemoryAllocator, &Handle));
 
 	/// If a memory object does not have the VK_MEMORY_PROPERTY_HOST_COHERENT_BIT property, 
 	/// then vkFlushMappedMemoryRanges must be called in order to guarantee that writes to the memory object from the host are made available to the host domain, 
@@ -31,7 +31,7 @@ void VulkanDeviceMemory::update(VkDevice device, const void* data, size_t size, 
 
 	/// VkMemoryMapFlags is a bitmask type for setting a mask, but is currently reserved for future use.
 	void* gpuMemory = nullptr;
-	rVerifyVk(vkMapMemory(device, Handle, offset, size, 0u, &gpuMemory));
+	GfxVerifyVk(vkMapMemory(device, Handle, offset, size, 0u, &gpuMemory));
 	assert(gpuMemory);
 
 	verify(memcpy_s(gpuMemory, size, data, size) == 0);
@@ -42,8 +42,7 @@ void VulkanBuffer::destroy(VkDevice device)
 {
 	if (isValid())
 	{
-		vkFreeMemory(device, m_Memory.Handle, vkMemoryAllocator);
-		m_Memory.Handle = VK_NULL_HANDLE;
+		m_Memory.destroy(device);
 
 		vkDestroyBuffer(device, Handle, vkMemoryAllocator);
 		Handle = VK_NULL_HANDLE;
@@ -78,13 +77,13 @@ VulkanBuffer::VulkanBuffer(VkDevice device, VkBufferUsageFlags usageFlagBits, si
 		0u,
 		nullptr  /// Ignored if sharingMode is not VK_SHARING_MODE_CONCURRENT
 	};
-	rVerifyVk(vkCreateBuffer(device, &createInfo, vkMemoryAllocator, &Handle));
+	GfxVerifyVk(vkCreateBuffer(device, &createInfo, vkMemoryAllocator, &Handle));
 
 	VkMemoryRequirements memoryRequirements{};
 	vkGetBufferMemoryRequirements(device, Handle, &memoryRequirements);
 	m_Memory.create(device, eGpuReadCpuWrite, memoryRequirements);
 	m_Memory.update(device, data, size);
-	rVerifyVk(vkBindBufferMemory(device, Handle, m_Memory.Handle, 0u));
+	GfxVerifyVk(vkBindBufferMemory(device, Handle, m_Memory.Handle, 0u));
 }
 
 VulkanBuffer::VulkanBuffer(VkDevice device, eRBufferBindFlags bindFlags, eRBufferUsage usage, size_t size, const void* data)
@@ -125,7 +124,7 @@ VulkanBuffer::VulkanBuffer(VkDevice device, eRBufferBindFlags bindFlags, eRBuffe
 		0u,
 		nullptr
 	};
-	rVerifyVk(vkCreateBuffer(device, &createInfo, vkMemoryAllocator, &Handle));
+	GfxVerifyVk(vkCreateBuffer(device, &createInfo, vkMemoryAllocator, &Handle));
 
 	VkMemoryRequirements memoryRequirements{};
 	vkGetBufferMemoryRequirements(device, Handle, &memoryRequirements);
@@ -133,7 +132,7 @@ VulkanBuffer::VulkanBuffer(VkDevice device, eRBufferBindFlags bindFlags, eRBuffe
 	
 	if (useStagingBuffer)
 	{
-		rVerifyVk(vkBindBufferMemory(device, Handle, m_Memory.Handle, 0u));
+		GfxVerifyVk(vkBindBufferMemory(device, Handle, m_Memory.Handle, 0u));
 
 		VulkanBuffer stagingBuffer(device, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, size, data);
 		VkBufferCopy bufferCopy
@@ -151,11 +150,11 @@ VulkanBuffer::VulkanBuffer(VkDevice device, eRBufferBindFlags bindFlags, eRBuffe
 		{
 			m_Memory.update(device, data, size, 0u);
 		}
-		rVerifyVk(vkBindBufferMemory(device, Handle, m_Memory.Handle, 0u));
+		GfxVerifyVk(vkBindBufferMemory(device, Handle, m_Memory.Handle, 0u));
 	}
 }
 
-void VulkanFrameBuffer::create(VkDevice device, const vkRenderPass& renderPass, const GfxFrameBufferDesc& desc)
+void VulkanFrameBuffer::create(VkDevice device, const VulkanRenderPass& renderPass, const GfxFrameBufferDesc& desc)
 {
 	assert(renderPass.isValid() && !isValid());
 
@@ -189,7 +188,7 @@ void VulkanFrameBuffer::create(VkDevice device, const vkRenderPass& renderPass, 
 		desc.Layers
 	};
 
-	rVerifyVk(vkCreateFramebuffer(device, &createInfo, vkMemoryAllocator, &Handle));
+	GfxVerifyVk(vkCreateFramebuffer(device, &createInfo, vkMemoryAllocator, &Handle));
 }
 
 void VulkanFrameBuffer::destroy(VkDevice device)

@@ -6,7 +6,7 @@ void vkDescriptorPool::create(VkDevice device)
 	assert(!isValid());
 
 	/// ToDo-May need a better way
-	auto &deviceLimits = device.getDeviceLimits();
+	auto deviceLimits = VkPhysicalDeviceLimits(); /// ??? 
 
 	std::array<VkDescriptorPoolSize, VK_DESCRIPTOR_TYPE_RANGE_SIZE> descriptorPoolSizes;
 	descriptorPoolSizes[0] = VkDescriptorPoolSize
@@ -75,7 +75,7 @@ void vkDescriptorPool::create(VkDevice device)
 		descriptorPoolSizes.data()
 	};
 
-	rVerifyVk(vkCreateDescriptorPool(device, &createInfo, vkMemoryAllocator, &Handle));
+	GfxVerifyVk(vkCreateDescriptorPool(device, &createInfo, vkMemoryAllocator, &Handle));
 }
 
 void vkDescriptorPool::resetPool(VkDevice device)
@@ -112,7 +112,7 @@ vkDescriptorSet vkDescriptorPool::alloc(VkDevice device, const vkDescriptorSetLa
 	};
 
 	vkDescriptorSet descriptorSet;
-	rVerifyVk(vkAllocateDescriptorSets(device, &allocInfo, &descriptorSet.Handle));
+	GfxVerifyVk(vkAllocateDescriptorSets(device, &allocInfo, &descriptorSet.Handle));
 
 	return descriptorSet;
 }
@@ -150,7 +150,7 @@ void vkDescriptorSetLayout::create(VkDevice device, const GfxDescriptorLayoutDes
 		bindings.data()
 	};
 
-	rVerifyVk(vkCreateDescriptorSetLayout(device, &createInfo, vkMemoryAllocator, &Handle));
+	GfxVerifyVk(vkCreateDescriptorSetLayout(device, &createInfo, vkMemoryAllocator, &Handle));
 }
 
 void vkDescriptorSetLayout::destroy(VkDevice device)

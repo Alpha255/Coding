@@ -1,5 +1,4 @@
-#include "VulkanImage.h"
-#include "VulkanEngine.h"
+#include "Colorful/Vulkan/VulkanEngine.h"
 
 void VulkanImage::transitionImageLayout()
 {
@@ -44,7 +43,7 @@ VkImageType VulkanImage::getImageType(eRTextureType type) const
 	return imageType;
 }
 
-void VulkanImage::copyBufferToImage(VkDevice device, const rAsset::rTextureBinary &binary)
+void VulkanImage::copyBufferToImage(VkDevice device, const AssetTool::TextureBinary &binary)
 {
 	bool8_t useStaging = true;
 	//VkFormatProperties formatProperties = VulkanEngine::instance().getFormatProperties(m_Format);
@@ -88,58 +87,58 @@ void VulkanImage::copyBufferToImage(VkDevice device, const rAsset::rTextureBinar
 			}
 		}
 
-		VulkanStagingBuffer stagingBuffer(
-			device, 
-			VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
-			binary.Size, 
-			binary.Binary ? binary.Binary : binary.SharedBinary.get()
-		);
-		VulkanCommandBuffer commandBuffer = device.allocCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, false);
-		commandBuffer.begin();
+		//VulkanBuffer stagingBuffer(
+		//	device, 
+		//	VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
+		//	binary.Size, 
+		//	binary.Binary ? binary.Binary : binary.SharedBinary.get()
+		//);
+		//VulkanCommandBuffer commandBuffer = device.allocCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, false);
+		//commandBuffer.begin();
 
-		VkImageSubresourceRange subresourceRange
-		{
-			VK_IMAGE_ASPECT_COLOR_BIT,
-			0u,
-			binary.MipLevels,
-			0u,
-			binary.ArrayLayers
-		};
-		insertMemoryBarrier(
-			commandBuffer,
-			VK_PIPELINE_STAGE_HOST_BIT,
-			VK_PIPELINE_STAGE_TRANSFER_BIT,
-			0u,
-			VK_ACCESS_TRANSFER_WRITE_BIT,
-			VK_IMAGE_LAYOUT_UNDEFINED,
-			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-			subresourceRange);
+		//VkImageSubresourceRange subresourceRange
+		//{
+		//	VK_IMAGE_ASPECT_COLOR_BIT,
+		//	0u,
+		//	binary.MipLevels,
+		//	0u,
+		//	binary.ArrayLayers
+		//};
+		//insertMemoryBarrier(
+		//	commandBuffer,
+		//	VK_PIPELINE_STAGE_HOST_BIT,
+		//	VK_PIPELINE_STAGE_TRANSFER_BIT,
+		//	0u,
+		//	VK_ACCESS_TRANSFER_WRITE_BIT,
+		//	VK_IMAGE_LAYOUT_UNDEFINED,
+		//	VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+		//	subresourceRange);
 
-		vkCmdCopyBufferToImage(
-			commandBuffer.Handle,
-			stagingBuffer.Handle,
-			Handle,
-			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-			(uint32_t)bufferImageCopy.size(),
-			bufferImageCopy.data());
+		//vkCmdCopyBufferToImage(
+		//	commandBuffer.Handle,
+		//	stagingBuffer.Handle,
+		//	Handle,
+		//	VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+		//	(uint32_t)bufferImageCopy.size(),
+		//	bufferImageCopy.data());
 
-		insertMemoryBarrier(
-			commandBuffer,
-			VK_PIPELINE_STAGE_TRANSFER_BIT,
-			VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,  //// ???
-			VK_ACCESS_TRANSFER_WRITE_BIT,
-			VK_ACCESS_SHADER_READ_BIT,
-			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-			subresourceRange);
+		//insertMemoryBarrier(
+		//	commandBuffer,
+		//	VK_PIPELINE_STAGE_TRANSFER_BIT,
+		//	VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,  //// ???
+		//	VK_ACCESS_TRANSFER_WRITE_BIT,
+		//	VK_ACCESS_SHADER_READ_BIT,
+		//	VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+		//	VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+		//	subresourceRange);
 
-		commandBuffer.end();
-		
-		VulkanQueueManager::instance()->transferQueue()->submit(commandBuffer);
+		//commandBuffer.end();
+		//
+		//VulkanQueueManager::instance()->transferQueue()->submit(commandBuffer);
 
-		device.freeCommandBuffer(commandBuffer);
+		//device.freeCommandBuffer(commandBuffer);
 
-		stagingBuffer.destroy(device);
+		//stagingBuffer.destroy(device);
 	}
 	else
 	{
@@ -185,7 +184,7 @@ void VulkanImage::insertMemoryBarrier(
 		&imageMemoryBarrier);
 }
 
-VulkanImage::VulkanImage(VkDevice device, const rAsset::rTextureBinary &binary)
+VulkanImage::VulkanImage(VkDevice device, const AssetTool::TextureBinary& binary)
 {
 	assert(!isValid() && binary.Size > 0u);
 
@@ -213,17 +212,17 @@ VulkanImage::VulkanImage(VkDevice device, const rAsset::rTextureBinary &binary)
 	};
 	m_Format = createInfo.format;
 
-	rVerifyVk(vkCreateImage(device, &createInfo, vkMemoryAllocator, &Handle));
+	GfxVerifyVk(vkCreateImage(device, &createInfo, vkMemoryAllocator, &Handle));
 
 	VkMemoryRequirements memoryRequirements{};
 	vkGetImageMemoryRequirements(device, Handle, &memoryRequirements);
 	m_Memory.create(device, eGpuReadOnly, memoryRequirements);
-	rVerifyVk(vkBindImageMemory(device, Handle, m_Memory.Handle, 0u));
+	GfxVerifyVk(vkBindImageMemory(device, Handle, m_Memory.Handle, 0u));
 
 	copyBufferToImage(device, binary);
 }
 
-void VulkanImage::create(
+VulkanImage::VulkanImage(
 	VkDevice device, 
 	uint32_t width, 
 	uint32_t height, 
@@ -261,12 +260,12 @@ void VulkanImage::create(
 		VK_IMAGE_LAYOUT_UNDEFINED
 	};
 
-	rVerifyVk(vkCreateImage(device, &createInfo, vkMemoryAllocator, &Handle));
+	GfxVerifyVk(vkCreateImage(device, &createInfo, vkMemoryAllocator, &Handle));
 
 	VkMemoryRequirements memoryRequirements{};
 	vkGetImageMemoryRequirements(device, Handle, &memoryRequirements);
 	m_Memory.create(device, eGpuReadOnly, memoryRequirements);
-	rVerifyVk(vkBindImageMemory(device, Handle, m_Memory.Handle, 0u));
+	GfxVerifyVk(vkBindImageMemory(device, Handle, m_Memory.Handle, 0u));
 }
 
 void VulkanImage::destroy(VkDevice device)
@@ -279,7 +278,7 @@ void VulkanImage::destroy(VkDevice device)
 	}
 }
 
-VulkanSampler::VulkanSampler(VkDevice device, const GfxSamplerDesc &desc)
+VulkanSampler::VulkanSampler(VkDevice device, const GfxSamplerDesc& desc)
 {
 	assert(!isValid());
 	assert(desc.MaxAnisotropy < 16u);
@@ -306,7 +305,7 @@ VulkanSampler::VulkanSampler(VkDevice device, const GfxSamplerDesc &desc)
 		false
 	};
 	
-	rVerifyVk(vkCreateSampler(device, &createInfo, vkMemoryAllocator, &Handle));
+	GfxVerifyVk(vkCreateSampler(device, &createInfo, vkMemoryAllocator, &Handle));
 }
 
 void VulkanSampler::destroy(VkDevice device)

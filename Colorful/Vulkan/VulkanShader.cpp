@@ -1,25 +1,26 @@
 #include "VulkanShader.h"
 #include "VulkanEngine.h"
+#include "AssetTool/Asset.h"
 
-VulkanShader::VulkanShader(VkDevice device, eRShaderUsage usage, const rAsset::rShaderBinary &binary)
+VulkanShader::VulkanShader(VkDevice device, eRShaderUsage usage, const std::string& shaderName)
 	: GfxShader(usage)
 {
-	assert(!isValid());
-	assert(binary.Binary && binary.Size > 0u && usage < eRShaderUsage_MaxEnum);
-	assert((binary.Size % sizeof(uint32_t)) == 0);
+	//assert(!isValid());
+	//assert(binary.Binary && binary.Size > 0u && usage < eRShaderUsage_MaxEnum);
+	//assert((binary.Size % sizeof(uint32_t)) == 0);
 
-	VkShaderModuleCreateInfo createInfo
-	{
-		VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
-		nullptr,
-		0u,  /// flags is reserved for future use
-		binary.Size,
-		(uint32_t *)binary.Binary.get()
-	};
+	//VkShaderModuleCreateInfo createInfo
+	//{
+	//	VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+	//	nullptr,
+	//	0u,  /// flags is reserved for future use
+	//	binary.Size,
+	//	(uint32_t *)binary.Binary.get()
+	//};
 
-	rVerifyVk(vkCreateShaderModule(device, &createInfo, vkMemoryAllocator, &Handle));
+	//GfxVerifyVk(vkCreateShaderModule(device, &createInfo, vkMemoryAllocator, &Handle));
 
-	m_Reflections = binary.Reflections;
+	//m_Reflections = binary.Reflections;
 }
 
 void VulkanShader::destroy(VkDevice device)
@@ -50,7 +51,7 @@ void VulkanShader::setInputLayout(const std::vector<GfxVertexAttributes>& vertex
 			stride
 		};
 
-		stride += ((uint32_t)GfxVertexAttributes::getFormatStride(vertexAttributes[i].Format) / 8ull);
+		stride += ((uint32_t)GfxVertexAttributes::formatStride(vertexAttributes[i].Format) / 8ull);
 		stride = (uint32_t)Gear::LinearAllocator::align_to(stride, align);
 	}
 

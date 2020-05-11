@@ -19,7 +19,7 @@ void VulkanEngine::initialize(uint64_t windowHandle, const Gear::Configurations&
 		config.WindowHeight,
 		config.VSync,
 		config.FullScreen,
-		m_Instance,
+		m_Instance.Handle,
 		m_Device.physicalDevice(),
 		m_Device.logicalDevice());
 }
@@ -84,15 +84,15 @@ void VulkanEngine::present()
 	///VulkanQueueManager::instance()->gfxQueue()->submit(m_Swapchain);
 }
 
-void VulkanEngine::createOpaqueRenderPass()
-{
-	GfxFrameBufferDesc frameBufferDesc{};
-	frameBufferDesc.Width = m_Swapchain->width();
-	frameBufferDesc.Height = m_Swapchain->height();
-	frameBufferDesc.DepthSurface = createDepthStencilView(frameBufferDesc.Width, frameBufferDesc.Height, eD24_UNorm_S8_UInt);
-
-	m_OpaqueRenderPass = m_Device.createRenderPass(m_Swapchain, frameBufferDesc);
-}
+//void VulkanEngine::createOpaqueRenderPass()
+//{
+//	GfxFrameBufferDesc frameBufferDesc{};
+//	frameBufferDesc.Width = m_Swapchain->width();
+//	frameBufferDesc.Height = m_Swapchain->height();
+//	frameBufferDesc.DepthSurface = createDepthStencilView(frameBufferDesc.Width, frameBufferDesc.Height, eD24_UNorm_S8_UInt);
+//
+//	m_OpaqueRenderPass = m_Device.createRenderPass(m_Swapchain, frameBufferDesc);
+//}
 
 void VulkanEngine::finalize()
 {

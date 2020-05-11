@@ -151,7 +151,7 @@ struct GfxPipelineState
 		PrimitiveTopology = primitiveTopology;
 	}
 
-	inline void setShader(const GfxShader *shader)
+	inline void setShader(const GfxShaderPtr shader)
 	{
 		assert(shader);
 		assert(shader->usage() < eRShaderUsage_MaxEnum);
@@ -206,7 +206,7 @@ struct GfxPipelineState
 
 	eRPrimitiveTopology PrimitiveTopology = eTriangleList;
 
-	const GfxShader *Shaders[eRShaderUsage_MaxEnum]{};
+	GfxShaderPtr Shaders[eRShaderUsage_MaxEnum]{};
 
 	GfxRasterizerStateDesc RasterizerStateDesc{};
 	GfxBlendStateDesc BlendStateDesc{};

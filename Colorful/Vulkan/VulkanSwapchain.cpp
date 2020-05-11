@@ -18,7 +18,7 @@ void VulkanSwapchain::VulkanSurface::create(uint64_t windowHandle, VkInstance in
 		(::HWND)windowHandle
 	};
 
-	rVerifyVk(vkCreateWin32SurfaceKHR(instance, &createInfo, vkMemoryAllocator, &Handle));
+	GfxVerifyVk(vkCreateWin32SurfaceKHR(instance, &createInfo, vkMemoryAllocator, &Handle));
 #else
 	assert(0);
 #endif
@@ -63,7 +63,7 @@ VulkanSwapchain::VulkanSwapchain(
 	std::vector<VkBool32> surfaceSupportKHR(count);
 	for (uint32_t i = 0u; i < count; ++i)
 	{
-		rVerifyVk(vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, m_Surface.Handle, &surfaceSupportKHR[i]));
+		GfxVerifyVk(vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, m_Surface.Handle, &surfaceSupportKHR[i]));
 	}
 
 	uint32_t graphicQueue = std::numeric_limits<uint32_t>().max();
@@ -96,10 +96,10 @@ VulkanSwapchain::VulkanSwapchain(
 
 	assert(graphicQueue != std::numeric_limits<uint32_t>().max() && presentQueue != std::numeric_limits<uint32_t>().max() && graphicQueue == presentQueue);
 
-	rVerifyVk(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, m_Surface.Handle, &count, nullptr));
+	GfxVerifyVk(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, m_Surface.Handle, &count, nullptr));
 	assert(count > 0u);
 	std::vector<VkSurfaceFormatKHR> surfaceFormats(count);
-	rVerifyVk(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, m_Surface.Handle, &count, surfaceFormats.data()));
+	GfxVerifyVk(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, m_Surface.Handle, &count, surfaceFormats.data()));
 
 	m_Surface.SurfaceFormat = surfaceFormats[0];
 	for (auto const& surfaceFormat : surfaceFormats)
@@ -112,10 +112,10 @@ VulkanSwapchain::VulkanSwapchain(
 	}
 	assert(m_Surface.SurfaceFormat.colorSpace != VK_COLOR_SPACE_MAX_ENUM_KHR);
 
-	rVerifyVk(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, m_Surface.Handle, &count, nullptr));
+	GfxVerifyVk(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, m_Surface.Handle, &count, nullptr));
 	assert(count > 0u);
 	m_Surface.PresentModes.resize(count);
-	rVerifyVk(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, m_Surface.Handle, &count, m_Surface.PresentModes.data()));
+	GfxVerifyVk(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, m_Surface.Handle, &count, m_Surface.PresentModes.data()));
 
 	m_PresentCompleteSemaphore = new VulkanSemaphore(device);
 
@@ -126,7 +126,7 @@ void VulkanSwapchain::recreate()
 {
 	assert(m_Surface.isValid());
 
-	rVerifyVk(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_PhysicalDevice, m_Surface.Handle, &m_Surface.SurfaceCapabilities));
+	GfxVerifyVk(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_PhysicalDevice, m_Surface.Handle, &m_Surface.SurfaceCapabilities));
 
 	VkExtent2D sizeExtent{};
 	sizeExtent.width = std::min<uint32_t>(m_Width, m_Surface.SurfaceCapabilities.maxImageExtent.width);
@@ -224,7 +224,7 @@ void VulkanSwapchain::recreate()
 
 	///device.waitIdle();
 
-	rVerifyVk(vkCreateSwapchainKHR(m_LogicDevice, &createInfo, vkMemoryAllocator, &Handle));
+	GfxVerifyVk(vkCreateSwapchainKHR(m_LogicDevice, &createInfo, vkMemoryAllocator, &Handle));
 
 	if (oldSwapchain != VK_NULL_HANDLE)
 	{
@@ -233,16 +233,16 @@ void VulkanSwapchain::recreate()
 	}
 
 	uint32_t imageCount = 0u;
-	rVerifyVk(vkGetSwapchainImagesKHR(m_LogicDevice, Handle, &imageCount, nullptr));
+	GfxVerifyVk(vkGetSwapchainImagesKHR(m_LogicDevice, Handle, &imageCount, nullptr));
 	std::vector<VkImage> images(imageCount);
 	m_BackBuffers.resize(imageCount);
-	rVerifyVk(vkGetSwapchainImagesKHR(m_LogicDevice, Handle, &imageCount, images.data()));
+	GfxVerifyVk(vkGetSwapchainImagesKHR(m_LogicDevice, Handle, &imageCount, images.data()));
 	for (uint32_t i = 0u; i < images.size(); ++i)
 	{
-		VulkanImage image;
-		image.Handle = images[i];
+		//VulkanImage image;
+		//image.Handle = images[i];
 
-		m_BackBuffers[i].create(m_LogicDevice, image, m_Surface.SurfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT);
+		//m_BackBuffers[i].create(m_LogicDevice, image, m_Surface.SurfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT);
 	}
 }
 
@@ -261,7 +261,7 @@ uint32_t VulkanSwapchain::acquireNextFrame()
 	assert(isValid());
 	m_CurrentFrameIndex = std::numeric_limits<uint32_t>().max();
 
-	rVerifyVk(vkAcquireNextImageKHR(m_LogicDevice, Handle, UINT64_MAX, m_PresentCompleteSemaphore->Handle, VK_NULL_HANDLE, &m_CurrentFrameIndex));
+	GfxVerifyVk(vkAcquireNextImageKHR(m_LogicDevice, Handle, UINT64_MAX, m_PresentCompleteSemaphore->Handle, VK_NULL_HANDLE, &m_CurrentFrameIndex));
 	return m_CurrentFrameIndex;
 }
 
@@ -278,7 +278,7 @@ void VulkanSwapchain::present(const VulkanSemaphore &renderCompleteSephore) cons
 		&m_CurrentFrameIndex,
 		nullptr
 	};
-	rVerifyVk(vkQueuePresentKHR(VulkanQueueManager::instance()->gfxQueue()->Handle, &presentInfo));
+	GfxVerifyVk(vkQueuePresentKHR(VulkanQueueManager::instance()->gfxQueue()->Handle, &presentInfo));
 }
 
 void VulkanSwapchain::clearBackBuffers()

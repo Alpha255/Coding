@@ -28,7 +28,7 @@ void vkCommandPool::create(VkDevice device, uint32_t queueIndex)
 		queueIndex  /// All command buffers allocated from this command pool must be submitted on queues from the same queue family.
 	};
 
-	rVerifyVk(vkCreateCommandPool(device, &createInfo, vkMemoryAllocator, &Handle));
+	GfxVerifyVk(vkCreateCommandPool(device, &createInfo, vkMemoryAllocator, &Handle));
 }
 
 void vkCommandPool::reset(VkDevice device)
@@ -43,7 +43,7 @@ void vkCommandPool::reset(VkDevice device)
 	/// VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT specifies that resetting a command pool recycles all of the resources from the command pool back to the system.
 
 	/// All VkCommandBuffer objects allocated from commandPool must not be in the pending state
-	rVerifyVk(vkResetCommandPool(device, Handle, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT));
+	GfxVerifyVk(vkResetCommandPool(device, Handle, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT));
 }
 
 void vkCommandPool::trim(VkDevice device)
@@ -127,12 +127,12 @@ VulkanCommandBuffer vkCommandPool::alloc(VkDevice device, VkCommandBufferLevel l
 	};
 
 	VkCommandBuffer handle = VK_NULL_HANDLE;
-	rVerifyVk(vkAllocateCommandBuffers(device, &allocateInfo, &handle));
+	GfxVerifyVk(vkAllocateCommandBuffers(device, &allocateInfo, &handle));
 
-	VulkanSemaphore *semaphore = device.createSemaphore();
-	assert(semaphore);
+	//VulkanSemaphore *semaphore = device.createSemaphore();
+	//assert(semaphore);
 
-	VulkanCommandBuffer result(level, handle, semaphore);
+	VulkanCommandBuffer result(level, handle, nullptr);
 	result.m_Fence = VulkanFencePool::instance()->allocFence(signaleFence);
 
 	return result;
@@ -178,7 +178,7 @@ void VulkanCommandBuffer::begin()
 		0u,
 		nullptr
 	};
-	rVerifyVk(vkBeginCommandBuffer(Handle, &cmdBufferBeginInfo));
+	GfxVerifyVk(vkBeginCommandBuffer(Handle, &cmdBufferBeginInfo));
 	setState(eRecording);
 }
 
@@ -186,7 +186,7 @@ void VulkanCommandBuffer::end()
 {
 	assert(isValid() && m_State == eRecording);
 
-	rVerifyVk(vkEndCommandBuffer(Handle));
+	GfxVerifyVk(vkEndCommandBuffer(Handle));
 	setState(eExecutable);
 }
 
@@ -221,7 +221,7 @@ void VulkanCommandBuffer::beginRenderPass(const VkRenderPassBeginInfo &renderPas
 		nullptr
 	};
 
-	rVerifyVk(vkBeginCommandBuffer(Handle, &cmdBufferBeginInfo));
+	GfxVerifyVk(vkBeginCommandBuffer(Handle, &cmdBufferBeginInfo));
 	vkCmdBeginRenderPass(Handle, &renderPassBeginInfo, subpassContents);
 
 	setState(eRecording);
@@ -232,7 +232,7 @@ void VulkanCommandBuffer::endRenderPass()
 	assert(isValid() && m_State == eRecording);
 
 	vkCmdEndRenderPass(Handle);
-	rVerifyVk(vkEndCommandBuffer(Handle));
+	GfxVerifyVk(vkEndCommandBuffer(Handle));
 
 	setState(eExecutable);
 }

@@ -2,11 +2,20 @@
 
 #include "VulkanLoader.h"
 
-class VulkanDeviceMemory : public VulkanObject<VkDeviceMemory>
+class VulkanDeviceMemory : public VulkanDeviceObject<VkDeviceMemory>
 {
 public:
 	void create(VkDevice device, eRBufferUsage usage, const VkMemoryRequirements& memoryRequirements);
 	void update(VkDevice device, const void* data, size_t size, size_t offset = 0u);
+	
+	void destroy(VkDevice device) override final
+	{
+		if (isValid())
+		{
+			vkFreeMemory(device, Handle, vkMemoryAllocator);
+			Handle = VK_NULL_HANDLE;
+		}
+	}
 };
 
 class VulkanBuffer : public VulkanDeviceObject<VkBuffer>, public GfxGpuBuffer
@@ -47,7 +56,7 @@ public:
 class VulkanFrameBuffer : public VulkanDeviceObject<VkFramebuffer>
 {
 public:
-	void create(VkDevice device, const class vkRenderPass &renderPass, const GfxFrameBufferDesc &desc);
+	void create(VkDevice device, const class VulkanRenderPass &renderPass, const GfxFrameBufferDesc &desc);
 	void destroy(VkDevice device) override final;
 };
 

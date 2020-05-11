@@ -14,7 +14,7 @@ class VulkanDevice : public GfxDevice
 {
 public:
 	VulkanSemaphore *createSemaphore() const;
-	vkEvent *createEvent() const;
+	VulkanEvent *createEvent() const;
 
 	inline VulkanCommandBuffer allocCommandBuffer(VkCommandBufferLevel level, bool8_t signaleFence = true) const
 	{
@@ -57,7 +57,7 @@ public:
 		return m_PipelinePool->getGraphicsPipelineState(pipeline);
 	}
 
-	inline vkGraphicsPipeline *getOrCreateGraphicsPipeline(const vkRenderPass &renderpass, const GfxPipelineState &graphicsPipelineState)
+	inline vkGraphicsPipeline *getOrCreateGraphicsPipeline(const VulkanRenderPass &renderpass, const GfxPipelineState &graphicsPipelineState)
 	{
 		return m_PipelinePool->getOrCreateGraphicsPipeline(renderpass, graphicsPipelineState);
 	}
@@ -79,6 +79,8 @@ public:
 
 	void destroy();
 
+	void waitIdle();
+
 	VkPhysicalDevice physicalDevice() const
 	{
 		return m_PhysicalDevice.Handle;
@@ -94,7 +96,7 @@ protected:
 	public:
 		vkPipelinePool(VkDevice device);
 
-		vkGraphicsPipeline *getOrCreateGraphicsPipeline(const vkRenderPass &renderpass, const GfxPipelineState &graphicsPipelineState);
+		vkGraphicsPipeline *getOrCreateGraphicsPipeline(const VulkanRenderPass &renderpass, const GfxPipelineState &graphicsPipelineState);
 
 		inline void destroyAll()
 		{

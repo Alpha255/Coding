@@ -19,7 +19,7 @@ void vkPipelineLayout::create(VkDevice device, const vkDescriptorSetLayout &desc
 		nullptr /// PushRange ?????
 	};
 
-	rVerifyVk(vkCreatePipelineLayout(device, &createInfo, vkMemoryAllocator, &Handle));
+	GfxVerifyVk(vkCreatePipelineLayout(device, &createInfo, vkMemoryAllocator, &Handle));
 }
 
 void vkPipelineLayout::destroy(VkDevice device)
@@ -36,7 +36,7 @@ void vkPipelineLayout::destroy(VkDevice device)
 
 void vkGraphicsPipeline::create(
 	VkDevice device, 
-	const vkRenderPass &renderpass, 
+	const VulkanRenderPass &renderpass, 
 	const vkPipelineCache &cache, 
 	const GfxPipelineState &state)
 {
@@ -50,7 +50,7 @@ void vkGraphicsPipeline::create(
 	{
 		if (state.Shaders[i])
 		{
-			auto shader = static_cast<const VulkanShader *>(state.Shaders[i]);
+			auto shader = std::static_pointer_cast<VulkanShader>(state.Shaders[i]);
 
 			VkPipelineShaderStageCreateInfo shaderStageCreateInfo
 			{
@@ -72,7 +72,7 @@ void vkGraphicsPipeline::create(
 	m_PipelineLayout.create(device, m_DescriptorSetLayout);
 	setupDescriptorSet(device, state);
 
-	auto vertexShader = static_cast<const VulkanShader *>(state.Shaders[eVertexShader]);
+	auto vertexShader = std::static_pointer_cast<VulkanShader>(state.Shaders[eVertexShader]);
 
 	VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo
 	{
@@ -155,7 +155,7 @@ void vkGraphicsPipeline::create(
 	};
 
 	/// Pending creations ???
-	rVerifyVk(vkCreateGraphicsPipelines(device, cache.Handle, 1u, &createInfo, vkMemoryAllocator, &Handle));
+	GfxVerifyVk(vkCreateGraphicsPipelines(device, cache.Handle, 1u, &createInfo, vkMemoryAllocator, &Handle));
 }
 
 void vkGraphicsPipeline::destroy(VkDevice device)
@@ -291,82 +291,82 @@ VkPipelineColorBlendStateCreateInfo vkGraphicsPipeline::getColorBlendState(
 
 void vkGraphicsPipeline::setupDescriptorSet(VkDevice device, const GfxPipelineState &state)
 {
-	m_DescriptorSet = device.allocDescriptorSet(m_DescriptorSetLayout);
+	//m_DescriptorSet = device.allocDescriptorSet(m_DescriptorSetLayout);
 
-	std::vector<VkWriteDescriptorSet> writeDescriptorSets;
-	std::vector<VkDescriptorImageInfo> imageInfos;
-	uint32_t bindingIndex = 0u;
-	for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
-	{
-		if (state.Shaders[i])
-		{
-			auto uniformBuffer = state.Shaders[i]->getUniformBuffer();
-			if (uniformBuffer)
-			{
-				auto buffer = static_cast<VulkanBuffer *>(uniformBuffer);
+	//std::vector<VkWriteDescriptorSet> writeDescriptorSets;
+	//std::vector<VkDescriptorImageInfo> imageInfos;
+	//uint32_t bindingIndex = 0u;
+	//for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
+	//{
+	//	if (state.Shaders[i])
+	//	{
+	//		auto uniformBuffer = state.Shaders[i]->getUniformBuffer();
+	//		if (uniformBuffer)
+	//		{
+	//			auto buffer = static_cast<VulkanBuffer *>(uniformBuffer);
 
-				VkDescriptorBufferInfo bufferInfo
-				{
-					buffer->Handle,
-					0u,
-					VK_WHOLE_SIZE   /// Use whole size for now
-				};
+	//			VkDescriptorBufferInfo bufferInfo
+	//			{
+	//				buffer->Handle,
+	//				0u,
+	//				VK_WHOLE_SIZE   /// Use whole size for now
+	//			};
 
-				VkWriteDescriptorSet writeDescriptorSetUniforBuffer
-				{
-					VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-					nullptr,
-					m_DescriptorSet.Handle,
-					bindingIndex++,  /// Need get binding from shader reflection
-					0u,
-					1u,   
-					VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-					nullptr,
-					&bufferInfo,
-					nullptr
-				};
-				writeDescriptorSets.emplace_back(std::move(writeDescriptorSetUniforBuffer));
-			}
+	//			VkWriteDescriptorSet writeDescriptorSetUniforBuffer
+	//			{
+	//				VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+	//				nullptr,
+	//				m_DescriptorSet.Handle,
+	//				bindingIndex++,  /// Need get binding from shader reflection
+	//				0u,
+	//				1u,   
+	//				VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+	//				nullptr,
+	//				&bufferInfo,
+	//				nullptr
+	//			};
+	//			writeDescriptorSets.emplace_back(std::move(writeDescriptorSetUniforBuffer));
+	//		}
 
-			auto &textures = state.Shaders[i]->getTextures();
-			for (uint32_t j = 0u; j < textures.size(); ++j)
-			{
-				auto imageView = static_cast<const VulkanImageView *>(textures[j]);
-				const VulkanSampler *sampler = nullptr;
-				auto combinedSampler = imageView->getSampler();
-				if (combinedSampler)
-				{
-					sampler = static_cast<const VulkanSampler *>(combinedSampler);
-				}
+	//		auto &textures = state.Shaders[i]->getTextures();
+	//		for (uint32_t j = 0u; j < textures.size(); ++j)
+	//		{
+	//			auto imageView = static_cast<const VulkanImageView *>(textures[j]);
+	//			const VulkanSampler *sampler = nullptr;
+	//			auto combinedSampler = imageView->getSampler();
+	//			if (combinedSampler)
+	//			{
+	//				sampler = static_cast<const VulkanSampler *>(combinedSampler);
+	//			}
 
-				VkDescriptorImageInfo imageInfo
-				{
-					sampler ? sampler->Handle : VK_NULL_HANDLE,
-					imageView->Handle,
-					VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-				};
-				imageInfos.emplace_back(std::move(imageInfo));
+	//			VkDescriptorImageInfo imageInfo
+	//			{
+	//				sampler ? sampler->Handle : VK_NULL_HANDLE,
+	//				imageView->Handle,
+	//				VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+	//			};
+	//			imageInfos.emplace_back(std::move(imageInfo));
 
-				VkWriteDescriptorSet writeDescriptorSetImageView
-				{
-					VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-					nullptr,
-					m_DescriptorSet.Handle,
-					bindingIndex++,
-					0u,
-					1u,
-					sampler ? VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER : VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
-					&imageInfos[imageInfos.size() - 1u],
-					nullptr,
-					nullptr,
-				};
-				writeDescriptorSets.emplace_back(std::move(writeDescriptorSetImageView));
-			}
-		}
-	}
+	//			VkWriteDescriptorSet writeDescriptorSetImageView
+	//			{
+	//				VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+	//				nullptr,
+	//				m_DescriptorSet.Handle,
+	//				bindingIndex++,
+	//				0u,
+	//				1u,
+	//				sampler ? VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER : VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+	//				&imageInfos[imageInfos.size() - 1u],
+	//				nullptr,
+	//				nullptr,
+	//			};
+	//			writeDescriptorSets.emplace_back(std::move(writeDescriptorSetImageView));
+	//		}
+	//	}
+	//}
 
-	assert(writeDescriptorSets.size() > 0u);
-	vkUpdateDescriptorSets(device, (uint32_t)writeDescriptorSets.size(), writeDescriptorSets.data(), 0u, nullptr);
+	//assert(writeDescriptorSets.size() > 0u);
+	//vkUpdateDescriptorSets(device, (uint32_t)writeDescriptorSets.size(), writeDescriptorSets.data(), 0u, nullptr);
 }
 
 void vkPipelineCache::create(VkDevice device)
@@ -382,7 +382,7 @@ void vkPipelineCache::create(VkDevice device)
 		nullptr
 	};
 
-	rVerifyVk(vkCreatePipelineCache(device, &createInfo, vkMemoryAllocator, &Handle));
+	GfxVerifyVk(vkCreatePipelineCache(device, &createInfo, vkMemoryAllocator, &Handle));
 }
 
 void vkPipelineCache::destroy(VkDevice device)

@@ -1,5 +1,4 @@
-#include "VulkanRenderpass.h"
-#include "VulkanEngine.h"
+#include "Colorful/Vulkan/VulkanEngine.h"
 
 /*************************************************
 	When defining a memory dependency, using only VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT or VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT would never 
@@ -31,7 +30,7 @@
 	A render pass must have at least one subpass.
 **************************************************/
 
-void vkRenderPass::create(VkDevice device, const GfxFrameBufferDesc &desc)
+VulkanRenderPass::VulkanRenderPass(VkDevice device, const GfxFrameBufferDesc& desc)
 {
 	assert(!isValid());
 
@@ -42,7 +41,7 @@ void vkRenderPass::create(VkDevice device, const GfxFrameBufferDesc &desc)
 	{
 		if (desc.ColorSurface[i])
 		{
-			auto imageView = static_cast<VulkanImageView *>(desc.ColorSurface[i]);
+			auto imageView = static_cast<VulkanImageView*>(desc.ColorSurface[i]);
 			assert(imageView);
 
 			VkAttachmentDescription attachmentDesc
@@ -77,7 +76,7 @@ void vkRenderPass::create(VkDevice device, const GfxFrameBufferDesc &desc)
 
 	if (desc.DepthSurface)
 	{
-		auto depthImageView = static_cast<VulkanImageView *>(desc.DepthSurface);
+		auto depthImageView = static_cast<VulkanImageView*>(desc.DepthSurface);
 		assert(depthImageView);
 
 		VkAttachmentDescription attachmentDesc
@@ -144,12 +143,12 @@ void vkRenderPass::create(VkDevice device, const GfxFrameBufferDesc &desc)
 		subpassDependencies.data()
 	};
 
-	rVerifyVk(vkCreateRenderPass(device, &createInfo, vkMemoryAllocator, &Handle));
+	GfxVerifyVk(vkCreateRenderPass(device, &createInfo, vkMemoryAllocator, &Handle));
 
-	m_CmdBuffer = device.allocCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true);
+	///m_CmdBuffer = device.allocCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true);
 }
 
-void vkRenderPass::destroy(VkDevice device)
+void VulkanRenderPass::destroy(VkDevice device)
 {
 	if (isValid())
 	{
@@ -164,12 +163,12 @@ void vkRenderPass::destroy(VkDevice device)
 	}
 }
 
-void vkRenderPass::pendingGfxPipline(const GfxPipelineState &state)
+void VulkanRenderPass::pendingGfxPipline(const GfxPipelineState& state)
 {
-	VulkanEngine::instance().getOrCreateGraphicsPipeline(*this, state);
+	///VulkanEngine::instance().getOrCreateGraphicsPipeline(*this, state);
 }
 
-void vkRenderPass::bindGfxPipeline(const GfxPipelineState &state)
+void VulkanRenderPass::bindGfxPipeline(const GfxPipelineState& state)
 {
 	///m_CmdBuffer.waitFence();
 
@@ -193,7 +192,8 @@ void vkRenderPass::bindGfxPipeline(const GfxPipelineState &state)
 			state.ClearValue.Stencil
 		};
 
-		uint32_t frameIndex = VulkanEngine::instance().acquireNextFrame();
+		uint32_t frameIndex = 0u;
+		///uint32_t frameIndex = VulkanEngine::instance().acquireNextFrame();
 		assert(frameIndex < m_FrameBuffers.size());
 
 		VkRenderPassBeginInfo beginInfo
@@ -219,15 +219,15 @@ void vkRenderPass::bindGfxPipeline(const GfxPipelineState &state)
 		m_CmdBuffer.beginRenderPass(beginInfo, VK_SUBPASS_CONTENTS_INLINE);
 	}
 
-	m_CurGfxPipeline = VulkanEngine::instance().getOrCreateGraphicsPipeline(*this, state);
-	m_CurGfxPipeline->bind(m_CmdBuffer);
+	///m_CurGfxPipeline = VulkanEngine::instance().getOrCreateGraphicsPipeline(*this, state);
+	///m_CurGfxPipeline->bind(m_CmdBuffer);
 
 	setDynamicGfxState(state);
 
 	if (state.isDirty(GfxPipelineState::eVertexBuffer))
 	{
 		assert(state.VertexBuffer);
-		auto vertexBuffer = static_cast<VulkanBuffer *>(state.VertexBuffer);
+		auto vertexBuffer = static_cast<VulkanBuffer*>(state.VertexBuffer);
 		VkDeviceSize offsets[1u]{};
 		vkCmdBindVertexBuffers(m_CmdBuffer.Handle, 0u, 1u, &vertexBuffer->Handle, offsets);
 	}
@@ -235,14 +235,14 @@ void vkRenderPass::bindGfxPipeline(const GfxPipelineState &state)
 	if (state.isDirty(GfxPipelineState::eIndexBuffer))
 	{
 		assert(state.IndexBuffer);
-		auto indexBuffer = static_cast<VulkanBuffer *>(state.IndexBuffer);
+		auto indexBuffer = static_cast<VulkanBuffer*>(state.IndexBuffer);
 		vkCmdBindIndexBuffer(m_CmdBuffer.Handle, indexBuffer->Handle, 0u, state.IndexType == eRIndexType::eUInt16 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32);
 	}
 
 	VulkanQueueManager::instance()->gfxQueue()->queueCommandBuffer(&m_CmdBuffer);
 }
 
-void vkRenderPass::drawIndexed(const GfxPipelineState &state, uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset)
+void VulkanRenderPass::drawIndexed(const GfxPipelineState& state, uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset)
 {
 	assert(isValid() && m_CurGfxPipeline && m_CmdBuffer.isValid());
 
@@ -257,7 +257,7 @@ void vkRenderPass::drawIndexed(const GfxPipelineState &state, uint32_t indexCoun
 		1u);
 }
 
-void vkRenderPass::setDynamicGfxState(const GfxPipelineState &state)
+void VulkanRenderPass::setDynamicGfxState(const GfxPipelineState& state)
 {
 	assert(m_CmdBuffer.isValid());
 

@@ -21,7 +21,10 @@ public:
 
 	inline void resize(uint32_t width, uint32_t height)
 	{
-		///recreate(width, height, m_bVSync, m_bFullScreen, physicalDevice, device);
+		if (width != m_Width || height != height)
+		{
+			///recreate(width, height, m_bVSync, m_bFullScreen, physicalDevice, device);
+		}
 	}
 
 	uint32_t acquireNextFrame();
