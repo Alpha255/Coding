@@ -7,20 +7,44 @@ class vkPipelineLayout : public VulkanDeviceObject<VkPipelineLayout>
 {
 public:
 	void create(VkDevice device, const vkDescriptorSetLayout &descriptorSetLayout);
-	void destroy(VkDevice device) override final;
+	void destroy(VkDevice device) override final
+	{
+		/// The pipeline layout represents a sequence of descriptor sets with each having a specific layout. 
+		/// This sequence of layouts is used to determine the interface between shader stages and shader resources. 
+		/// Each pipeline is created using a pipeline layout.
+		if (isValid())
+		{
+			vkDestroyPipelineLayout(device, Handle, vkMemoryAllocator);
+			Handle = VK_NULL_HANDLE;
+		}
+	}
 };
 
 class vkPipelineCache : public VulkanDeviceObject<VkPipelineCache>
 {
 public:
 	void create(VkDevice device);
-	void destroy(VkDevice device) override final;
+	void destroy(VkDevice device) override final
+	{
+		if (isValid())
+		{
+			vkDestroyPipelineCache(device, Handle, vkMemoryAllocator);
+			Handle = VK_NULL_HANDLE;
+		}
+	}
 };
 
 class vkPipeline : public VulkanDeviceObject<VkPipeline>
 {
 public:
-	void destroy(VkDevice device) override;
+	void destroy(VkDevice device) override
+	{
+		if (isValid())
+		{
+			vkDestroyPipeline(device, Handle, vkMemoryAllocator);
+			Handle = VK_NULL_HANDLE;
+		}
+	}
 };
 
 class vkGraphicsPipeline : public vkPipeline
@@ -32,7 +56,12 @@ public:
 		const vkPipelineCache &cache,
 		const GfxPipelineState &state);
 
-	void destroy(VkDevice device) override final;
+	void destroy(VkDevice device) override final
+	{
+		m_PipelineLayout.destroy(device);
+		m_DescriptorSetLayout.destroy(device);
+		vkPipeline::destroy(device);
+	}
 
 	void bind(const class VulkanCommandBuffer &cmdBuffer);
 protected:

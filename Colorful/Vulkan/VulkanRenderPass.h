@@ -98,7 +98,6 @@ class VulkanRenderPass : public VulkanDeviceObject<VkRenderPass>, public GfxRend
 {
 public:
 	VulkanRenderPass(VkDevice device, const GfxFrameBufferDesc& desc);
-	void destroy(VkDevice device) override final;
 
 	void pendingGfxPipline(const GfxPipelineState&) override final;
 	void bindGfxPipeline(const GfxPipelineState&) override final;
@@ -109,6 +108,8 @@ public:
 	}
 
 	void drawIndexed(const GfxPipelineState& state, uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset) override final;
+
+	void destroy(VkDevice device) override final;
 protected:
 	void setDynamicGfxState(const GfxPipelineState& graphicsPipelineState);
 private:

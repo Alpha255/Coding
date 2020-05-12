@@ -153,9 +153,7 @@ struct GfxPipelineState
 
 	inline void setShader(const GfxShaderPtr shader)
 	{
-		assert(shader);
-		assert(shader->usage() < eRShaderUsage_MaxEnum);
-		///assert(Shaders[shader->getUsage()] == nullptr);
+		assert(shader && shader->usage() < eRShaderUsage_MaxEnum);
 		Shaders[shader->usage()] = shader;
 	}
 
@@ -213,8 +211,8 @@ struct GfxPipelineState
 	GfxDepthStencilStateDesc DepthStencilStateDesc{};
 	GfxViewport Viewport;
 	GfxScissor Scissor;
-	GfxGpuBuffer *VertexBuffer = nullptr;
-	GfxGpuBuffer *IndexBuffer = nullptr;
+	GfxGpuBufferPtr VertexBuffer = nullptr;
+	GfxGpuBufferPtr IndexBuffer = nullptr;
 
 	friend bool8_t operator==(const GfxPipelineState &left, const GfxPipelineState &right)
 	{

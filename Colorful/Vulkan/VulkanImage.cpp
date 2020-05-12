@@ -268,16 +268,6 @@ VulkanImage::VulkanImage(
 	GfxVerifyVk(vkBindImageMemory(device, Handle, m_Memory.Handle, 0u));
 }
 
-void VulkanImage::destroy(VkDevice device)
-{
-	if (isValid())
-	{
-		m_Memory.destroy(device);
-		vkDestroyImage(device, Handle, vkMemoryAllocator);
-		Handle = VK_NULL_HANDLE;
-	}
-}
-
 VulkanSampler::VulkanSampler(VkDevice device, const GfxSamplerDesc& desc)
 {
 	assert(!isValid());

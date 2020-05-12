@@ -109,7 +109,7 @@ template<typename T> struct VulkanObject
 	}                                             \
 }
 
-#define GfxVerifyVk(func)                           \
+#define GfxVerifyVk(func)                         \
 {                                                 \
 	VkResult result = (func);                     \
 	if (result != VK_SUCCESS)                     \

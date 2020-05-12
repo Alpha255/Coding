@@ -22,18 +22,6 @@ void vkPipelineLayout::create(VkDevice device, const vkDescriptorSetLayout &desc
 	GfxVerifyVk(vkCreatePipelineLayout(device, &createInfo, vkMemoryAllocator, &Handle));
 }
 
-void vkPipelineLayout::destroy(VkDevice device)
-{
-	/// The pipeline layout represents a sequence of descriptor sets with each having a specific layout. 
-	/// This sequence of layouts is used to determine the interface between shader stages and shader resources. 
-	/// Each pipeline is created using a pipeline layout.
-	if (isValid())
-	{
-		vkDestroyPipelineLayout(device, Handle, vkMemoryAllocator);
-		Handle = VK_NULL_HANDLE;
-	}
-}
-
 void vkGraphicsPipeline::create(
 	VkDevice device, 
 	const VulkanRenderPass &renderpass, 
@@ -138,7 +126,7 @@ void vkGraphicsPipeline::create(
 		0u,
 		(uint32_t)shaderStageCreateInfos.size(),
 		shaderStageCreateInfos.data(),
-		&vertexShader->getInputLayout(),
+		&vertexShader->inputLayout(),
 		&inputAssemblyStateCreateInfo,
 		nullptr,
 		&viewportStateCreateInfo,
@@ -156,13 +144,6 @@ void vkGraphicsPipeline::create(
 
 	/// Pending creations ???
 	GfxVerifyVk(vkCreateGraphicsPipelines(device, cache.Handle, 1u, &createInfo, vkMemoryAllocator, &Handle));
-}
-
-void vkGraphicsPipeline::destroy(VkDevice device)
-{
-	m_PipelineLayout.destroy(device);
-	m_DescriptorSetLayout.destroy(device);
-	vkPipeline::destroy(device);
 }
 
 void vkGraphicsPipeline::bind(const VulkanCommandBuffer &cmdBuffer)
@@ -383,22 +364,4 @@ void vkPipelineCache::create(VkDevice device)
 	};
 
 	GfxVerifyVk(vkCreatePipelineCache(device, &createInfo, vkMemoryAllocator, &Handle));
-}
-
-void vkPipelineCache::destroy(VkDevice device)
-{
-	if (isValid())
-	{
-		vkDestroyPipelineCache(device, Handle, vkMemoryAllocator);
-		Handle = VK_NULL_HANDLE;
-	}
-}
-
-void vkPipeline::destroy(VkDevice device)
-{
-	if (isValid())
-	{
-		vkDestroyPipeline(device, Handle, vkMemoryAllocator);
-		Handle = VK_NULL_HANDLE;
-	}
 }

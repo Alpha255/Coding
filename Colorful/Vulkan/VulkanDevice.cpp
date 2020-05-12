@@ -188,22 +188,21 @@ void VulkanDevice::create(VkInstance instance)
 
 void VulkanDevice::destroy()
 {
-	GfxVerifyVk(vkDeviceWaitIdle(m_LogicalDevice.Handle));
+	waitIdle();
 
 	VulkanFencePool::instance()->finalize();
 	VulkanQueueManager::instance()->finalize();
 	VulkanBufferPool::instance()->finalize();
 
-	m_PipelinePool->destroyAll();
-
-	m_CommandPool.destroy(m_LogicalDevice.Handle);
-	m_DescriptorPool.destroy(m_LogicalDevice.Handle);
-
 	vkDestroyDevice(m_LogicalDevice.Handle, vkMemoryAllocator);
 	m_LogicalDevice.Handle = VK_NULL_HANDLE;
+	m_PhysicalDevice.Handle = VK_NULL_HANDLE;
 }
 
 void VulkanDevice::waitIdle()
 {
-	GfxVerifyVk(vkDeviceWaitIdle(m_LogicalDevice.Handle));
+	if (m_LogicalDevice.isValid())
+	{
+		GfxVerifyVk(vkDeviceWaitIdle(m_LogicalDevice.Handle));
+	}
 }

@@ -35,7 +35,6 @@ public:
 
 	void waitIdle();
 
-	void destroy(VkDevice device);
 protected:
 	struct VulkanCopyCommand
 	{

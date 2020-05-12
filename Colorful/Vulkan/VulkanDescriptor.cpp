@@ -88,15 +88,6 @@ void vkDescriptorPool::resetPool(VkDevice device)
 	vkResetDescriptorPool(device, Handle, 0u);
 }
 
-void vkDescriptorPool::destroy(VkDevice device)
-{
-	if (isValid())
-	{
-		vkDestroyDescriptorPool(device, Handle, vkMemoryAllocator);
-		Handle = VK_NULL_HANDLE;
-	}
-}
-
 vkDescriptorSet vkDescriptorPool::alloc(VkDevice device, const vkDescriptorSetLayout &layout) const
 {
 	assert(isValid() && layout.isValid());
@@ -151,26 +142,4 @@ void vkDescriptorSetLayout::create(VkDevice device, const GfxDescriptorLayoutDes
 	};
 
 	GfxVerifyVk(vkCreateDescriptorSetLayout(device, &createInfo, vkMemoryAllocator, &Handle));
-}
-
-void vkDescriptorSetLayout::destroy(VkDevice device)
-{
-	if (isValid())
-	{
-		vkDestroyDescriptorSetLayout(device, Handle, vkMemoryAllocator);
-		Handle = VK_NULL_HANDLE;
-	}
-}
-
-void vkDescriptorUpdateTemplate::destroy(VkDevice device)
-{
-	/// A descriptor update template specifies a mapping from descriptor update information in host memory to descriptors in a descriptor set.
-	/// It is designed to avoid passing redundant information to the driver when frequently updating the same set of descriptors in descriptor sets.
-	/// For cases when an application wishes to update the same set of descriptors in multiple descriptor sets allocated using the same VkDescriptorSetLayout, 
-	/// vkUpdateDescriptorSetWithTemplate can be used as a replacement for vkUpdateDescriptorSets.
-	if (isValid())
-	{
-		///vkDestroyDescriptorUpdateTemplate(device.Handle, Handle, vkMemoryAllocator);
-		Handle = VK_NULL_HANDLE;
-	}
 }

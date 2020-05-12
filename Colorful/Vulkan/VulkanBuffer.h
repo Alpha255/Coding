@@ -24,7 +24,16 @@ public:
 	VulkanBuffer(VkDevice device, eRBufferBindFlags bindFlags, eRBufferUsage usage, size_t size, const void* data);
 	VulkanBuffer(VkDevice device, VkBufferUsageFlags usageFlagBits, size_t size, const void* data);
 
-	void destroy(VkDevice device) override final;
+	void destroy(VkDevice device) override final
+	{
+		if (isValid())
+		{
+			m_Memory.destroy(device);
+
+			vkDestroyBuffer(device, Handle, vkMemoryAllocator);
+			Handle = VK_NULL_HANDLE;
+		}
+	}
 
 	inline void update(VkDevice device, const void* data, size_t size, size_t offset)
 	{
@@ -57,7 +66,14 @@ class VulkanFrameBuffer : public VulkanDeviceObject<VkFramebuffer>
 {
 public:
 	void create(VkDevice device, const class VulkanRenderPass &renderPass, const GfxFrameBufferDesc &desc);
-	void destroy(VkDevice device) override final;
+	void destroy(VkDevice device) override final
+	{
+		if (isValid())
+		{
+			vkDestroyFramebuffer(device, Handle, vkMemoryAllocator);
+			Handle = VK_NULL_HANDLE;
+		}
+	}
 };
 
 class VulkanBufferPool : public LazySingleton<VulkanBufferPool>

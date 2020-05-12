@@ -116,7 +116,7 @@ void buildShaderReflections(Configurations::eRenderEngine engine, ShaderBinary& 
 	}
 }
 
-AssetTool::ShaderBinary AssetDatabase::tryTogetShaderBinary(
+AssetTool::ShaderBinary AssetDatabase::tryToGetShaderBinary(
 	Configurations::eRenderEngine engine, 
 	eRShaderUsage usage, 
 	const std::string& shaderName)

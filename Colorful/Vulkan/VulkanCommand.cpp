@@ -1,7 +1,7 @@
 #include "VulkanCommand.h"
 #include "VulkanEngine.h"
 
-void vkCommandPool::create(VkDevice device, uint32_t queueIndex)
+void VulkanCommandPool::create(VkDevice device, uint32_t queueIndex)
 {
 	assert(!isValid());
 
@@ -31,7 +31,7 @@ void vkCommandPool::create(VkDevice device, uint32_t queueIndex)
 	GfxVerifyVk(vkCreateCommandPool(device, &createInfo, vkMemoryAllocator, &Handle));
 }
 
-void vkCommandPool::reset(VkDevice device)
+void VulkanCommandPool::reset(VkDevice device)
 {
 	assert(isValid());
 
@@ -43,10 +43,16 @@ void vkCommandPool::reset(VkDevice device)
 	/// VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT specifies that resetting a command pool recycles all of the resources from the command pool back to the system.
 
 	/// All VkCommandBuffer objects allocated from commandPool must not be in the pending state
+	for (auto it = m_CmdBuffers.begin(); it != m_CmdBuffers.end(); ++it)
+	{
+		assert(it->second->state() != VulkanCommandBuffer::ePending);
+		it->second->setState(VulkanCommandBuffer::eInitial);
+	}
+
 	GfxVerifyVk(vkResetCommandPool(device, Handle, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT));
 }
 
-void vkCommandPool::trim(VkDevice device)
+void VulkanCommandPool::trim(VkDevice device)
 {
 	/// Trimming a command pool recycles unused memory from the command pool back to the system. 
 	/// Command buffers allocated from the pool are not affected by the command. vkTrimCommandPool/vkTrimCommandPoolKHR
@@ -56,25 +62,6 @@ void vkCommandPool::trim(VkDevice device)
 	/// flags is reserved for future use
 	/// vkTrimCommandPool(device.Handle, Handle, 0u);
 	/// vkTrimCommandPoolKHR(device.Handle, Handle, 0u);
-}
-
-void vkCommandPool::destroy(VkDevice device)
-{
-	/// When a pool is destroyed, all command buffers allocated from the pool are freed.
-
-	/// Any primary command buffer allocated from another VkCommandPool that is in the recording or executable state and has a secondary command buffer allocated from commandPool recorded into it, becomes invalid.
-
-	/// All VkCommandBuffer objects allocated from commandPool must not be in the pending state.
-	if (isValid())
-	{
-		if (m_ActiveCmdBuffer)
-		{
-			free(device, *m_ActiveCmdBuffer);
-		}
-
-		vkDestroyCommandPool(device, Handle, vkMemoryAllocator);
-		Handle = VK_NULL_HANDLE;
-	}
 }
 
 /********************************
@@ -113,7 +100,7 @@ void vkCommandPool::destroy(VkDevice device)
 		Resetting or freeing a primary command buffer removes the linkage to any secondary command buffers that were recorded to it.
 ********************************/
 
-VulkanCommandBuffer vkCommandPool::alloc(VkDevice device, VkCommandBufferLevel level, bool8_t signaleFence) const
+VulkanCommandBuffer VulkanCommandPool::alloc(VkDevice device, VkCommandBufferLevel level, bool8_t signaleFence) const
 {
 	assert(isValid());
 
@@ -129,18 +116,16 @@ VulkanCommandBuffer vkCommandPool::alloc(VkDevice device, VkCommandBufferLevel l
 	VkCommandBuffer handle = VK_NULL_HANDLE;
 	GfxVerifyVk(vkAllocateCommandBuffers(device, &allocateInfo, &handle));
 
-	//VulkanSemaphore *semaphore = device.createSemaphore();
-	//assert(semaphore);
-
-	VulkanCommandBuffer result(level, handle, nullptr);
+	VulkanCommandBuffer result(level, handle);
 	result.m_Fence = VulkanFencePool::instance()->allocFence(signaleFence);
 
 	return result;
 }
 
-void vkCommandPool::free(VkDevice device, VulkanCommandBuffer &commandBuffer) const
+void VulkanCommandPool::free(VkDevice device, VulkanCommandBuffer& commandBuffer) const
 {
 	assert(isValid());
+	assert(commandBuffer.state() != VulkanCommandBuffer::ePending);
 
 	/// Any primary command buffer that is in the recording or executable state and has any element of pCommandBuffers recorded into it, becomes invalid.
 
@@ -153,32 +138,24 @@ void vkCommandPool::free(VkDevice device, VulkanCommandBuffer &commandBuffer) co
 		};
 		vkFreeCommandBuffers(device, Handle, 1u, commandBuffers);
 		commandBuffer.Handle = VK_NULL_HANDLE;
-	}
-}
 
-VulkanCommandBuffer *vkCommandPool::getActiveCommandBuffer(VkDevice device)
-{
-	if (!m_ActiveCmdBuffer)
-	{
-		auto cmdBuffer = alloc(device, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
-		m_ActiveCmdBuffer = new VulkanCommandBuffer(std::move(cmdBuffer));
+		commandBuffer.setState(VulkanCommandBuffer::eInvalid);
 	}
-
-	return m_ActiveCmdBuffer;
 }
 
 void VulkanCommandBuffer::begin()
 {
 	assert(isValid() && m_State != ePending && m_State != eRecording);
 
-	VkCommandBufferBeginInfo cmdBufferBeginInfo
+	VkCommandBufferBeginInfo beginInfo
 	{
 		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
 		nullptr,   /// pNext must be NULL or a pointer to a valid instance of VkDeviceGroupCommandBufferBeginInfo
 		0u,
 		nullptr
 	};
-	GfxVerifyVk(vkBeginCommandBuffer(Handle, &cmdBufferBeginInfo));
+	GfxVerifyVk(vkBeginCommandBuffer(Handle, &beginInfo));
+
 	setState(eRecording);
 }
 
@@ -187,10 +164,11 @@ void VulkanCommandBuffer::end()
 	assert(isValid() && m_State == eRecording);
 
 	GfxVerifyVk(vkEndCommandBuffer(Handle));
+
 	setState(eExecutable);
 }
 
-void VulkanCommandBuffer::beginRenderPass(const VkRenderPassBeginInfo &renderPassBeginInfo, VkSubpassContents subpassContents)
+void VulkanCommandBuffer::beginRenderPass(const VkRenderPassBeginInfo& beginInfo, VkSubpassContents subpassContents)
 {
 	assert(isValid() && m_State != ePending && m_State != eRecording);
 
@@ -213,18 +191,8 @@ void VulkanCommandBuffer::beginRenderPass(const VkRenderPassBeginInfo &renderPas
 
 	/// pInheritanceInfo is a pointer to a VkCommandBufferInheritanceInfo structure, used if commandBuffer is a secondary command buffer. If this is a primary command buffer, then this value is ignored.
 
-	VkCommandBufferBeginInfo cmdBufferBeginInfo
-	{
-		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-		nullptr,   /// pNext must be NULL or a pointer to a valid instance of VkDeviceGroupCommandBufferBeginInfo
-		0u,
-		nullptr
-	};
-
-	GfxVerifyVk(vkBeginCommandBuffer(Handle, &cmdBufferBeginInfo));
-	vkCmdBeginRenderPass(Handle, &renderPassBeginInfo, subpassContents);
-
-	setState(eRecording);
+	begin();
+	vkCmdBeginRenderPass(Handle, &beginInfo, subpassContents);
 }
 
 void VulkanCommandBuffer::endRenderPass()

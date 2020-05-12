@@ -28,7 +28,7 @@ public:
 	}
 
 	uint32_t acquireNextFrame();
-	inline const std::vector<vkBackBuffer> &getBackBuffers() const
+	inline const std::vector<VulkanImageView> &getBackBuffers() const
 	{
 		return m_BackBuffers;
 	}
@@ -63,7 +63,7 @@ protected:
 	void clearBackBuffers();
 private:
 	VulkanSurface m_Surface;
-	std::vector<vkBackBuffer> m_BackBuffers;
+	std::vector<VulkanImageView> m_BackBuffers;
 	class VulkanSemaphore *m_PresentCompleteSemaphore = nullptr;
 	bool8_t m_VSync = false;
 	bool8_t m_FullScreen = false;

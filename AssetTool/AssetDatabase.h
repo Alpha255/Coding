@@ -9,7 +9,7 @@ class exportAPI AssetDatabase : public Singleton<AssetDatabase>
 public:
 	void initialize();
 
-	ShaderBinary tryTogetShaderBinary(Configurations::eRenderEngine engine, eRShaderUsage usage, const std::string& shaderName);
+	ShaderBinary tryToGetShaderBinary(Configurations::eRenderEngine engine, eRShaderUsage usage, const std::string& shaderName);
 
 	TextureBinary tryToGetTextureBinary(Configurations::eRenderEngine engine, const std::string& texName);
 

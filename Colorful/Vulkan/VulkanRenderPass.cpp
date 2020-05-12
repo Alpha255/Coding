@@ -148,21 +148,6 @@ VulkanRenderPass::VulkanRenderPass(VkDevice device, const GfxFrameBufferDesc& de
 	///m_CmdBuffer = device.allocCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true);
 }
 
-void VulkanRenderPass::destroy(VkDevice device)
-{
-	if (isValid())
-	{
-		for (uint32_t i = 0u; i < m_FrameBuffers.size(); ++i)
-		{
-			m_FrameBuffers[i].destroy(device);
-		}
-		m_FrameBuffers.clear();
-
-		vkDestroyRenderPass(device, Handle, vkMemoryAllocator);
-		Handle = VK_NULL_HANDLE;
-	}
-}
-
 void VulkanRenderPass::pendingGfxPipline(const GfxPipelineState& state)
 {
 	///VulkanEngine::instance().getOrCreateGraphicsPipeline(*this, state);
@@ -289,5 +274,20 @@ void VulkanRenderPass::setDynamicGfxState(const GfxPipelineState& state)
 			}
 		};
 		vkCmdSetScissor(m_CmdBuffer.Handle, 0u, 1u, &scissor);
+	}
+}
+
+void VulkanRenderPass::destroy(VkDevice device)
+{
+	if (isValid())
+	{
+		for (uint32_t i = 0u; i < m_FrameBuffers.size(); ++i)
+		{
+			m_FrameBuffers[i].destroy(device);
+		}
+		m_FrameBuffers.clear();
+
+		vkDestroyRenderPass(device, Handle, vkMemoryAllocator);
+		Handle = VK_NULL_HANDLE;
 	}
 }

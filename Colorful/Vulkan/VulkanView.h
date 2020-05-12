@@ -70,10 +70,6 @@ private:
 	VkFormat m_Format = VK_FORMAT_UNDEFINED;
 };
 
-class vkBackBuffer : public VulkanImageView
-{
-};
-
 class VulkanRenderTargetView : public VulkanImageView
 {
 public:

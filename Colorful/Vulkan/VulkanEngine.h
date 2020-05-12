@@ -43,7 +43,6 @@ public:
 		auto buffer = VulkanBufferPool::instance()->allocVertexBuffer(usage, size, data);
 		return static_cast<GfxGpuBufferPtr>(buffer);
 	}
-
 	GfxGpuBufferPtr createUniformBuffer(size_t size, const void* data) override final
 	{
 		auto buffer = VulkanBufferPool::instance()->allocUniformBuffer(size, data);

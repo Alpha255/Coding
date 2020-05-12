@@ -28,7 +28,15 @@ public:
 		VkImageType type,
 		VkImageUsageFlags usage);
 
-	void destroy(VkDevice device) override final;
+	void destroy(VkDevice device) override final
+	{
+		if (isValid())
+		{
+			m_Memory.destroy(device);
+			vkDestroyImage(device, Handle, vkMemoryAllocator);
+			Handle = VK_NULL_HANDLE;
+		}
+	}
 
 	inline VkFormat getFormat() const
 	{

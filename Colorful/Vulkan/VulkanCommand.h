@@ -20,22 +20,21 @@ class VulkanCommandBuffer : public VulkanObject<VkCommandBuffer>
 {
 public:
 	VulkanCommandBuffer() = default;
-	VulkanCommandBuffer(VkCommandBufferLevel level, VkCommandBuffer handle, class VulkanSemaphore *semaphore)
+	VulkanCommandBuffer(VkCommandBufferLevel level, VkCommandBuffer handle)
 		: m_Level(level)
-		, m_Semaphore(semaphore)
 	{
 		assert(handle != VK_NULL_HANDLE);
 		setState(eInitial);
 		Handle = handle;
 	}
 
-	void beginRenderPass(const VkRenderPassBeginInfo &renderPassBeginInfo, VkSubpassContents subpassContents);
+	void beginRenderPass(const VkRenderPassBeginInfo& beginInfo, VkSubpassContents subpassContents);
 	void endRenderPass();
 
 	void begin();
 	void end();
 
-	void execute(const VulkanCommandBuffer &primaryCommandBuffer);
+	void execute(const VulkanCommandBuffer& primaryCommandBuffer);
 
 	inline bool8_t isInsideRenderPass() const
 	{
@@ -46,12 +45,6 @@ public:
 	{
 		assert(m_Fence);
 		return m_Fence;
-	}
-
-	inline class VulkanSemaphore *getWaitSemaphore() const
-	{
-		assert(m_Semaphore);
-		return m_Semaphore;
 	}
 
 	inline void resetCommand()
@@ -67,9 +60,7 @@ public:
 		setState(eInitial);
 	}
 protected:
-	friend class vkCommandPool;
-	friend class VulkanQueue;
-	friend class VulkanEngine;
+	friend class VulkanCommandPool;
 	enum eState
 	{
 		eInitial,
@@ -84,26 +75,43 @@ protected:
 	{
 		m_State = state;
 	}
+
+	inline eState state() const
+	{
+		return m_State;
+	}
 private:
 	VkCommandBufferLevel m_Level = VK_COMMAND_BUFFER_LEVEL_MAX_ENUM;
 	eState m_State = eState_MaxEnum;
 	VulkanFencePtr m_Fence = nullptr;
-	VulkanSemaphore *m_Semaphore = nullptr;
 };
+using VulkanCommandBufferPtr = std::shared_ptr<VulkanCommandBuffer>;
 
-class vkCommandPool : public VulkanDeviceObject<VkCommandPool>
+class VulkanCommandPool : public VulkanDeviceObject<VkCommandPool>
 {
 public:
 	void create(VkDevice device, uint32_t queueIndex);
-	void destroy(VkDevice device) override final;
 	void reset(VkDevice device);
 	void trim(VkDevice device);
 
 	VulkanCommandBuffer alloc(VkDevice device, VkCommandBufferLevel level, bool8_t signaleFence = true) const;
-	void free(VkDevice device, VulkanCommandBuffer &commandBuffer) const;
+	void free(VkDevice device, VulkanCommandBuffer& commandBuffer) const;
 
-	VulkanCommandBuffer *getActiveCommandBuffer(VkDevice device);
+	void destroy(VkDevice device) override final
+	{
+		/// When a pool is destroyed, all command buffers allocated from the pool are freed.
+
+		/// Any primary command buffer allocated from another VkCommandPool that is in the recording or 
+		/// executable state and has a secondary command buffer allocated from commandPool recorded into it, becomes invalid.
+
+		/// All VkCommandBuffer objects allocated from commandPool must not be in the pending state.
+		if (isValid())
+		{
+			vkDestroyCommandPool(device, Handle, vkMemoryAllocator);
+			Handle = VK_NULL_HANDLE;
+		}
+	}
 protected:
 private:
-	VulkanCommandBuffer *m_ActiveCmdBuffer = nullptr;
+	std::unordered_map<VkCommandBuffer, VulkanCommandBufferPtr> m_CmdBuffers;
 };

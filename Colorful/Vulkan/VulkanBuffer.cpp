@@ -38,17 +38,6 @@ void VulkanDeviceMemory::update(VkDevice device, const void* data, size_t size, 
 	vkUnmapMemory(device, Handle);
 }
 
-void VulkanBuffer::destroy(VkDevice device)
-{
-	if (isValid())
-	{
-		m_Memory.destroy(device);
-
-		vkDestroyBuffer(device, Handle, vkMemoryAllocator);
-		Handle = VK_NULL_HANDLE;
-	}
-}
-
 void VulkanBuffer::update(const void* data, size_t size, size_t offset)
 {
 	VulkanBufferPool::instance()->updateBuffer(this, data, size, offset);
@@ -189,15 +178,6 @@ void VulkanFrameBuffer::create(VkDevice device, const VulkanRenderPass& renderPa
 	};
 
 	GfxVerifyVk(vkCreateFramebuffer(device, &createInfo, vkMemoryAllocator, &Handle));
-}
-
-void VulkanFrameBuffer::destroy(VkDevice device)
-{
-	if (isValid())
-	{
-		vkDestroyFramebuffer(device, Handle, vkMemoryAllocator);
-		Handle = VK_NULL_HANDLE;
-	}
 }
 
 uint32_t VulkanBufferPool::memoryTypeIndex(eRBufferUsage usage, uint32_t memoryTypeBits) const

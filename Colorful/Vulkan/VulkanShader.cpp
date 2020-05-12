@@ -1,36 +1,27 @@
 #include "VulkanShader.h"
 #include "VulkanEngine.h"
-#include "AssetTool/Asset.h"
+#include "AssetTool/AssetDatabase.h"
 
 VulkanShader::VulkanShader(VkDevice device, eRShaderUsage usage, const std::string& shaderName)
 	: GfxShader(usage)
 {
-	//assert(!isValid());
-	//assert(binary.Binary && binary.Size > 0u && usage < eRShaderUsage_MaxEnum);
-	//assert((binary.Size % sizeof(uint32_t)) == 0);
+	assert(!isValid() && usage < eRShaderUsage_MaxEnum);
 
-	//VkShaderModuleCreateInfo createInfo
-	//{
-	//	VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
-	//	nullptr,
-	//	0u,  /// flags is reserved for future use
-	//	binary.Size,
-	//	(uint32_t *)binary.Binary.get()
-	//};
+	auto binary = AssetTool::AssetDatabase().instance().tryToGetShaderBinary(Configurations::eVulkan, usage, shaderName);
+	assert(binary.Size > 0ull);
 
-	//GfxVerifyVk(vkCreateShaderModule(device, &createInfo, vkMemoryAllocator, &Handle));
-
-	//m_Reflections = binary.Reflections;
-}
-
-void VulkanShader::destroy(VkDevice device)
-{
-	/// A shader module can be destroyed while pipelines created using its shaders are still in use.
-	if (isValid())
+	VkShaderModuleCreateInfo createInfo
 	{
-		vkDestroyShaderModule(device, Handle, vkMemoryAllocator);
-		Handle = VK_NULL_HANDLE;
-	}
+		VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+		nullptr,
+		0u,  /// flags is reserved for future use
+		binary.Size,
+		(uint32_t*)binary.Binary.get()
+	};
+
+	GfxVerifyVk(vkCreateShaderModule(device, &createInfo, vkMemoryAllocator, &Handle));
+
+	m_Reflections = binary.Reflections;
 }
 
 void VulkanShader::setInputLayout(const std::vector<GfxVertexAttributes>& vertexAttributes, size_t align)
@@ -51,7 +42,7 @@ void VulkanShader::setInputLayout(const std::vector<GfxVertexAttributes>& vertex
 			stride
 		};
 
-		stride += ((uint32_t)GfxVertexAttributes::formatStride(vertexAttributes[i].Format) / 8ull);
+		stride += ((uint32_t)GfxVertexAttributes::formatStride(vertexAttributes[i].Format));
 		stride = (uint32_t)Gear::LinearAllocator::align_to(stride, align);
 	}
 

@@ -58,7 +58,7 @@ void VulkanQueue::present(
 	/// vkQueueSubmit is a queue submission command, with each batch defined by an element of pSubmits. 
 	/// Batches begin execution in the order they appear in pSubmits, but may complete out of order.
 	GfxVerifyVk(vkQueueSubmit(Handle, 1u, &submitInfo, fence));
-	cmdBuffer.setState(VulkanCommandBuffer::ePending);
+	///cmdBuffer.setState(VulkanCommandBuffer::ePending);
 	swapchain.present(*m_RenderCompleteSemaphore);
 }
 
@@ -97,7 +97,7 @@ void VulkanQueue::submit(const VulkanSwapchain &swapchain)
 			m_QueuedCmdBuffers[i]->endRenderPass();
 		}
 		fence = m_QueuedCmdBuffers[i]->fence()->Handle;
-		m_QueuedCmdBuffers[i]->setState(VulkanCommandBuffer::eExecutable);
+		///m_QueuedCmdBuffers[i]->setState(VulkanCommandBuffer::eExecutable);
 	}
 
 	VkSubmitInfo submitInfo
@@ -130,10 +130,10 @@ void VulkanQueue::waitIdle()
 	}
 }
 
-void VulkanQueue::destroy(VkDevice device)
-{
-	m_RenderCompleteSemaphore->destroy(device);
-}
+//void VulkanQueue::destroy(VkDevice device)
+//{
+//	m_RenderCompleteSemaphore->destroy(device);
+//}
 
 VulkanQueueManager::VulkanQueueManager(
 	const VkDevice device, 
