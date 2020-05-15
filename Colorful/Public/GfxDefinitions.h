@@ -24,7 +24,7 @@
 
 #define vkMemoryAllocator nullptr /// For future use
 
-template <typename T> class SharedObject
+template<typename T> class SharedObject
 {
 public:
 	inline SharedObject() = default;
@@ -50,12 +50,14 @@ public:
 	{
 		return m_Object.use_count();
 	}
+
+	using Type = T;
 protected:
 	std::shared_ptr<T> m_Object = nullptr;
 private:
 };
 
-template <typename T> class D3DObject : public SharedObject<T>
+template<typename T> class D3DObject : public SharedObject<T>
 {
 public:
 	inline void reset(T *other = nullptr)
@@ -91,12 +93,12 @@ template<typename T> struct VulkanObject
 	virtual ~VulkanObject() = default;
 };
 
-#define rVerifyD3D11(func)                        \
+#define GfxVerifyD3D(func)                        \
 {                                                 \
 	::HRESULT result = (func);                    \
 	if (FAILED(result))                           \
 	{                                             \
-		d3d11Engine::logError(result);            \
+		D3D11Engine::logError(result);            \
 	}                                             \
 }
 

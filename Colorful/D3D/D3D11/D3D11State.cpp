@@ -27,7 +27,7 @@ void d3d11RasterizerState::create(
 	};
 
 	ID3D11RasterizerState *pRasterizerState = nullptr;
-	rVerifyD3D11(d3d11Engine::instance().getDevice()->CreateRasterizerState(&desc, &pRasterizerState));
+	GfxVerifyD3D(D3D11Engine::instance().getDevice()->CreateRasterizerState(&desc, &pRasterizerState));
 	reset(pRasterizerState);
 }
 
@@ -64,7 +64,7 @@ void d3d11BlendState::create(
 	}
 
 	ID3D11BlendState *pBlendState = nullptr;
-	rVerifyD3D11(d3d11Engine::instance().getDevice()->CreateBlendState(&desc, &pBlendState));
+	GfxVerifyD3D(D3D11Engine::instance().getDevice()->CreateBlendState(&desc, &pBlendState));
 	reset(pBlendState);
 }
 
@@ -103,6 +103,6 @@ void d3d11DepthStencilState::create(
 	};
 
 	ID3D11DepthStencilState *pDepthStencilState = nullptr;
-	rVerifyD3D11(d3d11Engine::instance().getDevice()->CreateDepthStencilState(&desc, &pDepthStencilState));
+	GfxVerifyD3D(D3D11Engine::instance().getDevice()->CreateDepthStencilState(&desc, &pDepthStencilState));
 	reset(pDepthStencilState);
 }

@@ -1,7 +1,7 @@
 #include "D3D11Shader.h"
 #include "D3D11Engine.h"
 
-d3d11Shader::d3d11Shader(const d3d11Device &device, eRShaderUsage usage, const AssetTool::ShaderBinary &binary)
+d3d11Shader::d3d11Shader(const D3D11Device &device, eRShaderUsage usage, const AssetTool::ShaderBinary &binary)
 	: GfxShader(usage)
 {
 	assert(!isValid() && device.isValid());
@@ -12,7 +12,7 @@ d3d11Shader::d3d11Shader(const d3d11Device &device, eRShaderUsage usage, const A
 	case eVertexShader:
 	{
 		ID3D11VertexShader *pShader = nullptr;
-		rVerifyD3D11(device->CreateVertexShader(binary.Binary.get(), binary.Size, nullptr, &pShader));
+		GfxVerifyD3D(device->CreateVertexShader(binary.Binary.get(), binary.Size, nullptr, &pShader));
 		reset(pShader);
 
 		m_ShaderBlob = binary;
@@ -21,35 +21,35 @@ d3d11Shader::d3d11Shader(const d3d11Device &device, eRShaderUsage usage, const A
 	case eHullShader:
 	{
 		ID3D11HullShader *pShader = nullptr;
-		rVerifyD3D11(device->CreateHullShader(binary.Binary.get(), binary.Size, nullptr, &pShader));
+		GfxVerifyD3D(device->CreateHullShader(binary.Binary.get(), binary.Size, nullptr, &pShader));
 		reset(pShader);
 	}
 		break;
 	case eDomainShader:
 	{
 		ID3D11DomainShader *pShader = nullptr;
-		rVerifyD3D11(device->CreateDomainShader(binary.Binary.get(), binary.Size, nullptr, &pShader));
+		GfxVerifyD3D(device->CreateDomainShader(binary.Binary.get(), binary.Size, nullptr, &pShader));
 		reset(pShader);
 	}
 		break;
 	case eGeometryShader:
 	{
 		ID3D11GeometryShader *pShader = nullptr;
-		rVerifyD3D11(device->CreateGeometryShader(binary.Binary.get(), binary.Size, nullptr, &pShader));
+		GfxVerifyD3D(device->CreateGeometryShader(binary.Binary.get(), binary.Size, nullptr, &pShader));
 		reset(pShader);
 	}
 		break;
 	case eFragmentShader:
 	{
 		ID3D11PixelShader *pShader = nullptr;
-		rVerifyD3D11(device->CreatePixelShader(binary.Binary.get(), binary.Size, nullptr, &pShader));
+		GfxVerifyD3D(device->CreatePixelShader(binary.Binary.get(), binary.Size, nullptr, &pShader));
 		reset(pShader);
 	}
 		break;
 	case eComputeShader:
 	{
 		ID3D11ComputeShader *pShader = nullptr;
-		rVerifyD3D11(device->CreateComputeShader(binary.Binary.get(), binary.Size, nullptr, &pShader));
+		GfxVerifyD3D(device->CreateComputeShader(binary.Binary.get(), binary.Size, nullptr, &pShader));
 		reset(pShader);
 	}
 		break;
@@ -90,7 +90,7 @@ void d3d11Shader::setInputLayout(const std::vector<GfxVertexAttributes> &vertexA
 	}
 
 	ID3D11InputLayout *pLayout = nullptr;
-	rVerifyD3D11(d3d11Engine::instance().getDevice()->CreateInputLayout(
+	GfxVerifyD3D(D3D11Engine::instance().getDevice()->CreateInputLayout(
 		descs.data(), 
 		(uint32_t)descs.size(), 
 		m_ShaderBlob.Binary.get(), 

@@ -12,7 +12,7 @@ private:
 	d3d11DepthStencilState m_DepthStencilState;
 };
 
-class d3d11Context final : public D3DObject<ID3D11DeviceContext>
+class D3D11Context final : public D3DObject<ID3D11DeviceContext>
 {
 public:
 	void setGraphicsPipeline(const d3d11GraphicsPipeline &pipeline);

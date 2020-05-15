@@ -11,7 +11,7 @@ public:
 		bool8_t vSync,
 		bool8_t fullscreen,
 		bool8_t tripleBuffer,
-		const class dxgiFactory7 &inDxgiFactory,
+		const class DXGIFactory7 &inDxgiFactory,
 		class d3d12Device &device);
 
 	void resize(uint32_t width, uint32_t height);

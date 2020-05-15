@@ -18,11 +18,11 @@ void d3d12CommandQueue::create(const d3d12Device &device)
 	reset(pCommandQueue);
 }
 
-void d3d12Device::create(const dxgiFactory7 &inDxgiFactory)
+void d3d12Device::create(const DXGIFactory7 &inDxgiFactory)
 {
 	assert(!isValid() && inDxgiFactory.isValid());
 
-	std::vector<dxgiAdapter4> dxgiAdapters;
+	std::vector<DXGIAdapter4> dxgiAdapters;
 	uint32_t adapterIndex = 0u;
 	while (true)
 	{
@@ -49,7 +49,7 @@ void d3d12Device::create(const dxgiFactory7 &inDxgiFactory)
 		::HRESULT Result = E_FAIL;
 	};
 
-	auto tryToCreateDevice = [](const dxgiAdapter4 &adapter, d3d12Device &device, bool8_t realCreate)->createResult {
+	auto tryToCreateDevice = [](const DXGIAdapter4 &adapter, d3d12Device &device, bool8_t realCreate)->createResult {
 		createResult resultAttr = {};
 
 		std::vector<D3D_FEATURE_LEVEL> featureLevels =

@@ -1,18 +1,15 @@
 #include "D3D11Engine.h"
 
-void d3d11Engine::initialize(uint64_t windowHandle, const Configurations &config)
+void D3D11Engine::initialize(uint64_t windowHandle, const Configurations &config)
 {
 	uint32_t flags = 0u;
 #if defined(_DEBUG)
 	flags = DXGI_CREATE_FACTORY_DEBUG;
 #endif
 
-	dxgiFactory7 tempDxgiFactory;
-	IDXGIFactory7 *pFactory = nullptr;
-	rVerifyD3D11(CreateDXGIFactory2(flags, __uuidof(IDXGIFactory7), reinterpret_cast<void **>(&pFactory)));
-	tempDxgiFactory.reset(pFactory);
+	auto factory = CreateDXGIFactory<DXGIFactory7>(flags);
 
-	m_Device.create(m_IMContext, tempDxgiFactory);
+	m_Device.create(m_IMContext, factory);
 
 	m_Swapchain.create(
 		windowHandle,
@@ -21,11 +18,11 @@ void d3d11Engine::initialize(uint64_t windowHandle, const Configurations &config
 		config.VSync,
 		config.FullScreen,
 		config.D3DTripleBuffer,
-		tempDxgiFactory,
+		factory,
 		m_Device);
 }
 
-void d3d11Engine::logError(uint32_t result)
+void D3D11Engine::logError(uint32_t result)
 {
 	std::string errorMsg;
 	switch (result)
@@ -79,7 +76,7 @@ void d3d11Engine::logError(uint32_t result)
 	assert(0);
 }
 
-void d3d11Engine::finalize()
+void D3D11Engine::finalize()
 {
 #if 0
 	ID3D11Debug *debugLayerPtr = nullptr;

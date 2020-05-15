@@ -1,12 +1,11 @@
 #pragma once
 
-#include "D3D11Device.h"
-#include "D3D11Swapchain.h"
+#include "Colorful/D3D/D3D11/D3D11Device.h"
+#include "Colorful/D3D/D3D11/D3D11Swapchain.h"
 #include "Colorful/D3D/D3D11/D3D11Enum.h"
 
-class d3d11Engine : public GfxEngine, public Singleton<d3d11Engine>
+class D3D11Engine : public GfxEngine, public Singleton<D3D11Engine>
 {
-	singletonDeclare(d3d11Engine);
 public:
 	void initialize(uint64_t windowHandle, const Configurations &config) override final;
 	void finalize() override final;
@@ -29,7 +28,7 @@ public:
 		}
 	}
 
-	inline const d3d11Device &getDevice() const
+	inline const D3D11Device &getDevice() const
 	{
 		assert(m_Device.isValid());
 		return m_Device;
@@ -97,7 +96,7 @@ public:
 public:
 protected:
 private:
-	d3d11Device m_Device;
-	d3d11Context m_IMContext;
+	D3D11Device m_Device;
+	D3D11Context m_IMContext;
 	d3d11Swapchain m_Swapchain;
 };

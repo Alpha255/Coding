@@ -8,7 +8,7 @@ void d3d12Swapchain::create(
 	bool8_t vSync, 
 	bool8_t fullscreen, 
 	bool8_t tripleBuffer,
-	const dxgiFactory7 &inDxgiFactory,
+	const DXGIFactory7 &inDxgiFactory,
 	d3d12Device &device)
 {
 	assert(!isValid() && windowHandle && inDxgiFactory.isValid() && device.isValid());
@@ -28,14 +28,14 @@ void d3d12Swapchain::create(
 
 	DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
-	auto dxgiAdapter = device.getDxgiAdapter();
-	assert(dxgiAdapter && dxgiAdapter->isValid());
-	std::vector<dxgiOutput6> dxgiOutputs;
+	auto DXGIAdapter = device.getDxgiAdapter();
+	assert(DXGIAdapter && DXGIAdapter->isValid());
+	std::vector<DXGIOutput6> dxgiOutputs;
 	uint32_t dxgiOutputIndex = 0u;
 	while (true)
 	{
 		IDXGIOutput *pDxgiOutput = nullptr;
-		if ((*dxgiAdapter)->EnumOutputs(dxgiOutputIndex++, &pDxgiOutput) == DXGI_ERROR_NOT_FOUND)
+		if ((*DXGIAdapter)->EnumOutputs(dxgiOutputIndex++, &pDxgiOutput) == DXGI_ERROR_NOT_FOUND)
 		{
 			break;
 		}

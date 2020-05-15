@@ -12,13 +12,13 @@ public:
 class d3d12Device : public D3DObject<ID3D12Device>, public GfxDevice
 {
 public:
-	void create(const dxgiFactory7 &inDxgiFactory);
+	void create(const DXGIFactory7 &inDxgiFactory);
 	
 	GfxShader *createShader(eRShaderUsage usage, const std::string &shaderName);
 
 	GfxTexture *createTexture(const std::string &textureName);
 
-	inline dxgiAdapter4 *getDxgiAdapter()
+	inline DXGIAdapter4 *getDxgiAdapter()
 	{
 		return &m_dxgiAdapter;
 	}
@@ -29,6 +29,6 @@ public:
 	}
 protected:
 private:
-	dxgiAdapter4 m_dxgiAdapter;
+	DXGIAdapter4 m_dxgiAdapter;
 	d3d12CommandQueue m_CommandQueue;
 };

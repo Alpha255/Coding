@@ -2,82 +2,94 @@
 
 #include "Colorful/Public/GfxEngine.h"
 
-class dxgiFactory : public D3DObject<IDXGIFactory>
+class DXGIFactory : public D3DObject<IDXGIFactory>
 {
 };
 
-class dxgiFactory1 : public D3DObject<IDXGIFactory1>
+class DXGIFactory1 : public D3DObject<IDXGIFactory1>
 {
 };
 
-class dxgiFactory2 : public D3DObject<IDXGIFactory2>
+class DXGIFactory2 : public D3DObject<IDXGIFactory2>
 {
 };
 
-class dxgiFactory3 : public D3DObject<IDXGIFactory3>
+class DXGIFactory3 : public D3DObject<IDXGIFactory3>
 {
 };
 
-class dxgiFactory4 : public D3DObject<IDXGIFactory4>
+class DXGIFactory4 : public D3DObject<IDXGIFactory4>
 {
 };
 
-class dxgiFactory5 : public D3DObject<IDXGIFactory5>
+class DXGIFactory5 : public D3DObject<IDXGIFactory5>
 {
 };
 
-class dxgiFactory6 : public D3DObject<IDXGIFactory6>
+class DXGIFactory6 : public D3DObject<IDXGIFactory6>
 {
 };
 
-class dxgiFactory7 : public D3DObject<IDXGIFactory7>
+class DXGIFactory7 : public D3DObject<IDXGIFactory7>
 {
 };
 
-class dxgiAdapter : public D3DObject<IDXGIAdapter>
+class DXGIAdapter : public D3DObject<IDXGIAdapter>
 {
 };
 
-class dxgiAdapter1 : public D3DObject<IDXGIAdapter1>
+class DXGIAdapter1 : public D3DObject<IDXGIAdapter1>
 {
 };
 
-class dxgiAdapter2 : public D3DObject<IDXGIAdapter2>
+class DXGIAdapter2 : public D3DObject<IDXGIAdapter2>
 {
 };
 
-class dxgiAdapter3 : public D3DObject<IDXGIAdapter3>
+class DXGIAdapter3 : public D3DObject<IDXGIAdapter3>
 {
 };
 
-class dxgiAdapter4 : public D3DObject<IDXGIAdapter4>
+class DXGIAdapter4 : public D3DObject<IDXGIAdapter4>
 {
 };
 
-class dxgiOutput : public D3DObject<IDXGIOutput>
+class DXGIOutput : public D3DObject<IDXGIOutput>
 {
 };
 
-class dxgiOutput1 : public D3DObject<IDXGIOutput1>
+class DXGIOutput1 : public D3DObject<IDXGIOutput1>
 {
 };
 
-class dxgiOutput2 : public D3DObject<IDXGIOutput2>
+class DXGIOutput2 : public D3DObject<IDXGIOutput2>
 {
 };
 
-class dxgiOutput3 : public D3DObject<IDXGIOutput3>
+class DXGIOutput3 : public D3DObject<IDXGIOutput3>
 {
 };
 
-class dxgiOutput4 : public D3DObject<IDXGIOutput4>
+class DXGIOutput4 : public D3DObject<IDXGIOutput4>
 {
 };
 
-class dxgiOutput5 : public D3DObject<IDXGIOutput5>
+class DXGIOutput5 : public D3DObject<IDXGIOutput5>
 {
 };
 
-class dxgiOutput6 : public D3DObject<IDXGIOutput6>
+class DXGIOutput6 : public D3DObject<IDXGIOutput6>
 {
 };
+
+template<class Factory>
+Factory CreateDXGIFactory(uint32_t flags)
+{
+	Factory::Type* factory = nullptr;
+	GfxVerifyD3D(CreateDXGIFactory2(flags, __uuidof(Factory::Type), reinterpret_cast<void**>(&factory)));
+
+	Factory result;
+	result.reset(factory);
+
+	return result;
+}

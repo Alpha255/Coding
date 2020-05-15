@@ -10,7 +10,7 @@ void d3d12Engine::initialize(uint64_t windowHandle, const Configurations &config
 		d3d12DebugPtr->EnableDebugLayer();
 	}
 
-	dxgiFactory7 tempDxgiFactory;
+	DXGIFactory7 tempDxgiFactory;
 	IDXGIFactory7 *pFactory = nullptr;
 	rVerifyD3D12(CreateDXGIFactory2(flags, __uuidof(IDXGIFactory7), reinterpret_cast<void **>(&pFactory)));
 	tempDxgiFactory.reset(pFactory);
