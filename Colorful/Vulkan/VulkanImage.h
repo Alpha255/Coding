@@ -11,6 +11,7 @@ public:
 protected:
 private:
 };
+using VulkanSamplerPtr = std::shared_ptr<VulkanSampler>;
 
 class VulkanImage : public VulkanDeviceObject<VkImage>
 {

@@ -117,3 +117,4 @@ private:
 	class vkGraphicsPipeline* m_CurGfxPipeline = nullptr;
 	VulkanCommandBuffer m_CmdBuffer;
 };
+using VulkanRenderPassPtr = std::shared_ptr<VulkanRenderPass>;

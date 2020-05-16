@@ -177,7 +177,7 @@ void VulkanDevice::create(VkInstance instance)
 		VK_VERSION_MINOR(properties.apiVersion),
 		VK_VERSION_PATCH(properties.apiVersion));
 
-	VulkanFencePool::instance()->initialize(m_LogicalDevice.Handle);
+	VulkanAsyncPool::instance()->initialize(m_LogicalDevice.Handle);
 	VulkanQueueManager::instance()->initialize(
 		m_LogicalDevice.Handle, 
 		graphicsQueueFamilyIndex, 
@@ -190,7 +190,7 @@ void VulkanDevice::destroy()
 {
 	waitIdle();
 
-	VulkanFencePool::instance()->finalize();
+	VulkanAsyncPool::instance()->finalize();
 	VulkanQueueManager::instance()->finalize();
 	VulkanBufferPool::instance()->finalize();
 

@@ -9,7 +9,7 @@ void VulkanEngine::initialize(uint64_t windowHandle, const Gear::Configurations&
 	VulkanLoader::initializeGlobalFunctionTable();
 #endif
 
-	m_Instance.create(config);
+	m_Instance.create(config.VulkanValidationVerbose);
 
 	m_Device.create(m_Instance.Handle);
 
@@ -84,6 +84,22 @@ void VulkanEngine::present()
 	///VulkanQueueManager::instance()->gfxQueue()->submit(m_Swapchain);
 }
 
+template<class TVector> void free(TVector& vector, VkDevice device)
+{
+	for each (auto it in vector)
+	{
+		it->destroy(device);
+	}
+	vector.clear();
+}
+
+void VulkanEngine::freeResources()
+{
+	free(m_RenderPassList, m_Device.logicalDevice());
+	free(m_ImageViewList, m_Device.logicalDevice());
+	free(m_SamplerList, m_Device.logicalDevice());
+}
+
 //void VulkanEngine::createOpaqueRenderPass()
 //{
 //	GfxFrameBufferDesc frameBufferDesc{};
@@ -97,6 +113,8 @@ void VulkanEngine::present()
 void VulkanEngine::finalize()
 {
 	m_Device.waitIdle();
+
+	freeResources();
 
 	m_Swapchain->destroy(m_Instance.Handle);
 

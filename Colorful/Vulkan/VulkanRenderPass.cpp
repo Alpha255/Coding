@@ -41,7 +41,7 @@ VulkanRenderPass::VulkanRenderPass(VkDevice device, const GfxFrameBufferDesc& de
 	{
 		if (desc.ColorSurface[i])
 		{
-			auto imageView = static_cast<VulkanImageView*>(desc.ColorSurface[i]);
+			auto imageView = std::static_pointer_cast<VulkanImageView>(desc.ColorSurface[i]);
 			assert(imageView);
 
 			VkAttachmentDescription attachmentDesc
@@ -76,7 +76,7 @@ VulkanRenderPass::VulkanRenderPass(VkDevice device, const GfxFrameBufferDesc& de
 
 	if (desc.DepthSurface)
 	{
-		auto depthImageView = static_cast<VulkanImageView*>(desc.DepthSurface);
+		auto depthImageView = std::static_pointer_cast<VulkanImageView>(desc.DepthSurface);
 		assert(depthImageView);
 
 		VkAttachmentDescription attachmentDesc
@@ -161,7 +161,7 @@ void VulkanRenderPass::bindGfxPipeline(const GfxPipelineState& state)
 
 	if (!m_CmdBuffer.isInsideRenderPass())
 	{
-		VulkanFencePool::instance()->waitFence(m_CmdBuffer.fence());
+		VulkanAsyncPool::instance()->waitFence(m_CmdBuffer.fence());
 
 		VkClearValue clearValue[2u]{};
 		clearValue[0].color =

@@ -97,3 +97,8 @@ private:
 };
 using GfxShaderPtr = std::shared_ptr<GfxShader>;
 
+class GfxRenderSurface
+{
+};
+using GfxRenderSurfacePtr = std::shared_ptr<GfxRenderSurface>;
+

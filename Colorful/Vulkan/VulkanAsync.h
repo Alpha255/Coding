@@ -1,6 +1,6 @@
 #pragma once
 
-#include "VulkanLoader.h"
+#include "Colorful/Vulkan/VulkanLoader.h"
 
 /*****************
 	Fences
@@ -32,7 +32,7 @@
 		Many cases that would otherwise need an application to use other synchronization primitives can be expressed more efficiently as part of a render pass.
 ********************/
 
-class VulkanFence : public VulkanObject<VkFence>
+class VulkanFence : public VulkanDeviceObject<VkFence>
 {
 public:
 	enum eFenceState
@@ -42,60 +42,42 @@ public:
 		eFenceState_MaxEnum
 	};
 
-	VulkanFence(uint32_t ID, VkFence handle)
-		: m_ID(ID)
+	VulkanFence(VkDevice device, bool8_t signaled);
+
+	void destroy(VkDevice device) override final
 	{
-		Handle = handle;
+		if (isValid())
+		{
+			vkDestroyFence(device, Handle, vkMemoryAllocator);
+			Handle = VK_NULL_HANDLE;
+		}
 	}
 protected:
-
-	inline uint32_t ID() const
-	{
-		return m_ID;
-	}
-
-	friend class VulkanFencePool;
 private:
-	uint32_t m_ID = 0u;
 };
 using VulkanFencePtr = std::shared_ptr<VulkanFence>;
-
-class VulkanFencePool : public LazySingleton<VulkanFencePool>
-{
-	lazySingletonDeclare(VulkanFencePool);
-public:
-	VulkanFencePtr allocFence(bool8_t signaled);
-	void freeFence(VulkanFencePtr& fence);
-
-	void resetFence(VulkanFencePtr& fence);
-	void waitFence(VulkanFencePtr& fence, uint64_t timeoutInNanosecond = std::numeric_limits<uint64_t>().max());
-	VulkanFence::eFenceState fenceState(const VulkanFencePtr& fence);
-
-	void cleanup() override final;
-protected:
-	VulkanFencePool(const VkDevice device)
-		: m_Device(device)
-	{
-		assert(device != VK_NULL_HANDLE);
-	}
-private:
-	const VkDevice m_Device;
-	uint32_t m_FenceID = 0u;
-	std::unordered_map<uint32_t, VulkanFencePtr> m_Fences;
-	std::vector<VulkanFencePtr> m_FreeFences;
-};
 
 class VulkanSemaphore : public VulkanDeviceObject<VkSemaphore>
 {
 public:
 	VulkanSemaphore(VkDevice device);
-	void destroy(VkDevice device) override final;
+
+	void destroy(VkDevice device) override final
+	{
+		/// All submitted batches that refer to semaphore must have completed execution
+		if (isValid())
+		{
+			vkDestroySemaphore(device, Handle, vkMemoryAllocator);
+			Handle = VK_NULL_HANDLE;
+		}
+	}
 };
+using VulkanSemaphorePtr = std::shared_ptr<VulkanSemaphore>;
 
 class VulkanEvent : public VulkanDeviceObject<VkEvent>
 {
 public:
-	enum eEventStatus
+	enum eEventState
 	{
 		eUnsignaled,
 		eSignaled,
@@ -103,7 +85,51 @@ public:
 	};
 
 	VulkanEvent(VkDevice device);
-	void destroy(VkDevice device) override final;
-	eEventStatus getStatus(VkDevice device);
-	void setStatus(VkDevice device, eEventStatus status);
+
+	void destroy(VkDevice device) override final
+	{
+		/// All submitted commands that refer to event must have completed execution
+		if (isValid())
+		{
+			vkDestroyEvent(device, Handle, vkMemoryAllocator);
+			Handle = VK_NULL_HANDLE;
+		}
+	}
+};
+using VulkanEventPtr = std::shared_ptr<VulkanEvent>;
+
+class VulkanAsyncPool : public LazySingleton<VulkanAsyncPool>
+{
+	lazySingletonDeclare(VulkanAsyncPool);
+public:
+	VulkanFencePtr allocFence(bool8_t signaled);
+	void freeFence(const VulkanFencePtr& fence);
+	void resetFence(const VulkanFencePtr& fence) const;
+	void waitFence(const VulkanFencePtr& fence, uint64_t timeoutInNanosecond = std::numeric_limits<uint64_t>().max()) const;
+	VulkanFence::eFenceState fenceState(const VulkanFencePtr& fence) const;
+
+	VulkanSemaphorePtr allocSemaphore();
+	void freeSemaphore(const VulkanSemaphorePtr& semaphore);
+
+	VulkanEventPtr allocEvent();
+	void freeEvent(const VulkanEventPtr& event);
+	VulkanEvent::eEventState eventState(const VulkanEventPtr& event) const;
+	void setEventState(const VulkanEventPtr& event, VulkanEvent::eEventState state) const;
+
+	void cleanup() override final;
+protected:
+	VulkanAsyncPool(const VkDevice device)
+		: m_Device(device)
+	{
+		assert(device != VK_NULL_HANDLE);
+	}
+private:
+	const VkDevice m_Device;
+	std::unordered_map<VkFence, VulkanFencePtr> m_Fences;
+	std::unordered_map<VkSemaphore, VulkanSemaphorePtr> m_Semaphores;
+	std::unordered_map<VkEvent, VulkanEventPtr> m_Events;
+
+	std::vector<VulkanFencePtr> m_FreeFences;
+	std::vector<VulkanSemaphorePtr> m_FreeSemaphores;
+	std::vector<VulkanEventPtr> m_FreeEvents;
 };

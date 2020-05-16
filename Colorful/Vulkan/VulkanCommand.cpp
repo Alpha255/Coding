@@ -117,7 +117,7 @@ VulkanCommandBuffer VulkanCommandPool::alloc(VkDevice device, VkCommandBufferLev
 	GfxVerifyVk(vkAllocateCommandBuffers(device, &allocateInfo, &handle));
 
 	VulkanCommandBuffer result(level, handle);
-	result.m_Fence = VulkanFencePool::instance()->allocFence(signaleFence);
+	result.m_Fence = VulkanAsyncPool::instance()->allocFence(signaleFence);
 
 	return result;
 }

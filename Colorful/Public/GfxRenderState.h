@@ -111,8 +111,8 @@ struct GfxSamplerDesc
 
 struct GfxFrameBufferDesc
 {
-	class GfxRenderSurface *ColorSurface[eMaxRenderTargets]{};
-	class GfxRenderSurface *DepthSurface = nullptr;
+	GfxRenderSurfacePtr ColorSurface[eMaxRenderTargets]{};
+	GfxRenderSurfacePtr DepthSurface = nullptr;
 
 	uint32_t Width = 0u;
 	uint32_t Height = 0u;

@@ -152,14 +152,14 @@ void VulkanFrameBuffer::create(VkDevice device, const VulkanRenderPass& renderPa
 	{
 		if (desc.ColorSurface[i])
 		{
-			auto imageView = static_cast<VulkanImageView *>(desc.ColorSurface[i]);
+			auto imageView = std::static_pointer_cast<VulkanImageView>(desc.ColorSurface[i]);
 			assert(imageView);
 			attachments.emplace_back(imageView->Handle);
 		}
 	}
 	if (desc.DepthSurface)
 	{
-		auto depthImageView = static_cast<VulkanImageView *>(desc.DepthSurface);
+		auto depthImageView = std::static_pointer_cast<VulkanImageView>(desc.DepthSurface);
 		assert(depthImageView);
 		attachments.emplace_back(depthImageView->Handle);
 	}

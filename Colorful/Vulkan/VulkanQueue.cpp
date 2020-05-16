@@ -31,7 +31,7 @@ void VulkanQueue::submit(VulkanCommandBuffer &cmdBuffer)
 		nullptr
 	};
 	GfxVerifyVk(vkQueueSubmit(Handle, 1u, &submitInfo, cmdBuffer.fence()->Handle));
-	VulkanFencePool::instance()->waitFence(cmdBuffer.fence());
+	VulkanAsyncPool::instance()->waitFence(cmdBuffer.fence());
 }
 
 void VulkanQueue::present(

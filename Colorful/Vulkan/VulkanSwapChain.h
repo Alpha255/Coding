@@ -55,8 +55,8 @@ protected:
 
 		void destroy(VkInstance instance);
 
-		VkSurfaceFormatKHR SurfaceFormat = {};
-		VkSurfaceCapabilitiesKHR SurfaceCapabilities = {};
+		VkSurfaceFormatKHR SurfaceFormat{};
+		VkSurfaceCapabilitiesKHR SurfaceCapabilities{};
 		std::vector<VkPresentModeKHR> PresentModes;
 	};
 

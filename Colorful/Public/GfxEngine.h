@@ -48,11 +48,6 @@ protected:
 	GfxAdapter m_Adapter;
 };
 
-class GfxRenderSurface
-{
-};
-using GfxRenderSurfacePtr = std::shared_ptr<GfxRenderSurface>;
-
 class GfxGeometryBuffer
 {
 };

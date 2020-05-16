@@ -1,5 +1,18 @@
-#include "VulkanAsync.h"
-#include "VulkanEngine.h"
+#include "Colorful/Vulkan/VulkanEngine.h"
+
+VulkanFence::VulkanFence(VkDevice device, bool8_t signaled)
+{
+	assert(!isValid());
+
+	VkFenceCreateInfo createInfo
+	{
+		VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+		nullptr,
+		signaled ? VK_FENCE_CREATE_SIGNALED_BIT : 0u
+	};
+
+	GfxVerifyVk(vkCreateFence(device, &createInfo, vkMemoryAllocator, &Handle));
+}
 
 VulkanSemaphore::VulkanSemaphore(VkDevice device)
 {
@@ -25,16 +38,6 @@ VulkanSemaphore::VulkanSemaphore(VkDevice device)
 	/// 2. There must be no other queue waiting on the same semaphore when the operation executes.
 }
 
-void VulkanSemaphore::destroy(VkDevice device)
-{
-	/// All submitted batches that refer to semaphore must have completed execution
-	if (isValid())
-	{
-		vkDestroySemaphore(device, Handle, vkMemoryAllocator);
-		Handle = VK_NULL_HANDLE;
-	}
-}
-
 VulkanEvent::VulkanEvent(VkDevice device)
 {
 	/// An application can signal an event, or unsignal it, on either the host or the device. 
@@ -55,55 +58,7 @@ VulkanEvent::VulkanEvent(VkDevice device)
 	/// To set the state of an event to signaled from a device, call: vkCmdSetEvent
 }
 
-VulkanEvent::eEventStatus VulkanEvent::getStatus(VkDevice device)
-{
-	assert(!isValid());
-
-	VkResult result = vkGetEventStatus(device, Handle);
-	eEventStatus status = eEventStatus_MaxEnum;
-	switch (result)
-	{
-	case VK_EVENT_SET:
-		status = eSignaled;
-		break;
-	case VK_EVENT_RESET:
-		status = eUnsignaled;
-		break;
-	default:
-		assert(0);
-		break;
-	}
-
-	return status;
-}
-
-void VulkanEvent::setStatus(VkDevice device, eEventStatus status)
-{
-	assert(!isValid() && status < eEventStatus_MaxEnum);
-
-	if (eSignaled == status)
-	{
-		/// Set the state of an event to signaled from the host
-		GfxVerifyVk(vkSetEvent(device, Handle));
-	}
-	else if (eUnsignaled == status)
-	{
-		/// Set the state of an event to unsignaled from the host
-		GfxVerifyVk(vkResetEvent(device, Handle));
-	}
-}
-
-void VulkanEvent::destroy(VkDevice device)
-{
-	/// All submitted commands that refer to event must have completed execution
-	if (isValid())
-	{
-		vkDestroyEvent(device, Handle, vkMemoryAllocator);
-		Handle = VK_NULL_HANDLE;
-	}
-}
-
-VulkanFencePtr VulkanFencePool::allocFence(bool8_t signaled)
+VulkanFencePtr VulkanAsyncPool::allocFence(bool8_t signaled)
 {
 	if (m_FreeFences.size() > 0u)
 	{
@@ -112,46 +67,36 @@ VulkanFencePtr VulkanFencePool::allocFence(bool8_t signaled)
 		return *fence;
 	}
 
-	VkFenceCreateInfo createInfo
-	{
-		VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
-		nullptr,
-		signaled ? VK_FENCE_CREATE_SIGNALED_BIT : 0u
-	};
-
-	VkFence fence = VK_NULL_HANDLE;
-	GfxVerifyVk(vkCreateFence(m_Device, &createInfo, vkMemoryAllocator, &fence));
-	auto fencePtr = std::make_shared<VulkanFence>(m_FenceID, fence);
-	m_Fences.emplace(std::make_pair(m_FenceID, fencePtr));
+	auto fencePtr = std::make_shared<VulkanFence>(m_Device, signaled);
+	m_Fences.emplace(std::make_pair(fencePtr->Handle, fencePtr));
 	return fencePtr;
 }
 
-void VulkanFencePool::freeFence(VulkanFencePtr& fence)
+void VulkanAsyncPool::freeFence(const VulkanFencePtr& fence)
 {
-	auto it = m_Fences.find(fence->ID());
+	auto it = m_Fences.find(fence->Handle);
 	assert(it != m_Fences.end());
 
 	m_FreeFences.emplace_back(it->second);
-	m_Fences.erase(it->second->ID());
+	m_Fences.erase(it);
 }
 
-void VulkanFencePool::resetFence(VulkanFencePtr& fence)
+void VulkanAsyncPool::resetFence(const VulkanFencePtr& fence) const
 {
-	assert(fence);
+	assert(fence && fence->isValid());
 	GfxVerifyVk(vkResetFences(m_Device, 1u, &fence->Handle));
 }
 
-void VulkanFencePool::waitFence(VulkanFencePtr& fence, uint64_t timeoutInNanosecond)
+void VulkanAsyncPool::waitFence(const VulkanFencePtr& fence, uint64_t timeoutInNanosecond) const
 {
-	assert(fence);
-
+	assert(fence && fence->isValid());
 	GfxVerifyVk(vkWaitForFences(m_Device, 1u, &fence->Handle, true, timeoutInNanosecond));
 	GfxVerifyVk(vkResetFences(m_Device, 1u, &fence->Handle));
 }
 
-VulkanFence::eFenceState VulkanFencePool::fenceState(const VulkanFencePtr& fence)
+VulkanFence::eFenceState VulkanAsyncPool::fenceState(const VulkanFencePtr& fence) const
 {
-	assert(fence);
+	assert(fence && fence->isValid());
 	VkResult result = vkGetFenceStatus(m_Device, fence->Handle);
 
 	/// If a queue submission command is pending execution, then the value returned by this command may immediately be out of date.
@@ -176,19 +121,110 @@ VulkanFence::eFenceState VulkanFencePool::fenceState(const VulkanFencePtr& fence
 	return state;
 }
 
-void VulkanFencePool::cleanup()
+VulkanSemaphorePtr VulkanAsyncPool::allocSemaphore()
+{
+	if (m_FreeSemaphores.size() > 0u)
+	{
+		auto semaphore = m_FreeSemaphores.end();
+		m_FreeSemaphores.pop_back();
+		return *semaphore;
+	}
+
+	auto semaphorePtr = std::make_shared<VulkanSemaphore>(m_Device);
+	m_Semaphores.emplace(std::make_pair(semaphorePtr->Handle, semaphorePtr));
+	return semaphorePtr;
+}
+
+void VulkanAsyncPool::freeSemaphore(const VulkanSemaphorePtr& semaphore)
+{
+	auto it = m_Semaphores.find(semaphore->Handle);
+	assert(it != m_Semaphores.end());
+
+	m_FreeSemaphores.emplace_back(it->second);
+	m_Semaphores.erase(it);
+}
+
+VulkanEventPtr VulkanAsyncPool::allocEvent()
+{
+	if (m_FreeEvents.size() > 0u)
+	{
+		auto event = m_FreeEvents.end();
+		m_FreeEvents.pop_back();
+		return *event;
+	}
+
+	auto eventPtr = std::make_shared<VulkanEvent>(m_Device);
+	m_Events.emplace(std::make_pair(eventPtr->Handle, eventPtr));
+	return eventPtr;
+}
+
+void VulkanAsyncPool::freeEvent(const VulkanEventPtr& event)
+{
+	auto it = m_Events.find(event->Handle);
+	assert(it != m_Events.end());
+
+	m_FreeEvents.emplace_back(it->second);
+	m_Events.erase(it);
+}
+
+VulkanEvent::eEventState VulkanAsyncPool::eventState(const VulkanEventPtr& event) const
+{
+	assert(event && event->isValid());
+
+	VkResult result = vkGetEventStatus(m_Device, event->Handle);
+	VulkanEvent::eEventState state = VulkanEvent::eEventStatus_MaxEnum;
+	switch (result)
+	{
+	case VK_EVENT_SET:
+		state = VulkanEvent::eSignaled;
+		break;
+	case VK_EVENT_RESET:
+		state = VulkanEvent::eUnsignaled;
+		break;
+	default:
+		assert(0);
+		break;
+	}
+
+	return state;
+}
+
+void VulkanAsyncPool::setEventState(const VulkanEventPtr& event, VulkanEvent::eEventState state) const
+{
+	assert(event && event->isValid() && state < VulkanEvent::eEventStatus_MaxEnum);
+
+	if (VulkanEvent::eSignaled == state)
+	{
+		/// Set the state of an event to signaled from the host
+		GfxVerifyVk(vkSetEvent(m_Device, event->Handle));
+	}
+	else if (VulkanEvent::eUnsignaled == state)
+	{
+		/// Set the state of an event to unsignaled from the host
+		GfxVerifyVk(vkResetEvent(m_Device, event->Handle));
+	}
+}
+
+template<class TMap, class TVector> void free(TMap& map, TVector& vector, VkDevice device)
+{
+	for (auto it = vector.begin(); it != vector.end(); ++it)
+	{
+		(*it)->destroy(device);
+	}
+
+	for (auto it = map.begin(); it != map.end(); ++it)
+	{
+		it->second->destroy(device);
+	}
+
+	vector.clear();
+	map.clear();
+}
+
+void VulkanAsyncPool::cleanup()
 {
 	/// All queue submission commands that refer to fence must have completed execution
-	for (auto it = m_FreeFences.begin(); it != m_FreeFences.end(); ++it)
-	{
-		vkDestroyFence(m_Device, (*it)->Handle, vkMemoryAllocator);
-	}
-
-	for (auto it = m_Fences.begin(); it != m_Fences.end(); ++it)
-	{
-		vkDestroyFence(m_Device, it->second->Handle, vkMemoryAllocator);
-	}
-
-	m_FreeFences.clear();
-	m_Fences.clear();
+	free(m_Fences, m_FreeFences, m_Device);
+	free(m_Semaphores, m_FreeSemaphores, m_Device);
+	free(m_Events, m_FreeEvents, m_Device);
 }

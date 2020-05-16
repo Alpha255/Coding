@@ -69,6 +69,7 @@ private:
 	VulkanImagePtr m_Image = nullptr;
 	VkFormat m_Format = VK_FORMAT_UNDEFINED;
 };
+using VulkanImageViewPtr = std::shared_ptr<VulkanImageView>;
 
 class VulkanRenderTargetView : public VulkanImageView
 {

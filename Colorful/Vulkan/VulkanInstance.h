@@ -5,7 +5,7 @@
 class VulkanInstance : public VulkanObject<VkInstance>
 {
 public:
-	void create(const Gear::Configurations& config);
+	void create(bool8_t enableVerboseValidation);
 	void destroy();
 protected:
 	class VulkanDebugUtilsMessenger : public VulkanObject<VkDebugUtilsMessengerEXT>

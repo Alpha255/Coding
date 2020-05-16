@@ -1,6 +1,6 @@
 #include "Colorful/Vulkan/VulkanEngine.h"
 
-void VulkanInstance::create(const Gear::Configurations& config)
+void VulkanInstance::create(bool8_t enableVerboseValidation)
 {
 	assert(!isValid());
 
@@ -63,7 +63,7 @@ void VulkanInstance::create(const Gear::Configurations& config)
 	GfxVerifyVk(vkCreateInstance(&createInfo, vkMemoryAllocator, &Handle));
 
 #if defined(_DEBUG)
-	m_DebugUtilsMessenger.create(Handle, config.VulkanValidationVerbose);
+	m_DebugUtilsMessenger.create(Handle, enableVerboseValidation);
 #endif
 
 #if defined(UsingVkLoader)

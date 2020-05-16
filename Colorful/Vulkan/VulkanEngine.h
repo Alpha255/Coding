@@ -52,18 +52,21 @@ public:
 	GfxRenderSurfacePtr createDepthStencilView(uint32_t width, uint32_t height, eRFormat format) override final
 	{
 		auto depthStencilView = std::make_shared<VulkanDepthStencilView>(m_Device.logicalDevice(), width, height, format);
+		m_ImageViewList.emplace_back(std::static_pointer_cast<VulkanImageView>(depthStencilView));
 		return std::static_pointer_cast<GfxRenderSurface>(depthStencilView);
 	}
 
 	GfxRenderPassPtr createRenderPass(GfxFrameBufferDesc& desc) override final
 	{
 		auto renderPass = std::make_shared<VulkanRenderPass>(m_Device.logicalDevice(), desc);
+		m_RenderPassList.emplace_back(std::move(renderPass));
 		return std::static_pointer_cast<GfxRenderPass>(renderPass);
 	}
 
 	GfxTexturePtr createTexture(const std::string& textureName) override final
 	{
 		auto texture = std::make_shared<VulkanImageView>(m_Device.logicalDevice(), textureName);
+		m_ImageViewList.emplace_back(std::move(texture));
 		return std::static_pointer_cast<GfxTexture>(texture);
 	}
 	GfxTexturePtr createTexture(
@@ -88,12 +91,14 @@ public:
 			arrayLayers,
 			data,
 			dataSize);
+		m_ImageViewList.emplace_back(std::move(texture));
 		return std::static_pointer_cast<GfxTexture>(texture);
 	}
 
 	GfxSamplerPtr createSampler(const GfxSamplerDesc& desc) override final
 	{
 		auto sampler = std::make_shared<VulkanSampler>(m_Device.logicalDevice(), desc);
+		m_SamplerList.emplace_back(std::move(sampler));
 		return std::static_pointer_cast<GfxSampler>(sampler);
 	}
 
@@ -118,8 +123,13 @@ public:
 		return result;
 	}
 protected:
+	void freeResources();
 private:
 	VulkanInstance m_Instance;
 	VulkanDevice m_Device;
 	VulkanSwapchainPtr m_Swapchain = nullptr;
+
+	std::vector<VulkanRenderPassPtr> m_RenderPassList;
+	std::vector<VulkanImageViewPtr> m_ImageViewList;
+	std::vector<VulkanSamplerPtr> m_SamplerList;
 };
