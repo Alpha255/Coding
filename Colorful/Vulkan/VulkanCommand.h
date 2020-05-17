@@ -19,14 +19,7 @@
 class VulkanCommandBuffer : public VulkanObject<VkCommandBuffer>
 {
 public:
-	VulkanCommandBuffer() = default;
-	VulkanCommandBuffer(VkCommandBufferLevel level, VkCommandBuffer handle)
-		: m_Level(level)
-	{
-		assert(handle != VK_NULL_HANDLE);
-		setState(eInitial);
-		Handle = handle;
-	}
+	VulkanCommandBuffer(VkCommandBufferLevel level, VkCommandBuffer handle);
 
 	void beginRenderPass(const VkRenderPassBeginInfo& beginInfo, VkSubpassContents subpassContents);
 	void endRenderPass();
@@ -34,7 +27,7 @@ public:
 	void begin();
 	void end();
 
-	void execute(const VulkanCommandBuffer& primaryCommandBuffer);
+	void execute(const std::shared_ptr<VulkanCommandBuffer>& primaryCmdBuffer);
 
 	inline bool8_t isInsideRenderPass() const
 	{
@@ -47,7 +40,7 @@ public:
 		return m_Fence;
 	}
 
-	inline void resetCommand()
+	inline void reset()
 	{
 		/// The command buffer can be in any state other than pending, and is moved into the initial state
 
@@ -58,6 +51,11 @@ public:
 		//assert(m_State != ePending && isValid());
 		vkResetCommandBuffer(Handle, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
 		setState(eInitial);
+	}
+
+	inline VkCommandBufferLevel level() const
+	{
+		return m_Level;
 	}
 protected:
 	friend class VulkanCommandPool;
@@ -87,17 +85,17 @@ private:
 };
 using VulkanCommandBufferPtr = std::shared_ptr<VulkanCommandBuffer>;
 
-class VulkanCommandPool : public VulkanDeviceObject<VkCommandPool>
+class VulkanCommandPool : public VulkanObject<VkCommandPool>
 {
 public:
-	void create(VkDevice device, uint32_t queueIndex);
-	void reset(VkDevice device);
-	void trim(VkDevice device);
+	VulkanCommandPool(VkDevice device, uint32_t queueIndex);
+	void reset();
+	void trim();
 
-	VulkanCommandBuffer alloc(VkDevice device, VkCommandBufferLevel level, bool8_t signaleFence = true) const;
-	void free(VkDevice device, VulkanCommandBuffer& commandBuffer) const;
+	VulkanCommandBufferPtr alloc(VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+	void free(VulkanCommandBufferPtr& commandBuffer);
 
-	void destroy(VkDevice device) override final
+	void destroy()
 	{
 		/// When a pool is destroyed, all command buffers allocated from the pool are freed.
 
@@ -107,11 +105,14 @@ public:
 		/// All VkCommandBuffer objects allocated from commandPool must not be in the pending state.
 		if (isValid())
 		{
-			vkDestroyCommandPool(device, Handle, vkMemoryAllocator);
+			vkDestroyCommandPool(m_Device, Handle, vkMemoryAllocator);
 			Handle = VK_NULL_HANDLE;
 		}
 	}
 protected:
 private:
 	std::unordered_map<VkCommandBuffer, VulkanCommandBufferPtr> m_CmdBuffers;
+	std::vector<VulkanCommandBufferPtr> m_FreeCmdBuffers;
+	const VkDevice m_Device;
 };
+using VulkanCommandPoolPtr = std::shared_ptr<VulkanCommandPool>;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "VulkanLoader.h"
+#include "Colorful/Vulkan/VulkanLoader.h"
 
 class VulkanDeviceMemory : public VulkanDeviceObject<VkDeviceMemory>
 {
@@ -51,7 +51,7 @@ using VulkanBufferPtr = VulkanBuffer*;
 class VulkanPushConstants : public GfxGpuBuffer
 {
 public:
-	void update(const void* data, size_t size, size_t offset) override final
+	void update(const void*, size_t, size_t) override final
 	{
 
 	}
@@ -65,7 +65,7 @@ public:
 class VulkanFrameBuffer : public VulkanDeviceObject<VkFramebuffer>
 {
 public:
-	void create(VkDevice device, const class VulkanRenderPass &renderPass, const GfxFrameBufferDesc &desc);
+	void create(VkDevice device, VkRenderPass renderPass, const GfxFrameBufferDesc& desc);
 	void destroy(VkDevice device) override final
 	{
 		if (isValid())

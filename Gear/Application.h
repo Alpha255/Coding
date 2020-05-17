@@ -2,6 +2,7 @@
 
 #include "Gear/Gear.h"
 #include "Gear/Window.h"
+#include "Colorful/Public/GfxEngine.h"
 
 namespaceStart(Gear)
 
@@ -25,6 +26,7 @@ protected:
 
 	Configurations m_Config;
 	WindowPtr m_Window = nullptr;
+	GfxEnginePtr m_GfxEngine = nullptr;
 private:
 };
 

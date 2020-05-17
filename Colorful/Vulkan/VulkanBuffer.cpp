@@ -1,6 +1,4 @@
-#include "VulkanBuffer.h"
-#include "VulkanEngine.h"
-#include "VulkanRenderPass.h"
+#include "Colorful/Vulkan/VulkanEngine.h"
 
 void VulkanDeviceMemory::create(VkDevice device, eRBufferUsage usage, const VkMemoryRequirements& memoryRequirements)
 {
@@ -143,9 +141,9 @@ VulkanBuffer::VulkanBuffer(VkDevice device, eRBufferBindFlags bindFlags, eRBuffe
 	}
 }
 
-void VulkanFrameBuffer::create(VkDevice device, const VulkanRenderPass& renderPass, const GfxFrameBufferDesc& desc)
+void VulkanFrameBuffer::create(VkDevice device, VkRenderPass renderPass, const GfxFrameBufferDesc& desc)
 {
-	assert(renderPass.isValid() && !isValid());
+	assert(renderPass != VK_NULL_HANDLE && !isValid());
 
 	std::vector<VkImageView> attachments;
 	for (uint32_t i = 0u; i < eMaxRenderTargets; ++i)
@@ -169,7 +167,7 @@ void VulkanFrameBuffer::create(VkDevice device, const VulkanRenderPass& renderPa
 		VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
 		nullptr,
 		0u,
-		renderPass.Handle,
+		renderPass,
 		(uint32_t)attachments.size(),
 		attachments.data(),
 		desc.Width,
@@ -224,8 +222,11 @@ void VulkanBufferPool::delayFree(bool8_t force)
 		m_ListIndex = 0u;
 		for (uint32_t i = 0u; i < m_DelayFreeList.size(); ++i)
 		{
-			m_DelayFreeList[i]->destroy(m_Device);
-			safeDelete(m_DelayFreeList[i]);
+			if (m_DelayFreeList[i])
+			{
+				m_DelayFreeList[i]->destroy(m_Device);
+				safeDelete(m_DelayFreeList[i]);
+			}
 		}
 	}
 }

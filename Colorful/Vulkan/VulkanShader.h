@@ -1,6 +1,6 @@
 #pragma once
 
-#include "VulkanLoader.h"
+#include "Colorful/Vulkan/VulkanLoader.h"
 
 class VulkanShader : public VulkanDeviceObject<VkShaderModule>, public GfxShader
 {

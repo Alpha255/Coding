@@ -63,9 +63,9 @@ class GfxGpuTimer
 class GfxEngine
 {
 public:
-	typedef void (*renderFrameCallback)(void);
+	using RenderFrameCallback = std::function<void(void)>;
 
-	void registerRenderFrameCallback(renderFrameCallback callback)
+	void registerRenderFrameCallback(RenderFrameCallback callback)
 	{
 		assert(!m_RenderFrameCallback);
 		m_RenderFrameCallback = callback;
@@ -73,14 +73,14 @@ public:
 
 	void renderFrame()
 	{
-		m_ImGuiRenderer->begin();
+		//m_ImGuiRenderer->begin();
 
 		if (m_RenderFrameCallback)
 		{
 			m_RenderFrameCallback();
 		}
 
-		m_ImGuiRenderer->end();
+		//m_ImGuiRenderer->end();
 
 		present();
 	}
@@ -129,7 +129,7 @@ public:
 	}
 protected:
 	GfxRenderPassPtr m_OpaqueRenderPass = nullptr;
-	renderFrameCallback m_RenderFrameCallback = nullptr;
+	RenderFrameCallback m_RenderFrameCallback;
 	ImGuiRendererPtr m_ImGuiRenderer = nullptr;
 private:
 };

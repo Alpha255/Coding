@@ -1,7 +1,6 @@
-#include "VulkanDescriptor.h"
-#include "VulkanEngine.h"
+#include "Colorful/Vulkan/VulkanEngine.h"
 
-void vkDescriptorPool::create(VkDevice device)
+void VulkanDescriptorPool::create(VkDevice device)
 {
 	assert(!isValid());
 
@@ -78,7 +77,7 @@ void vkDescriptorPool::create(VkDevice device)
 	GfxVerifyVk(vkCreateDescriptorPool(device, &createInfo, vkMemoryAllocator, &Handle));
 }
 
-void vkDescriptorPool::resetPool(VkDevice device)
+void VulkanDescriptorPool::resetPool(VkDevice device)
 {
 	/// return all descriptor sets allocated from a given pool to the pool
 	/// flags is reserved for future use
@@ -88,7 +87,7 @@ void vkDescriptorPool::resetPool(VkDevice device)
 	vkResetDescriptorPool(device, Handle, 0u);
 }
 
-vkDescriptorSet vkDescriptorPool::alloc(VkDevice device, const vkDescriptorSetLayout &layout) const
+VulkanDescriptorSet VulkanDescriptorPool::alloc(VkDevice device, const VulkanDescriptorSetLayout &layout) const
 {
 	assert(isValid() && layout.isValid());
 
@@ -102,13 +101,13 @@ vkDescriptorSet vkDescriptorPool::alloc(VkDevice device, const vkDescriptorSetLa
 		&descriptorSetlayout
 	};
 
-	vkDescriptorSet descriptorSet;
+	VulkanDescriptorSet descriptorSet;
 	GfxVerifyVk(vkAllocateDescriptorSets(device, &allocInfo, &descriptorSet.Handle));
 
 	return descriptorSet;
 }
 
-void vkDescriptorSetLayout::create(VkDevice device, const GfxDescriptorLayoutDesc &desc)
+void VulkanDescriptorSetLayout::create(VkDevice device, const GfxDescriptorLayoutDesc &desc)
 {
 	assert(!isValid());
 

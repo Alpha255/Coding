@@ -9,6 +9,8 @@
 #include "Colorful/Vulkan/VulkanSwapChain.h"
 #include "Colorful/Vulkan/VulkanRenderPass.h"
 #include "Colorful/Vulkan/VulkanPipeline.h"
+#include "Colorful/Vulkan/VulkanEnum.h"
+#include "Colorful/Vulkan/VulkanQueue.h"
 
 class VulkanDevice : public GfxDevice
 {

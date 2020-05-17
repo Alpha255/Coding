@@ -1,7 +1,4 @@
-#include "VulkanQueue.h"
-#include "VulkanEngine.h"
-#include "VulkanSwapChain.h"
-#include "VulkanAsync.h"
+#include "Colorful/Vulkan/VulkanEngine.h"
 
 VulkanQueue::VulkanQueue(VkDevice device, uint32_t queueFamilyIndex)
 {
@@ -16,7 +13,7 @@ VulkanQueue::VulkanQueue(VkDevice device, uint32_t queueFamilyIndex)
 	///m_RenderCompleteSemaphore = device.createSemaphore();
 }
 
-void VulkanQueue::submit(VulkanCommandBuffer &cmdBuffer)
+void VulkanQueue::submit(const VulkanCommandBufferPtr& cmdBuffer)
 {
 	VkSubmitInfo submitInfo
 	{
@@ -26,17 +23,17 @@ void VulkanQueue::submit(VulkanCommandBuffer &cmdBuffer)
 		nullptr,
 		nullptr,
 		1u,
-		&cmdBuffer.Handle,
+		&cmdBuffer->Handle,
 		0u,
 		nullptr
 	};
-	GfxVerifyVk(vkQueueSubmit(Handle, 1u, &submitInfo, cmdBuffer.fence()->Handle));
-	VulkanAsyncPool::instance()->waitFence(cmdBuffer.fence());
+	GfxVerifyVk(vkQueueSubmit(Handle, 1u, &submitInfo, cmdBuffer->fence()->Handle));
+	VulkanAsyncPool::instance()->waitFence(cmdBuffer->fence());
 }
 
 void VulkanQueue::present(
-	VulkanCommandBuffer &cmdBuffer,
-	const VulkanSwapchain &swapchain,
+	const VulkanCommandBufferPtr& cmdBuffer,
+	const VulkanSwapchain& swapchain,
 	VkFence fence)
 {
 	VkPipelineStageFlags waitStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
@@ -49,7 +46,7 @@ void VulkanQueue::present(
 		&swapchain.getPresentCompleteSemaphore()->Handle,
 		&waitStageMask,
 		1u,
-		&cmdBuffer.Handle,
+		&cmdBuffer->Handle,
 		1u,
 		&m_RenderCompleteSemaphore->Handle
 	};
@@ -62,7 +59,7 @@ void VulkanQueue::present(
 	swapchain.present(*m_RenderCompleteSemaphore);
 }
 
-void VulkanQueue::queueCommandBuffer(VulkanCommandBuffer *cmdBuffer)
+void VulkanQueue::queueCommandBuffer(const VulkanCommandBufferPtr& cmdBuffer)
 {
 	bool8_t contain = false;
 	for (uint32_t i = 0u; i < m_QueuedCmdBuffers.size(); ++i)
@@ -143,14 +140,17 @@ VulkanQueueManager::VulkanQueueManager(
 {
 	assert(gfxQueueFamilyIndex != std::numeric_limits<uint32_t>().max());
 	m_GfxQueue = std::make_shared<VulkanQueue>(device, gfxQueueFamilyIndex);
+	m_GfxCmdBufferPool = std::make_shared<VulkanCommandPool>(device, gfxQueueFamilyIndex);
 
 	if (computeQueueFamilyIndex != std::numeric_limits<uint32_t>().max())
 	{
 		m_ComputeQueue = std::make_shared<VulkanQueue>(device, computeQueueFamilyIndex);
+		m_ComputeCmdBufferPool = std::make_shared<VulkanCommandPool>(device, computeQueueFamilyIndex);
 	}
 
 	if (transferQueueFamilyIndex != std::numeric_limits<uint32_t>().max())
 	{
 		m_TransferQueue = std::make_shared<VulkanQueue>(device, transferQueueFamilyIndex);
+		m_TransferCmdBufferPool = std::make_shared<VulkanCommandPool>(device, transferQueueFamilyIndex);
 	}
 }

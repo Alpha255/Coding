@@ -102,7 +102,7 @@ class VulkanAsyncPool : public LazySingleton<VulkanAsyncPool>
 {
 	lazySingletonDeclare(VulkanAsyncPool);
 public:
-	VulkanFencePtr allocFence(bool8_t signaled);
+	VulkanFencePtr allocFence(bool8_t signaled = false);
 	void freeFence(const VulkanFencePtr& fence);
 	void resetFence(const VulkanFencePtr& fence) const;
 	void waitFence(const VulkanFencePtr& fence, uint64_t timeoutInNanosecond = std::numeric_limits<uint64_t>().max()) const;

@@ -185,7 +185,7 @@ void ImGuiRenderer::frame()
 			};
 
 			m_PipelineState.setScissor(scissor);
-			m_Renderer->opaqueRenderPass()->drawIndexed(m_PipelineState, drawCmd->ElemCount, (uint32_t)indexOffset, vertexOffset);
+			m_Renderer->opaqueRenderPass()->drawIndexed(drawCmd->ElemCount, (uint32_t)indexOffset, vertexOffset);
 			indexOffset += drawCmd->ElemCount;
 		}
 		vertexOffset += drawList->VtxBuffer.Size;

@@ -1,10 +1,6 @@
-#include "VulkanPipeline.h"
-#include "VulkanDescriptor.h"
-#include "VulkanShader.h"
-#include "VulkanRenderPass.h"
-#include "VulkanEngine.h"
+#include "Colorful/Vulkan/VulkanEngine.h"
 
-void vkPipelineLayout::create(VkDevice device, const vkDescriptorSetLayout &descriptorSetLayout)
+void VulkanPipelineLayout::create(VkDevice device, const VulkanDescriptorSetLayout &descriptorSetLayout)
 {
 	assert(!isValid() && descriptorSetLayout.isValid());
 
@@ -22,15 +18,15 @@ void vkPipelineLayout::create(VkDevice device, const vkDescriptorSetLayout &desc
 	GfxVerifyVk(vkCreatePipelineLayout(device, &createInfo, vkMemoryAllocator, &Handle));
 }
 
-void vkGraphicsPipeline::create(
+VulkanGraphicsPipeline::VulkanGraphicsPipeline(
 	VkDevice device, 
-	const VulkanRenderPass &renderpass, 
-	const vkPipelineCache &cache, 
-	const GfxPipelineState &state)
+	VkRenderPass renderPass,
+	VkPipelineCache pipelineCache,
+	const GfxPipelineState& state)
 {
 	assert(!isValid());
 	assert(state.Shaders[eVertexShader]);
-	assert(renderpass.isValid() && cache.isValid());
+	assert(renderPass != VK_NULL_HANDLE && pipelineCache != VK_NULL_HANDLE);
 
 	GfxDescriptorLayoutDesc descriptorLayoutDesc{};
 	std::vector<VkPipelineShaderStageCreateInfo> shaderStageCreateInfos;
@@ -101,9 +97,9 @@ void vkGraphicsPipeline::create(
 	};
 
 	std::vector<VkPipelineColorBlendAttachmentState> colorBlendAttachments;
-	auto depthStencilState = getDepthStencilState(state.DepthStencilStateDesc);
-	auto rasterizationState = getRasterizationState(state.RasterizerStateDesc);
-	auto blendState = getColorBlendState(colorBlendAttachments, state.BlendStateDesc);
+	auto depthStencilState = makeDepthStencilState(state.DepthStencilStateDesc);
+	auto rasterizationState = makeRasterizationState(state.RasterizerStateDesc);
+	auto blendState = makeColorBlendState(colorBlendAttachments, state.BlendStateDesc);
 
 	std::vector<VkDynamicState> dynamicStates
 	{
@@ -136,17 +132,17 @@ void vkGraphicsPipeline::create(
 		&blendState,
 		&dynamicStateCreateInfo,
 		m_PipelineLayout.Handle,
-		renderpass.Handle,
+		renderPass,
 		0u,
 		VK_NULL_HANDLE,
 		0u
 	};
 
 	/// Pending creations ???
-	GfxVerifyVk(vkCreateGraphicsPipelines(device, cache.Handle, 1u, &createInfo, vkMemoryAllocator, &Handle));
+	GfxVerifyVk(vkCreateGraphicsPipelines(device, pipelineCache, 1u, &createInfo, vkMemoryAllocator, &Handle));
 }
 
-void vkGraphicsPipeline::bind(const VulkanCommandBuffer &cmdBuffer)
+void VulkanGraphicsPipeline::bind(const VulkanCommandBuffer &cmdBuffer)
 {
 	assert(isValid() && cmdBuffer.isValid() && m_DescriptorSet.isValid());
 
@@ -155,7 +151,7 @@ void vkGraphicsPipeline::bind(const VulkanCommandBuffer &cmdBuffer)
 	vkCmdBindPipeline(cmdBuffer.Handle, VK_PIPELINE_BIND_POINT_GRAPHICS, Handle);
 }
 
-VkPipelineRasterizationStateCreateInfo vkGraphicsPipeline::getRasterizationState(const GfxRasterizerStateDesc &stateDesc) const
+VkPipelineRasterizationStateCreateInfo VulkanGraphicsPipeline::makeRasterizationState(const GfxRasterizerStateDesc& stateDesc) const
 {
 	assert(stateDesc.PolygonMode < eRPolygonMode_MaxEnum);
 	assert(stateDesc.CullMode < eRCullMode_MaxEnum);
@@ -181,7 +177,7 @@ VkPipelineRasterizationStateCreateInfo vkGraphicsPipeline::getRasterizationState
 	return rasterizationState;
 }
 
-VkPipelineDepthStencilStateCreateInfo vkGraphicsPipeline::getDepthStencilState(const GfxDepthStencilStateDesc &stateDesc) const
+VkPipelineDepthStencilStateCreateInfo VulkanGraphicsPipeline::makeDepthStencilState(const GfxDepthStencilStateDesc& stateDesc) const
 {
 	VkPipelineDepthStencilStateCreateInfo depthStencilState
 	{
@@ -218,9 +214,9 @@ VkPipelineDepthStencilStateCreateInfo vkGraphicsPipeline::getDepthStencilState(c
 	return depthStencilState;
 }
 
-VkPipelineColorBlendStateCreateInfo vkGraphicsPipeline::getColorBlendState(
-	std::vector<VkPipelineColorBlendAttachmentState> &attachments,
-	const GfxBlendStateDesc &stateDesc) const
+VkPipelineColorBlendStateCreateInfo VulkanGraphicsPipeline::makeColorBlendState(
+	std::vector<VkPipelineColorBlendAttachmentState>& attachments,
+	const GfxBlendStateDesc& stateDesc) const
 {
 	for (uint32_t i = 0u; i < eMaxRenderTargets; ++i)
 	{
@@ -270,7 +266,7 @@ VkPipelineColorBlendStateCreateInfo vkGraphicsPipeline::getColorBlendState(
 	return blendState;
 }
 
-void vkGraphicsPipeline::setupDescriptorSet(VkDevice device, const GfxPipelineState &state)
+void VulkanGraphicsPipeline::setupDescriptorSet(VkDevice device, const GfxPipelineState& state)
 {
 	//m_DescriptorSet = device.allocDescriptorSet(m_DescriptorSetLayout);
 
@@ -281,7 +277,7 @@ void vkGraphicsPipeline::setupDescriptorSet(VkDevice device, const GfxPipelineSt
 	//{
 	//	if (state.Shaders[i])
 	//	{
-	//		auto uniformBuffer = state.Shaders[i]->getUniformBuffer();
+	//		auto uniformBuffer = state.Shaders[i]->uniformBuffer();
 	//		if (uniformBuffer)
 	//		{
 	//			auto buffer = static_cast<VulkanBuffer *>(uniformBuffer);
@@ -350,7 +346,7 @@ void vkGraphicsPipeline::setupDescriptorSet(VkDevice device, const GfxPipelineSt
 	//vkUpdateDescriptorSets(device, (uint32_t)writeDescriptorSets.size(), writeDescriptorSets.data(), 0u, nullptr);
 }
 
-void vkPipelineCache::create(VkDevice device)
+void VulkanPipelineCache::create(VkDevice device)
 {
 	assert(!isValid());
 
@@ -364,4 +360,30 @@ void vkPipelineCache::create(VkDevice device)
 	};
 
 	GfxVerifyVk(vkCreatePipelineCache(device, &createInfo, vkMemoryAllocator, &Handle));
+}
+
+VulkanGraphicsPipelinePtr VulkanPipelinePool::getOrCreateGfxPipeline(VkRenderPass renderPass, const GfxPipelineState& state)
+{
+	for each (auto &it in m_GfxPipelines)
+	{
+		if (it.first == state)
+		{
+			return it.second;
+		}
+	}
+
+	auto gfxPipeline = std::make_shared<VulkanGraphicsPipeline>(m_Device, renderPass, m_PipelineCache.Handle, state);
+	m_GfxPipelines.emplace_back(std::make_pair(state, gfxPipeline));
+	return gfxPipeline;
+}
+
+void VulkanPipelinePool::cleanup()
+{
+	for each (auto &it in m_GfxPipelines)
+	{
+		it.second->destroy(m_Device);
+	}
+	m_GfxPipelines.clear();
+
+	m_PipelineCache.destroy(m_Device);
 }

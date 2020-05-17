@@ -1,20 +1,21 @@
 #pragma once
 
 #include "Colorful/Vulkan/VulkanBuffer.h"
+#include "Colorful/Vulkan/VulkanCommand.h"
 
 class VulkanQueue : public VulkanObject<VkQueue>
 {
 public:
 	VulkanQueue(VkDevice device, uint32_t queueFamilyIndex);
 
-	void submit(class VulkanCommandBuffer &cmdBuffer);
+	void submit(const VulkanCommandBufferPtr& cmdBuffer);
 
 	void present(
-		class VulkanCommandBuffer &cmdBuffer,
-		const class VulkanSwapchain &swapchain,
+		const VulkanCommandBufferPtr& cmdBuffer,
+		const class VulkanSwapchain& swapchain,
 		VkFence fence);
 
-	void queueCommandBuffer(class VulkanCommandBuffer *cmdBuffer);
+	void queueCommandBuffer(const VulkanCommandBufferPtr& cmdBuffer);
 	void submit(const class VulkanSwapchain &swapchain);
 
 	void queueSubmitCopyCommand(VkBuffer dstBuffer, const VulkanBuffer& stagingBuffer, const VkBufferCopy& copyInfo)
@@ -45,7 +46,7 @@ protected:
 private:
 	uint32_t m_FamilyIndex = std::numeric_limits<uint32_t>().max();
 	class VulkanSemaphore *m_RenderCompleteSemaphore = nullptr;
-	std::vector<class VulkanCommandBuffer *> m_QueuedCmdBuffers;
+	std::vector<VulkanCommandBufferPtr> m_QueuedCmdBuffers;
 	std::stack<VulkanCopyCommand> m_CopyQueue;
 };
 using VulkanQueuePtr = std::shared_ptr<VulkanQueue>;
@@ -69,8 +70,22 @@ public:
 		return m_TransferQueue;
 	}
 
+	inline VulkanCommandBufferPtr allocGfxCommandBuffer(VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY)
+	{
+		return m_GfxCmdBufferPool->alloc(level);
+	}
+
+	inline VulkanCommandBufferPtr allocTransferCommandBuffer(VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY)
+	{
+		return m_TransferCmdBufferPool->alloc(level);
+	}
+
 	void cleanup() override final
 	{
+		m_GfxCmdBufferPool->destroy();
+		m_ComputeCmdBufferPool->destroy();
+		m_TransferCmdBufferPool->destroy();
+
 		m_GfxQueue->Handle = VK_NULL_HANDLE;
 		m_ComputeQueue->Handle = VK_NULL_HANDLE;
 		m_TransferQueue->Handle = VK_NULL_HANDLE;
@@ -85,4 +100,8 @@ private:
 	VulkanQueuePtr m_GfxQueue = nullptr;
 	VulkanQueuePtr m_ComputeQueue = nullptr;
 	VulkanQueuePtr m_TransferQueue = nullptr;
+
+	VulkanCommandPoolPtr m_GfxCmdBufferPool = nullptr;
+	VulkanCommandPoolPtr m_ComputeCmdBufferPool = nullptr;
+	VulkanCommandPoolPtr m_TransferCmdBufferPool = nullptr;
 };

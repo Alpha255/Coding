@@ -177,13 +177,14 @@ void VulkanDevice::create(VkInstance instance)
 		VK_VERSION_MINOR(properties.apiVersion),
 		VK_VERSION_PATCH(properties.apiVersion));
 
-	VulkanAsyncPool::instance()->initialize(m_LogicalDevice.Handle);
-	VulkanQueueManager::instance()->initialize(
+	VulkanAsyncPool::initialize(m_LogicalDevice.Handle);
+	VulkanQueueManager::initialize(
 		m_LogicalDevice.Handle, 
 		graphicsQueueFamilyIndex, 
 		computeQueueFamilyIndex, 
 		transferQueueFamilyIndex);
-	VulkanBufferPool::instance()->initialize(m_LogicalDevice.Handle, m_PhysicalDevice.Handle);
+	VulkanBufferPool::initialize(m_LogicalDevice.Handle, m_PhysicalDevice.Handle);
+	VulkanPipelinePool::initialize(m_LogicalDevice.Handle);
 }
 
 void VulkanDevice::destroy()
@@ -193,6 +194,7 @@ void VulkanDevice::destroy()
 	VulkanAsyncPool::instance()->finalize();
 	VulkanQueueManager::instance()->finalize();
 	VulkanBufferPool::instance()->finalize();
+	VulkanPipelinePool::instance()->finalize();
 
 	vkDestroyDevice(m_LogicalDevice.Handle, vkMemoryAllocator);
 	m_LogicalDevice.Handle = VK_NULL_HANDLE;

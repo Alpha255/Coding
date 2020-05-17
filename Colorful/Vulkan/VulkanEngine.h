@@ -2,10 +2,6 @@
 
 #include "Colorful/Vulkan/VulkanInstance.h"
 #include "Colorful/Vulkan/VulkanDevice.h"
-#include "Colorful/Vulkan/VulkanRenderPass.h"
-#include "Colorful/Vulkan/VulkanSwapChain.h"
-#include "Colorful/Vulkan/VulkanQueue.h"
-#include "Colorful/Vulkan/VulkanEnum.h"
 
 class VulkanEngine : public GfxEngine
 {
@@ -54,6 +50,11 @@ public:
 		auto depthStencilView = std::make_shared<VulkanDepthStencilView>(m_Device.logicalDevice(), width, height, format);
 		m_ImageViewList.emplace_back(std::static_pointer_cast<VulkanImageView>(depthStencilView));
 		return std::static_pointer_cast<GfxRenderSurface>(depthStencilView);
+	}
+
+	GfxRenderSurfacePtr createRenderTargetView() override final
+	{
+		return nullptr;
 	}
 
 	GfxRenderPassPtr createRenderPass(GfxFrameBufferDesc& desc) override final

@@ -22,6 +22,9 @@ void VulkanEngine::initialize(uint64_t windowHandle, const Gear::Configurations&
 		m_Instance.Handle,
 		m_Device.physicalDevice(),
 		m_Device.logicalDevice());
+
+	//m_ImGuiRenderer = std::make_unique<ImGuiRenderer>();
+	//m_ImGuiRenderer->initialize(this);
 }
 
 void VulkanEngine::logError(uint32_t result)

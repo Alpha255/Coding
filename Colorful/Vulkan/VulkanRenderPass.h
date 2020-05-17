@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Colorful/Vulkan/VulkanBuffer.h"
-#include "Colorful/Vulkan/VulkanCommand.h"
+#include "Colorful/Vulkan/VulkanPipeline.h"
 
 /*******VkPipelineStageFlagBits*******
 	VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT specifies the stage of the pipeline where any commands are initially received by the queue.
@@ -99,22 +99,15 @@ class VulkanRenderPass : public VulkanDeviceObject<VkRenderPass>, public GfxRend
 public:
 	VulkanRenderPass(VkDevice device, const GfxFrameBufferDesc& desc);
 
-	void pendingGfxPipline(const GfxPipelineState&) override final;
-	void bindGfxPipeline(const GfxPipelineState&) override final;
+	void bindGfxPipeline(const GfxPipelineState& state) override final;
 
-	inline void bindFrameBuffers(const std::vector<VulkanFrameBuffer>& frameBuffers)
-	{
-		m_FrameBuffers = frameBuffers;
-	}
-
-	void drawIndexed(const GfxPipelineState& state, uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset) override final;
+	void drawIndexed(uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset) override final;
 
 	void destroy(VkDevice device) override final;
 protected:
-	void setDynamicGfxState(const GfxPipelineState& graphicsPipelineState);
+	void setDynamicGfxState();
 private:
 	std::vector<VulkanFrameBuffer> m_FrameBuffers;
-	class vkGraphicsPipeline* m_CurGfxPipeline = nullptr;
-	VulkanCommandBuffer m_CmdBuffer;
+	VulkanCommandBufferPtr m_CmdBuffer;
 };
 using VulkanRenderPassPtr = std::shared_ptr<VulkanRenderPass>;

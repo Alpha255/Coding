@@ -2,10 +2,6 @@
 
 #include "Colorful/Public/GfxResource.h"
 
-class GfxComputePipeline
-{
-};
-
 struct GfxViewport : public Vec4
 {
 	GfxViewport() = default;
@@ -31,19 +27,6 @@ struct GfxScissor : public Vec4
 	{
 	}
 };
-
-class GfxRenderPass
-{
-public:
-	virtual void pendingGfxPipline(const struct GfxPipelineState &) = 0;
-	virtual void bindGfxPipeline(const struct GfxPipelineState &) = 0;
-
-	virtual void drawIndexed(const struct GfxPipelineState &, uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset) = 0;
-protected:
-private:
-	std::string m_Description;
-};
-using GfxRenderPassPtr = std::shared_ptr<GfxRenderPass>;
 
 struct GfxRasterizerStateDesc
 {
@@ -246,3 +229,14 @@ struct GfxPipelineState
 	Vec4 RenderArea;
 	eRIndexType IndexType = eRIndexType::eUInt32;
 };
+
+class GfxRenderPass
+{
+public:
+	virtual void bindGfxPipeline(const GfxPipelineState &state) = 0;
+
+	virtual void drawIndexed(uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset) = 0;
+protected:
+private:
+};
+using GfxRenderPassPtr = std::shared_ptr<GfxRenderPass>;
