@@ -1,23 +1,20 @@
 #include "Colorful/Vulkan/VulkanEngine.h"
 
-void VulkanImage::transitionImageLayout()
-{
-	/// The old layout must match the current layout of the image subresource range, with one exception. 
-	/// The old layout can always be specified as VK_IMAGE_LAYOUT_UNDEFINED, though doing so invalidates the contents of the image subresource range.
+/// The old layout must match the current layout of the image subresource range, with one exception. 
+/// The old layout can always be specified as VK_IMAGE_LAYOUT_UNDEFINED, though doing so invalidates the contents of the image subresource range.
 
-	/// Setting the old layout to VK_IMAGE_LAYOUT_UNDEFINED implies that the contents of the image subresource need not be preserved. 
-	/// Implementations may use this information to avoid performing expensive data transition operations.
+/// Setting the old layout to VK_IMAGE_LAYOUT_UNDEFINED implies that the contents of the image subresource need not be preserved. 
+/// Implementations may use this information to avoid performing expensive data transition operations.
 
-	/// Applications must ensure that layout transitions happen-after all operations accessing the image with the old layout, 
-	/// and happen-before any operations that will access the image with the new layout. 
-	/// Layout transitions are potentially read/write operations, so not defining appropriate memory dependencies to guarantee this will result in a data race.
+/// Applications must ensure that layout transitions happen-after all operations accessing the image with the old layout, 
+/// and happen-before any operations that will access the image with the new layout. 
+/// Layout transitions are potentially read/write operations, so not defining appropriate memory dependencies to guarantee this will result in a data race.
 
-	/// The image layout is per-image subresource, and separate image subresources of the same image can be in different layouts at the same time with one exception - 
-	/// depth and stencil aspects of a given image subresource must always be in the same layout.
+/// The image layout is per-image subresource, and separate image subresources of the same image can be in different layouts at the same time with one exception - 
+/// depth and stencil aspects of a given image subresource must always be in the same layout.
 
-	/// When performing a layout transition on an image subresource, the old layout value must either equal the current layout of the image subresource (at the time the transition executes), or else be VK_IMAGE_LAYOUT_UNDEFINED (implying that the contents of the image subresource need not be preserved). 
-	/// The new layout used in a transition must not be VK_IMAGE_LAYOUT_UNDEFINED or VK_IMAGE_LAYOUT_PREINITIALIZED.
-}
+/// When performing a layout transition on an image subresource, the old layout value must either equal the current layout of the image subresource (at the time the transition executes), or else be VK_IMAGE_LAYOUT_UNDEFINED (implying that the contents of the image subresource need not be preserved). 
+/// The new layout used in a transition must not be VK_IMAGE_LAYOUT_UNDEFINED or VK_IMAGE_LAYOUT_PREINITIALIZED.
 
 void VulkanImage::queueCopyCommand(VkDevice device, const AssetTool::TextureBinary& binary)
 {
@@ -67,7 +64,7 @@ void VulkanImage::queueCopyCommand(VkDevice device, const AssetTool::TextureBina
 			device, 
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
 			binary.Size, 
-			binary.Binary.get()
+			binary.Binary ? binary.Binary : binary.SharedBinary.get()
 		);
 
 		VkImageSubresourceRange subresourceRange
@@ -79,17 +76,13 @@ void VulkanImage::queueCopyCommand(VkDevice device, const AssetTool::TextureBina
 			binary.ArrayLayers
 		};
 
-		VkImageMemoryBarrier srcBarrier{};
-		VkImageMemoryBarrier dstBarrier{};
-
 		VulkanQueueManager::instance()->transferQueue()->queueSubmitImageCopyCommand(
 			stagingBuffer,
-			srcBarrier,
-			dstBarrier,
+			Handle,
+			eUndefined,
+			eFragmentShaderRead,
 			subresourceRange,
-			bufferImageCopy,
-			binary.Binary
-		);
+			bufferImageCopy);
 	}
 	else
 	{
@@ -97,42 +90,70 @@ void VulkanImage::queueCopyCommand(VkDevice device, const AssetTool::TextureBina
 	}
 }
 
-void VulkanImage::insertMemoryBarrier(
-	const VulkanCommandBuffer &commandBuffer, 
-	VkPipelineStageFlags srcStageMask, 
-	VkPipelineStageFlags dstStageMask, 
-	VkAccessFlags srcAccessFlags,
-	VkAccessFlags dstAccessFlags,
-	VkImageLayout oldLayout,
-	VkImageLayout newLayout,
-	const VkImageSubresourceRange &subresourceRange)
+/// Steal from UE4
+void VulkanImage::makeMemoryBarrierFlags(
+	eImageLayout layout, 
+	VkPipelineStageFlags& stageFlags, 
+	VkAccessFlags& accessFlags, 
+	VkImageLayout& imageLayout)
 {
-	/// When inserting a VkBufferMemoryBarrier or VkImageMemoryBarrier (see Pipeline Barriers), 
-	/// a source and destination queue family index is specified to allow the ownership of a buffer or image to be transferred from one queue family to another. 
-	VkImageMemoryBarrier imageMemoryBarrier
+	stageFlags = (VkPipelineStageFlags)0;
+
+	switch (layout)
 	{
-		VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-		nullptr,
-		srcAccessFlags,
-		dstAccessFlags,
-		oldLayout,
-		newLayout,
-		VK_QUEUE_FAMILY_IGNORED,
-		VK_QUEUE_FAMILY_IGNORED,
-		Handle,
-		subresourceRange
-	};
-	vkCmdPipelineBarrier(
-		commandBuffer.Handle,
-		srcStageMask,
-		dstStageMask,
-		0u,
-		0u,
-		nullptr,
-		0u,
-		nullptr,
-		1u,
-		&imageMemoryBarrier);
+	case eUndefined:
+		accessFlags = 0;
+		stageFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+		imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		break;
+	case eTransferDst:
+		accessFlags = VK_ACCESS_TRANSFER_WRITE_BIT;
+		stageFlags = VK_PIPELINE_STAGE_TRANSFER_BIT;
+		imageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+		break;
+	case eColorAttachment:
+		accessFlags = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		stageFlags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		break;
+	case eDepthStencilAttachment:
+		accessFlags = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+		stageFlags = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+		imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		break;
+	case eTransferSrc:
+		accessFlags = VK_ACCESS_TRANSFER_READ_BIT;
+		stageFlags = VK_PIPELINE_STAGE_TRANSFER_BIT;
+		imageLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+		break;
+	case ePresent:
+		accessFlags = 0;
+		stageFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+		imageLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+		break;
+	case eFragmentShaderRead:
+		accessFlags = VK_ACCESS_SHADER_READ_BIT;
+		stageFlags = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+		imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		break;
+	case ePixelDepthStencilRead:
+		accessFlags = VK_ACCESS_SHADER_READ_BIT;
+		stageFlags = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+		imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+		break;
+	case eComputeShaderReadWrite:
+		accessFlags = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
+		stageFlags = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+		imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+		break;
+	case eFragmentShaderReadWrite:
+		accessFlags = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
+		stageFlags = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+		imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+		break;
+	default:
+		assert(0);
+	}
 }
 
 VulkanImage::VulkanImage(VkDevice device, const AssetTool::TextureBinary& binary)

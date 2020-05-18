@@ -33,7 +33,8 @@ struct TextureBinary
 
 	size_t Size = 0ull;
 
-	std::shared_ptr<byte8_t> Binary = nullptr;
+	std::shared_ptr<byte8_t> SharedBinary = nullptr;
+	const void* Binary = nullptr;
 
 	std::vector<std::vector<Image>> Images;
 };

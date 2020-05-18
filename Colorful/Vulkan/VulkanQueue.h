@@ -31,20 +31,20 @@ public:
 
 	void queueSubmitImageCopyCommand(
 		const VulkanBuffer& stagingBuffer,
-		const VkImageMemoryBarrier& srcBarrier,
-		const VkImageMemoryBarrier& dstBarrier,
+		VkImage image,
+		VulkanImage::eImageLayout srcLayout,
+		VulkanImage::eImageLayout dstLayout,
 		const VkImageSubresourceRange& subresourceRange,
-		const std::vector<VkBufferImageCopy>& imageCopies,
-		const std::shared_ptr<byte8_t>& data)
+		const std::vector<VkBufferImageCopy>& imageCopies)
 	{
 		VulkanImageCopyCommand copyCmd
 		{
 			stagingBuffer,
-			srcBarrier,
-			dstBarrier,
+			image,
+			srcLayout,
+			dstLayout,
 			subresourceRange,
-			imageCopies,
-			data
+			imageCopies
 		};
 		m_ImageCopyQueue.push(std::move(copyCmd));
 	}
@@ -62,11 +62,11 @@ protected:
 	struct VulkanImageCopyCommand
 	{
 		VulkanBuffer StagingBuffer;
-		VkImageMemoryBarrier SrcBarrier{};
-		VkImageMemoryBarrier DstBarrier{};
+		VkImage Image = VK_NULL_HANDLE;
+		VulkanImage::eImageLayout SrcLayout = VulkanImage::eImageLayout_MaxEnum;
+		VulkanImage::eImageLayout DstLayout = VulkanImage::eImageLayout_MaxEnum;
 		VkImageSubresourceRange SubresourceRange{};
 		std::vector<VkBufferImageCopy> ImageCopies;
-		std::shared_ptr<byte8_t> Binary;
 	};
 private:
 	uint32_t m_FamilyIndex = std::numeric_limits<uint32_t>().max();

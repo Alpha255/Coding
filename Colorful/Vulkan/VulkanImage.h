@@ -16,6 +16,27 @@ using VulkanSamplerPtr = std::shared_ptr<VulkanSampler>;
 class VulkanImage : public VulkanDeviceObject<VkImage>
 {
 public:
+	enum eImageLayout
+	{
+		eUndefined,
+		eTransferDst,
+		eColorAttachment,
+		eDepthStencilAttachment,
+		eTransferSrc,
+		ePresent,
+		eFragmentShaderRead,
+		ePixelDepthStencilRead,
+		eComputeShaderReadWrite,
+		eFragmentShaderReadWrite,
+		eImageLayout_MaxEnum
+	};
+
+	static void makeMemoryBarrierFlags(
+		eImageLayout layout, 
+		__out VkPipelineStageFlags& stageFlags, 
+		__out VkAccessFlags& accessFlags, 
+		__out VkImageLayout& imageLayout);
+
 	VulkanImage(VkImage handle, VkFormat format)
 		: m_Format(format)
 	{
@@ -76,17 +97,7 @@ protected:
 	{
 	}
 
-	void transitionImageLayout();
 	void queueCopyCommand(VkDevice device, const AssetTool::TextureBinary& binary);
-	void insertMemoryBarrier(
-		const class VulkanCommandBuffer &commandBuffer, 
-		VkPipelineStageFlags srcStageMask,
-		VkPipelineStageFlags dstStageMask,
-		VkAccessFlags srcAccessFlags,
-		VkAccessFlags dstAccessFlags,
-		VkImageLayout oldLayout,
-		VkImageLayout newLayout,
-		const VkImageSubresourceRange &subresourceRange);
 private:
 	VulkanDeviceMemory m_Memory;
 

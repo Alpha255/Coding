@@ -23,8 +23,8 @@ AssetTool::TextureBinary AssetDatabase::tryToGetTextureBinary(Configurations::eR
 	binary.ArrayLayers = (uint32_t)tex.layers();
 	binary.Format = (uint32_t)(static_cast<VkFormat>(tex.format()));
 	binary.Images.resize(binary.ArrayLayers);
-	binary.Binary.reset(new byte[binary.Size]());
-	verify(memcpy_s(binary.Binary.get(), binary.Size, tex.data(), binary.Size) == 0);
+	binary.SharedBinary.reset(new byte[binary.Size]());
+	verify(memcpy_s(binary.SharedBinary.get(), binary.Size, tex.data(), binary.Size) == 0);
 
 	switch (tex.target())
 	{
