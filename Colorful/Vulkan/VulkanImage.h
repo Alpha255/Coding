@@ -77,7 +77,7 @@ protected:
 	}
 
 	void transitionImageLayout();
-	void copyBufferToImage(VkDevice device, const AssetTool::TextureBinary& binary);
+	void queueCopyCommand(VkDevice device, const AssetTool::TextureBinary& binary);
 	void insertMemoryBarrier(
 		const class VulkanCommandBuffer &commandBuffer, 
 		VkPipelineStageFlags srcStageMask,

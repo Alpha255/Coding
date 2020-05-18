@@ -99,7 +99,8 @@ VulkanImageView::VulkanImageView(
 		arrayLayers,
 		dataSize
 	};
-	texBinary.Binary = static_cast<const byte8_t*>(data);
+	texBinary.Binary.reset(new byte8_t[dataSize]());
+	verify(memcpy_s(texBinary.Binary.get(), dataSize, data, dataSize) == 0);
 	texBinary.Images.resize(1u);
 	uint32_t mipWidth = width;
 	uint32_t mipHeight = height;

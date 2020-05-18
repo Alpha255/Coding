@@ -18,7 +18,7 @@ public:
 	void queueCommandBuffer(const VulkanCommandBufferPtr& cmdBuffer);
 	void submit(const class VulkanSwapchain &swapchain);
 
-	void queueSubmitCopyCommand(VkBuffer dstBuffer, const VulkanBuffer& stagingBuffer, const VkBufferCopy& copyInfo)
+	void queueSubmitBufferCopyCommand(VkBuffer dstBuffer, const VulkanBuffer& stagingBuffer, const VkBufferCopy& copyInfo)
 	{
 		VulkanCopyCommand copyCommand
 		{
@@ -29,9 +29,24 @@ public:
 		m_CopyQueue.push(std::move(copyCommand));
 	}
 
-	void queueSubmitImageLayoutTransfer()
+	void queueSubmitImageCopyCommand(
+		const VulkanBuffer& stagingBuffer,
+		const VkImageMemoryBarrier& srcBarrier,
+		const VkImageMemoryBarrier& dstBarrier,
+		const VkImageSubresourceRange& subresourceRange,
+		const std::vector<VkBufferImageCopy>& imageCopies,
+		const std::shared_ptr<byte8_t>& data)
 	{
-
+		VulkanImageCopyCommand copyCmd
+		{
+			stagingBuffer,
+			srcBarrier,
+			dstBarrier,
+			subresourceRange,
+			imageCopies,
+			data
+		};
+		m_ImageCopyQueue.push(std::move(copyCmd));
 	}
 
 	void waitIdle();
@@ -43,11 +58,22 @@ protected:
 		VulkanBuffer StagingBuffer;
 		VkBufferCopy CopyInfo{};
 	};
+
+	struct VulkanImageCopyCommand
+	{
+		VulkanBuffer StagingBuffer;
+		VkImageMemoryBarrier SrcBarrier{};
+		VkImageMemoryBarrier DstBarrier{};
+		VkImageSubresourceRange SubresourceRange{};
+		std::vector<VkBufferImageCopy> ImageCopies;
+		std::shared_ptr<byte8_t> Binary;
+	};
 private:
 	uint32_t m_FamilyIndex = std::numeric_limits<uint32_t>().max();
 	class VulkanSemaphore *m_RenderCompleteSemaphore = nullptr;
 	std::vector<VulkanCommandBufferPtr> m_QueuedCmdBuffers;
 	std::stack<VulkanCopyCommand> m_CopyQueue;
+	std::stack<VulkanImageCopyCommand> m_ImageCopyQueue;
 };
 using VulkanQueuePtr = std::shared_ptr<VulkanQueue>;
 

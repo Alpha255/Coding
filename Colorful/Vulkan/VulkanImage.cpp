@@ -19,7 +19,7 @@ void VulkanImage::transitionImageLayout()
 	/// The new layout used in a transition must not be VK_IMAGE_LAYOUT_UNDEFINED or VK_IMAGE_LAYOUT_PREINITIALIZED.
 }
 
-void VulkanImage::copyBufferToImage(VkDevice device, const AssetTool::TextureBinary& binary)
+void VulkanImage::queueCopyCommand(VkDevice device, const AssetTool::TextureBinary& binary)
 {
 	bool8_t useStaging = true;
 	//VkFormatProperties formatProperties = VulkanEngine::instance().getFormatProperties(m_Format);
@@ -63,58 +63,33 @@ void VulkanImage::copyBufferToImage(VkDevice device, const AssetTool::TextureBin
 			}
 		}
 
-		//VulkanBuffer stagingBuffer(
-		//	device, 
-		//	VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
-		//	binary.Size, 
-		//	binary.Binary ? binary.Binary : binary.SharedBinary.get()
-		//);
-		//VulkanCommandBuffer commandBuffer = device.allocCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, false);
-		//commandBuffer.begin();
+		VulkanBuffer stagingBuffer(
+			device, 
+			VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
+			binary.Size, 
+			binary.Binary.get()
+		);
 
-		//VkImageSubresourceRange subresourceRange
-		//{
-		//	VK_IMAGE_ASPECT_COLOR_BIT,
-		//	0u,
-		//	binary.MipLevels,
-		//	0u,
-		//	binary.ArrayLayers
-		//};
-		//insertMemoryBarrier(
-		//	commandBuffer,
-		//	VK_PIPELINE_STAGE_HOST_BIT,
-		//	VK_PIPELINE_STAGE_TRANSFER_BIT,
-		//	0u,
-		//	VK_ACCESS_TRANSFER_WRITE_BIT,
-		//	VK_IMAGE_LAYOUT_UNDEFINED,
-		//	VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-		//	subresourceRange);
+		VkImageSubresourceRange subresourceRange
+		{
+			VK_IMAGE_ASPECT_COLOR_BIT,
+			0u,
+			binary.MipLevels,
+			0u,
+			binary.ArrayLayers
+		};
 
-		//vkCmdCopyBufferToImage(
-		//	commandBuffer.Handle,
-		//	stagingBuffer.Handle,
-		//	Handle,
-		//	VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-		//	(uint32_t)bufferImageCopy.size(),
-		//	bufferImageCopy.data());
+		VkImageMemoryBarrier srcBarrier{};
+		VkImageMemoryBarrier dstBarrier{};
 
-		//insertMemoryBarrier(
-		//	commandBuffer,
-		//	VK_PIPELINE_STAGE_TRANSFER_BIT,
-		//	VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,  //// ???
-		//	VK_ACCESS_TRANSFER_WRITE_BIT,
-		//	VK_ACCESS_SHADER_READ_BIT,
-		//	VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-		//	VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-		//	subresourceRange);
-
-		//commandBuffer.end();
-		//
-		//VulkanQueueManager::instance()->transferQueue()->submit(commandBuffer);
-
-		//device.freeCommandBuffer(commandBuffer);
-
-		//stagingBuffer.destroy(device);
+		VulkanQueueManager::instance()->transferQueue()->queueSubmitImageCopyCommand(
+			stagingBuffer,
+			srcBarrier,
+			dstBarrier,
+			subresourceRange,
+			bufferImageCopy,
+			binary.Binary
+		);
 	}
 	else
 	{
@@ -203,7 +178,7 @@ VulkanImage::VulkanImage(VkDevice device, const AssetTool::TextureBinary& binary
 	m_Memory.create(device, eGpuReadOnly, memoryRequirements);
 	GfxVerifyVk(vkBindImageMemory(device, Handle, m_Memory.Handle, 0u));
 
-	copyBufferToImage(device, binary);
+	queueCopyCommand(device, binary);
 }
 
 VulkanImage::VulkanImage(

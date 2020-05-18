@@ -129,7 +129,7 @@ VulkanBuffer::VulkanBuffer(VkDevice device, eRBufferBindFlags bindFlags, eRBuffe
 			size
 		};
 
-		VulkanQueueManager::instance()->transferQueue()->queueSubmitCopyCommand(Handle, stagingBuffer, bufferCopy);
+		VulkanQueueManager::instance()->transferQueue()->queueSubmitBufferCopyCommand(Handle, stagingBuffer, bufferCopy);
 	}
 	else
 	{
