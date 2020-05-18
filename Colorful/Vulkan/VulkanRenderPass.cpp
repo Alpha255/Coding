@@ -47,7 +47,7 @@ VulkanRenderPass::VulkanRenderPass(VkDevice device, const GfxFrameBufferDesc& de
 			VkAttachmentDescription attachmentDesc
 			{
 				0u,
-				imageView->getFormat(),
+				imageView->format(),
 				VK_SAMPLE_COUNT_1_BIT,
 				VK_ATTACHMENT_LOAD_OP_CLEAR,
 				VK_ATTACHMENT_STORE_OP_STORE,
@@ -82,7 +82,7 @@ VulkanRenderPass::VulkanRenderPass(VkDevice device, const GfxFrameBufferDesc& de
 		VkAttachmentDescription attachmentDesc
 		{
 			0u,
-			depthImageView->getFormat(),
+			depthImageView->format(),
 			VK_SAMPLE_COUNT_1_BIT,
 			VK_ATTACHMENT_LOAD_OP_CLEAR,
 			VK_ATTACHMENT_STORE_OP_DONT_CARE,

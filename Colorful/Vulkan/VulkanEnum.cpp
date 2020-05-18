@@ -377,3 +377,57 @@ VkBorderColor VulkanEnum::toBorderColor(eRBorderColor borderColor)
 
 	return VK_BORDER_COLOR_MAX_ENUM;
 }
+
+VkImageType VulkanEnum::toImageType(eRTextureType type)
+{
+	VkImageType imageType = VK_IMAGE_TYPE_MAX_ENUM;
+	switch (type)
+	{
+	case eTexture1D:
+	case eTexture1DArray:
+		imageType = VK_IMAGE_TYPE_1D;
+		break;
+	case eTexture2D:
+	case eTexture2DArray:
+	case eTextureCube:
+	case eTextureCubeArray:
+		imageType = VK_IMAGE_TYPE_2D;
+		break;
+	case eTexture3D:
+		imageType = VK_IMAGE_TYPE_3D;
+		break;
+	}
+
+	return imageType;
+}
+
+VkImageViewType VulkanEnum::toImageViewType(eRTextureType type)
+{
+	VkImageViewType imageViewType = VK_IMAGE_VIEW_TYPE_MAX_ENUM;
+	switch (type)
+	{
+	case eTexture1D:
+		imageViewType = VK_IMAGE_VIEW_TYPE_1D;
+		break;
+	case eTexture1DArray:
+		imageViewType = VK_IMAGE_VIEW_TYPE_1D_ARRAY;
+		break;
+	case eTexture2D:
+		imageViewType = VK_IMAGE_VIEW_TYPE_2D;
+		break;
+	case eTexture2DArray:
+		imageViewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+		break;
+	case eTextureCube:
+		imageViewType = VK_IMAGE_VIEW_TYPE_CUBE;
+		break;
+	case eTextureCubeArray:
+		imageViewType = VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
+		break;
+	case eTexture3D:
+		imageViewType = VK_IMAGE_VIEW_TYPE_3D;
+		break;
+	}
+
+	return imageViewType;
+}

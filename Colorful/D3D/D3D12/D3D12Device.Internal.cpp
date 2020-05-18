@@ -1,6 +1,6 @@
 #include "D3D12Device.h"
 
-GfxShader *d3d12Device::createShader(eRShaderUsage usage, const std::string &shaderName)
+GfxShader *d3d12Device::createShader(eRShaderUsage, const std::string &)
 {
 	return nullptr;
 }

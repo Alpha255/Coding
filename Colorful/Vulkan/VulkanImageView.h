@@ -6,20 +6,15 @@
 class VulkanImageView : public VulkanDeviceObject<VkImageView>, public GfxRenderSurface, public GfxTexture
 {
 public:
-	VulkanImageView() = default;
-	VulkanImageView(VkDevice device, const std::string& texName)
-	{
-	}
-	void create(
-		VkDevice device, 
-		VulkanImagePtr& image,
-		VkFormat format,
-		VkImageAspectFlags aspectFlags);
+	VulkanImageView(VkDevice device, const std::string& texName);
+
+	VulkanImageView(VkDevice device, const VulkanImagePtr& image, VkImageViewType type, VkImageAspectFlags aspectFlags);
 
 	VulkanImageView(
 		VkDevice device,
 		uint32_t width,
 		uint32_t height,
+		uint32_t depth,
 		uint32_t mipLevels,
 		uint32_t arrayLayers,
 		VkImageViewType type,
@@ -39,14 +34,24 @@ public:
 		const void* data,
 		size_t dataSize);
 
-	void destroy(VkDevice device) override final;
-
-	inline VkFormat getFormat() const
+	void destroy(VkDevice device) override final
 	{
-		return m_Format;
+		if (isValid())
+		{
+			m_Image->destroy(device);
+			
+			vkDestroyImageView(device, Handle, vkMemoryAllocator);
+			Handle = VK_NULL_HANDLE;
+		}
+	}
+
+	inline VkFormat format() const
+	{
+		assert(m_Image);
+		return m_Image->format();
 	}
 protected:
-	inline VkImageType getImageType(VkImageViewType type)
+	inline VkImageType imageType(VkImageViewType type)
 	{
 		switch (type)
 		{
@@ -67,7 +72,6 @@ protected:
 	}
 private:
 	VulkanImagePtr m_Image = nullptr;
-	VkFormat m_Format = VK_FORMAT_UNDEFINED;
 };
 using VulkanImageViewPtr = std::shared_ptr<VulkanImageView>;
 
@@ -82,6 +86,7 @@ public:
 		: VulkanImageView(device,
 			width,
 			height,
+			1u,
 			1u,
 			1u,
 			VK_IMAGE_VIEW_TYPE_2D,
@@ -104,6 +109,7 @@ public:
 			device,
 			width,
 			height,
+			1u,
 			1u,
 			1u,
 			VK_IMAGE_VIEW_TYPE_2D,

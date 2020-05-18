@@ -44,43 +44,43 @@ public:
 		return nullptr;
 	}
 
-	GfxGpuBufferPtr createIndexBuffer(eRBufferUsage usage, size_t size, const void* data) override final
+	GfxGpuBufferPtr createIndexBuffer(eRBufferUsage, size_t, const void*) override final
 	{
 		return nullptr;
 	}
-	GfxGpuBufferPtr createVertexBuffer(eRBufferUsage usage, size_t size, const void* data) override final
+	GfxGpuBufferPtr createVertexBuffer(eRBufferUsage, size_t, const void*) override final
 	{
 		return nullptr;
 	}
-	GfxGpuBufferPtr createUniformBuffer(size_t size, const void* data) override final
+	GfxGpuBufferPtr createUniformBuffer(size_t, const void*) override final
 	{
 		return nullptr;
 	}
 
-	GfxTexturePtr createTexture(const std::string& fileName) override final
+	GfxTexturePtr createTexture(const std::string&) override final
 	{
 		return nullptr;
 	}
 	GfxTexturePtr createTexture(
-		eRTextureType type,
-		eRFormat format,
-		uint32_t width,
-		uint32_t height,
-		uint32_t depth,
-		uint32_t mipLevels,
-		uint32_t arrayLayers,
-		const void* data,
-		size_t dataSize) override final
+		eRTextureType,
+		eRFormat,
+		uint32_t,
+		uint32_t,
+		uint32_t,
+		uint32_t,
+		uint32_t,
+		const void*,
+		size_t) override final
 	{
 		return nullptr;
 	}
 
-	GfxSamplerPtr createSampler(const GfxSamplerDesc& desc) override final
+	GfxSamplerPtr createSampler(const GfxSamplerDesc&) override final
 	{
 		return nullptr;
 	}
 
-	GfxRenderSurfacePtr createDepthStencilView(uint32_t width, uint32_t height, eRFormat format) override final
+	GfxRenderSurfacePtr createDepthStencilView(uint32_t, uint32_t, eRFormat) override final
 	{
 		return nullptr;
 	}
@@ -89,7 +89,7 @@ public:
 		return nullptr;
 	}
 
-	GfxRenderPassPtr createRenderPass(GfxFrameBufferDesc& desc) override final
+	GfxRenderPassPtr createRenderPass(GfxFrameBufferDesc&) override final
 	{
 		return nullptr;
 	}

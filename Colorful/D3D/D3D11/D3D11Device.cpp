@@ -87,28 +87,28 @@ void D3D11Device::create(__out D3D11Context& IMContext, const DXGIFactory7& fact
 	};
 
 	adapterIndex = std::numeric_limits<uint32_t>().max();
-	CreateResult result{};
+	CreateResult createResult{};
 	for (uint32_t i = 0u; i < adapters.size(); ++i)
 	{
 		CreateResult tempResult = tryToCreateDevice();
-		if (SUCCEEDED(tempResult.Result) && tempResult.FeatureLevel > result.FeatureLevel)
+		if (SUCCEEDED(tempResult.Result) && tempResult.FeatureLevel > createResult.FeatureLevel)
 		{
-			result = tempResult;
+			createResult = tempResult;
 			adapterIndex = i;
 		}
 	}
 	assert(adapterIndex != std::numeric_limits<uint32_t>().max());
 
-	result = tryToCreateDevice();
-	if (FAILED(result.Result))
+	createResult = tryToCreateDevice();
+	if (FAILED(createResult.Result))
 	{
 		Logger::instance().log(Logger::eError, "Failed to create d3d11 device.");
-		D3D11Engine::instance().logError((uint32_t)result.Result);
+		D3D11Engine::instance().logError((uint32_t)createResult.Result);
 		assert(0);
 	}
 
-	reset(result.Device);
-	IMContext.reset(result.IMContext);
+	reset(createResult.Device);
+	IMContext.reset(createResult.IMContext);
 	m_DXGIAdapter = adapters[adapterIndex];
 
 	DXGI_ADAPTER_DESC3 adapterDesc{};

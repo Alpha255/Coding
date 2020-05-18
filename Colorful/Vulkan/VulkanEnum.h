@@ -21,4 +21,6 @@ public:
 	static VkFilter toFilter(eRFilter filter);
 	static VkSamplerAddressMode toAddressMode(eRSamplerAddressMode addressMode);
 	static VkBorderColor toBorderColor(eRBorderColor borderColor);
+	static VkImageType toImageType(eRTextureType type);
+	static VkImageViewType toImageViewType(eRTextureType type);
 };

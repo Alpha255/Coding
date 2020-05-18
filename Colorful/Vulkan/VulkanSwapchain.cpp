@@ -238,10 +238,8 @@ void VulkanSwapchain::recreate()
 	GfxVerifyVk(vkGetSwapchainImagesKHR(m_LogicDevice, Handle, &imageCount, images.data()));
 	for (uint32_t i = 0u; i < images.size(); ++i)
 	{
-		//VulkanImage image;
-		//image.Handle = images[i];
-
-		//m_BackBuffers[i].create(m_LogicDevice, image, m_Surface.SurfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT);
+		auto image = std::make_shared<VulkanImage>(images[i], m_Surface.SurfaceFormat.format);
+		m_BackBuffers[i] = std::make_shared<VulkanImageView>(m_LogicDevice, image, VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_COLOR_BIT);
 	}
 }
 
@@ -284,7 +282,7 @@ void VulkanSwapchain::clearBackBuffers()
 {
 	for (uint32_t i = 0u; i < m_BackBuffers.size(); ++i)
 	{
-		m_BackBuffers[i].destroy(m_LogicDevice);
+		m_BackBuffers[i]->destroy(m_LogicDevice);
 	}
 	m_BackBuffers.clear();
 }

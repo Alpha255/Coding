@@ -1,6 +1,6 @@
 #include "D3D11Device.h"
 
-GfxShader *D3D11Device::createShader(eRShaderUsage usage, const std::string &shaderName)
+GfxShader *D3D11Device::createShader(eRShaderUsage, const std::string &)
 {
 	return nullptr;
 }

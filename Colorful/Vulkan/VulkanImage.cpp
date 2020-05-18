@@ -19,31 +19,7 @@ void VulkanImage::transitionImageLayout()
 	/// The new layout used in a transition must not be VK_IMAGE_LAYOUT_UNDEFINED or VK_IMAGE_LAYOUT_PREINITIALIZED.
 }
 
-VkImageType VulkanImage::getImageType(eRTextureType type) const
-{
-	VkImageType imageType = VK_IMAGE_TYPE_MAX_ENUM;
-	switch (type)
-	{
-	case eTexture1D:
-	case eTexture1DArray:
-		imageType = VK_IMAGE_TYPE_1D;
-		break;
-	case eTexture2D:
-	case eTexture2DArray:
-	case eTextureCube:
-	case eTextureCubeArray:
-		imageType = VK_IMAGE_TYPE_2D;
-		break;
-	case eTexture3D:
-		imageType = VK_IMAGE_TYPE_3D;
-		break;
-	}
-
-	assert(imageType != VK_IMAGE_TYPE_MAX_ENUM);
-	return imageType;
-}
-
-void VulkanImage::copyBufferToImage(VkDevice device, const AssetTool::TextureBinary &binary)
+void VulkanImage::copyBufferToImage(VkDevice device, const AssetTool::TextureBinary& binary)
 {
 	bool8_t useStaging = true;
 	//VkFormatProperties formatProperties = VulkanEngine::instance().getFormatProperties(m_Format);
@@ -188,20 +164,29 @@ VulkanImage::VulkanImage(VkDevice device, const AssetTool::TextureBinary& binary
 {
 	assert(!isValid() && binary.Size > 0u);
 
+	VulkanImage::VulkanImage(
+		binary.Width,
+		binary.Height,
+		binary.Depth,
+		binary.MipLevels,
+		binary.ArrayLayers,
+		VulkanEnum::toImageType(binary.Type),
+		(VkFormat)binary.Format);
+
 	VkImageCreateInfo createInfo
 	{
 		VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
 		nullptr,
 		0u,   /// flags is a bitmask of VkImageCreateFlagBits describing additional parameters of the image.
-		getImageType(binary.Type),
-		(VkFormat)binary.Format,
+		m_Type,
+		m_Format,
 		{
-			binary.Width,
-			binary.Height,
-			binary.Depth
+			m_Width,
+			m_Height,
+			m_Depth
 		},
-		binary.MipLevels,
-		binary.ArrayLayers,
+		m_MipLevels,
+		m_ArrayLayers,
 		VK_SAMPLE_COUNT_1_BIT,
 		VK_IMAGE_TILING_OPTIMAL,
 		VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
@@ -210,7 +195,6 @@ VulkanImage::VulkanImage(VkDevice device, const AssetTool::TextureBinary& binary
 		nullptr,
 		VK_IMAGE_LAYOUT_UNDEFINED
 	};
-	m_Format = createInfo.format;
 
 	GfxVerifyVk(vkCreateImage(device, &createInfo, vkMemoryAllocator, &Handle));
 
@@ -232,25 +216,24 @@ VulkanImage::VulkanImage(
 	VkFormat format, 
 	VkImageType type, 
 	VkImageUsageFlags usage)
+	: VulkanImage(width, height, depth, mipLevels, arrayLayers, type, format)
 {
 	assert(!isValid());
-
-	m_Format = format;
 
 	VkImageCreateInfo createInfo
 	{
 		VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
 		nullptr,
 		0u,
-		type,
-		format,
+		m_Type,
+		m_Format,
 		{
-			width,
-			height,
-			depth
+			m_Width,
+			m_Height,
+			m_Depth
 		},
-		mipLevels,
-		arrayLayers,
+		m_MipLevels,
+		m_ArrayLayers,
 		VK_SAMPLE_COUNT_1_BIT,
 		VK_IMAGE_TILING_OPTIMAL,
 		usage,

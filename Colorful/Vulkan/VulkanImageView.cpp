@@ -1,22 +1,19 @@
 #include "Colorful/Vulkan/VulkanEngine.h"
-#include "AssetTool/Asset.h"
+#include "AssetTool/AssetDatabase.h"
 
-void VulkanImageView::create(
-	VkDevice device, 
-	VulkanImagePtr& image,
-	VkFormat format,
-	VkImageAspectFlags aspectFlags)
+VulkanImageView::VulkanImageView(VkDevice device, const VulkanImagePtr& image, VkImageViewType type, VkImageAspectFlags aspectFlags)
 {
 	assert(image && image->isValid() && !isValid());
+	m_Image = image;
 
 	VkImageViewCreateInfo createInfo
 	{
 		VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
 		nullptr,
 		0u,
-		image->Handle,
-		VK_IMAGE_VIEW_TYPE_2D,
-		format,
+		m_Image->Handle,
+		type,
+		m_Image->format(),
 		{
 			VK_COMPONENT_SWIZZLE_R,
 			VK_COMPONENT_SWIZZLE_G,
@@ -26,21 +23,35 @@ void VulkanImageView::create(
 		{
 			aspectFlags,
 			0u,
-			1u,
+			m_Image->mipLevels(),
 			0u,
-			1u
+			m_Image->arrayLayers()
 		}
 	};
 
 	GfxVerifyVk(vkCreateImageView(device, &createInfo, vkMemoryAllocator, &Handle));
-	m_Image = image;
-	m_Format = format;
+}
+
+VulkanImageView::VulkanImageView(VkDevice device, const std::string& texName)
+{
+	assert(!isValid());
+
+	auto texBinary = AssetTool::AssetDatabase::instance().tryToGetTextureBinary(Configurations::eVulkan, texName);
+	assert(texBinary.Size > 0u);
+
+	auto image = std::make_shared<VulkanImage>(device, texBinary);
+	VulkanImageView::VulkanImageView(
+		device, 
+		image,
+		VulkanEnum::toImageViewType(texBinary.Type),
+		VK_IMAGE_ASPECT_COLOR_BIT);
 }
 
 VulkanImageView::VulkanImageView(
 	VkDevice device, 
 	uint32_t width, 
 	uint32_t height, 
+	uint32_t depth,
 	uint32_t mipLevels,
 	uint32_t arrayLayers,
 	VkImageViewType type,
@@ -48,44 +59,19 @@ VulkanImageView::VulkanImageView(
 	VkImageUsageFlags usage,
 	VkImageAspectFlags aspect)
 {
-	assert(!isValid() && !m_Image->isValid());
+	assert(!isValid());
 
-	m_Image = std::make_shared<VulkanImage>(
+	auto image = std::make_shared<VulkanImage>(
 		device,
 		width,
 		height,
-		1u,
+		depth,
 		mipLevels,
 		arrayLayers,
 		format,
-		getImageType(type),
+		imageType(type),
 		usage);
-
-	VkImageViewCreateInfo createInfo
-	{
-		VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-		nullptr,
-		0u,
-		m_Image->Handle,
-		type,
-		format,
-		{
-			VK_COMPONENT_SWIZZLE_R,
-			VK_COMPONENT_SWIZZLE_G,
-			VK_COMPONENT_SWIZZLE_B,
-			VK_COMPONENT_SWIZZLE_A
-		},
-		{
-			aspect,
-			0u,
-			mipLevels,
-			0u,
-			arrayLayers
-		}
-	};
-	GfxVerifyVk(vkCreateImageView(device, &createInfo, vkMemoryAllocator, &Handle));
-
-	m_Format = format;
+	VulkanImageView::VulkanImageView(device, image, type, aspect);
 }
 
 VulkanImageView::VulkanImageView(
@@ -100,13 +86,15 @@ VulkanImageView::VulkanImageView(
 	const void* data, 
 	size_t dataSize)
 {
+	assert(!isValid());
+
 	AssetTool::TextureBinary texBinary
 	{
 		type,
 		(uint32_t)VulkanEnum::toFormat(format),
 		width,
 		height,
-		1u,
+		depth,
 		mipLevels,
 		arrayLayers,
 		dataSize
@@ -133,24 +121,9 @@ VulkanImageView::VulkanImageView(
 	}
 
 	auto image = std::make_shared<VulkanImage>(device, texBinary);
-
-	create(device, image, image->getFormat(), VK_IMAGE_ASPECT_COLOR_BIT);
-}
-
-void VulkanImageView::destroy(VkDevice device)
-{
-	if (isValid())
-	{
-		vkDestroyImageView(device, Handle, vkMemoryAllocator);
-		Handle = VK_NULL_HANDLE;
-
-		if (m_Image->m_Memory.isValid())
-		{
-			m_Image->destroy(device);
-		}
-		else
-		{
-			m_Image->Handle = VK_NULL_HANDLE;
-		}
-	}
+	VulkanImageView::VulkanImageView(
+		device, 
+		image,
+		VulkanEnum::toImageViewType(type),
+		VK_IMAGE_ASPECT_COLOR_BIT);
 }

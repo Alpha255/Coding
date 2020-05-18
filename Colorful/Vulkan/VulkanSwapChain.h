@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Colorful/Vulkan/VulkanView.h"
+#include "Colorful/Vulkan/VulkanImageView.h"
 
 class VulkanSwapchain : public VulkanObject<VkSwapchainKHR>
 {
@@ -28,7 +28,7 @@ public:
 	}
 
 	uint32_t acquireNextFrame();
-	inline const std::vector<VulkanImageView> &getBackBuffers() const
+	inline const std::vector<VulkanImageViewPtr> &getBackBuffers() const
 	{
 		return m_BackBuffers;
 	}
@@ -63,7 +63,7 @@ protected:
 	void clearBackBuffers();
 private:
 	VulkanSurface m_Surface;
-	std::vector<VulkanImageView> m_BackBuffers;
+	std::vector<VulkanImageViewPtr> m_BackBuffers;
 	class VulkanSemaphore *m_PresentCompleteSemaphore = nullptr;
 	bool8_t m_VSync = false;
 	bool8_t m_FullScreen = false;
