@@ -1,11 +1,14 @@
 #include "Colorful/Vulkan/VulkanEngine.h"
 
-void VulkanDescriptorPool::create(VkDevice device)
+VulkanDescriptorPool::VulkanDescriptorPool(const VkDevice device, VkPhysicalDevice physicalDevice)
+	: m_Device(device)
 {
 	assert(!isValid());
 
 	/// ToDo-May need a better way
-	auto deviceLimits = VkPhysicalDeviceLimits(); /// ??? 
+	VkPhysicalDeviceProperties deviceProperties{};
+	vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
+	auto deviceLimits = deviceProperties.limits;
 
 	std::array<VkDescriptorPoolSize, VK_DESCRIPTOR_TYPE_RANGE_SIZE> descriptorPoolSizes;
 	descriptorPoolSizes[0] = VkDescriptorPoolSize
@@ -77,37 +80,28 @@ void VulkanDescriptorPool::create(VkDevice device)
 	GfxVerifyVk(vkCreateDescriptorPool(device, &createInfo, vkMemoryAllocator, &Handle));
 }
 
-void VulkanDescriptorPool::resetPool(VkDevice device)
+VulkanDescriptorSet VulkanDescriptorPool::alloc(const GfxDescriptorLayoutDesc& desc) const
 {
-	/// return all descriptor sets allocated from a given pool to the pool
-	/// flags is reserved for future use
-	/// Resetting a descriptor pool recycles all of the resources from all of the descriptor sets allocated from the descriptor pool back to the descriptor pool, 
-	/// and the descriptor sets are implicitly freed.
 	assert(isValid());
-	vkResetDescriptorPool(device, Handle, 0u);
-}
 
-VulkanDescriptorSet VulkanDescriptorPool::alloc(VkDevice device, const VulkanDescriptorSetLayout &layout) const
-{
-	assert(isValid() && layout.isValid());
+	VulkanDescriptorSet descriptorSet;
+	descriptorSet.m_Layout.create(m_Device, desc);
 
-	const VkDescriptorSetLayout descriptorSetlayout = layout.Handle;
 	VkDescriptorSetAllocateInfo allocInfo
 	{
 		VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
 		nullptr,
 		Handle,
 		1u,
-		&descriptorSetlayout
+		&descriptorSet.m_Layout.Handle
 	};
 
-	VulkanDescriptorSet descriptorSet;
-	GfxVerifyVk(vkAllocateDescriptorSets(device, &allocInfo, &descriptorSet.Handle));
+	GfxVerifyVk(vkAllocateDescriptorSets(m_Device, &allocInfo, &descriptorSet.Handle));
 
 	return descriptorSet;
 }
 
-void VulkanDescriptorSetLayout::create(VkDevice device, const GfxDescriptorLayoutDesc &desc)
+void VulkanDescriptorSet::VulkanDescriptorSetLayout::create(VkDevice device, const GfxDescriptorLayoutDesc& desc)
 {
 	assert(!isValid());
 

@@ -97,7 +97,7 @@ protected:
 	{
 	}
 
-	void queueCopyCommand(VkDevice device, const AssetTool::TextureBinary& binary);
+	void queueCopyCommand(const AssetTool::TextureBinary& binary);
 private:
 	VulkanDeviceMemory m_Memory;
 

@@ -120,16 +120,7 @@ VulkanBuffer::VulkanBuffer(VkDevice device, eRBufferBindFlags bindFlags, eRBuffe
 	if (useStagingBuffer)
 	{
 		GfxVerifyVk(vkBindBufferMemory(device, Handle, m_Memory.Handle, 0u));
-
-		VulkanBuffer stagingBuffer(device, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, size, data);
-		VkBufferCopy bufferCopy
-		{
-			0u,
-			0u,
-			size
-		};
-
-		VulkanQueueManager::instance()->transferQueue()->queueSubmitBufferCopyCommand(Handle, stagingBuffer, bufferCopy);
+		VulkanQueueManager::instance()->queueBufferCopyCommand(Handle, size, data);
 	}
 	else
 	{

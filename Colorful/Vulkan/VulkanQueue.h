@@ -15,65 +15,14 @@ public:
 		const class VulkanSwapchain& swapchain,
 		VkFence fence);
 
-	void queueCommandBuffer(const VulkanCommandBufferPtr& cmdBuffer);
 	void submit(const class VulkanSwapchain &swapchain);
-
-	void queueSubmitBufferCopyCommand(VkBuffer dstBuffer, const VulkanBuffer& stagingBuffer, const VkBufferCopy& copyInfo)
-	{
-		VulkanCopyCommand copyCommand
-		{
-			dstBuffer,
-			stagingBuffer,
-			copyInfo
-		};
-		m_CopyQueue.push(std::move(copyCommand));
-	}
-
-	void queueSubmitImageCopyCommand(
-		const VulkanBuffer& stagingBuffer,
-		VkImage image,
-		VulkanImage::eImageLayout srcLayout,
-		VulkanImage::eImageLayout dstLayout,
-		const VkImageSubresourceRange& subresourceRange,
-		const std::vector<VkBufferImageCopy>& imageCopies)
-	{
-		VulkanImageCopyCommand copyCmd
-		{
-			stagingBuffer,
-			image,
-			srcLayout,
-			dstLayout,
-			subresourceRange,
-			imageCopies
-		};
-		m_ImageCopyQueue.push(std::move(copyCmd));
-	}
 
 	void waitIdle();
 
 protected:
-	struct VulkanCopyCommand
-	{
-		VkBuffer DstBuffer = VK_NULL_HANDLE;
-		VulkanBuffer StagingBuffer;
-		VkBufferCopy CopyInfo{};
-	};
-
-	struct VulkanImageCopyCommand
-	{
-		VulkanBuffer StagingBuffer;
-		VkImage Image = VK_NULL_HANDLE;
-		VulkanImage::eImageLayout SrcLayout = VulkanImage::eImageLayout_MaxEnum;
-		VulkanImage::eImageLayout DstLayout = VulkanImage::eImageLayout_MaxEnum;
-		VkImageSubresourceRange SubresourceRange{};
-		std::vector<VkBufferImageCopy> ImageCopies;
-	};
 private:
 	uint32_t m_FamilyIndex = std::numeric_limits<uint32_t>().max();
 	class VulkanSemaphore *m_RenderCompleteSemaphore = nullptr;
-	std::vector<VulkanCommandBufferPtr> m_QueuedCmdBuffers;
-	std::stack<VulkanCopyCommand> m_CopyQueue;
-	std::stack<VulkanImageCopyCommand> m_ImageCopyQueue;
 };
 using VulkanQueuePtr = std::shared_ptr<VulkanQueue>;
 
@@ -106,6 +55,19 @@ public:
 		return m_TransferCmdBufferPool->alloc(level);
 	}
 
+	void queueGfxCommand(const VulkanCommandBufferPtr& cmdBuffer);
+
+	void queueBufferCopyCommand(VkBuffer dstBuffer, size_t size, const void* data);
+
+	void queueImageCopyCommand(
+		VkImage dstImage,
+		VulkanImage::eImageLayout srcLayout,
+		VulkanImage::eImageLayout dstLayout,
+		const VkImageSubresourceRange& subresrouceRange,
+		const std::vector<VkBufferImageCopy>& imageCopies,
+		size_t size,
+		const void* data);
+
 	void cleanup() override final
 	{
 		m_GfxCmdBufferPool->destroy();
@@ -122,7 +84,26 @@ protected:
 		uint32_t gfxQueueFamilyIndex,
 		uint32_t computeQueueFamilyIndex,
 		uint32_t transferQueueFamilyIndex);
+
+	struct VulkanBufferCopyCommand
+	{
+		VkBuffer DstBuffer = VK_NULL_HANDLE;
+		std::shared_ptr<VulkanBuffer> StagingBuffer = nullptr;
+		VkBufferCopy CopyInfo{};
+	};
+
+	struct VulkanImageCopyCommand
+	{
+		VkImage DstImage = VK_NULL_HANDLE;
+		std::shared_ptr<VulkanBuffer> StagingBuffer = nullptr;
+		VulkanImage::eImageLayout SrcLayout = VulkanImage::eImageLayout_MaxEnum;
+		VulkanImage::eImageLayout DstLayout = VulkanImage::eImageLayout_MaxEnum;
+		VkImageSubresourceRange SubresourceRange{};
+		std::vector<VkBufferImageCopy> ImageCopies;
+	};
 private:
+	const VkDevice m_Device;
+
 	VulkanQueuePtr m_GfxQueue = nullptr;
 	VulkanQueuePtr m_ComputeQueue = nullptr;
 	VulkanQueuePtr m_TransferQueue = nullptr;
@@ -130,4 +111,8 @@ private:
 	VulkanCommandPoolPtr m_GfxCmdBufferPool = nullptr;
 	VulkanCommandPoolPtr m_ComputeCmdBufferPool = nullptr;
 	VulkanCommandPoolPtr m_TransferCmdBufferPool = nullptr;
+
+	std::queue<VulkanBufferCopyCommand> m_BufferCopyCommandQueue;
+	std::queue<VulkanImageCopyCommand> m_ImageCopyCommandQueue;
+	std::vector<VulkanCommandBufferPtr> m_GfxCommandQueue;
 };

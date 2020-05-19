@@ -16,7 +16,7 @@
 /// When performing a layout transition on an image subresource, the old layout value must either equal the current layout of the image subresource (at the time the transition executes), or else be VK_IMAGE_LAYOUT_UNDEFINED (implying that the contents of the image subresource need not be preserved). 
 /// The new layout used in a transition must not be VK_IMAGE_LAYOUT_UNDEFINED or VK_IMAGE_LAYOUT_PREINITIALIZED.
 
-void VulkanImage::queueCopyCommand(VkDevice device, const AssetTool::TextureBinary& binary)
+void VulkanImage::queueCopyCommand(const AssetTool::TextureBinary& binary)
 {
 	bool8_t useStaging = true;
 	//VkFormatProperties formatProperties = VulkanEngine::instance().getFormatProperties(m_Format);
@@ -60,13 +60,6 @@ void VulkanImage::queueCopyCommand(VkDevice device, const AssetTool::TextureBina
 			}
 		}
 
-		VulkanBuffer stagingBuffer(
-			device, 
-			VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
-			binary.Size, 
-			binary.Binary ? binary.Binary : binary.SharedBinary.get()
-		);
-
 		VkImageSubresourceRange subresourceRange
 		{
 			VK_IMAGE_ASPECT_COLOR_BIT,
@@ -76,13 +69,14 @@ void VulkanImage::queueCopyCommand(VkDevice device, const AssetTool::TextureBina
 			binary.ArrayLayers
 		};
 
-		VulkanQueueManager::instance()->transferQueue()->queueSubmitImageCopyCommand(
-			stagingBuffer,
+		VulkanQueueManager::instance()->queueImageCopyCommand(
 			Handle,
 			eUndefined,
 			eFragmentShaderRead,
 			subresourceRange,
-			bufferImageCopy);
+			bufferImageCopy,
+			binary.Size,
+			binary.Binary ? binary.Binary : binary.SharedBinary.get());
 	}
 	else
 	{
@@ -199,7 +193,7 @@ VulkanImage::VulkanImage(VkDevice device, const AssetTool::TextureBinary& binary
 	m_Memory.create(device, eGpuReadOnly, memoryRequirements);
 	GfxVerifyVk(vkBindImageMemory(device, Handle, m_Memory.Handle, 0u));
 
-	queueCopyCommand(device, binary);
+	queueCopyCommand(binary);
 }
 
 VulkanImage::VulkanImage(

@@ -213,7 +213,7 @@ void VulkanRenderPass::bindGfxPipeline(const GfxPipelineState& state)
 		vkCmdBindIndexBuffer(m_CmdBuffer->Handle, indexBuffer->Handle, 0u, state.IndexType == eRIndexType::eUInt16 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32);
 	}
 
-	VulkanQueueManager::instance()->gfxQueue()->queueCommandBuffer(m_CmdBuffer);
+	VulkanQueueManager::instance()->queueGfxCommand(m_CmdBuffer);
 }
 
 void VulkanRenderPass::drawIndexed(uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset)

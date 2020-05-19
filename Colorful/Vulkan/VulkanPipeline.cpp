@@ -1,8 +1,8 @@
 #include "Colorful/Vulkan/VulkanEngine.h"
 
-void VulkanPipelineLayout::create(VkDevice device, const VulkanDescriptorSetLayout &descriptorSetLayout)
+void VulkanPipelineLayout::create(VkDevice device, VkDescriptorSetLayout descriptorSetLayout)
 {
-	assert(!isValid() && descriptorSetLayout.isValid());
+	assert(!isValid() && descriptorSetLayout != VK_NULL_HANDLE);
 
 	VkPipelineLayoutCreateInfo createInfo
 	{
@@ -10,7 +10,7 @@ void VulkanPipelineLayout::create(VkDevice device, const VulkanDescriptorSetLayo
 		nullptr,
 		0u,
 		1u,
-		&descriptorSetLayout.Handle,
+		&descriptorSetLayout,
 		0u,
 		nullptr /// PushRange ?????
 	};
@@ -52,8 +52,8 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(
 		}
 	}
 
-	m_DescriptorSetLayout.create(device, descriptorLayoutDesc);
-	m_PipelineLayout.create(device, m_DescriptorSetLayout);
+	///m_DescriptorSetLayout.create(device, descriptorLayoutDesc);
+	m_PipelineLayout.create(device, m_DescriptorSet.layout());
 	setupDescriptorSet(device, state);
 
 	auto vertexShader = std::static_pointer_cast<VulkanShader>(state.Shaders[eVertexShader]);

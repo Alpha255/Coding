@@ -7,7 +7,8 @@
 class VulkanPipelineLayout : public VulkanDeviceObject<VkPipelineLayout>
 {
 public:
-	void create(VkDevice device, const VulkanDescriptorSetLayout &descriptorSetLayout);
+	void create(VkDevice device, VkDescriptorSetLayout descriptorSetLayout);
+
 	void destroy(VkDevice device) override final
 	{
 		/// The pipeline layout represents a sequence of descriptor sets with each having a specific layout. 
@@ -61,7 +62,7 @@ public:
 	void destroy(VkDevice device) override final
 	{
 		m_PipelineLayout.destroy(device);
-		m_DescriptorSetLayout.destroy(device);
+		m_DescriptorSet.destroy(device);
 		VulkanPipeline::destroy(device);
 	}
 
@@ -76,7 +77,6 @@ protected:
 	void setupDescriptorSet(VkDevice device, const GfxPipelineState& state);
 private:
 	VulkanPipelineLayout m_PipelineLayout;
-	VulkanDescriptorSetLayout m_DescriptorSetLayout;
 	VulkanDescriptorSet m_DescriptorSet;
 };
 using VulkanGraphicsPipelinePtr = std::shared_ptr<VulkanGraphicsPipeline>;

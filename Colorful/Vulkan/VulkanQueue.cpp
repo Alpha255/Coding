@@ -59,62 +59,45 @@ void VulkanQueue::present(
 	swapchain.present(*m_RenderCompleteSemaphore);
 }
 
-void VulkanQueue::queueCommandBuffer(const VulkanCommandBufferPtr& cmdBuffer)
-{
-	bool8_t contain = false;
-	for (uint32_t i = 0u; i < m_QueuedCmdBuffers.size(); ++i)
-	{
-		if (m_QueuedCmdBuffers[i] == cmdBuffer)
-		{
-			contain = true;
-			break;
-		}
-	}
-
-	if (!contain)
-	{
-		m_QueuedCmdBuffers.emplace_back(cmdBuffer);
-	}
-}
-
 void VulkanQueue::submit(const VulkanSwapchain &swapchain)
 {
-	assert(m_QueuedCmdBuffers.size() > 0u);
+	//assert(m_QueuedCmdBuffers.size() > 0u);
+	assert(swapchain.isValid());
 
-	VkPipelineStageFlags waitStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	//VkPipelineStageFlags waitStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
-	VkFence fence = VK_NULL_HANDLE;
-	std::vector<VkCommandBuffer> submitCmdBuffers;
-	for (uint32_t i = 0u; i < m_QueuedCmdBuffers.size(); ++i)
-	{
-		submitCmdBuffers.emplace_back(m_QueuedCmdBuffers[i]->Handle);
+	//VkFence fence = VK_NULL_HANDLE;
+	//std::vector<VkCommandBuffer> submitCmdBuffers;
+	//for (uint32_t i = 0u; i < m_QueuedCmdBuffers.size(); ++i)
+	//{
+	//	submitCmdBuffers.emplace_back(m_QueuedCmdBuffers[i]->Handle);
 
-		if (m_QueuedCmdBuffers[i]->isInsideRenderPass())
-		{
-			m_QueuedCmdBuffers[i]->endRenderPass();
-		}
-		fence = m_QueuedCmdBuffers[i]->fence()->Handle;
-		///m_QueuedCmdBuffers[i]->setState(VulkanCommandBuffer::eExecutable);
-	}
+	//	if (m_QueuedCmdBuffers[i]->isInsideRenderPass())
+	//	{
+	//		m_QueuedCmdBuffers[i]->endRenderPass();
+	//	}
+	//	fence = m_QueuedCmdBuffers[i]->fence()->Handle;
+	//	///m_QueuedCmdBuffers[i]->setState(VulkanCommandBuffer::eExecutable);
+	//}
 
-	VkSubmitInfo submitInfo
-	{
-		VK_STRUCTURE_TYPE_SUBMIT_INFO,
-		nullptr,
-		1u,
-		&swapchain.getPresentCompleteSemaphore()->Handle,
-		&waitStageMask,
-		(uint32_t)submitCmdBuffers.size(),
-		submitCmdBuffers.data(),
-		1u,
-		&m_RenderCompleteSemaphore->Handle
-	};
+	//VkSubmitInfo submitInfo
+	//{
+	//	VK_STRUCTURE_TYPE_SUBMIT_INFO,
+	//	nullptr,
+	//	1u,
+	//	&swapchain.getPresentCompleteSemaphore()->Handle,
+	//	&waitStageMask,
+	//	(uint32_t)submitCmdBuffers.size(),
+	//	submitCmdBuffers.data(),
+	//	1u,
+	//	&m_RenderCompleteSemaphore->Handle
+	//};
 
-	/// Submission can be a high overhead operation, and applications should attempt to batch work together into as few calls to vkQueueSubmit as possible.
-	/// vkQueueSubmit is a queue submission command, with each batch defined by an element of pSubmits. 
-	/// Batches begin execution in the order they appear in pSubmits, but may complete out of order.
-	GfxVerifyVk(vkQueueSubmit(Handle, 1u, &submitInfo, fence));
-	swapchain.present(*m_RenderCompleteSemaphore);
+	///// Submission can be a high overhead operation, and applications should attempt to batch work together into as few calls to vkQueueSubmit as possible.
+	///// vkQueueSubmit is a queue submission command, with each batch defined by an element of pSubmits. 
+	///// Batches begin execution in the order they appear in pSubmits, but may complete out of order.
+	//GfxVerifyVk(vkQueueSubmit(Handle, 1u, &submitInfo, fence));
+	//swapchain.present(*m_RenderCompleteSemaphore);
 }
 
 void VulkanQueue::waitIdle()
@@ -137,6 +120,7 @@ VulkanQueueManager::VulkanQueueManager(
 	uint32_t gfxQueueFamilyIndex, 
 	uint32_t computeQueueFamilyIndex, 
 	uint32_t transferQueueFamilyIndex)
+	: m_Device(device)
 {
 	assert(gfxQueueFamilyIndex != std::numeric_limits<uint32_t>().max());
 	m_GfxQueue = std::make_shared<VulkanQueue>(device, gfxQueueFamilyIndex);
@@ -153,4 +137,58 @@ VulkanQueueManager::VulkanQueueManager(
 		m_TransferQueue = std::make_shared<VulkanQueue>(device, transferQueueFamilyIndex);
 		m_TransferCmdBufferPool = std::make_shared<VulkanCommandPool>(device, transferQueueFamilyIndex);
 	}
+}
+
+void VulkanQueueManager::queueGfxCommand(const VulkanCommandBufferPtr& cmdBuffer)
+{
+	bool8_t contain = false;
+	for (uint32_t i = 0u; i < m_GfxCommandQueue.size(); ++i)
+	{
+		if (m_GfxCommandQueue[i] == cmdBuffer)
+		{
+			contain = true;
+			break;
+		}
+	}
+
+	if (!contain)
+	{
+		m_GfxCommandQueue.emplace_back(cmdBuffer);
+	}
+}
+
+void VulkanQueueManager::queueBufferCopyCommand(VkBuffer dstBuffer, size_t size, const void* data)
+{
+	assert(dstBuffer != VK_NULL_HANDLE && size > 0u && data);
+
+	VulkanBufferCopyCommand command{};
+	command.DstBuffer = dstBuffer;
+	command.StagingBuffer = std::make_shared<VulkanBuffer>(m_Device, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, size, data);
+	command.CopyInfo.size = size;
+
+	m_BufferCopyCommandQueue.emplace(std::move(command));
+}
+
+void VulkanQueueManager::queueImageCopyCommand(
+	VkImage dstImage, 
+	VulkanImage::eImageLayout srcLayout, 
+	VulkanImage::eImageLayout dstLayout, 
+	const VkImageSubresourceRange& subresrouceRange, 
+	const std::vector<VkBufferImageCopy>& imageCopies,
+	size_t size,
+	const void* data)
+{
+	assert(dstImage != VK_NULL_HANDLE);
+	assert(srcLayout < VulkanImage::eImageLayout_MaxEnum && dstLayout != VulkanImage::eImageLayout_MaxEnum);
+	assert(imageCopies.size() > 0u);
+
+	VulkanImageCopyCommand command;
+	command.DstImage = dstImage;
+	command.StagingBuffer = std::make_shared<VulkanBuffer>(m_Device, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, size, data);
+	command.SrcLayout = srcLayout;
+	command.DstLayout = dstLayout;
+	command.SubresourceRange = subresrouceRange;
+	command.ImageCopies = imageCopies;
+
+	m_ImageCopyCommandQueue.emplace(std::move(command));
 }
