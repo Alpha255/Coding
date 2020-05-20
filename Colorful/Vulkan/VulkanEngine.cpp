@@ -23,8 +23,9 @@ void VulkanEngine::initialize(uint64_t windowHandle, const Gear::Configurations&
 		m_Device.physicalDevice(),
 		m_Device.logicalDevice());
 
-	//m_ImGuiRenderer = std::make_unique<ImGuiRenderer>();
-	//m_ImGuiRenderer->initialize(this);
+	m_ImGuiRenderer = std::make_unique<ImGuiRenderer>(this);
+
+	createOpaqueRenderPass();
 }
 
 void VulkanEngine::logError(uint32_t result)
@@ -83,6 +84,7 @@ case enumValue:                                      \
 
 void VulkanEngine::present()
 {
+	m_Swapchain->acquireNextFrame();
 	///m_GraphicsQueue.submit(m_Swapchain);
 	///VulkanQueueManager::instance()->gfxQueue()->submit(m_Swapchain);
 }
@@ -103,15 +105,27 @@ void VulkanEngine::freeResources()
 	free(m_SamplerList, m_Device.logicalDevice());
 }
 
-//void VulkanEngine::createOpaqueRenderPass()
-//{
-//	GfxFrameBufferDesc frameBufferDesc{};
-//	frameBufferDesc.Width = m_Swapchain->width();
-//	frameBufferDesc.Height = m_Swapchain->height();
-//	frameBufferDesc.DepthSurface = createDepthStencilView(frameBufferDesc.Width, frameBufferDesc.Height, eD24_UNorm_S8_UInt);
-//
-//	m_OpaqueRenderPass = m_Device.createRenderPass(m_Swapchain, frameBufferDesc);
-//}
+void VulkanEngine::createOpaqueRenderPass()
+{
+	GfxFrameBufferDesc frameBufferDesc{};
+	frameBufferDesc.Width = m_Swapchain->width();
+	frameBufferDesc.Height = m_Swapchain->height();
+	frameBufferDesc.DepthSurface = createDepthStencilView(frameBufferDesc.Width, frameBufferDesc.Height, eD24_UNorm_S8_UInt);
+
+	auto& backBuffers = m_Swapchain->backBuffers();
+	frameBufferDesc.ColorSurface[0] = std::static_pointer_cast<GfxRenderSurface>(backBuffers[0]);
+
+	m_OpaqueRenderPass = createRenderPass(frameBufferDesc);
+
+	auto vkRenderPass = std::static_pointer_cast<VulkanRenderPass>(m_OpaqueRenderPass);
+	std::vector<VulkanFrameBuffer> frameBuffers(backBuffers.size());
+	for (uint32_t i = 0u; i < backBuffers.size(); ++i)
+	{
+		frameBufferDesc.ColorSurface[0] = std::static_pointer_cast<GfxRenderSurface>(backBuffers[i]);
+		frameBuffers[i].create(m_Device.logicalDevice(), vkRenderPass->Handle, frameBufferDesc);
+	}
+	vkRenderPass->bindFrameBuffers(frameBuffers);
+}
 
 void VulkanEngine::finalize()
 {

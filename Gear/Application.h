@@ -27,6 +27,8 @@ protected:
 	Configurations m_Config;
 	WindowPtr m_Window = nullptr;
 	GfxEnginePtr m_GfxEngine = nullptr;
+	DXUTCamera m_Camera;
+	CpuTimer m_CpuTimer;
 private:
 };
 

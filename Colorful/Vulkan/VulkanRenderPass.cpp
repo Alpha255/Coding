@@ -170,7 +170,7 @@ void VulkanRenderPass::bindGfxPipeline(const GfxPipelineState& state)
 
 		uint32_t frameIndex = 0u;
 		///uint32_t frameIndex = VulkanEngine::instance().acquireNextFrame();
-		assert(frameIndex < m_FrameBuffers.size());
+		///assert(frameIndex < m_FrameBuffers.size());
 
 		VkRenderPassBeginInfo beginInfo
 		{
@@ -195,8 +195,9 @@ void VulkanRenderPass::bindGfxPipeline(const GfxPipelineState& state)
 		m_CmdBuffer->beginRenderPass(beginInfo, VK_SUBPASS_CONTENTS_INLINE);
 	}
 
-	///m_CurGfxPipeline = VulkanEngine::instance().getOrCreateGraphicsPipeline(*this, state);
-	///m_CurGfxPipeline->bind(m_CmdBuffer);
+	m_CurrentPipeline.first = VulkanPipelinePool::instance()->getOrCreateGfxPipeline(Handle, state);
+	m_CurrentPipeline.first->bind(m_CmdBuffer);
+	m_CurrentPipeline.second = &state;
 
 	if (state.isDirty(GfxPipelineState::eVertexBuffer))
 	{
@@ -233,37 +234,37 @@ void VulkanRenderPass::drawIndexed(uint32_t indexCount, uint32_t firstIndex, int
 
 void VulkanRenderPass::setDynamicGfxState()
 {
-	//assert(m_CmdBuffer->isValid());
+	assert(m_CmdBuffer->isValid());
 
-	/////if (state.isDirty(GfxPipelineState::eViewport))
-	//{
-	//	VkViewport viewport
-	//	{
-	//		state.Viewport.x,
-	//		state.Viewport.y,
-	//		state.Viewport.z,
-	//		state.Viewport.w,
-	//		state.Viewport.minDepth(),
-	//		state.Viewport.maxDepth()
-	//	};
-	//	vkCmdSetViewport(m_CmdBuffer->Handle, 0u, 1u, &viewport);
-	//}
+	///if (state.isDirty(GfxPipelineState::eViewport))
+	{
+		VkViewport viewport
+		{
+			m_CurrentPipeline.second->Viewport.x,
+			m_CurrentPipeline.second->Viewport.y,
+			m_CurrentPipeline.second->Viewport.z,
+			m_CurrentPipeline.second->Viewport.w,
+			m_CurrentPipeline.second->Viewport.minDepth(),
+			m_CurrentPipeline.second->Viewport.maxDepth()
+		};
+		vkCmdSetViewport(m_CmdBuffer->Handle, 0u, 1u, &viewport);
+	}
 
-	/////if (state.isDirty(GfxPipelineState::eScissor))
-	//{
-	//	VkRect2D scissor
-	//	{
-	//		{
-	//			(int32_t)state.Scissor.x,
-	//			(int32_t)state.Scissor.y
-	//		},
-	//		{
-	//			(uint32_t)state.Scissor.z,
-	//			(uint32_t)state.Scissor.w
-	//		}
-	//	};
-	//	vkCmdSetScissor(m_CmdBuffer->Handle, 0u, 1u, &scissor);
-	//}
+	///if (state.isDirty(GfxPipelineState::eScissor))
+	{
+		VkRect2D scissor
+		{
+			{
+				(int32_t)m_CurrentPipeline.second->Scissor.x,
+				(int32_t)m_CurrentPipeline.second->Scissor.y
+			},
+			{
+				(uint32_t)m_CurrentPipeline.second->Scissor.z,
+				(uint32_t)m_CurrentPipeline.second->Scissor.w
+			}
+		};
+		vkCmdSetScissor(m_CmdBuffer->Handle, 0u, 1u, &scissor);
+	}
 }
 
 void VulkanRenderPass::destroy(VkDevice device)

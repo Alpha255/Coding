@@ -6,7 +6,7 @@
 class ImGuiRenderer
 {
 public:
-	void initialize(class GfxEngine *renderEngine);
+	ImGuiRenderer(class GfxEngine* gfxEngine);
 
 	void finalize()
 	{
@@ -39,9 +39,9 @@ protected:
 		Vec4 ScaleTranslate;
 	};
 private:
-	class GfxEngine *m_Renderer = nullptr;
+	class GfxEngine* m_GfxEngine = nullptr;
 	GfxPipelineState m_PipelineState{};
-	GfxGpuBuffer *m_UniformBuffer = nullptr;
+	GfxGpuBufferPtr m_UniformBuffer = nullptr;
 	bool8_t m_Enable = true;
 };
 using ImGuiRendererPtr = std::unique_ptr<ImGuiRenderer>;

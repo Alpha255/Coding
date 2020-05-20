@@ -67,3 +67,20 @@ protected:
 private:
 	const VkDevice m_Device;
 };
+
+class VulkanMainDescriptorPool : public VulkanDescriptorPool, public LazySingleton<VulkanMainDescriptorPool>
+{
+	lazySingletonDeclare(VulkanMainDescriptorPool);
+public:
+protected:
+	VulkanMainDescriptorPool(const VkDevice device, VkPhysicalDevice physicalDevice)
+		: VulkanDescriptorPool(device, physicalDevice)
+	{
+	}
+
+	void cleanup() override final
+	{
+		destroy();
+	}
+private:
+};

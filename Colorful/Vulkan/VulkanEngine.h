@@ -60,14 +60,14 @@ public:
 	GfxRenderPassPtr createRenderPass(GfxFrameBufferDesc& desc) override final
 	{
 		auto renderPass = std::make_shared<VulkanRenderPass>(m_Device.logicalDevice(), desc);
-		m_RenderPassList.emplace_back(std::move(renderPass));
+		m_RenderPassList.emplace_back(renderPass);
 		return std::static_pointer_cast<GfxRenderPass>(renderPass);
 	}
 
 	GfxTexturePtr createTexture(const std::string& textureName) override final
 	{
 		auto texture = std::make_shared<VulkanImageView>(m_Device.logicalDevice(), textureName);
-		m_ImageViewList.emplace_back(std::move(texture));
+		m_ImageViewList.emplace_back(texture);
 		return std::static_pointer_cast<GfxTexture>(texture);
 	}
 	GfxTexturePtr createTexture(
@@ -92,14 +92,14 @@ public:
 			arrayLayers,
 			data,
 			dataSize);
-		m_ImageViewList.emplace_back(std::move(texture));
+		m_ImageViewList.emplace_back(texture);
 		return std::static_pointer_cast<GfxTexture>(texture);
 	}
 
 	GfxSamplerPtr createSampler(const GfxSamplerDesc& desc) override final
 	{
 		auto sampler = std::make_shared<VulkanSampler>(m_Device.logicalDevice(), desc);
-		m_SamplerList.emplace_back(std::move(sampler));
+		m_SamplerList.emplace_back(sampler);
 		return std::static_pointer_cast<GfxSampler>(sampler);
 	}
 
@@ -125,6 +125,7 @@ public:
 	}
 protected:
 	void freeResources();
+	void createOpaqueRenderPass();
 private:
 	VulkanInstance m_Instance;
 	VulkanDevice m_Device;

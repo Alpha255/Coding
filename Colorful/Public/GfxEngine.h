@@ -73,22 +73,21 @@ public:
 
 	void renderFrame()
 	{
-		//m_ImGuiRenderer->begin();
+		present();
+
+		m_ImGuiRenderer->begin();
 
 		if (m_RenderFrameCallback)
 		{
 			m_RenderFrameCallback();
 		}
 
-		//m_ImGuiRenderer->end();
-
-		present();
+		m_ImGuiRenderer->end();
 	}
 
 	void processMessage(const struct WindowMessage& message, uint32_t width, uint32_t height)
 	{
 		m_ImGuiRenderer->processMessage(message, width, height);
-		handleWindowResize(width, height);
 	}
 
 	virtual void initialize(uint64_t windowHandle, const Gear::Configurations& config) = 0;

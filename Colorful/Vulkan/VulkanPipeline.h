@@ -66,7 +66,7 @@ public:
 		VulkanPipeline::destroy(device);
 	}
 
-	void bind(const VulkanCommandBuffer& cmdBuffer);
+	void bind(const VulkanCommandBufferPtr& cmdBuffer);
 protected:
 	VkPipelineRasterizationStateCreateInfo makeRasterizationState(const GfxRasterizerStateDesc& stateDesc) const;
 	VkPipelineDepthStencilStateCreateInfo makeDepthStencilState(const GfxDepthStencilStateDesc& stateDesc) const;

@@ -28,7 +28,7 @@ public:
 	}
 
 	uint32_t acquireNextFrame();
-	inline const std::vector<VulkanImageViewPtr> &getBackBuffers() const
+	inline const std::vector<VulkanImageViewPtr> &backBuffers() const
 	{
 		return m_BackBuffers;
 	}

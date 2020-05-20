@@ -185,6 +185,7 @@ void VulkanDevice::create(VkInstance instance)
 		transferQueueFamilyIndex);
 	VulkanBufferPool::initialize(m_LogicalDevice.Handle, m_PhysicalDevice.Handle);
 	VulkanPipelinePool::initialize(m_LogicalDevice.Handle);
+	VulkanMainDescriptorPool::initialize(m_LogicalDevice.Handle, m_PhysicalDevice.Handle);
 }
 
 void VulkanDevice::destroy()
@@ -195,6 +196,7 @@ void VulkanDevice::destroy()
 	VulkanQueueManager::instance()->finalize();
 	VulkanBufferPool::instance()->finalize();
 	VulkanPipelinePool::instance()->finalize();
+	VulkanMainDescriptorPool::instance()->finalize();
 
 	vkDestroyDevice(m_LogicalDevice.Handle, vkMemoryAllocator);
 	m_LogicalDevice.Handle = VK_NULL_HANDLE;

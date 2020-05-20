@@ -151,17 +151,16 @@ void VulkanImage::makeMemoryBarrierFlags(
 }
 
 VulkanImage::VulkanImage(VkDevice device, const AssetTool::TextureBinary& binary)
-{
-	assert(!isValid() && binary.Size > 0u);
-
-	VulkanImage::VulkanImage(
+	: VulkanImage(
 		binary.Width,
 		binary.Height,
 		binary.Depth,
 		binary.MipLevels,
 		binary.ArrayLayers,
 		VulkanEnum::toImageType(binary.Type),
-		(VkFormat)binary.Format);
+		(VkFormat)binary.Format)
+{
+	assert(!isValid() && binary.Size > 0u);
 
 	VkImageCreateInfo createInfo
 	{

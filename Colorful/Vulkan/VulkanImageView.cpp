@@ -2,9 +2,9 @@
 #include "AssetTool/AssetDatabase.h"
 
 VulkanImageView::VulkanImageView(VkDevice device, const VulkanImagePtr& image, VkImageViewType type, VkImageAspectFlags aspectFlags)
+	: m_Image(image)
 {
 	assert(image && image->isValid() && !isValid());
-	m_Image = image;
 
 	VkImageViewCreateInfo createInfo
 	{
@@ -40,7 +40,7 @@ VulkanImageView::VulkanImageView(VkDevice device, const std::string& texName)
 	assert(texBinary.Size > 0u);
 
 	auto image = std::make_shared<VulkanImage>(device, texBinary);
-	VulkanImageView::VulkanImageView(
+	new(this)VulkanImageView(
 		device, 
 		image,
 		VulkanEnum::toImageViewType(texBinary.Type),
@@ -59,8 +59,6 @@ VulkanImageView::VulkanImageView(
 	VkImageUsageFlags usage,
 	VkImageAspectFlags aspect)
 {
-	assert(!isValid());
-
 	auto image = std::make_shared<VulkanImage>(
 		device,
 		width,
@@ -71,7 +69,7 @@ VulkanImageView::VulkanImageView(
 		format,
 		imageType(type),
 		usage);
-	VulkanImageView::VulkanImageView(device, image, type, aspect);
+	new(this)VulkanImageView(device, image, type, aspect);
 }
 
 VulkanImageView::VulkanImageView(
@@ -121,7 +119,7 @@ VulkanImageView::VulkanImageView(
 	}
 
 	auto image = std::make_shared<VulkanImage>(device, texBinary);
-	VulkanImageView::VulkanImageView(
+	new(this)VulkanImageView(
 		device, 
 		image,
 		VulkanEnum::toImageViewType(type),

@@ -104,10 +104,16 @@ public:
 	void drawIndexed(uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset) override final;
 
 	void destroy(VkDevice device) override final;
+
+	void bindFrameBuffers(const std::vector<VulkanFrameBuffer>& frameBuffers)
+	{
+		m_FrameBuffers = frameBuffers;
+	}
 protected:
 	void setDynamicGfxState();
 private:
 	std::vector<VulkanFrameBuffer> m_FrameBuffers;
 	VulkanCommandBufferPtr m_CmdBuffer;
+	std::pair<VulkanGraphicsPipelinePtr, const GfxPipelineState*> m_CurrentPipeline;
 };
 using VulkanRenderPassPtr = std::shared_ptr<VulkanRenderPass>;

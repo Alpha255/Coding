@@ -2,11 +2,10 @@
 #include "Colorful/Public/GfxEngine.h"
 #include "Gear/Window.h"
 
-void ImGuiRenderer::initialize(GfxEngine *renderEngine)
+ImGuiRenderer::ImGuiRenderer(GfxEngine* gfxEngine)
+	: m_GfxEngine(gfxEngine)
 {
-	assert(renderEngine);
-
-	m_Renderer = renderEngine;
+	assert(gfxEngine);
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -16,7 +15,7 @@ void ImGuiRenderer::initialize(GfxEngine *renderEngine)
 	int32_t width = 0;
 	int32_t height = 0;
 	io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
-	auto fontTex = m_Renderer->createTexture(
+	auto fontTex = m_GfxEngine->createTexture(
 		eTexture2D,
 		eRGBA8_UNorm,
 		width,
@@ -28,8 +27,8 @@ void ImGuiRenderer::initialize(GfxEngine *renderEngine)
 		width * height * 4ull
 	);
 
-	auto vertexShader = m_Renderer->createVertexShader("ImGui.shader");
-	auto fragmentShader = m_Renderer->createFragmentShader("ImGui.shader");
+	auto vertexShader = m_GfxEngine->createVertexShader("ImGui.shader");
+	auto fragmentShader = m_GfxEngine->createFragmentShader("ImGui.shader");
 
 	std::vector<GfxVertexAttributes> vertexAttrs
 	{
@@ -50,11 +49,11 @@ void ImGuiRenderer::initialize(GfxEngine *renderEngine)
 		}
 	};
 	vertexShader->setInputLayout(vertexAttrs, alignof(ImDrawVert));
-	m_UniformBuffer = m_Renderer->createUniformBuffer(sizeof(UniformBuffer), nullptr);
+	m_UniformBuffer = m_GfxEngine->createUniformBuffer(sizeof(UniformBuffer), nullptr);
 	vertexShader->bindUniformBuffer(m_UniformBuffer);
 
 	GfxSamplerDesc samplerDesc{};
-	auto sampler = m_Renderer->createSampler(samplerDesc);
+	auto sampler = m_GfxEngine->createSampler(samplerDesc);
 	fontTex->bindSampler(sampler);
 	fragmentShader->bindTexture(fontTex);
 
@@ -165,7 +164,7 @@ void ImGuiRenderer::frame()
 	};
 	m_PipelineState.setViewport(viewport);
 
-	m_Renderer->opaqueRenderPass()->bindGfxPipeline(m_PipelineState);
+	m_GfxEngine->opaqueRenderPass()->bindGfxPipeline(m_PipelineState);
 
 	auto drawData = ImGui::GetDrawData();
 	assert(drawData);
@@ -185,7 +184,7 @@ void ImGuiRenderer::frame()
 			};
 
 			m_PipelineState.setScissor(scissor);
-			m_Renderer->opaqueRenderPass()->drawIndexed(drawCmd->ElemCount, (uint32_t)indexOffset, vertexOffset);
+			m_GfxEngine->opaqueRenderPass()->drawIndexed(drawCmd->ElemCount, (uint32_t)indexOffset, vertexOffset);
 			indexOffset += drawCmd->ElemCount;
 		}
 		vertexOffset += drawList->VtxBuffer.Size;
@@ -220,8 +219,8 @@ bool8_t ImGuiRenderer::update()
 	auto verties = std::make_unique<ImDrawVert[]>(drawData->TotalVtxCount);
 	auto indices = std::make_unique<ImDrawIdx[]>(drawData->TotalIdxCount);
 
-	auto vertexBuffer = m_Renderer->createVertexBuffer(eGpuReadCpuWrite, totalVertexBufferSize, nullptr);
-	auto indexBuffer = m_Renderer->createIndexBuffer(eGpuReadCpuWrite, totalIndexBufferSize, nullptr);
+	auto vertexBuffer = m_GfxEngine->createVertexBuffer(eGpuReadCpuWrite, totalVertexBufferSize, nullptr);
+	auto indexBuffer = m_GfxEngine->createIndexBuffer(eGpuReadCpuWrite, totalIndexBufferSize, nullptr);
 
 	for (int32_t i = 0, vertexOffset = 0, indexOffset = 0; i < drawData->CmdListsCount; ++i)
 	{

@@ -32,15 +32,17 @@ void Application::initialize(const std::string& windowTitle)
 	m_Window = std::make_unique<Window>(windowTitle, m_Config.WindowWidth, m_Config.WindowHeight);
 	m_Window->setMinSize(640u, 480u);
 
-	createGfxRenderer();
-
 	AssetTool::AssetDatabase::instance().initialize();
+
+	createGfxRenderer();
 
 	postInitialize();
 }
 
 void Application::loop()
 {
+	m_CpuTimer.start();
+
 	while (true)
 	{
 		auto &message = m_Window->message();
@@ -48,24 +50,22 @@ void Application::loop()
 		{
 			break;
 		}
-
 		if (message.State == eWindowState::eInactive)
 		{
+			m_CpuTimer.stop();
 			Gear::sleep(100u);
 		}
-		else
+		if (message.State == eWindowState::eResized)
 		{
-			m_GfxEngine->renderFrame();
+			Logger::instance().log(Logger::eInfo, "Window resized Width = %d, Height = %d.\n", m_Window->width(), m_Window->height());
+			m_GfxEngine->handleWindowResize(m_Window->width(), m_Window->height());
 		}
 
-		switch (message.State)
-		{
-		case eWindowState::eResized:
-			Logger::instance().log(Logger::eInfo, "Window resized Width = %d, Height = %d.\n", m_Window->width(), m_Window->height());
-			break;
-		case eWindowState::eInactive:
-			break;
-		}
+		m_CpuTimer.tick();
+
+		m_GfxEngine->processMessage(message, m_Window->width(), m_Window->height());
+
+		m_GfxEngine->renderFrame();
 
 		m_Window->update();
 	}
