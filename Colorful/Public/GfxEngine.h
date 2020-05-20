@@ -73,7 +73,7 @@ public:
 
 	void renderFrame()
 	{
-		present();
+		acquireNextFrame();
 
 		m_ImGuiRenderer->begin();
 
@@ -83,6 +83,8 @@ public:
 		}
 
 		m_ImGuiRenderer->end();
+
+		present();
 	}
 
 	void processMessage(const struct WindowMessage& message, uint32_t width, uint32_t height)
@@ -93,6 +95,7 @@ public:
 	virtual void initialize(uint64_t windowHandle, const Gear::Configurations& config) = 0;
 	virtual void finalize() = 0;
 	virtual void present() = 0;
+	virtual void acquireNextFrame() {};
 	virtual void handleWindowResize(uint32_t width, uint32_t height) = 0;
 
 	virtual GfxShaderPtr createVertexShader(const std::string& shaderName) = 0;

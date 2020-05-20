@@ -116,7 +116,7 @@ VulkanSwapchain::VulkanSwapchain(
 	m_Surface.PresentModes.resize(count);
 	GfxVerifyVk(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, m_Surface.Handle, &count, m_Surface.PresentModes.data()));
 
-	m_PresentCompleteSemaphore = new VulkanSemaphore(device);
+	m_PresentCompleteSemaphore = VulkanAsyncPool::instance()->allocSemaphore();
 
 	recreate();
 }
@@ -248,7 +248,6 @@ void VulkanSwapchain::destroy(VkInstance instance)
 	vkDestroySwapchainKHR(m_LogicDevice, Handle, vkMemoryAllocator);
 	m_Surface.destroy(instance);
 	Handle = VK_NULL_HANDLE;
-	m_PresentCompleteSemaphore->destroy(m_LogicDevice);
 
 	clearBackBuffers();
 }
@@ -262,14 +261,14 @@ uint32_t VulkanSwapchain::acquireNextFrame()
 	return m_CurrentFrameIndex;
 }
 
-void VulkanSwapchain::present(const VulkanSemaphore &renderCompleteSephore) const
+void VulkanSwapchain::present(const VulkanSemaphorePtr& renderCompleteSephore) const
 {
 	VkPresentInfoKHR presentInfo
 	{
 		VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
 		nullptr,
 		1u,
-		&renderCompleteSephore.Handle,
+		&renderCompleteSephore->Handle,
 		1u,
 		&Handle,
 		&m_CurrentFrameIndex,

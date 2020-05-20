@@ -10,94 +10,6 @@ VulkanQueue::VulkanQueue(VkDevice device, uint32_t queueFamilyIndex)
 	vkGetDeviceQueue(device, queueFamilyIndex, 0u, &Handle);
 
 	/// All queues associated with a logical device are destroyed when vkDestroyDevice is called on that device
-	///m_RenderCompleteSemaphore = device.createSemaphore();
-}
-
-void VulkanQueue::submit(const VulkanCommandBufferPtr& cmdBuffer)
-{
-	VkSubmitInfo submitInfo
-	{
-		VK_STRUCTURE_TYPE_SUBMIT_INFO,
-		nullptr,
-		0u,
-		nullptr,
-		nullptr,
-		1u,
-		&cmdBuffer->Handle,
-		0u,
-		nullptr
-	};
-	GfxVerifyVk(vkQueueSubmit(Handle, 1u, &submitInfo, cmdBuffer->fence()->Handle));
-	VulkanAsyncPool::instance()->waitFence(cmdBuffer->fence());
-}
-
-void VulkanQueue::present(
-	const VulkanCommandBufferPtr& cmdBuffer,
-	const VulkanSwapchain& swapchain,
-	VkFence fence)
-{
-	VkPipelineStageFlags waitStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-
-	VkSubmitInfo submitInfo
-	{
-		VK_STRUCTURE_TYPE_SUBMIT_INFO,
-		nullptr,
-		1u,
-		&swapchain.getPresentCompleteSemaphore()->Handle,
-		&waitStageMask,
-		1u,
-		&cmdBuffer->Handle,
-		1u,
-		&m_RenderCompleteSemaphore->Handle
-	};
-
-	/// Submission can be a high overhead operation, and applications should attempt to batch work together into as few calls to vkQueueSubmit as possible.
-	/// vkQueueSubmit is a queue submission command, with each batch defined by an element of pSubmits. 
-	/// Batches begin execution in the order they appear in pSubmits, but may complete out of order.
-	GfxVerifyVk(vkQueueSubmit(Handle, 1u, &submitInfo, fence));
-	///cmdBuffer.setState(VulkanCommandBuffer::ePending);
-	swapchain.present(*m_RenderCompleteSemaphore);
-}
-
-void VulkanQueue::submit(const VulkanSwapchain &swapchain)
-{
-	//assert(m_QueuedCmdBuffers.size() > 0u);
-	assert(swapchain.isValid());
-
-	//VkPipelineStageFlags waitStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-
-	//VkFence fence = VK_NULL_HANDLE;
-	//std::vector<VkCommandBuffer> submitCmdBuffers;
-	//for (uint32_t i = 0u; i < m_QueuedCmdBuffers.size(); ++i)
-	//{
-	//	submitCmdBuffers.emplace_back(m_QueuedCmdBuffers[i]->Handle);
-
-	//	if (m_QueuedCmdBuffers[i]->isInsideRenderPass())
-	//	{
-	//		m_QueuedCmdBuffers[i]->endRenderPass();
-	//	}
-	//	fence = m_QueuedCmdBuffers[i]->fence()->Handle;
-	//	///m_QueuedCmdBuffers[i]->setState(VulkanCommandBuffer::eExecutable);
-	//}
-
-	//VkSubmitInfo submitInfo
-	//{
-	//	VK_STRUCTURE_TYPE_SUBMIT_INFO,
-	//	nullptr,
-	//	1u,
-	//	&swapchain.getPresentCompleteSemaphore()->Handle,
-	//	&waitStageMask,
-	//	(uint32_t)submitCmdBuffers.size(),
-	//	submitCmdBuffers.data(),
-	//	1u,
-	//	&m_RenderCompleteSemaphore->Handle
-	//};
-
-	///// Submission can be a high overhead operation, and applications should attempt to batch work together into as few calls to vkQueueSubmit as possible.
-	///// vkQueueSubmit is a queue submission command, with each batch defined by an element of pSubmits. 
-	///// Batches begin execution in the order they appear in pSubmits, but may complete out of order.
-	//GfxVerifyVk(vkQueueSubmit(Handle, 1u, &submitInfo, fence));
-	//swapchain.present(*m_RenderCompleteSemaphore);
 }
 
 void VulkanQueue::waitIdle()
@@ -109,6 +21,93 @@ void VulkanQueue::waitIdle()
 		GfxVerifyVk(vkQueueWaitIdle(Handle));
 	}
 }
+
+//void VulkanQueue::submit(const VulkanCommandBufferPtr& cmdBuffer)
+//{
+//	VkSubmitInfo submitInfo
+//	{
+//		VK_STRUCTURE_TYPE_SUBMIT_INFO,
+//		nullptr,
+//		0u,
+//		nullptr,
+//		nullptr,
+//		1u,
+//		&cmdBuffer->Handle,
+//		0u,
+//		nullptr
+//	};
+//	GfxVerifyVk(vkQueueSubmit(Handle, 1u, &submitInfo, cmdBuffer->fence()->Handle));
+//	VulkanAsyncPool::instance()->waitFence(cmdBuffer->fence());
+//}
+
+//void VulkanQueue::present(
+//	const VulkanCommandBufferPtr& cmdBuffer,
+//	const VulkanSwapchain& swapchain,
+//	VkFence fence)
+//{
+//	VkPipelineStageFlags waitStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+//
+//	VkSubmitInfo submitInfo
+//	{
+//		VK_STRUCTURE_TYPE_SUBMIT_INFO,
+//		nullptr,
+//		1u,
+//		&swapchain.getPresentCompleteSemaphore()->Handle,
+//		&waitStageMask,
+//		1u,
+//		&cmdBuffer->Handle,
+//		1u,
+//		&m_RenderCompleteSemaphore->Handle
+//	};
+//
+//	/// Submission can be a high overhead operation, and applications should attempt to batch work together into as few calls to vkQueueSubmit as possible.
+//	/// vkQueueSubmit is a queue submission command, with each batch defined by an element of pSubmits. 
+//	/// Batches begin execution in the order they appear in pSubmits, but may complete out of order.
+//	GfxVerifyVk(vkQueueSubmit(Handle, 1u, &submitInfo, fence));
+//	///cmdBuffer.setState(VulkanCommandBuffer::ePending);
+//	swapchain.present(*m_RenderCompleteSemaphore);
+//}
+
+//void VulkanQueue::submit(const VulkanSwapchain &swapchain)
+//{
+//	//assert(m_QueuedCmdBuffers.size() > 0u);
+//	assert(swapchain.isValid());
+//
+//	//VkPipelineStageFlags waitStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+//
+//	//VkFence fence = VK_NULL_HANDLE;
+//	//std::vector<VkCommandBuffer> submitCmdBuffers;
+//	//for (uint32_t i = 0u; i < m_QueuedCmdBuffers.size(); ++i)
+//	//{
+//	//	submitCmdBuffers.emplace_back(m_QueuedCmdBuffers[i]->Handle);
+//
+//	//	if (m_QueuedCmdBuffers[i]->isInsideRenderPass())
+//	//	{
+//	//		m_QueuedCmdBuffers[i]->endRenderPass();
+//	//	}
+//	//	fence = m_QueuedCmdBuffers[i]->fence()->Handle;
+//	//	///m_QueuedCmdBuffers[i]->setState(VulkanCommandBuffer::eExecutable);
+//	//}
+//
+//	//VkSubmitInfo submitInfo
+//	//{
+//	//	VK_STRUCTURE_TYPE_SUBMIT_INFO,
+//	//	nullptr,
+//	//	1u,
+//	//	&swapchain.getPresentCompleteSemaphore()->Handle,
+//	//	&waitStageMask,
+//	//	(uint32_t)submitCmdBuffers.size(),
+//	//	submitCmdBuffers.data(),
+//	//	1u,
+//	//	&m_RenderCompleteSemaphore->Handle
+//	//};
+//
+//	///// Submission can be a high overhead operation, and applications should attempt to batch work together into as few calls to vkQueueSubmit as possible.
+//	///// vkQueueSubmit is a queue submission command, with each batch defined by an element of pSubmits. 
+//	///// Batches begin execution in the order they appear in pSubmits, but may complete out of order.
+//	//GfxVerifyVk(vkQueueSubmit(Handle, 1u, &submitInfo, fence));
+//	//swapchain.present(*m_RenderCompleteSemaphore);
+//}
 
 //void VulkanQueue::destroy(VkDevice device)
 //{
@@ -191,4 +190,26 @@ void VulkanQueueManager::queueImageCopyCommand(
 	command.ImageCopies = imageCopies;
 
 	m_ImageCopyCommandQueue.emplace(std::move(command));
+}
+
+void VulkanQueueManager::submitQueuedCommands()
+{
+	while (!m_BufferCopyCommandQueue.empty())
+	{
+		auto& cmd = m_BufferCopyCommandQueue.front();
+
+		m_BufferCopyCommandQueue.pop();
+	}
+
+	while (!m_ImageCopyCommandQueue.empty())
+	{
+		auto &cmd = m_ImageCopyCommandQueue.front();
+
+		m_ImageCopyCommandQueue.pop();
+	}
+
+	for (uint32_t i = 0u; i < m_GfxCommandQueue.size(); ++i)
+	{
+
+	}
 }

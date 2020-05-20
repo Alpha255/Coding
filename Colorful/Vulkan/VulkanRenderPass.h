@@ -109,11 +109,13 @@ public:
 	{
 		m_FrameBuffers = frameBuffers;
 	}
+
+	void destroyFrameBuffers(VkDevice device);
 protected:
 	void setDynamicGfxState();
 private:
 	std::vector<VulkanFrameBuffer> m_FrameBuffers;
 	VulkanCommandBufferPtr m_CmdBuffer;
-	std::pair<VulkanGraphicsPipelinePtr, const GfxPipelineState*> m_CurrentPipeline;
+	std::pair<VulkanGraphicsPipelinePtr, GfxPipelineState*> m_CurrentPipeline;
 };
 using VulkanRenderPassPtr = std::shared_ptr<VulkanRenderPass>;

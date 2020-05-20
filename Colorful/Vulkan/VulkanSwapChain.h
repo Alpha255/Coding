@@ -33,8 +33,9 @@ public:
 		return m_BackBuffers;
 	}
 
-	void present(const class VulkanSemaphore &renderCompleteSephore) const;
-	inline class VulkanSemaphore * getPresentCompleteSemaphore() const
+	void present(const VulkanSemaphorePtr& renderCompleteSephore) const;
+
+	inline const VulkanSemaphorePtr& presentCompleteSemaphore() const
 	{
 		return m_PresentCompleteSemaphore;
 	}
@@ -62,16 +63,19 @@ protected:
 
 	void clearBackBuffers();
 private:
+	const VkDevice m_LogicDevice;
+	const VkPhysicalDevice m_PhysicalDevice;
+
 	VulkanSurface m_Surface;
 	std::vector<VulkanImageViewPtr> m_BackBuffers;
-	class VulkanSemaphore *m_PresentCompleteSemaphore = nullptr;
+	VulkanSemaphorePtr m_PresentCompleteSemaphore = nullptr;
+
 	bool8_t m_VSync = false;
 	bool8_t m_FullScreen = false;
 	uint32_t m_Width = 0u;
 	uint32_t m_Height = 0u;
-public:
 	uint32_t m_CurrentFrameIndex = 0u;
-	const VkDevice m_LogicDevice;
-	const VkPhysicalDevice m_PhysicalDevice;
+
+
 };
 using VulkanSwapchainPtr = std::shared_ptr<VulkanSwapchain>;

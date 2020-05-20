@@ -85,8 +85,11 @@ case enumValue:                                      \
 void VulkanEngine::present()
 {
 	m_Swapchain->acquireNextFrame();
+
 	///m_GraphicsQueue.submit(m_Swapchain);
 	///VulkanQueueManager::instance()->gfxQueue()->submit(m_Swapchain);
+
+	VulkanQueueManager::instance()->submitQueuedCommands();
 }
 
 template<class TVector> void free(TVector& vector, VkDevice device)
@@ -107,17 +110,27 @@ void VulkanEngine::freeResources()
 
 void VulkanEngine::createOpaqueRenderPass()
 {
+	VulkanRenderPassPtr vkRenderPass = nullptr;
+	if (m_OpaqueRenderPass)
+	{
+		vkRenderPass = std::static_pointer_cast<VulkanRenderPass>(m_OpaqueRenderPass);
+		vkRenderPass->destroyFrameBuffers(m_Device.logicalDevice());
+	}
+
+	auto& backBuffers = m_Swapchain->backBuffers();
+
 	GfxFrameBufferDesc frameBufferDesc{};
 	frameBufferDesc.Width = m_Swapchain->width();
 	frameBufferDesc.Height = m_Swapchain->height();
 	frameBufferDesc.DepthSurface = createDepthStencilView(frameBufferDesc.Width, frameBufferDesc.Height, eD24_UNorm_S8_UInt);
-
-	auto& backBuffers = m_Swapchain->backBuffers();
 	frameBufferDesc.ColorSurface[0] = std::static_pointer_cast<GfxRenderSurface>(backBuffers[0]);
 
-	m_OpaqueRenderPass = createRenderPass(frameBufferDesc);
+	if (!vkRenderPass)
+	{
+		m_OpaqueRenderPass = createRenderPass(frameBufferDesc);
+		vkRenderPass = std::static_pointer_cast<VulkanRenderPass>(m_OpaqueRenderPass);
+	}
 
-	auto vkRenderPass = std::static_pointer_cast<VulkanRenderPass>(m_OpaqueRenderPass);
 	std::vector<VulkanFrameBuffer> frameBuffers(backBuffers.size());
 	for (uint32_t i = 0u; i < backBuffers.size(); ++i)
 	{

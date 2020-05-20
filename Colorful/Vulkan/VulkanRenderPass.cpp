@@ -195,23 +195,12 @@ void VulkanRenderPass::bindGfxPipeline(const GfxPipelineState& state)
 		m_CmdBuffer->beginRenderPass(beginInfo, VK_SUBPASS_CONTENTS_INLINE);
 	}
 
-	m_CurrentPipeline.first = VulkanPipelinePool::instance()->getOrCreateGfxPipeline(Handle, state);
-	m_CurrentPipeline.first->bind(m_CmdBuffer);
-	m_CurrentPipeline.second = &state;
-
-	if (state.isDirty(GfxPipelineState::eVertexBuffer))
+	auto curPipeline = VulkanPipelinePool::instance()->getOrCreateGfxPipeline(Handle, state);
+	if (m_CurrentPipeline.first != curPipeline)
 	{
-		assert(state.VertexBuffer);
-		auto vertexBuffer = static_cast<VulkanBufferPtr>(state.VertexBuffer);
-		VkDeviceSize offsets[1u]{};
-		vkCmdBindVertexBuffers(m_CmdBuffer->Handle, 0u, 1u, &vertexBuffer->Handle, offsets);
-	}
-
-	if (state.isDirty(GfxPipelineState::eIndexBuffer))
-	{
-		assert(state.IndexBuffer);
-		auto indexBuffer = static_cast<VulkanBufferPtr>(state.IndexBuffer);
-		vkCmdBindIndexBuffer(m_CmdBuffer->Handle, indexBuffer->Handle, 0u, state.IndexType == eRIndexType::eUInt16 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32);
+		m_CurrentPipeline.first = curPipeline;
+		m_CurrentPipeline.first->bind(m_CmdBuffer);
+		m_CurrentPipeline.second = const_cast<GfxPipelineState*>(&state);
 	}
 
 	VulkanQueueManager::instance()->queueGfxCommand(m_CmdBuffer);
@@ -236,7 +225,22 @@ void VulkanRenderPass::setDynamicGfxState()
 {
 	assert(m_CmdBuffer->isValid());
 
-	///if (state.isDirty(GfxPipelineState::eViewport))
+	if (m_CurrentPipeline.second->isDirty(GfxPipelineState::eVertexBuffer))
+	{
+		assert(m_CurrentPipeline.second->VertexBuffer);
+		auto vertexBuffer = static_cast<VulkanBufferPtr>(m_CurrentPipeline.second->VertexBuffer);
+		VkDeviceSize offsets[1u]{};
+		vkCmdBindVertexBuffers(m_CmdBuffer->Handle, 0u, 1u, &vertexBuffer->Handle, offsets);
+	}
+
+	if (m_CurrentPipeline.second->isDirty(GfxPipelineState::eIndexBuffer))
+	{
+		assert(m_CurrentPipeline.second->IndexBuffer);
+		auto indexBuffer = static_cast<VulkanBufferPtr>(m_CurrentPipeline.second->IndexBuffer);
+		vkCmdBindIndexBuffer(m_CmdBuffer->Handle, indexBuffer->Handle, 0u, m_CurrentPipeline.second->IndexType == eRIndexType::eUInt16 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32);
+	}
+
+	if (m_CurrentPipeline.second->isDirty(GfxPipelineState::eViewport))
 	{
 		VkViewport viewport
 		{
@@ -250,7 +254,7 @@ void VulkanRenderPass::setDynamicGfxState()
 		vkCmdSetViewport(m_CmdBuffer->Handle, 0u, 1u, &viewport);
 	}
 
-	///if (state.isDirty(GfxPipelineState::eScissor))
+	if (m_CurrentPipeline.second->isDirty(GfxPipelineState::eScissor))
 	{
 		VkRect2D scissor
 		{
@@ -265,17 +269,24 @@ void VulkanRenderPass::setDynamicGfxState()
 		};
 		vkCmdSetScissor(m_CmdBuffer->Handle, 0u, 1u, &scissor);
 	}
+
+	m_CurrentPipeline.second->clearDirty();
+}
+
+void VulkanRenderPass::destroyFrameBuffers(VkDevice device)
+{
+	for (uint32_t i = 0u; i < m_FrameBuffers.size(); ++i)
+	{
+		m_FrameBuffers[i].destroy(device);
+	}
+	m_FrameBuffers.clear();
 }
 
 void VulkanRenderPass::destroy(VkDevice device)
 {
 	if (isValid())
 	{
-		for (uint32_t i = 0u; i < m_FrameBuffers.size(); ++i)
-		{
-			m_FrameBuffers[i].destroy(device);
-		}
-		m_FrameBuffers.clear();
+		destroyFrameBuffers(device);
 
 		vkDestroyRenderPass(device, Handle, vkMemoryAllocator);
 		Handle = VK_NULL_HANDLE;

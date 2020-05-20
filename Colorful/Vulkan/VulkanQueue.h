@@ -8,21 +8,20 @@ class VulkanQueue : public VulkanObject<VkQueue>
 public:
 	VulkanQueue(VkDevice device, uint32_t queueFamilyIndex);
 
-	void submit(const VulkanCommandBufferPtr& cmdBuffer);
+	//void submit(const VulkanCommandBufferPtr& cmdBuffer);
 
-	void present(
-		const VulkanCommandBufferPtr& cmdBuffer,
-		const class VulkanSwapchain& swapchain,
-		VkFence fence);
+	//void present(
+	//	const VulkanCommandBufferPtr& cmdBuffer,
+	//	const class VulkanSwapchain& swapchain,
+	//	VkFence fence);
 
-	void submit(const class VulkanSwapchain &swapchain);
+	//void submit(const class VulkanSwapchain &swapchain);
 
 	void waitIdle();
 
 protected:
 private:
 	uint32_t m_FamilyIndex = std::numeric_limits<uint32_t>().max();
-	class VulkanSemaphore *m_RenderCompleteSemaphore = nullptr;
 };
 using VulkanQueuePtr = std::shared_ptr<VulkanQueue>;
 
@@ -67,6 +66,8 @@ public:
 		const std::vector<VkBufferImageCopy>& imageCopies,
 		size_t size,
 		const void* data);
+
+	void submitQueuedCommands();
 
 	void cleanup() override final
 	{

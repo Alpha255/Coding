@@ -16,6 +16,12 @@ public:
 	void handleWindowResize(uint32_t width, uint32_t height) override final
 	{
 		m_Swapchain->resize(width, height);
+		createOpaqueRenderPass();
+	}
+
+	inline void acquireNextFrame() override final
+	{
+		m_Swapchain->acquireNextFrame();
 	}
 
 	GfxShaderPtr createVertexShader(const std::string& shaderName) override final

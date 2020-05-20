@@ -104,6 +104,7 @@ struct GfxFrameBufferDesc
 
 struct GfxPipelineState
 {
+public:
 	enum eDirtyFlags : uint8_t
 	{
 		eViewport = 1u,
@@ -119,10 +120,6 @@ struct GfxPipelineState
 	inline bool8_t isDirty(eDirtyFlags flags) const
 	{
 		return flags & Dirty;
-	}
-	inline void setDirty(eDirtyFlags flags)
-	{
-		Dirty |= flags;
 	}
 	inline void clearDirty()
 	{
@@ -140,47 +137,47 @@ struct GfxPipelineState
 		Shaders[shader->usage()] = shader;
 	}
 
-	inline void setViewport(const GfxViewport &viewport)
+	inline void setViewport(const GfxViewport& viewport)
 	{
 		Viewport = viewport;
 		setDirty(eViewport);
 	}
 
-	inline void setScissor(const GfxScissor &scissor)
+	inline void setScissor(const GfxScissor& scissor)
 	{
 		Scissor = scissor;
 		setDirty(eScissor);
 	}
 
-	inline void setRasterizerState(const GfxRasterizerStateDesc &desc)
+	inline void setRasterizerState(const GfxRasterizerStateDesc& desc)
 	{
 		RasterizerStateDesc = desc;
 	}
 
-	inline void setBlendState(const GfxBlendStateDesc &desc)
+	inline void setBlendState(const GfxBlendStateDesc& desc)
 	{
 		BlendStateDesc = desc;
 	}
 
-	inline void setDepthStencilState(const GfxDepthStencilStateDesc &desc)
+	inline void setDepthStencilState(const GfxDepthStencilStateDesc& desc)
 	{
-		DepthStencilStateDesc = desc;
+ 		DepthStencilStateDesc = desc;
 	}
 
-	inline void bindVertexBuffer(GfxGpuBuffer *buffer)
+	inline void bindVertexBuffer(GfxGpuBufferPtr buffer)
 	{
 		VertexBuffer = buffer;
 		setDirty(eVertexBuffer);
 	}
 
-	inline void bindIndexBuffer(GfxGpuBuffer *buffer, eRIndexType type = eRIndexType::eUInt32)
+	inline void bindIndexBuffer(GfxGpuBufferPtr buffer, eRIndexType type = eRIndexType::eUInt32)
 	{
 		IndexBuffer = buffer;
 		setDirty(eIndexBuffer);
 		IndexType = type;
 	}
 
-	inline void setRenderArea(const Vec4 &area)
+	inline void setRenderArea(const Vec4& area)
 	{
 		RenderArea = area;
 	}
@@ -197,7 +194,7 @@ struct GfxPipelineState
 	GfxGpuBufferPtr VertexBuffer = nullptr;
 	GfxGpuBufferPtr IndexBuffer = nullptr;
 
-	friend bool8_t operator==(const GfxPipelineState &left, const GfxPipelineState &right)
+	friend bool8_t operator==(const GfxPipelineState& left, const GfxPipelineState& right)
 	{
 		for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
 		{
@@ -213,14 +210,14 @@ struct GfxPipelineState
 	}
 	/// MultisampleState
 
-	struct rClearValue
+	struct GfxClearValue
 	{
 		Vec4 Color = Color::DarkBlue;
 		float32_t Depth = 1.0f;
 		uint32_t Stencil = 0u;
 	};
-	rClearValue ClearValue{};
-	inline void setClearValue(const Vec4 &color = Color::DarkBlue, float32_t depth = 1.0f, uint32_t stencil = 0u)
+	GfxClearValue ClearValue{};
+	inline void setClearValue(const Vec4& color = Color::DarkBlue, float32_t depth = 1.0f, uint32_t stencil = 0u)
 	{
 		ClearValue.Color = color;
 		ClearValue.Depth = depth;
@@ -228,6 +225,12 @@ struct GfxPipelineState
 	}
 	Vec4 RenderArea;
 	eRIndexType IndexType = eRIndexType::eUInt32;
+
+protected:
+	inline void setDirty(eDirtyFlags flags)
+	{
+		Dirty |= flags;
+	}
 };
 
 class GfxRenderPass

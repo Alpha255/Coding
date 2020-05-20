@@ -12,6 +12,28 @@ struct UniformBufferVS
 
 void RenderTest::postInitialize()
 {
+#if 0
+	auto dirty = mGraphicsPipelineState.isDirty(GfxPipelineState::eViewport);
+	mGraphicsPipelineState.setDirty(GfxPipelineState::eViewport);
+	dirty = mGraphicsPipelineState.isDirty(GfxPipelineState::eViewport);
+
+	dirty = mGraphicsPipelineState.isDirty(GfxPipelineState::eScissor);
+	mGraphicsPipelineState.setDirty(GfxPipelineState::eScissor);
+	dirty = mGraphicsPipelineState.isDirty(GfxPipelineState::eScissor);
+
+	dirty = mGraphicsPipelineState.isDirty(GfxPipelineState::eVertexBuffer);
+	mGraphicsPipelineState.setDirty(GfxPipelineState::eVertexBuffer);
+	dirty = mGraphicsPipelineState.isDirty(GfxPipelineState::eVertexBuffer);
+
+	dirty = mGraphicsPipelineState.isDirty(GfxPipelineState::eIndexBuffer);
+	mGraphicsPipelineState.setDirty(GfxPipelineState::eIndexBuffer);
+	dirty = mGraphicsPipelineState.isDirty(GfxPipelineState::eIndexBuffer);
+
+	dirty = mGraphicsPipelineState.isDirty(GfxPipelineState::eViewport);
+	dirty = mGraphicsPipelineState.isDirty(GfxPipelineState::eScissor);
+	dirty = mGraphicsPipelineState.isDirty(GfxPipelineState::eVertexBuffer);
+	dirty = mGraphicsPipelineState.isDirty(GfxPipelineState::eIndexBuffer);
+#endif
 	auto vertexShader = m_GfxEngine->createVertexShader("RenderTest.shader");
 	auto fragmentShader = m_GfxEngine->createFragmentShader("RenderTest.shader");
 	auto texture = m_GfxEngine->createTexture("brickwall.dds");
