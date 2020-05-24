@@ -22,97 +22,23 @@ void VulkanQueue::waitIdle()
 	}
 }
 
-//void VulkanQueue::submit(const VulkanCommandBufferPtr& cmdBuffer)
-//{
-//	VkSubmitInfo submitInfo
-//	{
-//		VK_STRUCTURE_TYPE_SUBMIT_INFO,
-//		nullptr,
-//		0u,
-//		nullptr,
-//		nullptr,
-//		1u,
-//		&cmdBuffer->Handle,
-//		0u,
-//		nullptr
-//	};
-//	GfxVerifyVk(vkQueueSubmit(Handle, 1u, &submitInfo, cmdBuffer->fence()->Handle));
-//	VulkanAsyncPool::instance()->waitFence(cmdBuffer->fence());
-//}
-
-//void VulkanQueue::present(
-//	const VulkanCommandBufferPtr& cmdBuffer,
-//	const VulkanSwapchain& swapchain,
-//	VkFence fence)
-//{
-//	VkPipelineStageFlags waitStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-//
-//	VkSubmitInfo submitInfo
-//	{
-//		VK_STRUCTURE_TYPE_SUBMIT_INFO,
-//		nullptr,
-//		1u,
-//		&swapchain.getPresentCompleteSemaphore()->Handle,
-//		&waitStageMask,
-//		1u,
-//		&cmdBuffer->Handle,
-//		1u,
-//		&m_RenderCompleteSemaphore->Handle
-//	};
-//
-//	/// Submission can be a high overhead operation, and applications should attempt to batch work together into as few calls to vkQueueSubmit as possible.
-//	/// vkQueueSubmit is a queue submission command, with each batch defined by an element of pSubmits. 
-//	/// Batches begin execution in the order they appear in pSubmits, but may complete out of order.
-//	GfxVerifyVk(vkQueueSubmit(Handle, 1u, &submitInfo, fence));
-//	///cmdBuffer.setState(VulkanCommandBuffer::ePending);
-//	swapchain.present(*m_RenderCompleteSemaphore);
-//}
-
-//void VulkanQueue::submit(const VulkanSwapchain &swapchain)
-//{
-//	//assert(m_QueuedCmdBuffers.size() > 0u);
-//	assert(swapchain.isValid());
-//
-//	//VkPipelineStageFlags waitStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-//
-//	//VkFence fence = VK_NULL_HANDLE;
-//	//std::vector<VkCommandBuffer> submitCmdBuffers;
-//	//for (uint32_t i = 0u; i < m_QueuedCmdBuffers.size(); ++i)
-//	//{
-//	//	submitCmdBuffers.emplace_back(m_QueuedCmdBuffers[i]->Handle);
-//
-//	//	if (m_QueuedCmdBuffers[i]->isInsideRenderPass())
-//	//	{
-//	//		m_QueuedCmdBuffers[i]->endRenderPass();
-//	//	}
-//	//	fence = m_QueuedCmdBuffers[i]->fence()->Handle;
-//	//	///m_QueuedCmdBuffers[i]->setState(VulkanCommandBuffer::eExecutable);
-//	//}
-//
-//	//VkSubmitInfo submitInfo
-//	//{
-//	//	VK_STRUCTURE_TYPE_SUBMIT_INFO,
-//	//	nullptr,
-//	//	1u,
-//	//	&swapchain.getPresentCompleteSemaphore()->Handle,
-//	//	&waitStageMask,
-//	//	(uint32_t)submitCmdBuffers.size(),
-//	//	submitCmdBuffers.data(),
-//	//	1u,
-//	//	&m_RenderCompleteSemaphore->Handle
-//	//};
-//
-//	///// Submission can be a high overhead operation, and applications should attempt to batch work together into as few calls to vkQueueSubmit as possible.
-//	///// vkQueueSubmit is a queue submission command, with each batch defined by an element of pSubmits. 
-//	///// Batches begin execution in the order they appear in pSubmits, but may complete out of order.
-//	//GfxVerifyVk(vkQueueSubmit(Handle, 1u, &submitInfo, fence));
-//	//swapchain.present(*m_RenderCompleteSemaphore);
-//}
-
-//void VulkanQueue::destroy(VkDevice device)
-//{
-//	m_RenderCompleteSemaphore->destroy(device);
-//}
+void VulkanQueue::submit(const VulkanCommandBufferPtr& cmdBuffer)
+{
+	VkSubmitInfo submitInfo
+	{
+		VK_STRUCTURE_TYPE_SUBMIT_INFO,
+		nullptr,
+		0u,
+		nullptr,
+		nullptr,
+		1u,
+		&cmdBuffer->Handle,
+		0u,
+		nullptr
+	};
+	GfxVerifyVk(vkQueueSubmit(Handle, 1u, &submitInfo, cmdBuffer->fence()->Handle));
+	VulkanAsyncPool::instance()->waitFence(cmdBuffer->fence());
+}
 
 VulkanQueueManager::VulkanQueueManager(
 	const VkDevice device, 
@@ -136,6 +62,8 @@ VulkanQueueManager::VulkanQueueManager(
 		m_TransferQueue = std::make_shared<VulkanQueue>(device, transferQueueFamilyIndex);
 		m_TransferCmdBufferPool = std::make_shared<VulkanCommandPool>(device, transferQueueFamilyIndex);
 	}
+
+	m_RenderCompleteSemaphore = VulkanAsyncPool::instance()->allocSemaphore();
 }
 
 void VulkanQueueManager::queueGfxCommand(const VulkanCommandBufferPtr& cmdBuffer)
@@ -162,7 +90,7 @@ void VulkanQueueManager::queueBufferCopyCommand(VkBuffer dstBuffer, size_t size,
 
 	VulkanBufferCopyCommand command{};
 	command.DstBuffer = dstBuffer;
-	command.StagingBuffer = std::make_shared<VulkanBuffer>(m_Device, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, size, data);
+	command.StagingBuffer = VulkanBufferPool::instance()->allocStagingBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT, size, data);
 	command.CopyInfo.size = size;
 
 	m_BufferCopyCommandQueue.emplace(std::move(command));
@@ -183,7 +111,7 @@ void VulkanQueueManager::queueImageCopyCommand(
 
 	VulkanImageCopyCommand command;
 	command.DstImage = dstImage;
-	command.StagingBuffer = std::make_shared<VulkanBuffer>(m_Device, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, size, data);
+	command.StagingBuffer = VulkanBufferPool::instance()->allocStagingBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT, size, data);
 	command.SrcLayout = srcLayout;
 	command.DstLayout = dstLayout;
 	command.SubresourceRange = subresrouceRange;
@@ -192,24 +120,126 @@ void VulkanQueueManager::queueImageCopyCommand(
 	m_ImageCopyCommandQueue.emplace(std::move(command));
 }
 
-void VulkanQueueManager::submitQueuedCommands()
+void VulkanQueueManager::submitBufferCopyCommands()
 {
+	if (m_BufferCopyCommandQueue.empty())
+	{
+		return;
+	}
+
+	auto cmdBuffer = m_TransferCmdBufferPool->alloc();
+	cmdBuffer->begin();
+
 	while (!m_BufferCopyCommandQueue.empty())
 	{
 		auto& cmd = m_BufferCopyCommandQueue.front();
 
+		vkCmdCopyBuffer(cmdBuffer->Handle, cmd.StagingBuffer->Handle, cmd.DstBuffer, 1u, &cmd.CopyInfo);
+
+		VulkanBufferPool::instance()->free(cmd.StagingBuffer);
 		m_BufferCopyCommandQueue.pop();
 	}
+
+	cmdBuffer->end();
+
+	m_TransferQueue->submit(cmdBuffer);
+
+	m_TransferCmdBufferPool->free(cmdBuffer);
+}
+
+void VulkanQueueManager::submitImageCopyCommands()
+{
+	if (m_ImageCopyCommandQueue.empty())
+	{
+		return;
+	}
+
+	auto cmdBuffer = m_GfxCmdBufferPool->alloc();
+	cmdBuffer->begin();
 
 	while (!m_ImageCopyCommandQueue.empty())
 	{
 		auto &cmd = m_ImageCopyCommandQueue.front();
 
+		VkPipelineStageFlags stageFlags = 0u;
+		VkAccessFlags accessFlags = 0u;
+		VkImageLayout imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+		VulkanImage::makeMemoryBarrierFlags(cmd.SrcLayout, stageFlags, accessFlags, imageLayout);
+
+		VkImageMemoryBarrier imageMemoryBarrier
+		{
+			VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+			nullptr,
+			0u,
+			accessFlags,
+			VK_IMAGE_LAYOUT_UNDEFINED,
+			imageLayout,
+			VK_QUEUE_FAMILY_IGNORED,
+			VK_QUEUE_FAMILY_IGNORED,
+			cmd.DstImage,
+			cmd.SubresourceRange
+		};
+		vkCmdPipelineBarrier(cmdBuffer->Handle, VK_PIPELINE_STAGE_HOST_BIT, stageFlags, 0u, 0u, nullptr, 0u, nullptr, 1u, &imageMemoryBarrier);
+
+		vkCmdCopyBufferToImage(cmdBuffer->Handle, cmd.StagingBuffer->Handle, cmd.DstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, (uint32_t)cmd.ImageCopies.size(), cmd.ImageCopies.data());
+
+		VkPipelineStageFlags oldStageFlags = stageFlags;
+		VulkanImage::makeMemoryBarrierFlags(cmd.DstLayout, stageFlags, accessFlags, imageLayout);
+
+		imageMemoryBarrier.srcAccessMask = imageMemoryBarrier.dstAccessMask;
+		imageMemoryBarrier.oldLayout = imageMemoryBarrier.newLayout;
+		imageMemoryBarrier.dstAccessMask = accessFlags;
+		imageMemoryBarrier.newLayout = imageLayout;
+
+		vkCmdPipelineBarrier(cmdBuffer->Handle, oldStageFlags, stageFlags, 0u, 0u, nullptr, 0u, nullptr, 1u, &imageMemoryBarrier);
+
+		VulkanBufferPool::instance()->free(cmd.StagingBuffer);
 		m_ImageCopyCommandQueue.pop();
 	}
 
+	cmdBuffer->end();
+
+	m_GfxQueue->submit(cmdBuffer);
+
+	m_GfxCmdBufferPool->free(cmdBuffer);
+}
+
+void VulkanQueueManager::submitGfxCommands(VkSemaphore presentCompleteSemaphore)
+{
+	/// Submission can be a high overhead operation, and applications should attempt to batch work together into as few calls to vkQueueSubmit as possible.
+	/// vkQueueSubmit is a queue submission command, with each batch defined by an element of pSubmits. 
+	/// Batches begin execution in the order they appear in pSubmits, but may complete out of order.
+
+	std::vector<VkCommandBuffer> cmdBuffers(m_GfxCommandQueue.size());
 	for (uint32_t i = 0u; i < m_GfxCommandQueue.size(); ++i)
 	{
+		cmdBuffers[i] = m_GfxCommandQueue[i]->Handle;
 
+		if (m_GfxCommandQueue[i]->isInsideRenderPass())
+		{
+			m_GfxCommandQueue[i]->endRenderPass();
+		}
+
+		assert(m_GfxCommandQueue[i]->state() == VulkanCommandBuffer::eExecutable);
+
+		m_GfxCommandQueue[i]->setState(VulkanCommandBuffer::eInitial);
 	}
+
+	VkPipelineStageFlags waitStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	VkSubmitInfo submitInfo
+	{
+		VK_STRUCTURE_TYPE_SUBMIT_INFO,
+		nullptr,
+		1u,
+		&presentCompleteSemaphore,
+		&waitStageMask,
+		(uint32_t)cmdBuffers.size(),
+		cmdBuffers.data(),
+		1u,
+		&m_RenderCompleteSemaphore->Handle
+	};
+	GfxVerifyVk(vkQueueSubmit(m_GfxQueue->Handle, 1u, &submitInfo, VK_NULL_HANDLE));
+
+	m_GfxCommandQueue.clear();
 }

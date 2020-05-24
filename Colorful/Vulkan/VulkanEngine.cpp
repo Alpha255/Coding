@@ -3,6 +3,8 @@
 #include "VulkanShader.h"
 #include "VulkanBuffer.h"
 
+uint32_t VulkanEngine::m_CurFrameIndex = 0u;
+
 void VulkanEngine::initialize(uint64_t windowHandle, const Gear::Configurations& config)
 {
 #if defined(UsingVkLoader)
@@ -84,12 +86,13 @@ case enumValue:                                      \
 
 void VulkanEngine::present()
 {
-	m_Swapchain->acquireNextFrame();
+	VulkanBufferPool::instance()->delayFree();
 
-	///m_GraphicsQueue.submit(m_Swapchain);
-	///VulkanQueueManager::instance()->gfxQueue()->submit(m_Swapchain);
+	VulkanQueueManager::instance()->submitQueuedCommands(m_Swapchain->presentCompleteSemaphore()->Handle);
 
-	VulkanQueueManager::instance()->submitQueuedCommands();
+	m_Swapchain->present(VulkanQueueManager::instance()->renderCompleteSemaphore()->Handle);
+
+	VulkanQueueManager::instance()->gfxQueue()->waitIdle();
 }
 
 template<class TVector> void free(TVector& vector, VkDevice device)

@@ -71,7 +71,7 @@ void VulkanImage::queueCopyCommand(const AssetTool::TextureBinary& binary)
 
 		VulkanQueueManager::instance()->queueImageCopyCommand(
 			Handle,
-			eUndefined,
+			eTransferDst,
 			eFragmentShaderRead,
 			subresourceRange,
 			bufferImageCopy,

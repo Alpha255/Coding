@@ -8,14 +8,7 @@ class VulkanQueue : public VulkanObject<VkQueue>
 public:
 	VulkanQueue(VkDevice device, uint32_t queueFamilyIndex);
 
-	//void submit(const VulkanCommandBufferPtr& cmdBuffer);
-
-	//void present(
-	//	const VulkanCommandBufferPtr& cmdBuffer,
-	//	const class VulkanSwapchain& swapchain,
-	//	VkFence fence);
-
-	//void submit(const class VulkanSwapchain &swapchain);
+	void submit(const VulkanCommandBufferPtr& cmdBuffer);
 
 	void waitIdle();
 
@@ -49,9 +42,9 @@ public:
 		return m_GfxCmdBufferPool->alloc(level);
 	}
 
-	inline VulkanCommandBufferPtr allocTransferCommandBuffer(VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY)
+	const VulkanSemaphorePtr& renderCompleteSemaphore() const
 	{
-		return m_TransferCmdBufferPool->alloc(level);
+		return m_RenderCompleteSemaphore;
 	}
 
 	void queueGfxCommand(const VulkanCommandBufferPtr& cmdBuffer);
@@ -67,7 +60,14 @@ public:
 		size_t size,
 		const void* data);
 
-	void submitQueuedCommands();
+	void submitQueuedCommands(VkSemaphore presentCompleteSemaphore)
+	{
+		submitBufferCopyCommands();
+
+		submitImageCopyCommands();
+
+		submitGfxCommands(presentCompleteSemaphore);
+	}
 
 	void cleanup() override final
 	{
@@ -78,6 +78,8 @@ public:
 		m_GfxQueue->Handle = VK_NULL_HANDLE;
 		m_ComputeQueue->Handle = VK_NULL_HANDLE;
 		m_TransferQueue->Handle = VK_NULL_HANDLE;
+		
+		m_RenderCompleteSemaphore->destroy(m_Device);
 	}
 protected:
 	VulkanQueueManager(
@@ -86,17 +88,21 @@ protected:
 		uint32_t computeQueueFamilyIndex,
 		uint32_t transferQueueFamilyIndex);
 
+	void submitBufferCopyCommands();
+	void submitImageCopyCommands();
+	void submitGfxCommands(VkSemaphore presentCompleteSemaphore);
+
 	struct VulkanBufferCopyCommand
 	{
 		VkBuffer DstBuffer = VK_NULL_HANDLE;
-		std::shared_ptr<VulkanBuffer> StagingBuffer = nullptr;
+		VulkanBufferPtr StagingBuffer = nullptr;
 		VkBufferCopy CopyInfo{};
 	};
 
 	struct VulkanImageCopyCommand
 	{
 		VkImage DstImage = VK_NULL_HANDLE;
-		std::shared_ptr<VulkanBuffer> StagingBuffer = nullptr;
+		VulkanBufferPtr StagingBuffer = nullptr;
 		VulkanImage::eImageLayout SrcLayout = VulkanImage::eImageLayout_MaxEnum;
 		VulkanImage::eImageLayout DstLayout = VulkanImage::eImageLayout_MaxEnum;
 		VkImageSubresourceRange SubresourceRange{};
@@ -116,4 +122,6 @@ private:
 	std::queue<VulkanBufferCopyCommand> m_BufferCopyCommandQueue;
 	std::queue<VulkanImageCopyCommand> m_ImageCopyCommandQueue;
 	std::vector<VulkanCommandBufferPtr> m_GfxCommandQueue;
+
+	VulkanSemaphorePtr m_RenderCompleteSemaphore = nullptr;
 };

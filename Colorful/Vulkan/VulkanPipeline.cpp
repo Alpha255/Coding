@@ -140,6 +140,15 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(
 
 	/// Pending creations ???
 	GfxVerifyVk(vkCreateGraphicsPipelines(device, pipelineCache, 1u, &createInfo, vkMemoryAllocator, &Handle));
+
+	for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
+	{
+		if (state.Shaders[i])
+		{
+			auto shader = std::static_pointer_cast<VulkanShader>(state.Shaders[i]);
+			shader->destroy(device);
+		}
+	}
 }
 
 void VulkanGraphicsPipeline::bind(const VulkanCommandBufferPtr &cmdBuffer)

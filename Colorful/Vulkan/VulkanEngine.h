@@ -15,13 +15,20 @@ public:
 
 	void handleWindowResize(uint32_t width, uint32_t height) override final
 	{
-		m_Swapchain->resize(width, height);
-		createOpaqueRenderPass();
+		if (m_Swapchain->width() != width || m_Swapchain->height() != height)
+		{
+			m_Device.waitIdle();
+
+			m_Swapchain->resize(width, height);
+
+			createOpaqueRenderPass();
+		}
 	}
 
 	inline void acquireNextFrame() override final
 	{
 		m_Swapchain->acquireNextFrame();
+		m_CurFrameIndex = m_Swapchain->currentFrameIndex();
 	}
 
 	GfxShaderPtr createVertexShader(const std::string& shaderName) override final
@@ -129,6 +136,11 @@ public:
 
 		return result;
 	}
+
+	static uint32_t currentFrameIndex()
+	{
+		return m_CurFrameIndex;
+	}
 protected:
 	void freeResources();
 	void createOpaqueRenderPass();
@@ -136,6 +148,8 @@ private:
 	VulkanInstance m_Instance;
 	VulkanDevice m_Device;
 	VulkanSwapchainPtr m_Swapchain = nullptr;
+
+	static uint32_t m_CurFrameIndex;
 
 	std::vector<VulkanRenderPassPtr> m_RenderPassList;
 	std::vector<VulkanImageViewPtr> m_ImageViewList;

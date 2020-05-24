@@ -103,14 +103,21 @@ public:
 	{
 		return alloc(eUniformBuffer, eGpuReadCpuWrite, size, data);
 	}
+
+	inline VulkanBufferPtr allocStagingBuffer(VkBufferUsageFlags usageFlagBits, size_t size, const void* data)
+	{
+		auto buffer = new VulkanBuffer(m_Device, usageFlagBits, size, data);
+		m_Buffers.insert(std::make_pair(buffer->Handle, buffer));
+		return buffer;
+	}
 	
 	inline void free(VulkanBufferPtr buffer)
 	{
 		auto it = m_Buffers.find(buffer->Handle);
 		if (it != m_Buffers.end())
 		{
-			m_Buffers.erase(it);
 			m_DelayFreeList[m_ListIndex++] = it->second;
+			m_Buffers.erase(it);
 		}
 		else
 		{

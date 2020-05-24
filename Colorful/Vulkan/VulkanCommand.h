@@ -48,7 +48,7 @@ public:
 
 		/// VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT specifies that most or all memory resources currently owned by the command buffer should be returned to the parent command pool. 
 		/// If this flag is not set, then the command buffer may hold onto memory resources and reuse them when recording commands.
-		//assert(m_State != ePending && isValid());
+		assert(m_State != ePending && isValid());
 		vkResetCommandBuffer(Handle, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
 		setState(eInitial);
 	}
@@ -59,6 +59,7 @@ public:
 	}
 protected:
 	friend class VulkanCommandPool;
+	friend class VulkanQueueManager;
 	enum eState
 	{
 		eInitial,

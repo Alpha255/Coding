@@ -21,10 +21,10 @@ public:
 
 	inline void resize(uint32_t width, uint32_t height)
 	{
-		if (width != m_Width || height != height)
-		{
-			///recreate(width, height, m_bVSync, m_bFullScreen, physicalDevice, device);
-		}
+		m_Width = width;
+		m_Height = height;
+
+		recreate();
 	}
 
 	uint32_t acquireNextFrame();
@@ -33,7 +33,12 @@ public:
 		return m_BackBuffers;
 	}
 
-	void present(const VulkanSemaphorePtr& renderCompleteSephore) const;
+	uint32_t currentFrameIndex() const
+	{
+		return m_CurrentFrameIndex;
+	}
+
+	void present(VkSemaphore renderCompleteSephore) const;
 
 	inline const VulkanSemaphorePtr& presentCompleteSemaphore() const
 	{

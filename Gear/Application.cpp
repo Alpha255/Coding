@@ -60,12 +60,18 @@ void Application::loop()
 			Logger::instance().log(Logger::eInfo, "Window resized Width = %d, Height = %d.\n", m_Window->width(), m_Window->height());
 			m_GfxEngine->handleWindowResize(m_Window->width(), m_Window->height());
 		}
+		if (message.State == eWindowState::eActive)
+		{
+			m_CpuTimer.start();
 
-		m_CpuTimer.tick();
+			m_CpuTimer.tick();
 
-		m_GfxEngine->processMessage(message, m_Window->width(), m_Window->height());
+			m_Camera.processMessage(message, m_CpuTimer.elapsedTime());
 
-		m_GfxEngine->renderFrame();
+			m_GfxEngine->processMessage(message, m_Window->width(), m_Window->height());
+
+			m_GfxEngine->renderFrame();
+		}
 
 		m_Window->update();
 	}

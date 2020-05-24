@@ -90,29 +90,11 @@ void RenderTest::postInitialize()
 	/// alignment ??? Try to create based on shader reflection(Format) ??? 
 	vertexShader->setInputLayout(vertexAttrs, alignof(vertex));
 
-	GfxViewport viewport
-	{
-		0.0f,
-		0.0f,
-		(float32_t)m_Window->width(),
-		(float32_t)m_Window->height()
-	};
-	GfxScissor scissor
-	{
-		0.0f,
-		0.0f,
-		(float32_t)m_Window->width(),
-		(float32_t)m_Window->height()
-	};
-
 	vertexShader->bindUniformBuffer(mUniformBuffer);
 	mGraphicsPipelineState.setShader(vertexShader);
 	mGraphicsPipelineState.setShader(fragmentShader);
-	mGraphicsPipelineState.setViewport(viewport);
-	mGraphicsPipelineState.setScissor(scissor);
 	mGraphicsPipelineState.bindVertexBuffer(vertexBuffer);
 	mGraphicsPipelineState.bindIndexBuffer(indexBuffer);
-	mGraphicsPipelineState.setRenderArea(viewport);
 
 	m_Camera.setPerspective(Math::PI_Div4, (float32_t)m_Window->width() / m_Window->height(), 0.1f, 500.0f);
 	m_Camera.setView(Vec3(0.0f, 0.0f, 4.0f), Vec3(0.0f, 0.0f, 0.0f));
@@ -132,6 +114,24 @@ void RenderTest::renderFrame()
 		proj
 	};
 	mUniformBuffer->update(&uboVS, sizeof(UniformBufferVS), 0u);
+
+	GfxViewport viewport
+	{
+		0.0f,
+		0.0f,
+		(float32_t)m_Window->width(),
+		(float32_t)m_Window->height()
+	};
+	GfxScissor scissor
+	{
+		0.0f,
+		0.0f,
+		(float32_t)m_Window->width(),
+		(float32_t)m_Window->height()
+	};
+	mGraphicsPipelineState.setViewport(viewport);
+	mGraphicsPipelineState.setScissor(scissor);
+	mGraphicsPipelineState.setRenderArea(viewport);
 
 	m_GfxEngine->opaqueRenderPass()->bindGfxPipeline(mGraphicsPipelineState);
 	m_GfxEngine->opaqueRenderPass()->drawIndexed(6u, 0u, 0);

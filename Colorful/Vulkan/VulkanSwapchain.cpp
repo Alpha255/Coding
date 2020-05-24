@@ -221,8 +221,6 @@ void VulkanSwapchain::recreate()
 	/// obscured, for example because another window is in front of them.Unless you really need to be able to read these 
 	/// pixels back and get predictable results, you will get the best performance by enabling clipping
 
-	///device.waitIdle();
-
 	GfxVerifyVk(vkCreateSwapchainKHR(m_LogicDevice, &createInfo, vkMemoryAllocator, &Handle));
 
 	if (oldSwapchain != VK_NULL_HANDLE)
@@ -261,14 +259,14 @@ uint32_t VulkanSwapchain::acquireNextFrame()
 	return m_CurrentFrameIndex;
 }
 
-void VulkanSwapchain::present(const VulkanSemaphorePtr& renderCompleteSephore) const
+void VulkanSwapchain::present(VkSemaphore renderCompleteSephore) const
 {
 	VkPresentInfoKHR presentInfo
 	{
 		VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
 		nullptr,
 		1u,
-		&renderCompleteSephore->Handle,
+		&renderCompleteSephore,
 		1u,
 		&Handle,
 		&m_CurrentFrameIndex,

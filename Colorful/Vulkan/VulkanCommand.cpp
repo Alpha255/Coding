@@ -155,8 +155,8 @@ void VulkanCommandPool::free(VulkanCommandBufferPtr& cmdBuffer)
 
 	auto it = m_CmdBuffers.find(cmdBuffer->Handle);
 	assert(it != m_CmdBuffers.end());
-	m_CmdBuffers.erase(it);
 	m_FreeCmdBuffers.emplace_back(std::move(it->second));
+	m_CmdBuffers.erase(it);
 
 	/// Any primary command buffer that is in the recording or executable state and has any element of pCommandBuffers recorded into it, becomes invalid.
 

@@ -168,9 +168,7 @@ void VulkanRenderPass::bindGfxPipeline(const GfxPipelineState& state)
 			state.ClearValue.Stencil
 		};
 
-		uint32_t frameIndex = 0u;
-		///uint32_t frameIndex = VulkanEngine::instance().acquireNextFrame();
-		///assert(frameIndex < m_FrameBuffers.size());
+		uint32_t frameIndex = VulkanEngine::currentFrameIndex();
 
 		VkRenderPassBeginInfo beginInfo
 		{
@@ -196,7 +194,7 @@ void VulkanRenderPass::bindGfxPipeline(const GfxPipelineState& state)
 	}
 
 	auto curPipeline = VulkanPipelinePool::instance()->getOrCreateGfxPipeline(Handle, state);
-	if (m_CurrentPipeline.first != curPipeline)
+	///if (m_CurrentPipeline.first != curPipeline)
 	{
 		m_CurrentPipeline.first = curPipeline;
 		m_CurrentPipeline.first->bind(m_CmdBuffer);
@@ -225,7 +223,7 @@ void VulkanRenderPass::setDynamicGfxState()
 {
 	assert(m_CmdBuffer->isValid());
 
-	if (m_CurrentPipeline.second->isDirty(GfxPipelineState::eVertexBuffer))
+	///if (m_CurrentPipeline.second->isDirty(GfxPipelineState::eVertexBuffer))
 	{
 		assert(m_CurrentPipeline.second->VertexBuffer);
 		auto vertexBuffer = static_cast<VulkanBufferPtr>(m_CurrentPipeline.second->VertexBuffer);
@@ -233,7 +231,7 @@ void VulkanRenderPass::setDynamicGfxState()
 		vkCmdBindVertexBuffers(m_CmdBuffer->Handle, 0u, 1u, &vertexBuffer->Handle, offsets);
 	}
 
-	if (m_CurrentPipeline.second->isDirty(GfxPipelineState::eIndexBuffer))
+	///if (m_CurrentPipeline.second->isDirty(GfxPipelineState::eIndexBuffer))
 	{
 		assert(m_CurrentPipeline.second->IndexBuffer);
 		auto indexBuffer = static_cast<VulkanBufferPtr>(m_CurrentPipeline.second->IndexBuffer);

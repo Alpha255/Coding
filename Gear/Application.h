@@ -20,7 +20,7 @@ public:
 
 	virtual void finalize();
 
-	virtual void renderFrame() {}
+	virtual void renderFrame() = 0;
 protected:
 	void createGfxRenderer();
 
