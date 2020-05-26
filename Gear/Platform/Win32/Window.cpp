@@ -73,7 +73,7 @@ Window::Window(const std::string& title, uint32_t width, uint32_t height)
 
 void Window::processMessage(uint32_t message, uint64_t wParam, int64_t lParam)
 {
-	static auto getMousePos = [&]()
+	static auto getMousePos = [&](int64_t lParam)
 	{
 		Vec2 curPos = Vec2(LOWORD(lParam), HIWORD(lParam));
 		m_Message.Mouse.DeltaPos = curPos - m_Message.Mouse.Pos;
@@ -128,7 +128,7 @@ void Window::processMessage(uint32_t message, uint64_t wParam, int64_t lParam)
 	}
 	case WM_LBUTTONDOWN:
 		m_Message.Mouse.Left.KeyDown = true;
-		getMousePos();
+		getMousePos(lParam);
 		break;
 	case WM_LBUTTONUP:
 		m_Message.Mouse.Left.KeyDown = false;
@@ -139,7 +139,7 @@ void Window::processMessage(uint32_t message, uint64_t wParam, int64_t lParam)
 		break;
 	case WM_RBUTTONDOWN:
 		m_Message.Mouse.Right.KeyDown = true;
-		getMousePos();
+		getMousePos(lParam);
 		break;
 	case WM_RBUTTONUP:
 		m_Message.Mouse.Right.KeyDown = false;
@@ -159,7 +159,7 @@ void Window::processMessage(uint32_t message, uint64_t wParam, int64_t lParam)
 		m_Message.Mouse.Middle.DoubleClick = true;
 		break;
 	case WM_MOUSEMOVE:
-		getMousePos();
+		getMousePos(lParam);
 		break;
 	case WM_MOUSEWHEEL:
 		m_Message.Mouse.WheelDelta = GET_WHEEL_DELTA_WPARAM(wParam);

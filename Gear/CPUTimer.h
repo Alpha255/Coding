@@ -67,7 +67,7 @@ public:
 		auto current = std::chrono::high_resolution_clock::now();
 		///m_ElapsedTime = std::chrono::duration<float32_t>(current - m_Last).count();
 		m_ElapsedTime = std::chrono::duration_cast<std::chrono::duration<float32_t, std::ratio<1, 1000>>>(current - m_Last).count();
-		///m_Last = m_Current;
+		///m_Last = current;
 		///m_ElapsedTime = m_ElapsedTime < 0.0f ? 0.0f : m_ElapsedTime;
 	}
 protected:
