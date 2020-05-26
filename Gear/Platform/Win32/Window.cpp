@@ -73,7 +73,7 @@ Window::Window(const std::string& title, uint32_t width, uint32_t height)
 
 void Window::processMessage(uint32_t message, uint64_t wParam, int64_t lParam)
 {
-	static auto getMousePos = [&](int64_t lParam)
+	static auto getMousePos = [this](int64_t lParam)
 	{
 		Vec2 curPos = Vec2(LOWORD(lParam), HIWORD(lParam));
 		m_Message.Mouse.DeltaPos = curPos - m_Message.Mouse.Pos;
