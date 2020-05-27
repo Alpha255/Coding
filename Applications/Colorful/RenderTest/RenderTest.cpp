@@ -98,7 +98,7 @@ void RenderTest::postInitialize()
 
 	m_Camera.setPerspective(Math::PI_Div4, (float32_t)m_Window->width() / m_Window->height(), 0.1f, 500.0f);
 	m_Camera.setView(Vec3(0.0f, 0.0f, 4.0f), Vec3(0.0f, 0.0f, 0.0f));
-	m_Camera.setScalers(0.01f, 15.0f);
+	m_Camera.setScalers(0.0001f, 1.0f);
 }
 
 void RenderTest::renderFrame()
@@ -141,8 +141,7 @@ void RenderTest::renderFrame()
 	ImGui::Text("Mouse pos x: %.2f, y: %.2f", m_Window->message().Mouse.Pos.x, m_Window->message().Mouse.Pos.y);
 	ImGui::Text("Mouse delta pos x: %.2f, y: %.2f", m_Window->message().Mouse.DeltaPos.x, m_Window->message().Mouse.DeltaPos.y);
 	ImGui::Text("Mouse wheel delta: %.d", m_Window->message().Mouse.WheelDelta);
-	ImGui::Text("ElapsedTime: %.2f", m_CpuTimer.elapsedTime());
-	ImGui::Text("ElapsedTimeInSeconds: %.2f", m_CpuTimer.elapsedTimeInSeconds());
+	ImGui::Text("ElapsedTime: %.6f", m_CpuTimer.elapsedTime());
 	ImGui::Text("FPS: %.2f", m_FPS);
 }
 

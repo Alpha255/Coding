@@ -67,7 +67,7 @@ void DXUTCamera::updateKeys(const WindowMessage& message)
 		break;
 	case eKeyboardKey::eKey_D:
 	case eKeyboardKey::eKey_Right:
-		m_KeyDirection.x += 1.0f;
+		m_KeyDirection.x += -1.0f;
 		break;
 	case eKeyboardKey::eKey_W:
 	case eKeyboardKey::eKey_Up:

@@ -7,23 +7,19 @@ namespaceStart(Gear)
 class CpuTimer
 {
 public:
-	inline float32_t totalTime() const
+	CpuTimer()
 	{
-		std::chrono::high_resolution_clock::time_point totalTime;
-		if (m_Stopped)
-		{
-			return std::chrono::duration_cast<std::chrono::duration<float32_t, std::ratio<1, 1000>>>(m_Stop - m_Last).count() / 1000.0f;
-		}
-		else
-		{
-		}
-
-		return 0.0f;
+		reset();
 	}
 
-	inline float32_t elapsedTimeInSeconds() const
+	inline float32_t totalTime() const
 	{
-		return m_ElapsedTime / 1000.0f;
+		if (m_Stopped)
+		{
+			return std::chrono::duration_cast<Seconds>(m_StopTimePoint - m_BaseTimePoint).count() - m_PausedTime;
+		}
+		
+		return std::chrono::duration_cast<Seconds>(m_CurrentTimePoint - m_BaseTimePoint).count() - m_PausedTime;
 	}
 
 	inline float32_t elapsedTime() const
@@ -35,15 +31,20 @@ public:
 	{
 		m_Stopped = false;
 		m_ElapsedTime = 0.0f;
+
+		m_BaseTimePoint = std::chrono::high_resolution_clock::now();
+		m_LastTimePoint = std::chrono::high_resolution_clock::now();
+		m_StopTimePoint = std::chrono::high_resolution_clock::time_point();
 	}
 
 	inline void start()
 	{
 		if (m_Stopped)
 		{
-			m_Last = std::chrono::high_resolution_clock::now();
+			m_PausedTime += std::chrono::duration_cast<Seconds>(std::chrono::high_resolution_clock::now() - m_StopTimePoint).count();
+			m_LastTimePoint = std::chrono::high_resolution_clock::now();
+			m_StopTimePoint = std::chrono::high_resolution_clock::time_point();
 			m_Stopped = false;
-			m_Stop = std::chrono::high_resolution_clock::time_point();
 		}
 	}
 	
@@ -51,7 +52,7 @@ public:
 	{
 		if (!m_Stopped)
 		{
-			m_Stop = std::chrono::high_resolution_clock::now();
+			m_StopTimePoint = std::chrono::high_resolution_clock::now();
 			m_Stopped = true;
 		}
 	}
@@ -64,19 +65,23 @@ public:
 			return;
 		}
 
-		auto current = std::chrono::high_resolution_clock::now();
-		///m_ElapsedTime = std::chrono::duration<float32_t>(current - m_Last).count();
-		m_ElapsedTime = std::chrono::duration_cast<std::chrono::duration<float32_t, std::ratio<1, 1000>>>(current - m_Last).count();
-		///m_Last = current;
-		///m_ElapsedTime = m_ElapsedTime < 0.0f ? 0.0f : m_ElapsedTime;
+		m_CurrentTimePoint = std::chrono::high_resolution_clock::now();
+		m_ElapsedTime = std::chrono::duration_cast<Seconds>(m_CurrentTimePoint - m_LastTimePoint).count();
+		m_LastTimePoint = m_CurrentTimePoint;
+		m_ElapsedTime = m_ElapsedTime < 0.0f ? 0.0f : m_ElapsedTime;
 	}
 protected:
+	using Seconds = std::chrono::duration<float32_t, std::ratio<1, 1>>;
+	using Milliseconds = std::chrono::duration<float32_t, std::ratio<1, 1000>>;
 private:
-	std::chrono::high_resolution_clock::time_point m_Stop;
-	std::chrono::high_resolution_clock::time_point m_Last;
+	std::chrono::high_resolution_clock::time_point m_BaseTimePoint;
+	std::chrono::high_resolution_clock::time_point m_StopTimePoint;
+	std::chrono::high_resolution_clock::time_point m_LastTimePoint;
+	std::chrono::high_resolution_clock::time_point m_CurrentTimePoint;
 
 	float32_t m_ElapsedTime = 0.0f;
 	float32_t m_TotalTime = 0.0f;
+	float32_t m_PausedTime = 0.0f;
 
 	bool8_t m_Stopped = true;
 };

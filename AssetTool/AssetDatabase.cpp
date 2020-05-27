@@ -10,8 +10,7 @@ static bool8_t s_Ready = false;
 
 void AssetDatabase::initialize()
 {
-#if 0
-	auto initInOtherThread = [&]()
+	auto initInOtherThread = [this]()
 	{
 		Gear::CpuTimer timer;
 		timer.start();
@@ -35,36 +34,16 @@ void AssetDatabase::initialize()
 			auto asset = std::make_shared<Asset>(file, tryToGetAssetType(file), index++);
 			s_Assets.insert(std::make_pair(asset->name(), asset));
 		}
+		s_Ready = true;
+
 		timer.stop();
 		Logger::instance().log(Logger::eInfo, format("Find all assets takes %.2f ms\n", timer.totalTime()));
 	};
-
+#if 0
 	std::thread(initInOtherThread).detach();
+#else
+	initInOtherThread();
 #endif
-	Gear::CpuTimer timer;
-	timer.start();
-	std::string currentPath = getApplicationPath();
-	s_BasePath = File::directory(File::directory(currentPath));
-	s_BasePath += "\\Assets";
-	verify(File::isDirectoryExists(s_BasePath));
-
-	std::string configPath(File::directory(getApplicationPath()) + "\\Configurations.json");
-	assert(File::isExists(configPath));
-	std::ifstream filestream(configPath);
-	filestream >> s_AssetConfigJson;
-	filestream.close();
-
-	std::vector<std::string> filters;
-	auto fileList = Gear::File::buildFileList(s_BasePath, filters, true);
-
-	uint32_t index = 0;
-	for each (auto &file in fileList)
-	{
-		auto asset = std::make_shared<Asset>(file, tryToGetAssetType(file), index++);
-		s_Assets.insert(std::make_pair(asset->name(), asset));
-	}
-	timer.stop();
-	Logger::instance().log(Logger::eInfo, format("Find all assets takes %.2f ms\n", timer.totalTime()));
 }
 
 Asset::eAssetType AssetDatabase::tryToGetAssetType(const std::string& assetName)

@@ -197,6 +197,24 @@ void Window::processMessage(uint32_t message, uint64_t wParam, int64_t lParam)
 		case VK_F1:
 			m_Message.Key = eKeyboardKey::eKey_F1;
 			break;
+		case 'W':
+			m_Message.Key = eKeyboardKey::eKey_W;
+			break;
+		case 'A':
+			m_Message.Key = eKeyboardKey::eKey_A;
+			break;
+		case 'S':
+			m_Message.Key = eKeyboardKey::eKey_S;
+			break;
+		case 'D':
+			m_Message.Key = eKeyboardKey::eKey_D;
+			break;
+		case 'Q':
+			m_Message.Key = eKeyboardKey::eKey_Q;
+			break;
+		case 'E':
+			m_Message.Key = eKeyboardKey::eKey_E;
+			break;
 		default:
 			m_Message.Key = eKeyboardKey::eKey_Other;
 			break;

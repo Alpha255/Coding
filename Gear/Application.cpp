@@ -44,7 +44,7 @@ void Application::updateFPS()
 	static uint32_t FrameCounter = 0u;
 	static float32_t LastTime = 0.0f;
 
-	float32_t curTime = m_CpuTimer.elapsedTimeInSeconds();
+	float32_t curTime = m_CpuTimer.totalTime();
 	++FrameCounter;
 
 	float32_t deltaTime = curTime - LastTime;
