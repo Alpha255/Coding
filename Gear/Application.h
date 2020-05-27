@@ -23,12 +23,14 @@ public:
 	virtual void renderFrame() = 0;
 protected:
 	void createGfxRenderer();
+	void updateFPS();
 
 	Configurations m_Config;
 	WindowPtr m_Window = nullptr;
 	GfxEnginePtr m_GfxEngine = nullptr;
 	DXUTCamera m_Camera;
 	CpuTimer m_CpuTimer;
+	float32_t m_FPS = 0.0f;
 private:
 };
 

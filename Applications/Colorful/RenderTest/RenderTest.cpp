@@ -143,7 +143,7 @@ void RenderTest::renderFrame()
 	ImGui::Text("Mouse wheel delta: %.d", m_Window->message().Mouse.WheelDelta);
 	ImGui::Text("ElapsedTime: %.2f", m_CpuTimer.elapsedTime());
 	ImGui::Text("ElapsedTimeInSeconds: %.2f", m_CpuTimer.elapsedTimeInSeconds());
-	///ImGui::Text("FPS %.2f", m_FPS);
+	ImGui::Text("FPS: %.2f", m_FPS);
 }
 
 appMainEntry(RenderTest)

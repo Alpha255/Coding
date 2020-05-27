@@ -39,6 +39,23 @@ void Application::initialize(const std::string& windowTitle)
 	postInitialize();
 }
 
+void Application::updateFPS()
+{
+	static uint32_t FrameCounter = 0u;
+	static float32_t LastTime = 0.0f;
+
+	float32_t curTime = m_CpuTimer.elapsedTimeInSeconds();
+	++FrameCounter;
+
+	float32_t deltaTime = curTime - LastTime;
+	if (deltaTime > 1.0f)
+	{
+		m_FPS = FrameCounter / deltaTime;
+		LastTime = curTime;
+		FrameCounter = 0u;
+	}
+}
+
 void Application::loop()
 {
 	m_CpuTimer.start();
@@ -71,6 +88,8 @@ void Application::loop()
 			m_GfxEngine->processMessage(message, m_Window->width(), m_Window->height());
 
 			m_GfxEngine->renderFrame();
+
+			updateFPS();
 		}
 
 		m_Window->update();
