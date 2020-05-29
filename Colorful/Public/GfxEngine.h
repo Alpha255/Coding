@@ -63,6 +63,8 @@ class GfxGpuTimer
 class GfxEngine
 {
 public:
+	virtual ~GfxEngine() = default;
+
 	using RenderFrameCallback = std::function<void(void)>;
 
 	void registerRenderFrameCallback(RenderFrameCallback callback)
