@@ -67,23 +67,26 @@ void Application::loop()
 		{
 			break;
 		}
-		if (message.State == eWindowState::eInactive)
+		else if (message.State == eWindowState::eInactive || message.Minimized)
 		{
 			m_CpuTimer.stop();
 			Gear::sleep(100u);
 		}
-		if (message.State == eWindowState::eResized)
+		else if (message.State == eWindowState::eResized)
 		{
-			Logger::instance().log(Logger::eInfo, "Window resized Width = %d, Height = %d.\n", m_Window->width(), m_Window->height());
 			m_GfxEngine->handleWindowResize(m_Window->width(), m_Window->height());
+			m_Camera.handleWindowResize(m_Window->width(), m_Window->height());
 		}
-		if (message.State == eWindowState::eActive)
+		else if (message.State == eWindowState::eActive)
 		{
 			m_CpuTimer.start();
 
 			m_CpuTimer.tick();
 
-			m_Camera.processMessage(message, m_CpuTimer.elapsedTime());
+			if (!m_GfxEngine->isFocusOnUI())
+			{
+				m_Camera.processMessage(message, m_CpuTimer.elapsedTime());
+			}
 
 			m_GfxEngine->processMessage(message, m_Window->width(), m_Window->height());
 

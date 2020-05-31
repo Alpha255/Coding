@@ -100,6 +100,11 @@ public:
 	virtual void acquireNextFrame() {};
 	virtual void handleWindowResize(uint32_t width, uint32_t height) = 0;
 
+	virtual bool isFocusOnUI() const 
+	{
+		return m_ImGuiRenderer->isFocus();
+	}
+
 	virtual GfxShaderPtr createVertexShader(const std::string& shaderName) = 0;
 	virtual GfxShaderPtr createFragmentShader(const std::string& shaderName) = 0;
 

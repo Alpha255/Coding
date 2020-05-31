@@ -80,6 +80,19 @@ void Window::processMessage(uint32_t message, uint64_t wParam, int64_t lParam)
 		m_Message.Mouse.Pos = curPos;
 	};
 
+	static auto getWindowSize = [this]()
+	{
+		if (m_Handle)
+		{
+			::RECT rect{};
+			::GetClientRect((::HWND)m_Handle, &rect);
+			m_Width = static_cast<uint32_t>(rect.right - rect.left);
+			m_Height = static_cast<uint32_t>(rect.bottom - rect.top);
+		}
+	};
+
+	static bool8_t resizing = false;
+
 	switch (message)
 	{
 	case WM_ACTIVATE:
@@ -92,26 +105,23 @@ void Window::processMessage(uint32_t message, uint64_t wParam, int64_t lParam)
 			m_Message.State = eWindowState::eActive;
 		}
 		break;
-	case WM_SYSCOMMAND:
-		if (SC_MAXIMIZE == wParam)
+	case WM_SIZE:
+		if (resizing || SIZE_MAXIMIZED == wParam || SIZE_RESTORED == wParam)
 		{
 			m_Message.State = eWindowState::eResized;
+			getWindowSize();
+			m_Message.Minimized = false;
 		}
-		else if (SC_MINIMIZE == wParam)
+		else if (SIZE_MINIMIZED == wParam)
 		{
-			m_Message.State = eWindowState::eInactive;
-		}
-		else if (SC_RESTORE == wParam)
-		{
-			m_Message.State = eWindowState::eResized;
+			m_Message.Minimized = true;
 		}
 		break;
-	case WM_SIZING:
 	case WM_ENTERSIZEMOVE:
-		m_Message.State = eWindowState::eInactive;
+		resizing = true;
 		break;
 	case WM_EXITSIZEMOVE:
-		m_Message.State = eWindowState::eResized;  /// Include window move message
+		resizing = false;
 		break;
 	case WM_DESTROY:
 		m_Message.State = eWindowState::eDestroy;
@@ -119,6 +129,7 @@ void Window::processMessage(uint32_t message, uint64_t wParam, int64_t lParam)
 		break;
 	case WM_NCLBUTTONDBLCLK:
 		m_Message.State = eWindowState::eResized;
+		getWindowSize();
 		break;
 	case WM_GETMINMAXINFO:
 	{
@@ -223,14 +234,6 @@ void Window::processMessage(uint32_t message, uint64_t wParam, int64_t lParam)
 	case WM_KEYUP:
 		m_Message.Key = eKeyboardKey::eKey_None;
 		break;
-	}
-
-	if (m_Message.State == eWindowState::eResized)
-	{
-		::RECT rect{};
-		::GetClientRect((::HWND)m_Handle, &rect);
-		m_Width = static_cast<uint32_t>(rect.right - rect.left);
-		m_Height = static_cast<uint32_t>(rect.bottom - rect.top);
 	}
 }
 

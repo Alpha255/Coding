@@ -61,6 +61,8 @@ struct WindowMessage
 	eKeyboardKey Key = eKeyboardKey::eKey_None;
 
 	MouseMessage Mouse;
+
+	bool8_t Minimized = false;
 };
 
 class Window

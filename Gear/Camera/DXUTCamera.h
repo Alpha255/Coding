@@ -19,6 +19,11 @@ public:
 
 	void processMessage(const struct WindowMessage& message, float32_t elapsedTime);
 
+	void handleWindowResize(uint32_t width, uint32_t height)
+	{
+		setPerspective(m_Fov, width * 1.0f / height, m_NearPlane, m_FarPlane);
+	}
+
 	inline const Math::Matrix& worldMatrix() const 
 	{
 		return m_World;

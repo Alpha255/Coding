@@ -15,14 +15,11 @@ public:
 
 	void handleWindowResize(uint32_t width, uint32_t height) override final
 	{
-		if (m_Swapchain->width() != width || m_Swapchain->height() != height)
-		{
-			m_Device.waitIdle();
+		m_Device.waitIdle();
 
-			m_Swapchain->resize(width, height);
+		m_Swapchain->resize(width, height);
 
-			createOpaqueRenderPass();
-		}
+		createOpaqueRenderPass();
 	}
 
 	inline void acquireNextFrame() override final
