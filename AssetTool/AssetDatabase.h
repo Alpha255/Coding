@@ -2,6 +2,8 @@
 
 #include "Asset.h"
 
+class GfxModel;
+
 namespaceStart(AssetTool)
 
 class exportAPI AssetDatabase : public Singleton<AssetDatabase>
@@ -12,6 +14,8 @@ public:
 	ShaderBinary tryToGetShaderBinary(Configurations::eRenderEngine engine, eRShaderUsage usage, const std::string& shaderName);
 
 	TextureBinary tryToGetTextureBinary(Configurations::eRenderEngine engine, const std::string& texName);
+
+	AssetPtr tryToLoadStaticMesh(const std::string& modelName, GfxModel& gfxModel);
 
 	AssetPtr tryToGetAsset(const std::string& assetName);
 protected:
