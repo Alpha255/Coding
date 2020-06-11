@@ -140,6 +140,8 @@ void RenderTest::renderFrame()
 	m_GfxEngine->opaqueRenderPass()->bindGfxPipeline(mGraphicsPipelineState);
 	m_GfxEngine->opaqueRenderPass()->drawIndexed(6u, 0u, 0);
 
+	ModelTest.draw(m_Camera, m_GfxEngine.get(), viewport);
+
 	static bool8_t checked = true;
 	ImGui::Checkbox("TestCheckBox", &checked);
 	ImGui::Text("Mouse pos x: %.2f, y: %.2f", m_Window->message().Mouse.Pos.x, m_Window->message().Mouse.Pos.y);

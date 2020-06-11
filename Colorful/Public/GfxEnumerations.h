@@ -257,6 +257,7 @@ enum eRVertexUsage
 	eNormal,
 	eBinNormal,
 	eTangent,
+	eBiTangent,
 	eTexcoord,
 	eColor,
 	eRVertexUsge_MaxEnum

@@ -16,6 +16,7 @@
 #include <atomic>
 #include <mutex>
 #include <fstream>
+#include <set>
 #include <condition_variable>
 
 #include "Gear/Definitions.Generated.h"

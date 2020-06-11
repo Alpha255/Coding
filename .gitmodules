@@ -22,3 +22,6 @@
 [submodule "ThirdParty/leveldb"]
 	path = ThirdParty/leveldb
 	url = https://github.com/google/leveldb.git
+[submodule "ThirdParty/stb"]
+	path = ThirdParty/stb
+	url = https://github.com/nothings/stb.git

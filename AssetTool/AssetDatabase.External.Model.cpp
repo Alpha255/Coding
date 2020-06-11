@@ -6,9 +6,12 @@
 
 namespaceStart(AssetTool)
 
-AssetPtr AssetDatabase::tryToLoadModel(const std::string& modelName, __out GfxModel& gfxModel, GfxEngine* gfxEngine)
+void AssetDatabase::tryToLoadModel(const std::string& modelName, __out GfxModel& gfxModel, GfxEngine* gfxEngine)
 {
 	assert(gfxEngine);
+
+	Gear::CpuTimer timer;
+	timer.start();
 
 	auto model = AssetTool::AssetDatabase().instance().tryToGetAsset(modelName);
 	assert(model->type() == AssetTool::Asset::eModel);
@@ -24,14 +27,19 @@ AssetPtr AssetDatabase::tryToLoadModel(const std::string& modelName, __out GfxMo
 	if (!scene)
 	{
 		Logger::instance().log(Logger::eError, "Assimp: %s", importer.GetErrorString());
-		return model;
+		return;
 	}
 
 	if (!scene->HasMeshes())
 	{
 		Logger::instance().log(Logger::eError, "The model %s is empty", model->name().c_str());
-		return nullptr;
+		return;
 	}
+
+	std::set<std::string> loadedTextures;
+
+	GfxSamplerDesc samplerDesc;
+	auto linearSampler = gfxEngine->createSampler(samplerDesc);
 
 	gfxModel.m_Meshes.resize(scene->mNumMeshes);
 	for (uint32_t i = 0u; i < scene->mNumMeshes; ++i)
@@ -48,23 +56,23 @@ AssetPtr AssetDatabase::tryToLoadModel(const std::string& modelName, __out GfxMo
 		bool8_t hasVertexColor = mesh->HasVertexColors(0u);
 		for (uint32_t j = 0u; j < mesh->mNumVertices; ++j) /// Async?
 		{
-			vertices[i].Position = Vec3(mesh->mVertices[j].x, mesh->mVertices[j].y, mesh->mVertices[j].z);
+			vertices[j].Position = Vec3(mesh->mVertices[j].x, mesh->mVertices[j].y, mesh->mVertices[j].z);
 			if (hasNormal)
 			{
-				vertices[i].Normal = Vec3(mesh->mNormals[j].x, mesh->mNormals[j].y, mesh->mNormals[j].z);
+				vertices[j].Normal = Vec3(mesh->mNormals[j].x, mesh->mNormals[j].y, mesh->mNormals[j].z);
 			}
 			if (hasTangent)
 			{
-				vertices[i].Tangent = Vec3(mesh->mTangents[j].x, mesh->mTangents[j].y, mesh->mTangents[j].z);
-				vertices[i].BiTangent = Vec3(mesh->mBitangents[j].x, mesh->mBitangents[j].y, mesh->mBitangents[j].z);
+				vertices[j].Tangent = Vec3(mesh->mTangents[j].x, mesh->mTangents[j].y, mesh->mTangents[j].z);
+				vertices[j].BiTangent = Vec3(mesh->mBitangents[j].x, mesh->mBitangents[j].y, mesh->mBitangents[j].z);
 			}
 			if (hasTexcoord)
 			{
-				vertices[i].UV = Vec2(mesh->mTextureCoords[0][j].x, mesh->mTextureCoords[0][j].y);
+				vertices[j].UV = Vec2(mesh->mTextureCoords[0][j].x, mesh->mTextureCoords[0][j].y);
 			}
 			if (hasVertexColor)
 			{
-				vertices[i].VertexColor = Vec4(mesh->mColors[0][j].r, mesh->mColors[0][j].g, mesh->mColors[0][j].b, mesh->mColors[0][j].a);
+				vertices[j].VertexColor = Vec4(mesh->mColors[0][j].r, mesh->mColors[0][j].g, mesh->mColors[0][j].b, mesh->mColors[0][j].a);
 			}
 		}
 		curMesh.VertexBuffer = gfxEngine->createVertexBuffer(eGpuReadWrite, sizeof(GfxModel::GfxVertex) * vertices.size(), vertices.data());
@@ -92,14 +100,29 @@ AssetPtr AssetDatabase::tryToLoadModel(const std::string& modelName, __out GfxMo
 					material->GetTexture((aiTextureType)j, k, &texPath);
 
 					std::string texName(texPath.C_Str());
-					texName = File::name(texName);
-					auto texture = AssetTool::AssetDatabase().instance().tryToGetAsset(texName);
+					if (loadedTextures.find(texName) == loadedTextures.end())
+					{
+						auto gfxTexture = gfxEngine->createTexture(File::name(texName));
+						gfxTexture->bindSampler(linearSampler);
+						gfxModel.m_Textures[j].emplace_back(std::move(gfxTexture));
+
+						GfxModel::GfxTexture texture
+						{
+							j,
+							(uint32_t)(gfxModel.m_Textures[j].size() - 1u)
+						};
+						curMesh.Material.Textures.emplace_back(std::move(texture));
+
+						loadedTextures.emplace(std::move(texName));
+					}
 				}
 			}
 		}
 	}
 
-	return model;
+	timer.stop();
+	Logger::instance().log(Logger::eInfo, format("Load %s takes %.2fs\n", model->name().c_str(), timer.totalTime()));
+	gfxModel.m_Valid = true;
 }
 
 namespaceEnd(AssetTool)

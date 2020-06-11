@@ -20,8 +20,15 @@ public:
 		Vec4 VertexColor;
 	};
 
+	struct GfxTexture
+	{
+		uint32_t Type = 0u;
+		uint32_t Index = 0u;
+	};
+
 	struct GfxMaterial
 	{
+		std::vector<GfxTexture> Textures;
 	};
 
 	struct GfxMesh
@@ -44,9 +51,18 @@ public:
 	};
 
 	void load(const std::string& modelName, class GfxEngine* gfxEngine);
+
+	void draw(const DXUTCamera& camera, class GfxEngine* gfxEngine, const GfxViewport& viewport);
+	void draw(const DXUTCamera& camera, class GfxEngine* gfxEngine, GfxPipelineState& pipeline);
 protected:
 	friend class AssetTool::AssetDatabase;
+
+	void initPipelineState(GfxEngine* gfxEngine);
 private:
+	bool8_t m_Valid = false;
 	AABB m_BoundingBox;
 	std::vector<GfxMesh> m_Meshes;
+	std::array<std::vector<GfxTexturePtr>, 18u> m_Textures; /// aiTextureType_UNKNOWN
+	GfxGpuBufferPtr m_UniformBuffer;
+	static GfxPipelineState s_PipelineState;
 };

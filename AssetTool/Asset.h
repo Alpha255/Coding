@@ -2,6 +2,8 @@
 
 #include "Colorful/Public/GfxResource.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+
 namespaceStart(AssetTool)
 
 struct ShaderBinary

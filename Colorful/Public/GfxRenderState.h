@@ -137,6 +137,14 @@ public:
 		Shaders[shader->usage()] = shader;
 	}
 
+	inline void setTexture(eRShaderUsage shader, const GfxTexturePtr& texture)
+	{
+		if (Shaders[shader])
+		{
+			Shaders[shader]->setTexure(texture);
+		}
+	}
+
 	inline void setViewport(const GfxViewport& viewport)
 	{
 		Viewport = viewport;

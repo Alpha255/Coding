@@ -16,7 +16,7 @@ public:
 
 	TextureBinary tryToGetTextureBinary(Configurations::eRenderEngine engine, const std::string& texName);
 
-	AssetPtr tryToLoadModel(const std::string& modelName, __out GfxModel& gfxModel, GfxEngine* gfxEngine);
+	void tryToLoadModel(const std::string& modelName, __out GfxModel& gfxModel, GfxEngine* gfxEngine);
 
 	AssetPtr tryToGetAsset(const std::string& assetName);
 protected:

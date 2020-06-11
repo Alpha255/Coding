@@ -67,14 +67,13 @@ public:
 	}
 
 	void bind(const VulkanCommandBufferPtr& cmdBuffer);
+	void setupDescriptorSet(VkDevice device, const GfxPipelineState& state);
 protected:
 	VkPipelineRasterizationStateCreateInfo makeRasterizationState(const GfxRasterizerStateDesc& stateDesc) const;
 	VkPipelineDepthStencilStateCreateInfo makeDepthStencilState(const GfxDepthStencilStateDesc& stateDesc) const;
 	VkPipelineColorBlendStateCreateInfo makeColorBlendState(
 		std::vector<VkPipelineColorBlendAttachmentState>& attachments, 
 		const GfxBlendStateDesc& stateDesc) const;
-
-	void setupDescriptorSet(VkDevice device, const GfxPipelineState& state);
 private:
 	VulkanPipelineLayout m_PipelineLayout;
 	VulkanDescriptorSet m_DescriptorSet;
@@ -95,6 +94,13 @@ class VulkanPipelinePool : public LazySingleton<VulkanPipelinePool>
 	lazySingletonDeclare(VulkanPipelinePool);
 public:
 	VulkanGraphicsPipelinePtr getOrCreateGfxPipeline(VkRenderPass renderPass, const GfxPipelineState& state);
+	void updateDescriptorSet(VulkanGraphicsPipelinePtr pipeline, const GfxPipelineState& state)
+	{
+		if (pipeline)
+		{
+			pipeline->setupDescriptorSet(m_Device, state);
+		}
+	}
 	void cleanup() override final;
 protected:
 	VulkanPipelinePool(const VkDevice device)

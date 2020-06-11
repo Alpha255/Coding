@@ -82,6 +82,18 @@ public:
 		m_Textures.emplace_back(texture);
 	}
 
+	inline void setTexure(const GfxTexturePtr& texture)
+	{
+		if (!m_Textures.empty())
+		{
+			m_Textures[0] = texture;
+		}
+		else
+		{
+			bindTexture(texture);
+		}
+	}
+
 	inline const std::vector<GfxTexturePtr>& textures() const
 	{
 		return m_Textures;
