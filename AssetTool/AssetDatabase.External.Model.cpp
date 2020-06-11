@@ -24,6 +24,7 @@ void AssetDatabase::tryToLoadModel(const std::string& modelName, __out GfxModel&
 		aiPostProcessSteps::aiProcess_CalcTangentSpace |
 		aiPostProcessSteps::aiProcess_Triangulate |
 		aiPostProcessSteps::aiProcess_GenBoundingBoxes));
+	///auto scene = importer.ReadFile(model->fullPath(), aiPostProcessSteps::aiProcess_Triangulate);
 	if (!scene)
 	{
 		Logger::instance().log(Logger::eError, "Assimp: %s", importer.GetErrorString());
@@ -35,6 +36,12 @@ void AssetDatabase::tryToLoadModel(const std::string& modelName, __out GfxModel&
 		Logger::instance().log(Logger::eError, "The model %s is empty", model->name().c_str());
 		return;
 	}
+
+	timer.stop();
+	Logger::instance().log(Logger::eInfo, format("Load %s takes %.2fs\n", model->name().c_str(), timer.totalTime()));
+	
+	timer.reset();
+	timer.start();
 
 	std::set<std::string> loadedTextures;
 

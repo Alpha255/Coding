@@ -38,7 +38,8 @@
       ".obj",
       ".dae",
       ".txt",
-      ".fbx"
+      ".fbx",
+      ".ply"
     ],
     "eSound": [
       ".mp3"
