@@ -66,7 +66,8 @@ private:
 
 int32_t main(int32_t argc, char8_t **argv)
 {	
-	std::vector<int> test(32);
+	std::vector<int> test(32, 1);
+	FakeSTL::Vector<int> testV;
 
 	::srand((uint32_t)(time(nullptr)));
 

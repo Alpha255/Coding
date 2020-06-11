@@ -1,51 +1,360 @@
 #pragma once
 
-#include "memory.hpp"
-#include "initializer_list.hpp"
-#include <assert.h>
+#include "Utility.hpp"
 
-template<class T> 
-class Vector_Const_Iterator
+///std::vector<int> test;
+
+namespaceStart(FakeSTL)
+
+template<class T>
+class VectorValue : public ContainerBase
 {
 public:
-	T *m_Ptr = nullptr;
+	VectorValue()
+		: First()
+		, Last()
+		, End()
+	{
+	}
+
+	T* First;
+	T* Last;
+	T* End;
 };
 
 template<class T>
-class Vector_Iterator : public Vector_Const_Iterator<T>
-{
-};
-
-template<class T, class Alloc = Allocator<T>> 
-class Vector
+class VectorConstIterator : public IteratorBase
 {
 public:
-	Vector() {}
+	VectorConstIterator()
+		: Ptr()
+	{
+	}
+
+	VectorConstIterator(T* ptr, const ContainerBase* vector)
+		: Ptr(ptr)
+	{
+		this->adopt(vector);
+	}
+
+	const T& operator*() const
+	{
+		return (*Ptr);
+	}
+
+	T* operator->() const
+	{
+		return Ptr;
+	}
+
+	VectorConstIterator& operator++()
+	{
+		++Ptr;
+		return (*this);
+	}
+
+	VectorConstIterator operator++(int)
+	{
+		VectorConstIterator tmp = *this;
+		++*this;
+		return (tmp);
+	}
+
+	VectorConstIterator& operator--()
+	{
+		--Ptr;
+		return (*this);
+	}
+
+	VectorConstIterator operator--(int)
+	{
+		VectorConstIterator tmp = *this;
+		--*this;
+		return (tmp);
+	}
+
+	void verifyOffset(const size_t offset) const
+	{
+		(void)offset;
+	}
+
+	VectorConstIterator& operator+=(const size_t off)
+	{
+		verifyOffset(off);
+		Ptr += off;
+		return (*this);
+	}
+
+	VectorConstIterator operator+(const size_t off)
+	{
+		VectorConstIterator tmp = *this;
+		return (tmp += off);
+	}
+
+	VectorConstIterator operator-=(const size_t off)
+	{
+		return (*this += -off);
+	}
+
+	VectorConstIterator operator-(const size_t off)
+	{
+		VectorConstIterator tmp = *this;
+		return (tmp -= off);
+	}
+
+	size_t operator-(const VectorConstIterator& right) const
+	{
+		return Ptr - right.Ptr;
+	}
+
+	const T& operator[](const size_t off) const
+	{
+		return (*(*this + off));
+	}
+
+	bool operator==(const VectorConstIterator& right) const
+	{
+		return (Ptr == right.Ptr);
+	}
+
+	bool operator!=(const VectorConstIterator& right) const
+	{
+		return (!(*this == right));
+	}
+
+	bool operator<(const VectorConstIterator& right) const
+	{
+		return (Ptr < right.Ptr);
+	}
+
+	bool operator>(const VectorConstIterator& right) const
+	{
+		return (right < *this);
+	}
+
+	bool operator<=(const VectorConstIterator& right) const
+	{
+		return (!right < *this);
+	}
+
+	bool operator>=(const VectorConstIterator& right) const
+	{
+		return (!(*this < right));
+	}
+
+	T* unwrapped() const
+	{
+		return (Ptr);
+	}
+
+	void seekTo(T* ptr)
+	{
+		Ptr = std::_Const_cast(ptr);
+	}
+
+	T* Ptr;
+};
+
+template<class T>
+class VectorIterator : public VectorConstIterator<T>
+{
+public:
+	using Base = VectorConstIterator<T>;
+
+	VectorIterator()
+	{
+	}
+
+	VectorIterator(T* ptr, const ContainerBase* vector)
+		: Base(ptr, vector)
+	{
+	}
+
+	T& operator*() const
+	{
+		return (const_cast<T&>(Base::operator*()));
+	}
+
+	T* operator->() const
+	{
+		return (std::_Const_cast(Base::operator->()));
+	}
+
+	VectorIterator& operator++()
+	{
+		++*(Base*)this;
+		return (*this);
+	}
+
+	VectorIterator operator++(int)
+	{
+		VectorIterator tmp = *this;
+		++*this;
+		return (tmp);
+	}
+
+	VectorIterator& operator--()
+	{
+		--*(Base*)this;
+		return (*this);
+	}
+
+	VectorIterator operator--(int)
+	{
+		VectorIterator tmp = *this;
+		--*this;
+		return (tmp);
+	}
+
+	VectorIterator& operator+=(const size_t off)
+	{
+		*(Base*)this += off;
+		return (*this);
+	}
+
+	VectorIterator operator+(const size_t off) const
+	{
+		VectorIterator tmp = *this;
+		return (tmp += off);
+	}
+
+	VectorIterator& operator-=(const size_t off)
+	{
+		return (*this += -off);
+	}
+
+	VectorIterator operator-(const size_t off) const
+	{
+		VectorIterator tmp = *this;
+		return (tmp -= off);
+	}
+
+	size_t operator-(const Base& right) const
+	{
+		return (*(Base*)this - right);
+	}
+
+	T& operator[](const size_t off) const
+	{
+		return (*(*this + off));
+	}
+
+	T* unwrapped() const
+	{
+		return (this->Ptr);
+	}
+};
+
+template<class T1, class T2, 
+	bool = std::is_empty_v<T1> && !std::is_final_v<T1>>
+	class CompressedPair final : private T1
+{
+private:
+	T2 Val2;
+
+	using Base = T1;
+public:
+	template<class... Other2> constexpr explicit CompressedPair(Other2&&... val2)
+		: T1()
+		, Val2(std::forward<Other2>(val2)...)
+	{
+	}
+
+	template<class Other1, class... Other2>
+	CompressedPair(Other1&& val1, Other2&&... val2)
+		: T1(std::forward<Other1>(val1))
+		, Val2(std::forward<Other2>(val2)...)
+	{
+	}
+
+	T1& getFirst() noexcept
+	{
+		return (*this);
+	}
+
+	const T1& getFirst() const noexcept
+	{
+		return (*this);
+	}
+
+	T2& getSecond() noexcept
+	{
+		return (Val2);
+	}
+
+	const T2& getSecond() const noexcept
+	{
+		return (Val2);
+	}
+};
+
+template<class T1, class T2>
+class CompressedPair<T1, T2, false> final
+{
+private:
+	T1 Val1;
+	T2 Val2;
+public:
+	template<class... Other2>
+	constexpr explicit CompressedPair(Other2&&... val2)
+		: Val1()
+		, Val2(std::forward<Other2>(val2)...)
+	{
+	}
+
+	template<class Other1, class... Other2>
+	CompressedPair(Other1&& val, Other2&&... val2)
+		: Val1(std::forward<Other1>(val1))
+		, Val2(std::forward<Other2>(val2)...)
+	{
+	}
+
+	T1& getFirst() noexcept
+	{
+		return (Val1);
+	}
+
+	const T1& getFirst() const noexcept
+	{
+		return (Val1);
+	}
+
+	T2& getSecond() noexcept
+	{
+		return (Val2);
+	}
+
+	const T2& getSecond() const noexcept
+	{
+		return (Val2);
+	}
+};
+
+template<class T>
+class VectorAlloc
+{
+public:
+	VectorAlloc()
+		: Pair()
+	{
+	}
+private:
+	CompressedPair<T, VectorValue<T>> Pair;
+};
+
+template<class T>
+class Vector : public VectorAlloc<T>
+{
+public:
+	Vector()
+	{
+	}
 
 	explicit Vector(const size_t count)
 	{
-		if (Buy(count))
-		{
-		}
 	}
 
-	Vector(const size_t count, const T &value)
-	{
-		if (Buy(count))
-		{
-		}
-	}
-
-	Vector(const Vector &right)
-	{
-
-	}
-
-	Vector(InitializerList<T> iList)
-	{
-	}
-
-	Vector(Vector &&right) noexcept
+	Vector(const size_t count, const T& val)
 	{
 	}
 
@@ -54,17 +363,19 @@ public:
 	{
 	}
 
-	Vector &operator=(Vector &&right)
+	Vector(std::initializer_list<T> list)
 	{
-		return (*this);
 	}
 
-	Vector &operator=(const Vector &right)
+	Vector(const Vector& right)
 	{
-		return (*this);
 	}
 
-	Vector &operator=(InitializerList<T> iList)
+	Vector(Vector&& right) noexcept
+	{
+	}
+
+	Vector& operator=(Vector&& right)
 	{
 		return (*this);
 	}
@@ -73,101 +384,20 @@ public:
 	{
 	}
 
-	template<class... Args>
-	decltype(auto) EmplaceBack(Args &&... args)
-	{
-
-	}
-
-	void PushBack(const T &val)
-	{
-		EmplaceBack(val);
-	}
-
-	void PushBack(T &&val)
-	{
-		EmplaceBack(Move(val));
-	}
-
-	template<class... Args>
-	Vector_Iterator<T> Emplace(Vector_Const_Iterator<T> where, Args&&... args)
+	template<class... Value>
+	decltype(auto) emplace_back(Value&&... val)
 	{
 	}
 
-	Vector_Iterator<T> Insert(Vector_Const_Iterator<T> where, const T &val)
-	{
-		return Emplace(where, val);
-	}
-
-	Vector_Iterator<T> Insert(Vector_Const_Iterator<T> where, T &&val)
-	{
-		return Emplace(where, Move(val));
-	}
-
-	Vector_Iterator<T> Insert(Vector_Const_Iterator<T> where, const size_t count, const T& val)
+	void push_back(const T& val)
 	{
 	}
 
-	template<class Iter>
-	Vector_Iterator<T> Insert(Vector_Const_Iterator<T> where, Iter first, Iter last)
+	void push_back(T&& val)
 	{
-	}
-
-	Vector_Iterator<T> Insert(Vector_Const_Iterator<T> where, InitializerList<T> iList)
-	{
-		return Insert(where, iList.Begin(), iList.End());
-	}
-
-	void Assign(const size_t size, const T& val)
-	{
-	}
-
-	template<class Iter>
-	void Assign(Iter first, Iter last)
-	{
-	}
-
-	void Assign(InitializerList<T> iList)
-	{
-	}
-
-	void Resize(const size_t size)
-	{
-	}
-
-	void Resize(const size_t size, const T &val)
-	{
-	}
-
-	size_t MaxSize() const noexcept
-	{
-		return Min(static_cast<size_t>((std::numeric_limits<ptrdiff_t>::max)()),
-			Alloc::MaxSize());
 	}
 protected:
-	bool Buy(const size_t capacity)
-	{
-		if (capacity == 0)
-		{
-			return false;
-		}
-
-		assert(capacity <= MaxSize());
-
-		m_First = m_Alloc.Allocate(capacity);
-		m_Last = m_First;
-		m_End = m_First + capacity;
-
-		return true;
-	}
-
-	T *Construct_N(T *dst, const size_t count)
-	{
-
-	}
 private:
-	T *m_First = nullptr;
-	T *m_Last = nullptr;
-	T *m_End = nullptr;
-	Alloc m_Alloc;
 };
+
+namespaceEnd(FakeSTL)
