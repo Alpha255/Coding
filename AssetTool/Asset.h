@@ -49,7 +49,7 @@ public:
 		eWICTexture,
 		eVulkanTexture,
 		eShader,
-		eStaticMesh,
+		eModel,
 		eSound,
 		eLevel,
 		eAssetType_MaxEnum

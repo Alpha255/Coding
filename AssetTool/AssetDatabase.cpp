@@ -100,8 +100,8 @@ Asset::eAssetType AssetDatabase::tryToGetAssetType(const std::string& assetName)
 				assetType = i;
 			}
 			break;
-		case Asset::eStaticMesh:
-			if (keyType == enumToString(eStaticMesh))
+		case Asset::eModel:
+			if (keyType == enumToString(eModel))
 			{
 				assetType = i;
 			}

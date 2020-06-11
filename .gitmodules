@@ -19,3 +19,6 @@
 [submodule "ThirdParty/gli"]
 	path = ThirdParty/gli
 	url = https://github.com/g-truc/gli.git
+[submodule "ThirdParty/leveldb"]
+	path = ThirdParty/leveldb
+	url = https://github.com/google/leveldb.git

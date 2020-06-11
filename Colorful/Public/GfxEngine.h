@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Colorful/Public/ImGui/ImGui.h"
+#include "Colorful/Public/GfxModel.h"
 
 namespace Gear
 {

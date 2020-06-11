@@ -3,6 +3,8 @@
 GfxGpuBufferPtr mUniformBuffer = nullptr;
 GfxPipelineState mGraphicsPipelineState{};
 
+GfxModel ModelTest;
+
 struct UniformBufferVS
 {
 	Matrix World;
@@ -99,6 +101,8 @@ void RenderTest::postInitialize()
 	m_Camera.setPerspective(Math::PI_Div4, (float32_t)m_Window->width() / m_Window->height(), 0.1f, 500.0f);
 	m_Camera.setView(Vec3(0.0f, 0.0f, 4.0f), Vec3(0.0f, 0.0f, 0.0f));
 	m_Camera.setScalers(0.0001f, 1.0f);
+
+	ModelTest.load("Wolf.fbx", m_GfxEngine.get());
 }
 
 void RenderTest::renderFrame()

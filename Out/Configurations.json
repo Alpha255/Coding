@@ -33,11 +33,12 @@
       ".frag",
       ".shader"
     ],
-    "eStaticMesh": [
+    "eModel": [
       ".sdkmesh",
       ".obj",
       ".dae",
-      ".txt"
+      ".txt",
+      ".fbx"
     ],
     "eSound": [
       ".mp3"

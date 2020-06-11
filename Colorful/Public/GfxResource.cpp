@@ -1,4 +1,4 @@
-#include "GfxResource.h"
+#include "Colorful/Public/GfxResource.h"
 
 size_t GfxVertexAttributes::formatStride(eRFormat format)
 {

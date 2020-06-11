@@ -3,6 +3,7 @@
 #include "Asset.h"
 
 class GfxModel;
+class GfxEngine;
 
 namespaceStart(AssetTool)
 
@@ -15,7 +16,7 @@ public:
 
 	TextureBinary tryToGetTextureBinary(Configurations::eRenderEngine engine, const std::string& texName);
 
-	AssetPtr tryToLoadStaticMesh(const std::string& modelName, GfxModel& gfxModel);
+	AssetPtr tryToLoadModel(const std::string& modelName, __out GfxModel& gfxModel, GfxEngine* gfxEngine);
 
 	AssetPtr tryToGetAsset(const std::string& assetName);
 protected:

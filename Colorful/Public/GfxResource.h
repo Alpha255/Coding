@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GfxDefinitions.h"
+#include "Colorful/Public/GfxDefinitions.h"
 
 struct GfxVertexAttributes
 {
