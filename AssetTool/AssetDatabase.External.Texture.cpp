@@ -9,6 +9,7 @@ AssetTool::TextureBinary AssetDatabase::tryToGetTextureBinary(Configurations::eR
 	assert(engine == Configurations::eVulkan);
 
 	auto texture = tryToGetAsset(texName);
+	assert(texture);
 
 	TextureBinary binary;
 

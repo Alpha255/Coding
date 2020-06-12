@@ -43,7 +43,7 @@ void RenderTest::postInitialize()
 	GfxSamplerDesc samplerDesc{};
 	auto sampler = m_GfxEngine->createSampler(samplerDesc);
 	texture->bindSampler(sampler);
-	fragmentShader->bindTexture(texture);
+	fragmentShader->setCombinedTextureSampler(texture, 0u);
 
 	mUniformBuffer = m_GfxEngine->createUniformBuffer(sizeof(UniformBufferVS), nullptr);
 
@@ -92,7 +92,7 @@ void RenderTest::postInitialize()
 	/// alignment ??? Try to create based on shader reflection(Format) ??? 
 	vertexShader->setInputLayout(vertexAttrs, alignof(vertex));
 
-	vertexShader->bindUniformBuffer(mUniformBuffer);
+	vertexShader->setUniformBuffer(mUniformBuffer, 0u);
 	mGraphicsPipelineState.setShader(vertexShader);
 	mGraphicsPipelineState.setShader(fragmentShader);
 	mGraphicsPipelineState.bindVertexBuffer(vertexBuffer);

@@ -60,7 +60,7 @@ void GfxModel::initPipelineState(GfxEngine* gfxEngine)
 		}
 	};
 	vertexShader->setInputLayout(vertexAttrs, alignof(GfxVertex));
-	vertexShader->bindUniformBuffer(m_UniformBuffer);
+	vertexShader->setUniformBuffer(m_UniformBuffer, 0u);
 
 	s_PipelineState.setShader(vertexShader);
 	s_PipelineState.setShader(fragmentShader);
@@ -117,7 +117,7 @@ void GfxModel::draw(const DXUTCamera& camera, GfxEngine* gfxEngine, const GfxVie
 			if (m_Meshes[i].Material.Textures[j].Type == 1u)
 			{
 				auto &diffuseTexture = m_Textures[1u][m_Meshes[i].Material.Textures[j].Index];
-				s_PipelineState.setTexture(eFragmentShader, diffuseTexture);
+				///s_PipelineState.setTexture(eFragmentShader, diffuseTexture);
 			}
 		}
 

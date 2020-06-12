@@ -137,10 +137,17 @@ public:
 		assert(m_OpaqueRenderPass);
 		return m_OpaqueRenderPass;
 	}
+
+	inline GfxTexturePtr& defaultTexture()
+	{
+		assert(m_DefaultTexture);
+		return m_DefaultTexture;
+	}
 protected:
 	GfxRenderPassPtr m_OpaqueRenderPass = nullptr;
 	RenderFrameCallback m_RenderFrameCallback;
 	ImGuiRendererPtr m_ImGuiRenderer = nullptr;
+	GfxTexturePtr m_DefaultTexture = nullptr;
 private:
 };
 using GfxEnginePtr = std::unique_ptr<GfxEngine>;

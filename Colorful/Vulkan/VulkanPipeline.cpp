@@ -296,7 +296,7 @@ void VulkanGraphicsPipeline::setupDescriptorSet(VkDevice device, const GfxPipeli
 					VK_WHOLE_SIZE   /// Use whole size for now
 				};
 
-				VkWriteDescriptorSet writeDescriptorSetUniforBuffer
+				VkWriteDescriptorSet writeDescriptorSetUniformBuffer
 				{
 					VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
 					nullptr,
@@ -309,7 +309,7 @@ void VulkanGraphicsPipeline::setupDescriptorSet(VkDevice device, const GfxPipeli
 					&bufferInfo,
 					nullptr
 				};
-				writeDescriptorSets.emplace_back(std::move(writeDescriptorSetUniforBuffer));
+				writeDescriptorSets.emplace_back(std::move(writeDescriptorSetUniformBuffer));
 			}
 
 			auto& textures = state.Shaders[i]->textures();

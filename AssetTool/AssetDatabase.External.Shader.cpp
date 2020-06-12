@@ -83,8 +83,7 @@ void buildShaderReflections(Configurations::eRenderEngine engine, ShaderBinary& 
 
 		auto pushReflection = [&](
 			const spirv_cross::SmallVector<spirv_cross::Resource>& resources,
-			VkDescriptorType type,
-			bool8_t useConstantRange = false)
+			VkDescriptorType type)
 		{
 			for each (auto& res in resources)
 			{
@@ -92,19 +91,19 @@ void buildShaderReflections(Configurations::eRenderEngine engine, ShaderBinary& 
 				{
 					///compiler.get_decoration(res.id, spv::DecorationDescriptorSet), uniform (set = 0, binding = 1)
 					(uint32_t)type,
-					useConstantRange ? std::numeric_limits<uint32_t>().max() : compiler.get_decoration(res.id, spv::DecorationBinding)
+					compiler.get_decoration(res.id, spv::DecorationBinding)
 				};
 				binary.Reflections.emplace_back(std::move(reflection));
 			}
 		};
 
-		pushReflection(shaderResources.uniform_buffers, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
-		pushReflection(shaderResources.push_constant_buffers, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, true);
-		pushReflection(shaderResources.storage_buffers, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER);
-		pushReflection(shaderResources.storage_images, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE);
+		pushReflection(shaderResources.separate_samplers, VK_DESCRIPTOR_TYPE_SAMPLER);
 		pushReflection(shaderResources.sampled_images, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 		pushReflection(shaderResources.separate_images, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE);
-		pushReflection(shaderResources.separate_samplers, VK_DESCRIPTOR_TYPE_SAMPLER);
+		pushReflection(shaderResources.storage_images, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE);
+		pushReflection(shaderResources.uniform_buffers, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+		pushReflection(shaderResources.storage_buffers, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER);
+		pushReflection(shaderResources.push_constant_buffers, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC); /// Hack
 	}
 	else if (engine == Configurations::eD3D11)
 	{
