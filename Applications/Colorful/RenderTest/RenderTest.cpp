@@ -14,31 +14,9 @@ struct UniformBufferVS
 
 void RenderTest::postInitialize()
 {
-#if 0
-	auto dirty = mGraphicsPipelineState.isDirty(GfxPipelineState::eViewport);
-	mGraphicsPipelineState.setDirty(GfxPipelineState::eViewport);
-	dirty = mGraphicsPipelineState.isDirty(GfxPipelineState::eViewport);
-
-	dirty = mGraphicsPipelineState.isDirty(GfxPipelineState::eScissor);
-	mGraphicsPipelineState.setDirty(GfxPipelineState::eScissor);
-	dirty = mGraphicsPipelineState.isDirty(GfxPipelineState::eScissor);
-
-	dirty = mGraphicsPipelineState.isDirty(GfxPipelineState::eVertexBuffer);
-	mGraphicsPipelineState.setDirty(GfxPipelineState::eVertexBuffer);
-	dirty = mGraphicsPipelineState.isDirty(GfxPipelineState::eVertexBuffer);
-
-	dirty = mGraphicsPipelineState.isDirty(GfxPipelineState::eIndexBuffer);
-	mGraphicsPipelineState.setDirty(GfxPipelineState::eIndexBuffer);
-	dirty = mGraphicsPipelineState.isDirty(GfxPipelineState::eIndexBuffer);
-
-	dirty = mGraphicsPipelineState.isDirty(GfxPipelineState::eViewport);
-	dirty = mGraphicsPipelineState.isDirty(GfxPipelineState::eScissor);
-	dirty = mGraphicsPipelineState.isDirty(GfxPipelineState::eVertexBuffer);
-	dirty = mGraphicsPipelineState.isDirty(GfxPipelineState::eIndexBuffer);
-#endif
 	auto vertexShader = m_GfxEngine->createVertexShader("RenderTest.shader");
 	auto fragmentShader = m_GfxEngine->createFragmentShader("RenderTest.shader");
-	auto texture = m_GfxEngine->createTexture("brickwall.dds");
+	auto texture = m_GfxEngine->createTexture("metalplate01_rgba.ktx");
 
 	GfxSamplerDesc samplerDesc{};
 	auto sampler = m_GfxEngine->createSampler(samplerDesc);
@@ -100,9 +78,8 @@ void RenderTest::postInitialize()
 
 	m_Camera.setPerspective(Math::PI_Div4, (float32_t)m_Window->width() / m_Window->height(), 0.1f, 500.0f);
 	m_Camera.setView(Vec3(0.0f, 0.0f, 4.0f), Vec3(0.0f, 0.0f, 0.0f));
-	m_Camera.setScalers(0.0001f, 1.0f);
 
-	ModelTest.load("Wolf.fbx", m_GfxEngine.get());
+	///ModelTest.load("Wolf.fbx", m_GfxEngine.get());
 }
 
 void RenderTest::renderFrame()
@@ -140,15 +117,13 @@ void RenderTest::renderFrame()
 	m_GfxEngine->opaqueRenderPass()->bindGfxPipeline(mGraphicsPipelineState);
 	m_GfxEngine->opaqueRenderPass()->drawIndexed(6u, 0u, 0);
 
-	ModelTest.draw(m_Camera, m_GfxEngine.get(), viewport);
+	///ModelTest.draw(m_Camera, m_GfxEngine.get(), viewport);
 
 	static bool8_t checked = true;
 	ImGui::Checkbox("TestCheckBox", &checked);
 	ImGui::Text("Mouse pos x: %.2f, y: %.2f", m_Window->message().Mouse.Pos.x, m_Window->message().Mouse.Pos.y);
-	ImGui::Text("Mouse delta pos x: %.2f, y: %.2f", m_Window->message().Mouse.DeltaPos.x, m_Window->message().Mouse.DeltaPos.y);
 	ImGui::Text("Mouse wheel delta: %.d", m_Window->message().Mouse.WheelDelta);
-	ImGui::Text("ElapsedTime: %.6f", m_CpuTimer.elapsedTime());
-	ImGui::Text("FPS: %.2f", m_FPS);
+	ImGui::Text("FrameTime: %.2f ms, FPS: %.2f", m_Profile.FrameTime, m_Profile.FPS);
 }
 
 appMainEntry(RenderTest)

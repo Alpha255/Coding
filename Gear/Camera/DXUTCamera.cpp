@@ -58,7 +58,6 @@ void DXUTCamera::updateVelocity(float32_t elapsedTime)
 void DXUTCamera::updateKeys(const WindowMessage& message)
 {
 	m_KeyDirection = Math::Vec3(0.0f, 0.0f, 0.0f);
-
 	switch (message.Key)
 	{
 	case eKeyboardKey::eKey_A:
@@ -92,11 +91,18 @@ void DXUTCamera::updateKeys(const WindowMessage& message)
 		float32_t percentNew = 1.0f / m_SmoothMouse;
 		float32_t percentOld = 1.0f - percentNew;
 
-		Math::Vec2 curDelta = message.Mouse.DeltaPos;
-		m_MouseDelta.x = m_MouseDelta.x * percentOld + curDelta.x * percentNew;
-		m_MouseDelta.y = m_MouseDelta.y * percentOld + curDelta.y * percentNew;
+		Math::Vec2 curMousePos = message.Mouse.Pos;
+		Math::Vec2 delta = message.Mouse.Pos - m_LastMousePos;
+		m_LastMousePos = curMousePos;
+
+		m_MouseDelta.x = m_MouseDelta.x * percentOld + delta.x * percentNew;
+		m_MouseDelta.y = m_MouseDelta.y * percentOld + delta.y * percentNew;
 
 		m_RotateVelocity = m_MouseDelta * m_Scaler.x;
+	}
+	else
+	{
+		m_LastMousePos = message.Mouse.Pos;
 	}
 }
 

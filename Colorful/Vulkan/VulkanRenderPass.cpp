@@ -196,7 +196,7 @@ void VulkanRenderPass::bindGfxPipeline(const GfxPipelineState& state)
 	auto curPipeline = VulkanPipelinePool::instance()->getOrCreateGfxPipeline(Handle, state);
 	///if (m_CurrentPipeline.first != curPipeline)
 	{
-		VulkanPipelinePool::instance()->updateDescriptorSet(curPipeline, state);
+		///VulkanPipelinePool::instance()->updateDescriptorSet(curPipeline, state);
 		m_CurrentPipeline.first = curPipeline;
 		m_CurrentPipeline.first->bind(m_CmdBuffer);
 		m_CurrentPipeline.second = const_cast<GfxPipelineState*>(&state);

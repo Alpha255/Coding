@@ -6,6 +6,14 @@
 
 namespaceStart(Gear)
 
+struct Profile
+{
+	float32_t FrameTime = 0.0f;
+	float32_t FPS = 0.0f;
+	float32_t CpuTime = 0.0f;
+	float32_t GpuTime = 0.0f;
+};
+
 class Application
 {
 public:
@@ -23,14 +31,13 @@ public:
 	virtual void renderFrame() = 0;
 protected:
 	void createGfxRenderer();
-	void updateFPS();
+	void nextFrame(const WindowMessage& message);
 
 	Configurations m_Config;
 	WindowPtr m_Window = nullptr;
 	GfxEnginePtr m_GfxEngine = nullptr;
 	DXUTCamera m_Camera;
-	CpuTimer m_CpuTimer;
-	float32_t m_FPS = 0.0f;
+	Profile m_Profile;
 private:
 };
 

@@ -312,7 +312,7 @@ void VulkanGraphicsPipeline::setupDescriptorSet(VkDevice device, const GfxPipeli
 				writeDescriptorSets.emplace_back(std::move(writeDescriptorSetUniformBuffer));
 			}
 
-			auto& textures = state.Shaders[i]->textures();
+			auto& textures = state.Shaders[i]->combinedTextureSamplers();
 			for (uint32_t j = 0u; j < textures.size(); ++j)
 			{
 				auto imageView = std::static_pointer_cast<VulkanImageView>(textures[j]);

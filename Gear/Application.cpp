@@ -39,27 +39,41 @@ void Application::initialize(const std::string& windowTitle)
 	postInitialize();
 }
 
-void Application::updateFPS()
+void Application::nextFrame(const WindowMessage& message)
 {
 	static uint32_t FrameCounter = 0u;
-	static float32_t LastTime = 0.0f;
+	static float32_t DeltaTime = 0.0f;
+	static CpuTimer Timer;
 
-	float32_t curTime = m_CpuTimer.totalTime();
+	Timer.start();
+
+	m_GfxEngine->processMessage(message, m_Window->width(), m_Window->height());
+
+	m_GfxEngine->renderFrame();
+
 	++FrameCounter;
 
-	float32_t deltaTime = curTime - LastTime;
-	if (deltaTime > 1.0f)
+	Timer.stop();
+
+	auto frameTime = Timer.elapsedTime();
+
+	if (!m_GfxEngine->isFocusOnUI())
 	{
-		m_FPS = FrameCounter / deltaTime;
-		LastTime = curTime;
+		m_Camera.processMessage(message, m_Profile.FPS == 0.0f ? 0.0f : 1.0f / m_Profile.FPS);
+	}
+
+	DeltaTime += frameTime;
+	if (DeltaTime > 1.0f)
+	{
+		m_Profile.FPS = FrameCounter / DeltaTime;
+		m_Profile.FrameTime = 1000.0f / m_Profile.FPS;
+		DeltaTime = 0.0f;
 		FrameCounter = 0u;
 	}
 }
 
 void Application::loop()
 {
-	m_CpuTimer.start();
-
 	while (true)
 	{
 		auto &message = m_Window->message();
@@ -69,8 +83,7 @@ void Application::loop()
 		}
 		else if (message.State == eWindowState::eInactive || message.Minimized)
 		{
-			m_CpuTimer.stop();
-			Gear::sleep(100u);
+			sleep(100u);
 		}
 		else if (message.State == eWindowState::eResized)
 		{
@@ -79,20 +92,7 @@ void Application::loop()
 		}
 		else if (message.State == eWindowState::eActive)
 		{
-			m_CpuTimer.start();
-
-			m_CpuTimer.tick();
-
-			if (!m_GfxEngine->isFocusOnUI())
-			{
-				m_Camera.processMessage(message, m_CpuTimer.elapsedTime());
-			}
-
-			m_GfxEngine->processMessage(message, m_Window->width(), m_Window->height());
-
-			m_GfxEngine->renderFrame();
-
-			updateFPS();
+			nextFrame(message);
 		}
 
 		m_Window->update();

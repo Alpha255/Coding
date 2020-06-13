@@ -33,7 +33,7 @@ void VulkanImage::queueCopyCommand(const AssetTool::TextureBinary& binary)
 				/// bufferRowLength and bufferImageHeight specify in texels a subregion of a larger two- or three-dimensional image in buffer memory, 
 				/// and control the addressing calculations. If either of these values is zero, 
 				/// that aspect of the buffer memory is considered to be tightly packed according to the imageExtent.
-				bufferImageCopy[i] = VkBufferImageCopy
+				bufferImageCopy[i + j] = VkBufferImageCopy
 				{
 					bufferOffsets,
 					0u,

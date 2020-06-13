@@ -75,7 +75,7 @@ void Window::processMessage(uint32_t message, uint64_t wParam, int64_t lParam)
 {
 	static auto getMousePos = [this](int64_t lParam)
 	{
-		Vec2 curPos = Vec2(LOWORD(lParam), HIWORD(lParam));
+		Vec2 curPos = Vec2((float32_t)LOWORD(lParam), (float32_t)HIWORD(lParam));
 		m_Message.Mouse.DeltaPos = curPos - m_Message.Mouse.Pos;
 		m_Message.Mouse.Pos = curPos;
 	};
@@ -147,6 +147,7 @@ void Window::processMessage(uint32_t message, uint64_t wParam, int64_t lParam)
 	case WM_LBUTTONDBLCLK:
 		m_Message.Mouse.Left.KeyDown = true;
 		m_Message.Mouse.Left.DoubleClick = true;
+		getMousePos(lParam);
 		break;
 	case WM_RBUTTONDOWN:
 		m_Message.Mouse.Right.KeyDown = true;
@@ -158,9 +159,11 @@ void Window::processMessage(uint32_t message, uint64_t wParam, int64_t lParam)
 	case WM_RBUTTONDBLCLK:
 		m_Message.Mouse.Right.KeyDown = true;
 		m_Message.Mouse.Right.DoubleClick = true;
+		getMousePos(lParam);
 		break;
 	case WM_MBUTTONDOWN:
 		m_Message.Mouse.Middle.KeyDown = true;
+		getMousePos(lParam);
 		break;
 	case WM_MBUTTONUP:
 		m_Message.Mouse.Middle.KeyDown = false;
@@ -168,6 +171,7 @@ void Window::processMessage(uint32_t message, uint64_t wParam, int64_t lParam)
 	case WM_MBUTTONDBLCLK:
 		m_Message.Mouse.Middle.KeyDown = true;
 		m_Message.Mouse.Middle.DoubleClick = true;
+		getMousePos(lParam);
 		break;
 	case WM_MOUSEMOVE:
 		getMousePos(lParam);

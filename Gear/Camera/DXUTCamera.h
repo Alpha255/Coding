@@ -88,8 +88,9 @@ private:
 
 	Math::Vec2 m_RotateVelocity;
 	Math::Vec3 m_KeyDirection;
-	Math::Vec2 m_Scaler;
+	Math::Vec2 m_Scaler{ 0.01f, 5.0f };
 	Math::Vec2 m_MouseDelta;
+	Math::Vec2 m_LastMousePos;
 
 	Math::Matrix m_World;
 	Math::Matrix m_View;

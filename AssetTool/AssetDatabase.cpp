@@ -37,7 +37,7 @@ void AssetDatabase::initialize()
 		s_Ready = true;
 
 		timer.stop();
-		Logger::instance().log(Logger::eInfo, format("Find all assets takes %.2fs\n", timer.totalTime()));
+		Logger::instance().log(Logger::eInfo, format("Find all assets takes %.2fs\n", timer.elapsedTime()));
 	};
 #if 0
 	std::thread(initInOtherThread).detach();

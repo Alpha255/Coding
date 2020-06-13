@@ -38,7 +38,7 @@ void AssetDatabase::tryToLoadModel(const std::string& modelName, __out GfxModel&
 	}
 
 	timer.stop();
-	Logger::instance().log(Logger::eInfo, format("Load %s takes %.2fs\n", model->name().c_str(), timer.totalTime()));
+	Logger::instance().log(Logger::eInfo, format("Load %s takes %.2fs\n", model->name().c_str(), timer.elapsedTime()));
 	
 	timer.reset();
 	timer.start();
@@ -128,7 +128,7 @@ void AssetDatabase::tryToLoadModel(const std::string& modelName, __out GfxModel&
 	}
 
 	timer.stop();
-	Logger::instance().log(Logger::eInfo, format("Load %s takes %.2fs\n", model->name().c_str(), timer.totalTime()));
+	Logger::instance().log(Logger::eInfo, format("Load %s takes %.2fs\n", model->name().c_str(), timer.elapsedTime()));
 	gfxModel.m_Valid = true;
 }
 
