@@ -111,6 +111,16 @@ public:
 	}
 
 	void destroyFrameBuffers(VkDevice device);
+
+	void begin(const GfxPipelineState&) override final
+	{
+
+	}
+
+	void end() override final
+	{
+
+	}
 protected:
 	void setDynamicGfxState();
 private:

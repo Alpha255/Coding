@@ -105,7 +105,7 @@ void GfxModel::draw(const DXUTCamera& camera, GfxEngine* gfxEngine, const GfxVie
 	s_PipelineState.setScissor(scissor);
 	s_PipelineState.setRenderArea(viewport);
 
-	gfxEngine->opaqueRenderPass()->bindGfxPipeline(s_PipelineState);
+	///gfxEngine->opaqueRenderPass()->bindGfxPipeline(s_PipelineState);
 
 	for (uint32_t i = 0u; i < m_Meshes.size(); ++i)
 	{
@@ -121,11 +121,11 @@ void GfxModel::draw(const DXUTCamera& camera, GfxEngine* gfxEngine, const GfxVie
 			}
 		}
 
-		gfxEngine->opaqueRenderPass()->drawIndexed(m_Meshes[i].IndexCount, 0u, 0);
+		///gfxEngine->opaqueRenderPass()->drawIndexed(m_Meshes[i].IndexCount, 0u, 0);
 	}
 }
 
-void GfxModel::draw(const DXUTCamera& camera, GfxEngine* gfxEngine, GfxPipelineState& pipeline)
+void GfxModel::draw(const DXUTCamera&, GfxEngine*, GfxPipelineState&)
 {
 	if (!m_Valid)
 	{

@@ -99,21 +99,6 @@ void ImGuiRenderer::processMessage(const WindowMessage& message, uint32_t width,
 	io.MousePos = ImVec2(message.Mouse.Pos.x, message.Mouse.Pos.y);
 	io.MouseWheel += message.Mouse.WheelDelta > 0.0f ? 1.0f : -1.0f;
 
-#if 0
-	if (io.MouseDown[0])
-	{
-		Logger::instance().log(Logger::eInfo, "ImGui:: Mouse LButton Down.");
-	}
-	if (io.MouseDown[1])
-	{
-		Logger::instance().log(Logger::eInfo, "ImGui:: Mouse RButton Down.");
-	}
-	if (io.MouseDown[2])
-	{
-		Logger::instance().log(Logger::eInfo, "ImGui:: Mouse MButton Down.");
-	}
-#endif
-
 	/// Keyboard
 }
 
@@ -179,7 +164,7 @@ void ImGuiRenderer::frame()
 	};
 	m_PipelineState.setViewport(viewport);
 
-	m_GfxEngine->opaqueRenderPass()->bindGfxPipeline(m_PipelineState);
+	///m_GfxEngine->opaqueRenderPass()->bindGfxPipeline(m_PipelineState);
 
 	auto drawData = ImGui::GetDrawData();
 	assert(drawData);
@@ -199,7 +184,7 @@ void ImGuiRenderer::frame()
 			};
 
 			m_PipelineState.setScissor(scissor);
-			m_GfxEngine->opaqueRenderPass()->drawIndexed(drawCmd->ElemCount, (uint32_t)indexOffset, vertexOffset);
+			///m_GfxEngine->opaqueRenderPass()->drawIndexed(drawCmd->ElemCount, (uint32_t)indexOffset, vertexOffset);
 			indexOffset += drawCmd->ElemCount;
 		}
 		vertexOffset += drawList->VtxBuffer.Size;

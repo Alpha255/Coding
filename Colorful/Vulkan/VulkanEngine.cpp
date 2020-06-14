@@ -1,9 +1,7 @@
-#include "VulkanEngine.h"
-#include "VulkanImage.h"
-#include "VulkanShader.h"
-#include "VulkanBuffer.h"
-
-uint32_t VulkanEngine::m_CurFrameIndex = 0u;
+#include "Colorful/Vulkan/VulkanEngine.h"
+#include "Colorful/Vulkan/VulkanImage.h"
+#include "Colorful/Vulkan/VulkanShader.h"
+#include "Colorful/Vulkan/VulkanBuffer.h"
 
 void VulkanEngine::initialize(uint64_t windowHandle, const Gear::Configurations& config)
 {
@@ -28,8 +26,6 @@ void VulkanEngine::initialize(uint64_t windowHandle, const Gear::Configurations&
 	m_ImGuiRenderer = std::make_unique<ImGuiRenderer>(this);
 
 	m_DefaultTexture = createTexture("white.dds");
-
-	createOpaqueRenderPass();
 }
 
 void VulkanEngine::logError(uint32_t result)
@@ -113,37 +109,37 @@ void VulkanEngine::freeResources()
 	free(m_SamplerList, m_Device.logicalDevice());
 }
 
-void VulkanEngine::createOpaqueRenderPass()
-{
-	VulkanRenderPassPtr vkRenderPass = nullptr;
-	if (m_OpaqueRenderPass)
-	{
-		vkRenderPass = std::static_pointer_cast<VulkanRenderPass>(m_OpaqueRenderPass);
-		vkRenderPass->destroyFrameBuffers(m_Device.logicalDevice());
-	}
+//void VulkanEngine::createOpaqueRenderPass()
+//{
+	//VulkanRenderPassPtr vkRenderPass = nullptr;
+	//if (m_OpaqueRenderPass)
+	//{
+	//	vkRenderPass = std::static_pointer_cast<VulkanRenderPass>(m_OpaqueRenderPass);
+	//	vkRenderPass->destroyFrameBuffers(m_Device.logicalDevice());
+	//}
 
-	auto& backBuffers = m_Swapchain->backBuffers();
+	//auto& backBuffers = m_Swapchain->backBuffers();
 
-	GfxFrameBufferDesc frameBufferDesc{};
-	frameBufferDesc.Width = m_Swapchain->width();
-	frameBufferDesc.Height = m_Swapchain->height();
-	frameBufferDesc.DepthSurface = createDepthStencilView(frameBufferDesc.Width, frameBufferDesc.Height, eD24_UNorm_S8_UInt);
-	frameBufferDesc.ColorSurface[0] = std::static_pointer_cast<GfxRenderSurface>(backBuffers[0]);
+	//GfxFrameBufferDesc frameBufferDesc{};
+	//frameBufferDesc.Width = m_Swapchain->width();
+	//frameBufferDesc.Height = m_Swapchain->height();
+	//frameBufferDesc.DepthSurface = createDepthStencilView(frameBufferDesc.Width, frameBufferDesc.Height, eD24_UNorm_S8_UInt);
+	//frameBufferDesc.ColorSurface[0] = std::static_pointer_cast<GfxRenderSurface>(backBuffers[0]);
 
-	if (!vkRenderPass)
-	{
-		m_OpaqueRenderPass = createRenderPass(frameBufferDesc);
-		vkRenderPass = std::static_pointer_cast<VulkanRenderPass>(m_OpaqueRenderPass);
-	}
+	//if (!vkRenderPass)
+	//{
+	//	m_OpaqueRenderPass = createRenderPass(frameBufferDesc);
+	//	vkRenderPass = std::static_pointer_cast<VulkanRenderPass>(m_OpaqueRenderPass);
+	//}
 
-	std::vector<VulkanFrameBuffer> frameBuffers(backBuffers.size());
-	for (uint32_t i = 0u; i < backBuffers.size(); ++i)
-	{
-		frameBufferDesc.ColorSurface[0] = std::static_pointer_cast<GfxRenderSurface>(backBuffers[i]);
-		frameBuffers[i].create(m_Device.logicalDevice(), vkRenderPass->Handle, frameBufferDesc);
-	}
-	vkRenderPass->bindFrameBuffers(frameBuffers);
-}
+	//std::vector<VulkanFrameBuffer> frameBuffers(backBuffers.size());
+	//for (uint32_t i = 0u; i < backBuffers.size(); ++i)
+	//{
+	//	frameBufferDesc.ColorSurface[0] = std::static_pointer_cast<GfxRenderSurface>(backBuffers[i]);
+	//	frameBuffers[i].create(m_Device.logicalDevice(), vkRenderPass->Handle, frameBufferDesc);
+	//}
+	//vkRenderPass->bindFrameBuffers(frameBuffers);
+//}
 
 void VulkanEngine::finalize()
 {

@@ -226,19 +226,28 @@ void VulkanSwapchain::recreate()
 	if (oldSwapchain != VK_NULL_HANDLE)
 	{
 		vkDestroySwapchainKHR(m_LogicDevice, oldSwapchain, vkMemoryAllocator);
-		clearBackBuffers();
+		destroyBackBuffers();
 	}
 
 	uint32_t imageCount = 0u;
 	GfxVerifyVk(vkGetSwapchainImagesKHR(m_LogicDevice, Handle, &imageCount, nullptr));
 	std::vector<VkImage> images(imageCount);
-	m_BackBuffers.resize(imageCount);
+	m_BackBufferImages.resize(imageCount);
 	GfxVerifyVk(vkGetSwapchainImagesKHR(m_LogicDevice, Handle, &imageCount, images.data()));
 	for (uint32_t i = 0u; i < images.size(); ++i)
 	{
 		auto image = std::make_shared<VulkanImage>(images[i], m_Surface.SurfaceFormat.format);
-		m_BackBuffers[i] = std::make_shared<VulkanImageView>(m_LogicDevice, image, VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_COLOR_BIT);
+		m_BackBufferImages[i] = std::make_shared<VulkanImageView>(m_LogicDevice, image, VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_COLOR_BIT);
 	}
+	m_DepthStencil = std::make_shared<VulkanImageView>(
+		m_LogicDevice, 
+		sizeExtent.width, 
+		sizeExtent.height, 
+		1u, 1u, 1u, 
+		VK_IMAGE_VIEW_TYPE_2D, 
+		VK_FORMAT_D24_UNORM_S8_UINT, 
+		VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, 
+		VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
 }
 
 void VulkanSwapchain::destroy(VkInstance instance)
@@ -247,7 +256,7 @@ void VulkanSwapchain::destroy(VkInstance instance)
 	m_Surface.destroy(instance);
 	Handle = VK_NULL_HANDLE;
 
-	clearBackBuffers();
+	destroyBackBuffers();
 }
 
 uint32_t VulkanSwapchain::acquireNextFrame()
@@ -275,11 +284,13 @@ void VulkanSwapchain::present(VkSemaphore renderCompleteSephore) const
 	GfxVerifyVk(vkQueuePresentKHR(VulkanQueueManager::instance()->gfxQueue()->Handle, &presentInfo));
 }
 
-void VulkanSwapchain::clearBackBuffers()
+void VulkanSwapchain::destroyBackBuffers()
 {
-	for (uint32_t i = 0u; i < m_BackBuffers.size(); ++i)
+	for (uint32_t i = 0u; i < m_BackBufferImages.size(); ++i)
 	{
-		m_BackBuffers[i]->destroy(m_LogicDevice);
+		m_BackBufferImages[i]->destroy(m_LogicDevice);
 	}
-	m_BackBuffers.clear();
+	m_BackBufferImages.clear();
+
+	m_DepthStencil->destroy(m_LogicDevice);
 }

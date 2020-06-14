@@ -79,11 +79,11 @@ public:
 		return nullptr;
 	}
 
-	GfxRenderSurfacePtr createDepthStencilView(uint32_t, uint32_t, eRFormat) override final
+	GfxRenderSurfacePtr createDepthStencil(uint32_t, uint32_t, eRFormat) override final
 	{
 		return nullptr;
 	}
-	GfxRenderSurfacePtr createRenderTargetView() override final
+	GfxRenderSurfacePtr createRenderTarget() override final
 	{
 		return nullptr;
 	}
@@ -91,6 +91,11 @@ public:
 	GfxRenderPassPtr createRenderPass(GfxFrameBufferDesc&) override final
 	{
 		return nullptr;
+	}
+
+	GfxBackBuffer backBuffer() override final
+	{
+		return GfxBackBuffer();
 	}
 protected:
 private:

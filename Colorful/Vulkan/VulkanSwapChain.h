@@ -28,15 +28,6 @@ public:
 	}
 
 	uint32_t acquireNextFrame();
-	inline const std::vector<VulkanImageViewPtr> &backBuffers() const
-	{
-		return m_BackBuffers;
-	}
-
-	uint32_t currentFrameIndex() const
-	{
-		return m_CurrentFrameIndex;
-	}
 
 	void present(VkSemaphore renderCompleteSephore) const;
 
@@ -54,6 +45,16 @@ public:
 	{
 		return m_Height;
 	}
+
+	inline VulkanImageViewPtr currentBackBufferImage()
+	{
+		return m_BackBufferImages[m_CurrentFrameIndex];
+	}
+
+	inline VulkanImageViewPtr depthStencil()
+	{
+		return m_DepthStencil;
+	}
 protected:
 	struct VulkanSurface : public VulkanObject<VkSurfaceKHR>
 	{
@@ -66,13 +67,14 @@ protected:
 		std::vector<VkPresentModeKHR> PresentModes;
 	};
 
-	void clearBackBuffers();
+	void destroyBackBuffers();
 private:
 	const VkDevice m_LogicDevice;
 	const VkPhysicalDevice m_PhysicalDevice;
 
 	VulkanSurface m_Surface;
-	std::vector<VulkanImageViewPtr> m_BackBuffers;
+	std::vector<VulkanImageViewPtr> m_BackBufferImages;
+	VulkanImageViewPtr m_DepthStencil;
 	VulkanSemaphorePtr m_PresentCompleteSemaphore = nullptr;
 
 	bool8_t m_VSync = false;

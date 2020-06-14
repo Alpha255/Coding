@@ -18,14 +18,11 @@ public:
 		m_Device.waitIdle();
 
 		m_Swapchain->resize(width, height);
-
-		createOpaqueRenderPass();
 	}
 
 	inline void acquireNextFrame() override final
 	{
 		m_Swapchain->acquireNextFrame();
-		m_CurFrameIndex = m_Swapchain->currentFrameIndex();
 	}
 
 	GfxShaderPtr createVertexShader(const std::string& shaderName) override final
@@ -55,14 +52,14 @@ public:
 		return static_cast<GfxGpuBufferPtr>(buffer);
 	}
 
-	GfxRenderSurfacePtr createDepthStencilView(uint32_t width, uint32_t height, eRFormat format) override final
+	GfxRenderSurfacePtr createDepthStencil(uint32_t width, uint32_t height, eRFormat format) override final
 	{
-		auto depthStencilView = std::make_shared<VulkanDepthStencilView>(m_Device.logicalDevice(), width, height, format);
+		auto depthStencilView = std::make_shared<VulkanDepthStencil>(m_Device.logicalDevice(), width, height, format);
 		m_ImageViewList.emplace_back(std::static_pointer_cast<VulkanImageView>(depthStencilView));
 		return std::static_pointer_cast<GfxRenderSurface>(depthStencilView);
 	}
 
-	GfxRenderSurfacePtr createRenderTargetView() override final
+	GfxRenderSurfacePtr createRenderTarget() override final
 	{
 		return nullptr;
 	}
@@ -113,6 +110,14 @@ public:
 		return std::static_pointer_cast<GfxSampler>(sampler);
 	}
 
+	GfxBackBuffer backBuffer() override final
+	{
+		GfxBackBuffer backBuffer;
+		backBuffer.RenderTarget = std::static_pointer_cast<GfxRenderSurface>(m_Swapchain->currentBackBufferImage());
+		backBuffer.DepthStencil = std::static_pointer_cast<GfxRenderSurface>(m_Swapchain->depthStencil());
+		return backBuffer;
+	}
+
 	template <typename T> static std::vector<const char8_t*> getSupportedProperties(
 		const std::vector<T>& supportedProperties,
 		const std::vector<const char8_t*>& targetProperties)
@@ -133,20 +138,12 @@ public:
 
 		return result;
 	}
-
-	static uint32_t currentFrameIndex()
-	{
-		return m_CurFrameIndex;
-	}
 protected:
 	void freeResources();
-	void createOpaqueRenderPass();
 private:
 	VulkanInstance m_Instance;
 	VulkanDevice m_Device;
 	VulkanSwapchainPtr m_Swapchain = nullptr;
-
-	static uint32_t m_CurFrameIndex;
 
 	std::vector<VulkanRenderPassPtr> m_RenderPassList;
 	std::vector<VulkanImageViewPtr> m_ImageViewList;

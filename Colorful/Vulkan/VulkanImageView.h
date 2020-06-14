@@ -75,15 +75,16 @@ private:
 };
 using VulkanImageViewPtr = std::shared_ptr<VulkanImageView>;
 
-class VulkanRenderTargetView : public VulkanImageView
+class VulkanRenderTarget : public VulkanImageView
 {
 public:
-	VulkanRenderTargetView(
+	VulkanRenderTarget(
 		VkDevice device,
 		uint32_t width,
 		uint32_t height,
 		VkFormat format)
-		: VulkanImageView(device,
+		: VulkanImageView(
+			device,
 			width,
 			height,
 			1u,
@@ -97,10 +98,10 @@ public:
 	}
 };
 
-class VulkanDepthStencilView : public VulkanImageView
+class VulkanDepthStencil : public VulkanImageView
 {
 public:
-	VulkanDepthStencilView(
+	VulkanDepthStencil(
 		VkDevice device,
 		uint32_t width,
 		uint32_t height,

@@ -150,6 +150,7 @@ VulkanRenderPass::VulkanRenderPass(VkDevice device, const GfxFrameBufferDesc& de
 
 void VulkanRenderPass::bindGfxPipeline(const GfxPipelineState& state)
 {
+#if 0
 	if (!m_CmdBuffer->isInsideRenderPass())
 	{
 		///VulkanAsyncPool::instance()->waitFence(m_CmdBuffer->fence());
@@ -203,6 +204,7 @@ void VulkanRenderPass::bindGfxPipeline(const GfxPipelineState& state)
 	}
 
 	VulkanQueueManager::instance()->queueGfxCommand(m_CmdBuffer);
+#endif
 }
 
 void VulkanRenderPass::drawIndexed(uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset)

@@ -61,6 +61,12 @@ class GfxGpuTimer
 {
 };
 
+struct GfxBackBuffer
+{
+	GfxRenderSurfacePtr RenderTarget;
+	GfxRenderSurfacePtr DepthStencil;
+};
+
 class GfxEngine
 {
 public:
@@ -127,16 +133,12 @@ public:
 
 	virtual GfxSamplerPtr createSampler(const GfxSamplerDesc& desc) = 0;
 
-	virtual GfxRenderSurfacePtr createDepthStencilView(uint32_t width, uint32_t height, eRFormat format) = 0;
-	virtual GfxRenderSurfacePtr createRenderTargetView() = 0;
+	virtual GfxRenderSurfacePtr createDepthStencil(uint32_t width, uint32_t height, eRFormat format) = 0;
+	virtual GfxRenderSurfacePtr createRenderTarget() = 0;
 
 	virtual GfxRenderPassPtr createRenderPass(GfxFrameBufferDesc& desc) = 0;
 
-	inline GfxRenderPassPtr& opaqueRenderPass()
-	{
-		assert(m_OpaqueRenderPass);
-		return m_OpaqueRenderPass;
-	}
+	virtual GfxBackBuffer backBuffer() = 0;
 
 	inline GfxTexturePtr& defaultTexture()
 	{
@@ -144,7 +146,6 @@ public:
 		return m_DefaultTexture;
 	}
 protected:
-	GfxRenderPassPtr m_OpaqueRenderPass = nullptr;
 	RenderFrameCallback m_RenderFrameCallback;
 	ImGuiRendererPtr m_ImGuiRenderer = nullptr;
 	GfxTexturePtr m_DefaultTexture = nullptr;

@@ -1,16 +1,13 @@
 #include "RenderTest.h"
 
-GfxGpuBufferPtr mUniformBuffer = nullptr;
-GfxPipelineState mGraphicsPipelineState{};
-
-GfxModel ModelTest;
-
 struct UniformBufferVS
 {
 	Matrix World;
 	Matrix View;
 	Matrix Proj;
 };
+
+GfxModel ModelTest;
 
 void RenderTest::postInitialize()
 {
@@ -23,14 +20,14 @@ void RenderTest::postInitialize()
 	texture->bindSampler(sampler);
 	fragmentShader->setCombinedTextureSampler(texture, 0u);
 
-	mUniformBuffer = m_GfxEngine->createUniformBuffer(sizeof(UniformBufferVS), nullptr);
+	m_UniformBufferVS = m_GfxEngine->createUniformBuffer(sizeof(UniformBufferVS), nullptr);
 
-	struct vertex
+	struct Vertex
 	{
 		Vec3 Position;
 		Vec2 UV;
 	};
-	std::vector<vertex> vertices{
+	std::vector<Vertex> vertices{
 		{
 			{ 1.0f, 1.0f, 0.0f },
 			{ 1.0f, 1.0f }
@@ -51,7 +48,7 @@ void RenderTest::postInitialize()
 	std::vector<uint32_t> indices{
 		0u, 1u, 2u, 2u, 3u, 0u
 	};
-	auto vertexBuffer = m_GfxEngine->createVertexBuffer(eGpuReadWrite, vertices.size() * sizeof(vertex), vertices.data());
+	auto vertexBuffer = m_GfxEngine->createVertexBuffer(eGpuReadWrite, vertices.size() * sizeof(Vertex), vertices.data());
 	auto indexBuffer = m_GfxEngine->createIndexBuffer(eGpuReadWrite, indices.size() * sizeof(uint32_t), indices.data());
 
 	std::vector<GfxVertexAttributes> vertexAttrs
@@ -68,13 +65,19 @@ void RenderTest::postInitialize()
 		}
 	};
 	/// alignment ??? Try to create based on shader reflection(Format) ??? 
-	vertexShader->setInputLayout(vertexAttrs, alignof(vertex));
+	vertexShader->setInputLayout(vertexAttrs, alignof(Vertex));
 
-	vertexShader->setUniformBuffer(mUniformBuffer, 0u);
-	mGraphicsPipelineState.setShader(vertexShader);
-	mGraphicsPipelineState.setShader(fragmentShader);
-	mGraphicsPipelineState.bindVertexBuffer(vertexBuffer);
-	mGraphicsPipelineState.bindIndexBuffer(indexBuffer);
+	vertexShader->setUniformBuffer(m_UniformBufferVS, 0u);
+	m_PipelineState.setShader(vertexShader);
+	m_PipelineState.setShader(fragmentShader);
+	m_PipelineState.bindVertexBuffer(vertexBuffer);
+	m_PipelineState.bindIndexBuffer(indexBuffer);
+
+	auto backBuffer = m_GfxEngine->backBuffer();
+	GfxFrameBufferDesc frameBufferDesc;
+	frameBufferDesc.ColorSurface[0] = backBuffer.RenderTarget;
+	frameBufferDesc.DepthSurface = backBuffer.DepthStencil;
+	m_RenderPass = m_GfxEngine->createRenderPass(frameBufferDesc);
 
 	m_Camera.setPerspective(Math::PI_Div4, (float32_t)m_Window->width() / m_Window->height(), 0.1f, 500.0f);
 	m_Camera.setView(Vec3(0.0f, 0.0f, 4.0f), Vec3(0.0f, 0.0f, 0.0f));
@@ -94,7 +97,7 @@ void RenderTest::renderFrame()
 		view,
 		proj
 	};
-	mUniformBuffer->update(&uboVS, sizeof(UniformBufferVS), 0u);
+	m_UniformBufferVS->update(&uboVS, sizeof(UniformBufferVS), 0u);
 
 	GfxViewport viewport
 	{
@@ -110,12 +113,12 @@ void RenderTest::renderFrame()
 		(float32_t)m_Window->width(),
 		(float32_t)m_Window->height()
 	};
-	mGraphicsPipelineState.setViewport(viewport);
-	mGraphicsPipelineState.setScissor(scissor);
-	mGraphicsPipelineState.setRenderArea(viewport);
+	m_PipelineState.setViewport(viewport);
+	m_PipelineState.setScissor(scissor);
+	m_PipelineState.setRenderArea(viewport);
 
-	m_GfxEngine->opaqueRenderPass()->bindGfxPipeline(mGraphicsPipelineState);
-	m_GfxEngine->opaqueRenderPass()->drawIndexed(6u, 0u, 0);
+	///m_GfxEngine->opaqueRenderPass()->bindGfxPipeline(m_PipelineState);
+	///m_GfxEngine->opaqueRenderPass()->drawIndexed(6u, 0u, 0);
 
 	///ModelTest.draw(m_Camera, m_GfxEngine.get(), viewport);
 

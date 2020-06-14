@@ -236,9 +236,12 @@ protected:
 class GfxRenderPass
 {
 public:
-	virtual void bindGfxPipeline(const GfxPipelineState &state) = 0;
+	virtual void bindGfxPipeline(const GfxPipelineState& state) = 0;
 
 	virtual void drawIndexed(uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset) = 0;
+
+	virtual void begin(const GfxPipelineState& state) = 0;
+	virtual void end() = 0;
 protected:
 private:
 };
