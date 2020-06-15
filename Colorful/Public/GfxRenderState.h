@@ -119,6 +119,11 @@ struct GfxFrameBufferDesc
 	}
 };
 
+class GfxFrameBuffer
+{
+};
+using GfxFrameBufferPtr = std::shared_ptr<GfxFrameBuffer>;
+
 struct GfxPipelineState
 {
 public:
@@ -194,9 +199,9 @@ public:
 		IndexType = type;
 	}
 
-	inline void setFrameBuffer(const GfxFrameBufferDesc& frameBufferDesc)
+	inline void setFrameBuffer(const GfxFrameBufferPtr& frameBuffer)
 	{
-		FrameBuffer = frameBufferDesc;
+		FrameBuffer = frameBuffer;
 	}
 
 	eRPrimitiveTopology PrimitiveTopology = eTriangleList;
@@ -208,7 +213,7 @@ public:
 	GfxScissor Scissor;
 	GfxGpuBufferPtr VertexBuffer = nullptr;
 	GfxGpuBufferPtr IndexBuffer = nullptr;
-	GfxFrameBufferDesc FrameBuffer;
+	GfxFrameBufferPtr FrameBuffer;
 
 	friend bool8_t operator==(const GfxPipelineState& left, const GfxPipelineState& right)
 	{

@@ -110,17 +110,17 @@ public:
 		return std::static_pointer_cast<GfxSampler>(sampler);
 	}
 
-	GfxBackBuffer backBuffer() override final
+	GfxFrameBufferPtr backBuffer() override final
 	{
-		GfxBackBuffer backBuffer;
-		backBuffer.RenderTarget = std::static_pointer_cast<GfxRenderSurface>(m_Swapchain->renderTarget());
-		backBuffer.DepthStencil = std::static_pointer_cast<GfxRenderSurface>(m_Swapchain->depthStencil());
-		return backBuffer;
+		return std::static_pointer_cast<GfxFrameBuffer>(m_Swapchain->backBuffer());
 	}
 
-	void bindGfxPipelineState(const GfxPipelineState& state) override final;
+	void bindGfxPipelineState(GfxPipelineState* state) override final
+	{
+		m_CurrentPipelineState = state;
+	}
 
-	void drawIndexed(uint32_t indexCount, uint32_t startVertex, int32_t vertexOffset) override final;
+	void drawIndexed(uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset) override final;
 
 	template <typename T> static std::vector<const char8_t*> getSupportedProperties(
 		const std::vector<T>& supportedProperties,
@@ -144,17 +144,16 @@ public:
 	}
 protected:
 	void freeResources();
-
-	VulkanRenderPassPtr getOrCreateRenderPass(const GfxFrameBufferDesc& desc);
+	void prepareForDraw();
 private:
 	VulkanInstance m_Instance;
 	VulkanDevice m_Device;
 	VulkanSwapchainPtr m_Swapchain = nullptr;
 	VulkanCommandBufferPtr m_ActiveCmdBuffer = nullptr;
+	GfxPipelineState* m_CurrentPipelineState = nullptr;
+	VulkanGraphicsPipelinePtr m_CurrentPipeline;
 
 	std::vector<VulkanRenderPassPtr> m_RenderPassList;
 	std::vector<VulkanImageViewPtr> m_ImageViewList;
 	std::vector<VulkanSamplerPtr> m_SamplerList;
-	std::unordered_map<size_t, VulkanRenderPassPtr> m_RenderPassList_Hash;
-	std::unordered_map<size_t, VulkanFrameBufferPtr> m_FrameBufferList;
 };

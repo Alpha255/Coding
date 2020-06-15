@@ -94,12 +94,12 @@ public:
 		return nullptr;
 	}
 
-	GfxBackBuffer backBuffer() override final
+	GfxFrameBufferPtr backBuffer() override final
 	{
-		return GfxBackBuffer();
+		return nullptr;
 	}
 
-	void bindGfxPipelineState(const GfxPipelineState&) override final
+	void bindGfxPipelineState(GfxPipelineState*) override final
 	{
 	}
 

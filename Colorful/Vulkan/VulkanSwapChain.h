@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Colorful/Vulkan/VulkanImageView.h"
+#include "Colorful/Vulkan/VulkanRenderPass.h"
 
 class VulkanSwapchain : public VulkanObject<VkSwapchainKHR>
 {
@@ -46,14 +47,9 @@ public:
 		return m_Height;
 	}
 
-	inline VulkanImageViewPtr renderTarget()
+	inline VulkanFrameBufferPtr backBuffer() const
 	{
-		return m_BackBufferRenderTarget;
-	}
-
-	inline VulkanImageViewPtr depthStencil()
-	{
-		return m_DepthStencil;
+		return m_BackBuffers[m_CurrentFrameIndex];
 	}
 protected:
 	struct VulkanSurface : public VulkanObject<VkSurfaceKHR>
@@ -75,8 +71,8 @@ private:
 	VulkanSurface m_Surface;
 	std::vector<VulkanImageViewPtr> m_BackBufferImages;
 	VulkanImageViewPtr m_DepthStencil;
-	VulkanImageViewPtr m_BackBufferRenderTarget;
 	VulkanSemaphorePtr m_PresentCompleteSemaphore = nullptr;
+	std::vector<VulkanFrameBufferPtr> m_BackBuffers;
 
 	bool8_t m_VSync = false;
 	bool8_t m_FullScreen = false;

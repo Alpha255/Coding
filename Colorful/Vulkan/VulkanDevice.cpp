@@ -186,6 +186,7 @@ void VulkanDevice::create(VkInstance instance)
 	VulkanBufferPool::initialize(m_LogicalDevice.Handle, m_PhysicalDevice.Handle);
 	VulkanPipelinePool::initialize(m_LogicalDevice.Handle);
 	VulkanMainDescriptorPool::initialize(m_LogicalDevice.Handle, m_PhysicalDevice.Handle);
+	VulkanRenderPassManager::initialize(m_LogicalDevice.Handle);
 }
 
 void VulkanDevice::destroy()
@@ -197,6 +198,7 @@ void VulkanDevice::destroy()
 	VulkanBufferPool::instance()->finalize();
 	VulkanPipelinePool::instance()->finalize();
 	VulkanMainDescriptorPool::instance()->finalize();
+	VulkanRenderPassManager::instance()->finalize();
 
 	vkDestroyDevice(m_LogicalDevice.Handle, vkMemoryAllocator);
 	m_LogicalDevice.Handle = VK_NULL_HANDLE;

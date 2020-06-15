@@ -233,21 +233,13 @@ void VulkanSwapchain::recreate()
 	GfxVerifyVk(vkGetSwapchainImagesKHR(m_LogicDevice, Handle, &imageCount, nullptr));
 	std::vector<VkImage> images(imageCount);
 	m_BackBufferImages.resize(imageCount);
+	m_BackBuffers.resize(imageCount);
 	GfxVerifyVk(vkGetSwapchainImagesKHR(m_LogicDevice, Handle, &imageCount, images.data()));
 	for (uint32_t i = 0u; i < images.size(); ++i)
 	{
 		auto image = std::make_shared<VulkanImage>(images[i], m_Surface.SurfaceFormat.format);
 		m_BackBufferImages[i] = std::make_shared<VulkanImageView>(m_LogicDevice, image, VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_COLOR_BIT);
 	}
-	m_BackBufferRenderTarget = std::make_shared<VulkanImageView>(
-		m_LogicDevice,
-		sizeExtent.width,
-		sizeExtent.height,
-		1u, 1u, 1u,
-		VK_IMAGE_VIEW_TYPE_2D,
-		m_Surface.SurfaceFormat.format,
-		VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-		VK_IMAGE_ASPECT_COLOR_BIT);
 	m_DepthStencil = std::make_shared<VulkanImageView>(
 		m_LogicDevice, 
 		sizeExtent.width, 
@@ -257,6 +249,18 @@ void VulkanSwapchain::recreate()
 		VK_FORMAT_D24_UNORM_S8_UINT, 
 		VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, 
 		VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
+
+	for (uint32_t i = 0u; i < images.size(); ++i)
+	{
+		GfxFrameBufferDesc desc;
+		desc.ColorSurface[0] = std::static_pointer_cast<GfxRenderSurface>(m_BackBufferImages[i]);
+		desc.DepthSurface = std::static_pointer_cast<GfxRenderSurface>(m_DepthStencil);
+		desc.Width = sizeExtent.width;
+		desc.Height = sizeExtent.height;
+
+		auto renderPass = VulkanRenderPassManager::instance()->getOrCreateRenderPass(desc);
+		m_BackBuffers[i] = std::make_shared<VulkanFrameBuffer>(m_LogicDevice, renderPass->Handle, desc);
+	}
 }
 
 void VulkanSwapchain::destroy(VkInstance instance)
@@ -298,9 +302,10 @@ void VulkanSwapchain::destroyBackBuffers()
 	for (uint32_t i = 0u; i < m_BackBufferImages.size(); ++i)
 	{
 		m_BackBufferImages[i]->destroy(m_LogicDevice);
+		m_BackBuffers[i]->destroy(m_LogicDevice);
 	}
 	m_BackBufferImages.clear();
+	m_BackBuffers.clear();
 
 	m_DepthStencil->destroy(m_LogicDevice);
-	m_BackBufferRenderTarget->destroy(m_LogicDevice);
 }

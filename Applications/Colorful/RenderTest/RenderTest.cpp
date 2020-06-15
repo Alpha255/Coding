@@ -73,13 +73,6 @@ void RenderTest::postInitialize()
 	m_PipelineState.bindVertexBuffer(vertexBuffer);
 	m_PipelineState.bindIndexBuffer(indexBuffer);
 
-	auto backBuffer = m_GfxEngine->backBuffer();
-	GfxFrameBufferDesc frameBufferDesc;
-	frameBufferDesc.ColorSurface[0] = backBuffer.RenderTarget;
-	frameBufferDesc.DepthSurface = backBuffer.DepthStencil;
-	m_PipelineState.setFrameBuffer(frameBufferDesc);
-	m_RenderPass = m_GfxEngine->createRenderPass(frameBufferDesc);
-
 	m_Camera.setPerspective(Math::PI_Div4, (float32_t)m_Window->width() / m_Window->height(), 0.1f, 500.0f);
 	m_Camera.setView(Vec3(0.0f, 0.0f, 4.0f), Vec3(0.0f, 0.0f, 0.0f));
 
@@ -118,13 +111,12 @@ void RenderTest::renderFrame()
 		(float32_t)m_Window->height()
 	};
 
-	///m_PipelineState.setFrameBuffer(frameBufferDesc);
+	m_PipelineState.setFrameBuffer(m_GfxEngine->backBuffer());
 	m_PipelineState.clearFrameBuffer();
 	m_PipelineState.setViewport(viewport);
 	m_PipelineState.setScissor(scissor);
-
-	///m_GfxEngine->opaqueRenderPass()->bindGfxPipeline(m_PipelineState);
-	///m_GfxEngine->opaqueRenderPass()->drawIndexed(6u, 0u, 0);
+	m_GfxEngine->bindGfxPipelineState(&m_PipelineState);
+	m_GfxEngine->drawIndexed(6u, 0u, 0);
 
 	///ModelTest.draw(m_Camera, m_GfxEngine.get(), viewport);
 

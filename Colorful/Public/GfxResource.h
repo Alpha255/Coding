@@ -127,6 +127,8 @@ using GfxShaderPtr = std::shared_ptr<GfxShader>;
 
 class GfxRenderSurface
 {
+protected:
+
 };
 using GfxRenderSurfacePtr = std::shared_ptr<GfxRenderSurface>;
 

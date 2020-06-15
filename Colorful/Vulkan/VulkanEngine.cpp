@@ -93,6 +93,131 @@ void VulkanEngine::present()
 	VulkanQueueManager::instance()->gfxQueue()->waitIdle();
 }
 
+void VulkanEngine::prepareForDraw()
+{
+	if (m_ActiveCmdBuffer == nullptr)
+	{
+		m_ActiveCmdBuffer = VulkanQueueManager::instance()->allocGfxCommandBuffer();
+	}
+
+	assert(m_CurrentPipelineState->FrameBuffer);
+
+	auto frameBuffer = std::static_pointer_cast<VulkanFrameBuffer>(m_CurrentPipelineState->FrameBuffer);
+	if (!m_CurrentPipeline)
+	{
+		m_CurrentPipeline = VulkanPipelinePool::instance()->getOrCreateGfxPipeline(frameBuffer->renderPass(), *m_CurrentPipelineState);
+	}
+	/// m_CurrentPipeline->setupDescriptorSet(m_Device.logicalDevice(), m_CurrentPipelineState);
+	/// UpdateDescriptorSet here
+
+	if (!m_ActiveCmdBuffer->isInsideRenderPass())
+	{
+		VkClearValue clearValue[2u]{};
+		clearValue[0].color =
+		{
+			m_CurrentPipelineState->ClearValue.Color.x,
+			m_CurrentPipelineState->ClearValue.Color.y,
+			m_CurrentPipelineState->ClearValue.Color.z,
+			m_CurrentPipelineState->ClearValue.Color.w,
+		};
+		clearValue[1].depthStencil =
+		{
+			m_CurrentPipelineState->ClearValue.Depth,
+			m_CurrentPipelineState->ClearValue.Stencil
+		};
+
+		VkRenderPassBeginInfo beginInfo
+		{
+			VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
+			nullptr,
+			frameBuffer->renderPass(),
+			frameBuffer->Handle,
+			{
+				{
+					0,
+					0,
+				},
+				{
+					frameBuffer->width(),
+					frameBuffer->height(),
+				}
+			},
+			ARRAYSIZE(clearValue),
+			clearValue
+		};
+
+		m_ActiveCmdBuffer->beginRenderPass(beginInfo, VK_SUBPASS_CONTENTS_INLINE);
+	}
+
+	if (m_CurrentPipeline)
+	{
+		m_CurrentPipeline->bind(m_ActiveCmdBuffer);
+	}
+
+	///if (m_CurrentPipeline.second->isDirty(GfxPipelineState::eVertexBuffer))
+	{
+		assert(m_CurrentPipelineState->VertexBuffer);
+		auto vertexBuffer = static_cast<VulkanBufferPtr>(m_CurrentPipelineState->VertexBuffer);
+		VkDeviceSize offsets[1u]{};
+		vkCmdBindVertexBuffers(m_ActiveCmdBuffer->Handle, 0u, 1u, &vertexBuffer->Handle, offsets);
+	}
+
+	///if (m_CurrentPipeline.second->isDirty(GfxPipelineState::eIndexBuffer))
+	{
+		assert(m_CurrentPipelineState->IndexBuffer);
+		auto indexBuffer = static_cast<VulkanBufferPtr>(m_CurrentPipelineState->IndexBuffer);
+		vkCmdBindIndexBuffer(m_ActiveCmdBuffer->Handle, indexBuffer->Handle, 0u, m_CurrentPipelineState->IndexType == eRIndexType::eUInt16 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32);
+	}
+
+	if (m_CurrentPipelineState->isDirty(GfxPipelineState::eViewport))
+	{
+		VkViewport viewport
+		{
+			m_CurrentPipelineState->Viewport.x,
+			m_CurrentPipelineState->Viewport.y,
+			m_CurrentPipelineState->Viewport.z,
+			m_CurrentPipelineState->Viewport.w,
+			0.0f,
+			1.0f
+		};
+		vkCmdSetViewport(m_ActiveCmdBuffer->Handle, 0u, 1u, &viewport);
+	}
+
+	if (m_CurrentPipelineState->isDirty(GfxPipelineState::eScissor))
+	{
+		VkRect2D scissor
+		{
+			{
+				(int32_t)m_CurrentPipelineState->Scissor.x,
+				(int32_t)m_CurrentPipelineState->Scissor.y
+			},
+			{
+				(uint32_t)m_CurrentPipelineState->Scissor.z,
+				(uint32_t)m_CurrentPipelineState->Scissor.w
+			}
+		};
+		vkCmdSetScissor(m_ActiveCmdBuffer->Handle, 0u, 1u, &scissor);
+	}
+
+	m_CurrentPipelineState->clearDirty();
+
+	VulkanQueueManager::instance()->queueGfxCommand(m_ActiveCmdBuffer);
+	m_CurrentPipeline = nullptr;
+}
+
+void VulkanEngine::drawIndexed(uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset)
+{
+	prepareForDraw();
+
+	vkCmdDrawIndexed(
+		m_ActiveCmdBuffer->Handle,
+		indexCount,
+		1u,
+		firstIndex,
+		vertexOffset,
+		1u);
+}
+
 template<class TVector> void free(TVector& vector, VkDevice device)
 {
 	for each (auto it in vector)
@@ -102,94 +227,12 @@ template<class TVector> void free(TVector& vector, VkDevice device)
 	vector.clear();
 }
 
-void VulkanEngine::bindGfxPipelineState(const GfxPipelineState& state)
-{
-	if (m_ActiveCmdBuffer == nullptr)
-	{
-		m_ActiveCmdBuffer = VulkanQueueManager::instance()->allocGfxCommandBuffer();
-	}
-	assert(m_ActiveCmdBuffer->state() == VulkanCommandBuffer::eInitial);
-
-
-}
-
-void VulkanEngine::drawIndexed(uint32_t indexCount, uint32_t startVertex, int32_t vertexOffset)
-{
-}
-
 void VulkanEngine::freeResources()
 {
 	free(m_RenderPassList, m_Device.logicalDevice());
 	free(m_ImageViewList, m_Device.logicalDevice());
 	free(m_SamplerList, m_Device.logicalDevice());
-
-	for (auto it = m_RenderPassList_Hash.begin(); it != m_RenderPassList_Hash.end(); ++it)
-	{
-		it->second->destroy(m_Device.logicalDevice());
-	}
-	m_RenderPassList_Hash.clear();
 }
-
-VulkanRenderPassPtr VulkanEngine::getOrCreateRenderPass(const GfxFrameBufferDesc& desc)
-{
-	/// For temporary
-	size_t hash = 0u;
-	for (uint32_t i = 0u; i < eMaxRenderTargets; ++i)
-	{
-		if (desc.ColorSurface[i])
-		{
-			auto imageView = std::static_pointer_cast<VulkanImageView>(desc.ColorSurface[i]);
-			hash_combine(hash, (uint32_t)imageView->format());
-		}
-	}
-
-	if (desc.DepthSurface)
-	{
-		auto imageView = std::static_pointer_cast<VulkanImageView>(desc.DepthSurface);
-		hash_combine(hash, (uint32_t)imageView->format());
-	}
-
-	auto it = m_RenderPassList_Hash.find(hash);
-	if (it != m_RenderPassList_Hash.end())
-	{
-		return it->second;
-	}
-
-	auto renderPass = std::make_shared<VulkanRenderPass>(m_Device.logicalDevice(), desc);
-	m_RenderPassList_Hash.insert(std::make_pair(hash, renderPass));
-}
-
-//void VulkanEngine::createOpaqueRenderPass()
-//{
-	//VulkanRenderPassPtr vkRenderPass = nullptr;
-	//if (m_OpaqueRenderPass)
-	//{
-	//	vkRenderPass = std::static_pointer_cast<VulkanRenderPass>(m_OpaqueRenderPass);
-	//	vkRenderPass->destroyFrameBuffers(m_Device.logicalDevice());
-	//}
-
-	//auto& backBuffers = m_Swapchain->backBuffers();
-
-	//GfxFrameBufferDesc frameBufferDesc{};
-	//frameBufferDesc.Width = m_Swapchain->width();
-	//frameBufferDesc.Height = m_Swapchain->height();
-	//frameBufferDesc.DepthSurface = createDepthStencilView(frameBufferDesc.Width, frameBufferDesc.Height, eD24_UNorm_S8_UInt);
-	//frameBufferDesc.ColorSurface[0] = std::static_pointer_cast<GfxRenderSurface>(backBuffers[0]);
-
-	//if (!vkRenderPass)
-	//{
-	//	m_OpaqueRenderPass = createRenderPass(frameBufferDesc);
-	//	vkRenderPass = std::static_pointer_cast<VulkanRenderPass>(m_OpaqueRenderPass);
-	//}
-
-	//std::vector<VulkanFrameBuffer> frameBuffers(backBuffers.size());
-	//for (uint32_t i = 0u; i < backBuffers.size(); ++i)
-	//{
-	//	frameBufferDesc.ColorSurface[0] = std::static_pointer_cast<GfxRenderSurface>(backBuffers[i]);
-	//	frameBuffers[i].create(m_Device.logicalDevice(), vkRenderPass->Handle, frameBufferDesc);
-	//}
-	//vkRenderPass->bindFrameBuffers(frameBuffers);
-//}
 
 void VulkanEngine::finalize()
 {

@@ -155,6 +155,7 @@ void ImGuiRenderer::frame()
 		-1.0f);
 	m_UniformBuffer->update(&uniformBuffer, sizeof(UniformBuffer), 0u);
 
+	m_PipelineState.setFrameBuffer(m_GfxEngine->backBuffer());
 	GfxViewport viewport
 	{
 		0.0f,
@@ -164,12 +165,7 @@ void ImGuiRenderer::frame()
 	};
 	m_PipelineState.setViewport(viewport);
 
-	auto backBuffer = m_GfxEngine->backBuffer();
-	GfxFrameBufferDesc frameBufferDesc;
-	frameBufferDesc.ColorSurface[0] = backBuffer.RenderTarget;
-	frameBufferDesc.DepthSurface = backBuffer.DepthStencil;
-	/// setFrameBuffer
-	///m_GfxEngine->opaqueRenderPass()->bindGfxPipeline(m_PipelineState);
+	m_GfxEngine->bindGfxPipelineState(&m_PipelineState);
 
 	auto drawData = ImGui::GetDrawData();
 	assert(drawData);
@@ -189,7 +185,7 @@ void ImGuiRenderer::frame()
 			};
 
 			m_PipelineState.setScissor(scissor);
-			///m_GfxEngine->opaqueRenderPass()->drawIndexed(drawCmd->ElemCount, (uint32_t)indexOffset, vertexOffset);
+			m_GfxEngine->drawIndexed(drawCmd->ElemCount, (uint32_t)indexOffset, vertexOffset);
 			indexOffset += drawCmd->ElemCount;
 		}
 		vertexOffset += drawList->VtxBuffer.Size;

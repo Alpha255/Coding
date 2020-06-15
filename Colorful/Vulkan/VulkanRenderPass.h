@@ -94,7 +94,7 @@
 
 /// https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/vkspec.html#memory-model
 
-class VulkanFrameBuffer : public VulkanDeviceObject<VkFramebuffer>
+class VulkanFrameBuffer : public VulkanDeviceObject<VkFramebuffer>, public GfxFrameBuffer
 {
 public:
 	VulkanFrameBuffer(VkDevice device, VkRenderPass renderPass, const GfxFrameBufferDesc& desc);
@@ -106,6 +106,27 @@ public:
 			Handle = VK_NULL_HANDLE;
 		}
 	}
+
+	inline VkRenderPass renderPass() const
+	{
+		assert(isValid());
+		return m_RenderPass;
+	}
+
+	inline uint32_t width() const
+	{
+		return m_Width;
+	}
+
+	inline uint32_t height() const
+	{
+		return m_Height;
+	}
+protected:
+private:
+	VkRenderPass m_RenderPass = VK_NULL_HANDLE;
+	uint32_t m_Width = 0u;
+	uint32_t m_Height = 0u;
 };
 using VulkanFrameBufferPtr = std::shared_ptr<VulkanFrameBuffer>;
 
@@ -115,10 +136,25 @@ public:
 	VulkanRenderPass(VkDevice device, const GfxFrameBufferDesc& desc);
 
 	void destroy(VkDevice device) override final;
-
-	void bindGfxPipeline(const GfxPipelineState& state, const VulkanFrameBufferPtr& frameBuffer, VulkanCommandBufferPtr& cmdBuffer);
 protected:
 	///void setDynamicGfxState();
 private:
 };
 using VulkanRenderPassPtr = std::shared_ptr<VulkanRenderPass>;
+
+class VulkanRenderPassManager : public LazySingleton<VulkanRenderPassManager>
+{
+	lazySingletonDeclare(VulkanRenderPassManager);
+public:
+	void cleanup() override final;
+
+	VulkanRenderPassPtr getOrCreateRenderPass(const GfxFrameBufferDesc& desc);
+protected:
+	VulkanRenderPassManager(const VkDevice device)
+		: m_Device(device)
+	{
+	}
+private:
+	const VkDevice m_Device;
+	std::unordered_map<size_t, VulkanRenderPassPtr> m_RenderPassList;
+};
