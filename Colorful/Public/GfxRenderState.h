@@ -100,6 +100,23 @@ struct GfxFrameBufferDesc
 	uint32_t Width = 0u;
 	uint32_t Height = 0u;
 	uint32_t Layers = 1u;
+
+	size_t hash() const
+	{
+		size_t hash = 0u;
+		for (uint32_t i = 0u; i < eMaxRenderTargets; ++i)
+		{
+			if (ColorSurface[i])
+			{
+				hash_combine(hash, (size_t)ColorSurface[i].get());
+			}
+		}
+
+		if (DepthSurface)
+		{
+			hash_combine(hash, (size_t)DepthSurface.get());
+		}
+	}
 };
 
 struct GfxPipelineState
@@ -177,15 +194,13 @@ public:
 		IndexType = type;
 	}
 
-	inline void setRenderArea(const Vec4& area)
+	inline void setFrameBuffer(const GfxFrameBufferDesc& frameBufferDesc)
 	{
-		RenderArea = area;
+		FrameBuffer = frameBufferDesc;
 	}
 
 	eRPrimitiveTopology PrimitiveTopology = eTriangleList;
-
 	GfxShaderPtr Shaders[eRShaderUsage_MaxEnum]{};
-
 	GfxRasterizerStateDesc RasterizerStateDesc{};
 	GfxBlendStateDesc BlendStateDesc{};
 	GfxDepthStencilStateDesc DepthStencilStateDesc{};
@@ -193,6 +208,7 @@ public:
 	GfxScissor Scissor;
 	GfxGpuBufferPtr VertexBuffer = nullptr;
 	GfxGpuBufferPtr IndexBuffer = nullptr;
+	GfxFrameBufferDesc FrameBuffer;
 
 	friend bool8_t operator==(const GfxPipelineState& left, const GfxPipelineState& right)
 	{
@@ -217,13 +233,12 @@ public:
 		uint32_t Stencil = 0u;
 	};
 	GfxClearValue ClearValue{};
-	inline void setClearValue(const Vec4& color = Color::DarkBlue, float32_t depth = 1.0f, uint32_t stencil = 0u)
+	inline void clearFrameBuffer(const Vec4& color = Color::DarkBlue, float32_t depth = 1.0f, uint32_t stencil = 0u)
 	{
 		ClearValue.Color = color;
 		ClearValue.Depth = depth;
 		ClearValue.Stencil = stencil;
 	}
-	Vec4 RenderArea;
 	eRIndexType IndexType = eRIndexType::eUInt32;
 
 protected:
@@ -235,14 +250,5 @@ protected:
 
 class GfxRenderPass
 {
-public:
-	virtual void bindGfxPipeline(const GfxPipelineState& state) = 0;
-
-	virtual void drawIndexed(uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset) = 0;
-
-	virtual void begin(const GfxPipelineState& state) = 0;
-	virtual void end() = 0;
-protected:
-private:
 };
 using GfxRenderPassPtr = std::shared_ptr<GfxRenderPass>;

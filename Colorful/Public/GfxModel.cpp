@@ -103,7 +103,6 @@ void GfxModel::draw(const DXUTCamera& camera, GfxEngine* gfxEngine, const GfxVie
 	};
 	s_PipelineState.setViewport(viewport);
 	s_PipelineState.setScissor(scissor);
-	s_PipelineState.setRenderArea(viewport);
 
 	///gfxEngine->opaqueRenderPass()->bindGfxPipeline(s_PipelineState);
 

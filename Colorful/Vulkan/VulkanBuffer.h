@@ -62,20 +62,6 @@ public:
 	}
 };
 
-class VulkanFrameBuffer : public VulkanDeviceObject<VkFramebuffer>
-{
-public:
-	void create(VkDevice device, VkRenderPass renderPass, const GfxFrameBufferDesc& desc);
-	void destroy(VkDevice device) override final
-	{
-		if (isValid())
-		{
-			vkDestroyFramebuffer(device, Handle, vkMemoryAllocator);
-			Handle = VK_NULL_HANDLE;
-		}
-	}
-};
-
 class VulkanBufferPool : public LazySingleton<VulkanBufferPool>
 {
 	lazySingletonDeclare(VulkanBufferPool);

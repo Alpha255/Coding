@@ -139,6 +139,9 @@ public:
 	virtual GfxRenderPassPtr createRenderPass(GfxFrameBufferDesc& desc) = 0;
 
 	virtual GfxBackBuffer backBuffer() = 0;
+	virtual void bindGfxPipelineState(const GfxPipelineState& state) = 0;
+
+	virtual void drawIndexed(uint32_t indexCount, uint32_t startVertex, int32_t vertexOffset) = 0;
 
 	inline GfxTexturePtr& defaultTexture()
 	{

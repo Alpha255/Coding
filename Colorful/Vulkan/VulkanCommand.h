@@ -19,6 +19,16 @@
 class VulkanCommandBuffer : public VulkanObject<VkCommandBuffer>
 {
 public:
+	enum eState
+	{
+		eInitial,
+		eRecording,
+		eExecutable,
+		ePending,
+		eInvalid,
+		eState_MaxEnum
+	};
+
 	VulkanCommandBuffer(VkCommandBufferLevel level, VkCommandBuffer handle);
 
 	void beginRenderPass(const VkRenderPassBeginInfo& beginInfo, VkSubpassContents subpassContents);
@@ -28,6 +38,11 @@ public:
 	void end();
 
 	void execute(const std::shared_ptr<VulkanCommandBuffer>& primaryCmdBuffer);
+
+	inline eState state() const
+	{
+		return m_State;
+	}
 
 	inline bool8_t isInsideRenderPass() const
 	{
@@ -60,24 +75,10 @@ public:
 protected:
 	friend class VulkanCommandPool;
 	friend class VulkanQueueManager;
-	enum eState
-	{
-		eInitial,
-		eRecording,
-		eExecutable,
-		ePending,
-		eInvalid,
-		eState_MaxEnum
-	};
 
 	inline void setState(eState state)
 	{
 		m_State = state;
-	}
-
-	inline eState state() const
-	{
-		return m_State;
 	}
 private:
 	VkCommandBufferLevel m_Level = VK_COMMAND_BUFFER_LEVEL_MAX_ENUM;

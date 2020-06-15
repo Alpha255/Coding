@@ -98,6 +98,14 @@ public:
 	{
 		return GfxBackBuffer();
 	}
+
+	void bindGfxPipelineState(const GfxPipelineState&) override final
+	{
+	}
+
+	void drawIndexed(uint32_t, uint32_t, int32_t) override final
+	{
+	}
 public:
 protected:
 private:

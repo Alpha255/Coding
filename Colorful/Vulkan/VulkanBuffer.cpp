@@ -132,43 +132,6 @@ VulkanBuffer::VulkanBuffer(VkDevice device, eRBufferBindFlags bindFlags, eRBuffe
 	}
 }
 
-void VulkanFrameBuffer::create(VkDevice device, VkRenderPass renderPass, const GfxFrameBufferDesc& desc)
-{
-	assert(renderPass != VK_NULL_HANDLE && !isValid());
-
-	std::vector<VkImageView> attachments;
-	for (uint32_t i = 0u; i < eMaxRenderTargets; ++i)
-	{
-		if (desc.ColorSurface[i])
-		{
-			auto imageView = std::static_pointer_cast<VulkanImageView>(desc.ColorSurface[i]);
-			assert(imageView);
-			attachments.emplace_back(imageView->Handle);
-		}
-	}
-	if (desc.DepthSurface)
-	{
-		auto depthImageView = std::static_pointer_cast<VulkanImageView>(desc.DepthSurface);
-		assert(depthImageView);
-		attachments.emplace_back(depthImageView->Handle);
-	}
-
-	VkFramebufferCreateInfo createInfo
-	{
-		VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
-		nullptr,
-		0u,
-		renderPass,
-		(uint32_t)attachments.size(),
-		attachments.data(),
-		desc.Width,
-		desc.Height,
-		desc.Layers
-	};
-
-	GfxVerifyVk(vkCreateFramebuffer(device, &createInfo, vkMemoryAllocator, &Handle));
-}
-
 uint32_t VulkanBufferPool::memoryTypeIndex(eRBufferUsage usage, uint32_t memoryTypeBits) const
 {
 	assert(usage < eRBufferUsage_MaxEnum);

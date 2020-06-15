@@ -46,9 +46,9 @@ public:
 		return m_Height;
 	}
 
-	inline VulkanImageViewPtr currentBackBufferImage()
+	inline VulkanImageViewPtr renderTarget()
 	{
-		return m_BackBufferImages[m_CurrentFrameIndex];
+		return m_BackBufferRenderTarget;
 	}
 
 	inline VulkanImageViewPtr depthStencil()
@@ -75,6 +75,7 @@ private:
 	VulkanSurface m_Surface;
 	std::vector<VulkanImageViewPtr> m_BackBufferImages;
 	VulkanImageViewPtr m_DepthStencil;
+	VulkanImageViewPtr m_BackBufferRenderTarget;
 	VulkanSemaphorePtr m_PresentCompleteSemaphore = nullptr;
 
 	bool8_t m_VSync = false;
@@ -82,7 +83,5 @@ private:
 	uint32_t m_Width = 0u;
 	uint32_t m_Height = 0u;
 	uint32_t m_CurrentFrameIndex = 0u;
-
-
 };
 using VulkanSwapchainPtr = std::shared_ptr<VulkanSwapchain>;

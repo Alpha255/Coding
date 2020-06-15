@@ -102,11 +102,61 @@ template<class TVector> void free(TVector& vector, VkDevice device)
 	vector.clear();
 }
 
+void VulkanEngine::bindGfxPipelineState(const GfxPipelineState& state)
+{
+	if (m_ActiveCmdBuffer == nullptr)
+	{
+		m_ActiveCmdBuffer = VulkanQueueManager::instance()->allocGfxCommandBuffer();
+	}
+	assert(m_ActiveCmdBuffer->state() == VulkanCommandBuffer::eInitial);
+
+
+}
+
+void VulkanEngine::drawIndexed(uint32_t indexCount, uint32_t startVertex, int32_t vertexOffset)
+{
+}
+
 void VulkanEngine::freeResources()
 {
 	free(m_RenderPassList, m_Device.logicalDevice());
 	free(m_ImageViewList, m_Device.logicalDevice());
 	free(m_SamplerList, m_Device.logicalDevice());
+
+	for (auto it = m_RenderPassList_Hash.begin(); it != m_RenderPassList_Hash.end(); ++it)
+	{
+		it->second->destroy(m_Device.logicalDevice());
+	}
+	m_RenderPassList_Hash.clear();
+}
+
+VulkanRenderPassPtr VulkanEngine::getOrCreateRenderPass(const GfxFrameBufferDesc& desc)
+{
+	/// For temporary
+	size_t hash = 0u;
+	for (uint32_t i = 0u; i < eMaxRenderTargets; ++i)
+	{
+		if (desc.ColorSurface[i])
+		{
+			auto imageView = std::static_pointer_cast<VulkanImageView>(desc.ColorSurface[i]);
+			hash_combine(hash, (uint32_t)imageView->format());
+		}
+	}
+
+	if (desc.DepthSurface)
+	{
+		auto imageView = std::static_pointer_cast<VulkanImageView>(desc.DepthSurface);
+		hash_combine(hash, (uint32_t)imageView->format());
+	}
+
+	auto it = m_RenderPassList_Hash.find(hash);
+	if (it != m_RenderPassList_Hash.end())
+	{
+		return it->second;
+	}
+
+	auto renderPass = std::make_shared<VulkanRenderPass>(m_Device.logicalDevice(), desc);
+	m_RenderPassList_Hash.insert(std::make_pair(hash, renderPass));
 }
 
 //void VulkanEngine::createOpaqueRenderPass()

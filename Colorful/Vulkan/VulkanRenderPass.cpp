@@ -145,12 +145,12 @@ VulkanRenderPass::VulkanRenderPass(VkDevice device, const GfxFrameBufferDesc& de
 
 	GfxVerifyVk(vkCreateRenderPass(device, &createInfo, vkMemoryAllocator, &Handle));
 
-	m_CmdBuffer = VulkanQueueManager::instance()->allocGfxCommandBuffer();
+	///m_CmdBuffer = VulkanQueueManager::instance()->allocGfxCommandBuffer();
 }
 
+#if 0
 void VulkanRenderPass::bindGfxPipeline(const GfxPipelineState& state)
 {
-#if 0
 	if (!m_CmdBuffer->isInsideRenderPass())
 	{
 		///VulkanAsyncPool::instance()->waitFence(m_CmdBuffer->fence());
@@ -204,7 +204,6 @@ void VulkanRenderPass::bindGfxPipeline(const GfxPipelineState& state)
 	}
 
 	VulkanQueueManager::instance()->queueGfxCommand(m_CmdBuffer);
-#endif
 }
 
 void VulkanRenderPass::drawIndexed(uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset)
@@ -273,22 +272,54 @@ void VulkanRenderPass::setDynamicGfxState()
 
 	m_CurrentPipeline.second->clearDirty();
 }
+#endif
 
-void VulkanRenderPass::destroyFrameBuffers(VkDevice device)
+VulkanFrameBuffer::VulkanFrameBuffer(VkDevice device, VkRenderPass renderPass, const GfxFrameBufferDesc& desc)
 {
-	for (uint32_t i = 0u; i < m_FrameBuffers.size(); ++i)
+	assert(renderPass != VK_NULL_HANDLE && !isValid());
+
+	std::vector<VkImageView> attachments;
+	for (uint32_t i = 0u; i < eMaxRenderTargets; ++i)
 	{
-		m_FrameBuffers[i].destroy(device);
+		if (desc.ColorSurface[i])
+		{
+			auto imageView = std::static_pointer_cast<VulkanImageView>(desc.ColorSurface[i]);
+			assert(imageView);
+			attachments.emplace_back(imageView->Handle);
+		}
 	}
-	m_FrameBuffers.clear();
+	if (desc.DepthSurface)
+	{
+		auto depthImageView = std::static_pointer_cast<VulkanImageView>(desc.DepthSurface);
+		assert(depthImageView);
+		attachments.emplace_back(depthImageView->Handle);
+	}
+
+	VkFramebufferCreateInfo createInfo
+	{
+		VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+		nullptr,
+		0u,
+		renderPass,
+		(uint32_t)attachments.size(),
+		attachments.data(),
+		desc.Width,
+		desc.Height,
+		desc.Layers
+	};
+
+	GfxVerifyVk(vkCreateFramebuffer(device, &createInfo, vkMemoryAllocator, &Handle));
+}
+
+void VulkanRenderPass::bindGfxPipeline(const GfxPipelineState& state, const VulkanFrameBufferPtr& frameBuffer, VulkanCommandBufferPtr& cmdBuffer)
+{
+
 }
 
 void VulkanRenderPass::destroy(VkDevice device)
 {
 	if (isValid())
 	{
-		destroyFrameBuffers(device);
-
 		vkDestroyRenderPass(device, Handle, vkMemoryAllocator);
 		Handle = VK_NULL_HANDLE;
 	}

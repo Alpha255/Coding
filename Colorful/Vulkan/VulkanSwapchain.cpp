@@ -239,6 +239,15 @@ void VulkanSwapchain::recreate()
 		auto image = std::make_shared<VulkanImage>(images[i], m_Surface.SurfaceFormat.format);
 		m_BackBufferImages[i] = std::make_shared<VulkanImageView>(m_LogicDevice, image, VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_COLOR_BIT);
 	}
+	m_BackBufferRenderTarget = std::make_shared<VulkanImageView>(
+		m_LogicDevice,
+		sizeExtent.width,
+		sizeExtent.height,
+		1u, 1u, 1u,
+		VK_IMAGE_VIEW_TYPE_2D,
+		m_Surface.SurfaceFormat.format,
+		VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+		VK_IMAGE_ASPECT_COLOR_BIT);
 	m_DepthStencil = std::make_shared<VulkanImageView>(
 		m_LogicDevice, 
 		sizeExtent.width, 
@@ -293,4 +302,5 @@ void VulkanSwapchain::destroyBackBuffers()
 	m_BackBufferImages.clear();
 
 	m_DepthStencil->destroy(m_LogicDevice);
+	m_BackBufferRenderTarget->destroy(m_LogicDevice);
 }

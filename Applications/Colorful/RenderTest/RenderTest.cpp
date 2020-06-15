@@ -77,6 +77,7 @@ void RenderTest::postInitialize()
 	GfxFrameBufferDesc frameBufferDesc;
 	frameBufferDesc.ColorSurface[0] = backBuffer.RenderTarget;
 	frameBufferDesc.DepthSurface = backBuffer.DepthStencil;
+	m_PipelineState.setFrameBuffer(frameBufferDesc);
 	m_RenderPass = m_GfxEngine->createRenderPass(frameBufferDesc);
 
 	m_Camera.setPerspective(Math::PI_Div4, (float32_t)m_Window->width() / m_Window->height(), 0.1f, 500.0f);
@@ -84,6 +85,9 @@ void RenderTest::postInitialize()
 
 	///ModelTest.load("Wolf.fbx", m_GfxEngine.get());
 }
+
+/// Expose command buffer for application ????
+/// Recording once ??? 
 
 void RenderTest::renderFrame()
 {
@@ -113,9 +117,11 @@ void RenderTest::renderFrame()
 		(float32_t)m_Window->width(),
 		(float32_t)m_Window->height()
 	};
+
+	///m_PipelineState.setFrameBuffer(frameBufferDesc);
+	m_PipelineState.clearFrameBuffer();
 	m_PipelineState.setViewport(viewport);
 	m_PipelineState.setScissor(scissor);
-	m_PipelineState.setRenderArea(viewport);
 
 	///m_GfxEngine->opaqueRenderPass()->bindGfxPipeline(m_PipelineState);
 	///m_GfxEngine->opaqueRenderPass()->drawIndexed(6u, 0u, 0);

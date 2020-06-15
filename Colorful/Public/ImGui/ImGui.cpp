@@ -164,6 +164,11 @@ void ImGuiRenderer::frame()
 	};
 	m_PipelineState.setViewport(viewport);
 
+	auto backBuffer = m_GfxEngine->backBuffer();
+	GfxFrameBufferDesc frameBufferDesc;
+	frameBufferDesc.ColorSurface[0] = backBuffer.RenderTarget;
+	frameBufferDesc.DepthSurface = backBuffer.DepthStencil;
+	/// setFrameBuffer
 	///m_GfxEngine->opaqueRenderPass()->bindGfxPipeline(m_PipelineState);
 
 	auto drawData = ImGui::GetDrawData();
