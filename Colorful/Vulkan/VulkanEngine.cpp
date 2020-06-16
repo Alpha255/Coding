@@ -93,23 +93,23 @@ void VulkanEngine::present()
 	VulkanQueueManager::instance()->gfxQueue()->waitIdle();
 }
 
-void VulkanEngine::prepareForDraw()
+void VulkanEngine::bindGfxPipelineState(GfxPipelineState* state)
 {
 	if (m_ActiveCmdBuffer == nullptr)
 	{
 		m_ActiveCmdBuffer = VulkanQueueManager::instance()->allocGfxCommandBuffer();
 	}
 
+	m_CurrentPipelineState = state;
 	assert(m_CurrentPipelineState->FrameBuffer);
 
 	auto frameBuffer = std::static_pointer_cast<VulkanFrameBuffer>(m_CurrentPipelineState->FrameBuffer);
-	if (!m_CurrentPipeline)
-	{
-		m_CurrentPipeline = VulkanPipelinePool::instance()->getOrCreateGfxPipeline(frameBuffer->renderPass(), *m_CurrentPipelineState);
-	}
-	/// m_CurrentPipeline->setupDescriptorSet(m_Device.logicalDevice(), m_CurrentPipelineState);
-	/// UpdateDescriptorSet here
+	m_CurrentPipeline = VulkanPipelinePool::instance()->getOrCreateGfxPipeline(frameBuffer->renderPass(), *m_CurrentPipelineState);
+	m_CurrentPipeline->setupDescriptorSet(m_Device.logicalDevice(), m_CurrentPipelineState);
+}
 
+void VulkanEngine::prepareForDraw()
+{
 	if (!m_ActiveCmdBuffer->isInsideRenderPass())
 	{
 		VkClearValue clearValue[2u]{};
@@ -126,6 +126,7 @@ void VulkanEngine::prepareForDraw()
 			m_CurrentPipelineState->ClearValue.Stencil
 		};
 
+		auto frameBuffer = std::static_pointer_cast<VulkanFrameBuffer>(m_CurrentPipelineState->FrameBuffer);
 		VkRenderPassBeginInfo beginInfo
 		{
 			VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
@@ -149,10 +150,8 @@ void VulkanEngine::prepareForDraw()
 		m_ActiveCmdBuffer->beginRenderPass(beginInfo, VK_SUBPASS_CONTENTS_INLINE);
 	}
 
-	if (m_CurrentPipeline)
-	{
-		m_CurrentPipeline->bind(m_ActiveCmdBuffer);
-	}
+	assert(m_CurrentPipeline);
+	m_CurrentPipeline->bind(m_ActiveCmdBuffer);
 
 	///if (m_CurrentPipeline.second->isDirty(GfxPipelineState::eVertexBuffer))
 	{
@@ -202,7 +201,6 @@ void VulkanEngine::prepareForDraw()
 	m_CurrentPipelineState->clearDirty();
 
 	VulkanQueueManager::instance()->queueGfxCommand(m_ActiveCmdBuffer);
-	m_CurrentPipeline = nullptr;
 }
 
 void VulkanEngine::drawIndexed(uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset)

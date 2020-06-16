@@ -67,7 +67,7 @@ public:
 	}
 
 	void bind(const VulkanCommandBufferPtr& cmdBuffer);
-	void setupDescriptorSet(VkDevice device, const GfxPipelineState& state);
+	void setupDescriptorSet(VkDevice device, const GfxPipelineState* state);
 protected:
 	VkPipelineRasterizationStateCreateInfo makeRasterizationState(const GfxRasterizerStateDesc& stateDesc) const;
 	VkPipelineDepthStencilStateCreateInfo makeDepthStencilState(const GfxDepthStencilStateDesc& stateDesc) const;
@@ -94,7 +94,7 @@ class VulkanPipelinePool : public LazySingleton<VulkanPipelinePool>
 	lazySingletonDeclare(VulkanPipelinePool);
 public:
 	VulkanGraphicsPipelinePtr getOrCreateGfxPipeline(VkRenderPass renderPass, const GfxPipelineState& state);
-	void updateDescriptorSet(VulkanGraphicsPipelinePtr pipeline, const GfxPipelineState& state)
+	void updateDescriptorSet(VulkanGraphicsPipelinePtr pipeline, const GfxPipelineState* state)
 	{
 		if (pipeline)
 		{

@@ -54,7 +54,7 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(
 
 	m_DescriptorSet = VulkanMainDescriptorPool::instance()->alloc(descriptorLayoutDesc);
 	m_PipelineLayout.create(device, m_DescriptorSet.layout());
-	setupDescriptorSet(device, state);
+	///setupDescriptorSet(device, &state);
 
 	auto vertexShader = std::static_pointer_cast<VulkanShader>(state.Shaders[eVertexShader]);
 
@@ -275,16 +275,16 @@ VkPipelineColorBlendStateCreateInfo VulkanGraphicsPipeline::makeColorBlendState(
 	return blendState;
 }
 
-void VulkanGraphicsPipeline::setupDescriptorSet(VkDevice device, const GfxPipelineState& state)
+void VulkanGraphicsPipeline::setupDescriptorSet(VkDevice device, const GfxPipelineState* state)
 {
 	std::vector<VkWriteDescriptorSet> writeDescriptorSets;
 	std::vector<VkDescriptorImageInfo> imageInfos;
 	uint32_t bindingIndex = 0u;
 	for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
 	{
-		if (state.Shaders[i])
+		if (state->Shaders[i])
 		{
-			auto& uniformBuffers = state.Shaders[i]->uniformBuffers();
+			auto& uniformBuffers = state->Shaders[i]->uniformBuffers();
 			for (uint32_t j = 0u; j < uniformBuffers.size(); ++j)
 			{
 				auto buffer = static_cast<VulkanBufferPtr>(uniformBuffers[j]);
@@ -312,7 +312,7 @@ void VulkanGraphicsPipeline::setupDescriptorSet(VkDevice device, const GfxPipeli
 				writeDescriptorSets.emplace_back(std::move(writeDescriptorSetUniformBuffer));
 			}
 
-			auto& textures = state.Shaders[i]->combinedTextureSamplers();
+			auto& textures = state->Shaders[i]->combinedTextureSamplers();
 			for (uint32_t j = 0u; j < textures.size(); ++j)
 			{
 				auto imageView = std::static_pointer_cast<VulkanImageView>(textures[j]);

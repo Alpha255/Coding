@@ -115,10 +115,7 @@ public:
 		return std::static_pointer_cast<GfxFrameBuffer>(m_Swapchain->backBuffer());
 	}
 
-	void bindGfxPipelineState(GfxPipelineState* state) override final
-	{
-		m_CurrentPipelineState = state;
-	}
+	void bindGfxPipelineState(GfxPipelineState* state) override final;
 
 	void drawIndexed(uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset) override final;
 

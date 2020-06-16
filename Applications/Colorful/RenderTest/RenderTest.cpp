@@ -66,7 +66,6 @@ void RenderTest::postInitialize()
 	};
 	/// alignment ??? Try to create based on shader reflection(Format) ??? 
 	vertexShader->setInputLayout(vertexAttrs, alignof(Vertex));
-
 	vertexShader->setUniformBuffer(m_UniformBufferVS, 0u);
 	m_PipelineState.setShader(vertexShader);
 	m_PipelineState.setShader(fragmentShader);

@@ -103,8 +103,7 @@ void GfxModel::draw(const DXUTCamera& camera, GfxEngine* gfxEngine, const GfxVie
 	};
 	s_PipelineState.setViewport(viewport);
 	s_PipelineState.setScissor(scissor);
-
-	///gfxEngine->opaqueRenderPass()->bindGfxPipeline(s_PipelineState);
+	s_PipelineState.setFrameBuffer(gfxEngine->backBuffer());
 
 	for (uint32_t i = 0u; i < m_Meshes.size(); ++i)
 	{
@@ -116,11 +115,12 @@ void GfxModel::draw(const DXUTCamera& camera, GfxEngine* gfxEngine, const GfxVie
 			if (m_Meshes[i].Material.Textures[j].Type == 1u)
 			{
 				auto &diffuseTexture = m_Textures[1u][m_Meshes[i].Material.Textures[j].Index];
-				///s_PipelineState.setTexture(eFragmentShader, diffuseTexture);
+				s_PipelineState.Shaders[eFragmentShader]->setCombinedTextureSampler(diffuseTexture, 0u);
 			}
 		}
 
-		///gfxEngine->opaqueRenderPass()->drawIndexed(m_Meshes[i].IndexCount, 0u, 0);
+		gfxEngine->bindGfxPipelineState(&s_PipelineState);
+		gfxEngine->drawIndexed(m_Meshes[i].IndexCount, 0u, 0);
 	}
 }
 
