@@ -203,25 +203,37 @@ bool8_t ImGuiRenderer::update()
 	size_t totalVertexBufferSize = drawData->TotalVtxCount * sizeof(ImDrawVert);
 	size_t totalIndexBufferSize = drawData->TotalIdxCount * sizeof(ImDrawIdx);
 
+	static int32_t totalVertexCount = drawData->TotalVtxCount;
+	static int32_t totalIndexCount = drawData->TotalIdxCount;
+
+	static std::unique_ptr<ImDrawVert> verties;
+	static std::unique_ptr<ImDrawIdx> indices;
+
 	if (0u == totalVertexBufferSize || 0u == totalIndexBufferSize)
 	{
 		return false;
 	}
 
-	if (m_PipelineState.VertexBuffer)
+	if (!m_VertexBuffer || totalVertexCount != drawData->TotalVtxCount)
 	{
-		m_PipelineState.VertexBuffer->free();
+		if (m_VertexBuffer)
+		{
+			m_VertexBuffer->free();
+		}
+		m_VertexBuffer = m_GfxEngine->createVertexBuffer(eGpuReadCpuWrite, totalVertexBufferSize, nullptr);
+		verties.reset(new ImDrawVert[drawData->TotalVtxCount]());
+		totalVertexCount = drawData->TotalVtxCount;
 	}
-	if (m_PipelineState.IndexBuffer)
+	if (!m_IndexBuffer || totalIndexCount != drawData->TotalIdxCount)
 	{
-		m_PipelineState.IndexBuffer->free();
+		if (m_IndexBuffer)
+		{
+			m_IndexBuffer->free();
+		}
+		m_IndexBuffer = m_GfxEngine->createIndexBuffer(eGpuReadCpuWrite, totalIndexBufferSize, nullptr);
+		indices.reset(new ImDrawIdx[drawData->TotalIdxCount]());
+		totalIndexCount = drawData->TotalIdxCount;
 	}
-
-	auto verties = std::make_unique<ImDrawVert[]>(drawData->TotalVtxCount);
-	auto indices = std::make_unique<ImDrawIdx[]>(drawData->TotalIdxCount);
-
-	auto vertexBuffer = m_GfxEngine->createVertexBuffer(eGpuReadCpuWrite, totalVertexBufferSize, nullptr);
-	auto indexBuffer = m_GfxEngine->createIndexBuffer(eGpuReadCpuWrite, totalIndexBufferSize, nullptr);
 
 	for (int32_t i = 0, vertexOffset = 0, indexOffset = 0; i < drawData->CmdListsCount; ++i)
 	{
@@ -236,11 +248,11 @@ bool8_t ImGuiRenderer::update()
 		indexOffset += drawList->IdxBuffer.Size;
 	}
 
-	vertexBuffer->update(verties.get(), totalVertexBufferSize, 0u);
-	indexBuffer->update(indices.get(), totalIndexBufferSize, 0u);
+	m_VertexBuffer->update(verties.get(), totalVertexBufferSize, 0u);
+	m_IndexBuffer->update(indices.get(), totalIndexBufferSize, 0u);
 
-	m_PipelineState.bindVertexBuffer(vertexBuffer);
-	m_PipelineState.bindIndexBuffer(indexBuffer, eRIndexType::eUInt16);
+	m_PipelineState.bindVertexBuffer(m_VertexBuffer);
+	m_PipelineState.bindIndexBuffer(m_IndexBuffer, eRIndexType::eUInt16);
 
 	return true;
 }

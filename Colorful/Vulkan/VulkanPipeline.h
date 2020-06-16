@@ -57,7 +57,7 @@ public:
 		VkDevice device,
 		VkRenderPass renderPass,
 		VkPipelineCache pipelineCache,
-		const GfxPipelineState& state);
+		const GfxPipelineState* state);
 
 	void destroy(VkDevice device) override final
 	{
@@ -93,7 +93,7 @@ class VulkanPipelinePool : public LazySingleton<VulkanPipelinePool>
 {
 	lazySingletonDeclare(VulkanPipelinePool);
 public:
-	VulkanGraphicsPipelinePtr getOrCreateGfxPipeline(VkRenderPass renderPass, const GfxPipelineState& state);
+	VulkanGraphicsPipelinePtr getOrCreateGfxPipeline(VkRenderPass renderPass, const GfxPipelineState* state);
 	void updateDescriptorSet(VulkanGraphicsPipelinePtr pipeline, const GfxPipelineState* state)
 	{
 		if (pipeline)
@@ -111,5 +111,5 @@ protected:
 private:
 	const VkDevice m_Device;
 	VulkanPipelineCache m_PipelineCache;
-	std::vector<std::pair<GfxPipelineState, VulkanGraphicsPipelinePtr>> m_GfxPipelines;
+	std::vector<std::pair<const GfxPipelineState*, VulkanGraphicsPipelinePtr>> m_GfxPipelines;
 };

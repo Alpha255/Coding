@@ -93,7 +93,7 @@ void VulkanEngine::present()
 	VulkanQueueManager::instance()->gfxQueue()->waitIdle();
 }
 
-void VulkanEngine::bindGfxPipelineState(GfxPipelineState* state)
+void VulkanEngine::bindGfxPipelineState(const GfxPipelineState* state)
 {
 	if (m_ActiveCmdBuffer == nullptr)
 	{
@@ -104,8 +104,8 @@ void VulkanEngine::bindGfxPipelineState(GfxPipelineState* state)
 	assert(m_CurrentPipelineState->FrameBuffer);
 
 	auto frameBuffer = std::static_pointer_cast<VulkanFrameBuffer>(m_CurrentPipelineState->FrameBuffer);
-	m_CurrentPipeline = VulkanPipelinePool::instance()->getOrCreateGfxPipeline(frameBuffer->renderPass(), *m_CurrentPipelineState);
-	m_CurrentPipeline->setupDescriptorSet(m_Device.logicalDevice(), m_CurrentPipelineState);
+	m_CurrentPipeline = VulkanPipelinePool::instance()->getOrCreateGfxPipeline(frameBuffer->renderPass(), m_CurrentPipelineState);
+	///m_CurrentPipeline->setupDescriptorSet(m_Device.logicalDevice(), m_CurrentPipelineState);
 }
 
 void VulkanEngine::prepareForDraw()
@@ -168,7 +168,7 @@ void VulkanEngine::prepareForDraw()
 		vkCmdBindIndexBuffer(m_ActiveCmdBuffer->Handle, indexBuffer->Handle, 0u, m_CurrentPipelineState->IndexType == eRIndexType::eUInt16 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32);
 	}
 
-	if (m_CurrentPipelineState->isDirty(GfxPipelineState::eViewport))
+	//if (m_CurrentPipelineState->isDirty(GfxPipelineState::eViewport))
 	{
 		VkViewport viewport
 		{
@@ -182,7 +182,7 @@ void VulkanEngine::prepareForDraw()
 		vkCmdSetViewport(m_ActiveCmdBuffer->Handle, 0u, 1u, &viewport);
 	}
 
-	if (m_CurrentPipelineState->isDirty(GfxPipelineState::eScissor))
+	//if (m_CurrentPipelineState->isDirty(GfxPipelineState::eScissor))
 	{
 		VkRect2D scissor
 		{
@@ -197,8 +197,6 @@ void VulkanEngine::prepareForDraw()
 		};
 		vkCmdSetScissor(m_ActiveCmdBuffer->Handle, 0u, 1u, &scissor);
 	}
-
-	m_CurrentPipelineState->clearDirty();
 
 	VulkanQueueManager::instance()->queueGfxCommand(m_ActiveCmdBuffer);
 }

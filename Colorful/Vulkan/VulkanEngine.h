@@ -115,7 +115,7 @@ public:
 		return std::static_pointer_cast<GfxFrameBuffer>(m_Swapchain->backBuffer());
 	}
 
-	void bindGfxPipelineState(GfxPipelineState* state) override final;
+	void bindGfxPipelineState(const GfxPipelineState* state) override final;
 
 	void drawIndexed(uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset) override final;
 
@@ -147,7 +147,7 @@ private:
 	VulkanDevice m_Device;
 	VulkanSwapchainPtr m_Swapchain = nullptr;
 	VulkanCommandBufferPtr m_ActiveCmdBuffer = nullptr;
-	GfxPipelineState* m_CurrentPipelineState = nullptr;
+	const GfxPipelineState* m_CurrentPipelineState = nullptr;
 	VulkanGraphicsPipelinePtr m_CurrentPipeline;
 
 	std::vector<VulkanRenderPassPtr> m_RenderPassList;

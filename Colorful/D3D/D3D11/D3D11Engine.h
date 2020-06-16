@@ -99,7 +99,7 @@ public:
 		return nullptr;
 	}
 
-	void bindGfxPipelineState(GfxPipelineState*) override final
+	void bindGfxPipelineState(const GfxPipelineState*) override final
 	{
 	}
 

@@ -42,6 +42,8 @@ private:
 	class GfxEngine* m_GfxEngine = nullptr;
 	GfxPipelineState m_PipelineState{};
 	GfxGpuBufferPtr m_UniformBuffer = nullptr;
+	GfxGpuBufferPtr m_VertexBuffer = nullptr;
+	GfxGpuBufferPtr m_IndexBuffer = nullptr;
 	bool8_t m_Enable = true;
 };
 using ImGuiRendererPtr = std::unique_ptr<ImGuiRenderer>;

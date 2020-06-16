@@ -22,19 +22,19 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(
 	VkDevice device, 
 	VkRenderPass renderPass,
 	VkPipelineCache pipelineCache,
-	const GfxPipelineState& state)
+	const GfxPipelineState* state)
 {
 	assert(!isValid());
-	assert(state.Shaders[eVertexShader]);
+	assert(state && state->Shaders[eVertexShader]);
 	assert(renderPass != VK_NULL_HANDLE && pipelineCache != VK_NULL_HANDLE);
 
 	GfxDescriptorLayoutDesc descriptorLayoutDesc{};
 	std::vector<VkPipelineShaderStageCreateInfo> shaderStageCreateInfos;
 	for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
 	{
-		if (state.Shaders[i])
+		if (state->Shaders[i])
 		{
-			auto shader = std::static_pointer_cast<VulkanShader>(state.Shaders[i]);
+			auto shader = std::static_pointer_cast<VulkanShader>(state->Shaders[i]);
 
 			VkPipelineShaderStageCreateInfo shaderStageCreateInfo
 			{
@@ -54,16 +54,16 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(
 
 	m_DescriptorSet = VulkanMainDescriptorPool::instance()->alloc(descriptorLayoutDesc);
 	m_PipelineLayout.create(device, m_DescriptorSet.layout());
-	///setupDescriptorSet(device, &state);
+	setupDescriptorSet(device, state);
 
-	auto vertexShader = std::static_pointer_cast<VulkanShader>(state.Shaders[eVertexShader]);
+	auto vertexShader = std::static_pointer_cast<VulkanShader>(state->Shaders[eVertexShader]);
 
 	VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo
 	{
 		VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
 		nullptr,
 		0u,
-		VulkanEnum::toPrimitiveTopology(state.PrimitiveTopology),
+		VulkanEnum::toPrimitiveTopology(state->PrimitiveTopology),
 		false
 	};
 
@@ -97,9 +97,9 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(
 	};
 
 	std::vector<VkPipelineColorBlendAttachmentState> colorBlendAttachments;
-	auto depthStencilState = makeDepthStencilState(state.DepthStencilStateDesc);
-	auto rasterizationState = makeRasterizationState(state.RasterizerStateDesc);
-	auto blendState = makeColorBlendState(colorBlendAttachments, state.BlendStateDesc);
+	auto depthStencilState = makeDepthStencilState(state->DepthStencilStateDesc);
+	auto rasterizationState = makeRasterizationState(state->RasterizerStateDesc);
+	auto blendState = makeColorBlendState(colorBlendAttachments, state->BlendStateDesc);
 
 	std::vector<VkDynamicState> dynamicStates
 	{
@@ -143,9 +143,9 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(
 
 	for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
 	{
-		if (state.Shaders[i])
+		if (state->Shaders[i])
 		{
-			auto shader = std::static_pointer_cast<VulkanShader>(state.Shaders[i]);
+			auto shader = std::static_pointer_cast<VulkanShader>(state->Shaders[i]);
 			shader->destroy(device);
 		}
 	}
@@ -364,11 +364,11 @@ void VulkanPipelineCache::create(VkDevice device)
 	GfxVerifyVk(vkCreatePipelineCache(device, &createInfo, vkMemoryAllocator, &Handle));
 }
 
-VulkanGraphicsPipelinePtr VulkanPipelinePool::getOrCreateGfxPipeline(VkRenderPass renderPass, const GfxPipelineState& state)
+VulkanGraphicsPipelinePtr VulkanPipelinePool::getOrCreateGfxPipeline(VkRenderPass renderPass, const GfxPipelineState* state)
 {
 	for each (auto &it in m_GfxPipelines)
 	{
-		if (it.first == state)
+		if (*it.first == *state)
 		{
 			return it.second;
 		}
