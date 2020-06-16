@@ -6,8 +6,8 @@ void VulkanInstance::create(bool8_t enableVerboseValidation)
 
 	std::vector<const char8_t*> layers =
 	{
-		"VK_LAYER_LUNARG_standard_validation",
 #if defined(_DEBUG)
+		"VK_LAYER_LUNARG_standard_validation",
 		"VK_LAYER_LUNARG_core_validation",
 		"VK_LAYER_LUNARG_object_tracker",
 		"VK_LAYER_LUNARG_parameter_validation",
@@ -23,7 +23,9 @@ void VulkanInstance::create(bool8_t enableVerboseValidation)
 #elif defined(Platform_Linux)
 		VK_KHR_XCB_SURFACE_EXTENSION_NAME,
 #endif
+#if defined(_DEBUG)
 		VK_EXT_DEBUG_UTILS_EXTENSION_NAME
+#endif
 	};
 
 	uint32_t count = 0U;
