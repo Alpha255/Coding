@@ -122,7 +122,7 @@ void RenderTest::renderFrame()
 	static bool8_t checked = true;
 	ImGui::Checkbox("TestCheckBox", &checked);
 	ImGui::Text("Mouse pos x: %.2f, y: %.2f", m_Window->message().Mouse.Pos.x, m_Window->message().Mouse.Pos.y);
-	ImGui::Text("Mouse wheel delta: %.d", m_Window->message().Mouse.WheelDelta);
+	ImGui::Text("Mouse wheel delta: %d", m_Window->message().Mouse.WheelDelta);
 	ImGui::Text("FrameTime: %.2f ms, FPS: %.2f", m_Profile.FrameTime, m_Profile.FPS);
 }
 

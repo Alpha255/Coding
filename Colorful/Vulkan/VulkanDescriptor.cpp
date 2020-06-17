@@ -112,6 +112,7 @@ void VulkanDescriptorSet::VulkanDescriptorSetLayout::create(VkDevice device, con
 		{
 			for (auto &reflection : desc[i])
 			{
+				assert(reflection.Type != std::numeric_limits<uint32_t>::max());
 				VkDescriptorSetLayoutBinding binding
 				{
 					reflection.Binding,

@@ -171,7 +171,7 @@ void VulkanDevice::create(VkInstance instance)
 	m_Adapter.DeviceName = properties.deviceName;
 	m_Adapter.DeviceID = properties.deviceID;
 	m_Adapter.VendorID = properties.vendorID;
-	Logger::instance().log(Logger::eInfo, "Created vulkan device on adapter: \"%s %s\", DeviceID = %d. VulkanAPI Version: %d.%d.%d",
+	Logger::instance().log(Logger::eInfo, "Created Vulkan device on adapter: \"%s %s\", DeviceID = %d. VulkanAPI Version: %d.%d.%d",
 		GfxAdapter::vendorName(m_Adapter.VendorID).c_str(),
 		m_Adapter.DeviceName.c_str(),
 		m_Adapter.DeviceID,

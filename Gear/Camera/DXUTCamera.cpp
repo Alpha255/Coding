@@ -86,6 +86,8 @@ void DXUTCamera::updateKeys(const WindowMessage& message)
 		break;
 	}
 
+	m_KeyDirection.z += message.Mouse.WheelDelta * 0.005f;
+
 	if (isRotate(message))
 	{
 		float32_t percentNew = 1.0f / m_SmoothMouse;

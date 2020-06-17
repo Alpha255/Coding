@@ -254,6 +254,8 @@ void Window::update()
 		::TranslateMessage(&message);
 		::DispatchMessageW(&message);
 	}
+
+	m_Message.Mouse.WheelDelta = 0;
 }
 
 namespaceEnd(Gear)
