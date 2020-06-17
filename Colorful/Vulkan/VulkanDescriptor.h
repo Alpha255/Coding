@@ -1,39 +1,62 @@
 #pragma once
 
-#include "Colorful/Vulkan/VulkanLoader.h"
+#include "Colorful/Vulkan/VulkanImageView.h"
 
 class VulkanDescriptorSet : public VulkanObject<VkDescriptorSet>
 {
 public:
-	class VulkanDescriptorSetLayout : public VulkanDeviceObject<VkDescriptorSetLayout>
-	{
-	public:
-		void create(VkDevice device, const GfxDescriptorLayoutDesc& desc);
-
-		void destroy(VkDevice device) override final
-		{
-			if (isValid())
-			{
-				vkDestroyDescriptorSetLayout(device, Handle, vkMemoryAllocator);
-				Handle = VK_NULL_HANDLE;
-			}
-		}
-	};
-
 	VkDescriptorSetLayout layout() const
 	{
 		assert(isValid());
-		return m_Layout.Handle;
+		return m_Layout;
 	}
 
 	void destroy(VkDevice device)
 	{
-		m_Layout.destroy(device);
+		if (isValid())
+		{
+			vkDestroyDescriptorSetLayout(device, m_Layout, vkMemoryAllocator);
+			m_Layout = VK_NULL_HANDLE;
+			m_ResourceBindingMap.clear();
+		}
 	}
+
+	void setUniformBuffer(const VulkanBufferPtr& buffer, uint32_t binding);
+
+	void setTexture(const VulkanImageViewPtr& texture, uint32_t binding);
+
+	void setCombinedTextureSampler(const VulkanImageViewPtr& texture, uint32_t binding);
+
+	void setSampler(const VulkanSamplerPtr& sampler, uint32_t binding);
+
+	void update(VkDevice device);
 protected:
+	struct ResourceBindingInfo
+	{
+		VkDescriptorType Type = VK_DESCRIPTOR_TYPE_MAX_ENUM;
+		bool8_t Dirty = false;
+
+		union
+		{
+			struct VkCombinedImageSampler
+			{
+				VkImageView ImageView;
+				VkSampler Sampler;
+			} CombinedImageSampler;
+
+			VkBuffer Buffer;
+			VkImageView ImageView;
+			VkSampler Sampler;
+			VkBufferView TexelBufferView;
+		};
+	};
+
+	void createLayout(VkDevice device, const GfxDescriptorLayoutDesc& desc);
+
 	friend class VulkanDescriptorPool;
 private:
-	VulkanDescriptorSetLayout m_Layout;
+	VkDescriptorSetLayout m_Layout = VK_NULL_HANDLE;
+	std::unordered_map<uint32_t, ResourceBindingInfo> m_ResourceBindingMap;
 };
 
 class VulkanDescriptorPool : public VulkanObject<VkDescriptorPool>
