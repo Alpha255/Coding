@@ -3,6 +3,8 @@
 #include "Colorful/Vulkan/VulkanEngine.h"
 #include "AssetTool/AssetDatabase.h"
 
+GfxEngine* g_GfxEngine = nullptr;
+
 namespaceStart(Gear)
 
 void Application::createGfxRenderer()
@@ -23,6 +25,7 @@ void Application::createGfxRenderer()
 	
 	m_GfxEngine->initialize(m_Window->handle(), m_Config);
 	m_GfxEngine->registerRenderFrameCallback(std::bind(&Application::renderFrame, this));
+	g_GfxEngine = m_GfxEngine.get();
 }
 
 void Application::initialize(const std::string& windowTitle)

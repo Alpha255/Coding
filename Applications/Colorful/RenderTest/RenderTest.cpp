@@ -107,6 +107,8 @@ void RenderTest::renderFrame()
 		(float32_t)m_Window->height()
 	};
 
+	GfxScopeGpuMarker("Opaque", Color::randomColor());
+
 	m_PipelineState.setFrameBuffer(m_GfxEngine->backBuffer());
 	m_PipelineState.setViewport(viewport);
 	m_PipelineState.setScissor(scissor);

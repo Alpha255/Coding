@@ -17,6 +17,7 @@
 #include <mutex>
 #include <fstream>
 #include <set>
+#include <random>
 #include <condition_variable>
 
 #include "Gear/Definitions.Generated.h"

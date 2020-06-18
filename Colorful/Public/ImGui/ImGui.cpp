@@ -166,6 +166,8 @@ void ImGuiRenderer::frame()
 
 	m_GfxEngine->bindGfxPipelineState(&m_PipelineState);
 
+	GfxScopeGpuMarker("ImGui", Color::randomColor());
+
 	auto drawData = ImGui::GetDrawData();
 	assert(drawData);
 	for (int32_t i = 0, vertexOffset = 0, indexOffset = 0; i < drawData->CmdListsCount; ++i)

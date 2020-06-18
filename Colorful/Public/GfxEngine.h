@@ -137,6 +137,10 @@ public:
 
 	virtual void drawIndexed(uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset) = 0;
 
+	virtual void beginDebugMarker(const char8_t* name, Vec4 color) = 0;
+	virtual void insertDebugMarker(const char8_t* name, Vec4 color) = 0;
+	virtual void endDebugMarker() = 0;
+
 	inline GfxTexturePtr& defaultTexture()
 	{
 		assert(m_DefaultTexture);
@@ -149,3 +153,38 @@ protected:
 private:
 };
 using GfxEnginePtr = std::unique_ptr<GfxEngine>;
+
+extern GfxEngine* g_GfxEngine;
+class GfxDebugMarker
+{
+public:
+	GfxDebugMarker(const char8_t* name, Vec4 color)
+	{
+		begin(name, color);
+	}
+
+	~GfxDebugMarker()
+	{
+		if (!m_End)
+		{
+			end();
+		}
+	}
+
+	void begin(const char8_t* name, Vec4 color)
+	{
+		g_GfxEngine->beginDebugMarker(name, color);
+	}
+
+	void end()
+	{
+		g_GfxEngine->endDebugMarker();
+		m_End = true;
+	}
+protected:
+private:
+	bool m_End = false;
+};
+
+///#define GfxUniqueScopeGpuMarker(Name, Color, Line) GfxDebugMarker GfxDebugMarker_##Line(Name, Color)
+#define GfxScopeGpuMarker(Name, Color) GfxDebugMarker DebugMarker(Name, Color)

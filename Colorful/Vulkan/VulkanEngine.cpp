@@ -244,6 +244,44 @@ void VulkanEngine::drawIndexed(uint32_t indexCount, uint32_t firstIndex, int32_t
 		1u);
 }
 
+void VulkanEngine::beginDebugMarker(const char8_t* name, Vec4 color)
+{
+	if (m_ActiveCmdBuffer)
+	{
+		VkDebugMarkerMarkerInfoEXT info
+		{
+			VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT,
+			nullptr,
+			name,
+			{ color.x, color.y, color.z, color.w }
+		};
+		///vkCmdDebugMarkerBeginEXT(m_ActiveCmdBuffer->Handle, &info);
+	}
+}
+
+void VulkanEngine::insertDebugMarker(const char8_t* name, Vec4 color)
+{
+	if (m_ActiveCmdBuffer)
+	{
+		VkDebugMarkerMarkerInfoEXT info
+		{
+			VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT,
+			nullptr,
+			name,
+			{ color.x, color.y, color.z, color.w }
+		};
+		///vkCmdDebugMarkerInsertEXT(m_ActiveCmdBuffer->Handle, &info);
+	}
+}
+
+void VulkanEngine::endDebugMarker()
+{
+	if (m_ActiveCmdBuffer)
+	{
+		///vkCmdDebugMarkerEndEXT(m_ActiveCmdBuffer->Handle);
+	}
+}
+
 template<class TVector> void free(TVector& vector, VkDevice device)
 {
 	for each (auto it in vector)

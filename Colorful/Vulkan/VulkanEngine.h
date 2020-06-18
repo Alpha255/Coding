@@ -119,6 +119,10 @@ public:
 
 	void drawIndexed(uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset) override final;
 
+	void beginDebugMarker(const char8_t* name, Vec4 color) override final;
+	void insertDebugMarker(const char8_t* name, Vec4 color) override final;
+	void endDebugMarker() override final;
+
 	template <typename T> static std::vector<const char8_t*> getSupportedProperties(
 		const std::vector<T>& supportedProperties,
 		const std::vector<const char8_t*>& targetProperties)

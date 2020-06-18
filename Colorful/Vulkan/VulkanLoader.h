@@ -21,6 +21,9 @@
 	action(vkDestroyInstance)                         \
 	action(vkDestroySurfaceKHR)                       \
 	action(vkSetHdrMetadataEXT)                       \
+	action(vkCmdDebugMarkerEndEXT)                    \
+	action(vkCmdDebugMarkerBeginEXT)                  \
+	action(vkCmdDebugMarkerInsertEXT)                 \
 	action(vkEnumeratePhysicalDevices)                \
 	action(vkGetPhysicalDeviceFeatures)               \
 	action(vkGetPhysicalDeviceProperties)             \

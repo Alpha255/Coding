@@ -125,6 +125,8 @@ void GfxModel::draw(const DXUTCamera& camera, GfxEngine* gfxEngine, const GfxVie
 
 	gfxEngine->bindGfxPipelineState(&s_PipelineState);
 
+	GfxScopeGpuMarker("Model", Color::randomColor());
+
 	for (uint32_t i = 0u; i < m_Meshes.size(); ++i)
 	{
 		s_PipelineState.bindVertexBuffer(m_Meshes[i].VertexBuffer);

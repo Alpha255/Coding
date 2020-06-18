@@ -105,6 +105,18 @@ public:
 	void drawIndexed(uint32_t, uint32_t, int32_t) override final
 	{
 	}
+
+	void beginDebugMarker(const char8_t*, Vec4) override final
+	{
+	}
+
+	void insertDebugMarker(const char8_t*, Vec4) override final
+	{
+	}
+
+	void endDebugMarker() override final
+	{
+	}
 protected:
 private:
 	d3d12Device m_Device;
