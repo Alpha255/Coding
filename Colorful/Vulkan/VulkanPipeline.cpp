@@ -140,6 +140,12 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(
 	/// Pending creations ???
 	GfxVerifyVk(vkCreateGraphicsPipelines(device, pipelineCache, 1u, &createInfo, vkMemoryAllocator, &Handle));
 
+	if (rasterizationState.polygonMode == VK_POLYGON_MODE_FILL)
+	{
+		rasterizationState.polygonMode = VK_POLYGON_MODE_LINE;
+		GfxVerifyVk(vkCreateGraphicsPipelines(device, pipelineCache, 1u, &createInfo, vkMemoryAllocator, &m_WireframePipeline.Handle));
+	}
+
 	for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
 	{
 		if (state->Shaders[i])

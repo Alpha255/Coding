@@ -239,6 +239,7 @@ struct GfxPipelineState
 		ClearValue.Stencil = stencil;
 	}
 	eRIndexType IndexType = eRIndexType::eUInt32;
+	bool8_t Wireframe = false;
 };
 
 class GfxRenderPass

@@ -64,6 +64,7 @@ public:
 		m_PipelineLayout.destroy(device);
 		m_DescriptorSet.destroy(device);
 		VulkanPipeline::destroy(device);
+		m_WireframePipeline.destroy(device);
 	}
 
 	void updateDescriptorSet(VkDevice device, const GfxPipelineState* state);
@@ -79,6 +80,12 @@ public:
 		assert(m_PipelineLayout.isValid());
 		return m_PipelineLayout.Handle;
 	}
+
+	VkPipeline wireframePipeline() const
+	{
+		assert(m_WireframePipeline.isValid());
+		return m_WireframePipeline.Handle;
+	}
 protected:
 	VkPipelineRasterizationStateCreateInfo makeRasterizationState(const GfxRasterizerStateDesc& stateDesc) const;
 	VkPipelineDepthStencilStateCreateInfo makeDepthStencilState(const GfxDepthStencilStateDesc& stateDesc) const;
@@ -88,6 +95,7 @@ protected:
 private:
 	VulkanPipelineLayout m_PipelineLayout;
 	VulkanDescriptorSet m_DescriptorSet;
+	VulkanPipeline m_WireframePipeline;
 };
 using VulkanGraphicsPipelinePtr = std::shared_ptr<VulkanGraphicsPipeline>;
 

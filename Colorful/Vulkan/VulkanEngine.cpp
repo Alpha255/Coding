@@ -220,7 +220,14 @@ void VulkanEngine::prepareForDraw()
 
 	if (m_CurPipelineState.Dirty)
 	{
-		vkCmdBindPipeline(m_ActiveCmdBuffer->Handle, VK_PIPELINE_BIND_POINT_GRAPHICS, m_CurPipelineState.GfxPipeline->Handle);
+		if (m_CurPipelineState.GfxPipelineState->Wireframe)
+		{
+			vkCmdBindPipeline(m_ActiveCmdBuffer->Handle, VK_PIPELINE_BIND_POINT_GRAPHICS, m_CurPipelineState.GfxPipeline->wireframePipeline());
+		}
+		else
+		{
+			vkCmdBindPipeline(m_ActiveCmdBuffer->Handle, VK_PIPELINE_BIND_POINT_GRAPHICS, m_CurPipelineState.GfxPipeline->Handle);
+		}
 
 		auto descriptorSet = m_CurPipelineState.GfxPipeline->descriptorSet();
 		vkCmdBindDescriptorSets(m_ActiveCmdBuffer->Handle, 
