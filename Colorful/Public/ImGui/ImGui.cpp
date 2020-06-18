@@ -54,8 +54,7 @@ ImGuiRenderer::ImGuiRenderer(GfxEngine* gfxEngine)
 
 	GfxSamplerDesc samplerDesc{};
 	auto sampler = m_GfxEngine->createSampler(samplerDesc);
-	fontTex->bindSampler(sampler);
-	fragmentShader->setCombinedTextureSampler(fontTex, 0u);
+	fragmentShader->setCombinedTextureSampler(fontTex, sampler, 1u);
 
 	m_PipelineState.setShader(vertexShader);
 	m_PipelineState.setShader(fragmentShader);

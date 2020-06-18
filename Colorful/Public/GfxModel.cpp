@@ -3,6 +3,7 @@
 ///#include <ThirdParty/assimp/include/assimp/material.h>
 
 GfxPipelineState GfxModel::s_PipelineState;
+GfxSamplerPtr GfxModel::s_LinearSampler = nullptr;
 
 struct UniformBufferVS
 {
@@ -65,14 +66,31 @@ void GfxModel::initPipelineState(GfxEngine* gfxEngine)
 	s_PipelineState.setShader(vertexShader);
 	s_PipelineState.setShader(fragmentShader);
 
+	GfxSamplerDesc desc;
+	s_LinearSampler = gfxEngine->createSampler(desc);
+
 	s_Inited = true;
 }
 
 void GfxModel::load(const std::string& modelName, GfxEngine* gfxEngine)
 {
+	m_Name = File::name(modelName);
+
 	AssetTool::AssetDatabase::instance().tryToLoadModel(modelName, *this, gfxEngine);
 
 	initPipelineState(gfxEngine);
+
+	for (uint32_t i = 0u; i < m_Meshes.size(); ++i)
+	{
+		for (uint32_t j = 0u; j < m_Meshes[i].Material.Textures.size(); ++j)
+		{
+			if (m_Meshes[i].Material.Textures[j].Type == 1u)
+			{
+				auto &diffuseTexture = m_Textures[1u][m_Meshes[i].Material.Textures[j].Index];
+				s_PipelineState.Shaders[eFragmentShader]->setCombinedTextureSampler(diffuseTexture, s_LinearSampler, 1u);
+			}
+		}
+	}
 }
 
 void GfxModel::draw(const DXUTCamera& camera, GfxEngine* gfxEngine, const GfxViewport& viewport)
@@ -105,21 +123,12 @@ void GfxModel::draw(const DXUTCamera& camera, GfxEngine* gfxEngine, const GfxVie
 	s_PipelineState.setScissor(scissor);
 	s_PipelineState.setFrameBuffer(gfxEngine->backBuffer());
 
+	gfxEngine->bindGfxPipelineState(&s_PipelineState);
+
 	for (uint32_t i = 0u; i < m_Meshes.size(); ++i)
 	{
 		s_PipelineState.bindVertexBuffer(m_Meshes[i].VertexBuffer);
 		s_PipelineState.bindIndexBuffer(m_Meshes[i].IndexBuffer);
-		
-		for (uint32_t j = 0u; j < m_Meshes[i].Material.Textures.size(); ++j)
-		{
-			if (m_Meshes[i].Material.Textures[j].Type == 1u)
-			{
-				auto &diffuseTexture = m_Textures[1u][m_Meshes[i].Material.Textures[j].Index];
-				s_PipelineState.Shaders[eFragmentShader]->setCombinedTextureSampler(diffuseTexture, 0u);
-			}
-		}
-
-		gfxEngine->bindGfxPipelineState(&s_PipelineState);
 		gfxEngine->drawIndexed(m_Meshes[i].IndexCount, 0u, 0);
 	}
 }

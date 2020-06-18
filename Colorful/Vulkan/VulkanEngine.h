@@ -115,7 +115,7 @@ public:
 		return std::static_pointer_cast<GfxFrameBuffer>(m_Swapchain->backBuffer());
 	}
 
-	void bindGfxPipelineState(const GfxPipelineState* state) override final;
+	void bindGfxPipelineState(GfxPipelineState* state) override final;
 
 	void drawIndexed(uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset) override final;
 
@@ -140,15 +140,40 @@ public:
 		return result;
 	}
 protected:
+	struct CurrentPipelineState
+	{
+		enum ePipelineType
+		{
+			eGraphics,
+			eCompute,
+			eRayTracing
+		};
+
+		ePipelineType Type = eGraphics;
+		bool8_t Dirty = false;
+		VulkanFrameBufferPtr FrameBuffer = nullptr;
+		VulkanGraphicsPipelinePtr GfxPipeline = nullptr;
+		GfxPipelineState* GfxPipelineState = nullptr;
+
+		inline void reset()
+		{
+			GfxPipelineState->reset();
+			Dirty = false;
+			FrameBuffer = nullptr;
+			GfxPipeline = nullptr;
+			GfxPipelineState = nullptr;
+		}
+	};
+
 	void freeResources();
 	void prepareForDraw();
+	void setDynamicStates();
 private:
 	VulkanInstance m_Instance;
 	VulkanDevice m_Device;
 	VulkanSwapchainPtr m_Swapchain = nullptr;
 	VulkanCommandBufferPtr m_ActiveCmdBuffer = nullptr;
-	const GfxPipelineState* m_CurrentPipelineState = nullptr;
-	VulkanGraphicsPipelinePtr m_CurrentPipeline;
+	CurrentPipelineState m_CurPipelineState;
 
 	std::vector<VulkanRenderPassPtr> m_RenderPassList;
 	std::vector<VulkanImageViewPtr> m_ImageViewList;

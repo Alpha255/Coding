@@ -127,14 +127,12 @@ void VulkanDescriptorSet::setTexture(const VulkanImageViewPtr& texture, uint32_t
 	}
 }
 
-void VulkanDescriptorSet::setCombinedTextureSampler(const VulkanImageViewPtr& texture, uint32_t binding)
+void VulkanDescriptorSet::setCombinedTextureSampler(const VulkanImageViewPtr& texture, const VulkanSamplerPtr& sampler, uint32_t binding)
 {
 	assert(isValid());
-	assert(texture && texture->isValid() && texture->sampler());
-	assert(m_ResourceBindingMap[binding].Type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-	
-	auto sampler = std::static_pointer_cast<VulkanSampler>(texture->sampler());
+	assert(texture && texture->isValid());
 	assert(sampler && sampler->isValid());
+	assert(m_ResourceBindingMap[binding].Type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
 	if (m_ResourceBindingMap[binding].CombinedImageSampler.ImageView != texture->Handle || 
 		m_ResourceBindingMap[binding].CombinedImageSampler.Sampler != sampler->Handle)

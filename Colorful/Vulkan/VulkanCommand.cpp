@@ -231,9 +231,8 @@ void VulkanCommandBuffer::endRenderPass()
 	assert(isValid() && m_State == eRecording);
 
 	vkCmdEndRenderPass(Handle);
-	GfxVerifyVk(vkEndCommandBuffer(Handle));
 
-	setState(eExecutable);
+	end();
 }
 
 void VulkanCommandBuffer::execute(const std::shared_ptr<VulkanCommandBuffer>& primaryCmdBuffer)

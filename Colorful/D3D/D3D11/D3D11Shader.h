@@ -18,11 +18,6 @@ public:
 		assert(m_Usage == eVertexShader && m_InputLayout.isValid());
 		return m_InputLayout;
 	}
-
-	void allocResources() override final
-	{
-
-	}
 protected:
 private:
 	d3d11InputLayout m_InputLayout;

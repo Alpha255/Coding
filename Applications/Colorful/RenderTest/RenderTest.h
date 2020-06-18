@@ -10,5 +10,7 @@ public:
 protected:
 private:
 	GfxGpuBufferPtr m_UniformBufferVS = nullptr;
+	GfxGpuBufferPtr m_VertexBuffer = nullptr;
+	GfxGpuBufferPtr m_IndexBuffer = nullptr;
 	GfxPipelineState m_PipelineState{};
 };

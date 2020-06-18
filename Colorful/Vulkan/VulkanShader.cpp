@@ -21,8 +21,6 @@ VulkanShader::VulkanShader(VkDevice device, eRShaderUsage usage, const std::stri
 	GfxVerifyVk(vkCreateShaderModule(device, &createInfo, vkMemoryAllocator, &Handle));
 
 	m_Reflections = binary.Reflections;
-
-	allocResources();
 }
 
 void VulkanShader::setInputLayout(const std::vector<GfxVertexAttributes>& vertexAttributes, size_t align)

@@ -64,5 +64,7 @@ private:
 	std::vector<GfxMesh> m_Meshes;
 	std::array<std::vector<GfxTexturePtr>, 18u> m_Textures; /// aiTextureType_UNKNOWN
 	GfxGpuBufferPtr m_UniformBuffer;
+	std::string m_Name;
 	static GfxPipelineState s_PipelineState;
+	static GfxSamplerPtr s_LinearSampler;
 };

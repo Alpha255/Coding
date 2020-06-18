@@ -86,61 +86,104 @@ void VulkanEngine::present()
 {
 	VulkanBufferPool::instance()->delayFree();
 
+	VulkanQueueManager::instance()->queueGfxCommand(m_ActiveCmdBuffer);
+
 	VulkanQueueManager::instance()->submitQueuedCommands(m_Swapchain->presentCompleteSemaphore()->Handle);
 
 	m_Swapchain->present(VulkanQueueManager::instance()->renderCompleteSemaphore()->Handle);
 
 	VulkanQueueManager::instance()->gfxQueue()->waitIdle();
+
+	m_CurPipelineState.reset();
 }
 
-void VulkanEngine::bindGfxPipelineState(const GfxPipelineState* state)
+void VulkanEngine::bindGfxPipelineState(GfxPipelineState* state)
 {
+	assert(state);
+
 	if (m_ActiveCmdBuffer == nullptr)
 	{
 		m_ActiveCmdBuffer = VulkanQueueManager::instance()->allocGfxCommandBuffer();
 	}
 
-	m_CurrentPipelineState = state;
-	assert(m_CurrentPipelineState->FrameBuffer);
+	if (m_CurPipelineState.GfxPipelineState != state)
+	{
+		m_CurPipelineState.Dirty = true;
+		m_CurPipelineState.GfxPipelineState = state;
+		assert(m_CurPipelineState.GfxPipelineState->FrameBuffer);
+		m_CurPipelineState.FrameBuffer = std::static_pointer_cast<VulkanFrameBuffer>(state->FrameBuffer);
+		m_CurPipelineState.GfxPipeline = VulkanPipelinePool::instance()->getOrCreateGfxPipeline(m_CurPipelineState.FrameBuffer->renderPass(), state);
+		m_CurPipelineState.GfxPipeline->updateDescriptorSet(m_Device.logicalDevice(), state);
+	}
+}
 
-	auto frameBuffer = std::static_pointer_cast<VulkanFrameBuffer>(m_CurrentPipelineState->FrameBuffer);
-	m_CurrentPipeline = VulkanPipelinePool::instance()->getOrCreateGfxPipeline(frameBuffer->renderPass(), m_CurrentPipelineState);
-	///m_CurrentPipeline->setupDescriptorSet(m_Device.logicalDevice(), m_CurrentPipelineState);
+void VulkanEngine::setDynamicStates()
+{
+	if (m_CurPipelineState.GfxPipelineState->isDirty(GfxPipelineState::eViewport))
+	{
+		VkViewport viewport
+		{
+			m_CurPipelineState.GfxPipelineState->Viewport.x,
+			m_CurPipelineState.GfxPipelineState->Viewport.y,
+			m_CurPipelineState.GfxPipelineState->Viewport.z,
+			m_CurPipelineState.GfxPipelineState->Viewport.w,
+			m_CurPipelineState.GfxPipelineState->Viewport.minDepth(),
+			m_CurPipelineState.GfxPipelineState->Viewport.maxDepth()
+		};
+		vkCmdSetViewport(m_ActiveCmdBuffer->Handle, 0u, 1u, &viewport);
+	}
+
+	if (m_CurPipelineState.GfxPipelineState->isDirty(GfxPipelineState::eScissor))
+	{
+		VkRect2D scissor
+		{
+			{
+				(int32_t)m_CurPipelineState.GfxPipelineState->Scissor.x,
+				(int32_t)m_CurPipelineState.GfxPipelineState->Scissor.y
+			},
+			{
+				(uint32_t)m_CurPipelineState.GfxPipelineState->Scissor.z,
+				(uint32_t)m_CurPipelineState.GfxPipelineState->Scissor.w
+			}
+		};
+		vkCmdSetScissor(m_ActiveCmdBuffer->Handle, 0u, 1u, &scissor);
+	}
 }
 
 void VulkanEngine::prepareForDraw()
 {
+	assert(m_CurPipelineState.GfxPipeline);
+
 	if (!m_ActiveCmdBuffer->isInsideRenderPass())
 	{
 		VkClearValue clearValue[2u]{};
 		clearValue[0].color =
 		{
-			m_CurrentPipelineState->ClearValue.Color.x,
-			m_CurrentPipelineState->ClearValue.Color.y,
-			m_CurrentPipelineState->ClearValue.Color.z,
-			m_CurrentPipelineState->ClearValue.Color.w,
+			m_CurPipelineState.GfxPipelineState->ClearValue.Color.x,
+			m_CurPipelineState.GfxPipelineState->ClearValue.Color.y,
+			m_CurPipelineState.GfxPipelineState->ClearValue.Color.z,
+			m_CurPipelineState.GfxPipelineState->ClearValue.Color.w,
 		};
 		clearValue[1].depthStencil =
 		{
-			m_CurrentPipelineState->ClearValue.Depth,
-			m_CurrentPipelineState->ClearValue.Stencil
+			m_CurPipelineState.GfxPipelineState->ClearValue.Depth,
+			m_CurPipelineState.GfxPipelineState->ClearValue.Stencil
 		};
 
-		auto frameBuffer = std::static_pointer_cast<VulkanFrameBuffer>(m_CurrentPipelineState->FrameBuffer);
 		VkRenderPassBeginInfo beginInfo
 		{
 			VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
 			nullptr,
-			frameBuffer->renderPass(),
-			frameBuffer->Handle,
+			m_CurPipelineState.FrameBuffer->renderPass(),
+			m_CurPipelineState.FrameBuffer->Handle,
 			{
 				{
 					0,
 					0,
 				},
 				{
-					frameBuffer->width(),
-					frameBuffer->height(),
+					m_CurPipelineState.FrameBuffer->width(),
+					m_CurPipelineState.FrameBuffer->height(),
 				}
 			},
 			ARRAYSIZE(clearValue),
@@ -150,60 +193,47 @@ void VulkanEngine::prepareForDraw()
 		m_ActiveCmdBuffer->beginRenderPass(beginInfo, VK_SUBPASS_CONTENTS_INLINE);
 	}
 
-	assert(m_CurrentPipeline);
-	m_CurrentPipeline->bind(m_ActiveCmdBuffer);
-
-	///if (m_CurrentPipeline.second->isDirty(GfxPipelineState::eVertexBuffer))
+	if (m_CurPipelineState.Dirty)
 	{
-		assert(m_CurrentPipelineState->VertexBuffer);
-		auto vertexBuffer = static_cast<VulkanBufferPtr>(m_CurrentPipelineState->VertexBuffer);
+		vkCmdBindPipeline(m_ActiveCmdBuffer->Handle, VK_PIPELINE_BIND_POINT_GRAPHICS, m_CurPipelineState.GfxPipeline->Handle);
+
+		auto descriptorSet = m_CurPipelineState.GfxPipeline->descriptorSet();
+		vkCmdBindDescriptorSets(m_ActiveCmdBuffer->Handle, 
+			VK_PIPELINE_BIND_POINT_GRAPHICS, 
+			m_CurPipelineState.GfxPipeline->layout(),
+			0u, 
+			1u, 
+			&descriptorSet,
+			0u, 
+			nullptr);
+
+		m_CurPipelineState.Dirty = false;
+	}
+
+	if (m_CurPipelineState.GfxPipelineState->isDirty(GfxPipelineState::eVertexBuffer))
+	{
+		assert(m_CurPipelineState.GfxPipelineState->VertexBuffer);
+		auto vertexBuffer = static_cast<VulkanBufferPtr>(m_CurPipelineState.GfxPipelineState->VertexBuffer);
 		VkDeviceSize offsets[1u]{};
 		vkCmdBindVertexBuffers(m_ActiveCmdBuffer->Handle, 0u, 1u, &vertexBuffer->Handle, offsets);
 	}
 
-	///if (m_CurrentPipeline.second->isDirty(GfxPipelineState::eIndexBuffer))
+	if (m_CurPipelineState.GfxPipelineState->isDirty(GfxPipelineState::eIndexBuffer))
 	{
-		assert(m_CurrentPipelineState->IndexBuffer);
-		auto indexBuffer = static_cast<VulkanBufferPtr>(m_CurrentPipelineState->IndexBuffer);
-		vkCmdBindIndexBuffer(m_ActiveCmdBuffer->Handle, indexBuffer->Handle, 0u, m_CurrentPipelineState->IndexType == eRIndexType::eUInt16 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32);
+		assert(m_CurPipelineState.GfxPipelineState->IndexBuffer);
+		auto indexBuffer = static_cast<VulkanBufferPtr>(m_CurPipelineState.GfxPipelineState->IndexBuffer);
+		vkCmdBindIndexBuffer(m_ActiveCmdBuffer->Handle,
+			indexBuffer->Handle,
+			0u,
+			m_CurPipelineState.GfxPipelineState->IndexType == eRIndexType::eUInt16 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32);
 	}
-
-	//if (m_CurrentPipelineState->isDirty(GfxPipelineState::eViewport))
-	{
-		VkViewport viewport
-		{
-			m_CurrentPipelineState->Viewport.x,
-			m_CurrentPipelineState->Viewport.y,
-			m_CurrentPipelineState->Viewport.z,
-			m_CurrentPipelineState->Viewport.w,
-			0.0f,
-			1.0f
-		};
-		vkCmdSetViewport(m_ActiveCmdBuffer->Handle, 0u, 1u, &viewport);
-	}
-
-	//if (m_CurrentPipelineState->isDirty(GfxPipelineState::eScissor))
-	{
-		VkRect2D scissor
-		{
-			{
-				(int32_t)m_CurrentPipelineState->Scissor.x,
-				(int32_t)m_CurrentPipelineState->Scissor.y
-			},
-			{
-				(uint32_t)m_CurrentPipelineState->Scissor.z,
-				(uint32_t)m_CurrentPipelineState->Scissor.w
-			}
-		};
-		vkCmdSetScissor(m_ActiveCmdBuffer->Handle, 0u, 1u, &scissor);
-	}
-
-	VulkanQueueManager::instance()->queueGfxCommand(m_ActiveCmdBuffer);
 }
 
 void VulkanEngine::drawIndexed(uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset)
 {
 	prepareForDraw();
+
+	setDynamicStates();
 
 	vkCmdDrawIndexed(
 		m_ActiveCmdBuffer->Handle,

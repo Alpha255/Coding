@@ -34,24 +34,29 @@ using GfxSamplerPtr = std::shared_ptr<GfxSampler>;
 
 class GfxTexture
 {
-public:
-	inline void bindSampler(const GfxSamplerPtr& sampler)
-	{
-		m_Sampler = sampler;
-	}
-
-	inline const GfxSamplerPtr& sampler() const
-	{
-		return m_Sampler;
-	}
-protected:
-	GfxSamplerPtr m_Sampler = nullptr;
 };
 using GfxTexturePtr = std::shared_ptr<GfxTexture>;
 
 class GfxShader
 {
 public:
+	enum eResourceType
+	{
+		eTexture,
+		eSampler,
+		eCombinedTextureSampler,
+		eUniformBuffer,
+		eResourceType_MaxEnum
+	};
+
+	struct ResourceBindingInfo
+	{
+		GfxTexturePtr Texture = nullptr;
+		GfxSamplerPtr Sampler = nullptr;
+		GfxGpuBufferPtr UniformBuffer = nullptr;
+		eResourceType Type = eResourceType_MaxEnum;
+	};
+
 	GfxShader(eRShaderUsage usage)
 		: m_Usage(usage)
 	{
@@ -67,60 +72,97 @@ public:
 		return m_Reflections;
 	}
 
-	inline const std::vector<GfxGpuBufferPtr>& uniformBuffers() const
+	inline const std::unordered_map<uint32_t, ResourceBindingInfo>& resources() const
 	{
-		return m_UniformBuffers;
+		return m_ResourceMap;
 	}
 
-	inline const std::vector<GfxTexturePtr>& combinedTextureSamplers() const
+	inline void setCombinedTextureSampler(const GfxTexturePtr& texture, const GfxSamplerPtr& sampler, uint32_t slot)
 	{
-		return m_CombinedTextureSamplers;
-	}
-
-	inline const std::vector<GfxTexturePtr>& textures() const
-	{
-		return m_Textures;
-	}
-
-	inline const std::vector<GfxSamplerPtr>& samplers() const
-	{
-		return m_Samplers;
-	}
-
-	inline void setCombinedTextureSampler(const GfxTexturePtr& texture, uint32_t slot)
-	{
-		assert(slot < m_CombinedTextureSamplers.size());
-		m_CombinedTextureSamplers[slot] = texture;
+		auto it = m_ResourceMap.find(slot);
+		if (it != m_ResourceMap.end())
+		{
+			it->second.Texture = texture;
+			it->second.Sampler = sampler;
+		}
+		else
+		{
+			ResourceBindingInfo bindingInfo
+			{
+				texture,
+				sampler,
+				nullptr,
+				eCombinedTextureSampler
+			};
+			m_ResourceMap.insert(std::make_pair(slot, bindingInfo));
+		}
 	}
 
 	inline void setTexure(const GfxTexturePtr& texture, uint32_t slot)
 	{
-		assert(slot < m_Textures.size());
-		m_Textures[slot] = texture;
+		auto it = m_ResourceMap.find(slot);
+		if (it != m_ResourceMap.end())
+		{
+			it->second.Texture = texture;
+		}
+		else
+		{
+			ResourceBindingInfo bindingInfo
+			{
+				texture,
+				nullptr,
+				nullptr,
+				eTexture
+			};
+			m_ResourceMap.insert(std::make_pair(slot, bindingInfo));
+		}
 	}
 
 	inline void setUniformBuffer(const GfxGpuBufferPtr& buffer, uint32_t slot)
 	{
-		assert(slot < m_UniformBuffers.size());
-		m_UniformBuffers[slot] = buffer;
+		auto it = m_ResourceMap.find(slot);
+		if (it != m_ResourceMap.end())
+		{
+			it->second.UniformBuffer = buffer;
+		}
+		else
+		{
+			ResourceBindingInfo bindingInfo
+			{
+				nullptr,
+				nullptr,
+				buffer,
+				eUniformBuffer
+			};
+			m_ResourceMap.insert(std::make_pair(slot, bindingInfo));
+		}
 	}
 
 	inline void setSampler(const GfxSamplerPtr& sampler, uint32_t slot)
 	{
-		assert(slot < m_Samplers.size());
-		m_Samplers[slot] = sampler;
+		auto it = m_ResourceMap.find(slot);
+		if (it != m_ResourceMap.end())
+		{
+			it->second.Sampler = sampler;
+		}
+		else
+		{
+			ResourceBindingInfo bindingInfo
+			{
+				nullptr,
+				sampler,
+				nullptr,
+				eSampler
+			};
+			m_ResourceMap.insert(std::make_pair(slot, bindingInfo));
+		}
 	}
-
-	virtual void allocResources() = 0;
 
 	virtual void setInputLayout(const std::vector<GfxVertexAttributes>&, size_t) {}
 protected:
 	eRShaderUsage m_Usage = eRShaderUsage_MaxEnum;
 	GfxShaderReflections m_Reflections;
-	std::vector<GfxTexturePtr> m_Textures;
-	std::vector<GfxTexturePtr> m_CombinedTextureSamplers;
-	std::vector<GfxSamplerPtr> m_Samplers;
-	std::vector<GfxGpuBufferPtr> m_UniformBuffers;
+	std::unordered_map<uint32_t, ResourceBindingInfo> m_ResourceMap;
 private:
 };
 using GfxShaderPtr = std::shared_ptr<GfxShader>;

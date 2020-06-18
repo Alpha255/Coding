@@ -25,7 +25,7 @@ public:
 
 	void setTexture(const VulkanImageViewPtr& texture, uint32_t binding);
 
-	void setCombinedTextureSampler(const VulkanImageViewPtr& texture, uint32_t binding);
+	void setCombinedTextureSampler(const VulkanImageViewPtr& texture, const VulkanSamplerPtr& sampler, uint32_t binding);
 
 	void setSampler(const VulkanSamplerPtr& sampler, uint32_t binding);
 
@@ -34,7 +34,7 @@ protected:
 	struct ResourceBindingInfo
 	{
 		VkDescriptorType Type = VK_DESCRIPTOR_TYPE_MAX_ENUM;
-		bool8_t Dirty = false;
+		bool8_t Dirty = true;
 
 		union
 		{

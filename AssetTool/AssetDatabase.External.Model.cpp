@@ -45,9 +45,6 @@ void AssetDatabase::tryToLoadModel(const std::string& modelName, __out GfxModel&
 
 	std::set<std::string> loadedTextures;
 
-	GfxSamplerDesc samplerDesc;
-	auto linearSampler = gfxEngine->createSampler(samplerDesc);
-
 	gfxModel.m_Meshes.resize(scene->mNumMeshes);
 	for (uint32_t i = 0u; i < scene->mNumMeshes; ++i)
 	{
@@ -110,7 +107,6 @@ void AssetDatabase::tryToLoadModel(const std::string& modelName, __out GfxModel&
 					if (loadedTextures.find(texName) == loadedTextures.end())
 					{
 						auto gfxTexture = gfxEngine->createTexture(File::name(texName));
-						gfxTexture->bindSampler(linearSampler);
 						gfxModel.m_Textures[j].emplace_back(std::move(gfxTexture));
 
 						GfxModel::GfxTexture texture

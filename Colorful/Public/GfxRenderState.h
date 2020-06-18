@@ -17,6 +17,16 @@ struct GfxViewport : public Vec4
 	{
 		return 1.0f;
 	}
+
+	friend bool8_t operator==(const GfxViewport& left, const GfxViewport& right)
+	{
+		return (Vec4)left == (Vec4)right;
+	}
+
+	friend bool8_t operator!=(const GfxViewport& left, const GfxViewport& right)
+	{
+		return !(left == right);
+	}
 };
 
 struct GfxScissor : public Vec4
@@ -25,6 +35,16 @@ struct GfxScissor : public Vec4
 	GfxScissor(float32_t offsetX, float32_t offsetY, float32_t extentWidth, float32_t extentHeight)
 		: Vec4(offsetX, offsetY, extentWidth, extentHeight)
 	{
+	}
+
+	friend bool8_t operator==(const GfxScissor& left, const GfxScissor& right)
+	{
+		return (Vec4)left == (Vec4)right;
+	}
+
+	friend bool8_t operator!=(const GfxScissor& left, const GfxScissor& right)
+	{
+		return !(left == right);
 	}
 };
 
@@ -143,17 +163,13 @@ public:
 	{
 		return flags & Dirty;
 	}
-	inline void clearDirty()
-	{
-		Dirty = 0u;
-	}
 
 	inline void setPrimitiveTopology(eRPrimitiveTopology primitiveTopology)
 	{
 		PrimitiveTopology = primitiveTopology;
 	}
 
-	inline void setShader(const GfxShaderPtr shader)
+	inline void setShader(const GfxShaderPtr& shader)
 	{
 		assert(shader && shader->usage() < eRShaderUsage_MaxEnum);
 		Shaders[shader->usage()] = shader;
@@ -161,14 +177,20 @@ public:
 
 	inline void setViewport(const GfxViewport& viewport)
 	{
-		Viewport = viewport;
-		setDirty(eViewport);
+		if (Viewport != viewport)
+		{
+			Viewport = viewport;
+			setDirty(eViewport);
+		}
 	}
 
 	inline void setScissor(const GfxScissor& scissor)
 	{
-		Scissor = scissor;
-		setDirty(eScissor);
+		if (Scissor != scissor)
+		{
+			Scissor = scissor;
+			setDirty(eScissor);
+		}
 	}
 
 	inline void setRasterizerState(const GfxRasterizerStateDesc& desc)
@@ -186,17 +208,23 @@ public:
  		DepthStencilStateDesc = desc;
 	}
 
-	inline void bindVertexBuffer(GfxGpuBufferPtr buffer)
+	inline void bindVertexBuffer(const GfxGpuBufferPtr& buffer)
 	{
-		VertexBuffer = buffer;
-		setDirty(eVertexBuffer);
+		if (VertexBuffer != buffer)
+		{
+			VertexBuffer = buffer;
+			setDirty(eVertexBuffer);
+		}
 	}
 
-	inline void bindIndexBuffer(GfxGpuBufferPtr buffer, eRIndexType type = eRIndexType::eUInt32)
+	inline void bindIndexBuffer(const GfxGpuBufferPtr& buffer, eRIndexType type = eRIndexType::eUInt32)
 	{
-		IndexBuffer = buffer;
-		setDirty(eIndexBuffer);
-		IndexType = type;
+		if (IndexBuffer != buffer)
+		{
+			IndexBuffer = buffer;
+			setDirty(eIndexBuffer);
+			IndexType = type;
+		}
 	}
 
 	inline void setFrameBuffer(const GfxFrameBufferPtr& frameBuffer)
@@ -246,6 +274,14 @@ public:
 	}
 	eRIndexType IndexType = eRIndexType::eUInt32;
 
+	inline void reset()
+	{
+		Dirty = 0u;
+		Viewport = GfxViewport();
+		Scissor = GfxScissor();
+		VertexBuffer = nullptr;
+		IndexBuffer = nullptr;
+	}
 protected:
 	inline void setDirty(eDirtyFlags flags)
 	{
