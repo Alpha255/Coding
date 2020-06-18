@@ -12,11 +12,9 @@ struct UniformBufferVS
 	Matrix Proj;
 };
 
-void GfxModel::initPipelineState(GfxEngine* gfxEngine)
+void GfxModel::initPipelineState()
 {
-	assert(gfxEngine);
-
-	m_UniformBuffer = gfxEngine->createUniformBuffer(sizeof(UniformBufferVS), nullptr);
+	m_UniformBuffer = g_GfxEngine->createUniformBuffer(sizeof(UniformBufferVS), nullptr);
 
 	static bool8_t s_Inited = false;
 	if (s_Inited)
@@ -24,8 +22,8 @@ void GfxModel::initPipelineState(GfxEngine* gfxEngine)
 		return;
 	}
 
-	auto vertexShader = gfxEngine->createVertexShader("ModelBasic.shader");
-	auto fragmentShader = gfxEngine->createFragmentShader("ModelBasic.shader");
+	auto vertexShader = g_GfxEngine->createVertexShader("ModelBasic.shader");
+	auto fragmentShader = g_GfxEngine->createFragmentShader("ModelBasic.shader");
 
 	std::vector<GfxVertexAttributes> vertexAttrs
 	{
@@ -67,18 +65,16 @@ void GfxModel::initPipelineState(GfxEngine* gfxEngine)
 	s_PipelineState.setShader(fragmentShader);
 
 	GfxSamplerDesc desc;
-	s_LinearSampler = gfxEngine->createSampler(desc);
+	s_LinearSampler = g_GfxEngine->createSampler(desc);
 
 	s_Inited = true;
 }
 
-void GfxModel::load(const std::string& modelName, GfxEngine* gfxEngine)
+void GfxModel::load(const std::string& modelName)
 {
-	m_Name = File::name(modelName);
+	AssetTool::AssetDatabase::instance().tryToLoadModel(modelName, *this, g_GfxEngine.get());
 
-	AssetTool::AssetDatabase::instance().tryToLoadModel(modelName, *this, gfxEngine);
-
-	initPipelineState(gfxEngine);
+	initPipelineState();
 
 	for (uint32_t i = 0u; i < m_Meshes.size(); ++i)
 	{
@@ -93,7 +89,7 @@ void GfxModel::load(const std::string& modelName, GfxEngine* gfxEngine)
 	}
 }
 
-void GfxModel::draw(const DXUTCamera& camera, GfxEngine* gfxEngine, const GfxViewport& viewport)
+void GfxModel::draw(const DXUTCamera& camera, const GfxViewport& viewport)
 {
 	if (!m_Valid)
 	{
@@ -121,21 +117,21 @@ void GfxModel::draw(const DXUTCamera& camera, GfxEngine* gfxEngine, const GfxVie
 	};
 	s_PipelineState.setViewport(viewport);
 	s_PipelineState.setScissor(scissor);
-	s_PipelineState.setFrameBuffer(gfxEngine->backBuffer());
+	s_PipelineState.setFrameBuffer(g_GfxEngine->backBuffer());
 
-	gfxEngine->bindGfxPipelineState(&s_PipelineState);
+	g_GfxEngine->bindGfxPipelineState(&s_PipelineState);
 
-	GfxScopeGpuMarker("Model", Color::randomColor());
+	GfxScopeGpuMarker(DrawModel, Color::randomColor());
 
 	for (uint32_t i = 0u; i < m_Meshes.size(); ++i)
 	{
-		s_PipelineState.bindVertexBuffer(m_Meshes[i].VertexBuffer);
-		s_PipelineState.bindIndexBuffer(m_Meshes[i].IndexBuffer);
-		gfxEngine->drawIndexed(m_Meshes[i].IndexCount, 0u, 0);
+		s_PipelineState.setVertexBuffer(m_Meshes[i].VertexBuffer);
+		s_PipelineState.setIndexBuffer(m_Meshes[i].IndexBuffer);
+		g_GfxEngine->drawIndexed(m_Meshes[i].IndexCount, 0u, 0);
 	}
 }
 
-void GfxModel::draw(const DXUTCamera&, GfxEngine*, GfxPipelineState&)
+void GfxModel::draw(const DXUTCamera&, GfxPipelineState&)
 {
 	if (!m_Valid)
 	{

@@ -153,19 +153,87 @@ protected:
 			eRayTracing
 		};
 
+		struct DynamicState
+		{
+			enum eDirtyFlags : uint8_t
+			{
+				eViewport = 1u,
+				eScissor = 2u,
+				eVertexBuffer = 4u,
+				eIndexBuffer = 8u
+			};
+			uint8_t Dirty = 0u;
+			inline bool8_t isDirty(eDirtyFlags flags) const
+			{
+				return flags & Dirty;
+			}
+
+			inline void setDirty(eDirtyFlags flags)
+			{
+				Dirty |= flags;
+			}
+
+			inline void setViewport(const GfxViewport& viewport)
+			{
+				if (Viewport != viewport)
+				{
+					Viewport = viewport;
+					setDirty(eViewport);
+				}
+			}
+
+			inline void setScissor(const GfxScissor& scissor)
+			{
+				if (Scissor != scissor)
+				{
+					Scissor = scissor;
+					setDirty(eScissor);
+				}
+			}
+
+			inline void setVertexBuffer(const GfxGpuBufferPtr& buffer)
+			{
+				if (VertexBuffer != buffer)
+				{
+					VertexBuffer = buffer;
+					setDirty(eVertexBuffer);
+				}
+			}
+
+			inline void setIndexBuffer(const GfxGpuBufferPtr& buffer)
+			{
+				if (IndexBuffer != buffer)
+				{
+					IndexBuffer = buffer;
+					setDirty(eIndexBuffer);
+				}
+			}
+
+			GfxViewport Viewport;
+			GfxScissor Scissor;
+			GfxGpuBufferPtr VertexBuffer = nullptr;
+			GfxGpuBufferPtr IndexBuffer = nullptr;
+		};
+
 		ePipelineType Type = eGraphics;
 		bool8_t Dirty = false;
 		VulkanFrameBufferPtr FrameBuffer = nullptr;
 		VulkanGraphicsPipelinePtr GfxPipeline = nullptr;
 		GfxPipelineState* GfxPipelineState = nullptr;
+		DynamicState Dynamic;
 
 		inline void reset()
 		{
-			GfxPipelineState->reset();
 			Dirty = false;
 			FrameBuffer = nullptr;
 			GfxPipeline = nullptr;
 			GfxPipelineState = nullptr;
+
+			Dynamic.VertexBuffer = nullptr;
+			Dynamic.IndexBuffer = nullptr;
+			Dynamic.Viewport = GfxViewport();
+			Dynamic.Scissor = GfxScissor();
+			Dynamic.Dirty = 0u;
 		}
 	};
 

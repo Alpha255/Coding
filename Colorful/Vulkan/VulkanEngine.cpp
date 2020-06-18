@@ -23,9 +23,15 @@ void VulkanEngine::initialize(uint64_t windowHandle, const Gear::Configurations&
 		m_Device.physicalDevice(),
 		m_Device.logicalDevice());
 
-	m_ImGuiRenderer = std::make_unique<ImGuiRenderer>(this);
+	m_ImGuiRenderer = std::make_unique<ImGuiRenderer>();
 
 	m_DefaultTexture = createTexture("white.dds");
+
+	if (m_ActiveCmdBuffer == nullptr)
+	{
+		m_ActiveCmdBuffer = VulkanQueueManager::instance()->allocGfxCommandBuffer();
+		assert(m_ActiveCmdBuffer);
+	}
 }
 
 void VulkanEngine::logError(uint32_t result)
@@ -101,11 +107,6 @@ void VulkanEngine::bindGfxPipelineState(GfxPipelineState* state)
 {
 	assert(state);
 
-	if (m_ActiveCmdBuffer == nullptr)
-	{
-		m_ActiveCmdBuffer = VulkanQueueManager::instance()->allocGfxCommandBuffer();
-	}
-
 	if (m_CurPipelineState.GfxPipelineState != state)
 	{
 		m_CurPipelineState.Dirty = true;
@@ -115,11 +116,34 @@ void VulkanEngine::bindGfxPipelineState(GfxPipelineState* state)
 		m_CurPipelineState.GfxPipeline = VulkanPipelinePool::instance()->getOrCreateGfxPipeline(m_CurPipelineState.FrameBuffer->renderPass(), state);
 		m_CurPipelineState.GfxPipeline->updateDescriptorSet(m_Device.logicalDevice(), state);
 	}
+
+	prepareForDraw();
 }
 
 void VulkanEngine::setDynamicStates()
 {
-	if (m_CurPipelineState.GfxPipelineState->isDirty(GfxPipelineState::eViewport))
+	m_CurPipelineState.Dynamic.setVertexBuffer(m_CurPipelineState.GfxPipelineState->VertexBuffer);
+	if (m_CurPipelineState.Dynamic.isDirty(CurrentPipelineState::DynamicState::eVertexBuffer))
+	{
+		assert(m_CurPipelineState.GfxPipelineState->VertexBuffer);
+		auto vertexBuffer = static_cast<VulkanBufferPtr>(m_CurPipelineState.GfxPipelineState->VertexBuffer);
+		VkDeviceSize offsets[1u]{};
+		vkCmdBindVertexBuffers(m_ActiveCmdBuffer->Handle, 0u, 1u, &vertexBuffer->Handle, offsets);
+	}
+
+	m_CurPipelineState.Dynamic.setIndexBuffer(m_CurPipelineState.GfxPipelineState->IndexBuffer);
+	if (m_CurPipelineState.Dynamic.isDirty(CurrentPipelineState::DynamicState::eIndexBuffer))
+	{
+		assert(m_CurPipelineState.GfxPipelineState->IndexBuffer);
+		auto indexBuffer = static_cast<VulkanBufferPtr>(m_CurPipelineState.GfxPipelineState->IndexBuffer);
+		vkCmdBindIndexBuffer(m_ActiveCmdBuffer->Handle,
+			indexBuffer->Handle,
+			0u,
+			m_CurPipelineState.GfxPipelineState->IndexType == eRIndexType::eUInt16 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32);
+	}
+
+	m_CurPipelineState.Dynamic.setViewport(m_CurPipelineState.GfxPipelineState->Viewport);
+	if (m_CurPipelineState.Dynamic.isDirty(CurrentPipelineState::DynamicState::eViewport))
 	{
 		VkViewport viewport
 		{
@@ -133,7 +157,8 @@ void VulkanEngine::setDynamicStates()
 		vkCmdSetViewport(m_ActiveCmdBuffer->Handle, 0u, 1u, &viewport);
 	}
 
-	if (m_CurPipelineState.GfxPipelineState->isDirty(GfxPipelineState::eScissor))
+	m_CurPipelineState.Dynamic.setScissor(m_CurPipelineState.GfxPipelineState->Scissor);
+	if (m_CurPipelineState.Dynamic.isDirty(CurrentPipelineState::DynamicState::eScissor))
 	{
 		VkRect2D scissor
 		{
@@ -209,30 +234,10 @@ void VulkanEngine::prepareForDraw()
 
 		m_CurPipelineState.Dirty = false;
 	}
-
-	if (m_CurPipelineState.GfxPipelineState->isDirty(GfxPipelineState::eVertexBuffer))
-	{
-		assert(m_CurPipelineState.GfxPipelineState->VertexBuffer);
-		auto vertexBuffer = static_cast<VulkanBufferPtr>(m_CurPipelineState.GfxPipelineState->VertexBuffer);
-		VkDeviceSize offsets[1u]{};
-		vkCmdBindVertexBuffers(m_ActiveCmdBuffer->Handle, 0u, 1u, &vertexBuffer->Handle, offsets);
-	}
-
-	if (m_CurPipelineState.GfxPipelineState->isDirty(GfxPipelineState::eIndexBuffer))
-	{
-		assert(m_CurPipelineState.GfxPipelineState->IndexBuffer);
-		auto indexBuffer = static_cast<VulkanBufferPtr>(m_CurPipelineState.GfxPipelineState->IndexBuffer);
-		vkCmdBindIndexBuffer(m_ActiveCmdBuffer->Handle,
-			indexBuffer->Handle,
-			0u,
-			m_CurPipelineState.GfxPipelineState->IndexType == eRIndexType::eUInt16 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32);
-	}
 }
 
 void VulkanEngine::drawIndexed(uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset)
 {
-	prepareForDraw();
-
 	setDynamicStates();
 
 	vkCmdDrawIndexed(
@@ -246,7 +251,7 @@ void VulkanEngine::drawIndexed(uint32_t indexCount, uint32_t firstIndex, int32_t
 
 void VulkanEngine::beginDebugMarker(const char8_t* name, Vec4 color)
 {
-	if (m_ActiveCmdBuffer)
+	if (m_Device.isDebugMakerAvaliable() && m_ActiveCmdBuffer)
 	{
 		VkDebugMarkerMarkerInfoEXT info
 		{
@@ -255,13 +260,13 @@ void VulkanEngine::beginDebugMarker(const char8_t* name, Vec4 color)
 			name,
 			{ color.x, color.y, color.z, color.w }
 		};
-		///vkCmdDebugMarkerBeginEXT(m_ActiveCmdBuffer->Handle, &info);
+		vkCmdDebugMarkerBeginEXT(m_ActiveCmdBuffer->Handle, &info);
 	}
 }
 
 void VulkanEngine::insertDebugMarker(const char8_t* name, Vec4 color)
 {
-	if (m_ActiveCmdBuffer)
+	if (m_Device.isDebugMakerAvaliable() && m_ActiveCmdBuffer)
 	{
 		VkDebugMarkerMarkerInfoEXT info
 		{
@@ -270,15 +275,15 @@ void VulkanEngine::insertDebugMarker(const char8_t* name, Vec4 color)
 			name,
 			{ color.x, color.y, color.z, color.w }
 		};
-		///vkCmdDebugMarkerInsertEXT(m_ActiveCmdBuffer->Handle, &info);
+		vkCmdDebugMarkerInsertEXT(m_ActiveCmdBuffer->Handle, &info);
 	}
 }
 
 void VulkanEngine::endDebugMarker()
 {
-	if (m_ActiveCmdBuffer)
+	if (m_Device.isDebugMakerAvaliable() && m_ActiveCmdBuffer)
 	{
-		///vkCmdDebugMarkerEndEXT(m_ActiveCmdBuffer->Handle);
+		vkCmdDebugMarkerEndEXT(m_ActiveCmdBuffer->Handle);
 	}
 }
 

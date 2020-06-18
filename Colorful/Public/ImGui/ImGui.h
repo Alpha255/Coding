@@ -6,7 +6,7 @@
 class ImGuiRenderer
 {
 public:
-	ImGuiRenderer(class GfxEngine* gfxEngine);
+	ImGuiRenderer();
 
 	void finalize()
 	{
@@ -39,7 +39,6 @@ protected:
 		Vec4 ScaleTranslate;
 	};
 private:
-	class GfxEngine* m_GfxEngine = nullptr;
 	GfxPipelineState m_PipelineState{};
 	GfxGpuBufferPtr m_UniformBuffer = nullptr;
 	GfxGpuBufferPtr m_VertexBuffer = nullptr;

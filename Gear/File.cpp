@@ -46,7 +46,7 @@ std::string File::extension(const std::string &filePath, bool8_t bToLower)
 std::string File::name(const std::string &filePath, bool8_t bToLower)
 {
 	assert(extension(filePath, false).length() > 0u);
-	std::string name("");
+	std::string name(filePath);
 
 	size_t index = filePath.rfind('/');
 	if (index == std::string::npos)

@@ -146,24 +146,6 @@ using GfxFrameBufferPtr = std::shared_ptr<GfxFrameBuffer>;
 
 struct GfxPipelineState
 {
-public:
-	enum eDirtyFlags : uint8_t
-	{
-		eViewport = 1u,
-		eScissor = 2u,
-		eVertexBuffer = 4u,
-		eIndexBuffer = 8u
-	};
-	uint8_t Dirty = 0u;
-	inline bool8_t isDirty() const
-	{
-		return Dirty == 0u;
-	}
-	inline bool8_t isDirty(eDirtyFlags flags) const
-	{
-		return flags & Dirty;
-	}
-
 	inline void setPrimitiveTopology(eRPrimitiveTopology primitiveTopology)
 	{
 		PrimitiveTopology = primitiveTopology;
@@ -177,20 +159,12 @@ public:
 
 	inline void setViewport(const GfxViewport& viewport)
 	{
-		if (Viewport != viewport)
-		{
-			Viewport = viewport;
-			setDirty(eViewport);
-		}
+		Viewport = viewport;
 	}
 
 	inline void setScissor(const GfxScissor& scissor)
 	{
-		if (Scissor != scissor)
-		{
-			Scissor = scissor;
-			setDirty(eScissor);
-		}
+		Scissor = scissor;
 	}
 
 	inline void setRasterizerState(const GfxRasterizerStateDesc& desc)
@@ -208,23 +182,15 @@ public:
  		DepthStencilStateDesc = desc;
 	}
 
-	inline void bindVertexBuffer(const GfxGpuBufferPtr& buffer)
+	inline void setVertexBuffer(const GfxGpuBufferPtr& buffer)
 	{
-		if (VertexBuffer != buffer)
-		{
-			VertexBuffer = buffer;
-			setDirty(eVertexBuffer);
-		}
+		VertexBuffer = buffer;
 	}
 
-	inline void bindIndexBuffer(const GfxGpuBufferPtr& buffer, eRIndexType type = eRIndexType::eUInt32)
+	inline void setIndexBuffer(const GfxGpuBufferPtr& buffer, eRIndexType type = eRIndexType::eUInt32)
 	{
-		if (IndexBuffer != buffer)
-		{
-			IndexBuffer = buffer;
-			setDirty(eIndexBuffer);
-			IndexType = type;
-		}
+		IndexBuffer = buffer;
+		IndexType = type;
 	}
 
 	inline void setFrameBuffer(const GfxFrameBufferPtr& frameBuffer)
@@ -273,20 +239,6 @@ public:
 		ClearValue.Stencil = stencil;
 	}
 	eRIndexType IndexType = eRIndexType::eUInt32;
-
-	inline void reset()
-	{
-		Dirty = 0u;
-		Viewport = GfxViewport();
-		Scissor = GfxScissor();
-		VertexBuffer = nullptr;
-		IndexBuffer = nullptr;
-	}
-protected:
-	inline void setDirty(eDirtyFlags flags)
-	{
-		Dirty |= flags;
-	}
 };
 
 class GfxRenderPass

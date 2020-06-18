@@ -3,7 +3,7 @@
 #include "Colorful/Vulkan/VulkanEngine.h"
 #include "AssetTool/AssetDatabase.h"
 
-GfxEngine* g_GfxEngine = nullptr;
+GfxEnginePtr g_GfxEngine = nullptr;
 
 namespaceStart(Gear)
 
@@ -19,13 +19,12 @@ void Application::createGfxRenderer()
 	}
 	else if (m_Config.RenderEngine == Configurations::eVulkan)
 	{
-		m_GfxEngine = std::make_unique<VulkanEngine>();
-		assert(m_GfxEngine);
+		g_GfxEngine = std::make_unique<VulkanEngine>();
+		assert(g_GfxEngine);
 	}
 	
-	m_GfxEngine->initialize(m_Window->handle(), m_Config);
-	m_GfxEngine->registerRenderFrameCallback(std::bind(&Application::renderFrame, this));
-	g_GfxEngine = m_GfxEngine.get();
+	g_GfxEngine->initialize(m_Window->handle(), m_Config);
+	g_GfxEngine->registerRenderFrameCallback(std::bind(&Application::renderFrame, this));
 }
 
 void Application::initialize(const std::string& windowTitle)
@@ -50,9 +49,9 @@ void Application::nextFrame(const WindowMessage& message)
 
 	Timer.start();
 
-	m_GfxEngine->processMessage(message, m_Window->width(), m_Window->height());
+	g_GfxEngine->processMessage(message, m_Window->width(), m_Window->height());
 
-	m_GfxEngine->renderFrame();
+	g_GfxEngine->renderFrame();
 
 	++FrameCounter;
 
@@ -60,7 +59,7 @@ void Application::nextFrame(const WindowMessage& message)
 
 	auto frameTime = Timer.elapsedTime();
 
-	if (!m_GfxEngine->isFocusOnUI())
+	if (!g_GfxEngine->isFocusOnUI())
 	{
 		m_Camera.processMessage(message, m_Profile.FPS == 0.0f ? 0.0f : 1.0f / m_Profile.FPS);
 	}
@@ -90,7 +89,7 @@ void Application::loop()
 		}
 		else if (message.State == eWindowState::eResized)
 		{
-			m_GfxEngine->handleWindowResize(m_Window->width(), m_Window->height());
+			g_GfxEngine->handleWindowResize(m_Window->width(), m_Window->height());
 			m_Camera.handleWindowResize(m_Window->width(), m_Window->height());
 		}
 		else if (message.State == eWindowState::eActive)
@@ -104,7 +103,7 @@ void Application::loop()
 
 void Application::finalize()
 {
-	m_GfxEngine->finalize();
+	g_GfxEngine->finalize();
 }
 
 namespaceEnd(Gear)

@@ -153,8 +153,8 @@ protected:
 private:
 };
 using GfxEnginePtr = std::unique_ptr<GfxEngine>;
+extern GfxEnginePtr g_GfxEngine;
 
-extern GfxEngine* g_GfxEngine;
 class GfxDebugMarker
 {
 public:
@@ -181,10 +181,15 @@ public:
 		g_GfxEngine->endDebugMarker();
 		m_End = true;
 	}
+
+	static void insert(const char8_t* name, Vec4 color)
+	{
+		g_GfxEngine->insertDebugMarker(name, color);
+	}
 protected:
 private:
 	bool m_End = false;
 };
 
-///#define GfxUniqueScopeGpuMarker(Name, Color, Line) GfxDebugMarker GfxDebugMarker_##Line(Name, Color)
-#define GfxScopeGpuMarker(Name, Color) GfxDebugMarker DebugMarker(Name, Color)
+#define GfxScopeGpuMarker(Name, Color) GfxDebugMarker DebugMarker_##Name(#Name, Color)
+#define GfxInsertScopeGpuMarker(Name, Color) GfxDebugMarker::insert(#Name, Color)

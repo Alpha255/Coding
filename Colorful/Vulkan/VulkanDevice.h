@@ -38,8 +38,14 @@ public:
 	{
 		return m_LogicalDevice.Handle;
 	}
+
+	inline bool8_t isDebugMakerAvaliable() const
+	{
+		return m_DebugMarkerAvaliable;
+	}
 protected:
 private:
 	VulkanPhysicalDevice m_PhysicalDevice;
 	VulkanLogicalDevice m_LogicalDevice;
+	bool8_t m_DebugMarkerAvaliable = false;
 };

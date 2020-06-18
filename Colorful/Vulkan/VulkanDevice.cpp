@@ -143,6 +143,15 @@ void VulkanDevice::create(VkInstance instance)
 	GfxVerifyVk(vkEnumerateDeviceExtensionProperties(m_PhysicalDevice.Handle, nullptr, &count, supportedExtensions.data()));
 	extensions = VulkanEngine::getSupportedProperties<VkExtensionProperties>(supportedExtensions, extensions);
 
+	for (auto extension : extensions)
+	{
+		if (strcmp(extension, VK_EXT_DEBUG_MARKER_EXTENSION_NAME) == 0)
+		{
+			m_DebugMarkerAvaliable = true;
+			break;
+		}
+	}
+
 	VkPhysicalDeviceFeatures deviceFeatures{};
 	vkGetPhysicalDeviceFeatures(m_PhysicalDevice.Handle, &deviceFeatures);
 

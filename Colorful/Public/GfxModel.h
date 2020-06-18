@@ -50,21 +50,20 @@ public:
 		uint32_t MaterialIndex = 0u;
 	};
 
-	void load(const std::string& modelName, class GfxEngine* gfxEngine);
+	void load(const std::string& modelName);
 
-	void draw(const DXUTCamera& camera, class GfxEngine* gfxEngine, const GfxViewport& viewport);
-	void draw(const DXUTCamera& camera, class GfxEngine* gfxEngine, GfxPipelineState& pipeline);
+	void draw(const DXUTCamera& camera, const GfxViewport& viewport);
+	void draw(const DXUTCamera& camera, GfxPipelineState& pipeline);
 protected:
 	friend class AssetTool::AssetDatabase;
 
-	void initPipelineState(GfxEngine* gfxEngine);
+	void initPipelineState();
 private:
 	bool8_t m_Valid = false;
 	AABB m_BoundingBox;
 	std::vector<GfxMesh> m_Meshes;
 	std::array<std::vector<GfxTexturePtr>, 18u> m_Textures; /// aiTextureType_UNKNOWN
 	GfxGpuBufferPtr m_UniformBuffer;
-	std::string m_Name;
 	static GfxPipelineState s_PipelineState;
 	static GfxSamplerPtr s_LinearSampler;
 };
