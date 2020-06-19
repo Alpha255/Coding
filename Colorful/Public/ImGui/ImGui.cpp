@@ -31,18 +31,15 @@ ImGuiRenderer::ImGuiRenderer()
 	{
 		{
 			ePosition,
-			eRG32_Float,
-			eVertex
+			eRG32_Float
 		},
 		{
 			eTexcoord,
-			eRG32_Float,
-			eVertex
+			eRG32_Float
 		},
 		{
 			eColor,
-			eRGBA8_UNorm,
-			eVertex
+			eRGBA8_UNorm
 		}
 	};
 	vertexShader->setInputLayout(vertexAttrs, alignof(ImDrawVert));

@@ -6,7 +6,6 @@ struct GfxVertexAttributes
 {
 	eRVertexUsage Usage = eRVertexUsge_MaxEnum;
 	eRFormat Format = eRFormat_MaxEnum;
-	eRVertexInputRate InputRate = eRInputRate_MaxEnum;
 
 	static size_t formatStride(eRFormat format);
 };

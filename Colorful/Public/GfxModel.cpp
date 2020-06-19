@@ -29,33 +29,27 @@ void GfxModel::initPipelineState()
 	{
 		{
 			ePosition,
-			eRGB32_Float,
-			eVertex
+			eRGB32_Float
 		},
 		{
 			eNormal,
-			eRGB32_Float,
-			eVertex
+			eRGB32_Float
 		},
 		{
 			eTangent,
-			eRGB32_Float,
-			eVertex
+			eRGB32_Float
 		},
 		{
 			eBiTangent,
-			eRGB32_Float,
-			eVertex
+			eRGB32_Float
 		},
 		{
 			eTexcoord,
-			eRG32_Float,
-			eVertex
+			eRG32_Float
 		},
 		{
 			eColor,
-			eRGBA32_Float,
-			eVertex
+			eRGBA32_Float
 		}
 	};
 	vertexShader->setInputLayout(vertexAttrs, alignof(GfxVertex));

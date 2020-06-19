@@ -31,13 +31,11 @@ void RenderTest::postInitialize()
 	{
 		{
 			ePosition,
-			eRGB32_Float,
-			eVertex
+			eRGB32_Float
 		},
 		{
 			eTexcoord,
-			eRGB32_Float,
-			eVertex
+			eRGB32_Float
 		}
 	};
 	vertexShader->setInputLayout(vertexAttrs, alignof(Vertex));

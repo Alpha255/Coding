@@ -67,6 +67,7 @@ void d3d11Shader::setInputLayout(const std::vector<GfxVertexAttributes> &vertexA
 		"NORMAL",
 		"BINNORMAL",
 		"TANGENT",
+		"BITANGENT",
 		"TEXCOORD",
 		"COLOR"
 	};
@@ -75,7 +76,6 @@ void d3d11Shader::setInputLayout(const std::vector<GfxVertexAttributes> &vertexA
 	std::vector<D3D11_INPUT_ELEMENT_DESC> descs(vertexAttributes.size());
 	for (uint32_t i = 0u; i < vertexAttributes.size(); ++i)
 	{
-		assert(vertexAttributes[i].InputRate < eRInputRate_MaxEnum);
 		descs[i] = D3D11_INPUT_ELEMENT_DESC
 		{
 			c_Semantic[vertexAttributes[i].Usage],
@@ -83,7 +83,7 @@ void d3d11Shader::setInputLayout(const std::vector<GfxVertexAttributes> &vertexA
 			D3D11Enum::toFormat(vertexAttributes[i].Format),
 			0u,
 			D3D11_APPEND_ALIGNED_ELEMENT,
-			vertexAttributes[i].InputRate == eVertex ? D3D11_INPUT_PER_VERTEX_DATA : D3D11_INPUT_PER_INSTANCE_DATA,
+			D3D11_INPUT_PER_VERTEX_DATA,
 			0u
 		};
 		vertexStride += GfxVertexAttributes::formatStride(vertexAttributes[i].Format);
