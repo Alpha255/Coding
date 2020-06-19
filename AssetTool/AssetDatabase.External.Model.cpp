@@ -92,6 +92,9 @@ void AssetDatabase::tryToLoadModel(const std::string& modelName, __out GfxModel&
 		}
 		curMesh.IndexBuffer = gfxEngine->createIndexBuffer(eGpuReadWrite, sizeof(uint32_t) * indices.size(), indices.data());
 		curMesh.IndexCount = (uint32_t)indices.size();
+		auto extent = (mesh->mAABB.mMin + mesh->mAABB.mMax) * 0.5f;
+		auto centerA = aiVector3D(extent.x * -1.0f, extent.y * -1.0f, extent.z * 1.0f) - mesh->mAABB.mMin;
+		auto centerB = aiVector3D(extent.x * 1.0f, extent.y * 1.0f, extent.z * 1.0f) - mesh->mAABB.mMax;
 
 		if (scene->HasMaterials() && mesh->mMaterialIndex >= 0)
 		{

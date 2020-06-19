@@ -51,6 +51,7 @@ public:
 	};
 
 	void load(const std::string& modelName);
+	void createAsQuad();
 
 	void draw(const DXUTCamera& camera, const GfxViewport& viewport);
 	void draw(const GfxPipelineState* state);
