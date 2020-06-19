@@ -103,7 +103,7 @@ void VulkanEngine::present()
 	m_CurPipelineState.reset();
 }
 
-void VulkanEngine::bindGfxPipelineState(GfxPipelineState* state)
+void VulkanEngine::bindGfxPipelineState(const GfxPipelineState* state)
 {
 	assert(state);
 

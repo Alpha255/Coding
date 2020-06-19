@@ -133,7 +133,7 @@ public:
 	virtual GfxRenderPassPtr createRenderPass(GfxFrameBufferDesc& desc) = 0;
 
 	virtual GfxFrameBufferPtr backBuffer() = 0;
-	virtual void bindGfxPipelineState(GfxPipelineState* state) = 0;
+	virtual void bindGfxPipelineState(const GfxPipelineState* state) = 0;
 
 	virtual void drawIndexed(uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset) = 0;
 

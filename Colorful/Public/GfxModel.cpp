@@ -125,10 +125,21 @@ void GfxModel::draw(const DXUTCamera& camera, const GfxViewport& viewport)
 	}
 }
 
-void GfxModel::draw(const DXUTCamera&, GfxPipelineState&)
+void GfxModel::draw(const GfxPipelineState* state)
 {
 	if (!m_Valid)
 	{
 		return;
+	}
+
+	g_GfxEngine->bindGfxPipelineState(state);
+
+	GfxScopeGpuMarker(DrawModel, Color::randomColor());
+
+	for (uint32_t i = 0u; i < m_Meshes.size(); ++i)
+	{
+		s_PipelineState.setVertexBuffer(m_Meshes[i].VertexBuffer);
+		s_PipelineState.setIndexBuffer(m_Meshes[i].IndexBuffer);
+		g_GfxEngine->drawIndexed(m_Meshes[i].IndexCount, 0u, 0);
 	}
 }

@@ -115,7 +115,7 @@ public:
 		return std::static_pointer_cast<GfxFrameBuffer>(m_Swapchain->backBuffer());
 	}
 
-	void bindGfxPipelineState(GfxPipelineState* state) override final;
+	void bindGfxPipelineState(const GfxPipelineState* state) override final;
 
 	void drawIndexed(uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset) override final;
 
@@ -219,7 +219,7 @@ protected:
 		bool8_t Dirty = false;
 		VulkanFrameBufferPtr FrameBuffer = nullptr;
 		VulkanGraphicsPipelinePtr GfxPipeline = nullptr;
-		GfxPipelineState* GfxPipelineState = nullptr;
+		const GfxPipelineState* GfxPipelineState = nullptr;
 		DynamicState Dynamic;
 
 		inline void reset()

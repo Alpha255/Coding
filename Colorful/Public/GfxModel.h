@@ -53,7 +53,7 @@ public:
 	void load(const std::string& modelName);
 
 	void draw(const DXUTCamera& camera, const GfxViewport& viewport);
-	void draw(const DXUTCamera& camera, GfxPipelineState& pipeline);
+	void draw(const GfxPipelineState* state);
 protected:
 	friend class AssetTool::AssetDatabase;
 
