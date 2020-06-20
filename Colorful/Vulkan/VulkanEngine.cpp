@@ -114,7 +114,45 @@ void VulkanEngine::bindGfxPipelineState(const GfxPipelineState* state)
 		assert(m_CurPipelineState.GfxPipelineState->FrameBuffer);
 		m_CurPipelineState.FrameBuffer = std::static_pointer_cast<VulkanFrameBuffer>(state->FrameBuffer);
 		m_CurPipelineState.GfxPipeline = VulkanPipelinePool::instance()->getOrCreateGfxPipeline(m_CurPipelineState.FrameBuffer->renderPass(), state);
-		///m_CurPipelineState.GfxPipeline->updateDescriptorSet(state);
+	}
+
+	if (!m_ActiveCmdBuffer->isInsideRenderPass())
+	{
+		VkClearValue clearValue[2u]{};
+		clearValue[0].color =
+		{
+			m_CurPipelineState.GfxPipelineState->ClearValue.Color.x,
+			m_CurPipelineState.GfxPipelineState->ClearValue.Color.y,
+			m_CurPipelineState.GfxPipelineState->ClearValue.Color.z,
+			m_CurPipelineState.GfxPipelineState->ClearValue.Color.w,
+		};
+		clearValue[1].depthStencil =
+		{
+			m_CurPipelineState.GfxPipelineState->ClearValue.Depth,
+			m_CurPipelineState.GfxPipelineState->ClearValue.Stencil
+		};
+
+		VkRenderPassBeginInfo beginInfo
+		{
+			VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
+			nullptr,
+			m_CurPipelineState.FrameBuffer->renderPass(),
+			m_CurPipelineState.FrameBuffer->Handle,
+			{
+				{
+					0,
+					0,
+				},
+				{
+					m_CurPipelineState.FrameBuffer->width(),
+					m_CurPipelineState.FrameBuffer->height(),
+				}
+			},
+			ARRAYSIZE(clearValue),
+			clearValue
+		};
+
+		m_ActiveCmdBuffer->beginRenderPass(beginInfo, VK_SUBPASS_CONTENTS_INLINE);
 	}
 }
 
@@ -176,45 +214,6 @@ void VulkanEngine::setDynamicStates()
 void VulkanEngine::prepareForDraw()
 {
 	assert(m_CurPipelineState.GfxPipeline);
-
-	if (!m_ActiveCmdBuffer->isInsideRenderPass())
-	{
-		VkClearValue clearValue[2u]{};
-		clearValue[0].color =
-		{
-			m_CurPipelineState.GfxPipelineState->ClearValue.Color.x,
-			m_CurPipelineState.GfxPipelineState->ClearValue.Color.y,
-			m_CurPipelineState.GfxPipelineState->ClearValue.Color.z,
-			m_CurPipelineState.GfxPipelineState->ClearValue.Color.w,
-		};
-		clearValue[1].depthStencil =
-		{
-			m_CurPipelineState.GfxPipelineState->ClearValue.Depth,
-			m_CurPipelineState.GfxPipelineState->ClearValue.Stencil
-		};
-
-		VkRenderPassBeginInfo beginInfo
-		{
-			VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
-			nullptr,
-			m_CurPipelineState.FrameBuffer->renderPass(),
-			m_CurPipelineState.FrameBuffer->Handle,
-			{
-				{
-					0,
-					0,
-				},
-				{
-					m_CurPipelineState.FrameBuffer->width(),
-					m_CurPipelineState.FrameBuffer->height(),
-				}
-			},
-			ARRAYSIZE(clearValue),
-			clearValue
-		};
-
-		m_ActiveCmdBuffer->beginRenderPass(beginInfo, VK_SUBPASS_CONTENTS_INLINE);
-	}
 
 	m_CurPipelineState.GfxPipeline->updateDescriptorSet(m_CurPipelineState.GfxPipelineState);
 	auto descriptorSet = m_CurPipelineState.GfxPipeline->descriptorSet();
