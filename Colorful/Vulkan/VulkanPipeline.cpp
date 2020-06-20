@@ -162,6 +162,7 @@ void VulkanGraphicsPipeline::updateDescriptorSet(const GfxPipelineState* state)
 	assert(state && isValid());
 
 	size_t resourceHash = 0u;
+#if defined(UsingUnorderedMap)
 	for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
 	{
 		auto resources = state->ResourceMap[i];
@@ -219,6 +220,74 @@ void VulkanGraphicsPipeline::updateDescriptorSet(const GfxPipelineState* state)
 	auto descriptorSet = VulkanMainDescriptorPool::instance()->alloc(m_DescriptorSetLayout.Handle, m_ResourceMap);
 	m_DescriptorSets.insert(std::make_pair(resourceHash, descriptorSet));
 	m_CurDescriptorSet = descriptorSet;
+#else
+	for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
+	{
+		auto resources = state->ResourceMap[i];
+		for (uint32_t j = 0u; j < resources.size(); ++j)
+		{
+			assert(findByBinding(resources, resources[j].Binding) != std::numeric_limits<uint32_t>::max());
+			switch (resources[j].Type)
+			{
+			case GfxPipelineState::eTexture:
+			{
+				auto imageView = std::static_pointer_cast<VulkanImageView>(resources[j].Texture);
+				assert(imageView); /// Using default???
+				m_ResourceMap[resources[j].Binding].ImageView = imageView->Handle;
+				hash_combine(resourceHash, (size_t)imageView->Handle);
+			}
+			break;
+			case GfxPipelineState::eSampler:
+			{
+				auto sampler = std::static_pointer_cast<VulkanSampler>(resources[j].Sampler);
+				assert(sampler);
+				m_ResourceMap[resources[j].Binding].Sampler = sampler->Handle;
+				hash_combine(resourceHash, (size_t)sampler->Handle);
+			}
+			break;
+			case GfxPipelineState::eCombinedTextureSampler:
+			{
+				auto imageView = std::static_pointer_cast<VulkanImageView>(resources[j].Texture);
+				auto sampler = std::static_pointer_cast<VulkanSampler>(resources[j].Sampler);
+				assert(imageView && sampler);
+				m_ResourceMap[resources[j].Binding].CombinedImageSampler.ImageView = imageView->Handle;
+				m_ResourceMap[resources[j].Binding].CombinedImageSampler.Sampler = sampler->Handle;
+				hash_combine(resourceHash, (size_t)imageView->Handle);
+				hash_combine(resourceHash, (size_t)sampler->Handle);
+			}
+			break;
+			case GfxPipelineState::eUniformBuffer:
+			{
+				auto uniformBuffer = static_cast<VulkanBufferPtr>(resources[j].UniformBuffer);
+				assert(uniformBuffer);
+				m_ResourceMap[resources[j].Binding].Buffer = uniformBuffer->Handle;
+				hash_combine(resourceHash, (size_t)uniformBuffer->Handle);
+			}
+			break;
+			}
+		}
+	}
+
+	uint32_t index = std::numeric_limits<uint32_t>::max();
+	for (uint32_t i = 0u; i < m_DescriptorSets.size(); ++i)
+	{
+		if (m_DescriptorSets[i].hash() == resourceHash)
+		{
+			index = i;
+			break;
+		}
+	}
+	if (index != std::numeric_limits<uint32_t>::max())
+	{
+		m_CurDescriptorSet = m_DescriptorSets[index];
+		return;
+	}
+
+	auto descriptorSet = VulkanMainDescriptorPool::instance()->alloc(m_DescriptorSetLayout.Handle, m_ResourceMap);
+	descriptorSet.setHash(resourceHash);
+	m_CurDescriptorSet = descriptorSet;
+	m_DescriptorSets.emplace_back(std::move(descriptorSet));
+#endif
 }
 
 VkPipelineRasterizationStateCreateInfo VulkanGraphicsPipeline::makeRasterizationState(const GfxRasterizerStateDesc& stateDesc) const
@@ -341,6 +410,7 @@ void VulkanGraphicsPipeline::initShaderResourceMap(const GfxDescriptorLayoutDesc
 	/// For verify
 	for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
 	{
+#if defined(UsingUnorderedMap)
 		for (auto &res : desc[i])
 		{
 			assert(m_ResourceMap.find(res.Binding) == m_ResourceMap.end());
@@ -349,6 +419,18 @@ void VulkanGraphicsPipeline::initShaderResourceMap(const GfxDescriptorLayoutDesc
 			resInfo.Type = (VkDescriptorType)res.Type;
 			m_ResourceMap.insert(std::make_pair(res.Binding, resInfo));
 		}
+#else
+		for (uint32_t j = 0u; j < desc[i].size(); ++j)
+		{
+			auto index = findByBinding(m_ResourceMap, desc[i][j].Binding);
+			assert(index == std::numeric_limits<uint32_t>::max());
+
+			VulkanDescriptorSet::VulkanResourceInfo resInfo;
+			resInfo.Type = (VkDescriptorType)desc[i][j].Type;
+			resInfo.Binding = desc[i][j].Binding;
+			m_ResourceMap.emplace_back(std::move(resInfo));
+		}
+#endif
 	}
 }
 

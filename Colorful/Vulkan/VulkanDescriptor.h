@@ -22,6 +22,9 @@ class VulkanDescriptorSet : public VulkanObject<VkDescriptorSet>
 public:
 	struct VulkanResourceInfo
 	{
+#if !defined(UsingUnorderedMap)
+		uint32_t Binding = std::numeric_limits<uint32_t>::max();
+#endif
 		VkDescriptorType Type = VK_DESCRIPTOR_TYPE_MAX_ENUM;
 		union
 		{
@@ -37,11 +40,30 @@ public:
 			VkBufferView TexelBufferView;
 		};
 	};
+#if defined(UsingUnorderedMap)
 	using VulkanResourceMap = std::unordered_map<uint32_t, VulkanResourceInfo>;
+#else
+	using VulkanResourceMap = std::vector<VulkanResourceInfo>;
+#endif
 
 	void update(VkDevice device, const VulkanResourceMap& resourceMap);
+
+#if !defined(UsingUnorderedMap)
+	inline size_t hash() const
+	{
+		return m_Hash;
+	}
+
+	inline void setHash(size_t hash)
+	{
+		m_Hash = hash;
+	}
+#endif
 protected:
 private:
+#if !defined(UsingUnorderedMap)
+	size_t m_Hash = 0u;
+#endif
 };
 
 class VulkanDescriptorPool : public VulkanObject<VkDescriptorPool>

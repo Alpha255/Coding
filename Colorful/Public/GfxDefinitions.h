@@ -125,3 +125,7 @@ template <typename T> class VulkanDeviceObject : public VulkanObject<T>
 public:
 	virtual void destroy(VkDevice device) = 0;
 };
+
+#if !defined(_DEBUG)
+	#define UsingUnorderedMap
+#endif

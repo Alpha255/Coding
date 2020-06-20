@@ -101,7 +101,11 @@ private:
 	VulkanPipeline m_WireframePipeline;
 	VulkanDescriptorSet m_CurDescriptorSet;
 
+#if defined(UsingUnorderedMap)
 	std::unordered_map<size_t, VulkanDescriptorSet> m_DescriptorSets;
+#else
+	std::vector<VulkanDescriptorSet> m_DescriptorSets;
+#endif
 	VulkanDescriptorSet::VulkanResourceMap m_ResourceMap;
 };
 using VulkanGraphicsPipelinePtr = std::shared_ptr<VulkanGraphicsPipeline>;

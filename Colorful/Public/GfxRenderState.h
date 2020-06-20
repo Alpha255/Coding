@@ -168,6 +168,9 @@ struct GfxPipelineState
 		GfxSamplerPtr Sampler = nullptr;
 		GfxGpuBufferPtr UniformBuffer = nullptr;
 		eGfxResourceType Type = eResourceType_MaxEnum;
+#if !defined(UsingUnorderedMap)
+		uint32_t Binding = std::numeric_limits<uint32_t>().max();
+#endif
 	};
 
 	inline void setPrimitiveTopology(eRPrimitiveTopology primitiveTopology)
@@ -248,7 +251,11 @@ struct GfxPipelineState
 	GfxGpuBufferPtr VertexBuffer = nullptr; /// Support multi vertex stream???
 	GfxGpuBufferPtr IndexBuffer = nullptr;
 	GfxFrameBufferPtr FrameBuffer = nullptr;
+#if defined(UsingUnorderedMap)
 	std::array<std::unordered_map<uint32_t, GfxResourceInfo>, eRShaderUsage_MaxEnum> ResourceMap;
+#else
+	std::array<std::vector<GfxResourceInfo>, eRShaderUsage_MaxEnum> ResourceMap;
+#endif
 
 	friend bool8_t operator==(const GfxPipelineState& left, const GfxPipelineState& right)
 	{
@@ -271,3 +278,19 @@ class GfxRenderPass
 {
 };
 using GfxRenderPassPtr = std::shared_ptr<GfxRenderPass>;
+
+#if !defined(UsingUnorderedMap)
+template<class T>
+uint32_t findByBinding(const std::vector<T>& target, uint32_t binding)
+{
+	for (uint32_t i = 0u; i < target.size(); ++i)
+	{
+		if (target[i].Binding == binding)
+		{
+			return i;
+		}
+	}
+
+	return std::numeric_limits<uint32_t>::max();
+}
+#endif

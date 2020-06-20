@@ -146,6 +146,7 @@ void VulkanDescriptorSet::update(VkDevice device, const VulkanResourceMap& resou
 	std::vector<VkDescriptorBufferInfo> bufferInfos;
 	std::vector<VkDescriptorImageInfo> imageInfos;
 
+#if defined(UsingUnorderedMap)
 	for (auto &resourceBinding : resourceMap)
 	{
 		VkWriteDescriptorSet writeAction
@@ -226,6 +227,88 @@ void VulkanDescriptorSet::update(VkDevice device, const VulkanResourceMap& resou
 		}
 		writeActions.emplace_back(writeAction);
 	}
+#else
+	for (auto &resourceBinding : resourceMap)
+	{
+		VkWriteDescriptorSet writeAction
+		{
+			VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+			nullptr,
+			Handle,
+			resourceBinding.Binding,
+			0u,
+			1u,
+			resourceBinding.Type,
+			nullptr,
+			nullptr,
+			nullptr
+		};
+
+		switch (resourceBinding.Type)
+		{
+		case VK_DESCRIPTOR_TYPE_SAMPLER:
+		{
+			assert(resourceBinding.Sampler);
+			VkDescriptorImageInfo imageInfo
+			{
+				resourceBinding.Sampler,
+				VK_NULL_HANDLE,
+				VK_IMAGE_LAYOUT_UNDEFINED
+			};
+			imageInfos.emplace_back(std::move(imageInfo));
+			writeAction.pImageInfo = &imageInfos[imageInfos.size() - 1u];
+		}
+		break;
+		case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+		{
+			assert(resourceBinding.CombinedImageSampler.ImageView);
+			assert(resourceBinding.CombinedImageSampler.Sampler);
+
+			VkDescriptorImageInfo imageInfo
+			{
+				resourceBinding.CombinedImageSampler.Sampler,
+				resourceBinding.CombinedImageSampler.ImageView,
+				VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+			};
+			imageInfos.emplace_back(std::move(imageInfo));
+			writeAction.pImageInfo = &imageInfos[imageInfos.size() - 1u];
+		}
+		break;
+		case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+		{
+			assert(resourceBinding.ImageView);
+
+			VkDescriptorImageInfo imageInfo
+			{
+				VK_NULL_HANDLE,
+				resourceBinding.ImageView,
+				VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+			};
+			imageInfos.emplace_back(std::move(imageInfo));
+			writeAction.pImageInfo = &imageInfos[imageInfos.size() - 1u];
+		}
+		break;
+		case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+		{
+			assert(resourceBinding.Buffer);
+
+			VkDescriptorBufferInfo bufferInfo
+			{
+				resourceBinding.Buffer,
+				0u,
+				VK_WHOLE_SIZE
+			};
+			bufferInfos.emplace_back(std::move(bufferInfo));
+			writeAction.pBufferInfo = &bufferInfos[bufferInfos.size() - 1u];
+		}
+		break;
+		default:
+			assert(0);
+			break;
+		}
+		writeActions.emplace_back(writeAction);
+	}
+#endif
 
 	assert(!writeActions.empty());
 	vkUpdateDescriptorSets(device, (uint32_t)writeActions.size(), writeActions.data(), 0u, nullptr);
