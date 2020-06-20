@@ -62,17 +62,18 @@ public:
 	void destroy(VkDevice device) override final
 	{
 		m_PipelineLayout.destroy(device);
-		m_DescriptorSet.destroy(device);
+		m_DescriptorSetLayout.destroy(device);
 		VulkanPipeline::destroy(device);
 		m_WireframePipeline.destroy(device);
+		m_DescriptorSets.clear();
 	}
 
-	void updateDescriptorSet(VkDevice device, const GfxPipelineState* state);
+	void updateDescriptorSet(const GfxPipelineState* state);
 
 	VkDescriptorSet descriptorSet() const
 	{
-		assert(m_DescriptorSet.isValid());
-		return m_DescriptorSet.Handle;
+		assert(m_CurDescriptorSet.isValid());
+		return m_CurDescriptorSet.Handle;
 	}
 
 	VkPipelineLayout layout() const
@@ -92,10 +93,16 @@ protected:
 	VkPipelineColorBlendStateCreateInfo makeColorBlendState(
 		std::vector<VkPipelineColorBlendAttachmentState>& attachments, 
 		const GfxBlendStateDesc& stateDesc) const;
+
+	void initShaderResourceMap(const GfxDescriptorLayoutDesc& desc);
 private:
 	VulkanPipelineLayout m_PipelineLayout;
-	VulkanDescriptorSet m_DescriptorSet;
+	VulkanDescriptorSetLayout m_DescriptorSetLayout;
 	VulkanPipeline m_WireframePipeline;
+	VulkanDescriptorSet m_CurDescriptorSet;
+
+	std::unordered_map<size_t, VulkanDescriptorSet> m_DescriptorSets;
+	VulkanDescriptorSet::VulkanResourceMap m_ResourceMap;
 };
 using VulkanGraphicsPipelinePtr = std::shared_ptr<VulkanGraphicsPipeline>;
 

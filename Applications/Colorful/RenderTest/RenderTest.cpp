@@ -23,7 +23,6 @@ void RenderTest::postInitialize()
 	GfxSamplerDesc samplerDesc{};
 	auto sampler = g_GfxEngine->createSampler(samplerDesc);
 	auto texture = g_GfxEngine->createTexture("metalplate01_rgba.ktx");
-	fragmentShader->setCombinedTextureSampler(texture, sampler, 1u);
 
 	m_UniformBufferVS = g_GfxEngine->createUniformBuffer(sizeof(UniformBufferVS), nullptr);
 
@@ -39,7 +38,6 @@ void RenderTest::postInitialize()
 		}
 	};
 	vertexShader->setInputLayout(vertexAttrs, alignof(Vertex));
-	vertexShader->setUniformBuffer(m_UniformBufferVS, 0u);
 
 	std::vector<Vertex> vertices{
 		{
@@ -67,6 +65,8 @@ void RenderTest::postInitialize()
 
 	m_PipelineState.setShader(vertexShader);
 	m_PipelineState.setShader(fragmentShader);
+	m_PipelineState.setCombinedTextureSampler(eFragmentShader, texture, sampler, 1u);
+	m_PipelineState.setUniformBuffer(eVertexShader, m_UniformBufferVS, 0u);
 
 	m_Camera.setPerspective(Math::PI_Div4, (float32_t)m_Window->width() / m_Window->height(), 0.1f, 500.0f);
 	m_Camera.setView(Vec3(0.0f, 0.0f, 4.0f), Vec3(0.0f, 0.0f, 0.0f));

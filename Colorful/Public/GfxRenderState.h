@@ -146,6 +146,30 @@ using GfxFrameBufferPtr = std::shared_ptr<GfxFrameBuffer>;
 
 struct GfxPipelineState
 {
+	struct GfxClearValue
+	{
+		Vec4 Color = Color::DarkBlue;
+		float32_t Depth = 1.0f;
+		uint32_t Stencil = 0u;
+	};
+
+	enum eGfxResourceType
+	{
+		eTexture,
+		eSampler,
+		eCombinedTextureSampler,
+		eUniformBuffer,
+		eResourceType_MaxEnum
+	};
+
+	struct GfxResourceInfo
+	{
+		GfxTexturePtr Texture = nullptr;
+		GfxSamplerPtr Sampler = nullptr;
+		GfxGpuBufferPtr UniformBuffer = nullptr;
+		eGfxResourceType Type = eResourceType_MaxEnum;
+	};
+
 	inline void setPrimitiveTopology(eRPrimitiveTopology primitiveTopology)
 	{
 		PrimitiveTopology = primitiveTopology;
@@ -198,16 +222,33 @@ struct GfxPipelineState
 		FrameBuffer = frameBuffer;
 	}
 
+	inline void clearFrameBuffer(const Vec4& color = Color::DarkBlue, float32_t depth = 1.0f, uint32_t stencil = 0u)
+	{
+		ClearValue.Color = color;
+		ClearValue.Depth = depth;
+		ClearValue.Stencil = stencil;
+	}
+
+	void setCombinedTextureSampler(eRShaderUsage shader, const GfxTexturePtr& texture, const GfxSamplerPtr& sampler, uint32_t slot);
+	void setTexure(eRShaderUsage shader, const GfxTexturePtr& texture, uint32_t slot);
+	void setUniformBuffer(eRShaderUsage shader, const GfxGpuBufferPtr& buffer, uint32_t slot);
+	void setSampler(eRShaderUsage shader, const GfxSamplerPtr& sampler, uint32_t slot);
+
 	eRPrimitiveTopology PrimitiveTopology = eTriangleList;
-	GfxShaderPtr Shaders[eRShaderUsage_MaxEnum]{};
 	GfxRasterizerStateDesc RasterizerStateDesc{};
 	GfxBlendStateDesc BlendStateDesc{};
 	GfxDepthStencilStateDesc DepthStencilStateDesc{};
 	GfxViewport Viewport;
 	GfxScissor Scissor;
-	GfxGpuBufferPtr VertexBuffer = nullptr;
+	GfxClearValue ClearValue{};
+	eRIndexType IndexType = eRIndexType::eUInt32;
+	bool8_t Wireframe = false;
+
+	GfxShaderPtr Shaders[eRShaderUsage_MaxEnum]{};
+	GfxGpuBufferPtr VertexBuffer = nullptr; /// Support multi vertex stream???
 	GfxGpuBufferPtr IndexBuffer = nullptr;
-	GfxFrameBufferPtr FrameBuffer;
+	GfxFrameBufferPtr FrameBuffer = nullptr;
+	std::array<std::unordered_map<uint32_t, GfxResourceInfo>, eRShaderUsage_MaxEnum> ResourceMap;
 
 	friend bool8_t operator==(const GfxPipelineState& left, const GfxPipelineState& right)
 	{
@@ -224,22 +265,6 @@ struct GfxPipelineState
 			left.PrimitiveTopology == right.PrimitiveTopology;
 	}
 	/// MultisampleState
-
-	struct GfxClearValue
-	{
-		Vec4 Color = Color::DarkBlue;
-		float32_t Depth = 1.0f;
-		uint32_t Stencil = 0u;
-	};
-	GfxClearValue ClearValue{};
-	inline void clearFrameBuffer(const Vec4& color = Color::DarkBlue, float32_t depth = 1.0f, uint32_t stencil = 0u)
-	{
-		ClearValue.Color = color;
-		ClearValue.Depth = depth;
-		ClearValue.Stencil = stencil;
-	}
-	eRIndexType IndexType = eRIndexType::eUInt32;
-	bool8_t Wireframe = false;
 };
 
 class GfxRenderPass

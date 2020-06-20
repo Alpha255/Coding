@@ -52,8 +52,9 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(
 		}
 	}
 
-	m_DescriptorSet = VulkanMainDescriptorPool::instance()->alloc(descriptorLayoutDesc);
-	m_PipelineLayout.create(device, m_DescriptorSet.layout());
+	initShaderResourceMap(descriptorLayoutDesc);
+	m_DescriptorSetLayout.create(device, descriptorLayoutDesc);
+	m_PipelineLayout.create(device, m_DescriptorSetLayout.Handle);
 
 	auto vertexShader = std::static_pointer_cast<VulkanShader>(state->Shaders[eVertexShader]);
 
@@ -156,39 +157,68 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(
 	}
 }
 
-void VulkanGraphicsPipeline::updateDescriptorSet(VkDevice device, const GfxPipelineState* state)
+void VulkanGraphicsPipeline::updateDescriptorSet(const GfxPipelineState* state)
 {
-	assert(state);
+	assert(state && isValid());
+
+	size_t resourceHash = 0u;
 	for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
 	{
-		if (state->Shaders[i])
+		auto resources = state->ResourceMap[i];
+		for (auto &res : resources)
 		{
-			auto &resources = state->Shaders[i]->resources();
-			for (auto &resource : resources)
+			assert(m_ResourceMap.find(res.first) != m_ResourceMap.end());
+			switch (res.second.Type)
 			{
-				switch (resource.second.Type)
-				{
-				case GfxShader::eResourceType::eTexture:
-					m_DescriptorSet.setTexture(std::static_pointer_cast<VulkanImageView>(resource.second.Texture), resource.first);
-					break;
-				case GfxShader::eResourceType::eSampler:
-					m_DescriptorSet.setSampler(std::static_pointer_cast<VulkanSampler>(resource.second.Sampler), resource.first);
-					break;
-				case GfxShader::eResourceType::eCombinedTextureSampler:
-					m_DescriptorSet.setCombinedTextureSampler(
-						std::static_pointer_cast<VulkanImageView>(resource.second.Texture),
-						std::static_pointer_cast<VulkanSampler>(resource.second.Sampler),
-						resource.first);
-					break;
-				case GfxShader::eResourceType::eUniformBuffer:
-					m_DescriptorSet.setUniformBuffer(static_cast<VulkanBufferPtr>(resource.second.UniformBuffer), resource.first);
-					break;
-				}
+			case GfxPipelineState::eTexture:
+			{
+				auto imageView = std::static_pointer_cast<VulkanImageView>(res.second.Texture);
+				assert(imageView); /// Using default???
+				m_ResourceMap[res.first].ImageView = imageView->Handle;
+				hash_combine(resourceHash, (size_t)imageView->Handle);
+			}
+				break;
+			case GfxPipelineState::eSampler:
+			{
+				auto sampler = std::static_pointer_cast<VulkanSampler>(res.second.Sampler);
+				assert(sampler);
+				m_ResourceMap[res.first].Sampler = sampler->Handle;
+				hash_combine(resourceHash, (size_t)sampler->Handle);
+			}
+				break;
+			case GfxPipelineState::eCombinedTextureSampler:
+			{
+				auto imageView = std::static_pointer_cast<VulkanImageView>(res.second.Texture);
+				auto sampler = std::static_pointer_cast<VulkanSampler>(res.second.Sampler);
+				assert(imageView && sampler);
+				m_ResourceMap[res.first].CombinedImageSampler.ImageView = imageView->Handle;
+				m_ResourceMap[res.first].CombinedImageSampler.Sampler = sampler->Handle;
+				hash_combine(resourceHash, (size_t)imageView->Handle);
+				hash_combine(resourceHash, (size_t)sampler->Handle);
+			}
+				break;
+			case GfxPipelineState::eUniformBuffer:
+			{
+				auto uniformBuffer = static_cast<VulkanBufferPtr>(res.second.UniformBuffer);
+				assert(uniformBuffer);
+				m_ResourceMap[res.first].Buffer = uniformBuffer->Handle;
+				hash_combine(resourceHash, (size_t)uniformBuffer->Handle);
+			}
+				break;
 			}
 		}
 	}
 
-	m_DescriptorSet.update(device);
+	auto it = m_DescriptorSets.find(resourceHash);
+	if (it != m_DescriptorSets.end())
+	{
+		m_CurDescriptorSet = it->second;
+		return;
+	}
+
+	auto descriptorSet = VulkanMainDescriptorPool::instance()->alloc(m_DescriptorSetLayout.Handle, m_ResourceMap);
+	m_DescriptorSets.insert(std::make_pair(resourceHash, descriptorSet));
+	m_CurDescriptorSet = descriptorSet;
 }
 
 VkPipelineRasterizationStateCreateInfo VulkanGraphicsPipeline::makeRasterizationState(const GfxRasterizerStateDesc& stateDesc) const
@@ -304,6 +334,22 @@ VkPipelineColorBlendStateCreateInfo VulkanGraphicsPipeline::makeColorBlendState(
 	};
 
 	return blendState;
+}
+
+void VulkanGraphicsPipeline::initShaderResourceMap(const GfxDescriptorLayoutDesc& desc)
+{
+	/// For verify
+	for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
+	{
+		for (auto &res : desc[i])
+		{
+			assert(m_ResourceMap.find(res.Binding) == m_ResourceMap.end());
+
+			VulkanDescriptorSet::VulkanResourceInfo resInfo;
+			resInfo.Type = (VkDescriptorType)res.Type;
+			m_ResourceMap.insert(std::make_pair(res.Binding, resInfo));
+		}
+	}
 }
 
 void VulkanPipelineCache::create(VkDevice device)

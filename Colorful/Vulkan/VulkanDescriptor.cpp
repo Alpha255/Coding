@@ -80,183 +80,7 @@ VulkanDescriptorPool::VulkanDescriptorPool(const VkDevice device, VkPhysicalDevi
 	GfxVerifyVk(vkCreateDescriptorPool(device, &createInfo, vkMemoryAllocator, &Handle));
 }
 
-VulkanDescriptorSet VulkanDescriptorPool::alloc(const GfxDescriptorLayoutDesc& desc) const
-{
-	assert(isValid());
-
-	VulkanDescriptorSet descriptorSet;
-	descriptorSet.createLayout(m_Device, desc);
-
-	VkDescriptorSetAllocateInfo allocInfo
-	{
-		VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
-		nullptr,
-		Handle,
-		1u,
-		&descriptorSet.m_Layout
-	};
-
-	GfxVerifyVk(vkAllocateDescriptorSets(m_Device, &allocInfo, &descriptorSet.Handle));
-
-	return descriptorSet;
-}
-
-void VulkanDescriptorSet::setUniformBuffer(const VulkanBufferPtr& buffer, uint32_t binding)
-{
-	assert(isValid());
-	assert(buffer);
-	assert(m_ResourceBindingMap[binding].Type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
-	
-	if (m_ResourceBindingMap[binding].Buffer != buffer->Handle)
-	{
-		m_ResourceBindingMap[binding].Buffer = buffer->Handle;
-		m_ResourceBindingMap[binding].Dirty = true;
-	}
-}
-
-void VulkanDescriptorSet::setTexture(const VulkanImageViewPtr& texture, uint32_t binding)
-{
-	assert(isValid());
-	assert(texture && texture->isValid());
-	assert(m_ResourceBindingMap[binding].Type == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE);
-	
-	if (m_ResourceBindingMap[binding].ImageView != texture->Handle)
-	{
-		m_ResourceBindingMap[binding].ImageView = texture->Handle;
-		m_ResourceBindingMap[binding].Dirty = true;
-	}
-}
-
-void VulkanDescriptorSet::setCombinedTextureSampler(const VulkanImageViewPtr& texture, const VulkanSamplerPtr& sampler, uint32_t binding)
-{
-	assert(isValid());
-	assert(texture && texture->isValid());
-	assert(sampler && sampler->isValid());
-	assert(m_ResourceBindingMap[binding].Type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-
-	if (m_ResourceBindingMap[binding].CombinedImageSampler.ImageView != texture->Handle || 
-		m_ResourceBindingMap[binding].CombinedImageSampler.Sampler != sampler->Handle)
-	{
-		m_ResourceBindingMap[binding].CombinedImageSampler.ImageView = texture->Handle;
-		m_ResourceBindingMap[binding].CombinedImageSampler.Sampler = sampler->Handle;
-		m_ResourceBindingMap[binding].Dirty = true;
-	}
-}
-
-void VulkanDescriptorSet::setSampler(const VulkanSamplerPtr& sampler, uint32_t binding)
-{
-	assert(isValid());
-	assert(sampler && sampler->isValid());
-	assert(m_ResourceBindingMap[binding].Type == VK_DESCRIPTOR_TYPE_SAMPLER);
-	
-	if (m_ResourceBindingMap[binding].Sampler != sampler->Handle)
-	{
-		m_ResourceBindingMap[binding].Sampler = sampler->Handle;
-		m_ResourceBindingMap[binding].Dirty = true;
-	}
-}
-
-void VulkanDescriptorSet::update(VkDevice device)
-{
-	assert(isValid());
-
-	std::vector<VkWriteDescriptorSet> writeActions;
-	std::vector<VkDescriptorBufferInfo> bufferInfos;
-	std::vector<VkDescriptorImageInfo> imageInfos;
-
-	for (auto &resourceBinding : m_ResourceBindingMap)
-	{
-		if (resourceBinding.second.Dirty)
-		{
-			VkWriteDescriptorSet writeAction
-			{
-				VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-				nullptr,
-				Handle,
-				resourceBinding.first,
-				0u,
-				1u,
-				resourceBinding.second.Type,
-				nullptr,
-				nullptr,
-				nullptr
-			};
-
-			switch (resourceBinding.second.Type)
-			{
-			case VK_DESCRIPTOR_TYPE_SAMPLER:
-			{
-				assert(resourceBinding.second.Sampler);
-				VkDescriptorImageInfo imageInfo
-				{
-					resourceBinding.second.Sampler,
-					VK_NULL_HANDLE,
-					VK_IMAGE_LAYOUT_UNDEFINED
-				};
-				imageInfos.emplace_back(std::move(imageInfo));
-				writeAction.pImageInfo = &imageInfos[imageInfos.size() - 1u];
-			}
-				break;
-			case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-			{
-				assert(resourceBinding.second.CombinedImageSampler.ImageView);
-				assert(resourceBinding.second.CombinedImageSampler.Sampler);
-
-				VkDescriptorImageInfo imageInfo
-				{
-					resourceBinding.second.CombinedImageSampler.Sampler,
-					resourceBinding.second.CombinedImageSampler.ImageView,
-					VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-				};
-				imageInfos.emplace_back(std::move(imageInfo));
-				writeAction.pImageInfo = &imageInfos[imageInfos.size() - 1u];
-			}
-				break;
-			case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
-			{
-				assert(resourceBinding.second.ImageView);
-
-				VkDescriptorImageInfo imageInfo
-				{
-					VK_NULL_HANDLE,
-					resourceBinding.second.CombinedImageSampler.ImageView,
-					VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-				};
-				imageInfos.emplace_back(std::move(imageInfo));
-				writeAction.pImageInfo = &imageInfos[imageInfos.size() - 1u];
-			}
-				break;
-			case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-			{
-				assert(resourceBinding.second.Buffer);
-
-				VkDescriptorBufferInfo bufferInfo
-				{
-					resourceBinding.second.Buffer,
-					0u,
-					VK_WHOLE_SIZE
-				};
-				bufferInfos.emplace_back(std::move(bufferInfo));
-				writeAction.pBufferInfo = &bufferInfos[bufferInfos.size() - 1u];
-			}
-				break;
-			default:
-				assert(0);
-				break;
-			}
-
-			resourceBinding.second.Dirty = false;
-			writeActions.emplace_back(writeAction);
-		}
-	}
-
-	if (!writeActions.empty())
-	{
-		vkUpdateDescriptorSets(device, (uint32_t)writeActions.size(), writeActions.data(), 0u, nullptr);
-	}
-}
-
-void VulkanDescriptorSet::createLayout(VkDevice device, const GfxDescriptorLayoutDesc& desc)
+void VulkanDescriptorSetLayout::create(VkDevice device, const GfxDescriptorLayoutDesc& desc)
 {
 	assert(!isValid());
 
@@ -279,13 +103,6 @@ void VulkanDescriptorSet::createLayout(VkDevice device, const GfxDescriptorLayou
 					nullptr
 				};
 				bindings.emplace_back(std::move(binding));
-
-				assert(m_ResourceBindingMap.find(reflection.Binding) == m_ResourceBindingMap.end());
-				ResourceBindingInfo bindingInfo
-				{
-					type,
-				};
-				m_ResourceBindingMap.insert(std::make_pair(reflection.Binding, bindingInfo));
 			}
 		}
 	}
@@ -299,5 +116,117 @@ void VulkanDescriptorSet::createLayout(VkDevice device, const GfxDescriptorLayou
 		bindings.data()
 	};
 
-	GfxVerifyVk(vkCreateDescriptorSetLayout(device, &createInfo, vkMemoryAllocator, &m_Layout));
+	GfxVerifyVk(vkCreateDescriptorSetLayout(device, &createInfo, vkMemoryAllocator, &Handle));
+}
+
+VulkanDescriptorSet VulkanDescriptorPool::alloc(VkDescriptorSetLayout layout, const VulkanDescriptorSet::VulkanResourceMap& resourceMap) const
+{
+	assert(isValid());
+
+	VkDescriptorSetAllocateInfo allocInfo
+	{
+		VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+		nullptr,
+		Handle,
+		1u,
+		&layout
+	};
+
+	VulkanDescriptorSet descriptorSet;
+	GfxVerifyVk(vkAllocateDescriptorSets(m_Device, &allocInfo, &descriptorSet.Handle));
+	descriptorSet.update(m_Device, resourceMap);
+	return descriptorSet;
+}
+
+void VulkanDescriptorSet::update(VkDevice device, const VulkanResourceMap& resourceMap)
+{
+	assert(isValid());
+
+	std::vector<VkWriteDescriptorSet> writeActions;
+	std::vector<VkDescriptorBufferInfo> bufferInfos;
+	std::vector<VkDescriptorImageInfo> imageInfos;
+
+	for (auto &resourceBinding : resourceMap)
+	{
+		VkWriteDescriptorSet writeAction
+		{
+			VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+			nullptr,
+			Handle,
+			resourceBinding.first,
+			0u,
+			1u,
+			resourceBinding.second.Type,
+			nullptr,
+			nullptr,
+			nullptr
+		};
+
+		switch (resourceBinding.second.Type)
+		{
+		case VK_DESCRIPTOR_TYPE_SAMPLER:
+		{
+			assert(resourceBinding.second.Sampler);
+			VkDescriptorImageInfo imageInfo
+			{
+				resourceBinding.second.Sampler,
+				VK_NULL_HANDLE,
+				VK_IMAGE_LAYOUT_UNDEFINED
+			};
+			imageInfos.emplace_back(std::move(imageInfo));
+			writeAction.pImageInfo = &imageInfos[imageInfos.size() - 1u];
+		}
+		break;
+		case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+		{
+			assert(resourceBinding.second.CombinedImageSampler.ImageView);
+			assert(resourceBinding.second.CombinedImageSampler.Sampler);
+
+			VkDescriptorImageInfo imageInfo
+			{
+				resourceBinding.second.CombinedImageSampler.Sampler,
+				resourceBinding.second.CombinedImageSampler.ImageView,
+				VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+			};
+			imageInfos.emplace_back(std::move(imageInfo));
+			writeAction.pImageInfo = &imageInfos[imageInfos.size() - 1u];
+		}
+		break;
+		case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+		{
+			assert(resourceBinding.second.ImageView);
+
+			VkDescriptorImageInfo imageInfo
+			{
+				VK_NULL_HANDLE,
+				resourceBinding.second.ImageView,
+				VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+			};
+			imageInfos.emplace_back(std::move(imageInfo));
+			writeAction.pImageInfo = &imageInfos[imageInfos.size() - 1u];
+		}
+		break;
+		case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+		{
+			assert(resourceBinding.second.Buffer);
+
+			VkDescriptorBufferInfo bufferInfo
+			{
+				resourceBinding.second.Buffer,
+				0u,
+				VK_WHOLE_SIZE
+			};
+			bufferInfos.emplace_back(std::move(bufferInfo));
+			writeAction.pBufferInfo = &bufferInfos[bufferInfos.size() - 1u];
+		}
+		break;
+		default:
+			assert(0);
+			break;
+		}
+		writeActions.emplace_back(writeAction);
+	}
+
+	assert(!writeActions.empty());
+	vkUpdateDescriptorSets(device, (uint32_t)writeActions.size(), writeActions.data(), 0u, nullptr);
 }

@@ -219,6 +219,7 @@ protected:
 		bool8_t Dirty = false;
 		VulkanFrameBufferPtr FrameBuffer = nullptr;
 		VulkanGraphicsPipelinePtr GfxPipeline = nullptr;
+		VkDescriptorSet CurDescriptorSet = VK_NULL_HANDLE;
 		const GfxPipelineState* GfxPipelineState = nullptr;
 		DynamicState Dynamic;
 

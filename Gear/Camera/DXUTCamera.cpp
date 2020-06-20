@@ -152,6 +152,8 @@ void DXUTCamera::processMessage(const WindowMessage& message, float32_t elapsedT
 	Math::Vec3 worldForward = Math::Vec3::transformCoord(forward, rotate);
 	Math::Vec3 deltaWorld = Math::Vec3::transformCoord(deltaPos, rotate);
 
+	///m_View = Math::Matrix::rotateX(m_MouseDelta.x) * Math::Matrix::rotateY(m_MouseDelta.y) * Math::Matrix::translate(m_Eye);
+
 	m_Eye += deltaWorld;
 
 	/// Clip to boundary

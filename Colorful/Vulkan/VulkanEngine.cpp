@@ -114,10 +114,8 @@ void VulkanEngine::bindGfxPipelineState(const GfxPipelineState* state)
 		assert(m_CurPipelineState.GfxPipelineState->FrameBuffer);
 		m_CurPipelineState.FrameBuffer = std::static_pointer_cast<VulkanFrameBuffer>(state->FrameBuffer);
 		m_CurPipelineState.GfxPipeline = VulkanPipelinePool::instance()->getOrCreateGfxPipeline(m_CurPipelineState.FrameBuffer->renderPass(), state);
-		m_CurPipelineState.GfxPipeline->updateDescriptorSet(m_Device.logicalDevice(), state);
+		///m_CurPipelineState.GfxPipeline->updateDescriptorSet(state);
 	}
-
-	prepareForDraw();
 }
 
 void VulkanEngine::setDynamicStates()
@@ -218,6 +216,9 @@ void VulkanEngine::prepareForDraw()
 		m_ActiveCmdBuffer->beginRenderPass(beginInfo, VK_SUBPASS_CONTENTS_INLINE);
 	}
 
+	m_CurPipelineState.GfxPipeline->updateDescriptorSet(m_CurPipelineState.GfxPipelineState);
+	auto descriptorSet = m_CurPipelineState.GfxPipeline->descriptorSet();
+
 	if (m_CurPipelineState.Dirty)
 	{
 		if (m_CurPipelineState.GfxPipelineState->Wireframe)
@@ -229,23 +230,40 @@ void VulkanEngine::prepareForDraw()
 			vkCmdBindPipeline(m_ActiveCmdBuffer->Handle, VK_PIPELINE_BIND_POINT_GRAPHICS, m_CurPipelineState.GfxPipeline->Handle);
 		}
 
-		auto descriptorSet = m_CurPipelineState.GfxPipeline->descriptorSet();
-		vkCmdBindDescriptorSets(m_ActiveCmdBuffer->Handle, 
-			VK_PIPELINE_BIND_POINT_GRAPHICS, 
+		vkCmdBindDescriptorSets(m_ActiveCmdBuffer->Handle,
+			VK_PIPELINE_BIND_POINT_GRAPHICS,
 			m_CurPipelineState.GfxPipeline->layout(),
-			0u, 
-			1u, 
+			0u,
+			1u,
 			&descriptorSet,
-			0u, 
+			0u,
 			nullptr);
 
+		m_CurPipelineState.CurDescriptorSet = descriptorSet;
 		m_CurPipelineState.Dirty = false;
 	}
+	else
+	{
+		if (m_CurPipelineState.CurDescriptorSet != descriptorSet)
+		{
+			vkCmdBindDescriptorSets(m_ActiveCmdBuffer->Handle,
+				VK_PIPELINE_BIND_POINT_GRAPHICS,
+				m_CurPipelineState.GfxPipeline->layout(),
+				0u,
+				1u,
+				&descriptorSet,
+				0u,
+				nullptr);
+			m_CurPipelineState.CurDescriptorSet = descriptorSet;
+		}
+	}
+
+	setDynamicStates();
 }
 
 void VulkanEngine::drawIndexed(uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset)
 {
-	setDynamicStates();
+	prepareForDraw();
 
 	vkCmdDrawIndexed(
 		m_ActiveCmdBuffer->Handle,

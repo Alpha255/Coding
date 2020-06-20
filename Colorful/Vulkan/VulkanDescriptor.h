@@ -2,40 +2,27 @@
 
 #include "Colorful/Vulkan/VulkanImageView.h"
 
-class VulkanDescriptorSet : public VulkanObject<VkDescriptorSet>
+class VulkanDescriptorSetLayout : public VulkanDeviceObject<VkDescriptorSetLayout>
 {
 public:
-	VkDescriptorSetLayout layout() const
-	{
-		assert(isValid());
-		return m_Layout;
-	}
+	void create(VkDevice device, const GfxDescriptorLayoutDesc& desc);
 
-	void destroy(VkDevice device)
+	void destroy(VkDevice device) override final
 	{
 		if (isValid())
 		{
-			vkDestroyDescriptorSetLayout(device, m_Layout, vkMemoryAllocator);
-			m_Layout = VK_NULL_HANDLE;
-			m_ResourceBindingMap.clear();
+			vkDestroyDescriptorSetLayout(device, Handle, vkMemoryAllocator);
+			Handle = VK_NULL_HANDLE;
 		}
 	}
+};
 
-	void setUniformBuffer(const VulkanBufferPtr& buffer, uint32_t binding);
-
-	void setTexture(const VulkanImageViewPtr& texture, uint32_t binding);
-
-	void setCombinedTextureSampler(const VulkanImageViewPtr& texture, const VulkanSamplerPtr& sampler, uint32_t binding);
-
-	void setSampler(const VulkanSamplerPtr& sampler, uint32_t binding);
-
-	void update(VkDevice device);
-protected:
-	struct ResourceBindingInfo
+class VulkanDescriptorSet : public VulkanObject<VkDescriptorSet>
+{
+public:
+	struct VulkanResourceInfo
 	{
 		VkDescriptorType Type = VK_DESCRIPTOR_TYPE_MAX_ENUM;
-		bool8_t Dirty = true;
-
 		union
 		{
 			struct VkCombinedImageSampler
@@ -50,13 +37,11 @@ protected:
 			VkBufferView TexelBufferView;
 		};
 	};
+	using VulkanResourceMap = std::unordered_map<uint32_t, VulkanResourceInfo>;
 
-	void createLayout(VkDevice device, const GfxDescriptorLayoutDesc& desc);
-
-	friend class VulkanDescriptorPool;
+	void update(VkDevice device, const VulkanResourceMap& resourceMap);
+protected:
 private:
-	VkDescriptorSetLayout m_Layout = VK_NULL_HANDLE;
-	std::unordered_map<uint32_t, ResourceBindingInfo> m_ResourceBindingMap;
 };
 
 class VulkanDescriptorPool : public VulkanObject<VkDescriptorPool>
@@ -85,7 +70,7 @@ public:
 		}
 	}
 
-	VulkanDescriptorSet alloc(const GfxDescriptorLayoutDesc& desc) const;
+	VulkanDescriptorSet alloc(VkDescriptorSetLayout layout, const VulkanDescriptorSet::VulkanResourceMap& resourceMap) const;
 protected:
 private:
 	const VkDevice m_Device;

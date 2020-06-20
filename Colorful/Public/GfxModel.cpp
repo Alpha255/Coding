@@ -52,8 +52,8 @@ void GfxModel::initPipelineState()
 		}
 	};
 	vertexShader->setInputLayout(vertexAttrs, alignof(GfxVertex));
-	vertexShader->setUniformBuffer(m_UniformBuffer, 0u);
 
+	s_PipelineState.setUniformBuffer(eVertexShader, m_UniformBuffer, 0u);
 	s_PipelineState.setShader(vertexShader);
 	s_PipelineState.setShader(fragmentShader);
 
@@ -68,18 +68,6 @@ void GfxModel::load(const std::string& modelName)
 	AssetTool::AssetDatabase::instance().tryToLoadModel(modelName, *this, g_GfxEngine.get());
 
 	initPipelineState();
-
-	for (uint32_t i = 0u; i < m_Meshes.size(); ++i)
-	{
-		for (uint32_t j = 0u; j < m_Meshes[i].Material.Textures.size(); ++j)
-		{
-			if (m_Meshes[i].Material.Textures[j].Type == GfxTexture::eDiffuse)
-			{
-				auto &diffuseTexture = m_Textures[GfxTexture::eDiffuse][m_Meshes[i].Material.Textures[j].Index];
-				s_PipelineState.Shaders[eFragmentShader]->setCombinedTextureSampler(diffuseTexture, s_LinearSampler, 1u);
-			}
-		}
-	}
 }
 
 void GfxModel::draw(const DXUTCamera& camera, const GfxViewport& viewport)
@@ -119,6 +107,16 @@ void GfxModel::draw(const DXUTCamera& camera, const GfxViewport& viewport)
 	{
 		s_PipelineState.setVertexBuffer(m_Meshes[i].VertexBuffer);
 		s_PipelineState.setIndexBuffer(m_Meshes[i].IndexBuffer);
+
+		for (uint32_t j = 0u; j < m_Meshes[i].Material.Textures.size(); ++j)
+		{
+			if (m_Meshes[i].Material.Textures[j].Type == GfxTexture::eDiffuse)
+			{
+				auto &diffuseTexture = m_Textures[GfxTexture::eDiffuse][m_Meshes[i].Material.Textures[j].Index];
+				s_PipelineState.setCombinedTextureSampler(eFragmentShader, diffuseTexture, s_LinearSampler, 1u);
+			}
+		}
+
 		g_GfxEngine->drawIndexed(m_Meshes[i].IndexCount, 0u, 0);
 	}
 }
