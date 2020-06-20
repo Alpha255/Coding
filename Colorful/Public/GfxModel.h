@@ -22,8 +22,32 @@ public:
 
 	struct GfxTexture
 	{
-		uint32_t Type = 0u;
+		enum eTextureType /// based on assimp
+		{
+			eNone,
+			eDiffuse,
+			eSpecular,
+			eAmbient,
+			eMissive,
+			eHeight,
+			eNormal,
+			eShiniess,
+			eOpacity,
+			eDisplacement,
+			eLightMap,
+			eReflection,
+			eBaseColor,
+			eNormalCamera,
+			eEmissionColor,
+			eMetalness,
+			eDiffuseRoughness,
+			eAmbientOcclusion,
+			eUnknown
+		};
+
+		eTextureType Type = eUnknown;
 		uint32_t Index = 0u;
+		std::string Name;
 	};
 
 	struct GfxMaterial
@@ -63,7 +87,7 @@ private:
 	bool8_t m_Valid = false;
 	AABB m_BoundingBox;
 	std::vector<GfxMesh> m_Meshes;
-	std::array<std::vector<GfxTexturePtr>, 18u> m_Textures; /// aiTextureType_UNKNOWN
+	std::array<std::vector<GfxTexturePtr>, GfxTexture::eUnknown> m_Textures; /// aiTextureType_UNKNOWN
 	GfxGpuBufferPtr m_UniformBuffer;
 	static GfxPipelineState s_PipelineState;
 	static GfxSamplerPtr s_LinearSampler;

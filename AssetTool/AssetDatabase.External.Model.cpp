@@ -43,6 +43,8 @@ void AssetDatabase::tryToLoadModel(const std::string& modelName, __out GfxModel&
 	timer.reset();
 	timer.start();
 
+	Vec3 vMin;
+	Vec3 vMax;
 	std::set<std::string> loadedTextures;
 
 	gfxModel.m_Meshes.resize(scene->mNumMeshes);
@@ -92,9 +94,11 @@ void AssetDatabase::tryToLoadModel(const std::string& modelName, __out GfxModel&
 		}
 		curMesh.IndexBuffer = gfxEngine->createIndexBuffer(eGpuReadWrite, sizeof(uint32_t) * indices.size(), indices.data());
 		curMesh.IndexCount = (uint32_t)indices.size();
-		auto extent = (mesh->mAABB.mMin + mesh->mAABB.mMax) * 0.5f;
-		auto centerA = aiVector3D(extent.x * -1.0f, extent.y * -1.0f, extent.z * 1.0f) - mesh->mAABB.mMin;
-		auto centerB = aiVector3D(extent.x * 1.0f, extent.y * 1.0f, extent.z * 1.0f) - mesh->mAABB.mMax;
+		auto extent = (mesh->mAABB.mMax + mesh->mAABB.mMin) * 0.5f;
+		auto center = (mesh->mAABB.mMax - mesh->mAABB.mMin) * 0.5f;
+		curMesh.BoundingBox = AABB(Vec3(center.x, center.y, center.z), Vec3(extent.x, extent.y, extent.z));
+		vMin = Math::getMin(vMin, Vec3(mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z));
+		vMax = Math::getMin(vMax, Vec3(mesh->mAABB.mMax.x, mesh->mAABB.mMax.y, mesh->mAABB.mMax.z));
 
 		if (scene->HasMaterials() && mesh->mMaterialIndex >= 0)
 		{
@@ -109,13 +113,15 @@ void AssetDatabase::tryToLoadModel(const std::string& modelName, __out GfxModel&
 					std::string texName(texPath.C_Str());
 					if (loadedTextures.find(texName) == loadedTextures.end())
 					{
-						auto gfxTexture = gfxEngine->createTexture(File::name(texName));
+						texName = File::name(texName);
+						auto gfxTexture = gfxEngine->createTexture(texName);
 						gfxModel.m_Textures[j].emplace_back(std::move(gfxTexture));
 
 						GfxModel::GfxTexture texture
 						{
-							j,
-							(uint32_t)(gfxModel.m_Textures[j].size() - 1u)
+							(GfxModel::GfxTexture::eTextureType)j,
+							(uint32_t)(gfxModel.m_Textures[j].size() - 1u),
+							texName
 						};
 						curMesh.Material.Textures.emplace_back(std::move(texture));
 
@@ -125,6 +131,8 @@ void AssetDatabase::tryToLoadModel(const std::string& modelName, __out GfxModel&
 			}
 		}
 	}
+
+	gfxModel.m_BoundingBox = AABB((vMax + vMin) * 0.5f, (vMax - vMin) * 0.5f);
 
 	timer.stop();
 	Logger::instance().log(Logger::eInfo, format("Build model %s takes %.2fs\n", model->name().c_str(), timer.elapsedTime()));

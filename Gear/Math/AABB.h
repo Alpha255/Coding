@@ -22,12 +22,12 @@ public:
 
 	inline Vec3 min() const
 	{
-		return m_Extents * Vec3(-1.0f, -1.0f, 1.0f) + m_Center;
+		return m_Center - m_Extents;
 	}
 
 	inline Vec3 max() const
 	{
-		return m_Extents * Vec3(1.0f, 1.0f, 1.0f) + m_Center;
+		return m_Extents + m_Center;
 	}
 
 	inline Vec3 center() const

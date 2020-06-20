@@ -1,6 +1,5 @@
 #include "Colorful/Public/GfxEngine.h"
 #include "AssetTool/AssetDatabase.h"
-///#include <ThirdParty/assimp/include/assimp/material.h>
 
 GfxPipelineState GfxModel::s_PipelineState;
 GfxSamplerPtr GfxModel::s_LinearSampler = nullptr;
@@ -74,9 +73,9 @@ void GfxModel::load(const std::string& modelName)
 	{
 		for (uint32_t j = 0u; j < m_Meshes[i].Material.Textures.size(); ++j)
 		{
-			if (m_Meshes[i].Material.Textures[j].Type == 1u)
+			if (m_Meshes[i].Material.Textures[j].Type == GfxTexture::eDiffuse)
 			{
-				auto &diffuseTexture = m_Textures[1u][m_Meshes[i].Material.Textures[j].Index];
+				auto &diffuseTexture = m_Textures[GfxTexture::eDiffuse][m_Meshes[i].Material.Textures[j].Index];
 				s_PipelineState.Shaders[eFragmentShader]->setCombinedTextureSampler(diffuseTexture, s_LinearSampler, 1u);
 			}
 		}
@@ -113,9 +112,8 @@ void GfxModel::draw(const DXUTCamera& camera, const GfxViewport& viewport)
 	s_PipelineState.setScissor(scissor);
 	s_PipelineState.setFrameBuffer(g_GfxEngine->backBuffer());
 
-	g_GfxEngine->bindGfxPipelineState(&s_PipelineState);
-
 	GfxScopeGpuMarker(DrawModel, Color::randomColor());
+	g_GfxEngine->bindGfxPipelineState(&s_PipelineState);
 
 	for (uint32_t i = 0u; i < m_Meshes.size(); ++i)
 	{
