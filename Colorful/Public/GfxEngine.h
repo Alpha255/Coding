@@ -135,7 +135,7 @@ public:
 	virtual GfxFrameBufferPtr backBuffer() = 0;
 	virtual void bindGfxPipelineState(const GfxPipelineState* state) = 0;
 
-	virtual void drawIndexed(uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset) = 0;
+	virtual void drawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset) = 0;
 
 	virtual void beginDebugMarker(const char8_t* name, Vec4 color) = 0;
 	virtual void insertDebugMarker(const char8_t* name, Vec4 color) = 0;

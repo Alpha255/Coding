@@ -180,7 +180,7 @@ void ImGuiRenderer::frame()
 			};
 
 			m_PipelineState.setScissor(scissor);
-			g_GfxEngine->drawIndexed(drawCmd->ElemCount, (uint32_t)indexOffset, vertexOffset);
+			g_GfxEngine->drawIndexed(drawCmd->ElemCount, 1u, (uint32_t)indexOffset, vertexOffset);
 			indexOffset += drawCmd->ElemCount;
 		}
 		vertexOffset += drawList->VtxBuffer.Size;

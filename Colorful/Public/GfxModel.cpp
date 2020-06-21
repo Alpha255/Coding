@@ -117,7 +117,7 @@ void GfxModel::draw(const DXUTCamera& camera, const GfxViewport& viewport)
 			}
 		}
 
-		g_GfxEngine->drawIndexed(m_Meshes[i].IndexCount, 0u, 0);
+		g_GfxEngine->drawIndexed(m_Meshes[i].IndexCount, 1u, 0u, 0);
 	}
 }
 
@@ -136,6 +136,6 @@ void GfxModel::draw(const GfxPipelineState* state)
 	{
 		s_PipelineState.setVertexBuffer(m_Meshes[i].VertexBuffer);
 		s_PipelineState.setIndexBuffer(m_Meshes[i].IndexBuffer);
-		g_GfxEngine->drawIndexed(m_Meshes[i].IndexCount, 0u, 0);
+		g_GfxEngine->drawIndexed(m_Meshes[i].IndexCount, 1u, 0u, 0);
 	}
 }

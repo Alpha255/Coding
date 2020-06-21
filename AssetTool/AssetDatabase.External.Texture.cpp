@@ -88,6 +88,7 @@ AssetTool::TextureBinary AssetDatabase::tryToGetTextureBinary(Configurations::eR
 				{
 					binary.Images[i][j].Width = gliImage2D[j].extent().x;
 					binary.Images[i][j].Height = gliImage2D[j].extent().y;
+					binary.Images[i][j].Depth = gliImage2D[j].extent().z;
 					binary.Images[i][j].Size = gliImage2D[j].size();
 				}
 			}

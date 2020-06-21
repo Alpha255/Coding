@@ -260,14 +260,14 @@ void VulkanEngine::prepareForDraw()
 	setDynamicStates();
 }
 
-void VulkanEngine::drawIndexed(uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset)
+void VulkanEngine::drawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset)
 {
 	prepareForDraw();
 
 	vkCmdDrawIndexed(
 		m_ActiveCmdBuffer->Handle,
 		indexCount,
-		1u,
+		instanceCount,
 		firstIndex,
 		vertexOffset,
 		1u);
