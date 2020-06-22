@@ -56,6 +56,7 @@ public:
 protected:
 	inline void reset()
 	{
+		m_RotateDelta = Math::Vec2();
 		setView(m_DefaultEye, m_DefaultLookAt);
 	}
 
@@ -64,7 +65,8 @@ protected:
 	void updateKeys(const struct WindowMessage& message);
 
 	bool8_t isReset(const struct WindowMessage& message) const;
-	bool8_t isRotate(const struct WindowMessage& message) const;
+	bool8_t isLButtonDown(const struct WindowMessage& message) const;
+	bool8_t isRButtonDown(const struct WindowMessage& message) const;
 private:
 	Math::Vec3 m_Eye;
 	Math::Vec3 m_LookAt;
@@ -85,12 +87,14 @@ private:
 
 	float32_t m_DragTimer = 0.0f;
 	uint32_t m_SmoothMouse = 2u;
+	int16_t m_LastMouseWheel = 0;
 
 	Math::Vec2 m_RotateVelocity;
 	Math::Vec3 m_KeyDirection;
 	Math::Vec2 m_Scaler{ 0.01f, 5.0f };
 	Math::Vec2 m_MouseDelta;
 	Math::Vec2 m_LastMousePos;
+	Math::Vec2 m_RotateDelta;
 
 	Math::Matrix m_World;
 	Math::Matrix m_View;

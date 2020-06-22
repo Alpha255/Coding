@@ -1,6 +1,6 @@
 #include "RenderTest.h"
 
-#if 0
+#if 1
 struct UniformBufferVS
 {
 	Matrix World;
@@ -14,12 +14,10 @@ struct Vertex
 	Vec2 UV;
 };
 
-GfxModel ModelTest;
-
 void RenderTest::postInitialize()
 {
-	auto vertexShader = g_GfxEngine->createVertexShader("RenderTest.shader");
-	auto fragmentShader = g_GfxEngine->createFragmentShader("RenderTest.shader");
+	auto vertexShader = g_GfxEngine->createVertexShader("Texture.shader");
+	auto fragmentShader = g_GfxEngine->createFragmentShader("Texture.shader");
 
 	GfxSamplerDesc samplerDesc{};
 	auto sampler = g_GfxEngine->createSampler(samplerDesc);
@@ -35,7 +33,7 @@ void RenderTest::postInitialize()
 		},
 		{
 			eTexcoord,
-			eRGB32_Float
+			eRG32_Float
 		}
 	};
 	vertexShader->setInputLayout(vertexAttrs, alignof(Vertex));
@@ -71,8 +69,6 @@ void RenderTest::postInitialize()
 
 	m_Camera.setPerspective(Math::PI_Div4, (float32_t)m_Window->width() / m_Window->height(), 0.1f, 500.0f);
 	m_Camera.setView(Vec3(0.0f, 0.0f, 4.0f), Vec3(0.0f, 0.0f, 0.0f));
-
-	ModelTest.load("wolf.fbx");
 }
 
 /// Expose command buffer for application ????
@@ -116,8 +112,6 @@ void RenderTest::renderFrame()
 	GfxScopeGpuMarker(DrawOpaque, Color::randomColor());
 	g_GfxEngine->drawIndexed(6u, 1u, 0u, 0);
 
-	ModelTest.draw(m_Camera, viewport);
-
 	ImGui::Checkbox("Wireframe", &m_PipelineState.Wireframe);
 	ImGui::Text("Mouse pos x: %.2f, y: %.2f", m_Window->message().Mouse.Pos.x, m_Window->message().Mouse.Pos.y);
 	ImGui::Text("Mouse wheel delta: %d", m_Window->message().Mouse.WheelDelta);
@@ -125,6 +119,7 @@ void RenderTest::renderFrame()
 }
 #endif
 
+#if 0
 struct Vertex
 {
 	Vec3 Position;
@@ -256,5 +251,6 @@ void RenderTest::renderFrame()
 
 	ImGui::Text("FrameTime: %.2f ms, FPS: %.2f", m_Profile.FrameTime, m_Profile.FPS);
 }
+#endif
 
 appMainEntry(RenderTest)

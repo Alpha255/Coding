@@ -92,7 +92,6 @@ void Window::processMessage(uint32_t message, uint64_t wParam, int64_t lParam)
 	};
 
 	static bool8_t resizing = false;
-
 	switch (message)
 	{
 	case WM_ACTIVATE:
@@ -177,7 +176,7 @@ void Window::processMessage(uint32_t message, uint64_t wParam, int64_t lParam)
 		getMousePos(lParam);
 		break;
 	case WM_MOUSEWHEEL:
-		m_Message.Mouse.WheelDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+		m_Message.Mouse.WheelDelta += GET_WHEEL_DELTA_WPARAM(wParam);
 		break;
 	case WM_KEYDOWN:
 		switch (wParam)
@@ -254,8 +253,6 @@ void Window::update()
 		::TranslateMessage(&message);
 		::DispatchMessageW(&message);
 	}
-
-	m_Message.Mouse.WheelDelta = 0;
 }
 
 namespaceEnd(Gear)

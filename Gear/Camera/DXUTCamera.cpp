@@ -86,9 +86,14 @@ void DXUTCamera::updateKeys(const WindowMessage& message)
 		break;
 	}
 
-	m_KeyDirection.z += message.Mouse.WheelDelta * 0.005f;
+	if (m_LastMouseWheel != message.Mouse.WheelDelta)
+	{
+		auto delta = message.Mouse.WheelDelta - m_LastMouseWheel;
+		m_LastMouseWheel = message.Mouse.WheelDelta;
+		m_KeyDirection.z += delta * 0.005f;
+	}
 
-	if (isRotate(message))
+	if (isLButtonDown(message) || isRButtonDown(message))
 	{
 		float32_t percentNew = 1.0f / m_SmoothMouse;
 		float32_t percentOld = 1.0f - percentNew;
@@ -113,9 +118,14 @@ bool8_t DXUTCamera::isReset(const WindowMessage& message) const
 	return message.Key == eKeyboardKey::eKey_Home;
 }
 
-bool8_t DXUTCamera::isRotate(const WindowMessage& message) const
+bool8_t DXUTCamera::isLButtonDown(const WindowMessage& message) const
 {
 	return message.Mouse.Left.KeyDown;
+}
+
+bool8_t DXUTCamera::isRButtonDown(const WindowMessage& message) const
+{
+	return message.Mouse.Right.KeyDown;
 }
 
 void DXUTCamera::processMessage(const WindowMessage& message, float32_t elapsedTime)
@@ -131,7 +141,8 @@ void DXUTCamera::processMessage(const WindowMessage& message, float32_t elapsedT
 
 	Math::Vec3 deltaPos = m_Velocity * elapsedTime;
 
-	if (isRotate(message))
+#if 0
+	if (isLButtonDown(message))
 	{
 		float32_t deltaYaw = m_RotateVelocity.x;
 		float32_t deltaPitch = m_RotateVelocity.y;
@@ -152,16 +163,24 @@ void DXUTCamera::processMessage(const WindowMessage& message, float32_t elapsedT
 	Math::Vec3 worldForward = Math::Vec3::transformCoord(forward, rotate);
 	Math::Vec3 deltaWorld = Math::Vec3::transformCoord(deltaPos, rotate);
 
-	///m_View = Math::Matrix::rotateX(m_MouseDelta.x) * Math::Matrix::rotateY(m_MouseDelta.y) * Math::Matrix::translate(m_Eye);
-
 	m_Eye += deltaWorld;
 
 	/// Clip to boundary
 
 	m_LookAt = m_Eye + worldForward;
-
 	m_View = Math::Matrix::lookAtLH(m_Eye, m_LookAt, worldUp);
 	m_World = Math::Matrix::inverse(m_View);
+#else
+	m_Eye -= deltaPos;
+
+	if (isLButtonDown(message))
+	{
+		m_RotateDelta.x += m_MouseDelta.y;
+		m_RotateDelta.y -= m_MouseDelta.x;
+	}
+
+	m_View = Math::Matrix::rotateX(m_RotateDelta.x) * Math::Matrix::rotateY(m_RotateDelta.y) * Math::Matrix::translate(m_Eye);
+#endif
 }
 
 namespaceEnd(Gear)
