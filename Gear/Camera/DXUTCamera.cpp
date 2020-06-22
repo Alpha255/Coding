@@ -141,7 +141,7 @@ void DXUTCamera::processMessage(const WindowMessage& message, float32_t elapsedT
 
 	Math::Vec3 deltaPos = m_Velocity * elapsedTime;
 
-#if 0
+#if 1
 	if (isLButtonDown(message))
 	{
 		float32_t deltaYaw = m_RotateVelocity.x;

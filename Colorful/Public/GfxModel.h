@@ -77,8 +77,9 @@ public:
 	void load(const std::string& modelName);
 	void createAsQuad();
 
-	void draw(const DXUTCamera& camera, const GfxViewport& viewport);
+	void draw(const DXUTCamera& camera, const GfxViewport& viewport, bool8_t wireframe = false, bool8_t boundingBox = false);
 	void draw(const GfxPipelineState* state);
+	void focusCamera(DXUTCamera& camera);
 protected:
 	friend class AssetTool::AssetDatabase;
 
@@ -86,9 +87,11 @@ protected:
 private:
 	bool8_t m_Valid = false;
 	AABB m_BoundingBox;
+	uint32_t m_BoundingBoxVertexCount = 0u;
 	std::vector<GfxMesh> m_Meshes;
 	std::array<std::vector<GfxTexturePtr>, GfxTexture::eUnknown> m_Textures; /// aiTextureType_UNKNOWN
 	GfxGpuBufferPtr m_UniformBuffer;
 	static GfxPipelineState s_PipelineState;
+	static GfxPipelineState s_PipelineState_BoundingBox;
 	static GfxSamplerPtr s_LinearSampler;
 };

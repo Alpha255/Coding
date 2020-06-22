@@ -118,6 +118,7 @@ public:
 	void bindGfxPipelineState(const GfxPipelineState* state) override final;
 
 	void drawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset) override final;
+	void draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex) override final;
 
 	void beginDebugMarker(const char8_t* name, Vec4 color) override final;
 	void insertDebugMarker(const char8_t* name, Vec4 color) override final;

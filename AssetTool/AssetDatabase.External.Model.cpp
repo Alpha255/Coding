@@ -43,8 +43,8 @@ void AssetDatabase::tryToLoadModel(const std::string& modelName, __out GfxModel&
 	timer.reset();
 	timer.start();
 
-	Vec3 vMin;
-	Vec3 vMax;
+	Vec3 vMin(std::numeric_limits<float32_t>::max(), std::numeric_limits<float32_t>::max(), std::numeric_limits<float32_t>::max());
+	Vec3 vMax(std::numeric_limits<float32_t>::min(), std::numeric_limits<float32_t>::min(), std::numeric_limits<float32_t>::min());
 	std::set<std::string> loadedTextures;
 
 	gfxModel.m_Meshes.resize(scene->mNumMeshes);
@@ -98,7 +98,7 @@ void AssetDatabase::tryToLoadModel(const std::string& modelName, __out GfxModel&
 		auto center = (mesh->mAABB.mMax - mesh->mAABB.mMin) * 0.5f;
 		curMesh.BoundingBox = AABB(Vec3(center.x, center.y, center.z), Vec3(extent.x, extent.y, extent.z));
 		vMin = Math::getMin(vMin, Vec3(mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z));
-		vMax = Math::getMin(vMax, Vec3(mesh->mAABB.mMax.x, mesh->mAABB.mMax.y, mesh->mAABB.mMax.z));
+		vMax = Math::getMax(vMax, Vec3(mesh->mAABB.mMax.x, mesh->mAABB.mMax.y, mesh->mAABB.mMax.z));
 
 		if (scene->HasMaterials() && mesh->mMaterialIndex >= 0)
 		{

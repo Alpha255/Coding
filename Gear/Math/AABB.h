@@ -41,6 +41,20 @@ public:
 	}
 
 	std::vector<Vec3> vertices() const;
+	std::vector<uint32_t> indices() const
+	{
+		auto indices = std::vector<uint32_t>
+		{
+			0, 1, 2,  
+			0, 2, 3,  
+			4, 5, 6,
+			4, 6, 7,
+			1, 0, 4,
+			1, 5, 4,
+
+		};
+		return indices;
+	}
 
 	inline static AABB createFromVertices(const Vec3 *pVertices, uint32_t vertexCount)
 	{

@@ -265,7 +265,8 @@ void RenderTest::postInitialize()
 	m_Model.load("venus.fbx");
 
 	m_Camera.setPerspective(Math::PI_Div4, (float32_t)m_Window->width() / m_Window->height(), 0.1f, 500.0f);
-	m_Camera.setView(Vec3(0.0f, 5.0f, 15.0f), Vec3(0.0f, 0.0f, 0.0f));
+	///m_Camera.setView(Vec3(0.0f, 5.0f, 5.0f), Vec3(0.0f, 0.0f, 0.0f));
+	m_Model.focusCamera(m_Camera);
 }
 
 void RenderTest::renderFrame()
@@ -278,8 +279,12 @@ void RenderTest::renderFrame()
 		(float32_t)m_Window->height()
 	};
 	
-	m_Model.draw(m_Camera, viewport);
+	static bool8_t s_Wireframe = false;
+	static bool8_t s_BoundingBox = false;
+	m_Model.draw(m_Camera, viewport, s_Wireframe, s_BoundingBox);
 	ImGui::Text("FrameTime: %.2f ms, FPS: %.2f", m_Profile.FrameTime, m_Profile.FPS);
+	ImGui::Checkbox("Wireframe", &s_Wireframe);
+	ImGui::Checkbox("BoundingBox", &s_BoundingBox);
 }
 
 appMainEntry(RenderTest)

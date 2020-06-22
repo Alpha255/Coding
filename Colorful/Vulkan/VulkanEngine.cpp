@@ -158,26 +158,6 @@ void VulkanEngine::bindGfxPipelineState(const GfxPipelineState* state)
 
 void VulkanEngine::setDynamicStates()
 {
-	m_CurPipelineState.Dynamic.setVertexBuffer(m_CurPipelineState.GfxPipelineState->VertexBuffer);
-	if (m_CurPipelineState.Dynamic.isDirty(CurrentPipelineState::DynamicState::eVertexBuffer))
-	{
-		assert(m_CurPipelineState.GfxPipelineState->VertexBuffer);
-		auto vertexBuffer = static_cast<VulkanBufferPtr>(m_CurPipelineState.GfxPipelineState->VertexBuffer);
-		VkDeviceSize offsets[1u]{};
-		vkCmdBindVertexBuffers(m_ActiveCmdBuffer->Handle, 0u, 1u, &vertexBuffer->Handle, offsets);
-	}
-
-	m_CurPipelineState.Dynamic.setIndexBuffer(m_CurPipelineState.GfxPipelineState->IndexBuffer);
-	if (m_CurPipelineState.Dynamic.isDirty(CurrentPipelineState::DynamicState::eIndexBuffer))
-	{
-		assert(m_CurPipelineState.GfxPipelineState->IndexBuffer);
-		auto indexBuffer = static_cast<VulkanBufferPtr>(m_CurPipelineState.GfxPipelineState->IndexBuffer);
-		vkCmdBindIndexBuffer(m_ActiveCmdBuffer->Handle,
-			indexBuffer->Handle,
-			0u,
-			m_CurPipelineState.GfxPipelineState->IndexType == eRIndexType::eUInt16 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32);
-	}
-
 	m_CurPipelineState.Dynamic.setViewport(m_CurPipelineState.GfxPipelineState->Viewport);
 	if (m_CurPipelineState.Dynamic.isDirty(CurrentPipelineState::DynamicState::eViewport))
 	{
@@ -260,9 +240,50 @@ void VulkanEngine::prepareForDraw()
 	setDynamicStates();
 }
 
+void VulkanEngine::draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex)
+{
+	prepareForDraw();
+
+	m_CurPipelineState.Dynamic.setVertexBuffer(m_CurPipelineState.GfxPipelineState->VertexBuffer);
+	if (m_CurPipelineState.Dynamic.isDirty(CurrentPipelineState::DynamicState::eVertexBuffer))
+	{
+		assert(m_CurPipelineState.GfxPipelineState->VertexBuffer);
+		auto vertexBuffer = static_cast<VulkanBufferPtr>(m_CurPipelineState.GfxPipelineState->VertexBuffer);
+		VkDeviceSize offsets[1u]{};
+		vkCmdBindVertexBuffers(m_ActiveCmdBuffer->Handle, 0u, 1u, &vertexBuffer->Handle, offsets);
+	}
+
+	vkCmdDraw(
+		m_ActiveCmdBuffer->Handle,
+		vertexCount,
+		instanceCount,
+		firstVertex,
+		1u);
+}
+
 void VulkanEngine::drawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset)
 {
 	prepareForDraw();
+
+	m_CurPipelineState.Dynamic.setVertexBuffer(m_CurPipelineState.GfxPipelineState->VertexBuffer);
+	if (m_CurPipelineState.Dynamic.isDirty(CurrentPipelineState::DynamicState::eVertexBuffer))
+	{
+		assert(m_CurPipelineState.GfxPipelineState->VertexBuffer);
+		auto vertexBuffer = static_cast<VulkanBufferPtr>(m_CurPipelineState.GfxPipelineState->VertexBuffer);
+		VkDeviceSize offsets[1u]{};
+		vkCmdBindVertexBuffers(m_ActiveCmdBuffer->Handle, 0u, 1u, &vertexBuffer->Handle, offsets);
+	}
+
+	m_CurPipelineState.Dynamic.setIndexBuffer(m_CurPipelineState.GfxPipelineState->IndexBuffer);
+	if (m_CurPipelineState.Dynamic.isDirty(CurrentPipelineState::DynamicState::eIndexBuffer))
+	{
+		assert(m_CurPipelineState.GfxPipelineState->IndexBuffer);
+		auto indexBuffer = static_cast<VulkanBufferPtr>(m_CurPipelineState.GfxPipelineState->IndexBuffer);
+		vkCmdBindIndexBuffer(m_ActiveCmdBuffer->Handle,
+			indexBuffer->Handle,
+			0u,
+			m_CurPipelineState.GfxPipelineState->IndexType == eRIndexType::eUInt16 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32);
+	}
 
 	vkCmdDrawIndexed(
 		m_ActiveCmdBuffer->Handle,

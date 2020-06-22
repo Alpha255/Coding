@@ -106,6 +106,10 @@ public:
 	{
 	}
 
+	void draw(uint32_t, uint32_t, uint32_t) override final
+	{
+	}
+
 	void beginDebugMarker(const char8_t*, Vec4) override final
 	{
 	}

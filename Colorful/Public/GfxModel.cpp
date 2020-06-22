@@ -2,6 +2,7 @@
 #include "AssetTool/AssetDatabase.h"
 
 GfxPipelineState GfxModel::s_PipelineState;
+GfxPipelineState GfxModel::s_PipelineState_BoundingBox;
 GfxSamplerPtr GfxModel::s_LinearSampler = nullptr;
 
 struct UniformBufferVS
@@ -60,6 +61,30 @@ void GfxModel::initPipelineState()
 	GfxSamplerDesc desc;
 	s_LinearSampler = g_GfxEngine->createSampler(desc);
 
+	vertexShader = g_GfxEngine->createVertexShader("ModelBasic_BoundingBox.shader");
+	fragmentShader = g_GfxEngine->createFragmentShader("ModelBasic_BoundingBox.shader");
+	vertexAttrs.clear();
+	GfxVertexAttributes attr
+	{
+		ePosition,
+		eRGB32_Float
+	};
+	vertexAttrs.emplace_back(std::move(attr));
+	vertexShader->setInputLayout(vertexAttrs, alignof(Vec3));
+	s_PipelineState_BoundingBox.setShader(vertexShader);
+	s_PipelineState_BoundingBox.setShader(fragmentShader);
+	s_PipelineState_BoundingBox.setUniformBuffer(eVertexShader, m_UniformBuffer, 0u);
+	GfxRasterizerStateDesc rasterizerState
+	{
+		eWireframe
+	};
+	s_PipelineState_BoundingBox.setRasterizerState(rasterizerState);
+	s_PipelineState_BoundingBox.setPrimitiveTopology(eTriangleStrip);
+
+	auto vertices = m_BoundingBox.vertices();
+	m_BoundingBoxVertexCount = (uint32_t)vertices.size();
+	s_PipelineState_BoundingBox.VertexBuffer = g_GfxEngine->createVertexBuffer(eGpuReadWrite, sizeof(Vec3) * vertices.size(), vertices.data());
+
 	s_Inited = true;
 }
 
@@ -70,7 +95,14 @@ void GfxModel::load(const std::string& modelName)
 	initPipelineState();
 }
 
-void GfxModel::draw(const DXUTCamera& camera, const GfxViewport& viewport)
+void GfxModel::focusCamera(DXUTCamera& camera)
+{
+	auto lookAt = m_BoundingBox.center();
+	auto eye = lookAt + Vec3(0.0f, 0.0f, -5.0f);
+	camera.setView(eye, lookAt);
+}
+
+void GfxModel::draw(const DXUTCamera& camera, const GfxViewport& viewport, bool8_t wireframe, bool8_t boundingBox)
 {
 	if (!m_Valid)
 	{
@@ -99,10 +131,11 @@ void GfxModel::draw(const DXUTCamera& camera, const GfxViewport& viewport)
 	s_PipelineState.setViewport(viewport);
 	s_PipelineState.setScissor(scissor);
 	s_PipelineState.setFrameBuffer(g_GfxEngine->backBuffer());
+	s_PipelineState.Wireframe = wireframe;
 
-	GfxScopeGpuMarker(DrawModel, Color::randomColor());
 	g_GfxEngine->bindGfxPipelineState(&s_PipelineState);
 
+	GfxScopeGpuMarker(DrawModel, Color::randomColor());
 	for (uint32_t i = 0u; i < m_Meshes.size(); ++i)
 	{
 		s_PipelineState.setVertexBuffer(m_Meshes[i].VertexBuffer);
@@ -118,6 +151,15 @@ void GfxModel::draw(const DXUTCamera& camera, const GfxViewport& viewport)
 		}
 
 		g_GfxEngine->drawIndexed(m_Meshes[i].IndexCount, 1u, 0u, 0);
+	}
+
+	if (boundingBox)
+	{
+		s_PipelineState_BoundingBox.setViewport(viewport);
+		s_PipelineState_BoundingBox.setScissor(scissor);
+		s_PipelineState_BoundingBox.setFrameBuffer(g_GfxEngine->backBuffer());
+		g_GfxEngine->bindGfxPipelineState(&s_PipelineState_BoundingBox);
+		g_GfxEngine->draw(m_BoundingBoxVertexCount, 1u, 0u);
 	}
 }
 
