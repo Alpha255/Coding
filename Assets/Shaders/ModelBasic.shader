@@ -38,11 +38,9 @@ void main()
 layout(location = 0) in vec2 UV;
 layout(location = 0) out vec4 Color;
 
-layout(binding = 1) uniform sampler2D LinearSampler;
-
 void main()
 {
-	Color = texture(LinearSampler, UV, 0.0f);
-	///Color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	///Color = texture(LinearSampler, UV, 0.0f);
+	Color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 }
 #endif

@@ -49,6 +49,11 @@ public:
 		return m_Eye;
 	}
 
+	inline const Math::Vec3& lookAt() const
+	{
+		return m_LookAt;
+	}
+
 	inline void setScalers(float32_t rotateScaler = 0.01f, float32_t moveScaler = 5.0f)
 	{
 		m_Scaler = Math::Vec2(rotateScaler, moveScaler);

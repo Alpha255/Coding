@@ -13,4 +13,5 @@ private:
 	GfxGpuBufferPtr m_VertexBuffer = nullptr;
 	GfxGpuBufferPtr m_IndexBuffer = nullptr;
 	GfxPipelineState m_PipelineState{};
+	GfxModel m_Model;
 };
