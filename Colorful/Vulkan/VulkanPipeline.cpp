@@ -310,7 +310,7 @@ VkPipelineRasterizationStateCreateInfo VulkanGraphicsPipeline::makeRasterization
 		stateDesc.DepthBias,
 		stateDesc.DepthBiasClamp,
 		stateDesc.DepthBiasSlope,
-		0.0f
+		1.0f
 	};
 
 	return rasterizationState;

@@ -1,6 +1,6 @@
 #include "RenderTest.h"
 
-#if 1
+#if 0
 struct UniformBufferVS
 {
 	Matrix World;
@@ -119,7 +119,7 @@ void RenderTest::renderFrame()
 }
 #endif
 
-#if 0
+#if 1
 struct Vertex
 {
 	Vec3 Position;
@@ -200,13 +200,20 @@ void RenderTest::postInitialize()
 	m_IndexBuffer = g_GfxEngine->createIndexBuffer(eGpuReadWrite, indices.size() * sizeof(uint32_t), indices.data());
 	m_UniformBufferVS = g_GfxEngine->createUniformBuffer(sizeof(UniformBufferVS), nullptr);
 
+	GfxDepthStencilStateDesc depthStencilState
+	{
+		true,
+		true,
+		eRCompareOp::eLessOrEqual
+	};
+	m_PipelineState.setDepthStencilState(depthStencilState);
 	m_PipelineState.setShader(vertexShader);
 	m_PipelineState.setShader(fragmentShader);
 	m_PipelineState.setUniformBuffer(eVertexShader, m_UniformBufferVS, 0u);
 	m_PipelineState.setCombinedTextureSampler(eFragmentShader, texture, sampler, 1u);
 
 	m_Camera.setPerspective(Math::PI_Div4, (float32_t)m_Window->width() / m_Window->height(), 0.1f, 500.0f);
-	m_Camera.setView(Vec3(0.0f, 0.0f, 8.0f), Vec3(0.0f, 0.0f, 0.0f));
+	m_Camera.setView(Vec3(0.7f, 0.0f, 8.0f), Vec3(0.0f, 0.0f, 0.0f));
 }
 
 void RenderTest::renderFrame()
