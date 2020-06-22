@@ -41,7 +41,7 @@ void VulkanImage::queueCopyCommand(const AssetTool::TextureBinary& binary)
 					{
 						VK_IMAGE_ASPECT_COLOR_BIT,
 						j,
-						0u,
+						i,
 						1u
 					},
 					{
