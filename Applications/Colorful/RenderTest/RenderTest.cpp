@@ -261,11 +261,108 @@ void RenderTest::renderFrame()
 #endif
 
 #if 1
+
+GfxPipelineState s_Color;
+GfxPipelineState s_Outline;
+
+struct UniformBuffer
+{
+	Matrix Projection;
+	Matrix View;
+	Vec4 LightPos;
+	float32_t OutlineWidth;
+};
+
 void RenderTest::postInitialize()
 {
 	m_Model.load("venus.fbx");
 
 	m_Camera.setPerspective(Math::PI_Div4, (float32_t)m_Window->width() / m_Window->height(), 0.1f, 500.0f);
+	m_UniformBufferVS = g_GfxEngine->createUniformBuffer(sizeof(UniformBuffer), nullptr);
+
+	std::vector<GfxVertexAttributes> vertexAttrs
+	{
+		{
+			ePosition,
+			eRGB32_Float
+		},
+		{
+			eNormal,
+			eRGB32_Float
+		},
+		{
+			eTangent,
+			eRGB32_Float
+		},
+		{
+			eBiTangent,
+			eRGB32_Float
+		},
+		{
+			eTexcoord,
+			eRG32_Float
+		},
+		{
+			eColor,
+			eRGBA32_Float
+		}
+	};
+
+	s_Color.setUniformBuffer(eVertexShader, m_UniformBufferVS, 0u);
+	s_Color.Shaders[eVertexShader] = g_GfxEngine->createVertexShader("Color.shader");
+	s_Color.Shaders[eFragmentShader] = g_GfxEngine->createFragmentShader("Color.shader");
+	s_Color.Shaders[eVertexShader]->setInputLayout(vertexAttrs, alignof(GfxModel::GfxVertex));
+	s_Color.DepthStencilStateDesc = GfxDepthStencilStateDesc
+	{
+		true,
+		true,
+		eRCompareOp::eLessOrEqual,
+		true,
+		0xFF,
+		0xFF,
+		{
+			eRStencilOp::eReplace,
+			eRStencilOp::eReplace,
+			eRStencilOp::eReplace,
+			eRCompareOp::eAlways,
+			1u
+		},
+		{
+			eRStencilOp::eReplace,
+			eRStencilOp::eReplace,
+			eRStencilOp::eReplace,
+			eRCompareOp::eAlways,
+			1u
+		}
+	};
+
+	s_Outline.setUniformBuffer(eVertexShader, m_UniformBufferVS, 0u);
+	s_Outline.Shaders[eVertexShader] = g_GfxEngine->createVertexShader("Outline.shader");
+	s_Outline.Shaders[eFragmentShader] = g_GfxEngine->createFragmentShader("Outline.shader");
+	s_Outline.Shaders[eVertexShader]->setInputLayout(vertexAttrs, alignof(GfxModel::GfxVertex));
+	s_Outline.DepthStencilStateDesc = GfxDepthStencilStateDesc
+	{
+		false,
+		true,
+		eRCompareOp::eLessOrEqual,
+		true, 
+		0xFF,
+		0xFF,
+		{
+			eRStencilOp::eKeep,
+			eRStencilOp::eReplace,
+			eRStencilOp::eKeep,
+			eRCompareOp::eNotEqual,
+			1u
+		},
+		{
+			eRStencilOp::eKeep,
+			eRStencilOp::eReplace,
+			eRStencilOp::eKeep,
+			eRCompareOp::eNotEqual,
+			1u
+		}
+	};
 
 	auto boundingBox = m_Model.boundingBox();
 	auto center = boundingBox.center();
@@ -282,12 +379,35 @@ void RenderTest::renderFrame()
 		(float32_t)m_Window->width(),
 		(float32_t)m_Window->height()
 	};
+	GfxScissor scissor
+	{
+		0.0f,
+		0.0f,
+		(float32_t)m_Window->width(),
+		(float32_t)m_Window->height()
+	};
+	s_Color.Viewport = viewport;
+	s_Color.Scissor = scissor;
+	s_Color.FrameBuffer = g_GfxEngine->backBuffer();
+
+	s_Outline.Viewport = viewport;
+	s_Outline.Scissor = scissor;
+	s_Outline.FrameBuffer = g_GfxEngine->backBuffer();
+
+	static float32_t s_OutlineWidth = 0.05f;
+	UniformBuffer ubo
+	{
+		m_Camera.projectionMatrix(),
+		m_Camera.viewMatrix(),
+		Vec4(0.0f, -2.0f, 1.0f, 0.0f),
+		s_OutlineWidth
+	};
 	
-	static bool8_t s_Wireframe = false;
-	static bool8_t s_BoundingBox = false;
-	m_Model.draw(m_Camera, viewport, s_Wireframe, s_BoundingBox);
+	m_Model.draw(&s_Color);
+	m_Model.draw(&s_Outline);
+
 	ImGui::Text("FrameTime: %.2f ms, FPS: %.2f", m_Profile.FrameTime, m_Profile.FPS);
-	ImGui::Checkbox("Wireframe", &s_Wireframe);
+	ImGui::SliderFloat("Outline Width: ", &s_OutlineWidth, 0.01f, 0.1f, "%.2f", 0.01f);
 }
 #endif
 

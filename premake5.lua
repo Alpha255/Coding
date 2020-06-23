@@ -406,16 +406,20 @@ workspace "Miscellaneous"
 				[""] = { "./Applications/Colorful/RenderTest/**" },
 				["Configuration"] = { "./Out/Configurations.json" },
 				["Shaders"] = { 
-					"./Assets/Shaders/Test/RenderTest.shader", 
 					"./Assets/Shaders/Test/TextureArray.shader",
+					"./Assets/Shaders/Test/Texture.shader",
+					"./Assets/Shaders/Test/Color.shader",
+					"./Assets/Shaders/Test/Outline.shader",
 					"./Assets/Shaders/ImGui.shader", 
 					"./Assets/Shaders/ModelBasic.shader",
 				},
 			}
 			files { 
 				"./Applications/Colorful/RenderTest/**",
-				"./Assets/Shaders/Test/RenderTest.shader",
 				"./Assets/Shaders/Test/TextureArray.shader",
+				"./Assets/Shaders/Test/Texture.shader",
+				"./Assets/Shaders/Test/Color.shader",
+				"./Assets/Shaders/Test/Outline.shader",
 				"./Assets/Shaders/ImGui.shader",
 				"./Assets/Shaders/ModelBasic.shader",
 				"./Applications/Resource.h"

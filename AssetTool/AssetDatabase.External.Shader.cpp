@@ -174,7 +174,7 @@ AssetTool::ShaderBinary AssetDatabase::tryToGetShaderBinary(
 	Commandline += " ";
 	Commandline += inputFile;
 
-	verify(Gear::executeProcess(Commandline, true));
+	verify_Log(Gear::executeProcess(Commandline, true));
 
 	Gear::File spirvFile(outputFile);
 	size_t spirvSize = spirvFile.size();

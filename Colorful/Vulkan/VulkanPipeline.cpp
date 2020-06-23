@@ -335,7 +335,7 @@ VkPipelineDepthStencilStateCreateInfo VulkanGraphicsPipeline::makeDepthStencilSt
 			VulkanEnum::toCompareOp(stateDesc.FrontFace.CompareOp),
 			stateDesc.StencilReadMask,
 			stateDesc.StencilWriteMask,
-			0u
+			stateDesc.FrontFace.Reference
 		},
 		{
 			VulkanEnum::toStencilOp(stateDesc.BackFace.FailOp),
@@ -344,7 +344,7 @@ VkPipelineDepthStencilStateCreateInfo VulkanGraphicsPipeline::makeDepthStencilSt
 			VulkanEnum::toCompareOp(stateDesc.BackFace.CompareOp),
 			stateDesc.StencilReadMask,
 			stateDesc.StencilWriteMask,
-			0u
+			stateDesc.BackFace.Reference
 		},
 		0.0f,
 		1.0f

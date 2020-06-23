@@ -86,6 +86,7 @@ struct GfxDepthStencilStateDesc
 		eRStencilOp PassOp = eRStencilOp::eKeep;
 		eRStencilOp DepthFailOp = eRStencilOp::eKeep;
 		eRCompareOp CompareOp = eRCompareOp::eAlways;
+		uint32_t Reference = 0u;
 	};
 
 	bool8_t EnableDepth = true;
