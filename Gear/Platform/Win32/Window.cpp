@@ -181,36 +181,6 @@ void Window::processMessage(uint32_t message, uint64_t wParam, int64_t lParam)
 	case WM_KEYDOWN:
 		switch (wParam)
 		{
-		case VK_LEFT:
-			m_Message.Key = eKeyboardKey::eKey_Left;
-			break;
-		case VK_RIGHT:
-			m_Message.Key = eKeyboardKey::eKey_Right;
-			break;
-		case VK_UP:
-			m_Message.Key = eKeyboardKey::eKey_Up;
-			break;
-		case VK_DOWN:
-			m_Message.Key = eKeyboardKey::eKey_Down;
-			break;
-		case VK_HOME:
-			m_Message.Key = eKeyboardKey::eKey_Home;
-			break;
-		case VK_CONTROL:
-			m_Message.Key = eKeyboardKey::eKey_Ctrl;
-			break;
-		case VK_SHIFT:
-			m_Message.Key = eKeyboardKey::eKey_Shift;
-			break;
-		case VK_PRIOR:
-			m_Message.Key = eKeyboardKey::eKey_PageUp;
-			break;
-		case VK_NEXT:
-			m_Message.Key = eKeyboardKey::eKey_PageDown;
-			break;
-		case VK_F1:
-			m_Message.Key = eKeyboardKey::eKey_F1;
-			break;
 		case 'W':
 			m_Message.Key = eKeyboardKey::eKey_W;
 			break;
@@ -229,9 +199,47 @@ void Window::processMessage(uint32_t message, uint64_t wParam, int64_t lParam)
 		case 'E':
 			m_Message.Key = eKeyboardKey::eKey_E;
 			break;
+		case VK_LEFT:
+			m_Message.Key = eKeyboardKey::eKey_Left;
+			break;
+		case VK_RIGHT:
+			m_Message.Key = eKeyboardKey::eKey_Right;
+			break;
+		case VK_UP:
+			m_Message.Key = eKeyboardKey::eKey_Up;
+			break;
+		case VK_DOWN:
+			m_Message.Key = eKeyboardKey::eKey_Down;
+			break;
+		case VK_HOME:
+			m_Message.Key = eKeyboardKey::eKey_Home;
+			break;
+		case VK_CONTROL:
+			m_Message.Key = eKeyboardKey::eKey_Ctrl;
+			break;
+		case VK_MENU:
+			break;
+		case VK_SHIFT:
+			m_Message.Key = eKeyboardKey::eKey_Shift;
+			break;
+		case VK_PRIOR:
+			m_Message.Key = eKeyboardKey::eKey_PageUp;
+			break;
+		case VK_NEXT:
+			m_Message.Key = eKeyboardKey::eKey_PageDown;
+			break;
+		case VK_F1:
+			m_Message.Key = eKeyboardKey::eKey_F1;
+			break;
 		default:
 			m_Message.Key = eKeyboardKey::eKey_Other;
 			break;
+		}
+		break;
+	case WM_SYSKEYDOWN:
+		if (lParam && 0x1d)
+		{
+			m_Message.Key = eKeyboardKey::eKey_Alt;
 		}
 		break;
 	case WM_KEYUP:

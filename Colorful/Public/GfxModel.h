@@ -79,7 +79,11 @@ public:
 
 	void draw(const DXUTCamera& camera, const GfxViewport& viewport, bool8_t wireframe = false, bool8_t boundingBox = false);
 	void draw(const GfxPipelineState* state);
-	void focusCamera(DXUTCamera& camera);
+	
+	inline AABB boundingBox() const
+	{
+		return m_BoundingBox;
+	}
 protected:
 	friend class AssetTool::AssetDatabase;
 

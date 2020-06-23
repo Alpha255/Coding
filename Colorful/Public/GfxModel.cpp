@@ -95,13 +95,6 @@ void GfxModel::load(const std::string& modelName)
 	initPipelineState();
 }
 
-void GfxModel::focusCamera(DXUTCamera& camera)
-{
-	auto lookAt = m_BoundingBox.center();
-	auto eye = lookAt + Vec3(0.0f, 0.0f, -5.0f);
-	camera.setView(eye, lookAt);
-}
-
 void GfxModel::draw(const DXUTCamera& camera, const GfxViewport& viewport, bool8_t wireframe, bool8_t boundingBox)
 {
 	if (!m_Valid)

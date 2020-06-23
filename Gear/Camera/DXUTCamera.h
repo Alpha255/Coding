@@ -49,11 +49,6 @@ public:
 		return m_Eye;
 	}
 
-	inline const Math::Vec3& lookAt() const
-	{
-		return m_LookAt;
-	}
-
 	inline void setScalers(float32_t rotateScaler = 0.01f, float32_t moveScaler = 5.0f)
 	{
 		m_Scaler = Math::Vec2(rotateScaler, moveScaler);
@@ -72,6 +67,7 @@ protected:
 	bool8_t isReset(const struct WindowMessage& message) const;
 	bool8_t isLButtonDown(const struct WindowMessage& message) const;
 	bool8_t isRButtonDown(const struct WindowMessage& message) const;
+	bool8_t isMouseButtonDown(const struct WindowMessage& message) const;
 private:
 	Math::Vec3 m_Eye;
 	Math::Vec3 m_LookAt;

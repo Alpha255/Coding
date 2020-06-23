@@ -93,7 +93,7 @@ void DXUTCamera::updateKeys(const WindowMessage& message)
 		m_KeyDirection.z += delta * 0.005f;
 	}
 
-	if (isLButtonDown(message) || isRButtonDown(message))
+	if (isMouseButtonDown(message))
 	{
 		float32_t percentNew = 1.0f / m_SmoothMouse;
 		float32_t percentOld = 1.0f - percentNew;
@@ -110,6 +110,11 @@ void DXUTCamera::updateKeys(const WindowMessage& message)
 	else
 	{
 		m_LastMousePos = message.Mouse.Pos;
+	}
+
+	if (message.Mouse.Middle.KeyDown)
+	{
+		m_KeyDirection += m_MouseDelta;
 	}
 }
 
@@ -128,6 +133,11 @@ bool8_t DXUTCamera::isRButtonDown(const WindowMessage& message) const
 	return message.Mouse.Right.KeyDown;
 }
 
+bool8_t DXUTCamera::isMouseButtonDown(const WindowMessage& message) const
+{
+	return message.Mouse.Left.KeyDown || message.Mouse.Right.KeyDown || message.Mouse.Middle.KeyDown;
+}
+
 void DXUTCamera::processMessage(const WindowMessage& message, float32_t elapsedTime)
 {
 	if (isReset(message))
@@ -141,46 +151,49 @@ void DXUTCamera::processMessage(const WindowMessage& message, float32_t elapsedT
 
 	Math::Vec3 deltaPos = m_Velocity * elapsedTime;
 
-#if 1
-	if (isLButtonDown(message))
+	if (message.Key == eKeyboardKey::eKey_Alt)
 	{
-		float32_t deltaYaw = m_RotateVelocity.x;
-		float32_t deltaPitch = m_RotateVelocity.y;
+		m_Eye -= deltaPos;
 
-		m_Pitch += deltaPitch;
-		m_Yaw += deltaYaw;
+		if (isLButtonDown(message))
+		{
+			m_RotateDelta.x += m_MouseDelta.y;
+			m_RotateDelta.y -= m_MouseDelta.x;
+		}
 
-		/// Limit pitch to straight up or straight down
-		m_Pitch = std::max<float32_t>(-Math::PI_Div2, m_Pitch);
-		m_Pitch = std::min<float32_t>(Math::PI_Div2, m_Pitch);
+		m_View = Math::Matrix::rotateX(m_RotateDelta.x) * Math::Matrix::rotateY(m_RotateDelta.y) * Math::Matrix::translate(m_Eye);
 	}
-
-	Math::Vec3 up(0.0f, 1.0f, 0.0f);
-	Math::Vec3 forward(0.0f, 0.0f, 1.0f);
-	Math::Matrix rotate = Math::Matrix::rotateRollPitchYaw(m_Pitch, m_Yaw, 0.0f);
-
-	Math::Vec3 worldUp = Math::Vec3::transformCoord(up, rotate);
-	Math::Vec3 worldForward = Math::Vec3::transformCoord(forward, rotate);
-	Math::Vec3 deltaWorld = Math::Vec3::transformCoord(deltaPos, rotate);
-
-	m_Eye += deltaWorld;
-
-	/// Clip to boundary
-
-	m_LookAt = m_Eye + worldForward;
-	m_View = Math::Matrix::lookAtLH(m_Eye, m_LookAt, worldUp);
-	m_World = Math::Matrix::inverse(m_View);
-#else
-	m_Eye -= deltaPos;
-
-	if (isLButtonDown(message))
+	else
 	{
-		m_RotateDelta.x += m_MouseDelta.y;
-		m_RotateDelta.y -= m_MouseDelta.x;
-	}
+		if (isLButtonDown(message) || isRButtonDown(message))
+		{
+			float32_t deltaYaw = m_RotateVelocity.x;
+			float32_t deltaPitch = m_RotateVelocity.y;
 
-	m_View = Math::Matrix::rotateX(m_RotateDelta.x) * Math::Matrix::rotateY(m_RotateDelta.y) * Math::Matrix::translate(m_Eye);
-#endif
+			m_Pitch += deltaPitch;
+			m_Yaw += deltaYaw;
+
+			/// Limit pitch to straight up or straight down
+			m_Pitch = std::max<float32_t>(-Math::PI_Div2, m_Pitch);
+			m_Pitch = std::min<float32_t>(Math::PI_Div2, m_Pitch);
+		}
+
+		Math::Vec3 up(0.0f, 1.0f, 0.0f);
+		Math::Vec3 forward(0.0f, 0.0f, 1.0f);
+		Math::Matrix rotate = Math::Matrix::rotateRollPitchYaw(m_Pitch, m_Yaw, 0.0f);
+
+		Math::Vec3 worldUp = Math::Vec3::transformCoord(up, rotate);
+		Math::Vec3 worldForward = Math::Vec3::transformCoord(forward, rotate);
+		Math::Vec3 deltaWorld = Math::Vec3::transformCoord(deltaPos, rotate);
+
+		m_Eye += deltaWorld;
+
+		/// Clip to boundary
+
+		m_LookAt = m_Eye + worldForward;
+		m_View = Math::Matrix::lookAtLH(m_Eye, m_LookAt, worldUp);
+		m_World = Math::Matrix::inverse(m_View);
+	}
 }
 
 namespaceEnd(Gear)
