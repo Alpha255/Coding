@@ -156,7 +156,7 @@ void GfxModel::draw(const DXUTCamera& camera, const GfxViewport& viewport, bool8
 	}
 }
 
-void GfxModel::draw(const GfxPipelineState* state)
+void GfxModel::draw(GfxPipelineState* state)
 {
 	if (!m_Valid)
 	{
@@ -169,8 +169,8 @@ void GfxModel::draw(const GfxPipelineState* state)
 
 	for (uint32_t i = 0u; i < m_Meshes.size(); ++i)
 	{
-		s_PipelineState.setVertexBuffer(m_Meshes[i].VertexBuffer);
-		s_PipelineState.setIndexBuffer(m_Meshes[i].IndexBuffer);
+		state->setVertexBuffer(m_Meshes[i].VertexBuffer);
+		state->setIndexBuffer(m_Meshes[i].IndexBuffer);
 		g_GfxEngine->drawIndexed(m_Meshes[i].IndexCount, 1u, 0u, 0);
 	}
 }

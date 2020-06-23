@@ -277,7 +277,6 @@ void RenderTest::postInitialize()
 {
 	m_Model.load("venus.fbx");
 
-	m_Camera.setPerspective(Math::PI_Div4, (float32_t)m_Window->width() / m_Window->height(), 0.1f, 500.0f);
 	m_UniformBufferVS = g_GfxEngine->createUniformBuffer(sizeof(UniformBuffer), nullptr);
 
 	std::vector<GfxVertexAttributes> vertexAttrs
@@ -368,6 +367,7 @@ void RenderTest::postInitialize()
 	auto center = boundingBox.center();
 	center += Vec3(0.0f, 10.0f, 10.0f);
 	m_Camera.setView(center, Vec3(0.0f, -6.0f, 0.0f));
+	m_Camera.setPerspective(Math::PI_Div4, (float32_t)m_Window->width() / m_Window->height(), 0.1f, 500.0f);
 }
 
 void RenderTest::renderFrame()
@@ -402,12 +402,14 @@ void RenderTest::renderFrame()
 		Vec4(0.0f, -2.0f, 1.0f, 0.0f),
 		s_OutlineWidth
 	};
+	m_UniformBufferVS->update(&ubo, sizeof(UniformBuffer), 0u);
 	
+	///m_Model.draw(m_Camera, viewport);
 	m_Model.draw(&s_Color);
 	m_Model.draw(&s_Outline);
 
 	ImGui::Text("FrameTime: %.2f ms, FPS: %.2f", m_Profile.FrameTime, m_Profile.FPS);
-	ImGui::SliderFloat("Outline Width: ", &s_OutlineWidth, 0.01f, 0.1f, "%.2f", 0.01f);
+	ImGui::SliderFloat("Outline Width: ", &s_OutlineWidth, 0.01f, 0.05f, "%.2f");
 }
 #endif
 

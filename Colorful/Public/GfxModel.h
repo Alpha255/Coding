@@ -78,7 +78,7 @@ public:
 	void createAsQuad();
 
 	void draw(const DXUTCamera& camera, const GfxViewport& viewport, bool8_t wireframe = false, bool8_t boundingBox = false);
-	void draw(const GfxPipelineState* state);
+	void draw(GfxPipelineState* state);
 	
 	inline AABB boundingBox() const
 	{
