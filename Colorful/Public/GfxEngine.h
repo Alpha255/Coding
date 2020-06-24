@@ -2,6 +2,7 @@
 
 #include "Colorful/Public/ImGui/ImGui.h"
 #include "Colorful/Public/GfxModel.h"
+#include "Colorful/Public/GfxFactory.h"
 
 namespace Gear
 {
@@ -141,16 +142,9 @@ public:
 	virtual void beginDebugMarker(const char8_t* name, Vec4 color) = 0;
 	virtual void insertDebugMarker(const char8_t* name, Vec4 color) = 0;
 	virtual void endDebugMarker() = 0;
-
-	inline GfxTexturePtr& defaultTexture()
-	{
-		assert(m_DefaultTexture);
-		return m_DefaultTexture;
-	}
 protected:
 	RenderFrameCallback m_RenderFrameCallback;
 	ImGuiRendererPtr m_ImGuiRenderer = nullptr;
-	GfxTexturePtr m_DefaultTexture = nullptr;
 private:
 };
 using GfxEnginePtr = std::unique_ptr<GfxEngine>;

@@ -198,6 +198,7 @@ void VulkanDevice::create(VkInstance instance)
 	VulkanPipelinePool::initialize(m_LogicalDevice.Handle);
 	VulkanMainDescriptorPool::initialize(m_LogicalDevice.Handle, m_PhysicalDevice.Handle);
 	VulkanRenderPassManager::initialize(m_LogicalDevice.Handle);
+	GfxFactory::initialize();
 }
 
 void VulkanDevice::destroy()

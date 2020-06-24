@@ -25,8 +25,6 @@ void VulkanEngine::initialize(uint64_t windowHandle, const Gear::Configurations&
 
 	m_ImGuiRenderer = std::make_unique<ImGuiRenderer>();
 
-	m_DefaultTexture = createTexture("white.dds");
-
 	if (m_ActiveCmdBuffer == nullptr)
 	{
 		m_ActiveCmdBuffer = VulkanQueueManager::instance()->allocGfxCommandBuffer();

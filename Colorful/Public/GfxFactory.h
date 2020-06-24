@@ -18,6 +18,7 @@ public:
 		return m_DefaultTexture;
 	}
 protected:
+	GfxFactory();
 private:
 	GfxSamplerPtr m_LinearSampler = nullptr;
 	GfxTexturePtr m_DefaultTexture = nullptr;

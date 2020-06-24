@@ -45,11 +45,8 @@ ImGuiRenderer::ImGuiRenderer()
 	vertexShader->setInputLayout(vertexAttrs, alignof(ImDrawVert));
 	m_UniformBuffer = g_GfxEngine->createUniformBuffer(sizeof(UniformBuffer), nullptr);
 
-	GfxSamplerDesc samplerDesc{};
-	auto sampler = g_GfxEngine->createSampler(samplerDesc);
-
 	m_PipelineState.setUniformBuffer(eVertexShader, m_UniformBuffer, 0u);
-	m_PipelineState.setCombinedTextureSampler(eFragmentShader, fontTex, sampler, 1u);
+	m_PipelineState.setCombinedTextureSampler(eFragmentShader, fontTex, GfxFactory::instance()->linearSampler(), 1u);
 	m_PipelineState.setShader(vertexShader);
 	m_PipelineState.setShader(fragmentShader);
 

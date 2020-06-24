@@ -76,7 +76,6 @@ template <class T> T* LazySingleton<T>::s_Instance = nullptr;
 
 #define lazySingletonDeclare(className)      \
 private:                                     \
-	className() = default;                   \
 	~className() = default;                  \
 	friend class Gear::LazySingleton<className>;
 
