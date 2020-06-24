@@ -22,7 +22,8 @@ function appLinks()
 		"Colorful",
 		"ImGui",
 		"gear",
-		"assetTool"
+		"assetTool",
+		"rttr_core"
 	}
 end
 
@@ -108,7 +109,12 @@ workspace "Miscellaneous"
 			location "./Projects"
 			files "./Colorful/**"
 			targetdir "$(SolutionDir)Out\\Libs\\"
-			includedirs { "$(SolutionDir)", "$(SolutionDir)ThirdParty\\VulkanSDK\\Include" }
+			includedirs { 
+				"$(SolutionDir)", 
+				"$(SolutionDir)ThirdParty\\VulkanSDK\\Include",
+				"$(SolutionDir)ThirdParty\\rttr\\src", 
+				"$(SolutionDir)ThirdParty\\rttr\\build\\src"
+			}
 
 	
 	group "Fort"
@@ -250,6 +256,44 @@ workspace "Miscellaneous"
   					"_LIB",
   					"_CRT_STDIO_ARBITRARY_WIDE_SPECIFIERS",
   				}
+  		project "rttr_core"
+  			kind "SharedLib"
+  			location "./Projects"
+  			targetdir "$(SolutionDir)Out\\"
+  			implibname "$(SolutionDir)Out\\Libs\\$(ProjectName)"
+  			files {
+  				"./ThirdParty/rttr/src/rttr/**",
+  				"./ThirdParty/rttr/build/src/rttr/detail/base/version.h",
+  			}
+  			removefiles {
+  				"./ThirdParty/rttr/src/rttr/detail/base/pch.h",
+  				"./ThirdParty/rttr/src/rttr/detail/base/version.h.in",
+  				"./ThirdParty/rttr/src/rttr/detail/base/version.rc.in",
+  				"./ThirdParty/rttr/src/rttr/detail/base/CMakeLists.txt",
+  				"./ThirdParty/rttr/src/rttr/detail/base/rttr.cmake",
+  			}
+  			includedirs { 
+				"$(SolutionDir)ThirdParty\\rttr\\src", 
+				"$(SolutionDir)ThirdParty\\rttr\\build\\src",
+			}
+  			filter { "configurations:Debug" }
+				defines { 
+					"WIN32",
+					"_WINDOWS",
+					"_DEBUG",
+					"RTTR_DLL_EXPORTS",
+					"RTTR_DLL",
+					"rttr_core_EXPORTS"
+				}
+			filter { "configurations:Release" }
+				defines { 
+					"WIN32",
+					"_WINDOWS",
+					"NDEBUG", 
+					"RTTR_DLL_EXPORTS",
+					"RTTR_DLL",
+					"rttr_core_EXPORTS"
+				}
 
   		project "assimp"
   			kind "SharedLib"

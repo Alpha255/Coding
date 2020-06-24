@@ -36,13 +36,18 @@ def generateHeaderFile():
 def preBuildDependencies():
 	try:
 		assimp_BuildPath = '.\\ThirdParty\\assimp\\build'
+		rttr_BuildPath = '.\\ThirdParty\\rttr\\build'
 		if not os.path.exists(assimp_BuildPath):
 			os.mkdir(assimp_BuildPath)
+		if not os.path.exists(rttr_BuildPath):
+			os.mkdir(rttr_BuildPath)
 	except OSError as err:
 		print('Failed to make directory: {0}'.format(err))
 
 	assimp_Commandline = 'cmake -S ./ThirdParty/assimp -B ./ThirdParty/assimp/build -G "Visual Studio 15 2017" -A x64'
 	executeCommand(assimp_Commandline)
+	rttr_Commandline = 'cmake -S ./ThirdParty/rttr -B ./ThirdParty/rttr/build -G "Visual Studio 15 2017" -A x64'
+	executeCommand(rttr_Commandline)
 
 def generateProjects_Win32():
 	commandline = 'premake5 vs2017'
