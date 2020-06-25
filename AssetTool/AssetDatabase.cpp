@@ -46,6 +46,11 @@ void AssetDatabase::initialize()
 #endif
 }
 
+std::string AssetDatabase::assetBasePath() const
+{
+	return s_BasePath;
+}
+
 Asset::eAssetType AssetDatabase::tryToGetAssetType(const std::string& assetName)
 {
 	auto assetFormatPtr = s_AssetConfigJson.find("assetFormat");
@@ -114,6 +119,12 @@ Asset::eAssetType AssetDatabase::tryToGetAssetType(const std::string& assetName)
 			break;
 		case Asset::eLevel:
 			if (keyType == enumToString(eLevel))
+			{
+				assetType = i;
+			}
+			break;
+		case Asset::eMaterial:
+			if (keyType == enumToString(eMaterial))
 			{
 				assetType = i;
 			}

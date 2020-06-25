@@ -1,0 +1,25 @@
+{
+    "InputLayout": [
+        {
+            "Usage": "ePosition",
+            "Format": "eRG32_Float"
+        },
+        {
+            "Usage": "eTexcoord",
+            "Format": "eRG32_Float"
+        },
+        {
+            "Usage": "eColor",
+            "Format": "eRGBA8_UNorm"
+        }
+    ],
+    "ShaderNames": [
+        "ImGui.shader",
+        "",
+        "",
+        "",
+        "ImGui.shader",
+        ""
+    ],
+    "Name": "ImGui"
+}

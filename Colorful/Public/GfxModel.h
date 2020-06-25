@@ -77,7 +77,7 @@ public:
 	void load(const std::string& modelName);
 	void createAsQuad();
 
-	void draw(const DXUTCamera& camera, const GfxViewport& viewport, bool8_t wireframe = false, bool8_t boundingBox = false);
+	void draw(const DXUTCamera& camera, const GfxViewport& viewport, bool8_t wireframe = false);
 	void draw(GfxPipelineState* state);
 	
 	inline AABB boundingBox() const
@@ -96,6 +96,4 @@ private:
 	std::array<std::vector<GfxTexturePtr>, GfxTexture::eUnknown> m_Textures; /// aiTextureType_UNKNOWN
 	GfxGpuBufferPtr m_UniformBuffer;
 	static GfxPipelineState s_PipelineState;
-	static GfxPipelineState s_PipelineState_BoundingBox;
-	static GfxSamplerPtr s_LinearSampler;
 };

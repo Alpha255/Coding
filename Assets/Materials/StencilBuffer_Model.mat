@@ -1,0 +1,37 @@
+{
+    "InputLayout": [
+        {
+            "Usage": "ePosition",
+            "Format": "eRGB32_Float"
+        },
+        {
+            "Usage": "eNormal",
+            "Format": "eRGB32_Float"
+        },
+        {
+            "Usage": "eTangent",
+            "Format": "eRGB32_Float"
+        },
+        {
+            "Usage": "eBiTangent",
+            "Format": "eRGB32_Float"
+        },
+        {
+            "Usage": "eTexcoord",
+            "Format": "eRG32_Float"
+        },
+        {
+            "Usage": "eColor",
+            "Format": "eRGBA32_Float"
+        }
+    ],
+    "ShaderNames": [
+        "Color.shader",
+        "",
+        "",
+        "",
+        "Color.shader",
+        ""
+    ],
+    "Name": "StencilBuffer_Model"
+}

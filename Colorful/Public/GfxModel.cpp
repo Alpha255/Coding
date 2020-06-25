@@ -2,8 +2,6 @@
 #include "AssetTool/AssetDatabase.h"
 
 GfxPipelineState GfxModel::s_PipelineState;
-GfxPipelineState GfxModel::s_PipelineState_BoundingBox;
-GfxSamplerPtr GfxModel::s_LinearSampler = nullptr;
 
 struct UniformBufferVS
 {
@@ -22,68 +20,8 @@ void GfxModel::initPipelineState()
 		return;
 	}
 
-	auto vertexShader = g_GfxEngine->createVertexShader("ModelBasic.shader");
-	auto fragmentShader = g_GfxEngine->createFragmentShader("ModelBasic.shader");
-
-	std::vector<GfxVertexAttributes> vertexAttrs
-	{
-		{
-			ePosition,
-			eRGB32_Float
-		},
-		{
-			eNormal,
-			eRGB32_Float
-		},
-		{
-			eTangent,
-			eRGB32_Float
-		},
-		{
-			eBiTangent,
-			eRGB32_Float
-		},
-		{
-			eTexcoord,
-			eRG32_Float
-		},
-		{
-			eColor,
-			eRGBA32_Float
-		}
-	};
-	vertexShader->setInputLayout(vertexAttrs, alignof(GfxVertex));
-
+	s_PipelineState.setMaterial("ModelBasic.mat");
 	s_PipelineState.setUniformBuffer(eVertexShader, m_UniformBuffer, 0u);
-	s_PipelineState.setShader(vertexShader);
-	s_PipelineState.setShader(fragmentShader);
-
-	GfxSamplerDesc desc;
-	s_LinearSampler = g_GfxEngine->createSampler(desc);
-
-	vertexShader = g_GfxEngine->createVertexShader("ModelBasic_BoundingBox.shader");
-	fragmentShader = g_GfxEngine->createFragmentShader("ModelBasic_BoundingBox.shader");
-	vertexAttrs.clear();
-	GfxVertexAttributes attr
-	{
-		ePosition,
-		eRGB32_Float
-	};
-	vertexAttrs.emplace_back(std::move(attr));
-	vertexShader->setInputLayout(vertexAttrs, alignof(Vec3));
-	s_PipelineState_BoundingBox.setShader(vertexShader);
-	s_PipelineState_BoundingBox.setShader(fragmentShader);
-	s_PipelineState_BoundingBox.setUniformBuffer(eVertexShader, m_UniformBuffer, 0u);
-	GfxRasterizerStateDesc rasterizerState
-	{
-		eWireframe
-	};
-	s_PipelineState_BoundingBox.setRasterizerState(rasterizerState);
-	s_PipelineState_BoundingBox.setPrimitiveTopology(eTriangleStrip);
-
-	auto vertices = m_BoundingBox.vertices();
-	m_BoundingBoxVertexCount = (uint32_t)vertices.size();
-	s_PipelineState_BoundingBox.VertexBuffer = g_GfxEngine->createVertexBuffer(eGpuReadWrite, sizeof(Vec3) * vertices.size(), vertices.data());
 
 	s_Inited = true;
 }
@@ -95,7 +33,7 @@ void GfxModel::load(const std::string& modelName)
 	initPipelineState();
 }
 
-void GfxModel::draw(const DXUTCamera& camera, const GfxViewport& viewport, bool8_t wireframe, bool8_t boundingBox)
+void GfxModel::draw(const DXUTCamera& camera, const GfxViewport& viewport, bool8_t wireframe)
 {
 	if (!m_Valid)
 	{
@@ -139,20 +77,11 @@ void GfxModel::draw(const DXUTCamera& camera, const GfxViewport& viewport, bool8
 			if (m_Meshes[i].Material.Textures[j].Type == GfxTexture::eDiffuse)
 			{
 				auto &diffuseTexture = m_Textures[GfxTexture::eDiffuse][m_Meshes[i].Material.Textures[j].Index];
-				s_PipelineState.setCombinedTextureSampler(eFragmentShader, diffuseTexture, s_LinearSampler, 1u);
+				s_PipelineState.setCombinedTextureSampler(eFragmentShader, diffuseTexture, GfxFactory::instance()->linearSampler(), 1u);
 			}
 		}
 
 		g_GfxEngine->drawIndexed(m_Meshes[i].IndexCount, 1u, 0u, 0);
-	}
-
-	if (boundingBox)
-	{
-		s_PipelineState_BoundingBox.setViewport(viewport);
-		s_PipelineState_BoundingBox.setScissor(scissor);
-		s_PipelineState_BoundingBox.setFrameBuffer(g_GfxEngine->backBuffer());
-		g_GfxEngine->bindGfxPipelineState(&s_PipelineState_BoundingBox);
-		g_GfxEngine->draw(m_BoundingBoxVertexCount, 1u, 0u);
 	}
 }
 

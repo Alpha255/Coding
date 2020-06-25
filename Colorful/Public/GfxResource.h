@@ -53,8 +53,6 @@ public:
 	{
 		return m_Reflections;
 	}
-
-	virtual void setInputLayout(const std::vector<GfxVertexAttributes>&, size_t) {}
 protected:
 	eRShaderUsage m_Usage = eRShaderUsage_MaxEnum;
 	GfxShaderReflections m_Reflections;

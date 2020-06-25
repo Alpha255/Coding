@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Colorful/Public/GfxResource.h"
+#include "Colorful/Public/GfxMaterial.h"
 
 struct GfxViewport : public Vec4
 {
@@ -179,12 +179,6 @@ struct GfxPipelineState
 		PrimitiveTopology = primitiveTopology;
 	}
 
-	inline void setShader(const GfxShaderPtr& shader)
-	{
-		assert(shader && shader->usage() < eRShaderUsage_MaxEnum);
-		Shaders[shader->usage()] = shader;
-	}
-
 	inline void setViewport(const GfxViewport& viewport)
 	{
 		Viewport = viewport;
@@ -233,6 +227,15 @@ struct GfxPipelineState
 		ClearValue.Stencil = stencil;
 	}
 
+	inline void setMaterial(const std::string& matName)
+	{
+		if (!Material.isValid())
+		{
+			Material.Name = matName;
+			Material.deserialize();
+		}
+	}
+
 	void setCombinedTextureSampler(eRShaderUsage shader, const GfxTexturePtr& texture, const GfxSamplerPtr& sampler, uint32_t slot);
 	void setTexure(eRShaderUsage shader, const GfxTexturePtr& texture, uint32_t slot);
 	void setUniformBuffer(eRShaderUsage shader, const GfxGpuBufferPtr& buffer, uint32_t slot);
@@ -248,7 +251,6 @@ struct GfxPipelineState
 	eRIndexType IndexType = eRIndexType::eUInt32;
 	bool8_t Wireframe = false;
 
-	GfxShaderPtr Shaders[eRShaderUsage_MaxEnum]{};
 	GfxGpuBufferPtr VertexBuffer = nullptr; /// Support multi vertex stream???
 	GfxGpuBufferPtr IndexBuffer = nullptr;
 	GfxFrameBufferPtr FrameBuffer = nullptr;
@@ -257,17 +259,13 @@ struct GfxPipelineState
 #else
 	std::array<std::vector<GfxResourceInfo>, eRShaderUsage_MaxEnum> ResourceMap;
 #endif
+	GfxMaterial Material;
+	uint32_t VertexStrideAlignment = alignof(Vec4);
 
 	friend bool8_t operator==(const GfxPipelineState& left, const GfxPipelineState& right)
 	{
-		for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
-		{
-			if (left.Shaders[i] != right.Shaders[i])
-			{
-				return false;
-			}
-		}
-		return Gear::isEqual(left.RasterizerStateDesc, right.RasterizerStateDesc) &&
+		return left.Material.Name == right.Material.Name &&
+			Gear::isEqual(left.RasterizerStateDesc, right.RasterizerStateDesc) &&
 			Gear::isEqual(left.BlendStateDesc, right.BlendStateDesc) &&
 			Gear::isEqual(left.DepthStencilStateDesc, right.DepthStencilStateDesc) &&
 			left.PrimitiveTopology == right.PrimitiveTopology;

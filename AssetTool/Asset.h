@@ -54,6 +54,7 @@ public:
 		eModel,
 		eSound,
 		eLevel,
+		eMaterial,
 		eAssetType_MaxEnum
 	};
 

@@ -126,7 +126,7 @@ std::string File::stripExtension(const std::string &filePath, bool8_t bToLower)
 	return result;
 }
 
-void File::read(eReadAs readAs)
+void File::read(eFileMode readAs)
 {
 	int32_t mode = readAs == eBinary ? std::ios::in | std::ios::binary : std::ios::in;
 
@@ -136,6 +136,17 @@ void File::read(eReadAs readAs)
 	auto dataSize = size();
 	m_Data.reset(new byte8_t[dataSize]());
 	fileStream.read((char8_t *)m_Data.get(), dataSize);
+	fileStream.close();
+}
+
+void File::write(eFileMode wirteAs, const std::string& path, const byte8_t* content, size_t size)
+{
+	int32_t mode = wirteAs == eBinary ? std::ios::out | std::ios::binary : std::ios::out;
+
+	std::ofstream fileStream(path, mode);
+	assert(fileStream.is_open());
+
+	fileStream.write((const char8_t*)content, size);
 	fileStream.close();
 }
 

@@ -23,7 +23,7 @@ public:
 		std::vector<std::shared_ptr<FolderTree>> Children;
 	};
 
-	enum eReadAs
+	enum eFileMode
 	{
 		eText,
 		eBinary
@@ -73,7 +73,7 @@ public:
 		return m_RelPath;
 	}
 
-	inline std::shared_ptr<byte> data(eReadAs readAs = eText)
+	inline std::shared_ptr<byte> data(eFileMode readAs = eText)
 	{
 		if (!m_Data)
 		{
@@ -82,8 +82,14 @@ public:
 
 		return m_Data;
 	}
+
+	void read(eFileMode readAs = eText);
+	void write(eFileMode writeAs)
+	{
+		write(writeAs, m_FullPath, data().get(), m_Size);
+	}
+	static void write(eFileMode wirteAs, const std::string& path, const byte8_t* content, size_t size);
 protected:
-	void read(eReadAs readAs = eText);
 private:
 	size_t m_Size = 0ull;
 	std::string m_Name;

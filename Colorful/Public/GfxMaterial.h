@@ -9,6 +9,11 @@ struct GfxMaterial
 	GfxShaderPtr Shaders[eRShaderUsage_MaxEnum];
 	std::string Name;
 
+	inline bool8_t isValid() const
+	{
+		return Shaders[eVertexShader] != nullptr;
+	}
+
 	void serialize();
 	void deserialize();
 };

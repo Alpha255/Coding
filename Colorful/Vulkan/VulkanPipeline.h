@@ -93,6 +93,11 @@ protected:
 	VkPipelineColorBlendStateCreateInfo makeColorBlendState(
 		std::vector<VkPipelineColorBlendAttachmentState>& attachments, 
 		const GfxBlendStateDesc& stateDesc) const;
+	VkPipelineVertexInputStateCreateInfo makeInputLayout(
+		const std::vector<GfxVertexAttributes>& attrs,
+		std::vector<VkVertexInputBindingDescription>& inputBindings,
+		std::vector<VkVertexInputAttributeDescription>& inputAttrs,
+		uint32_t vertexAlignment) const;
 
 	void initShaderResourceMap(const GfxDescriptorLayoutDesc& desc);
 private:

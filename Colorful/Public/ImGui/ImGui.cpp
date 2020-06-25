@@ -24,31 +24,13 @@ ImGuiRenderer::ImGuiRenderer()
 		width * height * 4ull
 	);
 
-	auto vertexShader = g_GfxEngine->createVertexShader("ImGui.shader");
-	auto fragmentShader = g_GfxEngine->createFragmentShader("ImGui.shader");
-
-	std::vector<GfxVertexAttributes> vertexAttrs
-	{
-		{
-			ePosition,
-			eRG32_Float
-		},
-		{
-			eTexcoord,
-			eRG32_Float
-		},
-		{
-			eColor,
-			eRGBA8_UNorm
-		}
-	};
-	vertexShader->setInputLayout(vertexAttrs, alignof(ImDrawVert));
 	m_UniformBuffer = g_GfxEngine->createUniformBuffer(sizeof(UniformBuffer), nullptr);
 
+	m_PipelineState.setMaterial("ImGui.mat");
 	m_PipelineState.setUniformBuffer(eVertexShader, m_UniformBuffer, 0u);
 	m_PipelineState.setCombinedTextureSampler(eFragmentShader, fontTex, GfxFactory::instance()->linearSampler(), 1u);
-	m_PipelineState.setShader(vertexShader);
-	m_PipelineState.setShader(fragmentShader);
+	m_PipelineState.IndexType = eRIndexType::eUInt16;
+	m_PipelineState.VertexStrideAlignment = alignof(ImDrawVert);
 
 	GfxBlendStateDesc blendDesc{};
 	blendDesc.ColorBlendStates[0] = GfxBlendStateDesc::ColorBlendState
@@ -206,23 +188,23 @@ bool8_t ImGuiRenderer::update()
 		return false;
 	}
 
-	if (!m_VertexBuffer || totalVertexCount != drawData->TotalVtxCount)
+	if (!m_PipelineState.VertexBuffer || totalVertexCount != drawData->TotalVtxCount)
 	{
-		if (m_VertexBuffer)
+		if (m_PipelineState.VertexBuffer)
 		{
-			m_VertexBuffer->free();
+			m_PipelineState.VertexBuffer->free();
 		}
-		m_VertexBuffer = g_GfxEngine->createVertexBuffer(eGpuReadCpuWrite, totalVertexBufferSize, nullptr);
+		m_PipelineState.VertexBuffer = g_GfxEngine->createVertexBuffer(eGpuReadCpuWrite, totalVertexBufferSize, nullptr);
 		verties.reset(new ImDrawVert[drawData->TotalVtxCount]());
 		totalVertexCount = drawData->TotalVtxCount;
 	}
-	if (!m_IndexBuffer || totalIndexCount != drawData->TotalIdxCount)
+	if (!m_PipelineState.IndexBuffer || totalIndexCount != drawData->TotalIdxCount)
 	{
-		if (m_IndexBuffer)
+		if (m_PipelineState.IndexBuffer)
 		{
-			m_IndexBuffer->free();
+			m_PipelineState.IndexBuffer->free();
 		}
-		m_IndexBuffer = g_GfxEngine->createIndexBuffer(eGpuReadCpuWrite, totalIndexBufferSize, nullptr);
+		m_PipelineState.IndexBuffer = g_GfxEngine->createIndexBuffer(eGpuReadCpuWrite, totalIndexBufferSize, nullptr);
 		indices.reset(new ImDrawIdx[drawData->TotalIdxCount]());
 		totalIndexCount = drawData->TotalIdxCount;
 	}
@@ -240,11 +222,8 @@ bool8_t ImGuiRenderer::update()
 		indexOffset += drawList->IdxBuffer.Size;
 	}
 
-	m_VertexBuffer->update(verties.get(), totalVertexBufferSize, 0u);
-	m_IndexBuffer->update(indices.get(), totalIndexBufferSize, 0u);
-
-	m_PipelineState.setVertexBuffer(m_VertexBuffer);
-	m_PipelineState.setIndexBuffer(m_IndexBuffer, eRIndexType::eUInt16);
+	m_PipelineState.VertexBuffer->update(verties.get(), totalVertexBufferSize, 0u);
+	m_PipelineState.IndexBuffer->update(indices.get(), totalIndexBufferSize, 0u);
 
 	return true;
 }

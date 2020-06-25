@@ -25,16 +25,16 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(
 	const GfxPipelineState* state)
 {
 	assert(!isValid());
-	assert(state && state->Shaders[eVertexShader]);
+	assert(state && state->Material.isValid());
 	assert(renderPass != VK_NULL_HANDLE && pipelineCache != VK_NULL_HANDLE);
 
 	GfxDescriptorLayoutDesc descriptorLayoutDesc{};
 	std::vector<VkPipelineShaderStageCreateInfo> shaderStageCreateInfos;
 	for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
 	{
-		if (state->Shaders[i])
+		if (state->Material.Shaders[i])
 		{
-			auto shader = std::static_pointer_cast<VulkanShader>(state->Shaders[i]);
+			auto shader = std::static_pointer_cast<VulkanShader>(state->Material.Shaders[i]);
 
 			VkPipelineShaderStageCreateInfo shaderStageCreateInfo
 			{
@@ -55,8 +55,6 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(
 	initShaderResourceMap(descriptorLayoutDesc);
 	m_DescriptorSetLayout.create(device, descriptorLayoutDesc);
 	m_PipelineLayout.create(device, m_DescriptorSetLayout.Handle);
-
-	auto vertexShader = std::static_pointer_cast<VulkanShader>(state->Shaders[eVertexShader]);
 
 	VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo
 	{
@@ -97,9 +95,12 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(
 	};
 
 	std::vector<VkPipelineColorBlendAttachmentState> colorBlendAttachments;
+	std::vector<VkVertexInputBindingDescription> inputBindings;
+	std::vector<VkVertexInputAttributeDescription> inputAttrs;
 	auto depthStencilState = makeDepthStencilState(state->DepthStencilStateDesc);
 	auto rasterizationState = makeRasterizationState(state->RasterizerStateDesc);
 	auto blendState = makeColorBlendState(colorBlendAttachments, state->BlendStateDesc);
+	auto inputLayout = makeInputLayout(state->Material.InputLayout, inputBindings, inputAttrs, state->VertexStrideAlignment);
 
 	std::vector<VkDynamicState> dynamicStates
 	{
@@ -122,7 +123,7 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(
 		0u,
 		(uint32_t)shaderStageCreateInfos.size(),
 		shaderStageCreateInfos.data(),
-		&vertexShader->inputLayout(),
+		&inputLayout,
 		&inputAssemblyStateCreateInfo,
 		nullptr,
 		&viewportStateCreateInfo,
@@ -149,9 +150,9 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(
 
 	for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
 	{
-		if (state->Shaders[i])
+		if (state->Material.Shaders[i])
 		{
-			auto shader = std::static_pointer_cast<VulkanShader>(state->Shaders[i]);
+			auto shader = std::static_pointer_cast<VulkanShader>(state->Material.Shaders[i]);
 			shader->destroy(device);
 		}
 	}
@@ -403,6 +404,52 @@ VkPipelineColorBlendStateCreateInfo VulkanGraphicsPipeline::makeColorBlendState(
 	};
 
 	return blendState;
+}
+
+VkPipelineVertexInputStateCreateInfo VulkanGraphicsPipeline::makeInputLayout(
+	const std::vector<GfxVertexAttributes>& attrs, 
+	std::vector<VkVertexInputBindingDescription>& inputBindings, 
+	std::vector<VkVertexInputAttributeDescription>& inputAttrs,
+	uint32_t vertexAlignment) const
+{
+	/// Instancing??? Multi vertex stream???
+	inputBindings.resize(1u);
+	inputAttrs.resize(attrs.size());
+
+	uint32_t stride = 0u;
+	for (uint32_t i = 0u; i < attrs.size(); ++i)
+	{
+		inputAttrs[i] = VkVertexInputAttributeDescription
+		{
+			i,
+			0u,
+			VulkanEnum::toFormat(attrs[i].Format),
+			stride
+		};
+
+		stride += ((uint32_t)GfxVertexAttributes::formatStride(attrs[i].Format));
+		stride = (uint32_t)Gear::LinearAllocator::align_to(stride, vertexAlignment);
+	}
+
+	inputBindings[0] = VkVertexInputBindingDescription
+	{
+		0u,
+		stride,
+		VK_VERTEX_INPUT_RATE_VERTEX
+	};
+
+	VkPipelineVertexInputStateCreateInfo createInfo
+	{
+		VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
+		nullptr,
+		0u,
+		(uint32_t)inputBindings.size(),
+		inputBindings.data(),
+		(uint32_t)inputAttrs.size(),
+		inputAttrs.data()
+	};
+
+	return createInfo;
 }
 
 void VulkanGraphicsPipeline::initShaderResourceMap(const GfxDescriptorLayoutDesc& desc)

@@ -16,29 +16,12 @@ struct Vertex
 
 void RenderTest::postInitialize()
 {
-	auto vertexShader = g_GfxEngine->createVertexShader("Texture.shader");
-	auto fragmentShader = g_GfxEngine->createFragmentShader("Texture.shader");
-
-	GfxSamplerDesc samplerDesc{};
-	auto sampler = g_GfxEngine->createSampler(samplerDesc);
 	auto texture = g_GfxEngine->createTexture("metalplate01_rgba.ktx");
 
 	m_UniformBufferVS = g_GfxEngine->createUniformBuffer(sizeof(UniformBufferVS), nullptr);
 
-	std::vector<GfxVertexAttributes> vertexAttrs
+	std::vector<Vertex> vertices
 	{
-		{
-			ePosition,
-			eRGB32_Float
-		},
-		{
-			eTexcoord,
-			eRG32_Float
-		}
-	};
-	vertexShader->setInputLayout(vertexAttrs, alignof(Vertex));
-
-	std::vector<Vertex> vertices{
 		{
 			{ 1.0f, 1.0f, 0.0f },
 			{ 1.0f, 1.0f }
@@ -56,15 +39,15 @@ void RenderTest::postInitialize()
 			{  1.0f,  0.0f }
 		}
 	};
-	std::vector<uint32_t> indices{
+	std::vector<uint32_t> indices
+	{
 		0u, 1u, 2u, 2u, 3u, 0u
 	};
-	m_VertexBuffer = g_GfxEngine->createVertexBuffer(eGpuReadWrite, vertices.size() * sizeof(Vertex), vertices.data());
-	m_IndexBuffer = g_GfxEngine->createIndexBuffer(eGpuReadWrite, indices.size() * sizeof(uint32_t), indices.data());
 
-	m_PipelineState.setShader(vertexShader);
-	m_PipelineState.setShader(fragmentShader);
-	m_PipelineState.setCombinedTextureSampler(eFragmentShader, texture, sampler, 1u);
+	m_PipelineState.VertexBuffer = g_GfxEngine->createVertexBuffer(eGpuReadWrite, vertices.size() * sizeof(Vertex), vertices.data());
+	m_PipelineState.IndexBuffer = g_GfxEngine->createIndexBuffer(eGpuReadWrite, indices.size() * sizeof(uint32_t), indices.data());
+	m_PipelineState.setMaterial("Texture_Test.mat");
+	m_PipelineState.setCombinedTextureSampler(eFragmentShader, texture, GfxFactory::instance()->linearSampler(), 1u);
 	m_PipelineState.setUniformBuffer(eVertexShader, m_UniformBufferVS, 0u);
 
 	m_Camera.setPerspective(Math::PI_Div4, (float32_t)m_Window->width() / m_Window->height(), 0.1f, 500.0f);
@@ -105,8 +88,6 @@ void RenderTest::renderFrame()
 	m_PipelineState.setFrameBuffer(g_GfxEngine->backBuffer());
 	m_PipelineState.setViewport(viewport);
 	m_PipelineState.setScissor(scissor);
-	m_PipelineState.setVertexBuffer(m_VertexBuffer);
-	m_PipelineState.setIndexBuffer(m_IndexBuffer);
 	g_GfxEngine->bindGfxPipelineState(&m_PipelineState);
 
 	GfxScopeGpuMarker(DrawOpaque, Color::randomColor());
@@ -140,25 +121,7 @@ struct UniformBufferVS
 
 void RenderTest::postInitialize()
 {
-	auto vertexShader = g_GfxEngine->createVertexShader("TextureArray.shader");
-	auto fragmentShader = g_GfxEngine->createFragmentShader("TextureArray.shader");
-
-	GfxSamplerDesc samplerDesc{};
-	auto sampler = g_GfxEngine->createSampler(samplerDesc);
 	auto texture = g_GfxEngine->createTexture("texturearray_bc3_unorm.ktx");
-
-	std::vector<GfxVertexAttributes> vertexAttrs
-	{
-		{
-			ePosition,
-			eRGB32_Float
-		},
-		{
-			eTexcoord,
-			eRG32_Float
-		}
-	};
-	vertexShader->setInputLayout(vertexAttrs, alignof(Vertex));
 
 	std::vector<Vertex> vertices =
 	{
@@ -196,10 +159,11 @@ void RenderTest::postInitialize()
 	{
 		0,1,2, 0,2,3, 4,5,6,  4,6,7, 8,9,10, 8,10,11, 12,13,14, 12,14,15, 16,17,18, 16,18,19, 20,21,22, 20,22,23
 	};
-	m_VertexBuffer = g_GfxEngine->createVertexBuffer(eGpuReadWrite, vertices.size() * sizeof(Vertex), vertices.data());
-	m_IndexBuffer = g_GfxEngine->createIndexBuffer(eGpuReadWrite, indices.size() * sizeof(uint32_t), indices.data());
+	m_PipelineState.VertexBuffer = g_GfxEngine->createVertexBuffer(eGpuReadWrite, vertices.size() * sizeof(Vertex), vertices.data());
+	m_PipelineState.IndexBuffer = g_GfxEngine->createIndexBuffer(eGpuReadWrite, indices.size() * sizeof(uint32_t), indices.data());
 	m_UniformBufferVS = g_GfxEngine->createUniformBuffer(sizeof(UniformBufferVS), nullptr);
 
+	m_PipelineState.setMaterial("TextureArray_Test.mat");
 	GfxDepthStencilStateDesc depthStencilState
 	{
 		true,
@@ -207,10 +171,8 @@ void RenderTest::postInitialize()
 		eRCompareOp::eLessOrEqual
 	};
 	m_PipelineState.setDepthStencilState(depthStencilState);
-	m_PipelineState.setShader(vertexShader);
-	m_PipelineState.setShader(fragmentShader);
 	m_PipelineState.setUniformBuffer(eVertexShader, m_UniformBufferVS, 0u);
-	m_PipelineState.setCombinedTextureSampler(eFragmentShader, texture, sampler, 1u);
+	m_PipelineState.setCombinedTextureSampler(eFragmentShader, texture, GfxFactory::instance()->linearSampler(), 1u);
 
 	m_Camera.setPerspective(Math::PI_Div4, (float32_t)m_Window->width() / m_Window->height(), 0.1f, 500.0f);
 	m_Camera.setView(Vec3(0.7f, 0.0f, 8.0f), Vec3(0.0f, 0.0f, 0.0f));
@@ -249,8 +211,6 @@ void RenderTest::renderFrame()
 	m_PipelineState.setFrameBuffer(g_GfxEngine->backBuffer());
 	m_PipelineState.setViewport(viewport);
 	m_PipelineState.setScissor(scissor);
-	m_PipelineState.setVertexBuffer(m_VertexBuffer);
-	m_PipelineState.setIndexBuffer(m_IndexBuffer);
 	g_GfxEngine->bindGfxPipelineState(&m_PipelineState);
 
 	GfxScopeGpuMarker(DrawOpaque, Color::randomColor());
@@ -261,7 +221,6 @@ void RenderTest::renderFrame()
 #endif
 
 #if 1
-
 GfxPipelineState s_Color;
 GfxPipelineState s_Outline;
 
@@ -279,38 +238,8 @@ void RenderTest::postInitialize()
 
 	m_UniformBufferVS = g_GfxEngine->createUniformBuffer(sizeof(UniformBuffer), nullptr);
 
-	std::vector<GfxVertexAttributes> vertexAttrs
-	{
-		{
-			ePosition,
-			eRGB32_Float
-		},
-		{
-			eNormal,
-			eRGB32_Float
-		},
-		{
-			eTangent,
-			eRGB32_Float
-		},
-		{
-			eBiTangent,
-			eRGB32_Float
-		},
-		{
-			eTexcoord,
-			eRG32_Float
-		},
-		{
-			eColor,
-			eRGBA32_Float
-		}
-	};
-
+	s_Color.setMaterial("StencilBuffer_Model.mat");
 	s_Color.setUniformBuffer(eVertexShader, m_UniformBufferVS, 0u);
-	s_Color.Shaders[eVertexShader] = g_GfxEngine->createVertexShader("Color.shader");
-	s_Color.Shaders[eFragmentShader] = g_GfxEngine->createFragmentShader("Color.shader");
-	s_Color.Shaders[eVertexShader]->setInputLayout(vertexAttrs, alignof(GfxModel::GfxVertex));
 	s_Color.DepthStencilStateDesc = GfxDepthStencilStateDesc
 	{
 		true,
@@ -335,10 +264,8 @@ void RenderTest::postInitialize()
 		}
 	};
 
+	s_Outline.setMaterial("StencilBuffer_Outline.mat");
 	s_Outline.setUniformBuffer(eVertexShader, m_UniformBufferVS, 0u);
-	s_Outline.Shaders[eVertexShader] = g_GfxEngine->createVertexShader("Outline.shader");
-	s_Outline.Shaders[eFragmentShader] = g_GfxEngine->createFragmentShader("Outline.shader");
-	s_Outline.Shaders[eVertexShader]->setInputLayout(vertexAttrs, alignof(GfxModel::GfxVertex));
 	s_Outline.DepthStencilStateDesc = GfxDepthStencilStateDesc
 	{
 		false,
@@ -404,7 +331,6 @@ void RenderTest::renderFrame()
 	};
 	m_UniformBufferVS->update(&ubo, sizeof(UniformBuffer), 0u);
 	
-	///m_Model.draw(m_Camera, viewport);
 	m_Model.draw(&s_Color);
 	m_Model.draw(&s_Outline);
 

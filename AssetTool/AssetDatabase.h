@@ -19,6 +19,8 @@ public:
 	void tryToLoadModel(const std::string& modelName, __out GfxModel& gfxModel, GfxEngine* gfxEngine);
 
 	AssetPtr tryToGetAsset(const std::string& assetName);
+
+	std::string assetBasePath() const;
 protected:
 	Asset::eAssetType tryToGetAssetType(const std::string& assetName);
 };

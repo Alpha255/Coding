@@ -46,6 +46,9 @@
     ],
     "eLevel": [
       ".dat"
+    ],
+    "eMaterial": [
+      ".mat"
     ]
   }
 }
