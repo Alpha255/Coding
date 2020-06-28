@@ -66,8 +66,12 @@ private:
 
 int32_t main(int32_t argc, char8_t **argv)
 {	
-	std::vector<int> test(32, 1);
-	FakeSTL::Vector<int> testV;
+	std::vector<int> test(3, 1);
+	test._Myfirst();
+	auto maxSize = test.max_size();
+	FakeSTL::Vector<int> testV(3);
+	maxSize = testV.max_size();
+	///auto empty = testV.empty();
 
 	::srand((uint32_t)(time(nullptr)));
 

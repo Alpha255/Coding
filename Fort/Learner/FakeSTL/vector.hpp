@@ -267,22 +267,22 @@ public:
 	{
 	}
 
-	T1& getFirst() noexcept
+	T1& get_first() noexcept
 	{
 		return (*this);
 	}
 
-	const T1& getFirst() const noexcept
+	const T1& get_first() const noexcept
 	{
 		return (*this);
 	}
 
-	T2& getSecond() noexcept
+	T2& get_second() noexcept
 	{
 		return (Val2);
 	}
 
-	const T2& getSecond() const noexcept
+	const T2& get_second() const noexcept
 	{
 		return (Val2);
 	}
@@ -309,25 +309,30 @@ public:
 	{
 	}
 
-	T1& getFirst() noexcept
+	T1& get_first() noexcept
 	{
 		return (Val1);
 	}
 
-	const T1& getFirst() const noexcept
+	const T1& get_first() const noexcept
 	{
 		return (Val1);
 	}
 
-	T2& getSecond() noexcept
+	T2& get_second() noexcept
 	{
 		return (Val2);
 	}
 
-	const T2& getSecond() const noexcept
+	const T2& get_second() const noexcept
 	{
 		return (Val2);
 	}
+};
+
+template<class T>
+class allocator
+{
 };
 
 template<class T>
@@ -338,8 +343,48 @@ public:
 		: Pair()
 	{
 	}
+
+	VectorValue<T>& get_data() noexcept
+	{
+		return Pair.get_second();
+	}
+
+	const VectorValue<T>& get_data() const noexcept
+	{
+		return Pair.get_second();
+	}
+
+	T*& first() noexcept
+	{
+		return get_data().First;
+	}
+
+	const T*& first() const noexcept
+	{
+		return get_data().First;
+	}
+
+	T*& last() noexcept
+	{
+		return get_data().Last;
+	}
+
+	const T*& last() const noexcept
+	{
+		return get_data().Last;
+	}
+
+	T*& end() noexcept
+	{
+		return get_data().End;
+	}
+
+	const T*& end() const noexcept
+	{
+		return get_data().End;
+	}
 private:
-	CompressedPair<T, VectorValue<T>> Pair;
+	CompressedPair<allocator<T>, VectorValue<T>> Pair;
 };
 
 template<class T>
@@ -352,6 +397,14 @@ public:
 
 	explicit Vector(const size_t count)
 	{
+		if (buy(count))
+		{
+			initialize(first(), count, std::is_pod<T>());
+		}
+		else
+		{
+			assert(0);
+		}
 	}
 
 	Vector(const size_t count, const T& val)
@@ -396,8 +449,61 @@ public:
 	void push_back(T&& val)
 	{
 	}
+
+	size_t max_size() const noexcept
+	{
+		return std::min(static_cast<size_t>(std::numeric_limits<ptrdiff_t>::max()), static_cast<size_t>(-1) / sizeof(T));
+	}
+
+	bool8_t empty() const noexcept
+	{
+		return first() == last();
+	}
+
+	size_t size() const noexcept
+	{
+		return static_cast<size_t>(last() - first());
+	}
+
+	size_t capacity() const noexcept
+	{
+		return static_cast<size_t>(end() - first());
+	}
 protected:
 private:
+	bool8_t buy(const size_t count)
+	{
+		first() = last() = end() = nullptr;
+
+		if (count == 0)
+		{
+			return false;
+		}
+		assert(count <= max_size());
+
+		first() = new T[count]();
+		last() = first();
+		end() = first() + count;
+
+		return true;
+	}
+
+	void initialize(T* first, size_t count, bool8_t useMemset)
+	{
+		if (useMemset)
+		{
+			char8_t* const firstCh = reinterpret_cast<char8_t*>(first);
+			char8_t* const lastCh = reinterpret_cast<char8_t*>(first + count);
+			memset(first, 0, static_cast<size_t>(lastCh - firstCh));
+		}
+		else
+		{
+			for (uint32_t i = 0u; i < count; ++i)
+			{
+				new (first) T;
+			}
+		}
+	}
 };
 
 namespaceEnd(FakeSTL)
