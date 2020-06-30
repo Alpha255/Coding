@@ -14,13 +14,12 @@ public:
 
 	inline pointer alloc(size_t count)
 	{
-		return new T[count]();
+		return static_cast<pointer>(std::malloc(sizeof(T) * count));
 	}
 
-	inline void free(pointer& ptr)
+	inline void free(pointer ptr)
 	{
-		delete[] ptr;
-		ptr = nullptr;
+		std::free(ptr);
 	}
 protected:
 private:
@@ -217,8 +216,31 @@ public:
 		}
 	}
 
+	template<class Iter>
+	Vector(Iter first, Iter last)
+	{
+		assert(last >= first);
+		const size_t count = static_cast<size_t>(std::distance(first, last));
+		if (buy(count))
+		{
+			copy(first, last, this->first());
+		}
+		else
+		{
+			assert(0);
+		}
+	}
+
 	Vector(std::initializer_list<T> list)
 	{
+		if (buy(list.size()))
+		{
+			copy(list.begin(), list.end(), first());
+		}
+		else
+		{
+			assert(0);
+		}
 	}
 
 	Vector(const Vector& right)
@@ -227,10 +249,15 @@ public:
 		{
 			copy(right.first(), right.last(), first());
 		}
+		else
+		{
+			assert(0);
+		}
 	}
 
 	Vector(Vector&& right) noexcept
 	{
+		move_from(right);
 	}
 
 	Vector& operator=(Vector&& right)
@@ -240,6 +267,19 @@ public:
 
 	~Vector() noexcept
 	{
+		if (first() != pointer())
+		{
+			if (!std::is_pod<T>())
+			{
+				destroy(first(), last());
+			}
+
+			allocator().free(first());
+
+			first() = pointer();
+			last() = pointer();
+			end() = pointer();
+		}
 	}
 
 	template<class... Value>
@@ -274,6 +314,64 @@ public:
 	{
 		return static_cast<size_t>(end() - first());
 	}
+
+	T& operator[](const size_t pos)
+	{
+		assert(pos < size());
+		return first()[pos];
+	}
+
+	const T& operator[](const size_t pos) const
+	{
+		assert(pos < size());
+		return first()[pos];
+	}
+
+	T& at(const size_t pos)
+	{
+		assert(pos < size());
+		return first()[pos];
+	}
+
+	const T& at(const size_t pos) const
+	{
+		assert(pos < size());
+		return first()[pos];
+	}
+
+	T& front()
+	{
+		assert(!empty());
+		return *first();
+	}
+
+	const T& front() const
+	{
+		assert(!empty());
+		return *first();
+	}
+
+	T& back()
+	{
+		assert(!empty());
+		return last()[-1];
+	}
+
+	const T& back() const
+	{
+		assert(!empty());
+		return last()[-1];
+	}
+
+	T* data() noexcept
+	{
+		return first();
+	}
+
+	const T* data() const noexcept
+	{
+		return first();
+	}
 protected:
 private:
 	bool8_t buy(const size_t count)
@@ -305,7 +403,7 @@ private:
 		{
 			for (uint32_t i = 0u; i < count; ++i)
 			{
-				new (first) T;
+				new (first + i) T;
 			}
 		}
 	}
@@ -318,13 +416,39 @@ private:
 		}
 	}
 
-	void copy(pointer first, pointer last, pointer dst)
+	template<class Iter>
+	void copy(Iter first, Iter last, pointer dst)
 	{
 		const char8_t* const firstCh = const_cast<const char8_t*>(reinterpret_cast<const volatile char8_t*>(first));
 		const char8_t* const lastCh = const_cast<const char8_t*>(reinterpret_cast<const volatile char8_t*>(last));
 		char8_t* const dstCh = const_cast<char8_t*>(reinterpret_cast<volatile char8_t*>(dst));
 		const auto count = static_cast<size_t>(lastCh - firstCh);
 		memmove(dstCh, firstCh, count);
+	}
+
+	void move_from(Vector&& right) noexcept
+	{
+		this->first() = right.first();
+		this->last() = right.last();
+		this->end() = right.end();
+
+		right.first() = pointer();
+		right.last() = pointer();
+		right.end() = pointer();
+	}
+
+	inline void destruct(T& obj) noexcept
+	{
+		obj.~T();
+	}
+
+	template<class Iter>
+	void destroy(Iter first, Iter last)
+	{
+		for (; first != last; ++first)
+		{
+			destruct(*first);
+		}
 	}
 };
 

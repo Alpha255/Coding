@@ -69,6 +69,10 @@ int32_t main(int32_t argc, char8_t **argv)
 	struct Test
 	{
 		uint32_t Value = 3u;
+		~Test()
+		{
+			std::cout << "Test" << std::endl;
+		}
 	};
 
 	std::vector<uint64_t> test(3, 7);
@@ -77,14 +81,23 @@ int32_t main(int32_t argc, char8_t **argv)
 	maxSize = testV.max_size();
 	if (!testV.empty())
 	{
-		FakeSTL::Vector<uint64_t> test2(testV);
+		FakeSTL::Vector<Test> test2(3);
+
+		FakeSTL::Vector<uint64_t> test3{1, 2, 3};
+
+		auto v = test3[2];
+		auto tv = test2[1];
+		auto tvv = test2.back();
+		auto vvt = test.back();
 	}
 
-	::srand((uint32_t)(time(nullptr)));
+	///::srand((uint32_t)(time(nullptr)));
 
-	testing::InitGoogleTest(&argc, argv);
+	///testing::InitGoogleTest(&argc, argv);
 
-	return RUN_ALL_TESTS();
+	///return RUN_ALL_TESTS();
+
+	return 0;
 }
 
 #pragma region sorting
