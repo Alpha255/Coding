@@ -33,7 +33,7 @@ void GfxModel::load(const std::string& modelName)
 	initPipelineState();
 }
 
-void GfxModel::draw(const DXUTCamera& camera, const GfxViewport& viewport, bool8_t wireframe)
+void GfxModel::draw(const Camera& camera, const GfxViewport& viewport, bool8_t wireframe)
 {
 	if (!m_Valid)
 	{

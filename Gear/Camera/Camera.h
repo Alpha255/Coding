@@ -17,6 +17,16 @@ public:
 		return m_Far;
 	}
 
+	inline const Math::Matrix& viewMatrix() const
+	{
+		return m_View;
+	}
+
+	inline const Math::Matrix& projectionMatrix() const
+	{
+		return m_Projection;
+	}
+
 	void setPerspective(float32_t fov, float32_t aspect, float32_t nearPlane, float32_t farPlane)
 	{
 		m_Fov = fov;

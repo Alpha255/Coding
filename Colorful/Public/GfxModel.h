@@ -77,7 +77,7 @@ public:
 	void load(const std::string& modelName);
 	void createAsQuad();
 
-	void draw(const DXUTCamera& camera, const GfxViewport& viewport, bool8_t wireframe = false);
+	void draw(const Camera& camera, const GfxViewport& viewport, bool8_t wireframe = false);
 	void draw(GfxPipelineState* state);
 	
 	inline AABB boundingBox() const

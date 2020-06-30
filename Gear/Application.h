@@ -35,7 +35,7 @@ protected:
 
 	Configurations m_Config;
 	WindowPtr m_Window = nullptr;
-	DXUTCamera m_Camera;
+	Camera m_Camera;
 	Profile m_Profile;
 private:
 };
