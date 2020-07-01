@@ -130,7 +130,7 @@ public:
 	{
 		Matrix result;
 		DirectX::XMVECTOR axis = DirectX::XMVectorSet(x, y, z, 0.0f);
-		DirectX::XMMATRIX vResult = DirectX::XMMatrixRotationAxis(axis, angle * DirectX::XM_PI / 180.0f);
+		DirectX::XMMATRIX vResult = DirectX::XMMatrixRotationAxis(axis, DirectX::XMConvertToRadians(angle));
 		DirectX::XMStoreFloat4x4A(&result, vResult);
 
 		return result;
@@ -144,7 +144,7 @@ public:
 	inline static Matrix rotateX(float32_t angle)
 	{
 		Matrix result;
-		DirectX::XMMATRIX vResult = DirectX::XMMatrixRotationX(angle * DirectX::XM_PI / 180.0f);
+		DirectX::XMMATRIX vResult = DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(angle));
 		DirectX::XMStoreFloat4x4A(&result, vResult);
 
 		return result;
@@ -153,7 +153,7 @@ public:
 	inline static Matrix rotateY(float32_t angle)
 	{
 		Matrix result;
-		DirectX::XMMATRIX vResult = DirectX::XMMatrixRotationY(angle * DirectX::XM_PI / 180.0f);
+		DirectX::XMMATRIX vResult = DirectX::XMMatrixRotationY(DirectX::XMConvertToRadians(angle));
 		DirectX::XMStoreFloat4x4A(&result, vResult);
 
 		return result;
@@ -162,7 +162,7 @@ public:
 	inline static Matrix rotateZ(float32_t angle)
 	{
 		Matrix result;
-		DirectX::XMMATRIX vResult = DirectX::XMMatrixRotationZ(angle * DirectX::XM_PI / 180.0f);
+		DirectX::XMMATRIX vResult = DirectX::XMMatrixRotationZ(DirectX::XMConvertToRadians(angle));
 		DirectX::XMStoreFloat4x4A(&result, vResult);
 
 		return result;

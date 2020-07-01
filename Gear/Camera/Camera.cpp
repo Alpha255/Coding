@@ -84,9 +84,9 @@ void Camera::processMessage(const WindowMessage& message, float32_t elapsedTime,
 
 void Camera::updateViewMatrix()
 {
-	auto rotationX = Math::Matrix::rotateX(Math::radians(m_Rotation.x));
-	auto rotationY = Math::Matrix::rotateY(Math::radians(m_Rotation.y));
-	auto rotationZ = Math::Matrix::rotateZ(Math::radians(m_Rotation.z));
+	auto rotationX = Math::Matrix::rotateX(m_Rotation.x);
+	auto rotationY = Math::Matrix::rotateY(m_Rotation.y);
+	auto rotationZ = Math::Matrix::rotateZ(m_Rotation.z);
 
 	Math::Matrix rotation = rotationX * rotationY * rotationZ;
 	Math::Matrix translation = Math::Matrix::translate(m_Position);

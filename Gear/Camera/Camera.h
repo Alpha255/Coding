@@ -35,9 +35,9 @@ public:
 		m_Projection = Math::Matrix::perspectiveFovLH(Math::radians(fov), aspect, nearPlane, farPlane);
 	}
 
-	void setPosition(const Math::Vec3& position)
+	void setTranslation(const Math::Vec3& translation)
 	{
-		m_Position = position;
+		m_Position = translation;
 		updateViewMatrix();
 	}
 

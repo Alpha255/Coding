@@ -295,7 +295,7 @@ void RenderTest::postInitialize()
 	center += Vec3(0.0f, 10.0f, 10.0f);
 	m_Camera.setPerspective(60.0f, (float32_t)m_Window->width() / m_Window->height(), 0.1f, 500.0f);
 	m_Camera.setRotation(Vec3(2.5f, -35.0f, 0.0f));
-	m_Camera.setPosition(Vec3(0.08f, 3.6f, -8.4f));
+	m_Camera.setTranslation(Vec3(0.08f, 3.6f, 8.4f));
 }
 
 void RenderTest::renderFrame()
