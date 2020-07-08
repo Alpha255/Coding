@@ -7,25 +7,6 @@
 namespaceStart(FakeSTL)
 
 template<class T>
-class Allocator
-{
-public:
-	typedef T* pointer;
-
-	inline pointer alloc(size_t count)
-	{
-		return static_cast<pointer>(std::malloc(sizeof(T) * count));
-	}
-
-	inline void free(pointer ptr)
-	{
-		std::free(ptr);
-	}
-protected:
-private:
-};
-
-template<class T>
 struct VectorValue
 {
 	using pointer = typename Allocator<T>::pointer;
@@ -33,91 +14,6 @@ struct VectorValue
 	pointer First = nullptr;
 	pointer Last = nullptr;
 	pointer End = nullptr;
-};
-
-template<class T1, class T2, 
-	bool = std::is_empty_v<T1> && !std::is_final_v<T1>>
-	class CompressedPair final : private T1
-{
-private:
-	T2 Val2;
-
-	using Base = T1;
-public:
-	template<class... Other2> constexpr explicit CompressedPair(Other2&&... val2)
-		: T1()
-		, Val2(std::forward<Other2>(val2)...)
-	{
-	}
-
-	template<class Other1, class... Other2>
-	CompressedPair(Other1&& val1, Other2&&... val2)
-		: T1(std::forward<Other1>(val1))
-		, Val2(std::forward<Other2>(val2)...)
-	{
-	}
-
-	T1& first() noexcept
-	{
-		return *this;
-	}
-
-	const T1& first() const noexcept
-	{
-		return *this;
-	}
-
-	T2& second() noexcept
-	{
-		return Val2;
-	}
-
-	const T2& second() const noexcept
-	{
-		return Val2;
-	}
-};
-
-template<class T1, class T2>
-class CompressedPair<T1, T2, false> final
-{
-private:
-	T1 Val1;
-	T2 Val2;
-public:
-	template<class... Other2>
-	constexpr explicit CompressedPair(Other2&&... val2)
-		: Val1()
-		, Val2(std::forward<Other2>(val2)...)
-	{
-	}
-
-	template<class Other1, class... Other2>
-	CompressedPair(Other1&& val, Other2&&... val2)
-		: Val1(std::forward<Other1>(val1))
-		, Val2(std::forward<Other2>(val2)...)
-	{
-	}
-
-	T1& first() noexcept
-	{
-		return Val1;
-	}
-
-	const T1& first() const noexcept
-	{
-		return Val1;
-	}
-
-	T2& second() noexcept
-	{
-		return Val2;
-	}
-
-	const T2& second() const noexcept
-	{
-		return Val2;
-	}
 };
 
 template<class T>
