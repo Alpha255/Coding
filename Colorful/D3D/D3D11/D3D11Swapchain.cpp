@@ -1,7 +1,7 @@
 #include "D3D11Swapchain.h"
 #include "D3D11Engine.h"
 
-void d3d11Swapchain::create(
+void D3D11Swapchain::create(
 	uint64_t windowHandle, 
 	uint32_t width, 
 	uint32_t height, 
@@ -113,7 +113,7 @@ void d3d11Swapchain::create(
 	reset(pSwapchain);
 }
 
-void d3d11Swapchain::resize(uint32_t width, uint32_t height)
+void D3D11Swapchain::resize(uint32_t width, uint32_t height)
 {
 	GfxVerifyD3D(m_Object->ResizeBuffers(
 		m_bTripleBuffer ? 3u : 2u,

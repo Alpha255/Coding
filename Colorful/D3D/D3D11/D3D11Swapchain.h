@@ -2,7 +2,7 @@
 
 #include "Colorful/Public/GfxDefinitions.h"
 
-class d3d11Swapchain : public D3DObject<IDXGISwapChain1>
+class D3D11Swapchain : public D3DObject<IDXGISwapChain1>
 {
 public:
 	void create(uint64_t windowHandle,
