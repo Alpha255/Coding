@@ -1,105 +1,65 @@
 #pragma once
 
-#include "Gear/Math/Math.h"
+#include "Gear/Camera/ICamera.h"
+
+/// From DXUT
 
 namespaceStart(Gear)
 
-class Camera
+class Camera : public ICamera
 {
 public:
-	inline float32_t nearPlane() const
+	Camera();
+
+	void setView(const Math::Vec3& eye, const Math::Vec3& lookAt);
+	void setPerspective(float32_t fov, float32_t aspect, float32_t nearPlane, float32_t farPlane);
+
+	void processMessage(const struct WindowMessage& message, float32_t elapsedTime, uint32_t width, uint32_t height) override final;
+
+	void handleWindowResize(uint32_t width, uint32_t height) override final
 	{
-		return m_Near;
+		setPerspective(m_Fov, width * 1.0f / height, m_NearPlane, m_FarPlane);
 	}
 
-	inline float32_t farPlane() const
+	inline Math::Matrix WVPMatrix() const
 	{
-		return m_Far;
+		return m_View * m_Projection;
 	}
-
-	inline const Math::Matrix& viewMatrix() const
-	{
-		return m_View;
-	}
-
-	inline const Math::Matrix& projectionMatrix() const
-	{
-		return m_Projection;
-	}
-
-	void setPerspective(float32_t fov, float32_t aspect, float32_t nearPlane, float32_t farPlane)
-	{
-		m_Fov = fov;
-		m_Near = nearPlane;
-		m_Far = farPlane;
-		m_Projection = Math::Matrix::perspectiveFovLH(Math::radians(fov), aspect, nearPlane, farPlane);
-	}
-
-	void setTranslation(const Math::Vec3& translation)
-	{
-		m_Position = translation;
-		updateViewMatrix();
-	}
-
-	void setRotation(const Math::Vec3& rotation)
-	{
-		m_Rotation = rotation;
-		updateViewMatrix();
-	}
-
-	void rotate(const Math::Vec3& rotation)
-	{
-		m_Rotation += rotation;
-		updateViewMatrix();
-	}
-
-	void translate(const Math::Vec3& translation)
-	{
-		m_Position += translation;
-		updateViewMatrix();
-	}
-
-	void processMessage(const struct WindowMessage& message, float32_t elapsedTime, uint32_t width, uint32_t height);
 protected:
-	struct Keys
+	inline void reset()
 	{
-		bool8_t Left = false;
-		bool8_t Right = false;
-		bool8_t Up = false;
-		bool8_t Down = false;
+		m_RotateDelta = Math::Vec2();
+		setView(m_DefaultEye, m_DefaultLookAt);
+	}
 
-		inline bool8_t isMoving() const
-		{
-			return Left || Right || Up || Down;
-		}
-
-		inline void reset()
-		{
-			Left = Right = Up = Down = false;
-		}
-	};
-
-	void updateViewMatrix();
+	void updateVelocity(float32_t elapsedTime);
 
 	void updateKeys(const struct WindowMessage& message);
 
-	inline void updatePerspective(float32_t aspect)
-	{
-		m_Projection = Math::Matrix::perspectiveFovLH(Math::radians(m_Fov), aspect, m_Near, m_Far);
-	}
+	bool8_t isReset(const struct WindowMessage& message) const;
+	bool8_t isLButtonDown(const struct WindowMessage& message) const;
+	bool8_t isRButtonDown(const struct WindowMessage& message) const;
+	bool8_t isMouseButtonDown(const struct WindowMessage& message) const;
 private:
-	float32_t m_Fov = 0.0f;
-	float32_t m_Near = 0.0f;
-	float32_t m_Far = 0.0f;
-	float32_t m_RotateSpeed = 1.0f;
-	float32_t m_MoveSpeed = 1.0f;
+	Math::Vec3 m_DefaultEye;
+	Math::Vec3 m_DefaultLookAt;
 
-	Math::Vec3 m_Rotation;
-	Math::Vec3 m_Position;
-	Math::Matrix m_Projection;
-	Math::Matrix m_View;
+	Math::Vec3 m_Velocity;
+	Math::Vec3 m_VelocityDrag;
 
-	Keys m_Keys;
+	float32_t m_Yaw = 0.0f;
+	float32_t m_Pitch = 0.0f;
+
+	float32_t m_DragTimer = 0.0f;
+	uint32_t m_SmoothMouse = 2u;
+	int16_t m_LastMouseWheel = 0;
+
+	Math::Vec2 m_RotateVelocity;
+	Math::Vec3 m_KeyDirection;
+	Math::Vec2 m_Scaler{ 0.01f, 5.0f };
+	Math::Vec2 m_MouseDelta;
+	Math::Vec2 m_LastMousePos;
+	Math::Vec2 m_RotateDelta;
 };
 
 namespaceEnd(Gear)

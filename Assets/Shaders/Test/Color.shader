@@ -27,7 +27,7 @@ out gl_PerVertex
 
 void main() 
 {
-	outColor = vec3(1.0, 0.0, 0.0);
+	outColor = vec3(1.0, 1.0, 1.0);
 	gl_Position = ubo.projection * ubo.view * vec4(In_Position.xyz, 1.0);
 	outNormal = mat3(ubo.view) * In_Normal;
 	vec4 pos = ubo.view * vec4(In_Position, 1.0);
