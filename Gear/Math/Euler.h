@@ -8,7 +8,7 @@ namespaceStart(Math)
 class Euler : public Vec4
 {
 public:
-	void set(float32_t roll, float32_t pitch, float32_t head);
+	void set(float32_t roll, float32_t pitch, float32_t yaw);
 protected:
 private:
 };

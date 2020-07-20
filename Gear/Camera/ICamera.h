@@ -29,13 +29,13 @@ public:
 	{
 		return m_Eye;
 	}
+
+	virtual ~ICamera() = default;
 protected:
 	Math::Matrix m_World;
 	Math::Matrix m_View;
 	Math::Matrix m_Projection;
-
 	Math::Vec3 m_Eye;
-	Math::Vec3 m_LookAt;
 
 	float32_t m_Fov = 0.0f;
 	float32_t m_Aspect = 1.0f;

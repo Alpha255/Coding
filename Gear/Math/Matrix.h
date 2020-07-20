@@ -224,7 +224,17 @@ public:
 	{
 		Matrix result;
 
-		DirectX::XMMATRIX vResult = DirectX::XMMatrixPerspectiveFovLH(fov, aspect, nearPlane, farPlane);
+		DirectX::XMMATRIX vResult = DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(fov), aspect, nearPlane, farPlane);
+		DirectX::XMStoreFloat4x4A(&result, vResult);
+
+		return result;
+	}
+
+	inline static Matrix perspectiveFovRH(float32_t fov, float32_t aspect, float32_t nearPlane, float32_t farPlane)
+	{
+		Matrix result;
+
+		DirectX::XMMATRIX vResult = DirectX::XMMatrixPerspectiveFovRH(DirectX::XMConvertToRadians(fov), aspect, nearPlane, farPlane);
 		DirectX::XMStoreFloat4x4A(&result, vResult);
 
 		return result;
