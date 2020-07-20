@@ -292,8 +292,7 @@ void RenderTest::postInitialize()
 
 	auto boundingBox = m_Model.boundingBox();
 	auto center = boundingBox.center();
-	center += Vec3(0.0f, 10.0f, 10.0f);
-	m_Camera.setView(center, Vec3(0.0f, -6.0f, 0.0f));
+	m_Camera.setView(center + Vec3(0.0f, -12.0f, -8.0f), center);
 	m_Camera.setPerspective(Math::PI_Div4, (float32_t)m_Window->width() / m_Window->height(), 0.1f, 500.0f);
 }
 

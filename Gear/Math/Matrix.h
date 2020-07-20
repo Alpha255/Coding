@@ -168,10 +168,10 @@ public:
 		return result;
 	}
 
-	inline static Matrix rotateRollPitchYaw(float32_t roll, float32_t pitch, float32_t yaw)
+	inline static Matrix rotateRollPitchYaw(float32_t pitch, float32_t yaw, float32_t roll)
 	{
 		Matrix result;
-		DirectX::XMMATRIX vResult = DirectX::XMMatrixRotationRollPitchYaw(roll, pitch, yaw);
+		DirectX::XMMATRIX vResult = DirectX::XMMatrixRotationRollPitchYaw(pitch, yaw, roll);
 		DirectX::XMStoreFloat4x4A(&result, vResult);
 
 		return result;
@@ -268,6 +268,19 @@ public:
 		DirectX::XMVECTOR vLookAt = DirectX::XMVectorSet(lookAt.x, lookAt.y, lookAt.z, 0.0f);
 		DirectX::XMVECTOR vUp = DirectX::XMVectorSet(up.x, up.y, up.z, 0.0f);
 		DirectX::XMMATRIX vResult = DirectX::XMMatrixLookAtLH(vEye, vLookAt, vUp);
+		DirectX::XMStoreFloat4x4A(&result, vResult);
+
+		return result;
+	}
+
+	inline static Matrix lookAtRH(const Vec3 &eye, const Vec3 &lookAt, const Vec3 &up)
+	{
+		Matrix result;
+
+		DirectX::XMVECTOR vEye = DirectX::XMVectorSet(eye.x, eye.y, eye.z, 1.0f);
+		DirectX::XMVECTOR vLookAt = DirectX::XMVectorSet(lookAt.x, lookAt.y, lookAt.z, 0.0f);
+		DirectX::XMVECTOR vUp = DirectX::XMVectorSet(up.x, up.y, up.z, 0.0f);
+		DirectX::XMMATRIX vResult = DirectX::XMMatrixLookAtRH(vEye, vLookAt, vUp);
 		DirectX::XMStoreFloat4x4A(&result, vResult);
 
 		return result;

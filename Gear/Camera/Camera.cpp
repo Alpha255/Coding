@@ -110,7 +110,7 @@ void Camera::updateKeys(const WindowMessage& message)
 		m_LastMousePos = curMousePos;
 
 		m_MouseDelta.x = m_MouseDelta.x * percentOld + delta.x * percentNew;
-		m_MouseDelta.y = m_MouseDelta.y * percentOld + delta.y * percentNew;
+		///m_MouseDelta.y = m_MouseDelta.y * percentOld + delta.y * percentNew;
 
 		m_RotateVelocity = m_MouseDelta * m_Scaler.x;
 	}
@@ -165,25 +165,22 @@ void Camera::processMessage(const WindowMessage& message, float32_t elapsedTime,
 
 	if (message.Key == eKeyboardKey::eKey_Alt)
 	{
-		m_Eye -= deltaPos;
+		//m_Eye -= deltaPos;
 
-		if (isLButtonDown(message))
-		{
-			m_RotateDelta.x += m_MouseDelta.y;
-			m_RotateDelta.y -= m_MouseDelta.x;
-		}
+		//if (isLButtonDown(message))
+		//{
+		//	m_RotateDelta.x += m_MouseDelta.y;
+		//	m_RotateDelta.y -= m_MouseDelta.x;
+		//}
 
-		m_View = Math::Matrix::rotateX(m_RotateDelta.x) * Math::Matrix::rotateY(m_RotateDelta.y) * Math::Matrix::translate(m_Eye);
+		//m_View = Math::Matrix::rotateX(m_RotateDelta.x) * Math::Matrix::rotateY(m_RotateDelta.y) * Math::Matrix::translate(m_Eye);
 	}
 	else
 	{
 		if (isLButtonDown(message) || isRButtonDown(message))
 		{
-			float32_t deltaYaw = m_RotateVelocity.x;
-			float32_t deltaPitch = m_RotateVelocity.y;
-
-			m_Pitch += deltaPitch;
-			m_Yaw += deltaYaw;
+			m_Yaw += m_RotateVelocity.x;
+			m_Pitch += m_RotateVelocity.y;
 
 			/// Limit pitch to straight up or straight down
 			m_Pitch = std::max<float32_t>(-Math::PI_Div2, m_Pitch);

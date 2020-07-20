@@ -50,8 +50,8 @@ private:
 	float32_t m_Yaw = 0.0f;
 	float32_t m_Pitch = 0.0f;
 
-	float32_t m_DragTimer = 0.0f;
-	uint32_t m_SmoothMouse = 2u;
+	float32_t m_DragTimer = 0.25f;
+	uint32_t m_SmoothMouse = 1u;
 	int16_t m_LastMouseWheel = 0;
 
 	Math::Vec2 m_RotateVelocity;
