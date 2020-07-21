@@ -337,9 +337,9 @@ void RenderTest::renderFrame()
 	static Vec3 Trans{ 0.08f, 4.5f, -12.0f };
 	static Vec3 Rot{ 90.0f, 0.0f, 145.0f };
 
-	ImGui::SliderFloat3("Trans:", (float32_t*)(&Trans), -0.1f, 20.0f);
-	ImGui::SliderFloat3("Rot:", (float32_t*)(&Rot), -360.0f, 360.0f);
-	m_Camera.setPosition(Trans, Rot);
+	//ImGui::SliderFloat3("Trans:", (float32_t*)(&Trans), -0.1f, 20.0f);
+	//ImGui::SliderFloat3("Rot:", (float32_t*)(&Rot), -360.0f, 360.0f);
+	//m_Camera.setPosition(Trans, Rot);
 }
 #endif
 

@@ -61,7 +61,7 @@ void Application::nextFrame(const WindowMessage& message)
 
 	if (!g_GfxEngine->isFocusOnUI())
 	{
-		m_Camera.processMessage(message, m_Profile.FPS == 0.0f ? 0.0f : 1.0f / m_Profile.FPS, m_Window->width(), m_Window->height());
+		m_Camera.processMessage(message, m_Profile.FPS == 0.0f ? 0.0f : 1.0f / m_Profile.FPS);
 	}
 
 	DeltaTime += frameTime;
@@ -89,6 +89,7 @@ void Application::loop()
 		}
 		else if (message.State == eWindowState::eResized)
 		{
+			m_Camera.handleWindowResize(m_Window->width(), m_Window->height());
 			g_GfxEngine->handleWindowResize(m_Window->width(), m_Window->height());
 		}
 		else if (message.State == eWindowState::eActive)

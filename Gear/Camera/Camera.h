@@ -13,7 +13,7 @@ public:
 
 	void setPerspective(float32_t fov, float32_t aspect, float32_t nearPlane, float32_t farPlane);
 
-	void processMessage(const struct WindowMessage& message, float32_t elapsedTime, uint32_t width, uint32_t height) override final;
+	void processMessage(const struct WindowMessage& message, float32_t elapsedTime) override final;
 
 	void handleWindowResize(uint32_t width, uint32_t height) override final
 	{
@@ -87,6 +87,7 @@ private:
 	Math::Vec2 m_LastMousePos;
 
 	eType m_Type = eFirstPerson;
+	int16_t m_LastMouseWheel = 0;
 	bool8_t m_Moving = false;
 };
 

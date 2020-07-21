@@ -67,36 +67,40 @@ void Camera::processInputs(const WindowMessage& message)
 		break;
 	}
 
-	//if (m_LastMouseWheel != message.Mouse.WheelDelta)
-	//{
-	//	auto delta = message.Mouse.WheelDelta - m_LastMouseWheel;
-	//	m_LastMouseWheel = message.Mouse.WheelDelta;
-	//	m_KeyDirection.z += delta * 0.005f;
-	//}
+	if (m_LastMouseWheel != message.Mouse.WheelDelta)
+	{
+		auto delta = message.Mouse.WheelDelta - m_LastMouseWheel;
+		m_LastMouseWheel = message.Mouse.WheelDelta;
+		m_KeyDirection.z += delta * 0.005f;
+		m_Moving = true;
+	}
+	else
+	{
+		m_Moving = false;
+	}
 
-	//if (isMouseButtonDown(message))
-	//{
-	//	float32_t percentNew = 1.0f / m_SmoothMouse;
-	//	float32_t percentOld = 1.0f - percentNew;
+	if (message.Mouse.Left.KeyDown)
+	{
+		///m_Type = eFirstPerson;
+	}
+	else if (message.Mouse.Right.KeyDown)
+	{
+		Math::Vec2 curMousePos = message.Mouse.Pos;
+		Math::Vec2 delta = message.Mouse.Pos - m_LastMousePos;
+		m_LastMousePos = curMousePos;
+		delta *= m_Scaler.x;
 
-	//	Math::Vec2 curMousePos = message.Mouse.Pos;
-	//	Math::Vec2 delta = message.Mouse.Pos - m_LastMousePos;
-	//	m_LastMousePos = curMousePos;
+		rotate(Math::Vec3(delta.y, -delta.x));
 
-	//	m_MouseDelta.x = m_MouseDelta.x * percentOld + delta.x * percentNew;
-	//	m_MouseDelta.y = m_MouseDelta.y * percentOld + delta.y * percentNew;
-
-	//	m_RotateVelocity = m_MouseDelta * m_Scaler.x;
-	//}
-	//else
-	//{
-	//	m_LastMousePos = message.Mouse.Pos;
-	//}
-
-	//if (message.Mouse.Middle.KeyDown)
-	//{
-	//	m_KeyDirection += m_MouseDelta;
-	//}
+		///m_Type = eModelViewer;
+	}
+	else if (message.Mouse.Middle.KeyDown)
+	{
+	}
+	else
+	{
+		m_LastMousePos = message.Mouse.Pos;
+	}
 }
 
 bool8_t Camera::isReset(const WindowMessage& message) const
@@ -126,16 +130,11 @@ void Camera::setViewMatrix()
 	m_Eye = -1.0f * m_Translation;
 }
 
-void Camera::processMessage(const WindowMessage& message, float32_t elapsedTime, uint32_t width, uint32_t height)
+void Camera::processMessage(const WindowMessage& message, float32_t elapsedTime)
 {
 	if (isReset(message))
 	{
 		reset();
-	}
-
-	if (message.State == eWindowState::eResized)
-	{
-		handleWindowResize(width, height);
 	}
 
 	processInputs(message);
