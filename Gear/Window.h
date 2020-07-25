@@ -63,6 +63,14 @@ struct WindowMessage
 	MouseMessage Mouse;
 
 	bool8_t Minimized = false;
+
+	inline void clear()
+	{
+		Key = eKeyboardKey::eKey_None;
+		Mouse.Left = Mouse.Right = Mouse.Middle = MouseKey{};
+		Mouse.Pos = Vec2();
+		Mouse.WheelDelta = 0;
+	}
 };
 
 class Window

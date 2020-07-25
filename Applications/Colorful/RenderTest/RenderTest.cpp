@@ -290,7 +290,9 @@ void RenderTest::postInitialize()
 		}
 	};
 
-	m_Camera.setPosition(Vec3(0.08f, 4.5f, -12.0f), Vec3(90.0f, 0.0f, 145.0f));
+	Vec3 center = m_Model.boundingBox().center();
+	Vec3 extents = m_Model.boundingBox().extents();
+	m_Camera.setPosition(Vec3(center.x, center.y + extents.z, center.z + extents.z + 2.0f), Vec3(90.0f, 30.0f, 0.0f));
 	m_Camera.setPerspective(60.0f, (float32_t)m_Window->width() / m_Window->height(), 0.1f, 500.0f);
 }
 
@@ -333,13 +335,6 @@ void RenderTest::renderFrame()
 
 	ImGui::Text("FrameTime: %.2f ms, FPS: %.2f", m_Profile.FrameTime, m_Profile.FPS);
 	ImGui::SliderFloat("Outline Width: ", &s_OutlineWidth, 0.01f, 0.05f, "%.2f");
-
-	static Vec3 Trans{ 0.08f, 4.5f, -12.0f };
-	static Vec3 Rot{ 90.0f, 0.0f, 145.0f };
-
-	//ImGui::SliderFloat3("Trans:", (float32_t*)(&Trans), -0.1f, 20.0f);
-	//ImGui::SliderFloat3("Rot:", (float32_t*)(&Rot), -360.0f, 360.0f);
-	//m_Camera.setPosition(Trans, Rot);
 }
 #endif
 

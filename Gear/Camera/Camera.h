@@ -2,8 +2,6 @@
 
 #include "Gear/Camera/ICamera.h"
 
-/// From DXUT
-
 namespaceStart(Gear)
 
 class Camera : public ICamera
@@ -62,7 +60,7 @@ protected:
 		setViewMatrix();
 	}
 
-	void updateVelocity(float32_t elapsedTime);
+	void updateMoving(float32_t elapsedTime);
 
 	void processInputs(const struct WindowMessage& message);
 
@@ -82,12 +80,12 @@ private:
 	Math::Vec3 m_DefaultTranslation;
 	Math::Vec3 m_DefaultRotation;
 
-	Math::Vec3 m_KeyDirection;
+	Math::Vec3 m_Move;
 	Math::Vec2 m_MouseDelta;
 	Math::Vec2 m_LastMousePos;
+	int16_t m_LastMouseWheelDelta = 0;
 
 	eType m_Type = eFirstPerson;
-	int16_t m_LastMouseWheel = 0;
 	bool8_t m_Moving = false;
 };
 

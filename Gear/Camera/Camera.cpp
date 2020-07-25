@@ -10,14 +10,12 @@ void Camera::setPerspective(float32_t fov, float32_t aspect, float32_t nearPlane
 	m_NearPlane = nearPlane;
 	m_FarPlane = farPlane;
 
-	///m_Projection = Math::Matrix::perspectiveFovLH(fov, aspect, nearPlane, farPlane);
-	m_Projection = Math::Matrix::perspectiveFovRH(fov, aspect, nearPlane, farPlane);
+	m_Projection = Math::Matrix::perspectiveFovLH(fov, aspect, nearPlane, farPlane);
 }
 
-void Camera::updateVelocity(float32_t elapsedTime)
+void Camera::updateMoving(float32_t elapsedTime)
 {
-	Math::Vec3 accel = m_KeyDirection;
-	accel.normalize();
+	Math::Vec3 accel = m_Move;
 	accel *= m_Scaler.y;
 
 	if (dot(accel, accel) > 0.0f)
@@ -35,72 +33,67 @@ void Camera::updateVelocity(float32_t elapsedTime)
 		}
 		else
 		{
-			m_Velocity = Math::Vec3(0.0f, 0.0f, 0.0f);
+			m_Velocity = Math::Vec3();
+			m_Moving = false;
 		}
 	}
 }
 
 void Camera::processInputs(const WindowMessage& message)
 {
-	m_KeyDirection = Math::Vec3(0.0f, 0.0f, 0.0f);
-	m_Moving = true;
+	m_Move = Math::Vec3();
+
 	switch (message.Key)
 	{
 	case eKeyboardKey::eKey_A:
 	case eKeyboardKey::eKey_Left:
-		m_KeyDirection.x += 1.0f;
+		m_Moving = true;
+		m_Move.x += 1.0f;
 		break;
 	case eKeyboardKey::eKey_D:
 	case eKeyboardKey::eKey_Right:
-		m_KeyDirection.x += -1.0f;
+		m_Moving = true;
+		m_Move.x += -1.0f;
 		break;
 	case eKeyboardKey::eKey_W:
 	case eKeyboardKey::eKey_Up:
-		m_KeyDirection.z += 1.0f;
+		m_Moving = true;
+		m_Move.z -= 1.0f;
 		break;
 	case eKeyboardKey::eKey_S:
 	case eKeyboardKey::eKey_Down:
-		m_KeyDirection.z -= 1.0f;
-		break;
-	default:
-		m_Moving = false;
-		break;
-	}
-
-	if (m_LastMouseWheel != message.Mouse.WheelDelta)
-	{
-		auto delta = message.Mouse.WheelDelta - m_LastMouseWheel;
-		m_LastMouseWheel = message.Mouse.WheelDelta;
-		m_KeyDirection.z += delta * 0.005f;
 		m_Moving = true;
-	}
-	else
-	{
-		m_Moving = false;
+		m_Move.z += 1.0f;
+		break;
 	}
 
-	if (message.Mouse.Left.KeyDown)
+	if (m_LastMouseWheelDelta != message.Mouse.WheelDelta)
 	{
-		///m_Type = eFirstPerson;
+		m_Translation.z += (message.Mouse.WheelDelta - m_LastMouseWheelDelta) * 0.005f;
+		setViewMatrix();
+		m_LastMouseWheelDelta = message.Mouse.WheelDelta;
 	}
-	else if (message.Mouse.Right.KeyDown)
+
+	if (message.Mouse.Left.KeyDown || message.Mouse.Right.KeyDown || message.Mouse.Middle.KeyDown)
 	{
-		Math::Vec2 curMousePos = message.Mouse.Pos;
 		Math::Vec2 delta = message.Mouse.Pos - m_LastMousePos;
-		m_LastMousePos = curMousePos;
 		delta *= m_Scaler.x;
+		
+		if (message.Mouse.Left.KeyDown)
+		{
 
-		rotate(Math::Vec3(delta.y, -delta.x));
+		}
+		else if (message.Mouse.Right.KeyDown)
+		{
+			rotate(Math::Vec3(delta.y, -delta.x, 0.0f));
+		}
+		else if (message.Mouse.Middle.KeyDown)
+		{
+			translate(Math::Vec3(delta.x * 0.01f, delta.y * 0.01f, 0.0f));
+		}
+	}
 
-		///m_Type = eModelViewer;
-	}
-	else if (message.Mouse.Middle.KeyDown)
-	{
-	}
-	else
-	{
-		m_LastMousePos = message.Mouse.Pos;
-	}
+	m_LastMousePos = message.Mouse.Pos;
 }
 
 bool8_t Camera::isReset(const WindowMessage& message) const
@@ -116,7 +109,7 @@ void Camera::setViewMatrix()
 	Math::Matrix rotateY = Math::Matrix::rotateY(m_Rotation.y);
 	Math::Matrix rotateZ = Math::Matrix::rotateZ(m_Rotation.z);
 
-	Math::Matrix rotation = rotateZ * rotateY * rotateX;
+	Math::Matrix rotation = rotateX * rotateY * rotateZ;
 
 	if (m_Type == eFirstPerson)
 	{
@@ -139,19 +132,17 @@ void Camera::processMessage(const WindowMessage& message, float32_t elapsedTime)
 
 	processInputs(message);
 
-	updateVelocity(elapsedTime);
+	updateMoving(elapsedTime);
 
 	if (m_Moving)
 	{
-		Math::Vec3 deltaPos = m_Velocity * elapsedTime;
+		//Math::Vec3 front;
+		//front.x = -cosf(Math::radians(m_Rotation.x) * sinf(Math::radians(m_Rotation.y)));
+		//front.y = sinf(Math::radians(m_Rotation.x));
+		//front.z = cos(Math::radians(m_Rotation.x) * cosf(Math::radians(m_Rotation.y)));
+		//front.normalize();
 
-		Math::Vec3 front;
-		front.x = -cosf(Math::radians(m_Rotation.x) * sinf(Math::radians(m_Rotation.y)));
-		front.y = sinf(Math::radians(m_Rotation.x));
-		front.z = cos(Math::radians(m_Rotation.x) * cosf(Math::radians(m_Rotation.y)));
-		front.normalize();
-
-		m_Translation += m_Velocity;
+		m_Translation += m_Velocity * elapsedTime;
 
 		setViewMatrix();
 	}
