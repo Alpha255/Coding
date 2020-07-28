@@ -1,6 +1,6 @@
-#include "D3D11Engine.h"
+#include "Colorful/D3D/D3D11/D3D11Engine.h"
 
-void D3D11Engine::initialize(uint64_t windowHandle, const Configurations &config)
+void D3D11Engine::initialize(uint64_t windowHandle, const Configurations& config)
 {
 	uint32_t flags = 0u;
 #if defined(_DEBUG)
@@ -20,6 +20,8 @@ void D3D11Engine::initialize(uint64_t windowHandle, const Configurations &config
 		config.D3DTripleBuffer,
 		factory,
 		m_Device);
+
+	D3D11BufferPool::initialize(m_Device, m_IMContext);
 }
 
 void D3D11Engine::logError(uint32_t result)

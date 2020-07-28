@@ -28,14 +28,14 @@ void D3D11Swapchain::create(
 
 	DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
-	auto DXGIAdapter = device.getDxgiAdapter();
-	assert(DXGIAdapter && DXGIAdapter->isValid());
+	auto DXGIAdapter = device.dxgiAdapter();
+	assert(DXGIAdapter.isValid());
 	std::vector<DXGIOutput6> dxgiOutputs;
 	uint32_t dxgiOutputIndex = 0u;
 	while (true)
 	{
 		IDXGIOutput *pDxgiOutput = nullptr;
-		if ((*DXGIAdapter)->EnumOutputs(dxgiOutputIndex++, &pDxgiOutput) == DXGI_ERROR_NOT_FOUND)
+		if (DXGIAdapter->EnumOutputs(dxgiOutputIndex++, &pDxgiOutput) == DXGI_ERROR_NOT_FOUND)
 		{
 			break;
 		}

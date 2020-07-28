@@ -13,4 +13,5 @@ public:
 	static D3D11_COMPARISON_FUNC toCompareOp(eRCompareOp op);
 	static D3D11_STENCIL_OP toStencilOp(eRStencilOp op);
 	static DXGI_FORMAT toFormat(eRFormat format);
+	static D3D11_USAGE toUsage(eRBufferUsage usage);
 };

@@ -252,3 +252,16 @@ DXGI_FORMAT D3D11Enum::toFormat(eRFormat format)
 
 	return (DXGI_FORMAT)-1;
 }
+
+D3D11_USAGE D3D11Enum::toUsage(eRBufferUsage usage)
+{
+	switch (usage)
+	{
+	case eGpuReadWrite: return D3D11_USAGE_DEFAULT;
+	case eGpuReadOnly: return D3D11_USAGE_IMMUTABLE;
+	case eGpuReadCpuWrite: return D3D11_USAGE_DYNAMIC;
+	case eGpuCopyToCpu: return D3D11_USAGE_STAGING;
+	}
+
+	return (D3D11_USAGE)-1;
+}
