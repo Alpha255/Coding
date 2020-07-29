@@ -1,4 +1,5 @@
 #include "Colorful/D3D/D3D11/D3D11Engine.h"
+#include "AssetTool/AssetDatabase.h"
 
 void D3D11Engine::initialize(uint64_t windowHandle, const Configurations& config)
 {

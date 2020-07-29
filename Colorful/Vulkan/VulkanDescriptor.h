@@ -2,6 +2,8 @@
 
 #include "Colorful/Vulkan/VulkanImageView.h"
 
+/// VulkanDescriptor Manager???
+
 class VulkanDescriptorSetLayout : public VulkanDeviceObject<VkDescriptorSetLayout>
 {
 public:

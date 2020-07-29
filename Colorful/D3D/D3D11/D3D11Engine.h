@@ -4,6 +4,7 @@
 #include "Colorful/D3D/D3D11/D3D11Swapchain.h"
 #include "Colorful/D3D/D3D11/D3D11Enum.h"
 #include "Colorful/D3D/D3D11/D3D11Shader.h"
+#include "Colorful/D3D/D3D11/D3D11Texture.h"
 
 class D3D11Engine : public GfxEngine, public Singleton<D3D11Engine>
 {
@@ -53,9 +54,10 @@ public:
 		return static_cast<GfxGpuBufferPtr>(buffer);
 	}
 
-	GfxTexturePtr createTexture(const std::string&) override final
+	GfxTexturePtr createTexture(const std::string& name) override final
 	{
-		return nullptr;
+		auto texture = std::make_shared<D3DTexture>(name, m_Device);
+		return static_cast<GfxTexturePtr>(texture);
 	}
 	GfxTexturePtr createTexture(
 		eRTextureType,
