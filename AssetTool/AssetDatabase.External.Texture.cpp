@@ -1,6 +1,7 @@
 #include "AssetDatabase.h"
 #include <ThirdParty/gli/gli/gli.hpp>
 #include <ThirdParty/stb/stb_image.h>
+#include <ThirdParty/DirectXTex/DDSTextureLoader/DDSTextureLoader.h>
 
 namespaceStart(AssetTool)
 
@@ -164,6 +165,30 @@ AssetTool::TextureBinary AssetDatabase::tryToGetTextureBinary(Configurations::eR
 	}
 
 	return binary;
+}
+
+ID3D11Resource* AssetDatabase::tryToLoadD3DTextureFromFile(ID3D11Device* device, const std::string& texName)
+{
+	assert(device);
+
+	auto texture = tryToGetAsset(texName);
+	assert(texture);
+
+	std::wstring texturePath(texture->fullPath().cbegin(), texture->fullPath().cend());
+
+	ID3D11Resource* result = nullptr;
+	verify(DirectX::CreateDDSTextureFromFileEx(
+		device,
+		texturePath.c_str(),
+		0u,
+		D3D11_USAGE_DEFAULT,
+		0u,  /// D3D11_BIND_SHADER_RESOURCE
+		0u,
+		0u,
+		false,
+		&result,
+		nullptr) == S_OK);
+	return result;
 }
 
 namespaceEnd(AssetTool)

@@ -220,24 +220,11 @@ workspace "Miscellaneous"
 			kind "StaticLib"
 			language "C++"
 			location "./Projects"
-			pchheader "DirectXTexP.h"
-			pchsource "./ThirdParty/DirectXTex/DirectXTex/DirectXTexUtil.cpp"
-			floatingpoint "Fast"
-			vectorextensions "SSE2" --Seems dosen't work
-			buildoptions { "/openmp", "/permissive-", "/Zc:twoPhase-" }
 			files { 
-				"./ThirdParty/DirectXTex/DirectXTex/**.h", 
-				"./ThirdParty/DirectXTex/DirectXTex/**.cpp", 
-				"./ThirdParty/DirectXTex/DirectXTex/**.hlsl", 
-				"./ThirdParty/DirectXTex/DirectXTex/**.inc",
-				"./ThirdParty/DirectXTex/DirectXTex/**.inl",
-				"./ThirdParty/DirectXTex/DirectXTex/**.cmd",
+				"./ThirdParty/DirectXTex/DDSTextureLoader/**",
 			}
 			targetdir "$(SolutionDir)Out\\Libs\\"
 			includedirs { "$(SolutionDir)ThirdParty\\DirectXTex\\DirectXTex", }
-
-			filter { "files:**.hlsl" }
-  				flags { "ExcludeFromBuild" }
 
   			filter { "configurations:Debug" }
   				defines { 
@@ -256,6 +243,7 @@ workspace "Miscellaneous"
   					"_LIB",
   					"_CRT_STDIO_ARBITRARY_WIDE_SPECIFIERS",
   				}
+  				
   		project "rttr_core"
   			kind "SharedLib"
   			location "./Projects"
