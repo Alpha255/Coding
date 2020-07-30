@@ -4,7 +4,7 @@
 #include "Colorful/D3D/D3D11/D3D11Swapchain.h"
 #include "Colorful/D3D/D3D11/D3D11Enum.h"
 #include "Colorful/D3D/D3D11/D3D11Shader.h"
-#include "Colorful/D3D/D3D11/D3D11Texture.h"
+#include "Colorful/D3D/D3D11/D3D11View.h"
 
 class D3D11Engine : public GfxEngine, public Singleton<D3D11Engine>
 {
@@ -56,21 +56,32 @@ public:
 
 	GfxTexturePtr createTexture(const std::string& name) override final
 	{
-		auto texture = std::make_shared<D3DTexture>(name, m_Device);
+		auto texture = std::make_shared<D3D11ShaderResourceView>(m_Device, name);
 		return static_cast<GfxTexturePtr>(texture);
 	}
 	GfxTexturePtr createTexture(
-		eRTextureType,
-		eRFormat,
-		uint32_t,
-		uint32_t,
-		uint32_t,
-		uint32_t,
-		uint32_t,
-		const void*,
-		size_t) override final
+		eRTextureType type,
+		eRFormat format,
+		uint32_t width,
+		uint32_t height,
+		uint32_t depth,
+		uint32_t mipLevels,
+		uint32_t arrayLayers,
+		const void* data,
+		size_t dataSize) override final
 	{
-		return nullptr;
+		auto texture = std::make_shared<D3D11ShaderResourceView>(
+			m_Device,
+			type,
+			format,
+			width,
+			height,
+			depth,
+			mipLevels,
+			arrayLayers,
+			data,
+			dataSize);
+		return static_cast<GfxTexturePtr>(texture);
 	}
 
 	GfxSamplerPtr createSampler(const GfxSamplerDesc&) override final

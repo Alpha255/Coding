@@ -167,7 +167,7 @@ AssetTool::TextureBinary AssetDatabase::tryToGetTextureBinary(Configurations::eR
 	return binary;
 }
 
-ID3D11Resource* AssetDatabase::tryToLoadD3DTextureFromFile(ID3D11Device* device, const std::string& texName)
+ID3D11ShaderResourceView* AssetDatabase::tryToLoadD3DTextureFromFile(ID3D11Device* device, const std::string& texName)
 {
 	assert(device);
 
@@ -176,17 +176,13 @@ ID3D11Resource* AssetDatabase::tryToLoadD3DTextureFromFile(ID3D11Device* device,
 
 	std::wstring texturePath(texture->fullPath().cbegin(), texture->fullPath().cend());
 
-	ID3D11Resource* result = nullptr;
-	verify(DirectX::CreateDDSTextureFromFileEx(
+	ID3D11ShaderResourceView* result = nullptr;
+	verify(DirectX::CreateDDSTextureFromFile(
 		device,
 		texturePath.c_str(),
-		0u,
-		D3D11_USAGE_DEFAULT,
-		0u,  /// D3D11_BIND_SHADER_RESOURCE
-		0u,
-		0u,
-		false,
+		nullptr,
 		&result,
+		0u,
 		nullptr) == S_OK);
 	return result;
 }
