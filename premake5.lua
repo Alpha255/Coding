@@ -12,7 +12,7 @@ function appLinks()
 	links { 
 		"d3d11",
 		"d3d12",
-		"dxgi", 
+		"dxgi",
 		"d3dcompiler", 
 		"windowscodecs",
 		"Usp10",
@@ -80,7 +80,8 @@ workspace "Miscellaneous"
 			defines { "UsingAsDynamicLib" }
 			links {
 				"d3d11",
-				"dxgi", 
+				"dxgi",
+				"dxguid", 
 				"d3dcompiler", 
 				"windowscodecs",
 				"Usp10",

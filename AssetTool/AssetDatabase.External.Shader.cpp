@@ -107,6 +107,22 @@ void buildShaderReflections(Configurations::eRenderEngine engine, ShaderBinary& 
 	}
 	else if (engine == Configurations::eD3D11)
 	{
+		ID3D11ShaderReflection* reflection = nullptr;
+		verify(D3DReflect(binary.Binary.get(), binary.Size, IID_ID3D11ShaderReflection, (void**)&reflection) == S_OK);
+		
+		D3D11_SHADER_DESC shaderDesc{};
+		verify(reflection->GetDesc(&shaderDesc) == S_OK);
+		for (uint32_t i = 0u; i < shaderDesc.BoundResources; ++i)
+		{
+			D3D11_SHADER_INPUT_BIND_DESC inputBindDesc{};
+			verify(reflection->GetResourceBindingDesc(i, &inputBindDesc) == S_OK);
+
+			binary.Reflections.emplace_back(GfxShaderReflection
+				{
+					(uint32_t)inputBindDesc.Type,
+					inputBindDesc.BindPoint
+				});
+		}
 		assert(0);
 	}
 	else
