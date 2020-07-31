@@ -21,3 +21,13 @@ protected:
 private:
 };
 using D3D11ShaderResourceViewPtr = std::shared_ptr<D3D11ShaderResourceView>;
+
+class D3D11RenderTargetView : public D3DObject<ID3D11RenderTargetView>
+{
+};
+using D3D11RenderTargetViewPtr = std::shared_ptr<D3D11RenderTargetView>;
+
+class D3D11DepthStencilView : public D3DObject<ID3D11DepthStencilView>
+{
+};
+using D3D11DepthStencilViewPtr = std::shared_ptr<D3D11DepthStencilView>; 

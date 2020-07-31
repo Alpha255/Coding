@@ -108,8 +108,10 @@ public:
 		return nullptr;
 	}
 
-	void bindGfxPipelineState(const GfxPipelineState*) override final
+	void bindGfxPipelineState(const GfxPipelineState* state) override final
 	{
+		assert(state);
+		m_CurGfxPipeline = getOrCreateGfxPipeline(state);
 	}
 
 	void drawIndexed(uint32_t, uint32_t, uint32_t, int32_t) override final
@@ -133,8 +135,12 @@ public:
 	}
 public:
 protected:
+	D3D11GraphicsPipelinePtr m_CurGfxPipeline = nullptr;
+	D3D11GraphicsPipelinePtr getOrCreateGfxPipeline(const GfxPipelineState* state);
 private:
 	D3D11Device m_Device;
 	D3D11Context m_IMContext;
 	D3D11Swapchain m_Swapchain;
+
+	std::vector<std::pair<const GfxPipelineState*, D3D11GraphicsPipelinePtr>> m_GfxPipelines;
 };

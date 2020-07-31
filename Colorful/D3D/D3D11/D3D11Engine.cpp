@@ -25,6 +25,21 @@ void D3D11Engine::initialize(uint64_t windowHandle, const Configurations& config
 	D3D11BufferPool::initialize(m_Device, m_IMContext);
 }
 
+D3D11GraphicsPipelinePtr D3D11Engine::getOrCreateGfxPipeline(const GfxPipelineState* state)
+{
+	for (auto& pair : m_GfxPipelines)
+	{
+		if (pair.first == state)
+		{
+			return pair.second;
+		}
+	}
+
+	auto gfxPipeline = std::make_shared<D3D11GraphicsPipeline>(m_Device, state);
+	m_GfxPipelines.emplace_back(std::make_pair(state, gfxPipeline));
+	return gfxPipeline;
+}
+
 void D3D11Engine::logError(uint32_t result)
 {
 	std::string errorMsg;
