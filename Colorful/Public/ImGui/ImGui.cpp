@@ -21,7 +21,7 @@ ImGuiRenderer::ImGuiRenderer()
 		1u,
 		1u,
 		pixels,
-		width * height * 4ull
+		width * height * 4ull /// pitch * slicepitch
 	);
 
 	m_UniformBuffer = g_GfxEngine->createUniformBuffer(sizeof(UniformBuffer), nullptr);

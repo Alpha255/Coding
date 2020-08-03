@@ -1,6 +1,7 @@
 #include "Gear/Application.h"
 #include "Applications/Resource.h"
 #include "Colorful/Vulkan/VulkanEngine.h"
+#include "Colorful/D3D/D3D11/D3D11Engine.h"
 #include "AssetTool/AssetDatabase.h"
 
 GfxEnginePtr g_GfxEngine = nullptr;
@@ -11,7 +12,8 @@ void Application::createGfxRenderer()
 {
 	if (m_Config.RenderEngine == Configurations::eD3D11)
 	{
-		assert(0);
+		g_GfxEngine = std::make_unique<D3D11Engine>();
+		assert(g_GfxEngine);
 	}
 	else if (m_Config.RenderEngine == Configurations::eD3D12)
 	{

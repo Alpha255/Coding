@@ -123,7 +123,6 @@ void buildShaderReflections(Configurations::eRenderEngine engine, ShaderBinary& 
 					inputBindDesc.BindPoint
 				});
 		}
-		assert(0);
 	}
 	else
 	{

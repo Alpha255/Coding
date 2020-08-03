@@ -23,6 +23,8 @@ void D3D11Engine::initialize(uint64_t windowHandle, const Configurations& config
 		m_Device);
 
 	D3D11BufferPool::initialize(m_Device, m_IMContext);
+	
+	m_ImGuiRenderer = std::make_unique<ImGuiRenderer>();
 }
 
 D3D11GraphicsPipelinePtr D3D11Engine::getOrCreateGfxPipeline(const GfxPipelineState* state)

@@ -1,6 +1,6 @@
 #include "RenderTest.h"
 
-#if 0
+#if 1
 struct UniformBufferVS
 {
 	Matrix World;
@@ -51,7 +51,7 @@ void RenderTest::postInitialize()
 	m_PipelineState.setUniformBuffer(eVertexShader, m_UniformBufferVS, 0u);
 
 	m_Camera.setPerspective(Math::PI_Div4, (float32_t)m_Window->width() / m_Window->height(), 0.1f, 500.0f);
-	m_Camera.setView(Vec3(0.0f, 0.0f, 4.0f), Vec3(0.0f, 0.0f, 0.0f));
+	m_Camera.setPosition(Vec3(0.0f, 0.0f, 200.0f), Vec3(0.0f, 0.0f, 0.0f));
 }
 
 /// Expose command buffer for application ????
@@ -220,7 +220,7 @@ void RenderTest::renderFrame()
 }
 #endif
 
-#if 1
+#if 0
 GfxPipelineState s_Color;
 GfxPipelineState s_Outline;
 
