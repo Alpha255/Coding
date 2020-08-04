@@ -20,7 +20,7 @@ public:
 
 	AssetPtr tryToGetAsset(const std::string& assetName);
 
-	ID3D11ShaderResourceView* tryToLoadD3DTextureFromFile(ID3D11Device* device, const std::string& texName);
+	ID3D11ShaderResourceView* tryToLoadD3DTextureFromFile(ID3D11Device* device, const AssetPtr& asset);
 
 	std::string assetBasePath() const;
 protected:

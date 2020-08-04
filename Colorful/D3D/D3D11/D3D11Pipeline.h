@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Colorful/D3D/D3D11/D3D11State.h"
+#include "Colorful/D3D/D3D11/D3D11PipelineState.h"
 
 class D3D11GraphicsPipeline
 {
@@ -18,5 +19,5 @@ using D3D11GraphicsPipelinePtr = std::shared_ptr<D3D11GraphicsPipeline>;
 class D3D11Context final : public D3DObject<ID3D11DeviceContext>
 {
 public:
-	void setGraphicsPipeline(const D3D11GraphicsPipeline &pipeline);
+	void setGraphicsPipeline(const D3D11GraphicsPipelinePtr& pipeline);
 };

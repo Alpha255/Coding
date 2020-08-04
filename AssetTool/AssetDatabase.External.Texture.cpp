@@ -167,19 +167,18 @@ AssetTool::TextureBinary AssetDatabase::tryToGetTextureBinary(Configurations::eR
 	return binary;
 }
 
-ID3D11ShaderResourceView* AssetDatabase::tryToLoadD3DTextureFromFile(ID3D11Device* device, const std::string& texName)
+ID3D11ShaderResourceView* AssetDatabase::tryToLoadD3DTextureFromFile(ID3D11Device* device, const AssetPtr& asset)
 {
-	assert(device);
+	assert(device && asset);
+	assert(asset->type() == Asset::eWICTexture || asset->type() == Asset::eDDSTexture);
 
-	auto texture = tryToGetAsset(texName);
-	assert(texture);
-
-	std::wstring texturePath(texture->fullPath().cbegin(), texture->fullPath().cend());
+	std::string texturePath = asset->fullPath();
+	std::wstring wTexturePath(texturePath.cbegin(), texturePath.cend());
 
 	ID3D11ShaderResourceView* result = nullptr;
 	verify(DirectX::CreateDDSTextureFromFile(
 		device,
-		texturePath.c_str(),
+		wTexturePath.c_str(),
 		nullptr,
 		&result,
 		0u,

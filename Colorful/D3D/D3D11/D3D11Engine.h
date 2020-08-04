@@ -84,9 +84,10 @@ public:
 		return static_cast<GfxTexturePtr>(texture);
 	}
 
-	GfxSamplerPtr createSampler(const GfxSamplerDesc&) override final
+	GfxSamplerPtr createSampler(const GfxSamplerDesc& desc) override final
 	{
-		return nullptr;
+		auto sampler = std::make_shared<D3D11SamplerState>(m_Device, desc);
+		return std::static_pointer_cast<GfxSampler>(sampler);
 	}
 
 	GfxRenderSurfacePtr createDepthStencil(uint32_t, uint32_t, eRFormat) override final
@@ -114,8 +115,22 @@ public:
 		m_CurGfxPipeline = getOrCreateGfxPipeline(state);
 	}
 
-	void drawIndexed(uint32_t, uint32_t, uint32_t, int32_t) override final
+	void drawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset) override final
 	{
+		m_IMContext.setGraphicsPipeline(m_CurGfxPipeline);
+
+		if (instanceCount > 1u)
+		{
+			m_IMContext->DrawIndexedInstanced(indexCount, instanceCount, firstIndex, vertexOffset, 0u); /// ????? 
+		}
+		else if (instanceCount == 1u)
+		{
+			m_IMContext->DrawIndexed(indexCount, firstIndex, vertexOffset);
+		}
+		else
+		{
+			assert(0);
+		}
 	}
 
 	void draw(uint32_t, uint32_t, uint32_t) override final
@@ -137,6 +152,7 @@ public:
 protected:
 	D3D11GraphicsPipelinePtr m_CurGfxPipeline = nullptr;
 	D3D11GraphicsPipelinePtr getOrCreateGfxPipeline(const GfxPipelineState* state);
+	void prepareForDraw();
 private:
 	D3D11Device m_Device;
 	D3D11Context m_IMContext;

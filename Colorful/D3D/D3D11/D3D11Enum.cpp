@@ -257,11 +257,37 @@ D3D11_USAGE D3D11Enum::toUsage(eRBufferUsage usage)
 {
 	switch (usage)
 	{
-	case eGpuReadWrite: return D3D11_USAGE_DEFAULT;
-	case eGpuReadOnly: return D3D11_USAGE_IMMUTABLE;
+	case eGpuReadWrite:    return D3D11_USAGE_DEFAULT;
+	case eGpuReadOnly:     return D3D11_USAGE_IMMUTABLE;
 	case eGpuReadCpuWrite: return D3D11_USAGE_DYNAMIC;
-	case eGpuCopyToCpu: return D3D11_USAGE_STAGING;
+	case eGpuCopyToCpu:    return D3D11_USAGE_STAGING;
 	}
 
 	return (D3D11_USAGE)-1;
+}
+
+D3D11_FILTER D3D11Enum::toFilter(eRFilter filter)
+{
+	switch (filter)
+	{
+	case eNearest:     return D3D11_FILTER_MIN_MAG_MIP_POINT;
+	case eLinear:      return D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	case eAnisotropic: return D3D11_FILTER_ANISOTROPIC;
+	}
+
+	return (D3D11_FILTER)-1;
+}
+
+D3D11_TEXTURE_ADDRESS_MODE D3D11Enum::toAddressMode(eRSamplerAddressMode addressMode)
+{
+	switch (addressMode)
+	{
+	case eRepeat:            return D3D11_TEXTURE_ADDRESS_WRAP;
+	case eMirroredRepeat:    return D3D11_TEXTURE_ADDRESS_MIRROR;
+	case eClampToEdge:       return D3D11_TEXTURE_ADDRESS_CLAMP;
+	case eClampToBorder:     return D3D11_TEXTURE_ADDRESS_BORDER;
+	case eMirrorClampToEdge: return D3D11_TEXTURE_ADDRESS_MIRROR_ONCE;
+	}
+
+	return (D3D11_TEXTURE_ADDRESS_MODE)-1;
 }

@@ -4,8 +4,17 @@
 D3D11ShaderResourceView::D3D11ShaderResourceView(const D3D11Device& device, const std::string& name)
 {
 	assert(device.isValid());
-	ID3D11ShaderResourceView* view = AssetTool::AssetDatabase::instance().tryToLoadD3DTextureFromFile(device.get(), name);
-	reset(view);
+	auto texAsset = AssetTool::AssetDatabase::instance().tryToGetAsset(name);
+	if (texAsset->type() == AssetTool::Asset::eDDSTexture || texAsset->type() == AssetTool::Asset::eWICTexture)
+	{
+		ID3D11ShaderResourceView* view = AssetTool::AssetDatabase::instance().tryToLoadD3DTextureFromFile(device.get(), texAsset);
+		reset(view);
+	}
+	else if (texAsset->type() == AssetTool::Asset::eVulkanTexture)
+	{
+		auto texBinary = AssetTool::AssetDatabase::instance().tryToGetTextureBinary(Configurations::eVulkan, name);
+		assert(0);
+	}
 }
 
 D3D11ShaderResourceView::D3D11ShaderResourceView(

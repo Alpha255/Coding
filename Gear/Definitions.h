@@ -19,6 +19,7 @@
 #include <set>
 #include <random>
 #include <condition_variable>
+#include <bitset>
 
 #include "Gear/Definitions.Generated.h"
 

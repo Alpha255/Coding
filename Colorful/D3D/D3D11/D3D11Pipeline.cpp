@@ -9,3 +9,8 @@ D3D11GraphicsPipeline::D3D11GraphicsPipeline(const D3D11Device& device, const Gf
 	m_BlendState = std::make_shared<D3D11BlendState>(device, state->BlendStateDesc);
 	m_DepthStencilState = std::make_shared<D3D11DepthStencilState>(device, state->DepthStencilStateDesc);
 }
+
+void D3D11Context::setGraphicsPipeline(const D3D11GraphicsPipelinePtr& pipeline)
+{
+	assert(pipeline);
+}

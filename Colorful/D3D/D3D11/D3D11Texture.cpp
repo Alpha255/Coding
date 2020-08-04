@@ -17,7 +17,7 @@ D3D11Texture::D3D11Texture(
 	D3D11_SUBRESOURCE_DATA subResource
 	{
 		data,
-		(uint32_t)dataSize,
+		(uint32_t)dataSize / height, /// ?????
 		0u
 	};
 

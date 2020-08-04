@@ -14,4 +14,6 @@ public:
 	static D3D11_STENCIL_OP toStencilOp(eRStencilOp op);
 	static DXGI_FORMAT toFormat(eRFormat format);
 	static D3D11_USAGE toUsage(eRBufferUsage usage);
+	static D3D11_FILTER toFilter(eRFilter filter);
+	static D3D11_TEXTURE_ADDRESS_MODE toAddressMode(eRSamplerAddressMode addressMode);
 };

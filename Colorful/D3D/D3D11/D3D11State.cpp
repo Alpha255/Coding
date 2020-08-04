@@ -2,6 +2,8 @@
 
 D3D11RasterizerState::D3D11RasterizerState(const D3D11Device& device, const GfxRasterizerStateDesc& gfxDesc)
 {
+	assert(device.isValid());
+
 	D3D11_RASTERIZER_DESC desc
 	{
 		D3D11Enum::toPolygonMode(gfxDesc.PolygonMode),
@@ -23,6 +25,8 @@ D3D11RasterizerState::D3D11RasterizerState(const D3D11Device& device, const GfxR
 
 D3D11BlendState::D3D11BlendState(const D3D11Device& device, const GfxBlendStateDesc& gfxDesc)
 {
+	assert(device.isValid());
+
 	D3D11_BLEND_DESC desc
 	{
 		false,  /// AlphaToCoverageEnable
@@ -51,6 +55,8 @@ D3D11BlendState::D3D11BlendState(const D3D11Device& device, const GfxBlendStateD
 
 D3D11DepthStencilState::D3D11DepthStencilState(const D3D11Device& device, const GfxDepthStencilStateDesc& gfxDesc)
 {
+	assert(device.isValid());
+
 	D3D11_DEPTH_STENCIL_DESC desc
 	{
 		gfxDesc.EnableDepth,
@@ -76,4 +82,43 @@ D3D11DepthStencilState::D3D11DepthStencilState(const D3D11Device& device, const 
 	ID3D11DepthStencilState* depthStencilState = nullptr;
 	GfxVerifyD3D(device->CreateDepthStencilState(&desc, &depthStencilState));
 	reset(depthStencilState);
+}
+
+D3D11SamplerState::D3D11SamplerState(const D3D11Device& device, const GfxSamplerDesc& gfxDesc)
+{
+	assert(device.isValid());
+
+	Vec4 borderColor;
+	switch (gfxDesc.BorderColor)  /// ???? 
+	{
+	case eFloatTransparentBlack:
+	case eIntTransparentBlack:
+		break;
+	case eFloatOpaqueBlack:
+	case eIntOpaqueBlack:
+		borderColor = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
+		break;
+	case eFloatOpaqueWhite:
+	case eIntOpaqueWhite:
+		borderColor = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		break;
+	}
+
+	D3D11_SAMPLER_DESC desc
+	{
+		D3D11Enum::toFilter(gfxDesc.MinMagFilter),
+		D3D11Enum::toAddressMode(gfxDesc.AddressModeU),
+		D3D11Enum::toAddressMode(gfxDesc.AddressModeV),
+		D3D11Enum::toAddressMode(gfxDesc.AddressModeW),
+		gfxDesc.MipLodBias,
+		gfxDesc.MaxAnisotropy,
+		D3D11Enum::toCompareOp(gfxDesc.CompareOp),
+		{ borderColor.x, borderColor.y, borderColor.z, borderColor.w},
+		gfxDesc.MinLod,
+		gfxDesc.MaxLod
+	};
+
+	ID3D11SamplerState* state = nullptr;
+	GfxVerifyD3D(device->CreateSamplerState(&desc, &state));
+	reset(state);
 }
