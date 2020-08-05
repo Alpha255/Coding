@@ -20,4 +20,7 @@ class D3D11Context final : public D3DObject<ID3D11DeviceContext>
 {
 public:
 	void setGraphicsPipeline(const D3D11GraphicsPipelinePtr& pipeline);
+protected:
+private:
+	D3D11PipelineState m_State;
 };

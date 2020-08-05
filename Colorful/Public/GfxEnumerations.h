@@ -272,7 +272,7 @@ enum class eRIndexType
 
 enum eRConstants
 {
-	eMaxRenderTargets = 8
+	eMaxRenderTargets = 8  /// D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT
 };
 
 enum eRFormat
