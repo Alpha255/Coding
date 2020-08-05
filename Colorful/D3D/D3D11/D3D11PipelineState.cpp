@@ -1,6 +1,6 @@
 #include "Colorful/D3D/D3D11/D3D11Pipeline.h"
 
-void D3D11PipelineState::submit(D3D11Context &context)
+void D3D11PipelineState::submit(D3D11Context& context)
 {
 	if (!context.isValid())
 	{
@@ -118,7 +118,7 @@ void D3D11PipelineState::submit(D3D11Context &context)
 	}
 }
 
-void D3D11PipelineState::setUniformBuffers(D3D11Context &context)
+void D3D11PipelineState::setUniformBuffers(D3D11Context& context)
 {
 	for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
 	{
@@ -146,7 +146,7 @@ void D3D11PipelineState::setUniformBuffers(D3D11Context &context)
 	}
 }
 
-void D3D11PipelineState::setSamplers(D3D11Context &ctx)
+void D3D11PipelineState::setSamplers(D3D11Context& context)
 {
 	for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
 	{
@@ -161,12 +161,12 @@ void D3D11PipelineState::setSamplers(D3D11Context &ctx)
 
 			switch (i)
 			{
-			case eVertexShader:   ctx->VSSetSamplers(0u, samplers, Samplers[i].data()); break;
-			case eHullShader:     ctx->HSSetSamplers(0u, samplers, Samplers[i].data()); break;
-			case eDomainShader:   ctx->DSSetSamplers(0u, samplers, Samplers[i].data()); break;
-			case eGeometryShader: ctx->GSSetSamplers(0u, samplers, Samplers[i].data()); break;
-			case eFragmentShader: ctx->PSSetSamplers(0u, samplers, Samplers[i].data()); break;
-			case eComputeShader:  ctx->CSSetSamplers(0u, samplers, Samplers[i].data()); break;
+			case eVertexShader:   context->VSSetSamplers(0u, samplers, Samplers[i].data()); break;
+			case eHullShader:     context->HSSetSamplers(0u, samplers, Samplers[i].data()); break;
+			case eDomainShader:   context->DSSetSamplers(0u, samplers, Samplers[i].data()); break;
+			case eGeometryShader: context->GSSetSamplers(0u, samplers, Samplers[i].data()); break;
+			case eFragmentShader: context->PSSetSamplers(0u, samplers, Samplers[i].data()); break;
+			case eComputeShader:  context->CSSetSamplers(0u, samplers, Samplers[i].data()); break;
 			}
 		}
 
@@ -174,7 +174,7 @@ void D3D11PipelineState::setSamplers(D3D11Context &ctx)
 	}
 }
 
-void D3D11PipelineState::setShaderResourceViews(D3D11Context &ctx)
+void D3D11PipelineState::setShaderResourceViews(D3D11Context& context)
 {
 	for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
 	{
@@ -189,12 +189,12 @@ void D3D11PipelineState::setShaderResourceViews(D3D11Context &ctx)
 
 			switch (i)
 			{
-			case eVertexShader:   ctx->VSSetShaderResources(0u, shaderResourceViews, ShaderResourceViews[i].data()); break;
-			case eHullShader:     ctx->HSSetShaderResources(0u, shaderResourceViews, ShaderResourceViews[i].data()); break;
-			case eDomainShader:   ctx->DSSetShaderResources(0u, shaderResourceViews, ShaderResourceViews[i].data()); break;
-			case eGeometryShader: ctx->GSSetShaderResources(0u, shaderResourceViews, ShaderResourceViews[i].data()); break;
-			case eFragmentShader: ctx->PSSetShaderResources(0u, shaderResourceViews, ShaderResourceViews[i].data()); break;
-			case eComputeShader:  ctx->CSSetShaderResources(0u, shaderResourceViews, ShaderResourceViews[i].data()); break;
+			case eVertexShader:   context->VSSetShaderResources(0u, shaderResourceViews, ShaderResourceViews[i].data()); break;
+			case eHullShader:     context->HSSetShaderResources(0u, shaderResourceViews, ShaderResourceViews[i].data()); break;
+			case eDomainShader:   context->DSSetShaderResources(0u, shaderResourceViews, ShaderResourceViews[i].data()); break;
+			case eGeometryShader: context->GSSetShaderResources(0u, shaderResourceViews, ShaderResourceViews[i].data()); break;
+			case eFragmentShader: context->PSSetShaderResources(0u, shaderResourceViews, ShaderResourceViews[i].data()); break;
+			case eComputeShader:  context->CSSetShaderResources(0u, shaderResourceViews, ShaderResourceViews[i].data()); break;
 			}
 
 			setDirty(eDirtyTag::eShaderResourceView, false, i);
@@ -202,7 +202,7 @@ void D3D11PipelineState::setShaderResourceViews(D3D11Context &ctx)
 	}
 }
 
-void D3D11PipelineState::setUnorderedAccessViews(D3D11Context &ctx)
+void D3D11PipelineState::setUnorderedAccessViews(D3D11Context& context)
 {
 	if (!isDirty(eDirtyTag::eUnorderedAccessView))
 	{
@@ -213,7 +213,7 @@ void D3D11PipelineState::setUnorderedAccessViews(D3D11Context &ctx)
 
 	if (unorderedAccessViews > 0u)
 	{
-		ctx->CSSetUnorderedAccessViews(0u, unorderedAccessViews, UnorderedAccessViews.data(), nullptr);
+		context->CSSetUnorderedAccessViews(0u, unorderedAccessViews, UnorderedAccessViews.data(), nullptr);
 	}
 
 	setDirty(eDirtyTag::eUnorderedAccessView, false);

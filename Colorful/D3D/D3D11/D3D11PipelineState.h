@@ -53,7 +53,7 @@ public:
 		DirtyFlags[(uint32_t)tag + index] = dirty;
 	}
 
-	void submit(class D3D11Context &context);
+	void submit(class D3D11Context& context);
 
 	inline void clear()
 	{
@@ -61,10 +61,10 @@ public:
 		DirtyFlags.reset();
 	}
 protected:
-	void setUniformBuffers(class D3D11Context &context);
-	void setSamplers(class D3D11Context &context);
-	void setShaderResourceViews(class D3D11Context &context);
-	void setUnorderedAccessViews(class D3D11Context &context);
+	void setUniformBuffers(class D3D11Context& context);
+	void setSamplers(class D3D11Context& context);
+	void setShaderResourceViews(class D3D11Context& context);
+	void setUnorderedAccessViews(class D3D11Context& context);
 private:
 	std::bitset<(uint32_t)eDirtyTag::eDirtyTagCount> DirtyFlags;
 
