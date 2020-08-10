@@ -12,8 +12,18 @@ D3D11ShaderResourceView::D3D11ShaderResourceView(const D3D11Device& device, cons
 	}
 	else if (texAsset->type() == AssetTool::Asset::eVulkanTexture)
 	{
-		auto texBinary = AssetTool::AssetDatabase::instance().tryToGetTextureBinary(Configurations::eVulkan, name);
-		assert(0);
+		auto texBinary = AssetTool::AssetDatabase::instance().tryToGetTextureBinary(Configurations::eD3D11, name);
+		new(this)D3D11ShaderResourceView(
+			device,
+			texBinary.Type,
+			(eRFormat)texBinary.Format,
+			texBinary.Width,
+			texBinary.Height,
+			texBinary.Depth,
+			texBinary.MipLevels,
+			texBinary.ArrayLayers,
+			(const void*)texBinary.SharedBinary.get(),
+			texBinary.Size);
 	}
 }
 

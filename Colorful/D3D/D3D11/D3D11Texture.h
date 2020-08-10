@@ -18,6 +18,15 @@ public:
 		const void* data,
 		size_t dataSize);
 protected:
+	void caculateSurfaceInfo(
+		uint32_t width,
+		uint32_t height,
+		DXGI_FORMAT format,
+		__out size_t& numBytes,
+		__out size_t& rowBytes,
+		__out size_t& numRows) const;
+
+	size_t bitsPerPixel(DXGI_FORMAT format) const;
 private:
 };
 using D3D11TexturePtr = std::shared_ptr<D3D11Texture>;
