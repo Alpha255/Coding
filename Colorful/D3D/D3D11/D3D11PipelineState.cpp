@@ -85,10 +85,10 @@ void D3D11PipelineState::submit(D3D11Context& context)
 	}
 
 	/// Fragment Shader
-	if (isDirty(eDirtyTag::eFragmentShader))
+	if (isDirty(eDirtyTag::ePixelShader))
 	{
-		context->PSSetShader(FragmentShader, nullptr, 0u);
-		setDirty(eDirtyTag::eFragmentShader, false);
+		context->PSSetShader(PixelShader, nullptr, 0u);
+		setDirty(eDirtyTag::ePixelShader, false);
 	}
 
 	if (isDirty(eDirtyTag::eComputeShader))

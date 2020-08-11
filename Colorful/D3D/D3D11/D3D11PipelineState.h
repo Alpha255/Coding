@@ -26,7 +26,7 @@ public:
 		eVertexShader = eUniformBuffer + eRShaderUsage_MaxEnum,
 		eHullShader,
 		eDomainShader,
-		eFragmentShader,
+		ePixelShader,
 		eGeometryShader,
 		eComputeShader,
 		eRasterizerState,
@@ -61,6 +61,7 @@ public:
 		DirtyFlags.reset();
 	}
 protected:
+	friend class D3D11Context;
 	void setUniformBuffers(class D3D11Context& context);
 	void setSamplers(class D3D11Context& context);
 	void setShaderResourceViews(class D3D11Context& context);
@@ -81,7 +82,7 @@ private:
 	ID3D11VertexShader* VertexShader = nullptr;
 	ID3D11HullShader* HullShader = nullptr;
 	ID3D11DomainShader* DomainShader = nullptr;
-	ID3D11PixelShader* FragmentShader = nullptr;
+	ID3D11PixelShader* PixelShader = nullptr;
 	ID3D11GeometryShader* GeometryShader = nullptr;
 	ID3D11ComputeShader* ComputeShader = nullptr;
 

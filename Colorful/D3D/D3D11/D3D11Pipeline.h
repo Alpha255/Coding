@@ -12,6 +12,21 @@ public:
 	{
 		return m_GfxState;
 	}
+
+	const D3D11RasterizerStatePtr& rasterizerState() const
+	{
+		return m_RasterizerState;
+	}
+
+	const D3D11BlendStatePtr& blendState() const
+	{
+		return m_BlendState;
+	}
+
+	const D3D11DepthStencilStatePtr& depthStencilState() const
+	{
+		return m_DepthStencilState;
+	}
 protected:
 private:
 	D3D11RasterizerStatePtr m_RasterizerState = nullptr;
@@ -26,6 +41,7 @@ class D3D11Context final : public D3DObject<ID3D11DeviceContext>
 public:
 	void setGraphicsPipeline(const D3D11GraphicsPipelinePtr& pipeline);
 protected:
+	void setVertexIndexBuffers(const D3D11GraphicsPipelinePtr& pipeline);
 private:
 	D3D11PipelineState m_State;
 };
