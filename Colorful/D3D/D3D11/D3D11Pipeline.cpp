@@ -12,5 +12,14 @@ D3D11GraphicsPipeline::D3D11GraphicsPipeline(const D3D11Device& device, const Gf
 
 void D3D11Context::setGraphicsPipeline(const D3D11GraphicsPipelinePtr& pipeline)
 {
-	assert(pipeline);
+	assert(pipeline && pipeline->gfxPipelineState());
+
+	for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
+	{
+		auto shader = pipeline->gfxPipelineState()->Material.Shaders[i];
+		if (shader)
+		{
+
+		}
+	}
 }

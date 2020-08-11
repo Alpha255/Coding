@@ -7,6 +7,11 @@ class D3D11GraphicsPipeline
 {
 public:
 	D3D11GraphicsPipeline(const class D3D11Device& device, const GfxPipelineState* state);
+
+	const GfxPipelineState* gfxPipelineState() const
+	{
+		return m_GfxState;
+	}
 protected:
 private:
 	D3D11RasterizerStatePtr m_RasterizerState = nullptr;
