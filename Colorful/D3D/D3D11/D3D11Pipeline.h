@@ -42,6 +42,7 @@ public:
 	void setGraphicsPipeline(const D3D11GraphicsPipelinePtr& pipeline);
 protected:
 	void setVertexIndexBuffers(const D3D11GraphicsPipelinePtr& pipeline);
+	void setShaderResources(const D3D11GraphicsPipelinePtr& pipeline);
 private:
 	D3D11PipelineState m_State;
 };

@@ -291,3 +291,23 @@ D3D11_TEXTURE_ADDRESS_MODE D3D11Enum::toAddressMode(eRSamplerAddressMode address
 
 	return (D3D11_TEXTURE_ADDRESS_MODE)-1;
 }
+
+D3D11_PRIMITIVE_TOPOLOGY D3D11Enum::toPrimitiveTopology(eRPrimitiveTopology primitiveTopology)
+{
+	switch (primitiveTopology)
+	{
+	case ePointList: return D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
+	case eLineList: return D3D_PRIMITIVE_TOPOLOGY_LINELIST;
+	case eLineStrip: return D3D_PRIMITIVE_TOPOLOGY_LINESTRIP;
+	case eTriangleList: return D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	case eTriangleStrip: return D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
+	case eLineListAdj: return D3D_PRIMITIVE_TOPOLOGY_LINELIST_ADJ;
+	case eLineStripAdj: return D3D_PRIMITIVE_TOPOLOGY_LINESTRIP_ADJ;
+	case eTriangleListAdj: return D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ;
+	case eTriangleStripAdj: return D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP_ADJ;
+	case ePatchList: 
+		assert(0);
+		return D3D_PRIMITIVE_TOPOLOGY_1_CONTROL_POINT_PATCHLIST;
+	}
+	return (D3D11_PRIMITIVE_TOPOLOGY)-1;
+}

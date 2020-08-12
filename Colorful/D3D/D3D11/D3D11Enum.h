@@ -16,4 +16,5 @@ public:
 	static D3D11_USAGE toUsage(eRBufferUsage usage);
 	static D3D11_FILTER toFilter(eRFilter filter);
 	static D3D11_TEXTURE_ADDRESS_MODE toAddressMode(eRSamplerAddressMode addressMode);
+	static D3D11_PRIMITIVE_TOPOLOGY toPrimitiveTopology(eRPrimitiveTopology primitiveTopology);
 };
