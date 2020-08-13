@@ -2,6 +2,7 @@
 
 #include "Colorful/D3D/D3D11/D3D11State.h"
 #include "Colorful/D3D/D3D11/D3D11PipelineState.h"
+#include "Colorful/D3D/D3D11/D3D11Shader.h"
 
 class D3D11GraphicsPipeline
 {
@@ -27,11 +28,18 @@ public:
 	{
 		return m_DepthStencilState;
 	}
+
+	const D3D11InputLayoutPtr& inputLayout() const
+	{
+		return m_InputLayout;
+	}
 protected:
 private:
 	D3D11RasterizerStatePtr m_RasterizerState = nullptr;
 	D3D11BlendStatePtr m_BlendState = nullptr;
 	D3D11DepthStencilStatePtr m_DepthStencilState = nullptr;
+	D3D11InputLayoutPtr m_InputLayout;
+
 	const GfxPipelineState* m_GfxState = nullptr;
 };
 using D3D11GraphicsPipelinePtr = std::shared_ptr<D3D11GraphicsPipeline>;

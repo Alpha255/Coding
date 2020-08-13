@@ -24,6 +24,7 @@ public:
 
 	void present() override final
 	{
+		m_Swapchain.present();
 	}
 
 public:

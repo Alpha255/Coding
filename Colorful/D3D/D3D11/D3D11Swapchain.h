@@ -15,6 +15,8 @@ public:
 		class D3D11Device &device);
 
 	void resize(uint32_t width, uint32_t height);
+
+	void present();
 protected:
 private:
 	bool8_t m_bVSync = false;

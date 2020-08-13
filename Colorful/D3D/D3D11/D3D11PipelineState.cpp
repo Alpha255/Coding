@@ -124,13 +124,12 @@ void D3D11PipelineState::setUniformBuffers(D3D11Context& context)
 	{
 		if (isDirty(eDirtyTag::eUniformBuffer, i))
 		{
-			uint32_t constantBuffers = (uint32_t)UniformBuffersInUse[i].count();
-
-			if (0u == constantBuffers)
+			if (0u == UniformBuffersInUse[i].count())
 			{
 				continue;
 			}
 
+			uint32_t constantBuffers = UniformBufferMaxSlot[i] + 1u;
 			switch (i)
 			{
 			case eVertexShader:   context->VSSetConstantBuffers(0u, constantBuffers, UniformBuffers[i].data()); break;
@@ -152,13 +151,12 @@ void D3D11PipelineState::setSamplers(D3D11Context& context)
 	{
 		if (isDirty(eDirtyTag::eSampler, i))
 		{
-			uint32_t samplers = (uint32_t)SamplersInUse[i].count();
-
-			if (0u == samplers)
+			if (0u == SamplersInUse[i].count())
 			{
 				continue;
 			}
 
+			uint32_t samplers = SamplerMaxSlot[i] + 1u;
 			switch (i)
 			{
 			case eVertexShader:   context->VSSetSamplers(0u, samplers, Samplers[i].data()); break;
@@ -180,13 +178,12 @@ void D3D11PipelineState::setShaderResourceViews(D3D11Context& context)
 	{
 		if (isDirty(eDirtyTag::eShaderResourceView, i))
 		{
-			uint32_t shaderResourceViews = (uint32_t)ShaderResourceViewsInUse[i].count();
-
-			if (0u == shaderResourceViews)
+			if (0u == ShaderResourceViewsInUse[i].count())
 			{
 				continue;
 			}
 
+			uint32_t shaderResourceViews = ShaderResourceViewMaxSlot[i] + 1u;
 			switch (i)
 			{
 			case eVertexShader:   context->VSSetShaderResources(0u, shaderResourceViews, ShaderResourceViews[i].data()); break;

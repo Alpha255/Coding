@@ -123,3 +123,8 @@ void D3D11Swapchain::resize(uint32_t width, uint32_t height)
 		DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH
 	));
 }
+
+void D3D11Swapchain::present()
+{
+	GfxVerifyD3D(m_Object->Present(m_bVSync ? 1u : 0u, 0u));
+}

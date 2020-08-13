@@ -104,6 +104,10 @@ private:
 	std::bitset<eRenderTargetLimits> RenderTargetsInUse;
 	std::bitset<eUnorderedAccessViewLimits> UnorderedAccessViewsInUse;
 
+	std::array<uint32_t, eRShaderUsage_MaxEnum> UniformBufferMaxSlot;
+	std::array<uint32_t, eRShaderUsage_MaxEnum> SamplerMaxSlot;
+	std::array<uint32_t, eRShaderUsage_MaxEnum> ShaderResourceViewMaxSlot;
+
 	std::array<ID3D11Buffer*, eVertexStreamLimits> VertexBuffers;
 	std::array<D3D11_VIEWPORT, eViewportLimits> Viewports;
 	std::array<D3D11_RECT, eScissorRectLimits> ScissorRects;

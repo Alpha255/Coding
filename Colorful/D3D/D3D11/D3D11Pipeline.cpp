@@ -8,6 +8,9 @@ D3D11GraphicsPipeline::D3D11GraphicsPipeline(const D3D11Device& device, const Gf
 	m_RasterizerState = std::make_shared<D3D11RasterizerState>(device, state->RasterizerStateDesc);
 	m_BlendState = std::make_shared<D3D11BlendState>(device, state->BlendStateDesc);
 	m_DepthStencilState = std::make_shared<D3D11DepthStencilState>(device, state->DepthStencilStateDesc);
+
+	auto vertexShader = std::static_pointer_cast<D3D11Shader>(state->Material.Shaders[eVertexShader]);
+	m_InputLayout = std::make_shared<D3D11InputLayout>(device, vertexShader->binary(), state->Material.InputLayout, state->VertexStrideAlignment);
 }
 
 void D3D11Context::setGraphicsPipeline(const D3D11GraphicsPipelinePtr& pipeline)
@@ -79,6 +82,11 @@ void D3D11Context::setGraphicsPipeline(const D3D11GraphicsPipelinePtr& pipeline)
 	}
 
 	/// set rendertarget/depthstencil
+
+	/// set viewport/scissor
+
+	m_State.submit(*this);
+
 #undef ShaderCaster
 }
 
@@ -87,6 +95,12 @@ void D3D11Context::setVertexIndexBuffers(const D3D11GraphicsPipelinePtr& pipelin
 	auto gfxState = pipeline->gfxPipelineState();
 
 	/// set input layout
+	auto inputLayout = pipeline->inputLayout();
+	if (inputLayout->get() != m_State.InputLayout)
+	{
+		m_State.InputLayout = inputLayout->get();
+		m_State.setDirty(D3D11PipelineState::eDirtyTag::eInputLayout, true);
+	}
 
 	auto primitiveTopology = D3D11Enum::toPrimitiveTopology(gfxState->PrimitiveTopology);
 	if (primitiveTopology != m_State.PrimitiveTopology)
@@ -99,8 +113,8 @@ void D3D11Context::setVertexIndexBuffers(const D3D11GraphicsPipelinePtr& pipelin
 	if (vertexBuffer != m_State.VertexBuffers[0u])
 	{
 		m_State.VertexBuffers[0u] = vertexBuffer;
-		m_State.VertexOffsets[0u] = 0u;
-		m_State.VertexStrides[0u] = 0u; /// ??? 
+		m_State.VertexOffsets[0u] = 0u;  /// ??? 
+		m_State.VertexStrides[0u] = inputLayout->stride();
 		
 		m_State.VertexBuffersInUse[0] = 1u;
 		m_State.setDirty(D3D11PipelineState::eDirtyTag::eVertexBuffer, true);
@@ -121,20 +135,29 @@ void D3D11Context::setShaderResources(const D3D11GraphicsPipelinePtr& pipeline)
 {
 	auto& resourceMap = pipeline->gfxPipelineState()->ResourceMap;
 
+	uint32_t maxBinding = 0u;
+	for (auto& res : resourceMap[eVertexShader])
+	{
+		maxBinding = std::max<uint32_t>(maxBinding, res.Binding);
+	}
+
 	for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
 	{
 		auto& resources = resourceMap[i];
 		for (auto& res : resources)
 		{
+			uint32_t slot = i > eVertexShader ? res.Binding - maxBinding : res.Binding;
 			switch (res.Type)
 			{
 			case GfxPipelineState::eTexture:
 			{
 				auto texture = std::static_pointer_cast<D3D11ShaderResourceView>(res.Texture)->get();
 				assert(texture);
-				if (m_State.ShaderResourceViews[i][res.Binding] != texture)
+				if (m_State.ShaderResourceViews[i][slot] != texture)
 				{
-					m_State.ShaderResourceViews[i][res.Binding] = texture;
+					m_State.ShaderResourceViews[i][slot] = texture;
+					m_State.ShaderResourceViewsInUse[i][slot] = 1u;
+					m_State.ShaderResourceViewMaxSlot[i] = std::max<uint32_t>(m_State.ShaderResourceViewMaxSlot[i], slot);
 					m_State.setDirty(D3D11PipelineState::eDirtyTag::eShaderResourceView, true, i);
 				}
 			}
@@ -143,9 +166,11 @@ void D3D11Context::setShaderResources(const D3D11GraphicsPipelinePtr& pipeline)
 			{
 				auto sampler = std::static_pointer_cast<D3D11SamplerState>(res.Sampler)->get();
 				assert(sampler);
-				if (m_State.Samplers[i][res.Binding] != sampler)
+				if (m_State.Samplers[i][slot] != sampler)
 				{
-					m_State.Samplers[i][res.Binding] = sampler;
+					m_State.Samplers[i][slot] = sampler;
+					m_State.SamplersInUse[i][slot] = 1u;
+					m_State.SamplerMaxSlot[i] = std::max<uint32_t>(m_State.SamplerMaxSlot[i], slot);
 					m_State.setDirty(D3D11PipelineState::eDirtyTag::eSampler, true, i);
 				}
 			}
@@ -154,17 +179,21 @@ void D3D11Context::setShaderResources(const D3D11GraphicsPipelinePtr& pipeline)
 			{
 				auto texture = std::static_pointer_cast<D3D11ShaderResourceView>(res.Texture)->get();
 				assert(texture);
-				if (m_State.ShaderResourceViews[i][res.Binding] != texture)
+				if (m_State.ShaderResourceViews[i][slot] != texture)
 				{
-					m_State.ShaderResourceViews[i][res.Binding] = texture;
+					m_State.ShaderResourceViews[i][slot] = texture;
+					m_State.ShaderResourceViewsInUse[i][slot] = 1u;
+					m_State.ShaderResourceViewMaxSlot[i] = std::max<uint32_t>(m_State.ShaderResourceViewMaxSlot[i], slot);
 					m_State.setDirty(D3D11PipelineState::eDirtyTag::eShaderResourceView, true, i);
 				}
 
 				auto sampler = std::static_pointer_cast<D3D11SamplerState>(res.Sampler)->get();
 				assert(sampler);
-				if (m_State.Samplers[i][res.Binding] != sampler)
+				if (m_State.Samplers[i][slot] != sampler)
 				{
-					m_State.Samplers[i][res.Binding] = sampler;
+					m_State.Samplers[i][slot] = sampler;
+					m_State.SamplersInUse[i][slot] = 1u;
+					m_State.SamplerMaxSlot[i] = std::max<uint32_t>(m_State.SamplerMaxSlot[i], slot);
 					m_State.setDirty(D3D11PipelineState::eDirtyTag::eSampler, true, i);
 				}
 			}
@@ -173,9 +202,11 @@ void D3D11Context::setShaderResources(const D3D11GraphicsPipelinePtr& pipeline)
 			{
 				auto uniformBuffer = (static_cast<D3D11BufferPtr>(res.UniformBuffer))->get();
 				assert(uniformBuffer);
-				if (m_State.UniformBuffers[i][res.Binding] != uniformBuffer)
+				if (m_State.UniformBuffers[i][slot] != uniformBuffer)
 				{
-					m_State.UniformBuffers[i][res.Binding] = uniformBuffer;
+					m_State.UniformBuffers[i][slot] = uniformBuffer;
+					m_State.UniformBuffersInUse[i][slot] = 1u;
+					m_State.UniformBufferMaxSlot[i] = std::max<uint32_t>(m_State.UniformBufferMaxSlot[i], slot);
 					m_State.setDirty(D3D11PipelineState::eDirtyTag::eUniformBuffer, true, i);
 				}
 			}

@@ -1,6 +1,48 @@
 #include "Colorful/D3D/D3D11/D3D11Engine.h"
 #include "AssetTool/AssetDatabase.h"
 
+D3D11InputLayout::D3D11InputLayout(
+	const D3D11Device& device, 
+	const AssetTool::ShaderBinary& binary, 
+	const std::vector<GfxVertexAttributes>& layout,
+	uint32_t alignment)
+{
+	assert(binary.Size && layout.size());
+
+	static constexpr char8_t* c_Semantic[eRVertexUsge_MaxEnum]
+	{
+		"POSITION",
+		"NORMAL",
+		"BINNORMAL",
+		"TANGENT",
+		"BITANGENT",
+		"TEXCOORD",
+		"COLOR"
+	};
+
+	std::vector<D3D11_INPUT_ELEMENT_DESC> descs(layout.size());
+	for (uint32_t i = 0u; i < layout.size(); ++i)
+	{
+		descs[i] = D3D11_INPUT_ELEMENT_DESC
+		{
+			"TEXCOORD",
+			i,
+			D3D11Enum::toFormat(layout[i].Format),
+			0u,
+			D3D11_APPEND_ALIGNED_ELEMENT,
+			D3D11_INPUT_PER_VERTEX_DATA,
+			0u
+		};
+		m_Stride += (uint32_t)(GfxVertexAttributes::formatStride(layout[i].Format));
+		m_Stride = (uint32_t)Gear::LinearAllocator::align_to(m_Stride, alignment);
+	}
+
+	ID3D11InputLayout* inputLayout = nullptr;
+	GfxVerifyD3D(device->CreateInputLayout(descs.data(), (uint32_t)descs.size(), binary.Binary.get(), binary.Size, &inputLayout));
+
+	reset(inputLayout);
+}
+
 D3D11Shader::D3D11Shader(const D3D11Device& device, eRShaderUsage usage, const std::string& shaderName)
 	: GfxShader(usage)
 {
@@ -56,48 +98,3 @@ D3D11Shader::D3D11Shader(const D3D11Device& device, eRShaderUsage usage, const s
 		break;
 	}
 }
-
-//void D3D11Shader::setInputLayout(const std::vector<GfxVertexAttributes> &vertexAttributes)
-//{
-//	assert(isValid() && m_Usage == eVertexShader);
-//	assert(!m_InputLayout.isValid());
-//
-//	static constexpr char8_t *c_Semantic[eRVertexUsge_MaxEnum]
-//	{
-//		"POSITION",
-//		"NORMAL",
-//		"BINNORMAL",
-//		"TANGENT",
-//		"BITANGENT",
-//		"TEXCOORD",
-//		"COLOR"
-//	};
-//
-//	size_t vertexStride = 0u;
-//	std::vector<D3D11_INPUT_ELEMENT_DESC> descs(vertexAttributes.size());
-//	for (uint32_t i = 0u; i < vertexAttributes.size(); ++i)
-//	{
-//		descs[i] = D3D11_INPUT_ELEMENT_DESC
-//		{
-//			c_Semantic[vertexAttributes[i].Usage],
-//			0u,
-//			D3D11Enum::toFormat(vertexAttributes[i].Format),
-//			0u,
-//			D3D11_APPEND_ALIGNED_ELEMENT,
-//			D3D11_INPUT_PER_VERTEX_DATA,
-//			0u
-//		};
-//		vertexStride += GfxVertexAttributes::formatStride(vertexAttributes[i].Format);
-//	}
-//
-//	ID3D11InputLayout *pLayout = nullptr;
-//	GfxVerifyD3D(D3D11Engine::instance().getDevice()->CreateInputLayout(
-//		descs.data(), 
-//		(uint32_t)descs.size(), 
-//		m_ShaderBlob.Binary.get(), 
-//		m_ShaderBlob.Size, &pLayout));
-//	reset(pLayout);
-//
-//	m_ShaderBlob.Binary.reset();
-//	m_ShaderBlob.Size = 0ull;
-//}
