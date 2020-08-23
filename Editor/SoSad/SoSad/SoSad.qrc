@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/Images">
+        <file alias="mainIcon">Resources/nvidia.ico</file>
+    </qresource>
+    <qresource prefix="/Themes">
+        <file alias="blender_dark">Resources/Themes/blender_dark.qml</file>
+    </qresource>
+    <qresource prefix="/Config">
+        <file alias="GlobalConfig">qtquickcontrols2.conf</file>
+    </qresource>
+    <qresource prefix="/">
+        <file>Resources/Icons/blender.png</file>
+    </qresource>
+</RCC>
