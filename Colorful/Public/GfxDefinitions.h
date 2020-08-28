@@ -107,7 +107,7 @@ template<typename T> struct VulkanObject
 	::HRESULT result = (func);                    \
 	if (FAILED(result))                           \
 	{                                             \
-		d3d12Engine::logError(result);            \
+		D3D12Engine::logError(result);            \
 	}                                             \
 }
 

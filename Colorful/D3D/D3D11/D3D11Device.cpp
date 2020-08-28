@@ -103,7 +103,7 @@ void D3D11Device::create(__out D3D11Context& IMContext, const DXGIFactory7& fact
 	if (FAILED(createResult.Result))
 	{
 		Logger::instance().log(Logger::eError, "Failed to create d3d11 device.");
-		D3D11Engine::instance().logError((uint32_t)createResult.Result);
+		D3D11Engine::logError((uint32_t)createResult.Result);
 		assert(0);
 	}
 

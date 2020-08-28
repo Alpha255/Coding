@@ -12,7 +12,7 @@ public:
 		bool8_t fullscreen,
 		bool8_t tripleBuffer,
 		const class DXGIFactory7 &inDxgiFactory,
-		class d3d12Device &device);
+		class D3D12Device &device);
 
 	void resize(uint32_t width, uint32_t height);
 protected:

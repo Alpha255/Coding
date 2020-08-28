@@ -3,9 +3,9 @@
 #include "D3D12Device.h"
 #include "D3D12Swapchain.h"
 
-class d3d12Engine : public GfxEngine, public Singleton<d3d12Engine>
+class D3D12Engine : public GfxEngine
 {
-	singletonDeclare(d3d12Engine);
+	singletonDeclare(D3D12Engine);
 public:
 	void initialize(uint64_t windowHandle, const Configurations &config) override final;
 	void finalize() override final;
@@ -28,17 +28,11 @@ public:
 		}
 	}
 
-	inline const d3d12Device &getDevice() const
-	{
-		assert(m_Device.isValid());
-		return m_Device;
-	}
-
-	GfxShaderPtr createVertexShader(const std::string &) override final
+	GfxShaderPtr createVertexShader(const std::string& ) override final
 	{
 		return nullptr;
 	}
-	GfxShaderPtr createFragmentShader(const std::string &) override final
+	GfxShaderPtr createFragmentShader(const std::string& ) override final
 	{
 		return nullptr;
 	}
@@ -123,6 +117,6 @@ public:
 	}
 protected:
 private:
-	d3d12Device m_Device;
+	D3D12Device m_Device;
 	d3d12Swapchain m_Swapchain;
 };

@@ -9,7 +9,7 @@ void d3d12Swapchain::create(
 	bool8_t fullscreen, 
 	bool8_t tripleBuffer,
 	const DXGIFactory7 &inDxgiFactory,
-	d3d12Device &device)
+	D3D12Device &device)
 {
 	assert(!isValid() && windowHandle && inDxgiFactory.isValid() && device.isValid());
 	/// Microsoft DirectX Graphics Infrastructure (DXGI)

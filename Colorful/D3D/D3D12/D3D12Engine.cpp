@@ -1,6 +1,6 @@
 #include "D3D12Engine.h"
 
-void d3d12Engine::initialize(uint64_t windowHandle, const Configurations &config)
+void D3D12Engine::initialize(uint64_t windowHandle, const Configurations &config)
 {
 	uint32_t flags = 0u;
 	ID3D12Debug *d3d12DebugPtr = nullptr;
@@ -30,7 +30,7 @@ void d3d12Engine::initialize(uint64_t windowHandle, const Configurations &config
 	safeRelease(d3d12DebugPtr);
 }
 
-void d3d12Engine::logError(uint32_t result)
+void D3D12Engine::logError(uint32_t result)
 {
 	std::string errorMsg;
 	switch (result)
@@ -84,7 +84,7 @@ void d3d12Engine::logError(uint32_t result)
 	assert(0);
 }
 
-void d3d12Engine::finalize()
+void D3D12Engine::finalize()
 {
 #if 0
 	ID3D11Debug *debugLayerPtr = nullptr;

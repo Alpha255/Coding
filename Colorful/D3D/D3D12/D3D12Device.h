@@ -6,17 +6,13 @@
 class d3d12CommandQueue : public D3DObject<ID3D12CommandQueue>
 {
 public:
-	void create(const class d3d12Device &device);
+	void create(const class D3D12Device &device);
 };
 
-class d3d12Device : public D3DObject<ID3D12Device>, public GfxDevice
+class D3D12Device : public D3DObject<ID3D12Device>, public GfxDevice
 {
 public:
-	void create(const DXGIFactory7 &inDxgiFactory);
-	
-	GfxShader *createShader(eRShaderUsage usage, const std::string &shaderName);
-
-	GfxTexture *createTexture(const std::string &textureName);
+	void create(const DXGIFactory7& dxgiFactory);
 
 	inline DXGIAdapter4 *getDxgiAdapter()
 	{

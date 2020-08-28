@@ -1,7 +1,7 @@
 #include "D3D12Device.h"
 #include "D3D12Engine.h"
 
-void d3d12CommandQueue::create(const d3d12Device &device)
+void d3d12CommandQueue::create(const D3D12Device& device)
 {
 	assert(!isValid() && device.isValid());
 
@@ -13,21 +13,21 @@ void d3d12CommandQueue::create(const d3d12Device &device)
 		0u
 	};
 
-	ID3D12CommandQueue *pCommandQueue = nullptr;
-	rVerifyD3D12(device->CreateCommandQueue(&desc, _uuidof(ID3D12CommandQueue), (void **)&pCommandQueue));
-	reset(pCommandQueue);
+	ID3D12CommandQueue* commandQueue = nullptr;
+	rVerifyD3D12(device->CreateCommandQueue(&desc, _uuidof(ID3D12CommandQueue), (void**)&commandQueue));
+	reset(commandQueue);
 }
 
-void d3d12Device::create(const DXGIFactory7 &inDxgiFactory)
+void D3D12Device::create(const DXGIFactory7& dxgiFactory)
 {
-	assert(!isValid() && inDxgiFactory.isValid());
+	assert(!isValid() && dxgiFactory.isValid());
 
 	std::vector<DXGIAdapter4> dxgiAdapters;
 	uint32_t adapterIndex = 0u;
 	while (true)
 	{
 		IDXGIAdapter1 *pDxgiAdapter = nullptr;
-		if (DXGI_ERROR_NOT_FOUND == (inDxgiFactory->EnumAdapters1(adapterIndex++, &pDxgiAdapter)))
+		if (DXGI_ERROR_NOT_FOUND == (dxgiFactory->EnumAdapters1(adapterIndex++, &pDxgiAdapter)))
 		{
 			break;
 		}
@@ -49,7 +49,7 @@ void d3d12Device::create(const DXGIFactory7 &inDxgiFactory)
 		::HRESULT Result = E_FAIL;
 	};
 
-	auto tryToCreateDevice = [](const DXGIAdapter4 &adapter, d3d12Device &device, bool8_t realCreate)->createResult {
+	auto tryToCreateDevice = [](const DXGIAdapter4 &adapter, D3D12Device &device, bool8_t realCreate)->createResult {
 		createResult resultAttr = {};
 
 		std::vector<D3D_FEATURE_LEVEL> featureLevels =
@@ -93,7 +93,7 @@ void d3d12Device::create(const DXGIFactory7 &inDxgiFactory)
 	createResult tempResultAttr = {};
 	for (uint32_t i = 0u; i < dxgiAdapters.size(); ++i)
 	{
-		d3d12Device tempDevice;
+		D3D12Device tempDevice;
 
 		createResult resultAttr = tryToCreateDevice(dxgiAdapters[i], tempDevice, false);
 		if (SUCCEEDED(resultAttr.Result) && resultAttr.FeatureLevel > tempResultAttr.FeatureLevel)
@@ -109,7 +109,7 @@ void d3d12Device::create(const DXGIFactory7 &inDxgiFactory)
 	if (FAILED(resultAttr.Result))
 	{
 		Logger::instance().log(Logger::eError, "Failed to create d3d11 device.");
-		d3d12Engine::instance().logError((uint32_t)resultAttr.Result);
+		D3D12Engine::logError((uint32_t)resultAttr.Result);
 		assert(0);
 	}
 

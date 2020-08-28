@@ -6,7 +6,7 @@
 #include "Colorful/D3D/D3D11/D3D11Shader.h"
 #include "Colorful/D3D/D3D11/D3D11View.h"
 
-class D3D11Engine : public GfxEngine, public Singleton<D3D11Engine>
+class D3D11Engine : public GfxEngine
 {
 public:
 	void initialize(uint64_t windowHandle, const Configurations& config) override final;
