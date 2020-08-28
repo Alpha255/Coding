@@ -1,6 +1,6 @@
 #include "RenderTest.h"
 
-#if 1
+#if 0
 struct UniformBufferVS
 {
 	Matrix World;
@@ -335,6 +335,81 @@ void RenderTest::renderFrame()
 
 	ImGui::Text("FrameTime: %.2f ms, FPS: %.2f", m_Profile.FrameTime, m_Profile.FPS);
 	ImGui::SliderFloat("Outline Width: ", &s_OutlineWidth, 0.01f, 0.05f, "%.2f");
+}
+#endif
+
+#if 1
+/// GpuPipelineLayout
+/// GpuPipelineResourceLayout/GpuShaderResourceLayout
+struct UniformBuffer
+{
+	Matrix Projection;
+	Matrix View;
+	Vec4 LightPos;
+};
+
+GfxPipelineState s_Phong;
+GfxModel s_Plane;
+
+void RenderTest::postInitialize()
+{
+	m_Model.load("chinesedragon.dae");
+	s_Plane.load("plane.obj");
+
+	m_UniformBufferVS = g_GfxEngine->createUniformBuffer(sizeof(UniformBuffer), nullptr);
+
+	s_Phong.setMaterial("Offscreen_Phong.mat");
+	s_Phong.setUniformBuffer(eVertexShader, m_UniformBufferVS, 0u);
+	s_Phong.DepthStencilStateDesc = GfxDepthStencilStateDesc
+	{
+		true,
+		true,
+		eRCompareOp::eLessOrEqual
+	};
+
+	Vec3 center = m_Model.boundingBox().center();
+	m_Camera.setPosition(Vec3(center.x, center.y, center.z), Vec3(0.0f, 0.0f, 0.0f));
+	m_Camera.setPerspective(60.0f, (float32_t)m_Window->width() / m_Window->height(), 0.1f, 500.0f);
+}
+
+void RenderTest::renderFrame()
+{
+	GfxViewport viewport
+	{
+		0.0f,
+		0.0f,
+		(float32_t)m_Window->width(),
+		(float32_t)m_Window->height()
+	};
+	GfxScissor scissor
+	{
+		0.0f,
+		0.0f,
+		(float32_t)m_Window->width(),
+		(float32_t)m_Window->height()
+	};
+	s_Phong.Viewport = viewport;
+	s_Phong.Scissor = scissor;
+	s_Phong.FrameBuffer = g_GfxEngine->backBuffer();
+
+	Matrix rotationX = Matrix::rotateX(180.0f);
+	Matrix rotationY = Matrix::rotateY(m_Profile.FrameCount / 30u % 360u * 1.0f);
+	Matrix translation = Matrix::translate(0.0f, 0.0f, 15.0f);
+	Matrix model = rotationX * rotationY * translation;
+	UniformBuffer ubo
+	{
+		m_Camera.projectionMatrix(),
+		model,
+		Vec4(0.0f, 0.0f, 0.0f, 1.0f),
+	};
+	m_UniformBufferVS->update(&ubo, sizeof(UniformBuffer), 0u);
+	m_Model.draw(&s_Phong);
+	
+	model = Matrix();
+	//m_UniformBufferVS->update(&model, sizeof(UniformBuffer), sizeof(Matrix));
+	s_Plane.draw(&s_Phong);
+
+	ImGui::Text("FrameTime: %.2f ms, FPS: %.2f", m_Profile.FrameTime, m_Profile.FPS);
 }
 #endif
 

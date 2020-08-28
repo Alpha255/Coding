@@ -12,6 +12,7 @@ struct Profile
 	float32_t FPS = 0.0f;
 	float32_t CpuTime = 0.0f;
 	float32_t GpuTime = 0.0f;
+	uint32_t FrameCount = 0u;
 };
 
 class Application

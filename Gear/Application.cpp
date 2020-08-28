@@ -56,6 +56,8 @@ void Application::nextFrame(const WindowMessage& message)
 	g_GfxEngine->renderFrame();
 
 	++FrameCounter;
+	m_Profile.FrameCount = m_Profile.FrameCount >= std::numeric_limits<uint32_t>().max() ? 0u : m_Profile.FrameCount;
+	++m_Profile.FrameCount;
 
 	Timer.stop();
 

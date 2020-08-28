@@ -14,17 +14,23 @@ void AssetDatabase::tryToLoadModel(const std::string& modelName, __out GfxModel&
 	timer.start();
 
 	auto model = AssetTool::AssetDatabase().instance().tryToGetAsset(modelName);
-	assert(model->type() == AssetTool::Asset::eModel);
+	assert(model && model->type() == AssetTool::Asset::eModel);
 
 	///aiProcess_ConvertToLeftHanded;
 
 	Assimp::Importer importer;
+	//auto scene = importer.ReadFile(model->fullPath(),
+	//	(uint32_t)(
+	//	aiPostProcessSteps::aiProcess_CalcTangentSpace |
+	//	aiPostProcessSteps::aiProcess_Triangulate |
+	//	aiPostProcessSteps::aiProcess_GenBoundingBoxes));
 	auto scene = importer.ReadFile(model->fullPath(),
 		(uint32_t)(
-		aiPostProcessSteps::aiProcess_CalcTangentSpace |
-		aiPostProcessSteps::aiProcess_Triangulate |
-		aiPostProcessSteps::aiProcess_GenBoundingBoxes));
-	///auto scene = importer.ReadFile(model->fullPath(), aiPostProcessSteps::aiProcess_Triangulate);
+			aiProcess_FlipWindingOrder | 
+			aiProcess_Triangulate | 
+			aiProcess_PreTransformVertices | 
+			aiProcess_CalcTangentSpace | 
+			aiProcess_GenSmoothNormals));
 	if (!scene)
 	{
 		Logger::instance().log(Logger::eError, "Assimp: %s", importer.GetErrorString());
@@ -79,6 +85,15 @@ void AssetDatabase::tryToLoadModel(const std::string& modelName, __out GfxModel&
 			if (hasVertexColor)
 			{
 				vertices[j].VertexColor = Vec4(mesh->mColors[0][j].r, mesh->mColors[0][j].g, mesh->mColors[0][j].b, mesh->mColors[0][j].a);
+			}
+			else
+			{
+				if (scene->HasMaterials())
+				{
+					aiColor3D color;
+					scene->mMaterials[i]->Get(AI_MATKEY_COLOR_DIFFUSE, color);
+					vertices[j].VertexColor = Vec4(color.r, color.g, color.b, 1.0f);
+				}
 			}
 		}
 		curMesh.VertexBuffer = gfxEngine->createVertexBuffer(eGpuReadWrite, sizeof(GfxModel::GfxVertex) * vertices.size(), vertices.data());

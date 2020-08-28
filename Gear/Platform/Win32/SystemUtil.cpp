@@ -70,6 +70,7 @@ bool8_t executeProcess(const std::string &Commandline, bool8_t bWaitUntilDone)
 					char8_t outputBuffer[INT16_MAX] = {};
 					verify_Log(::ReadFile(readHandle, outputBuffer, INT16_MAX, &readBytes, nullptr) != 0);
 					outputBuffer[readBytes] = '\0';
+					Logger::instance().log(Logger::eError, std::string(outputBuffer));
 					bResult = false;
 				}
 			}
