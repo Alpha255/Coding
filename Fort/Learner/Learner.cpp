@@ -64,6 +64,8 @@ private:
 	std::function<bool8_t(const T &, const T &)> m_CompareFunc;
 };
 
+#include <xmemory>
+
 int32_t main(int32_t argc, char8_t **argv)
 {	
 	struct Test
@@ -76,6 +78,9 @@ int32_t main(int32_t argc, char8_t **argv)
 	};
 
 	std::vector<uint64_t> test(3, 7);
+	std::list<uint32_t> testList;
+	std::allocator<uint32_t>::rebind<char8_t>::other allocatorTest;
+	
 	auto maxSize = test.max_size();
 	FakeSTL::Vector<uint64_t> testV(3, 7u);
 	maxSize = testV.max_size();
