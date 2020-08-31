@@ -103,7 +103,7 @@ public:
 		return m_Handle;
 	}
 
-	void processMessage(uint32_t message, uint64_t wParam, int64_t lParam);
+	void processMessage(uint32_t message, size_t wParam, intptr_t lParam);
 
 	void update();
 protected:
@@ -115,5 +115,55 @@ private:
 	uint64_t m_Handle = 0u;
 };
 using WindowPtr = std::unique_ptr<Window>;
+
+class WindowEvent
+{
+public:
+	enum class eMessage
+	{
+		eActive,
+		eInactive,
+		eSizeMaximized,
+		eSizeMinimized,
+		eSizeRestored,
+		eEnterSizeMove,
+		eExitSizeMove,
+		eDestroy,
+		eLButtonDoubleClick_NonclientArea,
+		eGetMinMaxInfo,
+		eLButtonDown,
+		eLButtonUp,
+		eLButtonDoubleClick,
+		eRButtonDown,
+		eRButtonUp,
+		eRButtonDoubleClick,
+		eMButtonDown,
+		eMButtonUp,
+		eMButtonDoubleClick,
+		eMouseMove,
+		eMouseWheel,
+		eKeyDown,
+		eKeyUp,
+		eOther
+	};
+
+	union EventParameter
+	{
+		eMessage Message;
+
+		uint32_t Word;
+
+		struct
+		{
+			uint32_t High;
+			uint32_t Low;
+		};
+	};
+
+	void handle(uint32_t message, size_t wParam, intptr_t lParam);
+protected:
+private:
+	EventParameter m_Event;
+};
 
 namespaceEnd(Gear)
