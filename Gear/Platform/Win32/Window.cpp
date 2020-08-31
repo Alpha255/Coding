@@ -71,9 +71,9 @@ Window::Window(const std::string& title, uint32_t width, uint32_t height)
 	m_Handle = reinterpret_cast<uint64_t>(windowHandle);
 }
 
-void Window::processMessage(uint32_t message, uint64_t wParam, int64_t lParam)
+void Window::processMessage(uint32_t message, size_t wParam, intptr_t lParam)
 {
-	static auto getMousePos = [this](int64_t lParam)
+	static auto getMousePos = [this](intptr_t lParam)
 	{
 		Vec2 curPos = Vec2((float32_t)LOWORD(lParam), (float32_t)HIWORD(lParam));
 		m_Message.Mouse.DeltaPos = curPos - m_Message.Mouse.Pos;
@@ -260,6 +260,121 @@ void Window::update()
 	{
 		::TranslateMessage(&message);
 		::DispatchMessageW(&message);
+	}
+}
+
+void WindowEvent::handle(uint32_t message, size_t wParam, intptr_t lParam)
+{
+	m_Event.High = HIWORD(lParam);
+	m_Event.Low = LOWORD(lParam);
+
+	switch (message)
+	{
+	case WM_ACTIVATE:
+		if (LOWORD(wParam) == WA_INACTIVE)
+		{
+			m_Event.Message = eMessage::eInactive;
+		}
+		else
+		{
+			m_Event.Message = eMessage::eActive;
+		}
+		break;
+	case WM_SIZE:
+		if (SIZE_MAXIMIZED == wParam)
+		{
+			m_Event.Message = eMessage::eSizeMaximized;
+		}
+		else if (SIZE_RESTORED == wParam)
+		{
+			m_Event.Message = eMessage::eSizeRestored;
+		}
+		else if (SIZE_MINIMIZED == wParam)
+		{
+			m_Event.Message = eMessage::eSizeMinimized;
+		}
+		break;
+	case WM_ENTERSIZEMOVE:
+		m_Event.Message = eMessage::eEnterSizeMove;
+		break;
+	case WM_EXITSIZEMOVE:
+		m_Event.Message = eMessage::eExitSizeMove;
+		break;
+	case WM_DESTROY:
+		m_Event.Message = eMessage::eDestroy;
+		break;
+	case WM_NCLBUTTONDBLCLK:
+		m_Event.Message = eMessage::eLButtonDoubleClick_NonclientArea;
+		break;
+	case WM_GETMINMAXINFO:
+		m_Event.Message = eMessage::eGetMinMaxInfo;
+		break;
+	case WM_LBUTTONDOWN:
+		m_Event.Message = eMessage::eLButtonDown;
+		break;
+	case WM_LBUTTONUP:
+		m_Event.Message = eMessage::eLButtonUp;
+		break;
+	case WM_LBUTTONDBLCLK:
+		m_Event.Message = eMessage::eLButtonDoubleClick;
+		break;
+	case WM_RBUTTONDOWN:
+		m_Event.Message = eMessage::eRButtonDown;
+		break;
+	case WM_RBUTTONUP:
+		m_Event.Message = eMessage::eRButtonUp;
+		break;
+	case WM_RBUTTONDBLCLK:
+		m_Event.Message = eMessage::eRButtonDoubleClick;
+		break;
+	case WM_MBUTTONDOWN:
+		m_Event.Message = eMessage::eMButtonDown;
+		break;
+	case WM_MBUTTONUP:
+		m_Event.Message = eMessage::eMButtonUp;
+		break;
+	case WM_MBUTTONDBLCLK:
+		m_Event.Message = eMessage::eMButtonDoubleClick;
+		break;
+	case WM_MOUSEMOVE:
+		m_Event.Message = eMessage::eMouseMove;
+		break;
+	case WM_MOUSEWHEEL:
+		m_Event.Message = eMessage::eMouseWheel;
+		m_Event.Word = GET_WHEEL_DELTA_WPARAM(wParam);
+		break;
+	case WM_KEYDOWN:
+		m_Event.Message = eMessage::eKeyDown;
+		switch (wParam)
+		{
+		case 'W': m_Event.Word = (uint32_t)eKeyboardKey::eKey_W; break;
+		case 'A': m_Event.Word = (uint32_t)eKeyboardKey::eKey_A; break;
+		case 'S': m_Event.Word = (uint32_t)eKeyboardKey::eKey_S; break;
+		case 'D': m_Event.Word = (uint32_t)eKeyboardKey::eKey_D; break;
+		case 'Q': m_Event.Word = (uint32_t)eKeyboardKey::eKey_Q; break;
+		case 'E': m_Event.Word = (uint32_t)eKeyboardKey::eKey_E; break;
+		case VK_LEFT: m_Event.Word = (uint32_t)eKeyboardKey::eKey_Left; break;
+		case VK_RIGHT: m_Event.Word = (uint32_t)eKeyboardKey::eKey_Right; break;
+		case VK_UP: m_Event.Word = (uint32_t)eKeyboardKey::eKey_Up; break;
+		case VK_DOWN: m_Event.Word = (uint32_t)eKeyboardKey::eKey_Down; break;
+		case VK_HOME: m_Event.Word = (uint32_t)eKeyboardKey::eKey_Home; break;
+		case VK_CONTROL: m_Event.Word = (uint32_t)eKeyboardKey::eKey_Ctrl; break;
+		case VK_MENU: m_Event.Word = (uint32_t)eKeyboardKey::eKey_Other; break;
+		case VK_SHIFT: m_Event.Word = (uint32_t)eKeyboardKey::eKey_Shift; break;
+		case VK_PRIOR: m_Event.Word = (uint32_t)eKeyboardKey::eKey_PageUp; break;
+		case VK_NEXT: m_Event.Word = (uint32_t)eKeyboardKey::eKey_PageDown; break;
+		case VK_F1: m_Event.Word = (uint32_t)eKeyboardKey::eKey_F1; break;
+		default: m_Event.Word = (uint32_t)eKeyboardKey::eKey_Other; break;
+		}
+		break;
+	case WM_SYSKEYDOWN:
+		break;
+	case WM_KEYUP:
+		m_Event.Message = eMessage::eKeyUp;
+		break;
+	default:
+		m_Event.Message = eMessage::eOther;
+		break;
 	}
 }
 
