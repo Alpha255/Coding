@@ -133,6 +133,7 @@ void D3D11Context::setVertexIndexBuffers(const D3D11GraphicsPipelinePtr& pipelin
 
 void D3D11Context::setShaderResources(const D3D11GraphicsPipelinePtr& pipeline)
 {
+#if !defined(UsingUnorderedMap)
 	auto& resourceMap = pipeline->gfxPipelineState()->ResourceMap;
 
 	uint32_t maxBinding = 0u;
@@ -214,4 +215,7 @@ void D3D11Context::setShaderResources(const D3D11GraphicsPipelinePtr& pipeline)
 			}
 		}
 	}
+#else
+	assert(0);
+#endif
 }
