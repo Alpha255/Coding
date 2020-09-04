@@ -1,0 +1,6 @@
+QMenu {
+    color: #386487;
+    background-color: #DEF0FE;
+    border: 1px solid #C0DCF2;
+    margin: 0px;
+}

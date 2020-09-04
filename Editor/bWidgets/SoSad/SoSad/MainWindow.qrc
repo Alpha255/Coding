@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/MainWindow"/>
+    <qresource prefix="/Styles">
+        <file alias="Flat">Styles/Flat.css</file>
+    </qresource>
+</RCC>
