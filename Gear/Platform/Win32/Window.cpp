@@ -265,8 +265,8 @@ void Window::update()
 
 void WindowEvent::handle(uint32_t message, size_t wParam, intptr_t lParam)
 {
-	m_Event.High = HIWORD(lParam);
-	m_Event.Low = LOWORD(lParam);
+	m_Event.Value.High = HIWORD(lParam);
+	m_Event.Value.Low = LOWORD(lParam);
 
 	switch (message)
 	{

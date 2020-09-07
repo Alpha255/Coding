@@ -153,11 +153,11 @@ public:
 
 		uint32_t Word;
 
-		struct
+		struct ParameterValue
 		{
 			uint32_t High;
 			uint32_t Low;
-		};
+		}Value;
 	};
 
 	void handle(uint32_t message, size_t wParam, intptr_t lParam);

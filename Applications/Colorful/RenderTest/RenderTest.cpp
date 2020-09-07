@@ -348,8 +348,16 @@ struct UniformBuffer
 	Vec4 LightPos;
 };
 
+struct UniformBufferMirror
+{
+	Matrix Projection;
+	Matrix View;
+};
+
 GfxPipelineState s_Phong;
+GfxPipelineState s_Mirror;
 GfxModel s_Plane;
+GfxGpuBufferPtr s_Buffer;
 
 void RenderTest::postInitialize()
 {
@@ -357,6 +365,7 @@ void RenderTest::postInitialize()
 	s_Plane.load("plane.obj");
 
 	m_UniformBufferVS = g_GfxEngine->createUniformBuffer(sizeof(UniformBuffer), nullptr);
+	s_Buffer = g_GfxEngine->createUniformBuffer(sizeof(UniformBufferMirror), nullptr);
 
 	s_Phong.setMaterial("Offscreen_Phong.mat");
 	s_Phong.setUniformBuffer(eVertexShader, m_UniformBufferVS, 0u);
@@ -367,6 +376,9 @@ void RenderTest::postInitialize()
 		eRCompareOp::eLessOrEqual
 	};
 
+	s_Mirror.setMaterial("Offscreen_Mirror.mat");
+	s_Mirror.setUniformBuffer(eVertexShader, s_Buffer, 0u);
+
 	Vec3 center = m_Model.boundingBox().center();
 	m_Camera.setPosition(Vec3(center.x, center.y, center.z), Vec3(0.0f, 0.0f, 0.0f));
 	m_Camera.setPerspective(60.0f, (float32_t)m_Window->width() / m_Window->height(), 0.1f, 500.0f);
@@ -374,6 +386,9 @@ void RenderTest::postInitialize()
 
 void RenderTest::renderFrame()
 {
+	static float32_t s_TransY = 0.0f;
+	static float32_t s_TransX = 0.0f;
+
 	GfxViewport viewport
 	{
 		0.0f,
@@ -393,7 +408,7 @@ void RenderTest::renderFrame()
 	s_Phong.FrameBuffer = g_GfxEngine->backBuffer();
 
 	Matrix rotationX = Matrix::rotateX(180.0f);
-	Matrix rotationY = Matrix::rotateY(m_Profile.FrameCount / 30u % 360u * 1.0f);
+	Matrix rotationY = Matrix::rotateY(180.0f);
 	Matrix translation = Matrix::translate(0.0f, 0.0f, 15.0f);
 	Matrix model = rotationX * rotationY * translation;
 	UniformBuffer ubo
@@ -405,11 +420,22 @@ void RenderTest::renderFrame()
 	m_UniformBufferVS->update(&ubo, sizeof(UniformBuffer), 0u);
 	m_Model.draw(&s_Phong);
 	
-	model = Matrix();
-	//m_UniformBufferVS->update(&model, sizeof(UniformBuffer), sizeof(Matrix));
-	s_Plane.draw(&s_Phong);
+	translation = Matrix::translate(0.0f, s_TransY, s_TransX);
+	model = translation;
+	UniformBufferMirror uboMirror
+	{
+		m_Camera.projectionMatrix(),
+		model
+	};
+	s_Buffer->update(&uboMirror, sizeof(UniformBufferMirror), 0u);
+	s_Mirror.Viewport = viewport;
+	s_Mirror.Scissor = scissor;
+	s_Mirror.FrameBuffer = g_GfxEngine->backBuffer();
+	s_Plane.draw(&s_Mirror);
 
 	ImGui::Text("FrameTime: %.2f ms, FPS: %.2f", m_Profile.FrameTime, m_Profile.FPS);
+	ImGui::SliderFloat("Mirror-Y", &s_TransY, -50.0f, 50.0f);
+	ImGui::SliderFloat("Mirror-X", &s_TransX, -50.0f, 50.0f);
 }
 #endif
 
