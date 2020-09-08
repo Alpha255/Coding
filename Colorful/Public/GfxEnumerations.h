@@ -253,14 +253,14 @@ enum eRColorWriteMask
 
 enum eRVertexUsage
 {
-	ePosition,
-	eNormal,
-	eBinNormal,
-	eTangent,
-	eBiTangent,
-	eTexcoord,
-	eColor,
-	eRVertexUsge_MaxEnum
+	ePosition = 1 << 0,
+	eNormal = 1 << 1,
+	eBinNormal = 1 << 2,
+	eTangent = 1 << 3,
+	eBiTangent = 1 << 4,
+	eTexcoord = 1 << 5,
+	eColor = 1 << 6,
+	eRVertexUsge_MaxEnum = 7
 };
 
 enum class eRIndexType

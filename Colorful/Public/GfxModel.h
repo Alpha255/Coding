@@ -7,6 +7,96 @@ namespace AssetTool
 	class AssetDatabase;
 }
 
+template<size_t Dimension>
+struct Vec
+{
+};
+
+#define VecTypeName(Dimension)                \
+template<>                                    \
+struct Vec<Dimension> : public Vec##Dimension \
+{                                             \
+};                                            \
+using Vector##Dimension = Vec<Dimension>;
+
+VecTypeName(2)
+VecTypeName(3)
+VecTypeName(4)
+
+struct GfxVertexLayout
+{
+	GfxVertexLayout(uint32_t layout, uint32_t vertexCount)
+		: Layout(layout)
+		, VertexCount(vertexCount)
+	{
+#define AccumulateStride(Usage) if (layout & Usage) { Stride += usageStride(Usage); }
+		AccumulateStride(eRVertexUsage::ePosition);
+		AccumulateStride(eRVertexUsage::eNormal);
+		AccumulateStride(eRVertexUsage::eBinNormal);
+		AccumulateStride(eRVertexUsage::eTangent);
+		AccumulateStride(eRVertexUsage::eBiTangent);
+		AccumulateStride(eRVertexUsage::eTexcoord);
+		AccumulateStride(eRVertexUsage::eColor);
+#undef AccumulateStride
+
+		Data = std::make_unique<byte8_t>(Stride * vertexCount);
+	}
+
+	std::string desc()
+	{
+		return std::string();
+	}
+
+	constexpr size_t usageStride(eRVertexUsage usage) const
+	{
+		switch (usage)
+		{
+		case ePosition:
+		case eNormal:
+		case eBinNormal:
+		case eTangent:
+		case eBiTangent:
+			return sizeof(Vec3);
+		case eTexcoord:
+			return sizeof(Vec2);
+		case eColor:
+			return sizeof(Vec4);
+		}
+
+		return 0u;
+	}
+
+	size_t Stride = 0u;
+
+	template<eRVertexUsage usage, class Vector = Vec3>
+	void set(const Vector& value, uint32_t index)
+	{
+		assert(sizeof(Vector) == usageStride(usage));
+		assert(index < VertexCount);
+
+		byte8_t* dst = Data.get()[index * Stride + offset(usage)];
+		memcpy_s(dst, sizeof(Vector), &value, sizeof(Vector));
+	}
+
+	template<eRVertexUsage usage, class Vector = Vec3>
+	Vector get(uint32_t index)
+	{
+		assert(sizeof(Vector) == usageStride(usage));
+		assert(index < VertexCount);
+
+		return Vector();
+	}
+protected:
+	std::unique_ptr<byte8_t> Data = nullptr;
+	uint32_t VertexCount = 0u;
+	uint32_t Layout = 0u;
+
+	inline size_t offset(eRVertexUsage usage) const
+	{
+		return 0u;
+	}
+};
+
 class GfxModel
 {
 public:
