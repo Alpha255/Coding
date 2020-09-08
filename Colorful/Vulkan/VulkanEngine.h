@@ -59,9 +59,11 @@ public:
 		return std::static_pointer_cast<GfxRenderSurface>(depthStencilView);
 	}
 
-	GfxRenderSurfacePtr createRenderTarget() override final
+	GfxRenderSurfacePtr createRenderTarget(uint32_t width, uint32_t height, eRFormat format) override final
 	{
-		return nullptr;
+		auto renderTarget = std::make_shared<VulkanRenderTarget>(m_Device.logicalDevice(), width, height, format);
+		m_ImageViewList.emplace_back(std::static_pointer_cast<VulkanImageView>(renderTarget));
+		return std::static_pointer_cast<GfxRenderSurface>(renderTarget);
 	}
 
 	GfxRenderPassPtr createRenderPass(GfxFrameBufferDesc& desc) override final

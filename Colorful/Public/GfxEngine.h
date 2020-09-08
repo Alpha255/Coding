@@ -130,7 +130,7 @@ public:
 	virtual GfxSamplerPtr createSampler(const GfxSamplerDesc& desc) = 0;
 
 	virtual GfxRenderSurfacePtr createDepthStencil(uint32_t width, uint32_t height, eRFormat format) = 0;
-	virtual GfxRenderSurfacePtr createRenderTarget() = 0;
+	virtual GfxRenderSurfacePtr createRenderTarget(uint32_t width, uint32_t height, eRFormat format) = 0;
 
 	virtual GfxRenderPassPtr createRenderPass(GfxFrameBufferDesc& desc) = 0;
 

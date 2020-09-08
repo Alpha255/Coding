@@ -95,7 +95,7 @@ public:
 	{
 		return nullptr;
 	}
-	GfxRenderSurfacePtr createRenderTarget() override final
+	GfxRenderSurfacePtr createRenderTarget(uint32_t, uint32_t, eRFormat) override final
 	{
 		return nullptr;
 	}

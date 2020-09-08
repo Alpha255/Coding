@@ -293,3 +293,56 @@ uint32_t findByBinding(const std::vector<T>& target, uint32_t binding)
 	return std::numeric_limits<uint32_t>::max();
 }
 #endif
+
+template<class T>
+struct TKey
+{
+	virtual bool8_t operator==(const T& other) const = 0;
+
+	inline size_t hash() const
+	{
+		return Hash;
+	}
+protected:
+	size_t Hash = 0u;
+};
+
+struct GfxRenderPassKey
+{
+	uint8_t NumRenderTargets = 0u;
+	uint8_t SampleCount = 0u;
+	eRFormat DepthStencilFormat = eUnknownFormat;
+	eRFormat RenderTargetFormat[eMaxRenderTargets]{};
+
+	bool8_t operator==(const GfxRenderPassKey& other) const
+	{
+		return false;
+	}
+
+	size_t hash() const
+	{
+		return Hash;
+	}
+private:
+	size_t Hash = 0u;
+};
+
+struct GfxFrameBufferKey
+{
+	GfxRenderPassPtr RenderPass = nullptr;
+	uint32_t NumRenderTargets = 0u;
+	GfxRenderSurfacePtr DepthStencil = nullptr;
+	GfxRenderSurfacePtr RenderTargets[eMaxRenderTargets]{};
+
+	bool8_t operator==(const GfxFrameBufferKey& other) const
+	{
+		return false;
+	}
+
+	size_t hash() const
+	{
+		return Hash;
+	}
+private:
+	size_t Hash = 0u;
+};

@@ -1,5 +1,46 @@
 #include "Colorful/Vulkan/VulkanEnum.h"
 
+static constexpr std::array<VkPolygonMode, eRPolygonMode_MaxEnum> s_VkPolygonMode
+{ 
+	VK_POLYGON_MODE_FILL, 
+	VK_POLYGON_MODE_LINE, 
+	VK_POLYGON_MODE_POINT 
+};
+
+static constexpr VkCullModeFlags s_VkCullMode[] 
+{ 
+	VK_CULL_MODE_NONE, 
+	VK_CULL_MODE_FRONT_BIT, 
+	VK_CULL_MODE_BACK_BIT, 
+	VK_CULL_MODE_FRONT_AND_BACK
+};
+
+static constexpr VkFrontFace s_VkFronFace[]
+{
+	VK_FRONT_FACE_COUNTER_CLOCKWISE,
+	VK_FRONT_FACE_CLOCKWISE
+};
+
+static constexpr VkLogicOp s_VkLogicOp[]
+{
+	VK_LOGIC_OP_CLEAR,
+	VK_LOGIC_OP_AND,
+	VK_LOGIC_OP_AND_REVERSE,
+	VK_LOGIC_OP_COPY,
+	VK_LOGIC_OP_AND_INVERTED,
+	VK_LOGIC_OP_NO_OP,
+	VK_LOGIC_OP_XOR,
+	VK_LOGIC_OP_OR,
+	VK_LOGIC_OP_NOR,
+	VK_LOGIC_OP_EQUIVALENT,
+	VK_LOGIC_OP_INVERT,
+	VK_LOGIC_OP_OR_REVERSE,
+	VK_LOGIC_OP_COPY_INVERTED,
+	VK_LOGIC_OP_OR_INVERTED,
+	VK_LOGIC_OP_NAND,
+	VK_LOGIC_OP_SET
+};
+
 VkPolygonMode VulkanEnum::toPolygonMode(eRPolygonMode mode)
 {
 	switch (mode)
@@ -27,8 +68,8 @@ VkFrontFace VulkanEnum::toFrontFace(eRFrontFace frontFace)
 {
 	switch (frontFace)
 	{
-	case eClockwise:        return VK_FRONT_FACE_CLOCKWISE;
 	case eCounterclockwise: return VK_FRONT_FACE_COUNTER_CLOCKWISE;
+	case eClockwise:        return VK_FRONT_FACE_CLOCKWISE;
 	}
 	return VK_FRONT_FACE_MAX_ENUM;
 }

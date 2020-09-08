@@ -23,3 +23,13 @@ private:
 	GfxSamplerPtr m_LinearSampler = nullptr;
 	GfxTexturePtr m_DefaultTexture = nullptr;
 };
+
+class GfxGpuResourceLayout
+{
+
+};
+
+class GfxGpuResourceFactory
+{
+
+};

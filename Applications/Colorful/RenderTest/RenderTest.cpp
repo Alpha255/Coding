@@ -358,6 +358,7 @@ GfxPipelineState s_Phong;
 GfxPipelineState s_Mirror;
 GfxModel s_Plane;
 GfxGpuBufferPtr s_Buffer;
+GfxRenderPassPtr s_OffscreenRenderPass;
 
 void RenderTest::postInitialize()
 {
@@ -382,12 +383,17 @@ void RenderTest::postInitialize()
 	Vec3 center = m_Model.boundingBox().center();
 	m_Camera.setPosition(Vec3(center.x, center.y, center.z), Vec3(0.0f, 0.0f, 0.0f));
 	m_Camera.setPerspective(60.0f, (float32_t)m_Window->width() / m_Window->height(), 0.1f, 500.0f);
+
+	GfxFrameBufferDesc desc;
+	desc.ColorSurface[0] = g_GfxEngine->createRenderTarget(512u, 512u, eRGBA8_UNorm); /// VK_IMAGE_USAGE_SAMPLED_BIT
+	desc.DepthSurface = g_GfxEngine->createDepthStencil(512u, 512u, eD24_UNorm_S8_UInt);
+	s_OffscreenRenderPass = g_GfxEngine->createRenderPass(desc);
 }
 
 void RenderTest::renderFrame()
 {
 	static float32_t s_TransY = 0.0f;
-	static float32_t s_TransX = 0.0f;
+	static float32_t s_TransZ = 15.0f;
 
 	GfxViewport viewport
 	{
@@ -420,8 +426,8 @@ void RenderTest::renderFrame()
 	m_UniformBufferVS->update(&ubo, sizeof(UniformBuffer), 0u);
 	m_Model.draw(&s_Phong);
 	
-	translation = Matrix::translate(0.0f, s_TransY, s_TransX);
-	model = translation;
+	translation = Matrix::translate(0.0f, s_TransY, s_TransZ);
+	model = rotationX * rotationY * translation;
 	UniformBufferMirror uboMirror
 	{
 		m_Camera.projectionMatrix(),
@@ -435,7 +441,7 @@ void RenderTest::renderFrame()
 
 	ImGui::Text("FrameTime: %.2f ms, FPS: %.2f", m_Profile.FrameTime, m_Profile.FPS);
 	ImGui::SliderFloat("Mirror-Y", &s_TransY, -50.0f, 50.0f);
-	ImGui::SliderFloat("Mirror-X", &s_TransX, -50.0f, 50.0f);
+	ImGui::SliderFloat("Mirror-Z", &s_TransZ, -50.0f, 50.0f);
 }
 #endif
 

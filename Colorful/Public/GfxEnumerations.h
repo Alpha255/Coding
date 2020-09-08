@@ -134,8 +134,8 @@ enum eRCullMode
 
 enum eRFrontFace
 {
-	eClockwise,
 	eCounterclockwise,
+	eClockwise,
 	eRFrontFace_MaxEnum
 };
 

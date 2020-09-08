@@ -82,7 +82,7 @@ public:
 		VkDevice device,
 		uint32_t width,
 		uint32_t height,
-		VkFormat format)
+		eRFormat format)
 		: VulkanImageView(
 			device,
 			width,
@@ -91,7 +91,7 @@ public:
 			1u,
 			1u,
 			VK_IMAGE_VIEW_TYPE_2D,
-			format,
+			VulkanEnum::toFormat(format),
 			VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
 			VK_IMAGE_ASPECT_COLOR_BIT)
 	{
