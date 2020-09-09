@@ -47,6 +47,16 @@ public:
 
 	File() = default;
 	File(const std::string &filePath);
+	File(File&& other)
+		: m_Size(other.m_Size)
+		, m_Name(std::move(other.m_Name))
+		, m_Extension(std::move(other.m_Extension))
+		, m_FullPath(std::move(other.m_FullPath))
+		, m_RelPath(std::move(other.m_RelPath))
+		, m_Data(std::move(other.m_Data))
+	{
+		other.m_Size = 0ull;
+	}
 
 	inline size_t size() const
 	{

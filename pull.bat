@@ -7,3 +7,5 @@ cd Hexo
 git pull
 
 cd ..
+
+@pause
