@@ -1,0 +1,41 @@
+{
+	"InputLayout" : [
+		{ 
+			"Usage" : 1,
+			"Format" : 2
+		},
+		{ 
+			"Usage" : 1,
+			"Format" : 2
+		},
+		{ 
+			"Usage" : 1,
+			"Format" : 2
+		}
+	],
+
+	"Shaders" : {
+		"VertexShader" : {
+			"Source" : "ImGUI.vs",
+			"Binary" : "1231241241241243",
+			"GpuResources" : {
+				"0" : {
+					"Type" : 0,
+					"CombinedTextureSampler" : {
+						"Texture" : "test.png",
+						"Sampler" : {
+							"Type" : 0,
+							"OtherArgs" : 0.0
+						}
+					},
+				},
+				"1" : {
+					"Type" : 1,
+					"UniformBuffer" : {
+						"Size" : 32
+					}
+				}
+			}
+		}
+	}
+}

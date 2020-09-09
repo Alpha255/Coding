@@ -1,6 +1,5 @@
 #include "Colorful/Public/Material.h"
 #include "AssetTool/AssetDatabase.h"
-#include "ThirdParty/json/single_include/nlohmann/json.hpp"
 
 Material::Material(const std::string& name)
 {
