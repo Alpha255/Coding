@@ -8,6 +8,11 @@ static std::string s_BasePath;
 static std::unordered_map<std::string, AssetPtr> s_Assets;
 static bool8_t s_Ready = false;
 
+Asset::Asset(const std::string& name)
+{
+
+}
+
 void AssetDatabase::initialize()
 {
 	auto initInOtherThread = [this]()

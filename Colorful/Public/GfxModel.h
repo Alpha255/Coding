@@ -7,6 +7,7 @@ namespace AssetTool
 	class AssetDatabase;
 }
 
+#if 0
 template<size_t Dimension>
 struct Vec
 {
@@ -32,11 +33,11 @@ struct GfxVertexLayout
 #define AccumulateStride(Usage) if (layout & Usage) { Stride += usageStride(Usage); }
 		AccumulateStride(eRVertexUsage::ePosition);
 		AccumulateStride(eRVertexUsage::eNormal);
-		AccumulateStride(eRVertexUsage::eBinNormal);
+		AccumulateStride(eRVertexUsage::eBiNormal);
 		AccumulateStride(eRVertexUsage::eTangent);
 		AccumulateStride(eRVertexUsage::eBiTangent);
-		AccumulateStride(eRVertexUsage::eTexcoord);
-		AccumulateStride(eRVertexUsage::eColor);
+		AccumulateStride(eRVertexUsage::eTexcoord0);
+		AccumulateStride(eRVertexUsage::eColor0);
 #undef AccumulateStride
 
 		Data = std::make_unique<byte8_t>(Stride * vertexCount);
@@ -53,13 +54,13 @@ struct GfxVertexLayout
 		{
 		case ePosition:
 		case eNormal:
-		case eBinNormal:
+		case eBiNormal:
 		case eTangent:
 		case eBiTangent:
 			return sizeof(Vec3);
-		case eTexcoord:
+		case eTexcoord0:
 			return sizeof(Vec2);
-		case eColor:
+		case eColor0:
 			return sizeof(Vec4);
 		}
 
@@ -96,6 +97,7 @@ protected:
 		return 0u;
 	}
 };
+#endif
 
 class GfxModel
 {

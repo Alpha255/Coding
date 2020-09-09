@@ -1,5 +1,12 @@
 #pragma once
 
+enum eRShaderCode
+{
+	eGLSL,
+	eHLSL,
+	eRShaderCode_MaxEnum
+};
+
 enum eRShaderUsage
 {
 	eVertexShader,
@@ -255,12 +262,23 @@ enum eRVertexUsage
 {
 	ePosition = 1 << 0,
 	eNormal = 1 << 1,
-	eBinNormal = 1 << 2,
-	eTangent = 1 << 3,
+	eTangent = 1 << 2,
+	eBiNormal = 1 << 3,
 	eBiTangent = 1 << 4,
-	eTexcoord = 1 << 5,
-	eColor = 1 << 6,
-	eRVertexUsge_MaxEnum = 7
+	eTexcoord0 = 1 << 5,
+	eTexcoord1 = 1 << 6,
+	eTexcoord2 = 1 << 7,
+	eTexcoord3 = 1 << 8,
+	eTexcoord4 = 1 << 9,
+	eTexcoord5 = 1 << 10,
+	eTexcoord6 = 1 << 11,
+	eTexcoord7 = 1 << 12,
+	eColor0 = 1 << 13,
+	eColor1 = 1 << 14,
+	eColor2 = 1 << 15,
+	eColor3 = 1 << 16,
+	eWeight = 1 << 17,
+	eRVertexUsge_MaxEnum = 18
 };
 
 enum class eRIndexType

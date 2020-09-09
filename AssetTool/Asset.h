@@ -41,6 +41,8 @@ struct TextureBinary
 	std::vector<std::vector<Image>> Images;
 };
 
+using AssetID = uint32_t;
+DeclareShared(Asset)
 class Asset : public File
 {
 public:
@@ -58,27 +60,28 @@ public:
 		eAssetType_MaxEnum
 	};
 
-	Asset(const std::string& filePath, eAssetType type, uint32_t assetID)
+	Asset(const std::string& filePath, eAssetType type, AssetID assetID)
 		: File(filePath)
 		, m_Type(type)
 		, m_ID(assetID)
 	{
 	}
 
+	Asset(const std::string& name);
+
 	inline eAssetType type() const
 	{
 		return m_Type;
 	}
 
-	inline uint32_t ID() const
+	inline AssetID ID() const
 	{
 		return m_ID;
 	}
 protected:
 private:
 	eAssetType m_Type = eUnknown;
-	uint32_t m_ID = std::numeric_limits<uint32_t>().max();
+	AssetID m_ID = std::numeric_limits<uint32_t>().max();
 };
-using AssetPtr = std::shared_ptr<Asset>;
 
 namespaceEnd(AssetTool)

@@ -24,9 +24,17 @@ private:
 	GfxTexturePtr m_DefaultTexture = nullptr;
 };
 
-class GfxGpuResourceLayout
+struct GfxGpuResource
 {
+	std::vector<GfxGpuBufferPtr> UniformBuffers;
+	std::vector<GfxSamplerPtr> Samplers;
+	std::vector<GfxTexturePtr> Textures;
+	std::vector<GfxGpuBufferPtr> RWBuffers;
+};
 
+struct GfxGpuResourceLayout
+{
+	std::array<GfxGpuResource, eRShaderUsage_MaxEnum> GpuResources;
 };
 
 class GfxGpuResourceFactory

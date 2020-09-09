@@ -129,3 +129,7 @@ public:
 #if !defined(_DEBUG)
 	#define UsingUnorderedMap
 #endif
+
+#define DeclareShared(ClassName)                   \
+class ClassName;                                   \
+using ClassName##Ptr = std::shared_ptr<ClassName>;

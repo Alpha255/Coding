@@ -5,7 +5,7 @@
             "Format": "eRGB32_Float"
         },
         {
-            "Usage": "eTexcoord",
+            "Usage": "eTexcoord0",
             "Format": "eRG32_Float"
         }
     ],

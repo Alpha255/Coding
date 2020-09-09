@@ -314,7 +314,7 @@ struct GfxRenderPassKey
 	eRFormat DepthStencilFormat = eUnknownFormat;
 	eRFormat RenderTargetFormat[eMaxRenderTargets]{};
 
-	bool8_t operator==(const GfxRenderPassKey& other) const
+	bool8_t operator==(const GfxRenderPassKey&) const
 	{
 		return false;
 	}
@@ -334,7 +334,7 @@ struct GfxFrameBufferKey
 	GfxRenderSurfacePtr DepthStencil = nullptr;
 	GfxRenderSurfacePtr RenderTargets[eMaxRenderTargets]{};
 
-	bool8_t operator==(const GfxFrameBufferKey& other) const
+	bool8_t operator==(const GfxFrameBufferKey&) const
 	{
 		return false;
 	}

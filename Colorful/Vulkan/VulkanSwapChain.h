@@ -3,6 +3,7 @@
 #include "Colorful/Vulkan/VulkanImageView.h"
 #include "Colorful/Vulkan/VulkanRenderPass.h"
 
+DeclareShared(VulkanSwapchain)
 class VulkanSwapchain : public VulkanObject<VkSwapchainKHR>
 {
 public:
@@ -80,4 +81,3 @@ private:
 	uint32_t m_Height = 0u;
 	uint32_t m_CurrentFrameIndex = 0u;
 };
-using VulkanSwapchainPtr = std::shared_ptr<VulkanSwapchain>;

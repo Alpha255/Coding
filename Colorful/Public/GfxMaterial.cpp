@@ -16,11 +16,11 @@ RTTR_REGISTRATION
 	(
 		value("ePosition", eRVertexUsage::ePosition),
 		value("eNormal", eRVertexUsage::eNormal),
-		value("eBinNormal", eRVertexUsage::eBinNormal),
+		value("eBinNormal", eRVertexUsage::eBiNormal),
 		value("eTangent", eRVertexUsage::eTangent),
 		value("eBiTangent", eRVertexUsage::eBiTangent),
-		value("eTexcoord", eRVertexUsage::eTexcoord),
-		value("eColor", eRVertexUsage::eColor)
+		value("eTexcoord0", eRVertexUsage::eTexcoord0),
+		value("eColor0", eRVertexUsage::eColor0)
 	);
 
 	rttr::registration::enumeration<eRFormat>("eRFormat")
