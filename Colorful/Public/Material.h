@@ -39,7 +39,6 @@ protected:
 			auto& target = json[name()];
 			for (auto& attr : Attributes)
 			{
-				target.insert(target.cend(), { "Usage", attr.first, "Format", attr.second });
 			}
 		}
 

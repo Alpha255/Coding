@@ -21,3 +21,8 @@ conda install -c gouarin xeus-cling
 conda install python=3.8
 jupyter kernelspec list
 conda config --set proxy_servers.http http://id:pw@address:port
+
+rem set proxy
+vim .bashrc
+export http_proxy="socks5://127.0.0.1:1080"
+export https_proxy="socks5://127.0.0.1:1080"
