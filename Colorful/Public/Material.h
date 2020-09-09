@@ -9,59 +9,41 @@ class Material : public Gear::File
 {
 public:
 	Material(const std::string& name);
+	Material() = default;
 
 	bool8_t isDirty() const
 	{
 		return false;
 	}
+
+	void test();
 protected:
-	template<class T>
-	class TAttribute : public nlohmann::json
+	class IAttribute
 	{
 		virtual const char8_t* const name() const = 0;
-		virtual void serialize() = 0;
-		virtual void deserialize() = 0;
+		virtual void serialize(nlohmann::json& json) = 0;
+		virtual void deserialize(nlohmann::json& json) = 0;
 	};
 
-	struct InputLayout : TAttribute<InputLayout>
+	struct InputLayout : IAttribute
 	{
 		std::vector<std::pair<eRVertexUsage, eRFormat>> Attributes;
-
-		///NLOHMANN_DEFINE_TYPE_INTRUSIVE;
-
-		NLOHMANN_JSON_SERIALIZE_ENUM(eRVertexUsage, 
-			{
-				{ ePosition,  "Position"  },
-				{ eNormal,    "Normal"    },
-				{ eTangent,   "Tangent"   },
-				{ eBiNormal,  "BiNormal"  },
-				{ eBiTangent, "BiTangent" },
-				{ eTexcoord0, "Texcoord0" },
-				{ eTexcoord1, "Texcoord1" },
-				{ eTexcoord2, "Texcoord2" },
-				{ eTexcoord3, "Texcoord3" },
-				{ eTexcoord4, "Texcoord4" },
-				{ eTexcoord5, "Texcoord5" },
-				{ eTexcoord6, "Texcoord6" },
-				{ eTexcoord7, "Texcoord7" },
-				{ eColor0,    "Color0"    },
-				{ eColor1,    "Color1"    },
-				{ eColor2,    "Color2"    },
-				{ eColor3,    "Color3"    },
-				{ eWeight,    "Weight"    },
-			})
 
 		const char8_t* const name() const override
 		{
 			return "InputLayout";
 		}
 
-		void serialize() override
+		void serialize(nlohmann::json& json) override
 		{
-			auto& json = *static_cast<nlohmann::json*>(this);
+			auto& target = json[name()];
+			for (auto& attr : Attributes)
+			{
+				target.insert(target.cend(), { "Usage", attr.first, "Format", attr.second });
+			}
 		}
 
-		void deserialize() override
+		void deserialize(nlohmann::json& json) override
 		{
 
 		}
@@ -139,4 +121,6 @@ protected:
 	void reload();
 private:
 	nlohmann::json m_Json;
+
+	std::vector<std::shared_ptr<IAttribute>> m_Attributes;
 };

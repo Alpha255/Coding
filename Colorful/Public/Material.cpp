@@ -13,3 +13,16 @@ Material::Material(const std::string& name)
 void Material::reload()
 {
 }
+
+void Material::test()
+{
+	m_Json.clear();
+	m_Json.push_back(nlohmann::json::meta());
+	
+	auto inputPtr = std::make_shared<InputLayout>();
+	inputPtr->Attributes.push_back(std::make_pair(ePosition, eRGB32_Float));
+	///inputPtr->serialize(m_Json);
+
+	std::ofstream os("test.json", std::ios::out);
+	os << m_Json; 
+}

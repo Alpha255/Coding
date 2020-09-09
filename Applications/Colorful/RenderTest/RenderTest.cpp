@@ -1,4 +1,5 @@
 #include "RenderTest.h"
+#include "Colorful/Public/Material.h"
 
 #if 0
 struct UniformBufferVS
@@ -362,6 +363,9 @@ GfxRenderPassPtr s_OffscreenRenderPass;
 
 void RenderTest::postInitialize()
 {
+	Material mat;
+	mat.test();
+
 	m_Model.load("chinesedragon.dae");
 	s_Plane.load("plane.obj");
 
