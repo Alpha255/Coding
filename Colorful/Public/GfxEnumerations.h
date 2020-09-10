@@ -1,12 +1,5 @@
 #pragma once
 
-enum eRShaderCode
-{
-	eGLSL,
-	eHLSL,
-	eRShaderCode_MaxEnum
-};
-
 enum eRShaderUsage
 {
 	eVertexShader,
