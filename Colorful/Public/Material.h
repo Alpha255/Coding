@@ -36,71 +36,54 @@ protected:
 
 		void serialize(nlohmann::json& json) override
 		{
-			auto& target = json[name()];
-			for (auto& attr : Attributes)
+			auto& value = json[name()];
+			for (int i = 0u; i < Attributes.size(); ++i)
 			{
+				value[i]["Usage"] = Attributes[i].first;
+				value[i]["Format"] = Attributes[i].second;
 			}
+		}
+
+		void deserialize(nlohmann::json& json) override
+		{
+			auto& value = json[name()];
+			assert(value.is_array());
+			for (auto& item : value)
+			{
+				Attributes.emplace_back(std::make_pair(static_cast<eRVertexUsage>(item["Usage"]), 
+					static_cast<eRFormat>(item["Format"])));
+			}
+		}
+	};
+
+	struct Shader final : public IAttribute
+	{
+		eRShaderUsage Usage = eRShaderUsage_MaxEnum;
+		std::string Target;
+		std::string Source;
+		std::shared_ptr<byte8_t> Binary = nullptr;
+
+		const char8_t* const name() const override
+		{
+			assert(Usage < eRShaderUsage_MaxEnum);
+			return usageNames[Usage];
+		}
+
+		void serialize(nlohmann::json& json) override
+		{
+			assert(Source.length());
+			auto& value = json[name()];
+			value["Target"] = Target;
+			value["Source"] = Source;
+			value["Binary"] = std::string(reinterpret_cast<char8_t*>(Binary.get()));
 		}
 
 		void deserialize(nlohmann::json& json) override
 		{
 
 		}
-	};
 
-	struct UniformBuffer
-	{
-	};
-
-	struct RWBuffer
-	{
-	};
-
-	struct Sampler
-	{
-	};
-
-	struct Texture
-	{
-		std::string FilePath;
-	};
-
-	struct TextureSampler
-	{
-		Texture TargetTexture;
-		Sampler TargetSampler;
-	};
-
-	struct ShaderResource
-	{
-		enum EGpuResourceType
-		{
-			ETexture,
-			EUniformBuffer,
-			ERWBuffer,
-			ESampler
-		};
-
-		uint32_t Slot = 0u;
-		EGpuResourceType Type;
-
-		union Resource
-		{
-			TextureSampler CombinedTextureSampler;
-			Texture CommonTexture;
-			Sampler CommonSampler;
-			UniformBuffer ConstantsBuffer;
-			RWBuffer ReadWriteBuffer;
-		}_Resource;
-	};
-
-	struct Shader
-	{
-		eRShaderUsage Usage;
-		std::string Source;
-		std::shared_ptr<byte8_t> Binary;
-
-		static constexpr std::array<const char8_t* const, eRShaderUsage_MaxEnum> usageNames
+		static constexpr const char8_t* const usageNames[]
 		{
 			"VertexShader",
 			"HullShader",
@@ -108,12 +91,6 @@ protected:
 			"GeometryShader",
 			"FragmentShader",
 			"ComputeShader"
-		};
-
-		static constexpr std::array<const char8_t* const, eRShaderCode_MaxEnum> shaderCodeTypeNames
-		{
-			"GLSL",
-			"HLSL"
 		};
 	};
 
