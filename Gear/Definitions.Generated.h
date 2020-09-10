@@ -2,4 +2,4 @@
 
 #define VK_USE_PLATFORM_WIN32_KHR
 
-#define Platform_Win32
+#define PLATFORM_WIN32

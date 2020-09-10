@@ -2,7 +2,7 @@
 
 #include "Gear/Camera/ICamera.h"
 
-namespaceStart(Gear)
+NAMESPACE_START(Gear)
 
 class Camera : public ICamera
 {
@@ -89,4 +89,4 @@ private:
 	bool8_t m_Moving = false;
 };
 
-namespaceEnd(Gear)
+NAMESPACE_END(Gear)

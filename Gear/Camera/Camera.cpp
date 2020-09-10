@@ -1,7 +1,7 @@
 #include "Gear/Gear.h"
 #include "Gear/Window.h"
 
-namespaceStart(Gear)
+NAMESPACE_START(Gear)
 
 void Camera::setPerspective(float32_t fov, float32_t aspect, float32_t nearPlane, float32_t farPlane)
 {
@@ -148,4 +148,4 @@ void Camera::processMessage(const WindowMessage& message, float32_t elapsedTime)
 	}
 }
 
-namespaceEnd(Gear)
+NAMESPACE_END(Gear)

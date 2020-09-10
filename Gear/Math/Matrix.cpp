@@ -1,9 +1,9 @@
-#include "Matrix.h"
+#include "Gear/Math/Matrix.h"
 
-namespaceStart(Gear)
-namespaceStart(Math)
+NAMESPACE_START(Gear)
+NAMESPACE_START(Math)
 
-#if !defined(UsingSSE)
+#if !defined(USE_SSE)
 void Matrix::gaussJordanInverse()
 {
 	/// Gauss-Jordan method
@@ -104,5 +104,5 @@ Vec3 Vec3::transformCoord(const Vec3 &src, const Matrix &mat)
 	return result;
 }
 
-namespaceEnd(Math)
-namespaceEnd(Gear)
+NAMESPACE_END(Math)
+NAMESPACE_END(Gear)

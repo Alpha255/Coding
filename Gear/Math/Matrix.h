@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Vector4.h"
+#include "Gear/Math/Vector4.h"
 
-namespaceStart(Gear)
-namespaceStart(Math)
+NAMESPACE_START(Gear)
+NAMESPACE_START(Math)
 
 class Matrix : public DirectX::XMFLOAT4X4A
 {
@@ -26,7 +26,7 @@ public:
 	{
 	}
 
-	inline Matrix(const Vec4 &row0, const Vec4 &row1, const Vec4 &row2, const Vec4 &row3)
+	inline Matrix(const Vec4& row0, const Vec4& row1, const Vec4& row2, const Vec4& row3)
 		: Matrix(
 			row0.x, row0.y, row0.z, row0.w,
 			row1.x, row1.y, row1.z, row1.w,
@@ -35,12 +35,12 @@ public:
 	{
 	}
 
-	inline Matrix(const Vec4 &row)
+	inline Matrix(const Vec4& row)
 		: Matrix(row, row, row, row)
 	{
 	}
 
-#if defined(UsingSSE)
+#if defined(USE_SSE)
 	inline void identity()
 	{
 		DirectX::XMMATRIX iMatrix = DirectX::XMMatrixIdentity();
@@ -77,7 +77,7 @@ public:
 		DirectX::XMStoreFloat4x4A(this, result);
 	}
 
-	inline void operator*=(const Matrix &right)
+	inline void operator*=(const Matrix& right)
 	{
 		DirectX::XMMATRIX vLeft = DirectX::XMLoadFloat4x4(this);
 		DirectX::XMMATRIX vRight = DirectX::XMLoadFloat4x4(&right);
@@ -85,7 +85,7 @@ public:
 		DirectX::XMStoreFloat4x4A(this, vResult);
 	}
 
-	inline void operator+=(const Matrix &right)
+	inline void operator+=(const Matrix& right)
 	{
 		DirectX::XMMATRIX vLeft = DirectX::XMLoadFloat4x4(this);
 		DirectX::XMMATRIX vRight = DirectX::XMLoadFloat4x4(&right);
@@ -102,12 +102,12 @@ public:
 		return result;
 	}
 
-	inline static Matrix translate(const Vec3 &translation)
+	inline static Matrix translate(const Vec3& translation)
 	{
 		return translate(translation.x, translation.y, translation.z);
 	}
 
-	inline static Matrix scale(const Vec3 &scaling)
+	inline static Matrix scale(const Vec3& scaling)
 	{
 		return scale(scaling.x, scaling.y, scaling.z);
 	}
@@ -136,7 +136,7 @@ public:
 		return result;
 	}
 
-	inline static Matrix rotate(const Vec3 &axis, float32_t angle)
+	inline static Matrix rotate(const Vec3& axis, float32_t angle)
 	{
 		return rotate(axis.x, axis.y, axis.z, angle);
 	}
@@ -177,7 +177,7 @@ public:
 		return result;
 	}
 
-	inline static Matrix transpose(const Matrix &targetMatrix)
+	inline static Matrix transpose(const Matrix& targetMatrix)
 	{
 		Matrix result;
 
@@ -188,7 +188,7 @@ public:
 		return result;
 	}
 
-	inline static Matrix inverse(const Matrix &targetMatrix)
+	inline static Matrix inverse(const Matrix& targetMatrix)
 	{
 		Matrix result;
 
@@ -199,7 +199,7 @@ public:
 		return result;
 	}
 
-	inline static Matrix inverseTranspose(const Matrix &targetMatrix)
+	inline static Matrix inverseTranspose(const Matrix& targetMatrix)
 	{
 		/// Inverse-transpose is just applied to normals.  So zero out 
 		/// translation row so that it doesn't get into our inverse-transpose
@@ -270,7 +270,7 @@ public:
 		return result;
 	}
 
-	inline static Matrix lookAtLH(const Vec3 &eye, const Vec3 &lookAt, const Vec3 &up)
+	inline static Matrix lookAtLH(const Vec3& eye, const Vec3& lookAt, const Vec3& up)
 	{
 		Matrix result;
 
@@ -283,7 +283,7 @@ public:
 		return result;
 	}
 
-	inline static Matrix lookAtRH(const Vec3 &eye, const Vec3 &lookAt, const Vec3 &up)
+	inline static Matrix lookAtRH(const Vec3& eye, const Vec3& lookAt, const Vec3& up)
 	{
 		Matrix result;
 
@@ -715,14 +715,14 @@ public:
 	}
 #endif
 protected:
-#if !defined(UsingSSE)
+#if !defined(USE_SSE)
 	void gaussJordanInverse();
 #endif
 private:
 };
 
-#if defined(UsingSSE)
-inline Matrix operator*(const Matrix &left, const Matrix &right)
+#if defined(USE_SSE)
+inline Matrix operator*(const Matrix& left, const Matrix& right)
 {
 	Matrix result;
 
@@ -734,7 +734,7 @@ inline Matrix operator*(const Matrix &left, const Matrix &right)
 	return result;
 }
 
-inline Vec4 operator*(const Vec4 &left, const Matrix &right)
+inline Vec4 operator*(const Vec4& left, const Matrix& right)
 {
 	assert(0);
 	Vec4 result;
@@ -767,5 +767,5 @@ inline Vec4 operator*(const Vec4 &left, const Matrix &right)
 }
 #endif
 
-namespaceEnd(Math)
-namespaceEnd(Gear)
+NAMESPACE_END(Math)
+NAMESPACE_END(Gear)

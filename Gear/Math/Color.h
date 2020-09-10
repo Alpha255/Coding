@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Vector4.h"
+#include "Gear/Math/Vector4.h"
 
-namespaceStart(Gear)
-namespaceStart(Color)
+NAMESPACE_START(Gear)
+NAMESPACE_START(Color)
 
 static const Math::Vec4 White(1.0f, 1.0f, 1.0f, 1.0f);
 static const Math::Vec4 Black(0.0f, 0.0f, 0.0f, 1.0f);
@@ -31,5 +31,5 @@ inline Math::Vec4 randomColor()
 	*/
 }
 
-namespaceEnd(Color)
-namespaceEnd(Gear)
+NAMESPACE_END(Color)
+NAMESPACE_END(Gear)

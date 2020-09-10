@@ -2,7 +2,7 @@
 
 #if defined(Platform_Win32)
 
-namespaceStart(Gear)
+NAMESPACE_START(Gear)
 
 std::string getErrorMessage(uint32_t errorCode)
 {
@@ -177,6 +177,6 @@ void DynamicLibrary::free()
 	}
 }
 
-namespaceEnd(Gear)
+NAMESPACE_END(Gear)
 
 #endif

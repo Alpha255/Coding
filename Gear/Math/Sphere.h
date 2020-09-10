@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Vector4.h"
+#include "Gear/Math/Vector4.h"
 
-namespaceStart(Gear)
-namespaceStart(Math)
+NAMESPACE_START(Gear)
+NAMESPACE_START(Math)
 
 class Sphere
 {
@@ -14,5 +14,5 @@ private:
 	float32_t m_Radius;
 };
 
-namespaceEnd(Math)
-namespaceEnd(Gear)
+NAMESPACE_END(Math)
+NAMESPACE_END(Gear)

@@ -2,7 +2,7 @@
 
 #include "Gear/Math/Math.h"
 
-namespaceStart(Gear)
+NAMESPACE_START(Gear)
 
 class ICamera
 {
@@ -43,4 +43,4 @@ protected:
 	float32_t m_FarPlane = 0.0f;
 };
 
-namespaceEnd(Gear)
+NAMESPACE_END(Gear)

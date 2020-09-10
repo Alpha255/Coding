@@ -1,6 +1,6 @@
 #include "Gear/Gear.h"
 
-namespaceStart(Gear)
+NAMESPACE_START(Gear)
 
 File::File(const std::string &filePath)
 {
@@ -150,4 +150,4 @@ void File::write(eFileMode wirteAs, const std::string& path, const byte8_t* cont
 	fileStream.close();
 }
 
-namespaceEnd(Gear)
+NAMESPACE_END(Gear)

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Vector.h"
+#include "Gear/Math/Vector.h"
 
-namespaceStart(Gear)
-namespaceStart(Math)
+NAMESPACE_START(Gear)
+NAMESPACE_START(Math)
 
 class Vec2 : public DirectX::XMFLOAT2A
 {
@@ -28,8 +28,8 @@ public:
 	{                               
 	}
 
-#if defined(UsingSSE)
-	vecMemberFuncsA(2)
+#if defined(USE_SSE)
+	VECTOR_FUNCTIONSA(2)
 #else
 	inline float32_t lengthSq()
 	{
@@ -95,11 +95,11 @@ public:
 	}
 #endif
 
-	static Vec2 transformCoord(const Vec2 &src, const class Matrix &mat);
+	static Vec2 transformCoord(const Vec2& src, const class Matrix& mat);
 };
 
-#if defined(UsingSSE)
-	vecPublicFuncsA(2)
+#if defined(USE_SSE)
+	VECTOR_FUNCTIONSA_GLOBAL(2)
 #else
 inline Vec2 operator+(const Vec2 &left, const Vec2 &right)
 {
@@ -183,5 +183,5 @@ inline Vec2 negate(const Vec2 &targetVec)
 }
 #endif
 
-namespaceEnd(Math)
-namespaceEnd(Gear)
+NAMESPACE_END(Math)
+NAMESPACE_END(Gear)

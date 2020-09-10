@@ -1,7 +1,7 @@
-#include "AABB.h"
+#include "Gear/Math/AABB.h"
 
-namespaceStart(Gear)
-namespaceStart(Math)
+NAMESPACE_START(Gear)
+NAMESPACE_START(Math)
 
 std::vector<Vec3> AABB::vertices() const
 {
@@ -26,7 +26,7 @@ std::vector<Vec3> AABB::vertices() const
 	return result;
 }
 
-AABB AABB::createFromVertices(const std::vector<Vec3> &vertices)
+AABB AABB::createFromVertices(const std::vector<Vec3>& vertices)
 {
 	Vec3 vMin, vMax;
 	for (uint32_t i = 0u; i < vertices.size(); ++i)
@@ -42,5 +42,5 @@ AABB AABB::createFromVertices(const std::vector<Vec3> &vertices)
 	return result;
 }
 
-namespaceEnd(Math)
-namespaceEnd(Gear)
+NAMESPACE_END(Math)
+NAMESPACE_END(Gear)

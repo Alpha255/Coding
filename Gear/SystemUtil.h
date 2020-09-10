@@ -2,7 +2,7 @@
 
 #include "Gear/Definitions.h"
 
-namespaceStart(Gear)
+NAMESPACE_START(Gear)
 
 template <typename Left, typename Right>
 inline bool8_t isEqual(const Left &left, const Right &right)
@@ -56,4 +56,4 @@ struct DynamicLibrary
 	}
 };
 
-namespaceEnd(Gear)
+NAMESPACE_END(Gear)

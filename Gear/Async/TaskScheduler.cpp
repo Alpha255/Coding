@@ -1,6 +1,6 @@
 #include "Gear/Async/TaskScheduler.h"
 
-namespaceStart(Gear)
+NAMESPACE_START(Gear)
 
 void TaskScheduler::initialize(uint32_t threadCount)
 {
@@ -57,4 +57,4 @@ void TaskScheduler::finalize()
 	waitDone();
 }
 
-namespaceEnd(Gear)
+NAMESPACE_END(Gear)

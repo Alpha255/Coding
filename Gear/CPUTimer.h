@@ -2,7 +2,7 @@
 
 #include "Gear/Definitions.h"
 
-namespaceStart(Gear)
+NAMESPACE_START(Gear)
 
 class CpuTimer
 {
@@ -77,4 +77,4 @@ private:
 	eState m_State = eReady;
 };
 
-namespaceEnd(Gear)
+NAMESPACE_END(Gear)

@@ -2,7 +2,7 @@
 
 #include "Gear/Math/Math.h"
 
-namespaceStart(Gear)
+NAMESPACE_START(Gear)
 
 enum class eKeyboardKey
 {
@@ -166,4 +166,4 @@ private:
 	EventParameter m_Event;
 };
 
-namespaceEnd(Gear)
+NAMESPACE_END(Gear)

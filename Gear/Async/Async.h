@@ -2,7 +2,7 @@
 
 #include "Gear/Definitions.h"
 
-namespaceStart(Gear)
+NAMESPACE_START(Gear)
 
 class CriticalSection
 {
@@ -24,4 +24,4 @@ class Thread
 {
 };
 
-namespaceEnd(Gear)
+NAMESPACE_END(Gear)

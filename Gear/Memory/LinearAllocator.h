@@ -2,7 +2,7 @@
 
 #include "Gear/Singleton.h"
 
-namespaceStart(Gear)
+NAMESPACE_START(Gear)
 
 /// Maybe a IAllocator
 
@@ -91,4 +91,4 @@ private:
 	std::atomic<size_t> m_Current = 0ull;
 };
 
-namespaceEnd(Gear)
+NAMESPACE_END(Gear)

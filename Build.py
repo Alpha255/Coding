@@ -17,10 +17,10 @@ def generateHeaderFile():
 	Content = '#pragma once\n\n'
 	if gPlatform_Win32:
 		Content += '#define VK_USE_PLATFORM_WIN32_KHR\n\n'
-		Content += '#define Platform_Win32'
+		Content += '#define PLATFORM_WIN32'
 	elif gPlatform_Linux:
 		Content += '#define VK_USE_PLATFORM_XCB_KHR\n\n'
-		Content += '#define Platform_Linux'
+		Content += '#define PLATFORM_LINUX'
 	else:
 		raise Exception('Unknown platform!')
 
@@ -89,7 +89,7 @@ if __name__ == "__main__":
 		raise Exception('Unknown platform')
 
 	generateHeaderFile()
-	preBuildDependencies()
+	#preBuildDependencies()
 	generateProjects()
 	
 	if args.build:

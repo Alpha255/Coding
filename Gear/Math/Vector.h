@@ -4,25 +4,25 @@
 #include <DirectXMath.h>
 #include <DirectXCollision.h>
 
-#define UsingSSE
+#define USE_SSE
 
-namespaceStart(Gear)
-namespaceStart(Math)
+NAMESPACE_START(Gear)
+NAMESPACE_START(Math)
 
-#define vecNormalize(Dimension, Vec)                                          \
+#define VECTOR_NORMALIZE(Dimension, Vec)                                      \
 {                                                                             \
 	DirectX::XMVECTOR temp = DirectX::XMLoadFloat##Dimension(Vec);            \
 	DirectX::XMVECTOR vResult = DirectX::XMVector##Dimension##Normalize(temp);\
 	DirectX::XMStoreFloat##Dimension(Vec, vResult);                           \
 }
-#define vecAdd(Dimension, VecLeft, VecRight, VecResult)                       \
+#define VECTOR_ADD(Dimension, VecLeft, VecRight, VecResult)                   \
 {                                                                             \
 	DirectX::XMVECTOR v0 = DirectX::XMLoadFloat##Dimension(VecLeft);          \
 	DirectX::XMVECTOR v1 = DirectX::XMLoadFloat##Dimension(VecRight);         \
 	DirectX::XMVECTOR vResult = DirectX::XMVectorAdd(v0, v1);                 \
 	DirectX::XMStoreFloat##Dimension(VecResult, vResult);                     \
 }
-#define vecSub(Dimension, VecLeft, VecRight, VecResult)                       \
+#define VECTOR_SUBTRACT(Dimension, VecLeft, VecRight, VecResult)              \
 {                                                                             \
 	DirectX::XMVECTOR v0 = DirectX::XMLoadFloat##Dimension(VecLeft);          \
 	DirectX::XMVECTOR v1 = DirectX::XMLoadFloat##Dimension(VecRight);         \
@@ -30,54 +30,54 @@ namespaceStart(Math)
 	DirectX::XMVECTOR vResult = DirectX::XMVectorAdd(v0, v1);                 \
 	DirectX::XMStoreFloat##Dimension(VecResult, vResult);                     \
 }
-#define vecMultiply(Dimension, VecLeft, VecRight, VecResult)                  \
+#define VECTOR_MULTIPLY(Dimension, VecLeft, VecRight, VecResult)              \
 {                                                                             \
 	DirectX::XMVECTOR v0 = DirectX::XMLoadFloat##Dimension(VecLeft);          \
 	DirectX::XMVECTOR v1 = DirectX::XMLoadFloat##Dimension(VecRight);         \
 	DirectX::XMVECTOR vResult = DirectX::XMVectorMultiply(v0, v1);            \
 	DirectX::XMStoreFloat##Dimension(VecResult, vResult);                     \
 }
-#define vecCross(Dimension, VecLeft, VecRight, VecResult)                     \
+#define VECTOR_CROSS(Dimension, VecLeft, VecRight, VecResult)                 \
 {                                                                             \
 	DirectX::XMVECTOR v0 = DirectX::XMLoadFloat##Dimension(VecLeft);          \
 	DirectX::XMVECTOR v1 = DirectX::XMLoadFloat##Dimension(VecRight);         \
 	DirectX::XMVECTOR vResult = DirectX::XMVector3Cross(v0, v1);              \
 	DirectX::XMStoreFloat##Dimension(VecResult, vResult);                     \
 }
-#define vecScale(Dimension, Vec, Factor, VecResult)                           \
+#define VECTOR_SCALE(Dimension, Vec, Factor, VecResult)                       \
 {                                                                             \
 	DirectX::XMVECTOR temp = DirectX::XMLoadFloat##Dimension(Vec);            \
 	DirectX::XMVECTOR vResult = DirectX::XMVectorScale(temp, Factor);         \
 	DirectX::XMStoreFloat##Dimension(VecResult, vResult);                     \
 }
-#define vecDot(Dimension, VecLeft, VecRight, Result)                          \
+#define VECTOR_DOT(Dimension, VecLeft, VecRight, Result)                      \
 {                                                                             \
 	DirectX::XMVECTOR v0 = DirectX::XMLoadFloat##Dimension(VecLeft);          \
 	DirectX::XMVECTOR v1 = DirectX::XMLoadFloat##Dimension(VecRight);         \
 	DirectX::XMVECTOR vResult = DirectX::XMVector##Dimension##Dot(v0, v1);    \
 	Result = DirectX::XMVectorGetX(vResult);                                  \
 }
-#define vecLength(Dimension, Vec, Result)                                     \
+#define VECTOR_LENGTH(Dimension, Vec, Result)                                 \
 {                                                                             \
 	DirectX::XMVECTOR temp = DirectX::XMLoadFloat##Dimension(Vec);            \
 	DirectX::XMVECTOR vResult = DirectX::XMVector##Dimension##Length(temp);   \
 	Result = DirectX::XMVectorGetX(vResult);                                  \
 }
 
-#define vecNormalizeA(Dimension, Vec)                                         \
+#define VECTOR_NORMALIZEA(Dimension, Vec)                                     \
 {                                                                             \
 	DirectX::XMVECTOR temp = DirectX::XMLoadFloat##Dimension##A(Vec);         \
 	DirectX::XMVECTOR vResult = DirectX::XMVector##Dimension##Normalize(temp);\
 	DirectX::XMStoreFloat##Dimension##A(Vec, vResult);                        \
 }
-#define vecAddA(Dimension, VecLeft, VecRight, VecResult)                      \
+#define VECTOR_ADDA(Dimension, VecLeft, VecRight, VecResult)                  \
 {                                                                             \
 	DirectX::XMVECTOR v0 = DirectX::XMLoadFloat##Dimension##A(VecLeft);       \
 	DirectX::XMVECTOR v1 = DirectX::XMLoadFloat##Dimension##A(VecRight);      \
 	DirectX::XMVECTOR vResult = DirectX::XMVectorAdd(v0, v1);                 \
 	DirectX::XMStoreFloat##Dimension##A(VecResult, vResult);                  \
 }
-#define vecSubA(Dimension, VecLeft, VecRight, VecResult)                      \
+#define VECTOR_SUBTRACTA(Dimension, VecLeft, VecRight, VecResult)             \
 {                                                                             \
 	DirectX::XMVECTOR v0 = DirectX::XMLoadFloat##Dimension##A(VecLeft);       \
 	DirectX::XMVECTOR v1 = DirectX::XMLoadFloat##Dimension##A(VecRight);      \
@@ -85,70 +85,70 @@ namespaceStart(Math)
 	DirectX::XMVECTOR vResult = DirectX::XMVectorAdd(v0, v1);                 \
 	DirectX::XMStoreFloat##Dimension##A(VecResult, vResult);                  \
 }
-#define vecMultiplyA(Dimension, VecLeft, VecRight, VecResult)                 \
+#define VECTOR_MULTIPLYA(Dimension, VecLeft, VecRight, VecResult)             \
 {                                                                             \
 	DirectX::XMVECTOR v0 = DirectX::XMLoadFloat##Dimension##A(VecLeft);       \
 	DirectX::XMVECTOR v1 = DirectX::XMLoadFloat##Dimension##A(VecRight);      \
 	DirectX::XMVECTOR vResult = DirectX::XMVectorMultiply(v0, v1);            \
 	DirectX::XMStoreFloat##Dimension##A(VecResult, vResult);                  \
 }
-#define vecCrossA(Dimension, VecLeft, VecRight, VecResult)                    \
+#define VECTOR_CROSSA(Dimension, VecLeft, VecRight, VecResult)                \
 {                                                                             \
 	DirectX::XMVECTOR v0 = DirectX::XMLoadFloat##Dimension##A(VecLeft);       \
 	DirectX::XMVECTOR v1 = DirectX::XMLoadFloat##Dimension##A(VecRight);      \
 	DirectX::XMVECTOR vResult = DirectX::XMVector3Cross(v0, v1);              \
 	DirectX::XMStoreFloat##Dimension##A(VecResult, vResult);                  \
 }
-#define vecScaleA(Dimension, Vec, Factor, VecResult)                          \
+#define VECTOR_SCALEA(Dimension, Vec, Factor, VecResult)                      \
 {                                                                             \
 	DirectX::XMVECTOR temp = DirectX::XMLoadFloat##Dimension##A(Vec);         \
 	DirectX::XMVECTOR vResult = DirectX::XMVectorScale(temp, Factor);         \
 	DirectX::XMStoreFloat##Dimension##A(VecResult, vResult);                  \
 }
-#define vecDotA(Dimension, VecLeft, VecRight, Result)                         \
+#define VECTOR_DOTA(Dimension, VecLeft, VecRight, Result)                     \
 {                                                                             \
 	DirectX::XMVECTOR v0 = DirectX::XMLoadFloat##Dimension##A(VecLeft);       \
 	DirectX::XMVECTOR v1 = DirectX::XMLoadFloat##Dimension##A(VecRight);      \
 	DirectX::XMVECTOR vResult = DirectX::XMVector##Dimension##Dot(v0, v1);    \
 	Result = DirectX::XMVectorGetX(vResult);                                  \
 }
-#define vecLengthA(Dimension, Vec, Result)                                    \
+#define VECTOR_LENGTHA(Dimension, Vec, Result)                                \
 {                                                                             \
 	DirectX::XMVECTOR temp = DirectX::XMLoadFloat##Dimension##A(Vec);         \
 	DirectX::XMVECTOR vResult = DirectX::XMVector##Dimension##Length(temp);   \
 	Result = DirectX::XMVectorGetX(vResult);                                  \
 }
 
-#define vecMemberFuncs(Dimension)                                             \
+#define VECTOR_FUNCTIONS(Dimension)                                           \
 inline void operator+=(const Vec##Dimension &right)                           \
 {                                                                             \
-	vecAdd(Dimension, this, &right, this)                                     \
+	VECTOR_ADD(Dimension, this, &right, this)                                 \
 }                                                                             \
 inline void operator-=(const Vec##Dimension &right)                           \
 {                                                                             \
-	vecSub(Dimension, this, &right, this)                                     \
+	VECTOR_SUBTRACT(Dimension, this, &right, this)                            \
 }                                                                             \
 inline void operator*=(const float32_t right)                                 \
 {                                                                             \
-	vecScale(Dimension, this, right, this)                                    \
+	VECTOR_SCALE(Dimension, this, right, this)                                \
 }                                                                             \
 inline void operator*=(const Vec##Dimension &right)                           \
 {                                                                             \
-	vecMultiply(Dimension, this, &right, this)                                \
+	VECTOR_MULTIPLY(Dimension, this, &right, this)                            \
 }                                                                             \
 inline Vec##Dimension cross(const Vec##Dimension &right)                      \
 {                                                                             \
-	vecCross(Dimension, this, &right, this)                                   \
+	VECTOR_CROSS(Dimension, this, &right, this)                               \
 }                                                                             \
 inline float32_t dot(const Vec##Dimension &right) const                       \
 {                                                                             \
 	float32_t result = 0.0f;                                                  \
-	vecDot(Dimension, this, &right, result)                                   \
+	VECTOR_DOT(Dimension, this, &right, result)                               \
 	return result;                                                            \
 }                                                                             \
 inline void normalize()                                                       \
 {                                                                             \
-	vecNormalize(Dimension, this)                                             \
+	VECTOR_NORMALIZE(Dimension, this)                                         \
 }                                                                             \
 inline void negate()                                                          \
 {                                                                             \
@@ -158,41 +158,41 @@ inline void negate()                                                          \
 }                                                                             \
 inline float32_t length()                                                     \
 {                                                                             \
-	float32_t result = FLT_MAX;                                               \
-	vecLength(Dimension, this, result)                                        \
+	float32_t result = std::numeric_limits<float32_t>().max();                \
+	VECTOR_LENGTH(Dimension, this, result)                                    \
 	return result;                                                            \
 }
 
-#define vecMemberFuncsA(Dimension)                                            \
+#define VECTOR_FUNCTIONSA(Dimension)                                          \
 inline void operator+=(const Vec##Dimension &right)                           \
 {                                                                             \
-	vecAddA(Dimension, this, &right, this)                                    \
+	VECTOR_ADDA(Dimension, this, &right, this)                                \
 }                                                                             \
 inline void operator-=(const Vec##Dimension &right)                           \
 {                                                                             \
-	vecSubA(Dimension, this, &right, this)                                    \
+	VECTOR_SUBTRACTA(Dimension, this, &right, this)                           \
 }                                                                             \
 inline void operator*=(const float32_t factor)                                \
 {                                                                             \
-	vecScaleA(Dimension, this, factor, this)                                  \
+	VECTOR_SCALEA(Dimension, this, factor, this)                              \
 }                                                                             \
 inline void operator*=(const Vec##Dimension &right)                           \
 {                                                                             \
-	vecMultiplyA(Dimension, this, &right, this)                               \
+	VECTOR_MULTIPLYA(Dimension, this, &right, this)                           \
 }                                                                             \
 inline Vec##Dimension cross(const Vec##Dimension &right)                      \
 {                                                                             \
-	vecCrossA(Dimension, this, &right, this)                                  \
+	VECTOR_CROSSA(Dimension, this, &right, this)                              \
 }                                                                             \
 inline float32_t dot(const Vec##Dimension &right) const                       \
 {                                                                             \
 	float32_t result = 0.0f;                                                  \
-	vecDotA(Dimension, this, &right, result)                                  \
+	VECTOR_DOTA(Dimension, this, &right, result)                              \
 	return result;                                                            \
 }                                                                             \
 inline void normalize()                                                       \
 {                                                                             \
-	vecNormalizeA(Dimension, this)                                            \
+	VECTOR_NORMALIZEA(Dimension, this)                                        \
 }                                                                             \
 inline void negate()                                                          \
 {                                                                             \
@@ -202,34 +202,34 @@ inline void negate()                                                          \
 }                                                                             \
 inline float32_t length()                                                     \
 {                                                                             \
-	float32_t result = FLT_MAX;                                               \
-	vecLengthA(Dimension, this, result)                                       \
+	float32_t result = std::numeric_limits<float32_t>().max();                \
+	VECTOR_LENGTHA(Dimension, this, result)                                   \
 	return result;                                                            \
 }
 
-#define vecPublicFuncs(Dimension)                                                        \
+#define VECTOR_FUNCTIONS_GLOBAL(Dimension)                                               \
 inline Vec##Dimension operator+(const Vec##Dimension &left, const Vec##Dimension &right) \
 {                                                                                        \
 	Vec##Dimension result;                                                               \
-	vecAdd(Dimension, &left, &right, &result)                                            \
+	VECTOR_ADD(Dimension, &left, &right, &result)                                        \
 	return result;                                                                       \
 }                                                                                        \
 inline Vec##Dimension operator-(const Vec##Dimension &left, const Vec##Dimension &right) \
 {                                                                                        \
 	Vec##Dimension result;                                                               \
-	vecSub(Dimension, &left, &right, &result)                                            \
+	VECTOR_SUBTRACT(Dimension, &left, &right, &result)                                   \
 	return result;                                                                       \
 }                                                                                        \
 inline Vec##Dimension operator*(const Vec##Dimension &left, const float32_t right)       \
 {                                                                                        \
 	Vec##Dimension result;                                                               \
-	vecScale(Dimension, &left, right, &result)                                           \
+	VECTOR_SCALE(Dimension, &left, right, &result)                                       \
 	return result;                                                                       \
 }                                                                                        \
 inline Vec##Dimension operator*(const Vec##Dimension &left, const Vec##Dimension &right) \
 {                                                                                        \
 	Vec##Dimension result;                                                               \
-	vecMultiply(Dimension, &left, &right, &result)                                       \
+	VECTOR_MULTIPLY(Dimension, &left, &right, &result)                                   \
 	return result;                                                                       \
 }                                                                                        \
 inline bool8_t operator==(const Vec##Dimension &left, const Vec##Dimension &right)       \
@@ -253,19 +253,19 @@ inline bool8_t operator>(const Vec##Dimension &left, const Vec##Dimension &right
 inline Vec##Dimension cross(const Vec##Dimension &left, const Vec##Dimension &right)     \
 {                                                                                        \
 	Vec##Dimension result;                                                               \
-	vecCross(Dimension, &left, &right, &result)                                          \
+	VECTOR_CROSS(Dimension, &left, &right, &result)                                      \
 	return result;                                                                       \
 }                                                                                        \
 inline float32_t dot(const Vec##Dimension &left, const Vec##Dimension &right)            \
 {                                                                                        \
 	float32_t result;                                                                    \
-	vecDot(Dimension, &left, &right, result)                                             \
+	VECTOR_DOT(Dimension, &left, &right, result)                                         \
 	return result;                                                                       \
 }                                                                                        \
 inline Vec##Dimension normalize(const Vec##Dimension &targetVec)                         \
 {                                                                                        \
 	Vec##Dimension result(targetVec);                                                    \
-	vecNormalize(Dimension, &targetVec)                                                  \
+	VECTOR_NORMALIZE(Dimension, &targetVec)                                              \
 	return result;                                                                       \
 }                                                                                        \
 inline Vec##Dimension negate(Vec##Dimension &targetVec)                                  \
@@ -278,8 +278,8 @@ inline Vec##Dimension negate(Vec##Dimension &targetVec)                         
 }                                                                                        \
 inline float32_t length(const Vec##Dimension &targeVec)                                  \
 {                                                                                        \
-	float32_t result = FLT_MAX;                                                          \
-	vecLength(Dimension, &targeVec, result)                                              \
+	float32_t result = std::numeric_limits<float32_t>().max();                           \
+	VECTOR_LENGTH(Dimension, &targeVec, result)                                          \
 	return result;                                                                       \
 }                                                                                        \
 inline Vec##Dimension getMin(const Vec##Dimension &left, const Vec##Dimension &right)    \
@@ -301,29 +301,29 @@ inline Vec##Dimension getMax(const Vec##Dimension &left, const Vec##Dimension &r
 	return result;                                                                       \
 }
 
-#define vecPublicFuncsA(Dimension)                                                       \
+#define VECTOR_FUNCTIONSA_GLOBAL(Dimension)                                              \
 inline Vec##Dimension operator+(const Vec##Dimension &left, const Vec##Dimension &right) \
 {                                                                                        \
 	Vec##Dimension result;                                                               \
-	vecAddA(Dimension, &left, &right, &result)                                           \
+	VECTOR_ADDA(Dimension, &left, &right, &result)                                       \
 	return result;                                                                       \
 }                                                                                        \
 inline Vec##Dimension operator-(const Vec##Dimension &left, const Vec##Dimension &right) \
 {                                                                                        \
 	Vec##Dimension result;                                                               \
-	vecSubA(Dimension, &left, &right, &result)                                           \
+	VECTOR_SUBTRACTA(Dimension, &left, &right, &result)                                  \
 	return result;                                                                       \
 }                                                                                        \
 inline Vec##Dimension operator*(const Vec##Dimension &left, const float32_t right)       \
 {                                                                                        \
 	Vec##Dimension result;                                                               \
-	vecScaleA(Dimension, &left, right, &result)                                          \
+	VECTOR_SCALEA(Dimension, &left, right, &result)                                      \
 	return result;                                                                       \
 }                                                                                        \
 inline Vec##Dimension operator*(const Vec##Dimension &left, const Vec##Dimension &right) \
 {                                                                                        \
 	Vec##Dimension result;                                                               \
-	vecMultiplyA(Dimension, &left, &right, &result)                                      \
+	VECTOR_MULTIPLYA(Dimension, &left, &right, &result)                                  \
 	return result;                                                                       \
 }                                                                                        \
 inline bool8_t operator==(const Vec##Dimension &left, const Vec##Dimension &right)       \
@@ -347,19 +347,19 @@ inline bool8_t operator>(const Vec##Dimension &left, const Vec##Dimension &right
 inline Vec##Dimension cross(const Vec##Dimension &left, const Vec##Dimension &right)     \
 {                                                                                        \
 	Vec##Dimension result;                                                               \
-	vecCrossA(Dimension, &left, &right, &result)                                         \
+	VECTOR_CROSSA(Dimension, &left, &right, &result)                                     \
 	return result;                                                                       \
 }                                                                                        \
 inline float32_t dot(const Vec##Dimension &left, const Vec##Dimension &right)            \
 {                                                                                        \
 	float32_t result = 0.0f;                                                             \
-	vecDotA(Dimension, &left, &right, result)                                            \
+	VECTOR_DOTA(Dimension, &left, &right, result)                                        \
 	return result;                                                                       \
 }                                                                                        \
 inline Vec##Dimension normalize(const Vec##Dimension &targetVec)                         \
 {                                                                                        \
 	Vec##Dimension result(targetVec);                                                    \
-	vecNormalizeA(Dimension, &result)                                                    \
+	VECTOR_NORMALIZEA(Dimension, &result)                                                \
 	return result;                                                                       \
 }                                                                                        \
 inline Vec##Dimension negate(Vec##Dimension &targetVec)                                  \
@@ -372,8 +372,8 @@ inline Vec##Dimension negate(Vec##Dimension &targetVec)                         
 }                                                                                        \
 inline float32_t length(const Vec##Dimension &targeVec)                                  \
 {                                                                                        \
-	float32_t result = FLT_MAX;                                                          \
-	vecLengthA(Dimension, &targeVec, result)                                             \
+	float32_t result = std::numeric_limits<float32_t>().max();                           \
+	VECTOR_LENGTHA(Dimension, &targeVec, result)                                         \
 	return result;                                                                       \
 }                                                                                        \
 inline Vec##Dimension getMin(const Vec##Dimension &left, const Vec##Dimension &right)    \
@@ -395,6 +395,6 @@ inline Vec##Dimension getMax(const Vec##Dimension &left, const Vec##Dimension &r
 	return result;                                                                       \
 }
 
-namespaceEnd(Math)
-namespaceEnd(Gear)
+NAMESPACE_END(Math)
+NAMESPACE_END(Gear)
 

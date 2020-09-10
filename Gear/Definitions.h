@@ -23,6 +23,21 @@
 
 #include "Gear/Definitions.Generated.h"
 
+#if defined(PLATFORM_WIN32)
+	#include <Windows.h>
+	#include <shlobj.h>
+#else
+	#error Unknown platform!
+#endif
+
+#if defined(max)
+	#undef max
+#endif
+
+#if defined(min)
+	#undef min
+#endif
+
 using char8_t = char;
 using uchar8_t = unsigned char;
 using float32_t = float;
@@ -45,91 +60,47 @@ static_assert(sizeof(ulong32_t) == 4ull, "Size of long miss match.");
 static_assert(sizeof(ulong64_t) == 8ull, "Size of long long miss match.");
 static_assert(sizeof(byte8_t) == 1ull, "Size of byte miss match.");
 
-#define namespaceStart(name) namespace name {
-#define namespaceEnd(name) }
+#define NAMESPACE_START(Name) namespace Name {
+#define NAMESPACE_END(Name) }
 
-#define safeRelease(ptr)  \
+#define SAFE_RELEASE(Ptr) \
 {                         \
-	if((ptr) != nullptr)  \
+	if((Ptr) != nullptr)  \
 	{                     \
-		(ptr)->Release(); \
-		(ptr) = nullptr;  \
+		(Ptr)->Release(); \
+		(Ptr) = nullptr;  \
 	}                     \
 }
 
-#define safeDelete(ptr)  \
+#define SAFE_DELETE(Ptr) \
 {                        \
-	if((ptr) != nullptr) \
+	if((Ptr) != nullptr) \
 	{                    \
-		delete (ptr);    \
-		(ptr) = nullptr; \
+		delete (Ptr);    \
+		(Ptr) = nullptr; \
 	}                    \
 }
 
-#define safeDeleteArray(ptr) \
-{                            \
-	if((ptr) != nullptr)     \
-	{                        \
-		delete[](ptr);       \
-		(ptr) = nullptr;     \
-	}                        \
+#define SAFE_DELETE_ARRAY(Ptr) \
+{                              \
+	if((Ptr) != nullptr)       \
+	{                          \
+		delete[] (Ptr);        \
+		(Ptr) = nullptr;       \
+	}                          \
 }
 
-#define enumToString(enumValue) #enumValue
-
-#if defined(UsingAsDynamicLib)
-	#define exportAPI __declspec(dllexport)
+#if defined(DYNAMIC_LIB)
+	#define EXPORT_API __declspec(dllexport)
 #else
-	#define exportAPI __declspec(dllimport)
+	#define EXPORT_API __declspec(dllimport)
 #endif
 
-#define verify(condition) \
+#define VERIFY(Condition) \
 {                         \
-	if (!(condition))     \
+	if (!(Condition))     \
 	{                     \
 		assert(0);        \
 	}                     \
 }
-
-#if defined(Platform_Win32)
-
-#include <Windows.h>
-#include <shlobj.h>
-
-#define verify_Log(condition)                                                                          \
-{                                                                                                      \
-	if (!(condition))                                                                                  \
-	{                                                                                                  \
-		uint32_t errorCode = (uint32_t)::GetLastError();                                               \
-		std::string errorMsg = Gear::getErrorMessage(errorCode);                                       \
-		Gear::Logger::instance().log(Gear::Logger::eError,                                             \
-			"Failed to invoke WINAPI, error code = %u, error info = %s", errorCode, errorMsg.c_str()); \
-		assert(0);                                                                                     \
-	}                                                                                                  \
-}
-
-#if defined(max)
-	#undef max
-#endif
-
-#if defined(min)
-	#undef min
-#endif
-
-#define appMainEntry(appName)                                  \
-int32_t WINAPI wWinMain(HINSTANCE, HINSTANCE, LPWSTR, int32_t) \
-{                                                              \
-	appName app_##appName;                                     \
-	app_##appName.initialize(#appName);                        \
-	app_##appName.loop();                                      \
-	app_##appName.finalize();                                  \
-}
-
-#elif defined(Platform_Linux)
-
-#define verify_Log(condition)
-
-#define appMainEntry(appName) 
-
-#endif
 

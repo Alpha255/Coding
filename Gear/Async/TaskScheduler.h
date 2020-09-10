@@ -2,7 +2,7 @@
 
 #include "Gear/Singleton.h"
 
-namespaceStart(Gear)
+NAMESPACE_START(Gear)
 
 class TaskScheduler : public Singleton<TaskScheduler>
 {
@@ -78,4 +78,4 @@ private:
 	uint32_t m_TaskIndex = 0U;
 };
 
-namespaceEnd(Gear)
+NAMESPACE_END(Gear)

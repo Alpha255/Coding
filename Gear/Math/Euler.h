@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Vector4.h"
+#include "Gear/Math/Vector4.h"
 
-namespaceStart(Gear)
-namespaceStart(Math)
+NAMESPACE_START(Gear)
+NAMESPACE_START(Math)
 
 class Euler : public Vec4
 {
@@ -13,5 +13,5 @@ protected:
 private:
 };
 
-namespaceEnd(Math)
-namespaceEnd(Gear)
+NAMESPACE_END(Math)
+NAMESPACE_END(Gear)

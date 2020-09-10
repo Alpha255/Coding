@@ -2,7 +2,7 @@
 
 #include "Gear/Definitions.h"
 
-namespaceStart(Gear)
+NAMESPACE_START(Gear)
 
 class NoneCopyable
 {
@@ -16,31 +16,31 @@ protected:
 private:
 };
 
-template <typename T> class Singleton : public NoneCopyable
+template<class T> class TSingleton : public NoneCopyable
 {
 public:
-	inline static T &instance()
+	inline static T& instance()
 	{
 		return s_Instance;
 	}
 
-	Singleton(const Singleton&) = delete;
-	void operator=(const Singleton&) = delete;
+	TSingleton(const TSingleton&) = delete;
+	void operator=(const TSingleton&) = delete;
 protected:
-	Singleton() = default;
-	virtual ~Singleton() = default;
+	TSingleton() = default;
+	virtual ~TSingleton() = default;
 private:
 	static T s_Instance;
 };
-template<class T> __declspec(selectany) T Singleton<T>::s_Instance;
+template<class T> __declspec(selectany) T TSingleton<T>::s_Instance;
 
-#define singletonDeclare(className)          \
+#define DECLARE_SINGLETON(ClassName)         \
 private:                                     \
-	className() = default;                   \
-	~className() = default;                  \
-	friend class Gear::Singleton<className>;
+	ClassName() = default;                   \
+	~ClassName() = default;                  \
+	friend class Gear::Singleton<ClassName>;
 
-template<class T> class LazySingleton : public NoneCopyable
+template<class T> class TLazySingleton : public NoneCopyable
 {
 public:
 	template <typename... Args> static void initialize(Args&&... args)
@@ -54,7 +54,7 @@ public:
 	void finalize()
 	{
 		cleanup();
-		safeDelete(s_Instance);
+		SAFE_DELETE(s_Instance);
 	}
 
 	static T* instance()
@@ -67,18 +67,18 @@ public:
 	{
 	}
 protected:
-	LazySingleton() = default;
-	virtual ~LazySingleton() = default;
+	TLazySingleton() = default;
+	virtual ~TLazySingleton() = default;
 private:
 	static T* s_Instance;
 };
-template <class T> T* LazySingleton<T>::s_Instance = nullptr;
+template <class T> T* TLazySingleton<T>::s_Instance = nullptr;
 
-#define lazySingletonDeclare(className)      \
+#define DECLARE_LAZY_SINGLETON(ClassName)    \
 private:                                     \
-	~className() = default;                  \
-	friend class Gear::LazySingleton<className>;
+	~ClassName() = default;                  \
+	friend class Gear::LazySingleton<ClassName>;
 
-namespaceEnd(Gear)
+NAMESPACE_END(Gear)
 
 

@@ -2,7 +2,7 @@
 
 #include "Gear/Definitions.h"
 
-namespaceStart(Gear)
+NAMESPACE_START(Gear)
 
 class File
 {
@@ -110,4 +110,4 @@ private:
 	std::shared_ptr<byte> m_Data;
 };
 
-namespaceEnd(Gear)
+NAMESPACE_END(Gear)

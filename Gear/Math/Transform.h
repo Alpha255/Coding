@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Matrix.h"
-#include "Euler.h"
-#include "Quaternions.h"
+#include "Gear/Math/Matrix.h"
+#include "Gear/Math/Euler.h"
+#include "Gear/Math/Quaternions.h"
 
-namespaceStart(Gear)
-namespaceStart(Math)
+NAMESPACE_START(Gear)
+NAMESPACE_START(Math)
 
 class Transform
 {
@@ -24,7 +24,7 @@ public:
 		return m_Matrix;
 	}
 
-	inline void scale(const Vec3 &scale)
+	inline void scale(const Vec3& scale)
 	{
 		m_Scalling *= scale;
 	}
@@ -39,7 +39,7 @@ public:
 		m_Scalling *= Vec3(factor, factor, factor);
 	}
 
-	inline void translate(const Vec3 &translate)
+	inline void translate(const Vec3& translate)
 	{
 		m_Translation += translate;
 	}
@@ -69,7 +69,7 @@ public:
 		m_Rotation += Vec4(x, y, z, angle);
 	}
 
-	inline void rotate(const Vec3 &axis, const float32_t angle)
+	inline void rotate(const Vec3& axis, const float32_t angle)
 	{
 		m_Rotation += Vec4(axis, angle);
 	}
@@ -109,5 +109,5 @@ private:
 	Vec4 m_Rotation;
 };
 
-namespaceEnd(Math)
-namespaceEnd(Gear)
+NAMESPACE_END(Math)
+NAMESPACE_END(Gear)

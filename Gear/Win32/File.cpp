@@ -2,7 +2,7 @@
 
 #if defined(Platform_Win32)
 
-namespaceStart(Gear)
+NAMESPACE_START(Gear)
 
 size_t File::size(const std::string &filePath)
 {
@@ -262,6 +262,6 @@ void File::createDirectory(const std::string &directory)
 	verify_Log(ERROR_SUCCESS == ::SHCreateDirectory(nullptr, wDirectory.c_str()));
 }
 
-namespaceEnd(Gear)
+NAMESPACE_END(Gear)
 
 #endif

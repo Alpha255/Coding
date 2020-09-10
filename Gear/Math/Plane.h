@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Vector4.h"
+#include "Gear/Math/Vector4.h"
 
-namespaceStart(Gear)
-namespaceStart(Math)
+NAMESPACE_START(Gear)
+NAMESPACE_START(Math)
 
 class Plane : public Vec4
 {
@@ -13,12 +13,12 @@ public:
 	{
 	}
 
-	Plane(const Vec3 &normal, float32_t distance)
+	Plane(const Vec3& normal, float32_t distance)
 		: Vec4(normal, distance)
 	{
 	}
 
-	Plane(const Vec3 &vertex0, const Vec3 &vertex1, const Vec3 &vertex2)
+	Plane(const Vec3& vertex0, const Vec3& vertex1, const Vec3& vertex2)
 	{
 		Vec3 v10 = vertex0 - vertex1;
 		Vec3 v20 = vertex0 - vertex2;
@@ -31,7 +31,7 @@ public:
 		*this = result;
 	}
 
-	Plane(const Vec3 &vertex, const Vec3 &normal)
+	Plane(const Vec3& vertex, const Vec3& normal)
 	{
 		Plane result(normal, -normal.dot(vertex));
 		*this = result;
@@ -50,5 +50,5 @@ protected:
 private:
 };
 
-namespaceEnd(Math)
-namespaceEnd(Gear)
+NAMESPACE_END(Math)
+NAMESPACE_END(Gear)

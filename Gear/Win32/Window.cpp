@@ -2,7 +2,7 @@
 #include "Gear/Window.h"
 #include "Applications/Resource.h"
 
-namespaceStart(Gear)
+NAMESPACE_START(Gear)
 
 static ::LRESULT messageProc(::HWND hWnd, uint32_t message, ::WPARAM wParam, ::LPARAM lParam)
 {
@@ -378,4 +378,4 @@ void WindowEvent::handle(uint32_t message, size_t wParam, intptr_t lParam)
 	}
 }
 
-namespaceEnd(Gear)
+NAMESPACE_END(Gear)

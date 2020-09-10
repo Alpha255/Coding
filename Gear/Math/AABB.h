@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Vector4.h"
+#include "Gear/Math/Vector4.h"
 
-namespaceStart(Gear)
-namespaceStart(Math)
+NAMESPACE_START(Gear)
+NAMESPACE_START(Math)
 
 class AABB
 {
@@ -14,7 +14,7 @@ public:
 	{
 	}
 
-	AABB(const Vec3 &center, const Vec3 &extents)
+	AABB(const Vec3& center, const Vec3& extents)
 		: m_Center(center)
 		, m_Extents(extents)
 	{
@@ -55,18 +55,18 @@ public:
 		return indices;
 	}
 
-	inline static AABB createFromVertices(const Vec3 *pVertices, uint32_t vertexCount)
+	inline static AABB createFromVertices(const Vec3* srcvertices, uint32_t count)
 	{
-		std::vector<Vec3> vertices(vertexCount);
-		verify(memcpy_s(vertices.data(), sizeof(Vec3) * vertexCount, pVertices, sizeof(Vec3) * vertexCount) == 0);
+		std::vector<Vec3> vertices(count);
+		VERIFY(memcpy_s(vertices.data(), sizeof(Vec3) * count, srcvertices, sizeof(Vec3) * count) == 0);
 		return createFromVertices(vertices);
 	}
-	static AABB createFromVertices(const std::vector<Vec3> &vertices);
+	static AABB createFromVertices(const std::vector<Vec3>& vertices);
 protected:
 private:
 	Vec3 m_Center;
 	Vec3 m_Extents;
 };
 
-namespaceEnd(Math)
-namespaceEnd(Gear)
+NAMESPACE_END(Math)
+NAMESPACE_END(Gear)

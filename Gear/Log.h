@@ -2,48 +2,41 @@
 
 #include "Gear/Singleton.h"
 
-namespaceStart(Gear)
+NAMESPACE_START(Gear)
 
-class Logger : public Singleton<Logger>
+class Log
 {
-	singletonDeclare(Logger);
 public:
-	enum eLogLevel
+	template<class... Args>
+	static void logError(const char8_t* fmt, Args&&... args)
 	{
-		eInfo,
-		eWarning,
-		eError,
-		eLogLevel_MaxEnum
-	};
-
-	enum eLogTaget
-	{
-		eToOutput,
-		eToStd,
-		eToFile,
-		eLogTarget_MaxEnum
-	};
-
-	void log(eLogLevel level, const char8_t *pMessage, ...);
-
-	inline void log(eLogLevel level, const std::string &message)
-	{
-		log(level, message.c_str());
+		log(ELevel::Error, fmt, std::forward<Args>(args)...);
 	}
 
-	inline void redirectTarget(eLogTaget target)
+	template<class... Args>
+	static void logInfo(const char8_t* fmt, ...)
 	{
-		m_LogTarget = target;
+		log(ELevel::Info, fmt, std::forward<Args>(args)...);
 	}
 
-	inline void renameLogFile(const std::string &logFileName)
+	template<class... Args>
+	static void logWarning(const char8_t* fmt, ...)
 	{
-		m_LogFileName = logFileName;
+		log(ELevel::Warning, fmt, std::forward<Args>(args)...);
 	}
 protected:
+	enum class ELevel
+	{
+		Info,
+		Warning,
+		Error
+	};
+
+	static void log(ELevel level, const char8_t* fmt, ...)
+	{
+
+	}
 private:
-	eLogTaget m_LogTarget = eToOutput;
-	std::string m_LogFileName{ "gearLog.txt" };
 };
 
-namespaceEnd(Gear)
+NAMESPACE_END(Gear)
