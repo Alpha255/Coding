@@ -1,4 +1,4 @@
-#include "../../Gear/String.hpp"
+#include "../../Gear/Log.hpp"
 
 int main()
 {
@@ -10,6 +10,10 @@ int main()
 	auto result = Gear::String::split(test, "E");
 
 	auto str = Gear::String::format("this is a %d", 2);
+
+	LOG_ERROR("This is a test %d.", 2);
+
+	LOG_WARNING("This is a test %.2f.", 2.0f);
 
 	return 0;
 }

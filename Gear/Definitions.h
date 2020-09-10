@@ -68,7 +68,6 @@ static_assert(sizeof(byte8_t) == 1ull, "Size of byte miss match.");
 	if((Ptr) != nullptr)  \
 	{                     \
 		(Ptr)->Release(); \
-		(Ptr) = nullptr;  \
 	}                     \
 }
 

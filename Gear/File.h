@@ -17,36 +17,18 @@ public:
 		uint32_t Seconds = 0u;
 	};
 
-	struct FolderTree
+	enum class EMode : uint8_t
 	{
-		std::string Name;
-		std::vector<std::shared_ptr<FolderTree>> Children;
+		Text,
+		Binary
 	};
-
-	enum eFileMode
-	{
-		eText,
-		eBinary
-	};
-
-	static std::string extension(const std::string &filePath, bool8_t bToLower = false);
-	static std::string name(const std::string &filePath, bool8_t bToLower = false);
-	static std::string rootDirectory(const std::string &filePath, bool8_t bToLower = false);
-	static std::string directory(const std::string &filePath, bool8_t bToLower = false);
-	static std::string stripExtension(const std::string &filePath, bool8_t bToLower = false);
-
-	/// Platform specific
-	static FileTime lastWriteTime(const std::string &filePath);
-	static bool8_t isDirectoryExists(const std::string &targetPath);
-	static bool8_t isExists(const std::string &filePath);
-	static size_t size(const std::string &filePath);
-	static std::vector<std::string> buildFileList(const std::string &targetPath, const std::vector<std::string> &filters, bool8_t bToLower = false);
-	static std::string find(const std::string &targetPath, const std::string &fileName);
-	static FolderTree buildFolderTree(const std::string &targetPath, bool8_t bToLower = false, bool8_t bFullPath = false);
-	static void createDirectory(const std::string &directory);
 
 	File() = default;
-	File(const std::string &filePath);
+	File(const File& other) = default;
+	virtual ~File() = default;
+
+	File(const std::string &path);
+
 	File(File&& other)
 		: m_Size(other.m_Size)
 		, m_Name(std::move(other.m_Name))
@@ -57,6 +39,30 @@ public:
 	{
 		other.m_Size = 0ull;
 	}
+
+	void operator=(const File& other)
+	{
+		m_Size = other.m_Size;
+		m_Name = other.m_Name;
+		m_Extension = other.m_Extension;
+		m_FullPath = other.m_FullPath;
+		m_RelPath = other.m_RelPath;
+		m_Data = other.m_Data;
+	}
+
+	static std::string extension(const std::string &filePath, bool8_t bToLower = false);
+	static std::string name(const std::string &filePath, bool8_t bToLower = false);
+	static std::string rootDirectory(const std::string &filePath, bool8_t bToLower = false);
+	static std::string directory(const std::string &filePath, bool8_t bToLower = false);
+	static std::string stripExtension(const std::string &filePath, bool8_t bToLower = false);
+
+	static FileTime lastWriteTime(const std::string &filePath);
+	static bool8_t isDirectoryExists(const std::string &targetPath);
+	static bool8_t isExists(const std::string &filePath);
+	static size_t size(const std::string &filePath);
+	static std::vector<std::string> buildFileList(const std::string &targetPath, const std::vector<std::string> &filters, bool8_t bToLower = false);
+	static std::string find(const std::string &targetPath, const std::string &fileName);
+	static void createDirectory(const std::string &directory);
 
 	inline size_t size() const
 	{
@@ -83,7 +89,7 @@ public:
 		return m_RelPath;
 	}
 
-	inline std::shared_ptr<byte> data(eFileMode readAs = eText)
+	inline std::shared_ptr<byte8_t> data(eFileMode readAs = eText)
 	{
 		if (!m_Data)
 		{
@@ -98,7 +104,6 @@ public:
 	{
 		write(writeAs, m_FullPath, data().get(), m_Size);
 	}
-	static void write(eFileMode wirteAs, const std::string& path, const byte8_t* content, size_t size);
 protected:
 private:
 	size_t m_Size = 0ull;
@@ -107,7 +112,7 @@ private:
 	std::string m_FullPath;
 	std::string m_RelPath;
 
-	std::shared_ptr<byte> m_Data;
+	std::shared_ptr<byte8_t> m_Data;
 };
 
 NAMESPACE_END(Gear)

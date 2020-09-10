@@ -4,20 +4,6 @@
 
 NAMESPACE_START(Gear)
 
-template <typename Left, typename Right>
-inline bool8_t isEqual(const Left &left, const Right &right)
-{
-	assert(sizeof(Left) == sizeof(Right));
-	return ::memcmp(&left, &right, sizeof(Right)) == 0;
-}
-
-/// https://www.boost.org/doc/libs/1_35_0/doc/html/boost/hash_combine_id241013.html
-template<class T> void hash_combine(size_t& seed, const T& v)
-{
-	std::hash<T> hasher;
-	seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-}
-
 std::string getErrorMessage(uint32_t errorCode);
 
 std::string getApplicationPath();
