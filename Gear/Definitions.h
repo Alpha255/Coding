@@ -68,7 +68,6 @@ static_assert(sizeof(byte8_t) == 1ull, "Size of byte miss match.");
 	if((Ptr) != nullptr)  \
 	{                     \
 		(Ptr)->Release(); \
-		(Ptr) = nullptr;  \
 	}                     \
 }
 
@@ -103,4 +102,17 @@ static_assert(sizeof(byte8_t) == 1ull, "Size of byte miss match.");
 		assert(0);        \
 	}                     \
 }
+
+#if defined(PLATFORM_WIN32)
+#define VERIFY_SYSTEM(Condition)                                                           \
+{                                                                                          \
+	if (!(Condition))                                                                      \
+	{                                                                                      \
+		LOG_ERROR("Failed to invoke WINAPI: %s", Gear::System::getErrorMessage().c_str()); \
+		assert(0);                                                                         \
+	}                                                                                      \
+}
+#else
+	#error Unknown platform!
+#endif
 

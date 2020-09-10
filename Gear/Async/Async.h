@@ -4,8 +4,20 @@
 
 NAMESPACE_START(Gear)
 
-class CriticalSection
+class IAsyncObject 
 {
+protected:
+	uint64_t Handle = 0u;
+};
+
+class CriticalSection : public IAsyncObject
+{
+public:
+	void lock();
+	void unlock();
+	bool8_t tryLock();
+protected:
+private:
 };
 
 class Mutex

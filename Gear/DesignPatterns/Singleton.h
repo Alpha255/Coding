@@ -38,7 +38,7 @@ template<class T> __declspec(selectany) T TSingleton<T>::s_Instance;
 private:                                     \
 	ClassName() = default;                   \
 	~ClassName() = default;                  \
-	friend class Gear::Singleton<ClassName>;
+	friend class Gear::TSingleton<ClassName>;
 
 template<class T> class TLazySingleton : public NoneCopyable
 {
@@ -77,7 +77,7 @@ template <class T> T* TLazySingleton<T>::s_Instance = nullptr;
 #define DECLARE_LAZY_SINGLETON(ClassName)    \
 private:                                     \
 	~ClassName() = default;                  \
-	friend class Gear::LazySingleton<ClassName>;
+	friend class Gear::TLazySingleton<ClassName>;
 
 NAMESPACE_END(Gear)
 

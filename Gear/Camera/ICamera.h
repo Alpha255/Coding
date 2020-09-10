@@ -7,7 +7,7 @@ NAMESPACE_START(Gear)
 class ICamera
 {
 public:
-	virtual void processMessage(const struct WindowMessage& message, float32_t elapsedTime) = 0;
+	//virtual void processMessage(const struct WindowMessage& message, float32_t elapsedTime) = 0;
 	virtual void handleWindowResize(uint32_t width, uint32_t height) = 0;
 
 	inline const Math::Matrix& worldMatrix() const

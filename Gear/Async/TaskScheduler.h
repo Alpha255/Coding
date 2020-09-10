@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Gear/Singleton.h"
+#include "Gear/DesignPatterns/Singleton.h"
 
 NAMESPACE_START(Gear)
 
-class TaskScheduler : public Singleton<TaskScheduler>
+class TaskScheduler : public TSingleton<TaskScheduler>
 {
-	singletonDeclare(TaskScheduler);
+	DECLARE_SINGLETON(TaskScheduler);
 
 public:
 	void initialize(uint32_t threadCount = std::numeric_limits<uint32_t>().max());

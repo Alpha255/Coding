@@ -16,6 +16,13 @@ public:
 		});
 	}
 
+	static std::string lowercase(const std::string& str)
+	{
+		std::string result(str);
+		toLower(result);
+		return result;
+	}
+
 	static void replace(std::string& str, const std::string& src, const std::string& dst)
 	{
 		size_t i = 0u;
@@ -31,6 +38,13 @@ public:
 				++i;
 			}
 		}
+	}
+
+	static std::string replacement(const std::string& str, const std::string& src, const std::string& dst)
+	{
+		std::string result(str);
+		replace(result, src, dst);
+		return result;
 	}
 
 	static std::vector<std::string> split(const std::string& str, const std::string& token)

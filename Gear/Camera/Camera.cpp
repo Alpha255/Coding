@@ -39,6 +39,7 @@ void Camera::updateMoving(float32_t elapsedTime)
 	}
 }
 
+#if 0
 void Camera::processInputs(const WindowMessage& message)
 {
 	m_Move = Math::Vec3();
@@ -100,6 +101,7 @@ bool8_t Camera::isReset(const WindowMessage& message) const
 {
 	return message.Key == eKeyboardKey::eKey_Home;
 }
+#endif
 
 void Camera::setViewMatrix()
 {
@@ -123,6 +125,7 @@ void Camera::setViewMatrix()
 	m_Eye = -1.0f * m_Translation;
 }
 
+#if 0
 void Camera::processMessage(const WindowMessage& message, float32_t elapsedTime)
 {
 	if (isReset(message))
@@ -147,5 +150,6 @@ void Camera::processMessage(const WindowMessage& message, float32_t elapsedTime)
 		setViewMatrix();
 	}
 }
+#endif
 
 NAMESPACE_END(Gear)

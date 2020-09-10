@@ -11,7 +11,7 @@ public:
 
 	void setPerspective(float32_t fov, float32_t aspect, float32_t nearPlane, float32_t farPlane);
 
-	void processMessage(const struct WindowMessage& message, float32_t elapsedTime) override final;
+	//void processMessage(const struct WindowMessage& message, float32_t elapsedTime) override final;
 
 	void handleWindowResize(uint32_t width, uint32_t height) override final
 	{
@@ -62,9 +62,9 @@ protected:
 
 	void updateMoving(float32_t elapsedTime);
 
-	void processInputs(const struct WindowMessage& message);
+	//void processInputs(const struct WindowMessage& message);
 
-	bool8_t isReset(const struct WindowMessage& message) const;
+	//bool8_t isReset(const struct WindowMessage& message) const;
 
 	void setViewMatrix();
 private:

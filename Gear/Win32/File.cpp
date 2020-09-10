@@ -1,64 +1,62 @@
-#include "Gear/Gear.h"
-
-#if defined(Platform_Win32)
+#include "Gear/File.hpp"
 
 NAMESPACE_START(Gear)
 
-size_t File::size(const std::string &filePath)
+#if defined(PLATFORM_WIN32)
+
+size_t File::size(const std::string& path)
 {
 	size_t size = 0u;
-	if (isExists(filePath))
+	if (isExists(path))
 	{
-		::HANDLE fileHandle = ::CreateFileA(
-			filePath.c_str(),
+#if defined(PLATFORM_WIN32)
+		::HANDLE handle = ::CreateFileA(
+			path.c_str(),
 			0,
 			FILE_SHARE_READ,
 			nullptr,
 			OPEN_EXISTING,
 			FILE_FLAG_OVERLAPPED,
 			nullptr);
-		if (fileHandle != INVALID_HANDLE_VALUE)
+		if (handle != INVALID_HANDLE_VALUE)
 		{
 			::LARGE_INTEGER result{};
-			verify_Log(::GetFileSizeEx(fileHandle, &result) != 0);
-			size = (size_t)result.QuadPart;
-			::CloseHandle(fileHandle);
+			VERIFY_SYSTEM(::GetFileSizeEx(handle, &result) != 0);
+			size = static_cast<size_t>(result.QuadPart);
+			::CloseHandle(handle);
 		}
+#else
+		std::ifstream fs(path, std::ios::in);
+		assert(fs.is_open());
+		fs.seekg(0u, std::ios::end);
+		size = static_cast<size_t>(reader.tellg());
+		fs.close();
+#endif
 	}
 
 	return size;
-}
-
-bool8_t File::isExists(const std::string &filePath)
-{
-	uint32_t attri = ::GetFileAttributesA(filePath.c_str());
-
-	return (attri != INVALID_FILE_ATTRIBUTES &&
-		!(attri & FILE_ATTRIBUTE_DIRECTORY));
-}
-
-bool8_t File::isDirectoryExists(const std::string &targetPath)
-{
-	::WIN32_FIND_DATAA fileData = {};
-	bool8_t bValid = false;
-
-	::HANDLE fileHandle = ::FindFirstFileA(targetPath.c_str(), &fileData);
-	if ((fileHandle != INVALID_HANDLE_VALUE) && (fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-	{
-		bValid = true;
 	}
+
+bool8_t File::isExists(const std::string& path, bool8_t isDirectory)
+{
+#if 1
+	uint32_t attr = ::GetFileAttributesA(path.c_str());
+	return (attr != INVALID_FILE_ATTRIBUTES && isDirectory ? (attr & FILE_ATTRIBUTE_DIRECTORY) : !(attr & FILE_ATTRIBUTE_DIRECTORY));
+#else
+	::WIN32_FIND_DATAA findData{};
+	::HANDLE fileHandle = ::FindFirstFileA(path.c_str(), &findData);
+	bool8_t exists = (fileHandle != INVALID_HANDLE_VALUE) && isDirectory ? (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) : true;
 	::FindClose(fileHandle);
 
-	return bValid;
+	return exists;
+#endif
 }
 
-File::FileTime File::lastWriteTime(const std::string & filePath)
+File::FileTime File::lastWriteTime(const std::string& path)
 {
-	::FILETIME time = {};
-	FileTime result = {};
-
-	::HANDLE fileHandle = ::CreateFileA(
-		filePath.c_str(),
+	::FILETIME time{};
+	::HANDLE handle = ::CreateFileA(
+		path.c_str(),
 		0,
 		FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
 		nullptr,
@@ -66,38 +64,38 @@ File::FileTime File::lastWriteTime(const std::string & filePath)
 		FILE_FLAG_OVERLAPPED | FILE_FLAG_BACKUP_SEMANTICS,
 		nullptr);
 
-	if (fileHandle != INVALID_HANDLE_VALUE)
+	if (handle != INVALID_HANDLE_VALUE)
 	{
-		verify_Log(::GetFileTime(fileHandle, nullptr, nullptr, &time) != 0);
-		::CloseHandle(fileHandle);
+		VERIFY_SYSTEM(::GetFileTime(handle, nullptr, nullptr, &time) != 0);
+		::CloseHandle(handle);
 
-		::SYSTEMTIME sysTime = {};
-		verify_Log(::FileTimeToSystemTime(&time, &sysTime) != 0);
+		::SYSTEMTIME sysTime{};
+		VERIFY_SYSTEM(::FileTimeToSystemTime(&time, &sysTime) != 0);
 
-		result = FileTime
+		return FileTime
 		{
-			(uint32_t)sysTime.wYear,
-			(uint32_t)sysTime.wMonth,
-			(uint32_t)sysTime.wDay,
-			(uint32_t)sysTime.wHour,
-			(uint32_t)sysTime.wMinute,
-			(uint32_t)sysTime.wSecond
+			sysTime.wYear,
+			sysTime.wMonth,
+			sysTime.wDay,
+			sysTime.wHour,
+			sysTime.wMinute,
+			sysTime.wSecond
 		};
 	}
 
-	return result;
+	return FileTime();
 }
 
 void makeFileList(
-	std::vector<std::string> &outFileList,
-	const std::string &targetPath,
-	const std::vector<std::string> &filters,
-	bool8_t bToLower)
+	__out std::vector<std::string>& result,
+	const std::string& path,
+	const std::vector<std::string>& filters,
+	bool8_t lowercase)
 {
-	std::string rootDir = targetPath + "\\*.*";
+	std::string root(path + "\\*.*");
 
-	::WIN32_FIND_DATAA findData = {};
-	::HANDLE fileHandle = ::FindFirstFileA(rootDir.c_str(), &findData);
+	::WIN32_FIND_DATAA findData{};
+	::HANDLE handle = ::FindFirstFileA(root.c_str(), &findData);
 
 	while (true)
 	{
@@ -105,41 +103,31 @@ void makeFileList(
 		{
 			if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 			{
-				std::string subDir = targetPath + "\\" + findData.cFileName;
+				std::string subDir = path + "\\" + findData.cFileName;
 
-				makeFileList(outFileList, subDir, filters, bToLower);
+				makeFileList(result, subDir, filters, lowercase);
 			}
 			else
 			{
 				std::string fileName(findData.cFileName);
 
-				if (filters.size() == 0U)
+				if (filters.size() == 0u)
 				{
-					std::string filePath = targetPath + "\\" + fileName;
-					if (bToLower)
-					{
-						toLower(filePath);
-					}
-
-					outFileList.emplace_back(filePath);
+					std::string filePath = path + "\\" + fileName;
+					result.push_back(lowercase ? std::move(String::lowercase(filePath)) : std::move(filePath));
 				}
 				else
 				{
-					std::string fileExt = File::extension(fileName, true);
+					std::string ext = File::extension(fileName, true);
 					for (auto it = filters.cbegin(); it != filters.cend(); ++it)
 					{
-						std::string filter = *it;
-						toLower(filter);
+						std::string filter(*it);
+						String::toLower(filter);
 
-						if (fileExt == filter)
+						if (ext == filter)
 						{
-							std::string filePath = targetPath + "\\" + fileName;
-							if (bToLower)
-							{
-								toLower(filePath);
-							}
-
-							outFileList.emplace_back(filePath);
+							std::string filePath = path + "\\" + fileName;
+							result.push_back(lowercase ? std::move(String::lowercase(filePath)) : std::move(filePath));
 							break;
 						}
 					}
@@ -147,22 +135,19 @@ void makeFileList(
 			}
 		}
 
-		if (!::FindNextFileA(fileHandle, &findData))
+		if (!::FindNextFileA(handle, &findData))
 		{
 			break;
 		}
 	}
 }
 
-void tryToFindFile(
-	const std::string &targetPath,
-	const std::string &fileName,
-	std::string &outFilePath)
+void tryToFindFile(const std::string& path, const std::string& name, __out std::string& result)
 {
-	std::string rootDir = targetPath + "\\*.*";
+	std::string root(path + "\\*.*");
 
-	::WIN32_FIND_DATAA findData = {};
-	::HANDLE fileHandle = ::FindFirstFileA(rootDir.c_str(), &findData);
+	::WIN32_FIND_DATAA findData{};
+	::HANDLE handle = ::FindFirstFileA(root.c_str(), &findData);
 
 	while (true)
 	{
@@ -170,98 +155,56 @@ void tryToFindFile(
 		{
 			if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 			{
-				tryToFindFile(targetPath + "\\" + findData.cFileName, fileName, outFilePath);
+				tryToFindFile(path + "\\" + findData.cFileName, name, result);
 			}
 			else
 			{
-				if (_stricmp(findData.cFileName, fileName.c_str()) == 0)
+				if (_stricmp(findData.cFileName, name.c_str()) == 0)
 				{
-					outFilePath = targetPath + "\\" + findData.cFileName;
+					result = path + "\\" + findData.cFileName;
 					break;
 				}
 			}
 		}
 
-		if (!::FindNextFileA(fileHandle, &findData))
+		if (!::FindNextFileA(handle, &findData))
 		{
 			break;
 		}
 	}
 }
 
-void makeFolderTree(File::FolderTree &outTree, const std::string &targetPath, bool8_t bToLower, bool8_t bFullPath)
+std::vector<std::string> File::getFileList(const std::string& path, const std::vector<std::string>& filters, bool8_t lowercase)
 {
-	std::string rootDir = targetPath + "\\*.*";
-
-	::WIN32_FIND_DATAA findData = {};
-	::HANDLE hFileHandle = ::FindFirstFileA(rootDir.c_str(), &findData);
-
-	while (true)
-	{
-		if (findData.cFileName[0] != '.')
-		{
-			if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-			{
-				std::string subDir = targetPath + "\\" + findData.cFileName;
-
-				auto subTree = std::make_shared<File::FolderTree>();
-				subTree->Name = bFullPath ? subDir : findData.cFileName;
-				outTree.Children.emplace_back(subTree);
-
-				makeFolderTree(*subTree, subDir, bToLower, bFullPath);
-			}
-		}
-
-		if (!::FindNextFileA(hFileHandle, &findData))
-		{
-			break;
-		}
-	}
-}
-
-std::vector<std::string> File::buildFileList(const std::string &targetPath, const std::vector<std::string> &filters, bool8_t bToLower)
-{
-	if (!File::isDirectoryExists(targetPath))
-	{
-		return std::vector<std::string>();
-	}
-
 	std::vector<std::string> result;
-	makeFileList(result, targetPath, filters, bToLower);
+
+	if (File::isExists(path))
+	{
+		makeFileList(result, path, filters, lowercase);
+	}
 
 	return result;
 }
 
-std::string File::find(const std::string &targetPath, const std::string &fileName)
+std::string File::find(const std::string& path, const std::string& name)
 {
-	std::string filePath;
-	if (File::isDirectoryExists(targetPath))
+	std::string result;
+	if (File::isExists(path, true))
 	{
-		tryToFindFile(targetPath, fileName, filePath);
+		tryToFindFile(path, name, result);
 	}
-
-	return filePath;
-}
-
-File::FolderTree File::buildFolderTree(const std::string &targetPath, bool8_t bToLower, bool8_t bFullPath)
-{
-	if (!File::isDirectoryExists(targetPath))
-	{
-		return FolderTree();
-	}
-
-	FolderTree result;
-	makeFolderTree(result, targetPath, bToLower, bFullPath);
 
 	return result;
 }
 
-void File::createDirectory(const std::string &directory)
+void File::createDirectory(const std::string& path)
 {
-	std::wstring wDirectory(directory.cbegin(), directory.cend());
-	verify_Log(ERROR_SUCCESS == ::SHCreateDirectory(nullptr, wDirectory.c_str()));
+	std::wstring LPath(path.cbegin(), path.cend());
+	VERIFY_SYSTEM(ERROR_SUCCESS == ::SHCreateDirectory(nullptr, LPath.c_str()));
 }
+
+#else
+	#error Unknown platform!
+#endif
 
 NAMESPACE_END(Gear)
-
-#endif

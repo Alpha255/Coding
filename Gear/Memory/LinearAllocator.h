@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Gear/Singleton.h"
+#include "Gear/DesignPatterns/Singleton.h"
 
 NAMESPACE_START(Gear)
 

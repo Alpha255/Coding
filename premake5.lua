@@ -75,8 +75,8 @@ workspace "Miscellaneous"
 			language "C++"
 			location "./Projects"
 			files "./Fort/Learner/**"
-			links {
-				"Gear"
-			}
+			includedirs { "$(SolutionDir)" }
+			targetdir "$(SolutionDir)Out\\"
+			links { "Gear" }
 
 

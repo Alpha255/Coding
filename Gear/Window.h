@@ -4,73 +4,84 @@
 
 NAMESPACE_START(Gear)
 
-enum class eKeyboardKey
+enum class EKeyboardKey : uint8_t
 {
-	eKey_None,
-	eKey_W,
-	eKey_A,
-	eKey_S,
-	eKey_D,
-	eKey_Q,
-	eKey_E,
-	eKey_Left,
-	eKey_Right,
-	eKey_Up,
-	eKey_Down,
-	eKey_Home,
-	eKey_Ctrl,
-	eKey_Alt,
-	eKey_Shift,
-	eKey_PageUp,
-	eKey_PageDown,
-	eKey_F1,
-	eKey_Other,
-	eKeyboardKey_MaxEnum
+	None,
+	W,
+	A,
+	S,
+	D,
+	Q,
+	E,
+	Left,
+	Right,
+	Up,
+	Down,
+	Home,
+	Ctrl,
+	Alt,
+	Shift,
+	PageUp,
+	PageDown,
+	F1,
+	Other
 };
 
-struct MouseKey
+class WindowEvent
 {
-	bool8_t KeyDown = false;
-	bool8_t DoubleClick = false;
-};
-
-struct MouseMessage
-{
-	MouseKey Left;
-	MouseKey Right;
-	MouseKey Middle;
-
-	Math::Vec2 Pos;
-	Math::Vec2 DeltaPos;
-	int16_t WheelDelta = 0;
-};
-
-enum class eWindowState
-{
-	eActive,
-	eInactive,
-	eDestroy,
-	eResized,
-	eWindowState_MaxEnum
-};
-
-struct WindowMessage
-{
-	eWindowState State = eWindowState::eInactive;
-
-	eKeyboardKey Key = eKeyboardKey::eKey_None;
-
-	MouseMessage Mouse;
-
-	bool8_t Minimized = false;
-
-	inline void clear()
+public:
+	enum class EMessage : uint8_t
 	{
-		Key = eKeyboardKey::eKey_None;
-		Mouse.Left = Mouse.Right = Mouse.Middle = MouseKey{};
-		Mouse.Pos = Vec2();
-		Mouse.WheelDelta = 0;
+		Active,
+		Inactive,
+		SizeMaximized,
+		SizeMinimized,
+		SizeRestored,
+		EnterSizeMove,
+		ExitSizeMove,
+		Destroy,
+		LButtonDoubleClick_NonclientArea,
+		LButtonDown,
+		LButtonUp,
+		LButtonDoubleClick,
+		RButtonDown,
+		RButtonUp,
+		RButtonDoubleClick,
+		MButtonDown,
+		MButtonUp,
+		MButtonDoubleClick,
+		MouseMove,
+		MouseWheel,
+		KeyDown,
+		KeyUp,
+		Other
+	};
+
+	struct EventParameter
+	{
+		EMessage Message;
+
+		uint32_t Word;
+
+		struct ParameterValue
+		{
+			uint32_t High;
+			uint32_t Low;
+		}Value;
+	};
+
+	inline void processMessage(uint32_t message, size_t wParam, intptr_t lParam)
+	{
+		handle(message, wParam, lParam);
+
+		dispatch();
 	}
+
+protected:
+	void handle(uint32_t message, size_t wParam, intptr_t lParam);
+	void dispatch();
+private:
+	EventParameter m_Event;
 };
 
 class Window
@@ -81,11 +92,6 @@ public:
 	void setMinSize(uint32_t width, uint32_t height)
 	{
 		m_MinSize = Math::Vec2(width * 1.0f, height * 1.0f);
-	}
-
-	inline const WindowMessage& message() const
-	{
-		return m_Message;
 	}
 
 	inline const uint32_t width() const
@@ -103,67 +109,19 @@ public:
 		return m_Handle;
 	}
 
-	void processMessage(uint32_t message, size_t wParam, intptr_t lParam);
+	inline void processMessage(uint32_t message, size_t wParam, intptr_t lParam)
+	{
+		m_EventHandler.processMessage(message, wParam, lParam);
+	}
 
 	void update();
 protected:
 private:
-	WindowMessage m_Message{};
 	Math::Vec2 m_MinSize;
 	uint32_t m_Width = 0u;
 	uint32_t m_Height = 0u;
 	uint64_t m_Handle = 0u;
-};
-using WindowPtr = std::unique_ptr<Window>;
-
-class WindowEvent
-{
-public:
-	enum class eMessage
-	{
-		eActive,
-		eInactive,
-		eSizeMaximized,
-		eSizeMinimized,
-		eSizeRestored,
-		eEnterSizeMove,
-		eExitSizeMove,
-		eDestroy,
-		eLButtonDoubleClick_NonclientArea,
-		eGetMinMaxInfo,
-		eLButtonDown,
-		eLButtonUp,
-		eLButtonDoubleClick,
-		eRButtonDown,
-		eRButtonUp,
-		eRButtonDoubleClick,
-		eMButtonDown,
-		eMButtonUp,
-		eMButtonDoubleClick,
-		eMouseMove,
-		eMouseWheel,
-		eKeyDown,
-		eKeyUp,
-		eOther
-	};
-
-	union EventParameter
-	{
-		eMessage Message;
-
-		uint32_t Word;
-
-		struct ParameterValue
-		{
-			uint32_t High;
-			uint32_t Low;
-		}Value;
-	};
-
-	void handle(uint32_t message, size_t wParam, intptr_t lParam);
-protected:
-private:
-	EventParameter m_Event;
+	WindowEvent m_EventHandler;
 };
 
 NAMESPACE_END(Gear)

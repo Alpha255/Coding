@@ -1,4 +1,6 @@
-#include "../../Gear/String.hpp"
+#include "../../Gear/Log.hpp"
+#include "../../Gear/System.h"
+#include "../../Gear/IO/IO.h"
 
 int main()
 {
@@ -10,6 +12,14 @@ int main()
 	auto result = Gear::String::split(test, "E");
 
 	auto str = Gear::String::format("this is a %d", 2);
+
+	LOG_ERROR("This is a test %d.", 2);
+
+	LOG_WARNING("This is a test %.2f.", 2.0f);
+
+	Gear::SyncContinuousOFStream writer("test.txt", Gear::File::EMode::Text);
+
+	LOG_INFO("Current Working Directory: %s", Gear::System::getWorkingDirectory().c_str());
 
 	return 0;
 }
