@@ -79,4 +79,46 @@ workspace "Miscellaneous"
 			targetdir "$(SolutionDir)Out\\"
 			links { "Gear" }
 
+	group "Colorful"
+		project "Gfx-GfxRenderer"
+			kind "SharedLib"
+			language "C++"
+			location "./Projects"
+			files "./Colorful/Public/**"
+			includedirs { "$(SolutionDir)" }
+			targetdir "$(SolutionDir)Out\\"
+			links { "Gear" }
+		project "Gfx-SoftwareRenderer"
+			kind "SharedLib"
+			language "C++"
+			location "./Projects"
+			files "./Colorful/Software/**"
+			includedirs { "$(SolutionDir)" }
+			targetdir "$(SolutionDir)Out\\"
+			links { "Gear" }
+		project "Gfx-D3D11Renderer"
+			kind "SharedLib"
+			language "C++"
+			location "./Projects"
+			files "./Colorful/D3D/D3D11/**"
+			includedirs { "$(SolutionDir)" }
+			targetdir "$(SolutionDir)Out\\"
+			links { "Gear" } 
+		project "Gfx-D3D12Renderer"
+			kind "SharedLib"
+			language "C++"
+			location "./Projects"
+			files "./Colorful/D3D/D3D12/**"
+			includedirs { "$(SolutionDir)" }
+			targetdir "$(SolutionDir)Out\\"
+			links { "Gear" }
+		project "Gfx-VulkanRenderer"
+			kind "SharedLib"
+			language "C++"
+			location "./Projects"
+			files "./Colorful/Vulkan/**"
+			includedirs { "$(SolutionDir)" }
+			targetdir "$(SolutionDir)Out\\"
+			links { "Gear" }
+
 

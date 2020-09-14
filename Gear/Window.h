@@ -4,30 +4,7 @@
 
 NAMESPACE_START(Gear)
 
-enum class EKeyboardKey : uint8_t
-{
-	None,
-	W,
-	A,
-	S,
-	D,
-	Q,
-	E,
-	Left,
-	Right,
-	Up,
-	Down,
-	Home,
-	Ctrl,
-	Alt,
-	Shift,
-	PageUp,
-	PageDown,
-	F1,
-	Other
-};
-
-class WindowEvent
+class WindowMessager
 {
 public:
 	enum class EMessage : uint8_t
@@ -57,20 +34,39 @@ public:
 		Other
 	};
 
-	struct EventParameter
+	enum class EKeyboardKey : uint8_t
 	{
-		EMessage Message;
-
-		uint32_t Word;
-
-		struct ParameterValue
-		{
-			uint32_t High;
-			uint32_t Low;
-		}Value;
+		None,
+		W,
+		A,
+		S,
+		D,
+		Q,
+		E,
+		Left,
+		Right,
+		Up,
+		Down,
+		Home,
+		Ctrl,
+		Alt,
+		Shift,
+		PageUp,
+		PageDown,
+		F1,
+		Other
 	};
 
-	inline void processMessage(uint32_t message, size_t wParam, intptr_t lParam)
+	struct WindowMessage
+	{
+		EMessage Message;
+		EKeyboardKey KeyboardKey;
+		int16_t MouseWheelDelta;
+
+		Math::Vec2 MousePosition;
+	};
+
+	inline void process(uint32_t message, size_t wParam, intptr_t lParam)
 	{
 		handle(message, wParam, lParam);
 
@@ -81,7 +77,7 @@ protected:
 	void handle(uint32_t message, size_t wParam, intptr_t lParam);
 	void dispatch();
 private:
-	EventParameter m_Event;
+	WindowMessage m_Message;
 };
 
 class Window
@@ -111,7 +107,7 @@ public:
 
 	inline void processMessage(uint32_t message, size_t wParam, intptr_t lParam)
 	{
-		m_EventHandler.processMessage(message, wParam, lParam);
+		m_Messager.process(message, wParam, lParam);
 	}
 
 	void update();
@@ -121,7 +117,7 @@ private:
 	uint32_t m_Width = 0u;
 	uint32_t m_Height = 0u;
 	uint64_t m_Handle = 0u;
-	WindowEvent m_EventHandler;
+	WindowMessager m_Messager;
 };
 
 NAMESPACE_END(Gear)

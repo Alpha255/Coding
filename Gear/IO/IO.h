@@ -16,6 +16,7 @@ public:
 	template<class T>
 	void write(const T& value)
 	{
+		assert(std::is_trivial<T>());
 		std::ofstream::write(reinterpret_cast<const char8_t*>(&value), sizeof(T));
 	}
 

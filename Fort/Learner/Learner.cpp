@@ -18,6 +18,8 @@ int main()
 	LOG_WARNING("This is a test %.2f.", 2.0f);
 
 	Gear::SyncContinuousOFStream writer("test.txt", Gear::File::EMode::Text);
+	writer.write(12.0f);
+	writer.write("12.0f");
 
 	LOG_INFO("Current Working Directory: %s", Gear::System::getWorkingDirectory().c_str());
 
