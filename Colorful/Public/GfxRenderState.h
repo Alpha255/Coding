@@ -1,5 +1,6 @@
 #pragma once
 
+#if 0
 #include "Colorful/Public/GfxMaterial.h"
 
 struct GfxViewport : public Vec4
@@ -46,71 +47,6 @@ struct GfxScissor : public Vec4
 	{
 		return !(left == right);
 	}
-};
-
-struct GfxRasterizerStateDesc
-{
-	eRPolygonMode PolygonMode = eSolid;
-	eRCullMode CullMode = eCullNone;
-	eRFrontFace FrontFace = eCounterclockwise;
-	bool8_t EnableDepthBias = false;
-	float32_t DepthBias = 0.0f;
-	float32_t DepthBiasClamp = 0.0f;
-	float32_t DepthBiasSlope = 0.0f;
-};
-
-struct GfxBlendStateDesc
-{
-	struct ColorBlendState
-	{
-		bool8_t Enable = false;
-		eRBlendFactor SrcColor = eRBlendFactor::eSrcColor;
-		eRBlendFactor DstColor = eRBlendFactor::eZero;
-		eRBlendOp ColorOp = eRBlendOp::eAdd;
-		eRBlendFactor SrcAlpha = eRBlendFactor::eSrcAlpha;
-		eRBlendFactor DstAlpha = eRBlendFactor::eZero;
-		eRBlendOp AlphaOp = eRBlendOp::eAdd;
-		uint32_t ColorMask = eRColorWriteMask::eColorNone;
-	};
-
-	bool8_t EnableLogicOp = false;
-	eRLogicOp LogicOp = eRLogicOp::eNo;
-	ColorBlendState ColorBlendStates[eMaxRenderTargets]{};
-};
-
-struct GfxDepthStencilStateDesc
-{
-	struct StencilOp
-	{
-		eRStencilOp FailOp = eRStencilOp::eKeep;
-		eRStencilOp PassOp = eRStencilOp::eKeep;
-		eRStencilOp DepthFailOp = eRStencilOp::eKeep;
-		eRCompareOp CompareOp = eRCompareOp::eAlways;
-		uint32_t Reference = 0u;
-	};
-
-	bool8_t EnableDepth = true;
-	bool8_t EnableDepthWrite = false;
-	eRCompareOp DepthCompareOp = eRCompareOp::eAlways;
-	bool8_t EnableStencil = false;
-	uint8_t StencilReadMask = 0xF;
-	uint8_t StencilWriteMask = 0xF;
-	StencilOp FrontFace{};
-	StencilOp BackFace{};
-};
-
-struct GfxSamplerDesc
-{
-	eRFilter MinMagFilter = eLinear;
-	eRSamplerAddressMode AddressModeU = eRepeat;
-	eRSamplerAddressMode AddressModeV = eRepeat;
-	eRSamplerAddressMode AddressModeW = eRepeat;
-	float32_t MipLodBias = 0.0f;
-	uint32_t MaxAnisotropy = 0u;
-	eRCompareOp CompareOp = eRCompareOp::eNever;
-	float32_t MinLod = 0.0f;
-	float32_t MaxLod = 0.0f;
-	eRBorderColor BorderColor = eFloatTransparentBlack;
 };
 
 struct GfxFrameBufferDesc
@@ -345,4 +281,255 @@ struct GfxFrameBufferKey
 	}
 private:
 	size_t Hash = 0u;
+};
+#endif
+
+#include "Gear/Gear.h"
+#include <d3d11.h>
+
+enum ELimitations : uint32_t
+{
+	MaxRenderTargets = D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT
+};
+
+enum class EPolygonMode : uint8_t
+{
+	Solid,
+	Wireframe,
+	Point
+};
+
+enum class ECullMode : uint8_t
+{
+	None,
+	FrontFace,
+	BackFace
+};
+
+enum class EFrontFace : uint8_t
+{
+	Counterclockwise,
+	Clockwise
+};
+
+enum class EBlendFactor : uint8_t
+{
+	Zero,
+	One,
+	Constant,
+	InverseConstant,
+
+	SrcAlpha,
+	InverseSrcAlpha,
+	DstAlpha,
+	InverseDstAlpha,
+	SrcAlphaSaturate,
+	Src1Alpha,
+	InverseSrc1Alpha,
+
+	SrcColor,
+	InverseSrcColor,
+	DstColor,
+	InverseDstColor,
+	Src1Color,
+	InverseSrc1Color
+};
+
+enum class EBlendOp : uint8_t
+{
+	Add,
+	Subtract,
+	ReverseSubtract,
+	Min,
+	Max
+};
+
+enum EColorWriteMask : uint8_t
+{
+	None = 1 << 0,
+	Red = 1 << 1,
+	Green = 1 << 2,
+	Blue = 1 << 3,
+	Alpha = 1 << 4,
+	All = Red | Green | Blue | Alpha
+};
+
+enum class ELogicOp : uint8_t
+{
+	Clear,
+	And,
+	And_Reverse,
+	Copy,
+	And_Inverted,
+	No,
+	Xor,
+	Or,
+	Nor,
+	Equivalent,
+	Invert,
+	Or_Reverse,
+	Copy_Inverted,
+	Or_Inverted,
+	Nand,
+	Set
+};
+
+enum class ECompareFunc : uint8_t
+{
+	Always,
+	Never,
+	Less,
+	LessOrEqual,
+	Equal, 
+	NotEqual,
+	Greater,
+	GreaterOrEqual
+};
+
+enum class EStencilOp : uint8_t
+{
+	Keep,
+	Zero,
+	Replace,                 /// Set the stencil data to the reference value
+	IncrementAndClamp,       /// Increment the stencil value by 1, and clamp the result
+	DecrementAndClamp,       /// Decrement the stencil value by 1, and clamp the result
+	Invert,
+	IncrementAndWrap,        /// Increment the stencil value by 1, and wrap the result if necessary
+	DecrementAndWrap         /// Increment the stencil value by 1, and wrap the result if necessary
+};
+
+enum class ETextureFilter : uint8_t
+{
+	Nearest,
+	Linear,
+	Anisotropic
+};
+
+enum class ESamplerAddressMode : uint8_t
+{
+	Repeat,
+	MirroredRepeat,
+	ClampToEdge,
+	ClampToBorder,
+	MirrorClampToEdge
+};
+
+enum class EBorderColor : uint8_t
+{
+	FloatTransparentBlack,
+	IntTransparentBlack,
+	FloatOpaqueBlack,
+	IntOpaqueBlack,
+	FloatOpaqueWhite,
+	IntOpaqueWhite
+};
+
+enum class EPrimitiveTopology : uint8_t
+{
+	PointList,
+	LineList,
+	LineStrip,
+	TriangleList,
+	TriangleStrip,
+	LineListAdj,
+	LineStripAdj,
+	TriangleListAdj,
+	TriangleStripAdj,
+	PatchList
+};
+
+struct EXPORT_API RasterizerStateDesc
+{
+	EPolygonMode PolygonMode = EPolygonMode::Solid;
+	ECullMode CullMode = ECullMode::None;
+	EFrontFace FrontFace = EFrontFace::Counterclockwise;
+	bool8_t EnableDepthBias = false;
+
+	float32_t DepthBias = 0.0f;
+	float32_t DepthBiasClamp = 0.0f;
+	float32_t DepthBiasSlope = 0.0f;
+};
+
+struct EXPORT_API ColorBlendDesc
+{
+	bool8_t Enable = false;
+	uint8_t ColorMask = EColorWriteMask::None;
+	EBlendFactor SrcColor = EBlendFactor::SrcColor;
+	EBlendFactor DstColor = EBlendFactor::Zero;
+
+	EBlendOp ColorOp = EBlendOp::Add;
+	EBlendFactor SrcAlpha = EBlendFactor::SrcAlpha;
+	EBlendFactor DstAlpha = EBlendFactor::Zero;
+	EBlendOp AlphaOp = EBlendOp::Add;
+};
+
+struct EXPORT_API BlendStateDesc
+{
+	bool8_t EnableLogicOp = false;
+	ELogicOp LogicOp = ELogicOp::No;
+
+	ColorBlendDesc ColorBlends[ELimitations::MaxRenderTargets]{};
+};
+
+struct EXPORT_API StencilStateDesc
+{
+	EStencilOp FailOp = EStencilOp::Keep;
+	EStencilOp PassOp = EStencilOp::Keep;
+	EStencilOp DepthFailOp = EStencilOp::Keep;
+	ECompareFunc CompareFunc = ECompareFunc::Always;
+
+	uint32_t Reference = 0u;
+};
+
+struct EXPORT_API DepthStencilStateDesc
+{
+	bool8_t EnableDepth = true;
+	bool8_t EnableDepthWrite = false;
+	bool8_t EnableStencil = false;
+	ECompareFunc DepthCompareFunc = ECompareFunc::Always;
+
+	uint8_t StencilReadMask = 0xF;
+	uint8_t StencilWriteMask = 0xF;
+	StencilStateDesc FrontFaceStencilState{};
+	StencilStateDesc BackFaceStencilState{};
+};
+
+struct EXPORT_API SamplerStateDesc
+{
+	ETextureFilter MinMagFilter = ETextureFilter::Linear;
+	ESamplerAddressMode AddressModeU = ESamplerAddressMode::Repeat;
+	ESamplerAddressMode AddressModeV = ESamplerAddressMode::Repeat;
+	ESamplerAddressMode AddressModeW = ESamplerAddressMode::Repeat;
+
+	ECompareFunc CompareOp = ECompareFunc::Never;
+	EBorderColor BorderColor = EBorderColor::FloatTransparentBlack;
+
+	uint32_t MaxAnisotropy = 0u;
+	float32_t MipLodBias = 0.0f;
+	float32_t MinLod = 0.0f;
+	float32_t MaxLod = 0.0f;
+};
+
+class EXPORT_API GraphicsPipelineState
+{
+public:
+protected:
+private:
+	EPrimitiveTopology m_PrimitiveTopology = EPrimitiveTopology::TriangleList;
+
+	RasterizerStateDesc m_RasterizerStateDesc{};
+	BlendStateDesc m_BlendStateDesc{};
+	DepthStencilStateDesc m_DepthStencilStateDesc{};
+
+	bool8_t m_Compiled = false;
+};
+
+class EXPORT_API ComputePipelineState
+{
+
+};
+
+class EXPORT_API RayTracingPipelineState
+{
+
 };

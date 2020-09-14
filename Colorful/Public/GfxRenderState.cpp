@@ -1,3 +1,4 @@
+#if 0
 #include "Colorful/Public/GfxRenderState.h"
 
 void GfxPipelineState::setCombinedTextureSampler(eRShaderUsage shader, const GfxTexturePtr& texture, const GfxSamplerPtr& sampler, uint32_t slot)
@@ -161,3 +162,4 @@ void GfxPipelineState::setSampler(eRShaderUsage shader, const GfxSamplerPtr& sam
 	}
 #endif
 }
+#endif
