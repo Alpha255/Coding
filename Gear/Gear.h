@@ -7,6 +7,7 @@
 #include "Gear/System.h"
 #include "Gear/Camera/Camera.h"
 #include "Gear/Memory/LinearAllocator.h"
+#include "Gear/Application.h"
 
 using namespace Gear;
 using namespace Gear::Math;

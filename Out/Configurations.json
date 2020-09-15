@@ -1,54 +1,14 @@
 {
-  "appConfig": {
-    "width": 1280,
-    "height": 720,
-    "fullscreen": false,
-    "imGUI": true,
-    "adapterInfo": true,
-    "fps": true,
-    "renderEngine": "vulkan",
-
-    "postProcess": {
+  "Configs": {
+    "WindowSize": [ 1280, 720 ],
+    "MinWindowSize": [ 640, 480 ],
+    "FullScreen": false,
+    "Renderer" : "Vulkan",
+    "RendererNames": {
+      "Vulkan" : "Gfx-VulkanRenderer",
+      "D3D11" : "Gfx-D3D11Renderer",
+      "D3D12" : "Gfx-D3D12Renderer",
+      "Software" : "Gfx-SoftwareRenderer"
     }
-  },
-
-  "assetFormat": {
-    "eDDSTexture": [
-      ".dds"
-    ],
-    "eWICTexture": [
-      ".png",
-      ".bmp",
-      ".jpg",
-      ".tga"
-    ],
-    "eVulkanTexture": [
-      ".ktx"
-    ],
-    "eShader": [
-      ".hlsl",
-      ".hlsli",
-      ".glsl",
-      ".vert",
-      ".frag",
-      ".shader"
-    ],
-    "eModel": [
-      ".sdkmesh",
-      ".obj",
-      ".dae",
-      ".txt",
-      ".fbx",
-      ".ply"
-    ],
-    "eSound": [
-      ".mp3"
-    ],
-    "eLevel": [
-      ".dat"
-    ],
-    "eMaterial": [
-      ".mat"
-    ]
   }
 }

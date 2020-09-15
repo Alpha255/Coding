@@ -29,8 +29,7 @@ end
 function appResourceFiles()
 	files { 
 		"./Assets/Icon/Resource.rc",
-		"./Assets/Icon/nvidia.ico",
-		"./Out/Configurations.json",
+		"./Assets/Icon/nvidia.ico"
 	}
 end
 
@@ -84,10 +83,18 @@ workspace "Miscellaneous"
 			kind "SharedLib"
 			language "C++"
 			location "./Projects"
-			files "./Colorful/Public/**"
+			--files "./Colorful/Public/**"
 			includedirs { "$(SolutionDir)" }
 			targetdir "$(SolutionDir)Out\\"
-			links { "Gear" }
+			defines { "DYNAMIC_LIB" }
+			implibname "$(SolutionDir)Out\\Libs\\$(ProjectName)"
+			files {
+				"./Colorful/Public/GfxRenderer.h",
+				"./Colorful/Public/GfxRenderer.cpp",
+				"./Colorful/Public/GfxRenderState.h",
+				"./Colorful/Public/GfxRenderState.cpp",
+			}
+--[[
 		project "Gfx-SoftwareRenderer"
 			kind "SharedLib"
 			language "C++"
@@ -120,5 +127,15 @@ workspace "Miscellaneous"
 			includedirs { "$(SolutionDir)" }
 			targetdir "$(SolutionDir)Out\\"
 			links { "Gear" }
+--]]
 
+	group "Applications"
+		project "RenderTest"
+		kind "WindowedApp"
+		language "C++"
+		location "./Projects"
+		files "./Applications/Colorful/RenderTest/**"
+		includedirs { "$(SolutionDir)" }
+		targetdir "$(SolutionDir)Out\\"
+		links { "Gear", "Gfx-GfxRenderer" }
 

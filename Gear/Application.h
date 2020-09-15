@@ -2,7 +2,7 @@
 
 #include "Gear/Window.h"
 #include "Gear/System.h"
-#include "Colorful/Public/GfxRenderer.hpp"
+#include "Colorful/Public/GfxRenderer.h"
 
 NAMESPACE_START(Gear)
 
@@ -11,16 +11,13 @@ class Application
 public:
 	struct Configs
 	{
-	public:
 		Configs();
 
 		Math::Vec2 WindowSize;
 		Math::Vec2 MinWindowSize;
+		bool8_t FullScreen;
 
 		std::string RendererName;
-	protected:
-		void bindAttributes();
-	private:
 	};
 
 	Application()
@@ -40,8 +37,6 @@ public:
 
 	virtual void onFinalize() {};
 	void finalize();
-
-	Gfx::GfxRenderer& Renderer();
 protected:
 	void mountAssetsDirectory();
 private:

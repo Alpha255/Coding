@@ -60,7 +60,7 @@ NAMESPACE_END(Gear)
 		{                                                              \
 			Gear::Application::Configs DefaultConfig;                  \
 			ClassName App_##ClassName;                                 \
-			App_##ClassName.initalize(#ClassName, DefaultConfig);      \
+			App_##ClassName.initialize(#ClassName, DefaultConfig);     \
 			App_##ClassName.run();                                     \
 		}
 #else

@@ -113,6 +113,8 @@ static_assert(sizeof(byte8_t) == 1ull, "Size of byte miss match.");
 		assert(0);                                                                         \
 	}                                                                                      \
 }
+
+#define DLL_POSTFIX ".dll"
 #else
 	#error Unknown platform!
 #endif

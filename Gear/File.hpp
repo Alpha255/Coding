@@ -187,14 +187,19 @@ public:
 
 	std::shared_ptr<byte8_t> data(EMode mode = EMode::Text)
 	{
-		int32_t readMode = mode == EMode::Binary ? std::ios::in | std::ios::binary : std::ios::in;
+		if (!m_Data)
+		{
+			int32_t readMode = mode == EMode::Binary ? std::ios::in | std::ios::binary : std::ios::in;
 
-		std::ifstream fs(m_FullPath, readMode);
-		assert(fs.is_open());
+			std::ifstream fs(m_FullPath, readMode);
+			assert(fs.is_open());
 
-		m_Data.reset(new byte8_t[size()]);
-		fs.read((char8_t*)m_Data.get(), m_Size);
-		fs.close();
+			m_Data.reset(new byte8_t[size()]);
+			fs.read((char8_t*)m_Data.get(), m_Size);
+			fs.close();
+		}
+
+		return m_Data;
 	}
 protected:
 private:

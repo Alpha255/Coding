@@ -200,6 +200,7 @@ NAMESPACE_START(Gfx)
 class EXPORT_API GfxRenderer : public Gear::NoneCopyable
 {
 public:
+	GfxRenderer();
 protected:
 private:
 };

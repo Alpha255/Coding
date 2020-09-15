@@ -1,3 +1,4 @@
+#if 0
 #include "RenderTest.h"
 #include "Colorful/Public/Material.h"
 
@@ -447,3 +448,8 @@ void RenderTest::renderFrame()
 #endif
 
 appMainEntry(RenderTest)
+#endif
+
+#include "RenderTest.h"
+
+RUN_APPLICATION(RenderTest)

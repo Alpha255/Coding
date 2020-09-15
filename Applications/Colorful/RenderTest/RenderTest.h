@@ -1,5 +1,6 @@
 #pragma once
 
+#if 0
 #include "Gear/Application.h"
 
 class RenderTest : public Application
@@ -12,4 +13,12 @@ private:
 	GfxGpuBufferPtr m_UniformBufferVS = nullptr;
 	GfxPipelineState m_PipelineState{};
 	GfxModel m_Model;
+};
+#endif
+
+#include "Gear/Gear.h"
+
+class RenderTest final : public Application
+{
+
 };
