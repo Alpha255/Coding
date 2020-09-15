@@ -29,7 +29,7 @@ size_t File::size(const std::string& path)
 		std::ifstream fs(path, std::ios::in);
 		assert(fs.is_open());
 		fs.seekg(0u, std::ios::end);
-		size = static_cast<size_t>(reader.tellg());
+		size = static_cast<size_t>(fs.tellg());
 		fs.close();
 #endif
 	}

@@ -194,7 +194,7 @@ public:
 			std::ifstream fs(m_FullPath, readMode);
 			assert(fs.is_open());
 
-			m_Data.reset(new byte8_t[size()]);
+			m_Data.reset(new byte8_t[size()]());
 			fs.read((char8_t*)m_Data.get(), m_Size);
 			fs.close();
 		}

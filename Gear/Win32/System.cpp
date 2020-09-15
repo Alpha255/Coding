@@ -20,7 +20,14 @@ std::string System::getErrorMessage(uint32_t err)
 	return std::string(buffer);
 }
 
-std::string System::getWorkingDirectory()
+std::string System::getCurrentDirectory()
+{
+	char8_t buffer[UINT16_MAX]{};
+	VERIFY_SYSTEM(::GetModuleFileNameA(nullptr, buffer, UINT16_MAX) != 0);
+	return File::directory(std::string(buffer));
+}
+
+std::string System::getCurrentWorkingDirectory()
 {
 	char8_t buffer[UINT16_MAX]{};
 	VERIFY_SYSTEM(::GetCurrentDirectoryA(UINT16_MAX, buffer) != 0);

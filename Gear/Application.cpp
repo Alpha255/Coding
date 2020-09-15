@@ -5,8 +5,10 @@ NAMESPACE_START(Gear)
 
 Application::Configs::Configs()
 {
-	Gear::File configFile("Configurations.json");
-	nlohmann::json json(std::string(reinterpret_cast<const char8_t*>(configFile.data().get())));
+	WorkingDirectory = System::getCurrentDirectory();
+
+	File configFile(WorkingDirectory + "\\Configurations.json");
+	nlohmann::json json = nlohmann::json::parse(std::string(reinterpret_cast<const char8_t*>(configFile.data().get())));
 	auto& configs = json["Configs"];
 	assert(!configs.is_null());
 
@@ -25,14 +27,18 @@ Application::Configs::Configs()
 	RendererName = configs["RendererNames"][renderName];
 }
 
-void Application::mountAssetsDirectory()
+void Application::mountAssetsDirectory(const Configs& configs)
 {
+	std::string assetDirectory(File::directory(configs.WorkingDirectory) + "\\Assets");
+	assert(File::isExists(assetDirectory, true));
+	System::setWorkingDirectory(assetDirectory);
+	LOG_INFO("Mount working directory to \"%s\"", System::getCurrentWorkingDirectory().c_str());
 }
 
 void Application::initialize(const std::string& name, const Configs& configs)
 {
 	m_Window = std::make_unique<Window>(m_Instance, name, configs.WindowSize, configs.MinWindowSize);
-	mountAssetsDirectory();
+	mountAssetsDirectory(configs);
 	onInitialize();
 }
 

@@ -28,6 +28,8 @@
 *.sln
 *.spv
 *.spirv
+*.aps
+RC*
 
 Debug/
 Release/

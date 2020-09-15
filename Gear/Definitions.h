@@ -109,7 +109,7 @@ static_assert(sizeof(byte8_t) == 1ull, "Size of byte miss match.");
 {                                                                                          \
 	if (!(Condition))                                                                      \
 	{                                                                                      \
-		LOG_ERROR("Failed to invoke WINAPI: %s", Gear::System::getErrorMessage().c_str()); \
+		LOG_ERROR("Failed to invoke WINAPI, %s", Gear::System::getErrorMessage().c_str()); \
 		assert(0);                                                                         \
 	}                                                                                      \
 }

@@ -18,6 +18,7 @@ public:
 		bool8_t FullScreen;
 
 		std::string RendererName;
+		std::string WorkingDirectory;
 	};
 
 	Application()
@@ -38,7 +39,7 @@ public:
 	virtual void onFinalize() {};
 	void finalize();
 protected:
-	void mountAssetsDirectory();
+	void mountAssetsDirectory(const Configs& configs);
 private:
 	uint64_t m_Instance = 0u;
 	WindowPtr m_Window = nullptr;

@@ -9,7 +9,9 @@ class System
 public:
 	static std::string getErrorMessage(uint32_t err = std::numeric_limits<uint32_t>().max());
 
-	static std::string getWorkingDirectory();
+	static std::string getCurrentDirectory();
+
+	static std::string getCurrentWorkingDirectory();
 
 	static void setWorkingDirectory(const std::string& path);
 
@@ -26,7 +28,7 @@ public:
 	public:
 		ScopeWorkingDirectory(const std::string& path)
 		{
-			m_OldWorkingDirectory = System::getWorkingDirectory();
+			m_OldWorkingDirectory = System::getCurrentWorkingDirectory();
 			System::setWorkingDirectory(path);
 		}
 

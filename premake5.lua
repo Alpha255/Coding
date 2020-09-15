@@ -134,8 +134,22 @@ workspace "Miscellaneous"
 		kind "WindowedApp"
 		language "C++"
 		location "./Projects"
-		files "./Applications/Colorful/RenderTest/**"
+		files {
+			"./Applications/Colorful/RenderTest/**",
+			"./Applications/Resource.h"
+		}
+		appResourceFiles()
 		includedirs { "$(SolutionDir)" }
 		targetdir "$(SolutionDir)Out\\"
 		links { "Gear", "Gfx-GfxRenderer" }
+		vpaths {
+			["Resource"] = { 
+				"./Assets/Icon/Resource.rc",  
+				"./Assets/Icon/nvidia.ico",
+				"./Applications/Resource.h"
+			},
+			[""] = { 
+				"./Applications/Colorful/RenderTest/**" 
+			}
+		}
 
