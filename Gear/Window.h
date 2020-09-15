@@ -80,24 +80,20 @@ private:
 	WindowMessage m_Message;
 };
 
+DECLARE_UNIQUE_PTR(Window)
 class Window
 {
 public:
-	Window(const std::string& title, uint32_t width, uint32_t height);
-
-	void setMinSize(uint32_t width, uint32_t height)
-	{
-		m_MinSize = Math::Vec2(width * 1.0f, height * 1.0f);
-	}
+	Window(uint64_t instance, const std::string& title, const Math::Vec2& size, const Math::Vec2& minSize);
 
 	inline const uint32_t width() const
 	{
-		return m_Width;
+		return static_cast<uint32_t>(m_Size.x);
 	}
 
 	inline const uint32_t height() const
 	{
-		return m_Height;
+		return static_cast<uint32_t>(m_Size.y);
 	}
 
 	inline const uint64_t handle() const
@@ -113,9 +109,8 @@ public:
 	void update();
 protected:
 private:
+	Math::Vec2 m_Size;
 	Math::Vec2 m_MinSize;
-	uint32_t m_Width = 0u;
-	uint32_t m_Height = 0u;
 	uint64_t m_Handle = 0u;
 	WindowMessager m_Messager;
 };

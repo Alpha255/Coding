@@ -4,6 +4,8 @@
 
 NAMESPACE_START(Gear)
 
+#define MINIMAL_WINDOW_SIZE 32
+
 static ::LRESULT messageProc(::HWND hWnd, uint32_t message, ::WPARAM wParam, ::LPARAM lParam)
 {
 	if (message == WM_CREATE)
@@ -21,14 +23,17 @@ static ::LRESULT messageProc(::HWND hWnd, uint32_t message, ::WPARAM wParam, ::L
 	return ::DefWindowProcA(hWnd, message, wParam, lParam);
 }
 
-Window::Window(const std::string& title, uint32_t width, uint32_t height)
-	: m_Width(width)
-	, m_Height(height)
+Window::Window(uint64_t instance, const std::string& title, const Math::Vec2& size, const Math::Vec2& minSize)
+	: m_Size(size)
+	, m_MinSize(minSize)
 {
-	::HINSTANCE instance = ::GetModuleHandleA(nullptr);
-	VERIFY_SYSTEM(instance);
+	m_MinSize = Math::getMax(m_MinSize, Math::Vec2(MINIMAL_WINDOW_SIZE, MINIMAL_WINDOW_SIZE));
+	m_Size = Math::getMax(m_Size, m_MinSize);
 
-	::HICON icon = ::LoadIcon(instance, MAKEINTRESOURCE(IconNvidia));
+	assert(instance);
+	::HINSTANCE hInstance = reinterpret_cast<::HINSTANCE>(instance);
+
+	::HICON icon = ::LoadIcon(hInstance, MAKEINTRESOURCE(ICON_NVIDIA));
 	VERIFY_SYSTEM(icon);
 	::WNDCLASSEXA wndClassEx
 	{
@@ -37,7 +42,7 @@ Window::Window(const std::string& title, uint32_t width, uint32_t height)
 		messageProc,
 		0,
 		sizeof(void *),
-		instance,
+		hInstance,
 		icon,
 		::LoadCursor(0, IDC_ARROW),
 		(::HBRUSH)::GetStockObject(BLACK_BRUSH),
@@ -47,7 +52,13 @@ Window::Window(const std::string& title, uint32_t width, uint32_t height)
 	};
 	VERIFY_SYSTEM(::RegisterClassExA(&wndClassEx) != 0);
 
-	::RECT rect{ 0l, 0l, (long32_t)width, (long32_t)height };
+	::RECT rect
+	{ 
+		0l, 
+		0l, 
+		static_cast<long32_t>(m_Size.x), 
+		static_cast<long32_t>(m_Size.y) 
+	};
 	VERIFY_SYSTEM(::AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, false) != 0);
 
 	uint32_t extraWindowStyle = 0u;
@@ -61,7 +72,7 @@ Window::Window(const std::string& title, uint32_t width, uint32_t height)
 		rect.bottom - rect.top,
 		nullptr,
 		nullptr,
-		instance,
+		hInstance,
 		static_cast<void*>(this));
 	VERIFY_SYSTEM(windowHandle);
 

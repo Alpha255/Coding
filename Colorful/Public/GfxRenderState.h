@@ -287,6 +287,8 @@ private:
 #include "Gear/Gear.h"
 #include <d3d11.h>
 
+NAMESPACE_START(Gfx)
+
 enum ELimitations : uint32_t
 {
 	MaxRenderTargets = D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT
@@ -494,7 +496,7 @@ struct EXPORT_API DepthStencilStateDesc
 	StencilStateDesc BackFaceStencilState{};
 };
 
-struct EXPORT_API SamplerStateDesc
+struct EXPORT_API SamplerDesc
 {
 	ETextureFilter MinMagFilter = ETextureFilter::Linear;
 	ESamplerAddressMode AddressModeU = ESamplerAddressMode::Repeat;
@@ -533,3 +535,5 @@ class EXPORT_API RayTracingPipelineState
 {
 
 };
+
+NAMESPACE_END(Gfx)

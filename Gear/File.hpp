@@ -4,49 +4,49 @@
 
 NAMESPACE_START(Gear)
 
+struct FileTime
+{
+	uint16_t Year = 0u;
+	uint16_t Month = 0u;
+	uint16_t Day = 0u;
+	uint16_t Hour = 0u;
+	uint16_t Minutes = 0u;
+	uint16_t Seconds = 0u;
+
+	bool8_t operator==(const FileTime& other)
+	{
+		return Year == other.Year &&
+			Month == other.Month &&
+			Day == other.Day &&
+			Hour == other.Hour &&
+			Minutes == other.Hour &&
+			Seconds == other.Seconds;
+	}
+
+	bool8_t operator!=(const FileTime& other)
+	{
+		return !(*this == other);
+	}
+
+	friend bool8_t operator==(const FileTime& left, const FileTime& right)
+	{
+		return left.Year == right.Year &&
+			left.Month == right.Month &&
+			left.Day == right.Day &&
+			left.Hour == right.Hour &&
+			left.Minutes == right.Hour &&
+			left.Seconds == right.Seconds;
+	}
+
+	friend bool8_t operator!=(const FileTime& left, const FileTime& right)
+	{
+		return !(left == right);
+	}
+};
+
 class File
 {
 public:
-	struct FileTime
-	{
-		uint16_t Year = 0u;
-		uint16_t Month = 0u;
-		uint16_t Day = 0u;
-		uint16_t Hour = 0u;
-		uint16_t Minutes = 0u;
-		uint16_t Seconds = 0u;
-
-		bool8_t operator==(const FileTime& other)
-		{
-			return Year == other.Year &&
-				Month == other.Month &&
-				Day == other.Day &&
-				Hour == other.Hour && 
-				Minutes == other.Hour &&
-				Seconds == other.Seconds;
-		}
-
-		bool8_t operator!=(const FileTime& other)
-		{
-			return !(*this == other);
-		}
-
-		friend bool8_t operator==(const FileTime& left, const FileTime& right)
-		{
-			return left.Year == right.Year &&
-				left.Month == right.Month &&
-				left.Day == right.Day &&
-				left.Hour == right.Hour &&
-				left.Minutes == right.Hour &&
-				left.Seconds == right.Seconds;
-		}
-
-		friend bool8_t operator!=(const FileTime& left, const FileTime& right)
-		{
-			return !(left == right);
-		}
-	};
-
 	enum class EMode : uint8_t
 	{
 		Text,

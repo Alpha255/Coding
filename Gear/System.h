@@ -53,3 +53,16 @@ public:
 };
 
 NAMESPACE_END(Gear)
+
+#if defined(PLATFORM_WIN32)
+	#define RUN_APPLICATION(ClassName)                                 \
+		int32_t WINAPI wWinMain(HINSTANCE, HINSTANCE, LPWSTR, int32_t) \
+		{                                                              \
+			Gear::Application::Configs DefaultConfig;                  \
+			ClassName App_##ClassName;                                 \
+			App_##ClassName.initalize(#ClassName, DefaultConfig);      \
+			App_##ClassName.run();                                     \
+		}
+#else
+	#error Unknown platform!
+#endif

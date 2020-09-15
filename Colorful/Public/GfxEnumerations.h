@@ -43,21 +43,6 @@ enum eRBufferBindFlags
 	eRBindFlags_MaxEnum
 };
 
-enum eRPrimitiveTopology
-{
-	ePointList,
-	eLineList,
-	eLineStrip,
-	eTriangleList,
-	eTriangleStrip,
-	eLineListAdj,
-	eLineStripAdj,
-	eTriangleListAdj,
-	eTriangleStripAdj,
-	ePatchList,
-	eRPrimitiveTopology_MaxEnum
-};
-
 enum eRTextureType
 {
 	eTexture1D,
@@ -69,35 +54,6 @@ enum eRTextureType
 	eTextureCubeArray,
 	eBuffer,
 	eRTextureType_MaxEnum
-};
-
-enum eRFilter
-{
-	eNearest,
-	eLinear,
-	eAnisotropic,
-	eRFilter_MaxEnum
-};
-
-enum eRBorderColor
-{
-	eFloatTransparentBlack,
-	eIntTransparentBlack,
-	eFloatOpaqueBlack,
-	eIntOpaqueBlack,
-	eFloatOpaqueWhite,
-	eIntOpaqueWhite,
-	eRBorderColor_MaxEnum
-};
-
-enum eRSamplerAddressMode
-{
-	eRepeat,
-	eMirroredRepeat,
-	eClampToEdge,
-	eClampToBorder,
-	eMirrorClampToEdge,
-	eRSamplerAddressMode_MaxEnum
 };
 
 enum eRDepthStencilFlags
@@ -114,29 +70,6 @@ enum eRClearFlags
 	eClearStencil,
 	eClearDepthStencil,
 	eRClearFlags_MaxEnum
-};
-
-enum eRPolygonMode
-{
-	eSolid,
-	eWireframe,
-	ePoint,
-	eRPolygonMode_MaxEnum
-};
-
-enum eRCullMode
-{
-	eCullNone,
-	eCullFrontFace,
-	eCullBackFace,
-	eRCullMode_MaxEnum
-};
-
-enum eRFrontFace
-{
-	eCounterclockwise,
-	eClockwise,
-	eRFrontFace_MaxEnum
 };
 
 enum eRVertexInputRate
@@ -156,99 +89,6 @@ enum eRDescriptorType
 	eDescriptor_StorageBuffer,
 	eDescriptor_InputAttachment,
 	eRDescriptorType_MaxEnum
-};
-
-enum class eRCompareOp
-{
-	eNever,
-	eLess,
-	eEqual,
-	eLessOrEqual,
-	eGreater,
-	eNotEqual,
-	eGreaterOrEqual,
-	eAlways,
-	eRCompareOp_MaxEnum
-};
-
-enum class eRBlendFactor
-{
-	eZero,
-	eOne,
-	eConstant,
-	eInverseConstant,
-
-	eSrcAlpha,
-	eInverseSrcAlpha,
-	eDstAlpha,
-	eInverseDstAlpha,
-	eSrcAlphaSaturate,
-	eSrc1Alpha,
-	eInverseSrc1Alpha,
-
-	eSrcColor,
-	eInverseSrcColor,
-	eDstColor,
-	eInverseDstColor,
-	eSrc1Color,
-	eInverseSrc1Color,
-
-	eRBlendFactor_MaxEnum
-};
-
-enum class eRBlendOp
-{
-	eAdd,
-	eSubtract,
-	eReverseSubtract,
-	eMin,
-	eMax,
-	eRBlendOp_MaxEnum
-};
-
-enum class eRStencilOp
-{
-	eKeep,
-	eZero,
-	eReplace,                 /// Set the stencil data to the reference value
-	eIncrementAndClamp,       /// Increment the stencil value by 1, and clamp the result
-	eDecrementAndClamp,       /// Decrement the stencil value by 1, and clamp the result
-	eInvert,
-	eIncrementAndWrap,        /// Increment the stencil value by 1, and wrap the result if necessary
-	eDecrementAndWrap,        /// Increment the stencil value by 1, and wrap the result if necessary
-	eRStencilOp_MaxEnum
-};
-
-enum class eRLogicOp
-{
-	eClear,
-	eAnd,
-	eAnd_Reverse,
-	eCopy,
-	eAnd_Inverted,
-	eNo,
-	eXor,
-	eOr,
-	eNor,
-	eEquivalent,
-	eInvert,
-	eOr_Reverse,
-	eCopy_Inverted,
-	eOr_Inverted,
-	eNand,
-	eSet,
-	eRLogicOp_MaxEnum
-};
-
-enum eRColorWriteMask
-{
-	eColorNone = 0x00000000,
-	eColorRed = 0x00000001,
-	eColorGreen = 0x00000010,
-	eColorBlue = 0x00000100,
-	eColorAlpha = 0x00001000,
-	eColorAll,
-	eRColorWriteMask_MaxEnum
 };
 
 enum eRVertexUsage
@@ -279,11 +119,6 @@ enum class eRIndexType
 	eUInt16,
 	eUInt32,
 	eRIndexType_MaxEnum
-};
-
-enum eRConstants
-{
-	eMaxRenderTargets = 8  /// D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT
 };
 
 enum eRFormat
@@ -409,9 +244,4 @@ enum eRFormat
 	eV408,
 	eForce_UInt,
 	eRFormat_MaxEnum
-};
-
-enum eRLimitations
-{
-	eRMax_RenderTargets = 8u
 };

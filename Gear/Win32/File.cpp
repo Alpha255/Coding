@@ -52,7 +52,7 @@ bool8_t File::isExists(const std::string& path, bool8_t isDirectory)
 #endif
 }
 
-File::FileTime File::lastWriteTime(const std::string& path)
+FileTime File::lastWriteTime(const std::string& path)
 {
 	::FILETIME time{};
 	::HANDLE handle = ::CreateFileA(

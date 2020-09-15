@@ -1,5 +1,6 @@
 #pragma once
 
+#if 0
 #include "Colorful/Public/ImGui/ImGui.h"
 #include "Colorful/Public/GfxModel.h"
 #include "Colorful/Public/GfxFactory.h"
@@ -189,3 +190,18 @@ private:
 
 #define GfxScopeGpuMarker(Name, Color) GfxDebugMarker DebugMarker_##Name(#Name, Color)
 #define GfxInsertScopeGpuMarker(Name, Color) GfxDebugMarker::insert(#Name, Color)
+
+#endif
+
+#include "Colorful/Public/GfxRenderState.h"
+
+NAMESPACE_START(Gfx)
+
+class EXPORT_API GfxRenderer : public Gear::NoneCopyable
+{
+public:
+protected:
+private:
+};
+
+NAMESPACE_END(Gfx)
