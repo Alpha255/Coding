@@ -29,7 +29,7 @@ end
 function appResourceFiles()
 	files { 
 		"./Assets/Icon/Resource.rc",
-		"./Assets/Icon/nvidia.ico"
+		"./Applications/Resource.h"
 	}
 end
 
@@ -93,6 +93,7 @@ workspace "Miscellaneous"
 				"./Colorful/Public/GfxRenderer.cpp",
 				"./Colorful/Public/GfxRenderState.h",
 				"./Colorful/Public/GfxRenderState.cpp",
+				"./Colorful/Public/GfxResource.h"
 			}
 --[[
 		project "Gfx-SoftwareRenderer"
@@ -136,7 +137,6 @@ workspace "Miscellaneous"
 		location "./Projects"
 		files {
 			"./Applications/Colorful/RenderTest/**",
-			"./Applications/Resource.h"
 		}
 		appResourceFiles()
 		includedirs { "$(SolutionDir)" }
@@ -145,7 +145,6 @@ workspace "Miscellaneous"
 		vpaths {
 			["Resource"] = { 
 				"./Assets/Icon/Resource.rc",  
-				"./Assets/Icon/nvidia.ico",
 				"./Applications/Resource.h"
 			},
 			[""] = { 

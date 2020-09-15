@@ -42,8 +42,22 @@ inline bool8_t isEqual(const Left &left, const Right &right)
 /// https://www.boost.org/doc/libs/1_35_0/doc/html/boost/hash_combine_id241013.html
 template<class T> void hash_combine(size_t& seed, const T& v)
 {
-	std::hash<T> hasher;
-	seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+	seed ^= std::hash<T>()(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+}
+
+template<class FirstArg, class... RestArgs>
+void hash_combine(size_t& seed, const FirstArg& firstArg, const RestArgs&... restArgs)
+{
+	hash_combine(seed, firstArg);
+	hash_combine(seed, restArgs...);
+}
+
+template<class... Args>
+size_t computeHash(const Args&... args)
+{
+	size_t seed = 0u;
+	hash_combine(seed, args...);
+	return seed;
 }
 
 NAMESPACE_END(Gear)

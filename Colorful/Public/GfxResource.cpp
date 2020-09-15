@@ -1,5 +1,6 @@
 #include "Colorful/Public/GfxResource.h"
 
+#if 0
 size_t GfxVertexAttributes::formatStride(eRFormat format)
 {
 	size_t stride = 0ull;
@@ -194,3 +195,4 @@ size_t GfxVertexAttributes::formatStride(eRFormat format)
 	assert(stride % 8ull == 0ull);
 	return stride / 8ull;
 }
+#endif

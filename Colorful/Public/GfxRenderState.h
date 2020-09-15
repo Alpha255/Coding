@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Colorful/Public/GfxResource.h"
+
 #if 0
 #include "Colorful/Public/GfxMaterial.h"
 
@@ -242,50 +244,7 @@ struct TKey
 protected:
 	size_t Hash = 0u;
 };
-
-struct GfxRenderPassKey
-{
-	uint8_t NumRenderTargets = 0u;
-	uint8_t SampleCount = 0u;
-	eRFormat DepthStencilFormat = eUnknownFormat;
-	eRFormat RenderTargetFormat[eMaxRenderTargets]{};
-
-	bool8_t operator==(const GfxRenderPassKey&) const
-	{
-		return false;
-	}
-
-	size_t hash() const
-	{
-		return Hash;
-	}
-private:
-	size_t Hash = 0u;
-};
-
-struct GfxFrameBufferKey
-{
-	GfxRenderPassPtr RenderPass = nullptr;
-	uint32_t NumRenderTargets = 0u;
-	GfxRenderSurfacePtr DepthStencil = nullptr;
-	GfxRenderSurfacePtr RenderTargets[eMaxRenderTargets]{};
-
-	bool8_t operator==(const GfxFrameBufferKey&) const
-	{
-		return false;
-	}
-
-	size_t hash() const
-	{
-		return Hash;
-	}
-private:
-	size_t Hash = 0u;
-};
 #endif
-
-#include "Gear/Gear.h"
-#include <d3d11.h>
 
 NAMESPACE_START(Gfx)
 
@@ -511,6 +470,41 @@ struct EXPORT_API SamplerDesc
 	float32_t MinLod = 0.0f;
 	float32_t MaxLod = 0.0f;
 };
+
+struct EXPORT_API RenderPassKey
+{
+	uint8_t NumRenderTargets = 0u;
+	uint8_t SampleCount = 0u;
+
+	EFormat DepthStencilFormat = EFormat::Unknown;
+	EFormat RenderTargetFormat[ELimitations::MaxRenderTargets]{};
+
+	bool8_t operator==(const RenderPassKey&) const;
+
+	size_t hash() const;
+private:
+	mutable size_t Hash = 0u;
+};
+
+//struct EXPORT_API FrameBufferKey
+//{
+//	GfxRenderPassPtr RenderPass = nullptr;
+//	uint32_t NumRenderTargets = 0u;
+//	GfxRenderSurfacePtr DepthStencil = nullptr;
+//	GfxRenderSurfacePtr RenderTargets[eMaxRenderTargets]{};
+//
+//	bool8_t operator==(const GfxFrameBufferKey&) const
+//	{
+//		return false;
+//	}
+//
+//	size_t hash() const
+//	{
+//		return Hash;
+//	}
+//private:
+//	size_t Hash = 0u;
+//};
 
 class EXPORT_API GraphicsPipelineState
 {

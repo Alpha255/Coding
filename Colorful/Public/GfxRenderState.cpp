@@ -163,3 +163,44 @@ void GfxPipelineState::setSampler(eRShaderUsage shader, const GfxSamplerPtr& sam
 #endif
 }
 #endif
+
+#include "Colorful/Public/GfxRenderState.h"
+
+NAMESPACE_START(Gfx)
+
+bool8_t RenderPassKey::operator==(const RenderPassKey &other) const
+{
+	if (hash() != other.hash() ||
+		NumRenderTargets != other.NumRenderTargets ||
+		SampleCount != other.SampleCount ||
+		DepthStencilFormat != other.DepthStencilFormat)
+	{
+		return false;
+	}
+
+	for (uint32_t i = 0u; i < NumRenderTargets; ++i)
+	{
+		if (RenderTargetFormat[i] != other.RenderTargetFormat[i])
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+size_t RenderPassKey::hash() const
+{
+	if (Hash == 0u)
+	{
+		Hash = Gear::computeHash(NumRenderTargets, SampleCount, DepthStencilFormat);
+		for (uint32_t i = 0u; i < NumRenderTargets; ++i)
+		{
+			Gear::hash_combine(Hash, RenderTargetFormat[i]);
+		}
+	}
+
+	return Hash;
+}
+
+NAMESPACE_END(Gfx)

@@ -33,7 +33,7 @@ Window::Window(uint64_t instance, const std::string& title, const Math::Vec2& si
 	assert(instance);
 	::HINSTANCE hInstance = reinterpret_cast<::HINSTANCE>(instance);
 
-	::HICON icon = ::LoadIcon(hInstance, MAKEINTRESOURCE(ICON_NVIDIA));
+	::HICON icon = ::LoadIcon(hInstance, MAKEINTRESOURCE(ICON_DIRECTX));
 	VERIFY_SYSTEM(icon);
 	::WNDCLASSEXA wndClassEx
 	{

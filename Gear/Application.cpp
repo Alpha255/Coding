@@ -44,6 +44,10 @@ void Application::initialize(const std::string& name, const Configs& configs)
 
 void Application::run()
 {
+	while (true)
+	{
+
+	}
 }
 
 void Application::finalize()
