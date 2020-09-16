@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Gear/Gear.h"
-#include <d3d11.h>
 
 #if 0
 #include "Colorful/Public/GfxDefinitions.h"

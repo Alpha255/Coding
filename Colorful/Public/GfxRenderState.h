@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Colorful/Public/GfxResource.h"
+#include <d3d11.h>
 
 #if 0
 #include "Colorful/Public/GfxMaterial.h"

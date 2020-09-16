@@ -4,13 +4,12 @@
 
 NAMESPACE_START(Gear)
 
-class WindowMessager
+DECLARE_UNIQUE_PTR(Window)
+class Window
 {
 public:
 	enum class EMessage : uint8_t
 	{
-		Active,
-		Inactive,
 		SizeMaximized,
 		SizeMinimized,
 		SizeRestored,
@@ -50,6 +49,7 @@ public:
 		Home,
 		Ctrl,
 		Alt,
+		Enter,
 		Shift,
 		PageUp,
 		PageDown,
@@ -66,24 +66,6 @@ public:
 		Math::Vec2 MousePosition;
 	};
 
-	inline void process(uint32_t message, size_t wParam, intptr_t lParam)
-	{
-		handle(message, wParam, lParam);
-
-		dispatch();
-	}
-
-protected:
-	void handle(uint32_t message, size_t wParam, intptr_t lParam);
-	void dispatch();
-private:
-	WindowMessage m_Message;
-};
-
-DECLARE_UNIQUE_PTR(Window)
-class Window
-{
-public:
 	Window(uint64_t instance, const std::string& title, const Math::Vec2& size, const Math::Vec2& minSize);
 
 	inline const uint32_t width() const
@@ -101,18 +83,21 @@ public:
 		return m_Handle;
 	}
 
-	inline void processMessage(uint32_t message, size_t wParam, intptr_t lParam)
+	inline const bool8_t isActive() const
 	{
-		m_Messager.process(message, wParam, lParam);
+		return m_Active;
 	}
+
+	void processMessage(uint32_t message, size_t wParam, intptr_t lParam);
 
 	void update();
 protected:
 private:
 	Math::Vec2 m_Size;
 	Math::Vec2 m_MinSize;
+	bool8_t m_Active = true;
 	uint64_t m_Handle = 0u;
-	WindowMessager m_Messager;
+	WindowMessage m_Message{};
 };
 
 NAMESPACE_END(Gear)

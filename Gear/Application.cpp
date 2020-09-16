@@ -46,7 +46,7 @@ void Application::run()
 {
 	while (true)
 	{
-
+		m_Window->update();
 	}
 }
 

@@ -82,7 +82,7 @@ Window::Window(uint64_t instance, const std::string& title, const Math::Vec2& si
 	m_Handle = reinterpret_cast<uint64_t>(windowHandle);
 }
 
-void WindowMessager::handle(uint32_t message, size_t wParam, intptr_t lParam)
+void Window::processMessage(uint32_t message, size_t wParam, intptr_t lParam)
 {
 	m_Message.MousePosition.x = static_cast<float32_t>(GET_X_LPARAM(lParam));
 	m_Message.MousePosition.y = static_cast<float32_t>(GET_Y_LPARAM(lParam));
@@ -92,11 +92,11 @@ void WindowMessager::handle(uint32_t message, size_t wParam, intptr_t lParam)
 	case WM_ACTIVATE:
 		if (LOWORD(wParam) == WA_INACTIVE)
 		{
-			m_Message.Message = EMessage::Inactive;
+			m_Active = false;
 		}
 		else
 		{
-			m_Message.Message = EMessage::Active;
+			m_Active = true;
 		}
 		break;
 	case WM_SIZE:
@@ -115,12 +115,16 @@ void WindowMessager::handle(uint32_t message, size_t wParam, intptr_t lParam)
 		break;
 	case WM_ENTERSIZEMOVE:
 		m_Message.Message = EMessage::EnterSizeMove;
+		m_Active = false;
 		break;
 	case WM_EXITSIZEMOVE:
 		m_Message.Message = EMessage::ExitSizeMove;
+		m_Active = true;
 		break;
+	case WM_QUIT:
 	case WM_DESTROY:
 		m_Message.Message = EMessage::Destroy;
+		::PostQuitMessage(0);
 		break;
 	case WM_NCLBUTTONDBLCLK:
 		m_Message.Message = EMessage::LButtonDoubleClick_NonclientArea;
@@ -184,6 +188,14 @@ void WindowMessager::handle(uint32_t message, size_t wParam, intptr_t lParam)
 		}
 		break;
 	case WM_SYSKEYDOWN:
+		if (wParam == VK_RETURN)
+		{
+			m_Message.KeyboardKey = EKeyboardKey::Enter;
+		}
+		if (lParam & (1 << 29))
+		{
+			m_Message.KeyboardKey = EKeyboardKey::Alt;
+		}
 		break;
 	case WM_KEYUP:
 		m_Message.Message = EMessage::KeyUp;
@@ -194,7 +206,7 @@ void WindowMessager::handle(uint32_t message, size_t wParam, intptr_t lParam)
 	}
 }
 
-void WindowMessager::dispatch()
+void Window::update()
 {
 	::MSG message{};
 	if (::PeekMessageW(&message, nullptr, 0u, 0u, PM_REMOVE))
