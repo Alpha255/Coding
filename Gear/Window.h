@@ -4,19 +4,11 @@
 
 NAMESPACE_START(Gear)
 
-DECLARE_UNIQUE_PTR(Window)
-class Window
+struct InputState
 {
-public:
-	enum class EMessage : uint8_t
+	enum class EMouseState : uint8_t
 	{
-		SizeMaximized,
-		SizeMinimized,
-		SizeRestored,
-		EnterSizeMove,
-		ExitSizeMove,
-		Destroy,
-		LButtonDoubleClick_NonclientArea,
+		None,
 		LButtonDown,
 		LButtonUp,
 		LButtonDoubleClick,
@@ -26,11 +18,8 @@ public:
 		MButtonDown,
 		MButtonUp,
 		MButtonDoubleClick,
-		MouseMove,
-		MouseWheel,
-		KeyDown,
-		KeyUp,
-		Other
+		Move,
+		Wheel
 	};
 
 	enum class EKeyboardKey : uint8_t
@@ -57,13 +46,34 @@ public:
 		Other
 	};
 
-	struct WindowMessage
-	{
-		EMessage Message;
-		EKeyboardKey KeyboardKey;
-		int16_t MouseWheelDelta;
+	EMouseState MouseState = EMouseState::None;
+	EKeyboardKey KeyboardKey = EKeyboardKey::None;
+	char8_t InputChar{};
+	int8_t MouseWheelDelta = 0;
 
-		Math::Vec2 MousePosition;
+	Math::Vec2 MousePosition;
+protected:
+	friend class Window;
+	inline void reset()
+	{
+		MouseState = EMouseState::None;
+		KeyboardKey = EKeyboardKey::None;
+		InputChar = char8_t();
+		MouseWheelDelta = 0;
+	}
+};
+
+DECLARE_UNIQUE_PTR(Window)
+class Window
+{
+public:
+	enum class EState : uint8_t
+	{
+		Minimized,
+		Maximized,
+		Restored,
+		Fullscreen,
+		Destroyed,
 	};
 
 	Window(uint64_t instance, const std::string& title, const Math::Vec2& size, const Math::Vec2& minSize);
@@ -88,16 +98,28 @@ public:
 		return m_Active;
 	}
 
+	inline const EState state() const
+	{
+		return m_State;
+	}
+
+	inline const InputState& inputState() const
+	{
+		return m_InputState;
+	}
+
 	void processMessage(uint32_t message, size_t wParam, intptr_t lParam);
 
 	void update();
 protected:
+	void updateSize();
 private:
 	Math::Vec2 m_Size;
 	Math::Vec2 m_MinSize;
 	bool8_t m_Active = true;
+	EState m_State = EState::Restored;
 	uint64_t m_Handle = 0u;
-	WindowMessage m_Message{};
+	InputState m_InputState{};
 };
 
 NAMESPACE_END(Gear)

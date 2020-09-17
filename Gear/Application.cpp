@@ -44,9 +44,22 @@ void Application::initialize(const std::string& name, const Configs& configs)
 
 void Application::run()
 {
-	while (true)
+	while (m_Window->state() != Window::EState::Destroyed)
 	{
 		m_Window->update();
+
+		if (m_Window->isActive())
+		{
+			const InputState& inputState = m_Window->inputState();
+			if (inputState.InputChar != char8_t())
+			{
+				LOG_INFO("Input %c", inputState.InputChar);
+			}
+		}
+		else
+		{
+			System::sleep(1u);
+		}
 	}
 }
 

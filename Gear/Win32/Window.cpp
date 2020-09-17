@@ -82,11 +82,19 @@ Window::Window(uint64_t instance, const std::string& title, const Math::Vec2& si
 	m_Handle = reinterpret_cast<uint64_t>(windowHandle);
 }
 
+void Window::updateSize()
+{
+	if (m_Handle)
+	{
+		::RECT rect{};
+		VERIFY_SYSTEM(::GetClientRect(reinterpret_cast<::HWND>(m_Handle), &rect) != 0);
+		m_Size.x = static_cast<float32_t>(rect.right - rect.left);
+		m_Size.y = static_cast<float32_t>(rect.bottom - rect.top);
+	}
+}
+
 void Window::processMessage(uint32_t message, size_t wParam, intptr_t lParam)
 {
-	m_Message.MousePosition.x = static_cast<float32_t>(GET_X_LPARAM(lParam));
-	m_Message.MousePosition.y = static_cast<float32_t>(GET_Y_LPARAM(lParam));
-
 	switch (message)
 	{
 	case WM_ACTIVATE:
@@ -100,114 +108,124 @@ void Window::processMessage(uint32_t message, size_t wParam, intptr_t lParam)
 		}
 		break;
 	case WM_SIZE:
-		if (SIZE_MAXIMIZED == wParam)
+		if (m_State == EState::Minimized && SIZE_RESTORED == wParam)
 		{
-			m_Message.Message = EMessage::SizeMaximized;
-		}
-		else if (SIZE_RESTORED == wParam)
-		{
-			m_Message.Message = EMessage::SizeRestored;
+			m_State = EState::Restored;
+			m_Active = true;
 		}
 		else if (SIZE_MINIMIZED == wParam)
 		{
-			m_Message.Message = EMessage::SizeMinimized;
+			m_State = EState::Minimized;
+			m_Active = false;
 		}
-		break;
-	case WM_ENTERSIZEMOVE:
-		m_Message.Message = EMessage::EnterSizeMove;
-		m_Active = false;
-		break;
-	case WM_EXITSIZEMOVE:
-		m_Message.Message = EMessage::ExitSizeMove;
-		m_Active = true;
+		else if (SIZE_MAXIMIZED == wParam)
+		{
+			m_State = EState::Maximized;
+		}
+		updateSize();
 		break;
 	case WM_QUIT:
 	case WM_DESTROY:
-		m_Message.Message = EMessage::Destroy;
+		m_State = EState::Destroyed;
 		::PostQuitMessage(0);
 		break;
 	case WM_NCLBUTTONDBLCLK:
-		m_Message.Message = EMessage::LButtonDoubleClick_NonclientArea;
+		m_State = m_State == EState::Maximized ? EState::Restored : EState::Maximized;
+		updateSize();
 		break;
 	case WM_LBUTTONDOWN:
-		m_Message.Message = EMessage::LButtonDown;
+		m_InputState.MouseState = InputState::EMouseState::LButtonDown;
 		break;
 	case WM_LBUTTONUP:
-		m_Message.Message = EMessage::LButtonUp;
+		m_InputState.MouseState = InputState::EMouseState::LButtonUp;
 		break;
 	case WM_LBUTTONDBLCLK:
-		m_Message.Message = EMessage::LButtonDoubleClick;
+		m_InputState.MouseState = InputState::EMouseState::LButtonDoubleClick;
 		break;
 	case WM_RBUTTONDOWN:
-		m_Message.Message = EMessage::RButtonDown;
+		m_InputState.MouseState = InputState::EMouseState::RButtonDown;
 		break;
 	case WM_RBUTTONUP:
-		m_Message.Message = EMessage::RButtonUp;
+		m_InputState.MouseState = InputState::EMouseState::RButtonUp;
 		break;
 	case WM_RBUTTONDBLCLK:
-		m_Message.Message = EMessage::RButtonDoubleClick;
+		m_InputState.MouseState = InputState::EMouseState::RButtonDoubleClick;
 		break;
 	case WM_MBUTTONDOWN:
-		m_Message.Message = EMessage::MButtonDown;
+		m_InputState.MouseState = InputState::EMouseState::MButtonDown;
 		break;
 	case WM_MBUTTONUP:
-		m_Message.Message = EMessage::MButtonUp;
+		m_InputState.MouseState = InputState::EMouseState::MButtonUp;
 		break;
 	case WM_MBUTTONDBLCLK:
-		m_Message.Message = EMessage::MButtonDoubleClick;
+		m_InputState.MouseState = InputState::EMouseState::MButtonDoubleClick;
 		break;
 	case WM_MOUSEMOVE:
-		m_Message.Message = EMessage::MouseMove;
+		m_InputState.MouseState = InputState::EMouseState::Move;
+		m_InputState.MousePosition.x = static_cast<float32_t>(GET_X_LPARAM(lParam));
+		m_InputState.MousePosition.y = static_cast<float32_t>(GET_Y_LPARAM(lParam));
 		break;
 	case WM_MOUSEWHEEL:
-		m_Message.Message = EMessage::MouseWheel;
-		m_Message.MouseWheelDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+		m_InputState.MouseState = InputState::EMouseState::Wheel;
+		m_InputState.MouseWheelDelta = GET_WHEEL_DELTA_WPARAM(wParam) > 0 ? 1 : -1;
 		break;
 	case WM_KEYDOWN:
-		m_Message.Message = EMessage::KeyDown;
 		switch (wParam)
 		{
-		case 'W':        m_Message.KeyboardKey = EKeyboardKey::W;        break;
-		case 'A':        m_Message.KeyboardKey = EKeyboardKey::A;        break;
-		case 'S':        m_Message.KeyboardKey = EKeyboardKey::S;        break;
-		case 'D':        m_Message.KeyboardKey = EKeyboardKey::D;        break;
-		case 'Q':        m_Message.KeyboardKey = EKeyboardKey::Q;        break;
-		case 'E':        m_Message.KeyboardKey = EKeyboardKey::E;        break;
-		case VK_LEFT:    m_Message.KeyboardKey = EKeyboardKey::Left;     break;
-		case VK_RIGHT:   m_Message.KeyboardKey = EKeyboardKey::Right;    break;
-		case VK_UP:      m_Message.KeyboardKey = EKeyboardKey::Up;       break;
-		case VK_DOWN:    m_Message.KeyboardKey = EKeyboardKey::Down;     break;
-		case VK_HOME:    m_Message.KeyboardKey = EKeyboardKey::Home;     break;
-		case VK_CONTROL: m_Message.KeyboardKey = EKeyboardKey::Ctrl;     break;
-		case VK_MENU:    m_Message.KeyboardKey = EKeyboardKey::Other;    break;
-		case VK_SHIFT:   m_Message.KeyboardKey = EKeyboardKey::Shift;    break;
-		case VK_PRIOR:   m_Message.KeyboardKey = EKeyboardKey::PageUp;   break;
-		case VK_NEXT:    m_Message.KeyboardKey = EKeyboardKey::PageDown; break;
-		case VK_F1:      m_Message.KeyboardKey = EKeyboardKey::F1;       break;
-		default:         m_Message.KeyboardKey = EKeyboardKey::Other;    break;
+		case 'W':        m_InputState.KeyboardKey = InputState::EKeyboardKey::W;        break;
+		case 'A':        m_InputState.KeyboardKey = InputState::EKeyboardKey::A;        break;
+		case 'S':        m_InputState.KeyboardKey = InputState::EKeyboardKey::S;        break;
+		case 'D':        m_InputState.KeyboardKey = InputState::EKeyboardKey::D;        break;
+		case 'Q':        m_InputState.KeyboardKey = InputState::EKeyboardKey::Q;        break;
+		case 'E':        m_InputState.KeyboardKey = InputState::EKeyboardKey::E;        break;
+		case VK_LEFT:    m_InputState.KeyboardKey = InputState::EKeyboardKey::Left;     break;
+		case VK_RIGHT:   m_InputState.KeyboardKey = InputState::EKeyboardKey::Right;    break;
+		case VK_UP:      m_InputState.KeyboardKey = InputState::EKeyboardKey::Up;       break;
+		case VK_DOWN:    m_InputState.KeyboardKey = InputState::EKeyboardKey::Down;     break;
+		case VK_HOME:    m_InputState.KeyboardKey = InputState::EKeyboardKey::Home;     break;
+		case VK_CONTROL: m_InputState.KeyboardKey = InputState::EKeyboardKey::Ctrl;     break;
+		case VK_MENU:    m_InputState.KeyboardKey = InputState::EKeyboardKey::Other;    break;
+		case VK_SHIFT:   m_InputState.KeyboardKey = InputState::EKeyboardKey::Shift;    break;
+		case VK_PRIOR:   m_InputState.KeyboardKey = InputState::EKeyboardKey::PageUp;   break;
+		case VK_NEXT:    m_InputState.KeyboardKey = InputState::EKeyboardKey::PageDown; break;
+		case VK_F1:      m_InputState.KeyboardKey = InputState::EKeyboardKey::F1;       break;
+		default:         m_InputState.KeyboardKey = InputState::EKeyboardKey::Other;    break;
 		}
 		break;
 	case WM_SYSKEYDOWN:
-		if (wParam == VK_RETURN)
+		if (wParam == VK_RETURN && lParam & (1 << 29))
 		{
-			m_Message.KeyboardKey = EKeyboardKey::Enter;
-		}
-		if (lParam & (1 << 29))
-		{
-			m_Message.KeyboardKey = EKeyboardKey::Alt;
+			m_State = m_State == EState::Fullscreen ? EState::Restored : EState::Fullscreen;
+			updateSize();
+			LOG_INFO("Window size %d x %d", static_cast<uint32_t>(m_Size.x), static_cast<uint32_t>(m_Size.y));
 		}
 		break;
 	case WM_KEYUP:
-		m_Message.Message = EMessage::KeyUp;
+		m_InputState.KeyboardKey = InputState::EKeyboardKey::None;
+		break;
+	case WM_GETMINMAXINFO:
+	{
+		::LPMINMAXINFO lpMinMaxInfo = reinterpret_cast<::LPMINMAXINFO>(lParam);
+		lpMinMaxInfo->ptMinTrackSize = 
+		{ 
+			static_cast<long32_t>(m_MinSize.x), 
+			static_cast<long32_t>(m_MinSize.y) 
+		};
+	}
+		break;
+	case WM_CHAR:
+		m_InputState.InputChar = static_cast<char8_t>(wParam);
 		break;
 	default:
-		m_Message.Message = EMessage::Other;
+		m_InputState.reset();
 		break;
 	}
 }
 
 void Window::update()
 {
+	m_InputState.reset();
+
 	::MSG message{};
 	if (::PeekMessageW(&message, nullptr, 0u, 0u, PM_REMOVE))
 	{
