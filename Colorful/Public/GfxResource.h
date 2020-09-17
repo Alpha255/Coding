@@ -197,4 +197,81 @@ enum class EFormat : uint8_t
 	Force_UInt
 };
 
+template<class T> 
+class SharedObject
+{
+public:
+	SharedObject() = default;
+	virtual ~SharedObject() = default;
+
+	inline const bool8_t isValid() const
+	{
+		return m_Object != nullptr;
+	}
+
+	inline T* get() const
+	{
+		return m_Object.get();
+	}
+
+	inline T* operator->() const
+	{
+		assert(isValid());
+		return get();
+	}
+
+	inline uint32_t refCount() const
+	{
+		return m_Object.use_count();
+	}
+
+	using Type = T;
+protected:
+	std::shared_ptr<T> m_Object = nullptr;
+private:
+};
+
+template<class T> 
+struct HandleObject
+{
+	T Handle = nullptr;
+
+	inline const bool8_t isValid() const
+	{
+		return Handle != nullptr;
+	}
+
+	virtual ~HandleObject() = default;
+};
+
+template<class T> 
+class D3DObject : public std::conditional_t<true, SharedObject<T>, HandleObject<T>>
+{
+public:
+	D3DObject(T* other = nullptr)
+	{
+		if (other)
+		{
+			m_Object.reset(other, std::function<void(T*&)>([](T*& object)
+			{
+				object->Release();
+				object = nullptr;
+			}));
+		}
+		else
+		{
+			if (m_Object)
+			{
+				m_Object.reset();
+				m_Object = nullptr;
+			}
+		}
+	}
+};
+
+template<class T>
+class VkObject : public std::conditional_t<false, SharedObject<T>, HandleObject<T>>
+{
+};
+
 NAMESPACE_END(Gfx)

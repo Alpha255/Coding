@@ -36,6 +36,7 @@ void safeRelease(T& object)
 template <class Left, class Right>
 inline bool8_t isEqual(const Left &left, const Right &right)
 {
+	assert(sizeof(Left) == sizeof(Right));
 	return ::memcmp(&left, &right, sizeof(Right)) == 0;
 }
 

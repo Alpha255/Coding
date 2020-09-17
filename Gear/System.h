@@ -41,6 +41,7 @@ public:
 		std::string m_OldWorkingDirectory;
 	};
 
+	DECLARE_SHARED_PTR(DynamicLibrary)
 	class DynamicLibrary
 	{
 	public:

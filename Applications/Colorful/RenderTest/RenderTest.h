@@ -16,7 +16,7 @@ private:
 };
 #endif
 
-#include "Gear/Gear.h"
+#include "Gear/Application.h"
 
 class RenderTest final : public Application
 {

@@ -3,6 +3,8 @@
 
 NAMESPACE_START(Gear)
 
+static Gfx::GfxRenderer* GRenderer = nullptr;
+
 Application::Configs::Configs()
 {
 	WorkingDirectory = System::getCurrentDirectory();
@@ -35,9 +37,19 @@ void Application::mountAssetsDirectory(const Configs& configs)
 	LOG_INFO("Mount working directory to \"%s\"", System::getCurrentWorkingDirectory().c_str());
 }
 
+void Application::initializeRenderer(const Configs& configs)
+{
+	m_DynamicLib = std::make_shared<System::DynamicLibrary>(std::string(configs.WorkingDirectory + "\\" + configs.RendererName + DLL_POSTFIX));
+	Gfx::CreateRendererFunc func = static_cast<Gfx::CreateRendererFunc>(m_DynamicLib->getProcAddress(CREATE_RENDERER_FUNC_NAME));
+	assert(func);
+	func(m_Renderer);
+	GRenderer = m_Renderer.get();
+}
+
 void Application::initialize(const std::string& name, const Configs& configs)
 {
 	m_Window = std::make_unique<Window>(m_Instance, name, configs.WindowSize, configs.MinWindowSize);
+	initializeRenderer(configs);
 	mountAssetsDirectory(configs);
 	onInitialize();
 }
@@ -50,17 +62,18 @@ void Application::run()
 
 		if (m_Window->isActive())
 		{
-			const InputState& inputState = m_Window->inputState();
-			if (inputState.InputChar != char8_t())
-			{
-				LOG_INFO("Input %c", inputState.InputChar);
-			}
 		}
 		else
 		{
 			System::sleep(1u);
 		}
 	}
+}
+
+void Application::onResize(uint32_t width, uint32_t height)
+{
+	(VOID)(width);
+	(VOID)(height);
 }
 
 void Application::finalize()

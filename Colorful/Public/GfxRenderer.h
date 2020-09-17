@@ -195,14 +195,27 @@ private:
 
 #include "Colorful/Public/GfxRenderState.h"
 
+#define CREATE_RENDERER_FUNC_NAME "createRenderer"
+
 NAMESPACE_START(Gfx)
 
+DECLARE_UNIQUE_PTR(GfxRenderer)
 class EXPORT_API GfxRenderer : public Gear::NoneCopyable
 {
 public:
-	GfxRenderer();
+	GfxRenderer() = default;
+	virtual ~GfxRenderer() = default;
+
+	virtual void createDevice() = 0;
+	virtual void createSwapchain(uint64_t windowHandle, uint32_t width, uint32_t height, bool8_t fullscreen, bool8_t vsync) = 0; /// separate for multi windows
+
+	virtual void toggleFullScreen(bool8_t fullscreen) = 0;
+	virtual void toggleVSync(bool8_t vsync) = 0;
 protected:
 private:
 };
+
+typedef void (*CreateRendererFunc)(GfxRendererPtr& ptr);
+extern GfxRenderer* GRenderer;
 
 NAMESPACE_END(Gfx)
