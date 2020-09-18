@@ -1,5 +1,7 @@
 #pragma once
 
+#if 0
+
 #include "Colorful/Public/GfxResource.h"
 
 class GfxFactory : public LazySingleton<GfxFactory>
@@ -41,3 +43,5 @@ class GfxGpuResourceFactory
 {
 
 };
+
+#endif

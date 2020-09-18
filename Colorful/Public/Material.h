@@ -1,5 +1,7 @@
 #pragma once
 
+#if 0
+
 #include "Colorful/Public/GfxResource.h"
 #include "AssetTool/Asset.h"
 
@@ -28,3 +30,5 @@ private:
 	std::vector<GfxVertexAttributes> m_InputLayout;
 	GfxShaderPtr m_Shaders[eRShaderUsage_MaxEnum];
 };
+
+#endif

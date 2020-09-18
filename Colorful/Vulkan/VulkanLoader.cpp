@@ -1,57 +1,51 @@
-#include "Colorful/Vulkan/VulkanEngine.h"
+#include "Colorful/Vulkan/VulkanLoader.h"
 
-#if defined(UsingVkLoader)
+#if defined(USE_VK_LOADER)
 
-vkFunctionTableDefinition
+NAMESPACE_START(Gfx)
 
-#define logIfFunctionIsNull(func)                                                              \
-	if (!func)                                                                                 \
-	{                                                                                          \
-		Logger::instance().log(Logger::eError, "Can't get entry point of function %s", #func); \
-		assert(0);                                                                             \
+VK_FUNC_TABLE_DEFINITION
+
+#define VK_LOADER_VERIFY_FUNC(Func)                               \
+	if (!Func)                                                    \
+	{                                                             \
+		LOG_ERROR("Can't get entry point of function %s", #Func); \
+		assert(0);                                                \
 	}
 
-static Gear::DynamicLibrary s_VulkanLoader;
-
-void VulkanLoader::initializeGlobalFunctionTable()
+void VulkanLoader::initialize(VkInstance instance, VkDevice device)
 {
-	s_VulkanLoader.load("vulkan-1.dll");
+	assert(instance && device && vkGetInstanceProcAddr && vkGetDeviceProcAddr);
+	assert(!s_DynamicLib);
+	s_DynamicLib = std::make_shared<System::DynamicLibrary>("vulkan-1.dll");
 
-#define createFunctionTable(func)                              \
-	func = (PFN_##func)(s_VulkanLoader.getProcAddress(#func)); \
-	logIfFunctionIsNull(func)
+#define VK_LOADER_LOAD_FUNCTIONS(Func)                           \
+	Func = (PFN_##Func)(s_DynamicLib->getProcAddress(#Func));    \
+	VK_LOADER_VERIFY_FUNC(Func)
 
-	vkGlobalFunctionTable(createFunctionTable)
-#undef createFunctionTable
-}
+	VK_GLOBAL_FUNC_TABLE(VK_LOADER_LOAD_FUNCTIONS)
+#undef VK_LOADER_LOAD_FUNCTIONS
 
-void VulkanLoader::initializeInstanceFunctionTable(VkInstance instance)
-{
-	assert(instance != VK_NULL_HANDLE && vkGetInstanceProcAddr);
+#define VK_LOADER_LOAD_FUNCTIONS(Func)                           \
+	Func = (PFN_##Func)(vkGetInstanceProcAddr(instance, #Func)); \
+	VK_LOADER_VERIFY_FUNC(Func)
 
-#define createFunctionTable(func) \
-	func = (PFN_##func)(vkGetInstanceProcAddr(instance, #func)); \
-	logIfFunctionIsNull(func)
+	VK_INSTANCE_FUNC_TABLE(VK_LOADER_LOAD_FUNCTIONS)
+#undef VK_LOADER_LOAD_FUNCTIONS
 
-	vkInstanceFunctionTable(createFunctionTable)
-#undef createFunctionTable
-}
+#define VK_LOADER_LOAD_FUNCTIONS(Func)                           \
+	Func = (PFN_##Func)(vkGetDeviceProcAddr(device, #Func));     \
+	VK_LOADER_VERIFY_FUNC(Func)
 
-void VulkanLoader::initializeDeviceFunctionTable(VkDevice device)
-{
-	assert(device != VK_NULL_HANDLE && vkGetDeviceProcAddr);
-
-#define createFunctionTable(func) \
-	func = (PFN_##func)(vkGetDeviceProcAddr(device, #func)); \
-	logIfFunctionIsNull(func)
-
-	vkDeviceFunctionTable(createFunctionTable)
-#undef createFunctionTable
+	VK_DEVICE_FUNC_TABLE(VK_LOADER_LOAD_FUNCTIONS)
+#undef VK_LOADER_LOAD_FUNCTIONS
 }
 
 void VulkanLoader::finalize()
 {
-	vkFunctionTableReset
+	VK_FUNC_TABLE_RESET
 }
+
+NAMESPACE_END(Gfx)
 
 #endif

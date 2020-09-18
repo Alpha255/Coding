@@ -76,10 +76,10 @@ public:
 		, m_RelPath(std::move(other.m_RelPath))
 		, m_Data(std::move(other.m_Data))
 	{
-		other.m_Size = 0ull;
+		std::exchange(other.m_Size, {});
 	}
 
-	void operator=(const File& other)
+	File& operator=(const File& other)
 	{
 		m_Size = other.m_Size;
 		m_Name = other.m_Name;
@@ -87,6 +87,19 @@ public:
 		m_FullPath = other.m_FullPath;
 		m_RelPath = other.m_RelPath;
 		m_Data = other.m_Data;
+		return *this;
+	}
+
+	File& operator=(File&& other)
+	{
+		m_Size = std::exchange(other.m_Size, {});
+		m_Name.assign(std::move(other.m_Name));
+		m_Extension.assign(std::move(other.m_Extension));
+		m_FullPath.assign(std::move(other.m_FullPath));
+		m_RelPath.assign(std::move(other.m_RelPath));
+		m_Data = std::move(other.m_Data);
+		LOG_INFO("Move");
+		return *this;
 	}
 
 	static std::string name(const std::string& path, bool8_t lowercase = false)

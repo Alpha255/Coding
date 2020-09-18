@@ -1,3 +1,5 @@
+#if 0
+
 #include "Colorful/Public/GfxEngine.h"
 #include "AssetTool/AssetDatabase.h"
 
@@ -103,3 +105,5 @@ void GfxModel::draw(GfxPipelineState* state)
 		g_GfxEngine->drawIndexed(m_Meshes[i].IndexCount, 1u, 0u, 0);
 	}
 }
+
+#endif

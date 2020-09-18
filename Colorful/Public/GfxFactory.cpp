@@ -1,3 +1,5 @@
+#if 0
+
 #include "Colorful/Public/GfxFactory.h"
 #include "Colorful/Public/GfxEngine.h"
 
@@ -10,3 +12,5 @@ GfxFactory::GfxFactory()
 
 	m_DefaultTexture = g_GfxEngine->createTexture("white.dds");
 }
+
+#endif

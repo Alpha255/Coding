@@ -11,7 +11,7 @@ public:
 	~NoneCopyable() = default;
 
 	NoneCopyable(const NoneCopyable&) = delete;
-	void operator=(const NoneCopyable&) = delete;
+	NoneCopyable& operator=(const NoneCopyable&) = delete;
 protected:
 private:
 };

@@ -1,5 +1,7 @@
 #pragma once
 
+#if 0
+
 #include "Colorful/Public/GfxRenderState.h"
 
 namespace AssetTool
@@ -189,3 +191,5 @@ private:
 	GfxGpuBufferPtr m_UniformBuffer;
 	static GfxPipelineState s_PipelineState;
 };
+
+#endif

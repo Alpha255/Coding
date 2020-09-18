@@ -83,18 +83,21 @@ workspace "Miscellaneous"
 			kind "SharedLib"
 			language "C++"
 			location "./Projects"
-			--files "./Colorful/Public/**"
+			files "./Colorful/Public/**"
 			includedirs { "$(SolutionDir)" }
 			targetdir "$(SolutionDir)Out\\"
 			defines { "DYNAMIC_LIB" }
 			implibname "$(SolutionDir)Out\\Libs\\$(ProjectName)"
-			files {
-				"./Colorful/Public/GfxRenderer.h",
-				"./Colorful/Public/GfxRenderer.cpp",
-				"./Colorful/Public/GfxRenderState.h",
-				"./Colorful/Public/GfxRenderState.cpp",
-				"./Colorful/Public/GfxResource.h"
-			}
+
+		project "Gfx-VulkanRenderer"
+			kind "SharedLib"
+			language "C++"
+			location "./Projects"
+			files "./Colorful/Vulkan/**"
+			includedirs { "$(SolutionDir)" }
+			targetdir "$(SolutionDir)Out\\"
+			defines { "DYNAMIC_LIB" }
+			implibname "$(SolutionDir)Out\\Libs\\$(ProjectName)"
 --[[
 		project "Gfx-SoftwareRenderer"
 			kind "SharedLib"
@@ -117,14 +120,6 @@ workspace "Miscellaneous"
 			language "C++"
 			location "./Projects"
 			files "./Colorful/D3D/D3D12/**"
-			includedirs { "$(SolutionDir)" }
-			targetdir "$(SolutionDir)Out\\"
-			links { "Gear" }
-		project "Gfx-VulkanRenderer"
-			kind "SharedLib"
-			language "C++"
-			location "./Projects"
-			files "./Colorful/Vulkan/**"
 			includedirs { "$(SolutionDir)" }
 			targetdir "$(SolutionDir)Out\\"
 			links { "Gear" }

@@ -1,3 +1,5 @@
+#if 0
+
 #include "Colorful/Public/ImGui/ImGui.h"
 #include "Colorful/Public/GfxEngine.h"
 #include "Gear/Window.h"
@@ -227,3 +229,5 @@ bool8_t ImGuiRenderer::update()
 
 	return true;
 }
+
+#endif

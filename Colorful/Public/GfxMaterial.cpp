@@ -1,3 +1,5 @@
+#if 0
+
 #include "Colorful/Public/GfxMaterial.h"
 #include "Colorful/Public/GfxEngine.h"
 #include "AssetTool/AssetDatabase.h"
@@ -583,3 +585,5 @@ void GfxMaterial::deserialize()
 		}
 	}
 }
+
+#endif

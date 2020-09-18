@@ -1,154 +1,165 @@
 #pragma once
 
-#include "Colorful/Public/GfxEngine.h"
+#include "Colorful/Public/GfxRenderer.h"
 
-#if defined(UsingVkLoader)
+#define USE_VK_LOADER
 
-#define vkFunctionDeclare(func) extern PFN_##func func;
-#define vkFunctionDefinition(func) PFN_##func func = nullptr;
-#define vkFunctionReset(func) func = nullptr;
+#if defined(USE_VK_LOADER)
 
-#define vkGlobalFunctionTable(action)              \
-	action(vkCreateInstance)                       \
-	action(vkGetDeviceProcAddr)                    \
-	action(vkGetInstanceProcAddr)                  \
-	action(vkEnumerateDeviceLayerProperties)       \
-	action(vkEnumerateInstanceLayerProperties)     \
-	action(vkEnumerateInstanceExtensionProperties) 
+#define VK_NO_PROTOTYPES
+#include <ThirdParty/VulkanSDK/Include/vulkan/vulkan.h>
 
-#define vkInstanceFunctionTable_General(action)       \
-	action(vkCreateDevice)                            \
-	action(vkDestroyInstance)                         \
-	action(vkDestroySurfaceKHR)                       \
-	action(vkSetHdrMetadataEXT)                       \
-	action(vkCmdDebugMarkerEndEXT)                    \
-	action(vkCmdDebugMarkerBeginEXT)                  \
-	action(vkCmdDebugMarkerInsertEXT)                 \
-	action(vkEnumeratePhysicalDevices)                \
-	action(vkGetPhysicalDeviceFeatures)               \
-	action(vkGetPhysicalDeviceProperties)             \
-	action(vkGetPhysicalDeviceFormatProperties)       \
-	action(vkGetPhysicalDeviceMemoryProperties)       \
-	action(vkEnumerateDeviceExtensionProperties)      \
-	action(vkGetPhysicalDeviceSurfaceSupportKHR)      \
-	action(vkGetPhysicalDeviceSurfaceFormatsKHR)      \
-	action(vkGetPhysicalDeviceQueueFamilyProperties)  \
-	action(vkGetPhysicalDeviceSurfaceCapabilitiesKHR) \
-	action(vkGetPhysicalDeviceSurfacePresentModesKHR) 
+NAMESPACE_START(Gfx)
 
-#define vkDeviceFunctionTable(action)    \
-	action(vkCmdDraw)                    \
-	action(vkSetEvent)                   \
-	action(vkMapMemory)                  \
-	action(vkFreeMemory)                 \
-	action(vkResetEvent)                 \
-	action(vkResetFences)                \
-	action(vkUnmapMemory)                \
-	action(vkCreateImage)                \
-	action(vkCreateEvent)                \
-	action(vkCreateFence)                \
-	action(vkQueueSubmit)                \
-	action(vkDestroyEvent)               \
-	action(vkCreateBuffer)               \
-	action(vkDestroyImage)               \
-	action(vkDestroyFence)               \
-	action(vkQueueWaitIdle)              \
-	action(vkDestroyDevice)              \
-	action(vkCmdSetScissor)              \
-	action(vkDestroyBuffer)              \
-	action(vkWaitForFences)              \
-	action(vkCmdCopyBuffer)              \
-	action(vkCreateSampler)              \
-	action(vkCmdDrawIndexed)             \
-	action(vkAllocateMemory)             \
-	action(vkCmdSetViewport)             \
-	action(vkDestroySampler)             \
-	action(vkGetFenceStatus)             \
-	action(vkGetDeviceQueue)             \
-	action(vkDeviceWaitIdle)             \
-	action(vkGetEventStatus)             \
-	action(vkBindImageMemory)            \
-	action(vkDestroyPipeline)            \
-	action(vkQueuePresentKHR)            \
-	action(vkCreateSemaphore)            \
-	action(vkCreateImageView)            \
-	action(vkCmdBindPipeline)            \
-	action(vkResetCommandPool)           \
-	action(vkBindBufferMemory)           \
-	action(vkDestroyImageView)           \
-	action(vkCmdEndRenderPass)           \
-	action(vkCreateRenderPass)           \
-	action(vkEndCommandBuffer)           \
-	action(vkDestroySemaphore)           \
-	action(vkDestroyRenderPass)          \
-	action(vkCreateCommandPool)          \
-	action(vkCreateFramebuffer)          \
-	action(vkCmdExecuteCommands)         \
-	action(vkDestroyFramebuffer)         \
-	action(vkCmdBeginRenderPass)         \
-	action(vkResetCommandBuffer)         \
-	action(vkBeginCommandBuffer)         \
-	action(vkCmdPipelineBarrier)         \
-	action(vkCmdClearColorImage)         \
-	action(vkFreeCommandBuffers)         \
-	action(vkDestroyCommandPool)         \
-	action(vkCreateSwapchainKHR)         \
-	action(vkCreateShaderModule)         \
-	action(vkCmdBindIndexBuffer)         \
-	action(vkResetDescriptorPool)        \
-	action(vkAcquireNextImageKHR)        \
-	action(vkDestroySwapchainKHR)        \
-	action(vkDestroyShaderModule)        \
-	action(vkCreatePipelineCache)        \
-	action(vkCmdBindVertexBuffers)       \
-	action(vkCmdCopyBufferToImage)       \
-	action(vkCreateDescriptorPool)       \
-	action(vkUpdateDescriptorSets)       \
-	action(vkCreatePipelineLayout)       \
-	action(vkDestroyPipelineCache)       \
-	action(vkCmdBindDescriptorSets)      \
-	action(vkDestroyDescriptorPool)      \
-	action(vkDestroyPipelineLayout)      \
-	action(vkGetSwapchainImagesKHR)      \
-	action(vkAllocateCommandBuffers)     \
-	action(vkAllocateDescriptorSets)     \
-	action(vkCreateGraphicsPipelines)    \
-	action(vkFlushMappedMemoryRanges)    \
-	action(vkCreateDescriptorSetLayout)  \
-	action(vkGetImageMemoryRequirements) \
-	action(vkDestroyDescriptorSetLayout) \
-	action(vkGetBufferMemoryRequirements)    
+#define VK_FUNC_DECLARE(Func) extern PFN_##Func Func;
+#define VK_FUNC_DEFINITION(Func) PFN_##Func Func = nullptr;
+#define VK_FUNC_RESET(Func) Func = nullptr;
+
+#define VK_GLOBAL_FUNC_TABLE(Action)               \
+	Action(vkCreateInstance)                       \
+	Action(vkGetDeviceProcAddr)                    \
+	Action(vkGetInstanceProcAddr)                  \
+	Action(vkEnumerateDeviceLayerProperties)       \
+	Action(vkEnumerateInstanceLayerProperties)     \
+	Action(vkEnumerateInstanceExtensionProperties) 
+
+#define VK_INSTANCE_FUNC_TABLE_GENERAL(Action)        \
+	Action(vkCreateDevice)                            \
+	Action(vkDestroyInstance)                         \
+	Action(vkDestroySurfaceKHR)                       \
+	Action(vkSetHdrMetadataEXT)                       \
+	Action(vkCmdDebugMarkerEndEXT)                    \
+	Action(vkCmdDebugMarkerBeginEXT)                  \
+	Action(vkCmdDebugMarkerInsertEXT)                 \
+	Action(vkEnumeratePhysicalDevices)                \
+	Action(vkGetPhysicalDeviceFeatures)               \
+	Action(vkGetPhysicalDeviceProperties)             \
+	Action(vkGetPhysicalDeviceFormatProperties)       \
+	Action(vkGetPhysicalDeviceMemoryProperties)       \
+	Action(vkEnumerateDeviceExtensionProperties)      \
+	Action(vkGetPhysicalDeviceSurfaceSupportKHR)      \
+	Action(vkGetPhysicalDeviceSurfaceFormatsKHR)      \
+	Action(vkGetPhysicalDeviceQueueFamilyProperties)  \
+	Action(vkGetPhysicalDeviceSurfaceCapabilitiesKHR) \
+	Action(vkGetPhysicalDeviceSurfacePresentModesKHR) 
+
+#define VK_DEVICE_FUNC_TABLE(Action)     \
+	Action(vkCmdDraw)                    \
+	Action(vkSetEvent)                   \
+	Action(vkMapMemory)                  \
+	Action(vkFreeMemory)                 \
+	Action(vkResetEvent)                 \
+	Action(vkResetFences)                \
+	Action(vkUnmapMemory)                \
+	Action(vkCreateImage)                \
+	Action(vkCreateEvent)                \
+	Action(vkCreateFence)                \
+	Action(vkQueueSubmit)                \
+	Action(vkDestroyEvent)               \
+	Action(vkCreateBuffer)               \
+	Action(vkDestroyImage)               \
+	Action(vkDestroyFence)               \
+	Action(vkQueueWaitIdle)              \
+	Action(vkDestroyDevice)              \
+	Action(vkCmdSetScissor)              \
+	Action(vkDestroyBuffer)              \
+	Action(vkWaitForFences)              \
+	Action(vkCmdCopyBuffer)              \
+	Action(vkCreateSampler)              \
+	Action(vkCmdDrawIndexed)             \
+	Action(vkAllocateMemory)             \
+	Action(vkCmdSetViewport)             \
+	Action(vkDestroySampler)             \
+	Action(vkGetFenceStatus)             \
+	Action(vkGetDeviceQueue)             \
+	Action(vkDeviceWaitIdle)             \
+	Action(vkGetEventStatus)             \
+	Action(vkBindImageMemory)            \
+	Action(vkDestroyPipeline)            \
+	Action(vkQueuePresentKHR)            \
+	Action(vkCreateSemaphore)            \
+	Action(vkCreateImageView)            \
+	Action(vkCmdBindPipeline)            \
+	Action(vkResetCommandPool)           \
+	Action(vkBindBufferMemory)           \
+	Action(vkDestroyImageView)           \
+	Action(vkCmdEndRenderPass)           \
+	Action(vkCreateRenderPass)           \
+	Action(vkEndCommandBuffer)           \
+	Action(vkDestroySemaphore)           \
+	Action(vkDestroyRenderPass)          \
+	Action(vkCreateCommandPool)          \
+	Action(vkCreateFramebuffer)          \
+	Action(vkCmdExecuteCommands)         \
+	Action(vkDestroyFramebuffer)         \
+	Action(vkCmdBeginRenderPass)         \
+	Action(vkResetCommandBuffer)         \
+	Action(vkBeginCommandBuffer)         \
+	Action(vkCmdPipelineBarrier)         \
+	Action(vkCmdClearColorImage)         \
+	Action(vkFreeCommandBuffers)         \
+	Action(vkDestroyCommandPool)         \
+	Action(vkCreateSwapchainKHR)         \
+	Action(vkCreateShaderModule)         \
+	Action(vkCmdBindIndexBuffer)         \
+	Action(vkResetDescriptorPool)        \
+	Action(vkAcquireNextImageKHR)        \
+	Action(vkDestroySwapchainKHR)        \
+	Action(vkDestroyShaderModule)        \
+	Action(vkCreatePipelineCache)        \
+	Action(vkCmdBindVertexBuffers)       \
+	Action(vkCmdCopyBufferToImage)       \
+	Action(vkCreateDescriptorPool)       \
+	Action(vkUpdateDescriptorSets)       \
+	Action(vkCreatePipelineLayout)       \
+	Action(vkDestroyPipelineCache)       \
+	Action(vkCmdBindDescriptorSets)      \
+	Action(vkDestroyDescriptorPool)      \
+	Action(vkDestroyPipelineLayout)      \
+	Action(vkGetSwapchainImagesKHR)      \
+	Action(vkAllocateCommandBuffers)     \
+	Action(vkAllocateDescriptorSets)     \
+	Action(vkCreateGraphicsPipelines)    \
+	Action(vkFlushMappedMemoryRanges)    \
+	Action(vkCreateDescriptorSetLayout)  \
+	Action(vkGetImageMemoryRequirements) \
+	Action(vkDestroyDescriptorSetLayout) \
+	Action(vkGetBufferMemoryRequirements)    
 
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-#define vkInstanceFunctionTable_Platform(action) \
-	action(vkCreateWin32SurfaceKHR)
+#define VK_INSTANCE_FUNC_TABLE_PLATFORM(Action) \
+	Action(vkCreateWin32SurfaceKHR)
 #else
-#define vkInstanceFunctionTable_Platform(action)
+	#error Unknown platform!
 #endif
 	
-#define vkInstanceFunctionTable(action)     \
-	vkInstanceFunctionTable_General(action) \
-	vkInstanceFunctionTable_Platform(action) 
+#define VK_INSTANCE_FUNC_TABLE(Action)     \
+	VK_INSTANCE_FUNC_TABLE_GENERAL(Action) \
+	VK_INSTANCE_FUNC_TABLE_PLATFORM(Action) 
 
-#define vkFunctionTable(action)     \
-	vkGlobalFunctionTable(action)   \
-	vkInstanceFunctionTable(action) \
-	vkDeviceFunctionTable(action)
+#define VK_FUNC_TABLE(Action)      \
+	VK_GLOBAL_FUNC_TABLE(Action)   \
+	VK_INSTANCE_FUNC_TABLE(Action) \
+	VK_DEVICE_FUNC_TABLE(Action)
 
-#define vkFunctionTableDeclare vkFunctionTable(vkFunctionDeclare)
-#define vkFunctionTableDefinition vkFunctionTable(vkFunctionDefinition)
-#define vkFunctionTableReset vkFunctionTable(vkFunctionReset)
+#define VK_FUNC_TABLE_DECLARE    VK_FUNC_TABLE(VK_FUNC_DECLARE)
+#define VK_FUNC_TABLE_DEFINITION VK_FUNC_TABLE(VK_FUNC_DEFINITION)
+#define VK_FUNC_TABLE_RESET      VK_FUNC_TABLE(VK_FUNC_RESET)
 
-vkFunctionTableDeclare
+VK_FUNC_TABLE_DECLARE
 
 class VulkanLoader
 {
 public:
-	static void initializeGlobalFunctionTable();
-	static void initializeInstanceFunctionTable(VkInstance instance);
-	static void initializeDeviceFunctionTable(VkDevice device);
-
+	static void initialize(VkInstance instance, VkDevice device);
 	static void finalize();
+protected:
+private:
+	static System::DynamicLibraryPtr s_DynamicLib;
 };
 
+NAMESPACE_END(Gfx)
+
+#else
+	#include <vulkan/vulkan.h>
 #endif

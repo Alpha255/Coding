@@ -1,5 +1,7 @@
 #pragma once
 
+#if 0
+
 #include "Colorful/Public/GfxResource.h"
 
 struct GfxMaterial
@@ -17,3 +19,5 @@ struct GfxMaterial
 	void serialize();
 	void deserialize();
 };
+
+#endif

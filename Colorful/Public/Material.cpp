@@ -1,3 +1,5 @@
+#if 0
+
 #include "Colorful/Public/Material.h"
 #include "AssetTool/AssetDatabase.h"
 #include <iomanip>
@@ -14,3 +16,5 @@ Material::Material(const std::string& name)
 void Material::reload()
 {
 }
+
+#endif

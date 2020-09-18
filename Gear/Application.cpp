@@ -48,6 +48,20 @@ void Application::initializeRenderer(const Configs& configs)
 
 void Application::initialize(const std::string& name, const Configs& configs)
 {
+#if 0
+	File file1("test1");
+	File file2 = std::move(file1);
+
+	using SharedPtr = std::shared_ptr<Gfx::D3DObject<Gfx::TestShared>>;
+	SharedPtr test1 = std::make_shared<Gfx::D3DObject<Gfx::TestShared>>();
+	SharedPtr test2 = test1;
+	//Gfx::D3DObject<Gfx::TestShared> test1;
+	//test1.setDebugName(std::string("test1"));
+	//auto hash1 = test1.hash();
+
+	//Gfx::D3DObject<Gfx::TestShared> test2 = std::move(test1);
+#endif
+
 	m_Window = std::make_unique<Window>(m_Instance, name, configs.WindowSize, configs.MinWindowSize);
 	initializeRenderer(configs);
 	mountAssetsDirectory(configs);

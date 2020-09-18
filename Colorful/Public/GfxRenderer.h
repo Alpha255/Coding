@@ -207,10 +207,10 @@ public:
 	virtual ~GfxRenderer() = default;
 
 	virtual void createDevice() = 0;
-	virtual void createSwapchain(uint64_t windowHandle, uint32_t width, uint32_t height, bool8_t fullscreen, bool8_t vsync) = 0; /// separate for multi windows
+	virtual void createSwapchain(uint64_t windowHandle, uint32_t width, uint32_t height, bool8_t fullscreen, bool8_t vSync) = 0;
 
 	virtual void toggleFullScreen(bool8_t fullscreen) = 0;
-	virtual void toggleVSync(bool8_t vsync) = 0;
+	virtual void toggleVSync(bool8_t vSync) = 0;
 protected:
 private:
 };
