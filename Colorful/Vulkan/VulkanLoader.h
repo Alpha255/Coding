@@ -151,12 +151,32 @@ VK_FUNC_TABLE_DECLARE
 class VulkanLoader
 {
 public:
-	static void initialize(VkInstance instance, VkDevice device);
-	static void finalize();
+	static void loadGlobalFuncs();
+	static void loadInstanceFuncs(VkInstance instance);
+	static void loadDeviceFuncs(VkDevice device);
+
+	static void free();
 protected:
 private:
 	static System::DynamicLibraryPtr s_DynamicLib;
 };
+
+class VulkanErrorLog
+{
+public:
+	static const char8_t* const getErrorMessage(VkResult result);
+};
+
+#define VERIFY_VK(Func)                                                                       \
+{                                                                                             \
+	VkResult result = (Func);                                                                 \
+	if (result != VK_SUCCESS)                                                                 \
+	{                                                                                         \
+		LOG_ERROR("Failed to invoke VulkanAPI, %s", VulkanErrorLog::getErrorMessage(result)); \
+	}                                                                                         \
+}
+
+#define VK_MEMORY_ALLOCATOR nullptr
 
 NAMESPACE_END(Gfx)
 

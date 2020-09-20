@@ -3,7 +3,7 @@
     "WindowSize": [ 1280, 720 ],
     "MinWindowSize": [ 640, 480 ],
     "FullScreen": false,
-    "Renderer" : "Vulkan",
+    "Renderer" : "D3D11",
     "RendererNames": {
       "Vulkan" : "Gfx-VulkanRenderer",
       "D3D11" : "Gfx-D3D11Renderer",

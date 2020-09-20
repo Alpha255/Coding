@@ -1,53 +1,50 @@
-#include "Colorful/Vulkan/VulkanEngine.h"
+#include "Colorful/Vulkan/VulkanDevice.h"
 
-void VulkanDevice::create(VkInstance instance)
+NAMESPACE_START(Gfx)
+
+VulkanDevice::VulkanDevice(VkInstance instance)
 {
-	uint32_t count = 0U;
-	GfxVerifyVk(vkEnumeratePhysicalDevices(instance, &count, nullptr));
-	assert(count > 0U);
+	assert(instance);
+
+	uint32_t count = 0u;
+	VERIFY_VK(vkEnumeratePhysicalDevices(instance, &count, nullptr));
+	assert(count > 0u);
 
 	std::vector<VkPhysicalDevice> physicalDevices(count);
-	GfxVerifyVk(vkEnumeratePhysicalDevices(instance, &count, physicalDevices.data()));
+	VERIFY_VK(vkEnumeratePhysicalDevices(instance, &count, physicalDevices.data()));
 
 	uint32_t gpuIndex = std::numeric_limits<uint32_t>().max();
 	uint32_t discreteGpuIndex = std::numeric_limits<uint32_t>().max();
-	std::string gpuTypeName;
+	VkPhysicalDeviceType gpuType = VK_PHYSICAL_DEVICE_TYPE_MAX_ENUM;
 
 	uint32_t graphicsQueueFamilyIndex = std::numeric_limits<uint32_t>().max();
 	uint32_t computeQueueFamilyIndex = std::numeric_limits<uint32_t>().max();
 	uint32_t transferQueueFamilyIndex = std::numeric_limits<uint32_t>().max();
 	uint32_t numQueuePriority = 0u;
 
+	auto getGpuTypeName = [](VkPhysicalDeviceType type)-> const char8_t* const
+	{
+		switch (type)
+		{
+		case VK_PHYSICAL_DEVICE_TYPE_OTHER:          return "Other";
+		case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU: return "Integrated Gpu";
+		case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:   return "Discrete Gpu";
+		case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:    return "Virtual Gpu";
+		case VK_PHYSICAL_DEVICE_TYPE_CPU:            return "Cpu";
+		}
+
+		return "Unknown Device";
+	};
+
 	std::vector<VkDeviceQueueCreateInfo> deviceQueueCreateInfos;
 	for (uint32_t i = 0u; i < physicalDevices.size(); ++i)
 	{
 		VkPhysicalDeviceProperties properties{};
 		vkGetPhysicalDeviceProperties(physicalDevices[i], &properties);
-
-		switch (properties.deviceType)
-		{
-		case VK_PHYSICAL_DEVICE_TYPE_OTHER:
-			gpuTypeName = enumToString(VK_PHYSICAL_DEVICE_TYPE_OTHER);
-			break;
-		case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
-			gpuTypeName = enumToString(VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU);
-			break;
-		case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
-			gpuTypeName = enumToString(VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU);
-			discreteGpuIndex = i;
-			break;
-		case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
-			gpuTypeName = enumToString(VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU);
-			break;
-		case VK_PHYSICAL_DEVICE_TYPE_CPU:
-			gpuTypeName = enumToString(VK_PHYSICAL_DEVICE_TYPE_CPU);
-			break;
-		default:
-			gpuTypeName = "Unknown";
-			break;
-		}
+		gpuType = properties.deviceType;
 
 		gpuIndex = i;
+		discreteGpuIndex = gpuType == VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU ? i : discreteGpuIndex;
 
 		vkGetPhysicalDeviceQueueFamilyProperties(physicalDevices[i], &count, nullptr);
 		assert(count > 0u);
@@ -100,15 +97,21 @@ void VulkanDevice::create(VkInstance instance)
 			deviceQueueCreateInfos.emplace_back(deviceQueueCreateInfo);
 			/// VkDeviceQueueCreateFlagBits::VK_DEVICE_QUEUE_CREATE_PROTECTED_BIT specifies that the device queue is a protected-capable queue. 
 			/// If the protected memory feature is not enabled, the VK_DEVICE_QUEUE_CREATE_PROTECTED_BIT bit of flags must not be set.
+
+			if (gpuType == VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) /// preference for discrete gpu
+			{
+				break;
+			}
 		}
 	}
 
 	assert(gpuIndex == discreteGpuIndex);
 	if (gpuIndex != discreteGpuIndex)
 	{
-		Logger::instance().log(Logger::eInfo, "Can't find discrete gpu, the valid gpu type is \"%s\"", gpuTypeName.c_str());
+		LOG_INFO("Can't find discrete gpu, the valid gpu type is \"%s\"", getGpuTypeName(gpuType));
 	}
-	m_PhysicalDevice.Handle = physicalDevices[gpuIndex];
+	
+	m_PhysicalDevice = physicalDevices[gpuIndex];
 
 	std::vector<float32_t> queuePriorities(numQueuePriority, 1.0f);
 
@@ -117,7 +120,7 @@ void VulkanDevice::create(VkInstance instance)
 		deviceQueueCreateInfo.pQueuePriorities = queuePriorities.data();  /// Each element of pQueuePriorities must be between 0.0 and 1.0 inclusive
 	}
 
-	std::vector<const char8_t*> layers =
+	std::vector<const char8_t*> expectLayers
 	{
 #if defined(_DEBUG)
 		"VK_LAYER_LUNARG_standard_validation",
@@ -127,33 +130,33 @@ void VulkanDevice::create(VkInstance instance)
 #endif
 	};
 
-	std::vector<const char8_t*> extensions =
+	std::vector<const char8_t*> expectExtensions
 	{
 		VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 		VK_EXT_DEBUG_MARKER_EXTENSION_NAME
 	};
 
-	GfxVerifyVk(vkEnumerateDeviceLayerProperties(m_PhysicalDevice.Handle, &count, nullptr));
+	VERIFY_VK(vkEnumerateDeviceLayerProperties(m_PhysicalDevice, &count, nullptr));
 	std::vector<VkLayerProperties> supportedLayers(count);
-	GfxVerifyVk(vkEnumerateDeviceLayerProperties(m_PhysicalDevice.Handle, &count, supportedLayers.data()));
-	layers = VulkanEngine::getSupportedProperties<VkLayerProperties>(supportedLayers, layers);
+	VERIFY_VK(vkEnumerateDeviceLayerProperties(m_PhysicalDevice, &count, supportedLayers.data()));
+	auto layers = getSupportedProperties<VkLayerProperties>(supportedLayers, expectLayers);
 
-	GfxVerifyVk(vkEnumerateDeviceExtensionProperties(m_PhysicalDevice.Handle, nullptr, &count, nullptr));
+	VERIFY_VK(vkEnumerateDeviceExtensionProperties(m_PhysicalDevice, nullptr, &count, nullptr));
 	std::vector<VkExtensionProperties> supportedExtensions(count);
-	GfxVerifyVk(vkEnumerateDeviceExtensionProperties(m_PhysicalDevice.Handle, nullptr, &count, supportedExtensions.data()));
-	extensions = VulkanEngine::getSupportedProperties<VkExtensionProperties>(supportedExtensions, extensions);
+	VERIFY_VK(vkEnumerateDeviceExtensionProperties(m_PhysicalDevice, nullptr, &count, supportedExtensions.data()));
+	auto extensions = getSupportedProperties<VkExtensionProperties>(supportedExtensions, expectExtensions);
 
 	for (auto extension : extensions)
 	{
 		if (strcmp(extension, VK_EXT_DEBUG_MARKER_EXTENSION_NAME) == 0)
 		{
-			m_DebugMarkerAvaliable = true;
+			m_DebugMarkerAvailable = true;
 			break;
 		}
 	}
 
 	VkPhysicalDeviceFeatures deviceFeatures{};
-	vkGetPhysicalDeviceFeatures(m_PhysicalDevice.Handle, &deviceFeatures);
+	vkGetPhysicalDeviceFeatures(m_PhysicalDevice, &deviceFeatures);
 
 	VkDeviceCreateInfo createInfo
 	{
@@ -169,58 +172,38 @@ void VulkanDevice::create(VkInstance instance)
 		&deviceFeatures
 	};
 
-	GfxVerifyVk(vkCreateDevice(physicalDevices[gpuIndex], &createInfo, vkMemoryAllocator, &m_LogicalDevice.Handle));
+	VERIFY_VK(vkCreateDevice(m_PhysicalDevice, &createInfo, VK_MEMORY_ALLOCATOR, reference()));
 
 #if defined(UsingVkLoader)
 	VulkanLoader::initializeDeviceFunctionTable(m_LogicalDevice.Handle);
 #endif
 
 	VkPhysicalDeviceProperties properties{};
-	vkGetPhysicalDeviceProperties(physicalDevices[gpuIndex], &properties);
-	m_Adapter.DeviceName = properties.deviceName;
-	m_Adapter.DeviceID = properties.deviceID;
-	m_Adapter.VendorID = properties.vendorID;
-	Logger::instance().log(Logger::eInfo, "Created Vulkan device on adapter: \"%s %s\", DeviceID = %d. VulkanAPI Version: %d.%d.%d",
-		GfxAdapter::vendorName(m_Adapter.VendorID).c_str(),
-		m_Adapter.DeviceName.c_str(),
-		m_Adapter.DeviceID,
+	vkGetPhysicalDeviceProperties(m_PhysicalDevice, &properties);
+
+	DeviceName = properties.deviceName;
+	DeviceID = properties.deviceID;
+	VendorID = properties.vendorID;
+
+	LOG_INFO("Create Vulkan device on adapter: \"%s %s\", DeviceID = %d. VulkanAPI Version: %d.%d.%d",
+		getVendorName(VendorID),
+		DeviceName.c_str(),
+		DeviceID,
 		VK_VERSION_MAJOR(properties.apiVersion),
 		VK_VERSION_MINOR(properties.apiVersion),
 		VK_VERSION_PATCH(properties.apiVersion));
 
-	VulkanAsyncPool::initialize(m_LogicalDevice.Handle);
-	VulkanQueueManager::initialize(
-		m_LogicalDevice.Handle, 
-		graphicsQueueFamilyIndex, 
-		computeQueueFamilyIndex, 
-		transferQueueFamilyIndex);
-	VulkanBufferPool::initialize(m_LogicalDevice.Handle, m_PhysicalDevice.Handle);
-	VulkanPipelinePool::initialize(m_LogicalDevice.Handle);
-	VulkanMainDescriptorPool::initialize(m_LogicalDevice.Handle, m_PhysicalDevice.Handle);
-	VulkanRenderPassManager::initialize(m_LogicalDevice.Handle);
-	GfxFactory::initialize();
+	//VulkanAsyncPool::initialize(m_LogicalDevice.Handle);
+	//VulkanQueueManager::initialize(
+	//	m_LogicalDevice.Handle, 
+	//	graphicsQueueFamilyIndex, 
+	//	computeQueueFamilyIndex, 
+	//	transferQueueFamilyIndex);
+	//VulkanBufferPool::initialize(m_LogicalDevice.Handle, m_PhysicalDevice.Handle);
+	//VulkanPipelinePool::initialize(m_LogicalDevice.Handle);
+	//VulkanMainDescriptorPool::initialize(m_LogicalDevice.Handle, m_PhysicalDevice.Handle);
+	//VulkanRenderPassManager::initialize(m_LogicalDevice.Handle);
+	//GfxFactory::initialize();
 }
 
-void VulkanDevice::destroy()
-{
-	waitIdle();
-
-	VulkanAsyncPool::instance()->finalize();
-	VulkanQueueManager::instance()->finalize();
-	VulkanBufferPool::instance()->finalize();
-	VulkanPipelinePool::instance()->finalize();
-	VulkanMainDescriptorPool::instance()->finalize();
-	VulkanRenderPassManager::instance()->finalize();
-
-	vkDestroyDevice(m_LogicalDevice.Handle, vkMemoryAllocator);
-	m_LogicalDevice.Handle = VK_NULL_HANDLE;
-	m_PhysicalDevice.Handle = VK_NULL_HANDLE;
-}
-
-void VulkanDevice::waitIdle()
-{
-	if (m_LogicalDevice.isValid())
-	{
-		GfxVerifyVk(vkDeviceWaitIdle(m_LogicalDevice.Handle));
-	}
-}
+NAMESPACE_END(Gfx)

@@ -197,27 +197,20 @@ enum class EFormat : uint8_t
 	Force_UInt
 };
 
-class TestShared
-{
-public:
-	void Release()
-	{
-		LOG_INFO("Release");
-	}
-
-	void AddRef()
-	{
-		LOG_INFO("Add Ref");
-	}
-};
-
 template<class T>
 class GfxObject
 {
 public:
 	GfxObject() = default;
+
 	GfxObject(const std::string& debugName)
 		: m_DebugName(debugName)
+	{
+	}
+
+	GfxObject(T* handle, const std::string& debugName = std::string())
+		: m_Handle(handle)
+		, m_DebugName(debugName)
 	{
 	}
 
@@ -236,15 +229,21 @@ public:
 
 	GfxObject& operator=(const GfxObject& other)
 	{
-		m_Handle = other.m_Handle;
-		m_DebugName = other.m_DebugName;
+		if (m_Handle != other.m_Handle)
+		{
+			m_Handle = other.m_Handle;
+			m_DebugName = other.m_DebugName;
+		}
 		return *this;
 	}
 
 	GfxObject& operator=(GfxObject&& other)
 	{
-		m_Handle = std::exchange(other.m_Handle, {});
-		m_DebugName.assign(std::move(other.m_DebugName));
+		if (m_Handle != other.m_Handle)
+		{
+			m_DebugName = std::move(other.m_DebugName);
+			m_Handle = std::exchange(other.m_Handle, {});
+		}
 		return *this;
 	}
 
@@ -265,12 +264,27 @@ public:
 
 	void setDebugName(std::string&& debugName)
 	{
-		m_DebugName.assign(std::move(debugName));
+		m_DebugName.assign(std::forward<std::string>(debugName));
 	}
 
 	inline T** reference()
 	{
 		return &m_Handle;
+	}
+
+	inline const T** reference() const
+	{
+		return &m_Handle;
+	}
+
+	inline T* get()
+	{
+		return m_Handle;
+	}
+
+	inline const T* const get() const
+	{
+		return m_Handle;
 	}
 
 	inline T* operator->()
@@ -283,11 +297,16 @@ public:
 		return std::hash<Type*>()(m_Handle);
 	}
 
+	inline const bool8_t isValid() const
+	{
+		return m_Handle != nullptr;
+	}
+
 	using Type = std::remove_extent_t<T>;
 protected:
-private:
 	T* m_Handle = nullptr;
 	std::string m_DebugName;
+private:
 };
 
 template<class T>
@@ -295,36 +314,85 @@ class D3DObject : public GfxObject<T>
 {
 public:
 	D3DObject() = default;
-	D3DObject(const D3DObject& other)
-		: GfxObject<T>(other)
+
+	D3DObject(T* handle, const std::string& debugName = std::string())
+		: GfxObject<T>(debugName)
+		, m_Handle(handle)
 	{
-		(*this)->AddRef();
+	}
+
+	D3DObject(const D3DObject& other)
+		: m_DebugName(other.m_DebugName)
+	{
+		if (m_Handle != other.m_Handle)
+		{
+			if (m_Handle)
+			{
+				m_Handle->Release();
+			}
+			if (other.m_Handle)
+			{
+				other.m_Handle->AddRef();
+			}
+
+			m_Handle = other.m_Handle;
+		}
 	}
 
 	D3DObject(D3DObject&& other)
-		: GfxObject<T>(std::move(other))
+		: m_DebugName(std::move(other.m_DebugName))
 	{
-		(*this)->AddRef();
-		other->Release();
+		if (m_Handle != other.m_Handle)
+		{
+			if (m_Handle)
+			{
+				m_Handle->Release();
+			}
+
+			m_Handle = std::exchange(other.m_Handle, {});
+		}
 	}
 
 	D3DObject& operator=(const D3DObject& other)
 	{
-		*(static_cast<GfxObject<T>*>(this)) = *(static_cast<GfxObject<T>*>(&other));
-		(*this)->AddRef();
+		if (m_Handle != other.m_Handle)
+		{
+			if (m_Handle)
+			{
+				m_Handle->Release();
+			}
+			if (other.m_Handle)
+			{
+				other.m_Handle->AddRef();
+			}
+
+			m_Handle = other.m_Handle;
+			m_DebugName = other.m_DebugName;
+		}
 		return *this;
 	}
 
 	D3DObject& operator=(D3DObject&& other)
 	{
-		*(static_cast<GfxObject<T>*>(this)) = std::move(*(static_cast<GfxObject<T>*>(&other)));
-		(*this)->AddRef();
+		if (m_Handle != other.m_Handle)
+		{
+			if (m_Handle)
+			{
+				m_Handle->Release();
+			}
+
+			m_Handle = std::exchange(other.m_Handle, {});
+			m_DebugName = std::move(other.m_DebugName);
+		}
 		return *this;
 	}
 
 	virtual ~D3DObject()
 	{
-		(*this)->Release();
+		if (m_Handle)
+		{
+			m_Handle->Release();
+		}
 	}
 protected:
 private:

@@ -1,5 +1,6 @@
 #pragma once
 
+#if 0
 #include "Colorful/D3D/D3D11/D3D11Buffer.h"
 #include "Colorful/D3D/D3D11/D3D11Swapchain.h"
 #include "Colorful/D3D/D3D11/D3D11Enum.h"
@@ -161,3 +162,28 @@ private:
 
 	std::vector<std::pair<const GfxPipelineState*, D3D11GraphicsPipelinePtr>> m_GfxPipelines;
 };
+
+#endif
+
+#include "Colorful/D3D/D3D11/D3D11Device.h"
+
+NAMESPACE_START(Gfx)
+
+DECLARE_UNIQUE_PTR(D3D11Renderer)
+class D3D11Renderer final : public GfxRenderer
+{
+public:
+	void createDevice() override;
+	void createSwapchain(uint64_t windowHandle, uint32_t width, uint32_t height, bool8_t fullscreen, bool8_t vSync) override;
+
+	void toggleFullScreen(bool8_t fullscreen) override;
+	void toggleVSync(bool8_t vSync) override;
+
+	void finalize() override;
+protected:
+private:
+	///D3D11DevicePtr m_Device;
+	DXGIFactoryPtr m_Factory = nullptr;
+};
+
+NAMESPACE_END(Gfx)

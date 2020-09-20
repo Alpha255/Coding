@@ -11,41 +11,6 @@ namespace Gear
 	struct Configurations;
 }
 
-struct GfxAdapter
-{
-	std::string DeviceName;
-	uint32_t VendorID = 0u;
-	uint32_t DeviceID = 0u;                      
-
-	static std::string vendorName(uint32_t verdorID)
-	{
-		std::string name("Unknown");
-		switch (verdorID)
-		{
-		case 0x1002: 
-			name = std::string("AMD");
-			break;
-		case 0x1010: 
-			name = std::string("ImgTec");
-			break;
-		case 0x10DE: 
-			name = std::string("NVIDIA");
-			break;
-		case 0x13B5: 
-			name = std::string("ARM");
-			break;
-		case 0x5143: 
-			name = std::string("Qualcomm");
-			break;
-		case 0x8086: 
-			name = std::string("Intel");
-			break;
-		}
-
-		return name;
-	}
-};
-
 class GfxDevice
 {
 protected:
@@ -199,6 +164,28 @@ private:
 
 NAMESPACE_START(Gfx)
 
+struct Adapter
+{
+	std::string DeviceName;
+	uint32_t VendorID = 0u;
+	uint32_t DeviceID = 0u;
+
+	static const char8_t* const getVendorName(uint32_t verdorID)
+	{
+		switch (verdorID)
+		{
+		case 0x1002: return "AMD";
+		case 0x1010: return "ImgTec";
+		case 0x10DE: return "NVIDIA";
+		case 0x13B5: return "ARM";
+		case 0x5143: return "Qualcomm";
+		case 0x8086: return "Intel";
+		}
+
+		return "Unknown";
+	}
+};
+
 DECLARE_UNIQUE_PTR(GfxRenderer)
 class EXPORT_API GfxRenderer : public Gear::NoneCopyable
 {
@@ -211,6 +198,8 @@ public:
 
 	virtual void toggleFullScreen(bool8_t fullscreen) = 0;
 	virtual void toggleVSync(bool8_t vSync) = 0;
+
+	virtual void finalize() {}
 protected:
 private:
 };

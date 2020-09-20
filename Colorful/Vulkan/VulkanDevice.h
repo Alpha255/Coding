@@ -1,51 +1,42 @@
 #pragma once
 
-#include "Colorful/Vulkan/VulkanPipeline.h"
-#include "Colorful/Vulkan/VulkanCommand.h"
-#include "Colorful/Vulkan/VulkanDescriptor.h"
-#include "Colorful/Vulkan/VulkanShader.h"
-#include "Colorful/Vulkan/VulkanBuffer.h"
-#include "Colorful/Vulkan/VulkanImageView.h"
-#include "Colorful/Vulkan/VulkanSwapChain.h"
-#include "Colorful/Vulkan/VulkanRenderPass.h"
-#include "Colorful/Vulkan/VulkanPipeline.h"
-#include "Colorful/Vulkan/VulkanEnum.h"
-#include "Colorful/Vulkan/VulkanQueue.h"
+#include "Colorful/Vulkan/VulkanInstance.h"
 
-class VulkanDevice : public GfxDevice
+NAMESPACE_START(Gfx)
+
+DECLARE_UNIQUE_PTR(VulkanDevice)
+class VulkanDevice final : public VkObject<VkDevice_T>, public Adapter
 {
 public:
-	class VulkanPhysicalDevice : public VulkanObject<VkPhysicalDevice>
+	VulkanDevice(VkInstance instance);
+
+	~VulkanDevice()
 	{
-	};
+		wait();
 
-	class VulkanLogicalDevice : public VulkanObject<VkDevice>
+		vkDestroyDevice(get(), VK_MEMORY_ALLOCATOR);
+	}
+
+	void wait()
 	{
-	};
+		assert(isValid());
+		VERIFY_VK(vkDeviceWaitIdle(get()));
+	}
 
-	void create(VkInstance instance);
-
-	void destroy();
-
-	void waitIdle();
+	const bool8_t isDebugMarkerAvailable() const
+	{
+		return m_DebugMarkerAvailable;
+	}
 
 	VkPhysicalDevice physicalDevice() const
 	{
-		return m_PhysicalDevice.Handle;
-	}
-
-	VkDevice logicalDevice() const
-	{
-		return m_LogicalDevice.Handle;
-	}
-
-	inline bool8_t isDebugMakerAvaliable() const
-	{
-		return m_DebugMarkerAvaliable;
+		assert(m_PhysicalDevice);
+		return m_PhysicalDevice;
 	}
 protected:
 private:
-	VulkanPhysicalDevice m_PhysicalDevice;
-	VulkanLogicalDevice m_LogicalDevice;
-	bool8_t m_DebugMarkerAvaliable = false;
+	bool8_t m_DebugMarkerAvailable = false;
+	VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
 };
+
+NAMESPACE_END(Gfx)

@@ -1,18 +1,32 @@
 #pragma once
 
-#include "Colorful/D3D/D3D11/D3D11Pipeline.h"
+#include "Colorful/D3D/DXGI_Interface.h"
 
-/// ID3D11Device5
-class D3D11Device : public D3DObject<ID3D11Device>, public GfxDevice
+NAMESPACE_START(Gfx)
+
+#if 0
+
+DECLARE_SHARED_PTR(D3D11Context)
+class D3D11Context : public D3DObject<ID3D11DeviceContext>
+{
+};
+
+DECLARE_UNIQUE_PTR(D3D11Device)
+class D3D11Device final : public D3DObject<ID3D11Device>, public Adapter
 {
 public:
-	void create(__out D3D11Context& IMContext, const DXGIFactory7& factory);
-
-	inline const DXGIAdapter4& dxgiAdapter() const
-	{
-		return m_DXGIAdapter;
-	}
+	D3D11Device(DXGI_Factory& factory);
 protected:
+	struct D3D11SubVersions
+	{
+		uint8_t DXGI_SubVersion = 0u;
+	};
 private:
-	DXGIAdapter4 m_DXGIAdapter;
+	D3D11ContextPtr m_IMContext = nullptr;
+	DXGI_Adapter m_Adapter;
+	D3D11SubVersions m_SubVersions{};
 };
+
+#endif
+
+NAMESPACE_END(Gfx)

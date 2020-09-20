@@ -9,20 +9,15 @@ end
 function appLinks()
 	libdirs {}
 
-	links { 
-		"d3d11",
-		"d3d12",
-		"dxgi",
-		"d3dcompiler", 
+	links {
 		"windowscodecs",
 		"Usp10",
 		"Comctl32",
 		"Shcore",
-
-		"Colorful",
-		"ImGui",
 		"Gear",
-		"AssetTool"
+		"Gfx-GfxRenderer",
+		"Gfx-VulkanRenderer",
+		"Gfx-D3D11Renderer" 
 	}
 end
 
@@ -98,6 +93,28 @@ workspace "Miscellaneous"
 			targetdir "$(SolutionDir)Out\\"
 			defines { "DYNAMIC_LIB" }
 			implibname "$(SolutionDir)Out\\Libs\\$(ProjectName)"
+			links { "Gear" }
+
+		project "Gfx-D3D11Renderer"
+			kind "SharedLib"
+			language "C++"
+			location "./Projects"
+			files { 
+				"./Colorful/D3D/D3D11/**",
+				"./Colorful/D3D/DXGI_Interface.h",
+				"./Colorful/D3D/DXGI_Interface.cpp",
+			}
+			includedirs { "$(SolutionDir)" }
+			targetdir "$(SolutionDir)Out\\"
+			defines { "DYNAMIC_LIB" }
+			implibname "$(SolutionDir)Out\\Libs\\$(ProjectName)"
+			links { 
+				"Gear",
+				"d3d11",
+				"dxgi",
+				"d3dcompiler"
+			}
+			
 --[[
 		project "Gfx-SoftwareRenderer"
 			kind "SharedLib"
@@ -107,14 +124,6 @@ workspace "Miscellaneous"
 			includedirs { "$(SolutionDir)" }
 			targetdir "$(SolutionDir)Out\\"
 			links { "Gear" }
-		project "Gfx-D3D11Renderer"
-			kind "SharedLib"
-			language "C++"
-			location "./Projects"
-			files "./Colorful/D3D/D3D11/**"
-			includedirs { "$(SolutionDir)" }
-			targetdir "$(SolutionDir)Out\\"
-			links { "Gear" } 
 		project "Gfx-D3D12Renderer"
 			kind "SharedLib"
 			language "C++"
@@ -136,7 +145,7 @@ workspace "Miscellaneous"
 		appResourceFiles()
 		includedirs { "$(SolutionDir)" }
 		targetdir "$(SolutionDir)Out\\"
-		links { "Gear", "Gfx-GfxRenderer" }
+		appLinks()
 		vpaths {
 			["Resource"] = { 
 				"./Assets/Icon/Resource.rc",  

@@ -1,5 +1,6 @@
 #include "Gear/Application.h"
 #include <ThirdParty/json/single_include/nlohmann/json.hpp>
+#include "Colorful/D3D/DXGI_Interface.h"
 
 NAMESPACE_START(Gear)
 
@@ -43,23 +44,16 @@ void Application::initializeRenderer(const Configs& configs)
 	Gfx::CreateRendererFunc func = static_cast<Gfx::CreateRendererFunc>(m_DynamicLib->getProcAddress(CREATE_RENDERER_FUNC_NAME));
 	assert(func);
 	func(m_Renderer);
+
+	m_Renderer->createDevice();
+
 	GRenderer = m_Renderer.get();
 }
 
 void Application::initialize(const std::string& name, const Configs& configs)
 {
-#if 0
-	File file1("test1");
-	File file2 = std::move(file1);
-
-	using SharedPtr = std::shared_ptr<Gfx::D3DObject<Gfx::TestShared>>;
-	SharedPtr test1 = std::make_shared<Gfx::D3DObject<Gfx::TestShared>>();
-	SharedPtr test2 = test1;
-	//Gfx::D3DObject<Gfx::TestShared> test1;
-	//test1.setDebugName(std::string("test1"));
-	//auto hash1 = test1.hash();
-
-	//Gfx::D3DObject<Gfx::TestShared> test2 = std::move(test1);
+#if 1
+	Gfx::DXGIFactory0 test;
 #endif
 
 	m_Window = std::make_unique<Window>(m_Instance, name, configs.WindowSize, configs.MinWindowSize);
@@ -93,6 +87,8 @@ void Application::onResize(uint32_t width, uint32_t height)
 void Application::finalize()
 {
 	onFinalize();
+
+	m_Renderer->finalize();
 }
 
 NAMESPACE_END(Gear)

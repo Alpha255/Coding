@@ -1,5 +1,6 @@
 #pragma once
 
+#if 0
 #include "Colorful/Vulkan/VulkanInstance.h"
 #include "Colorful/Vulkan/VulkanDevice.h"
 
@@ -125,27 +126,6 @@ public:
 	void beginDebugMarker(const char8_t* name, Vec4 color) override final;
 	void insertDebugMarker(const char8_t* name, Vec4 color) override final;
 	void endDebugMarker() override final;
-
-	template <typename T> static std::vector<const char8_t*> getSupportedProperties(
-		const std::vector<T>& supportedProperties,
-		const std::vector<const char8_t*>& targetProperties)
-	{
-		std::vector<const char8_t*> result;
-
-		for each (auto propertyName in targetProperties)
-		{
-			for (auto it = supportedProperties.begin(); it != supportedProperties.end(); ++it)
-			{
-				if (_stricmp((const char8_t*)(&(*it)), propertyName) == 0)
-				{
-					result.emplace_back(propertyName);
-					break;
-				}
-			}
-		}
-
-		return result;
-	}
 protected:
 	struct CurrentPipelineState
 	{
@@ -255,3 +235,29 @@ private:
 	std::vector<VulkanImageViewPtr> m_ImageViewList;
 	std::vector<VulkanSamplerPtr> m_SamplerList;
 };
+
+#endif
+
+#include "Colorful/Vulkan/VulkanDevice.h"
+
+NAMESPACE_START(Gfx)
+
+DECLARE_UNIQUE_PTR(VulkanRender)
+class VulkanRender final : public GfxRenderer
+{
+public:
+	void createDevice() override;
+	void createSwapchain(uint64_t windowHandle, uint32_t width, uint32_t height, bool8_t fullscreen, bool8_t vSync) override;
+
+	void toggleFullScreen(bool8_t fullscreen) override;
+	void toggleVSync(bool8_t vSync) override;
+
+	void finalize() override;
+protected:
+private:
+	VulkanInstancePtr m_Instance = nullptr;
+	VulkanDebugUtilsMessengerPtr m_DebugUtilsMessenger = nullptr;
+	VulkanDevicePtr m_Device = nullptr;
+};
+
+NAMESPACE_END(Gfx)

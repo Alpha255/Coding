@@ -1,10 +1,10 @@
 #include "Colorful/Vulkan/VulkanInstance.h"
 
-void VulkanInstance::create(bool8_t enableVerboseValidation)
-{
-	assert(!isValid());
+NAMESPACE_START(Gfx)
 
-	std::vector<const char8_t*> layers =
+VulkanInstance::VulkanInstance()
+{
+	std::vector<const char8_t*> layers
 	{
 #if defined(_DEBUG)
 		"VK_LAYER_LUNARG_standard_validation",
@@ -15,12 +15,12 @@ void VulkanInstance::create(bool8_t enableVerboseValidation)
 #endif
 	};
 
-	std::vector<const char8_t*> extensions =
+	std::vector<const char8_t*> extensions
 	{
 		VK_KHR_SURFACE_EXTENSION_NAME,
-#if defined(Platform_Win32)
+#if defined(PLATFORM_WIN32)
 		VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
-#elif defined(Platform_Linux)
+#elif defined(PLATFORM_LINUX)
 		VK_KHR_XCB_SURFACE_EXTENSION_NAME,
 #endif
 #if defined(_DEBUG)
@@ -29,24 +29,24 @@ void VulkanInstance::create(bool8_t enableVerboseValidation)
 	};
 
 	uint32_t count = 0U;
-	GfxVerifyVk(vkEnumerateInstanceLayerProperties(&count, nullptr));
+	VERIFY_VK(vkEnumerateInstanceLayerProperties(&count, nullptr));
 	std::vector<VkLayerProperties> supportedLayers(count);
-	GfxVerifyVk(vkEnumerateInstanceLayerProperties(&count, supportedLayers.data()));
-	layers = VulkanEngine::getSupportedProperties<VkLayerProperties>(supportedLayers, layers);
+	VERIFY_VK(vkEnumerateInstanceLayerProperties(&count, supportedLayers.data()));
+	layers = getSupportedProperties<VkLayerProperties>(supportedLayers, layers);
 
-	GfxVerifyVk(vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr));
+	VERIFY_VK(vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr));
 	std::vector<VkExtensionProperties> supportedExtensions(count);
-	GfxVerifyVk(vkEnumerateInstanceExtensionProperties(nullptr, &count, supportedExtensions.data()));
-	extensions = VulkanEngine::getSupportedProperties<VkExtensionProperties>(supportedExtensions, extensions);
+	VERIFY_VK(vkEnumerateInstanceExtensionProperties(nullptr, &count, supportedExtensions.data()));
+	extensions = getSupportedProperties<VkExtensionProperties>(supportedExtensions, extensions);
 
 	VkApplicationInfo appInfo
 	{
 		VK_STRUCTURE_TYPE_APPLICATION_INFO,
 		nullptr,
-		"vkApplication",
-		0U,
-		"VulkanEngine",
-		0U,
+		"Vulkan_Application",
+		0u,
+		"Vulkan_Renderer",
+		0u,
 		VK_API_VERSION_1_0
 	};
 
@@ -62,75 +62,46 @@ void VulkanInstance::create(bool8_t enableVerboseValidation)
 		extensions.data()
 	};
 
-	GfxVerifyVk(vkCreateInstance(&createInfo, vkMemoryAllocator, &Handle));
-
-#if defined(_DEBUG)
-	m_DebugUtilsMessenger.create(Handle, enableVerboseValidation);
-#endif
-
-#if defined(UsingVkLoader)
-	VulkanLoader::initializeInstanceFunctionTable(Handle);
-#endif
-}
-
-void VulkanInstance::destroy()
-{
-	if (isValid())
-	{
-#if defined(_DEBUG)
-		m_DebugUtilsMessenger.destroy(Handle);
-#endif
-
-		vkDestroyInstance(Handle, vkMemoryAllocator);
-		Handle = VK_NULL_HANDLE;
-	}
+	VERIFY_VK(vkCreateInstance(&createInfo, VK_MEMORY_ALLOCATOR, reference()));
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL vkDebugUtilsMessengerFunc(
 	VkDebugUtilsMessageSeverityFlagBitsEXT messageServerityFlagBits,
 	VkDebugUtilsMessageTypeFlagsEXT messageTypeFlags,
 	const VkDebugUtilsMessengerCallbackDataEXT *pMessengerCallbackData,
-	void* pUserData)
+	void* userData)
 {
-	(void)(pUserData);
+	(void)(userData);
 	(void)(messageTypeFlags);
 
-	Logger::eLogLevel logLevel = Logger::eError;
-	if (messageServerityFlagBits & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
+	Gear::Log::ELevel level = Gear::Log::ELevel::Error;
+	if (messageServerityFlagBits & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT || messageServerityFlagBits & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)
 	{
-		logLevel = Logger::eInfo;
-	}
-	else if (messageServerityFlagBits & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)
-	{
-		logLevel = Logger::eInfo;
+		level = Gear::Log::ELevel::Info;
 	}
 	else if (messageServerityFlagBits & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
 	{
-		logLevel = Logger::eWarning;
+		level = Gear::Log::ELevel::Warning;
 	}
 	else if (messageServerityFlagBits & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
 	{
-		logLevel = Logger::eError;
+		level = Gear::Log::ELevel::Error;
 	}
 
-	std::string message = format("[%3d][%10s]: %s",
-		pMessengerCallbackData->messageIdNumber,
-		pMessengerCallbackData->pMessageIdName,
-		pMessengerCallbackData->pMessage);
+	std::string message(std::move(Gear::String::format("Vulkan Validation: [%3d][%10s]: %s", pMessengerCallbackData->messageIdNumber, pMessengerCallbackData->pMessageIdName, pMessengerCallbackData->pMessage)));
 
-	Logger::instance().log(logLevel, "Vulkan Validation: %s.", message.c_str());
+	Gear::Log::log(level, message);
 	return VK_FALSE;
 }
 
-void VulkanInstance::VulkanDebugUtilsMessenger::create(VkInstance instance, bool8_t verbose)
+VulkanDebugUtilsMessenger::VulkanDebugUtilsMessenger(VkInstance instance, bool8_t verbose)
 {
-	assert(!isValid());
-
 	PFN_vkCreateDebugUtilsMessengerEXT vkCreateDebugUtilsMesserger = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
 		vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT"));
 	assert(vkCreateDebugUtilsMesserger);
 
-	VkDebugUtilsMessageSeverityFlagsEXT messageServityFlags = verbose ? (VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT
+	VkDebugUtilsMessageSeverityFlagsEXT messageServityFlags = verbose ? (
+		  VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT
 		| VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT
 		| VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT
 		| VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) :
@@ -149,17 +120,7 @@ void VulkanInstance::VulkanDebugUtilsMessenger::create(VkInstance instance, bool
 		nullptr
 	};
 
-	GfxVerifyVk(vkCreateDebugUtilsMesserger(instance, &createInfo, vkMemoryAllocator, &Handle));
+	VERIFY_VK(vkCreateDebugUtilsMesserger(instance, &createInfo, VK_MEMORY_ALLOCATOR, reference()));
 }
 
-void VulkanInstance::VulkanDebugUtilsMessenger::destroy(VkInstance instance)
-{
-	if (isValid())
-	{
-		PFN_vkDestroyDebugUtilsMessengerEXT vkDestroyDebugUtilsMessenger = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
-			vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT"));
-		assert(vkDestroyDebugUtilsMessenger);
-		vkDestroyDebugUtilsMessenger(instance, Handle, vkMemoryAllocator);
-		Handle = VK_NULL_HANDLE;
-	}
-}
+NAMESPACE_END(Gfx)

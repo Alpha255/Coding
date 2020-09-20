@@ -1,11 +1,21 @@
-#include "D3D11Device.h"
-#include "D3D11Engine.h"
+#include "Colorful/D3D/D3D11/D3D11Device.h"
 
-void D3D11Device::create(__out D3D11Context& IMContext, const DXGIFactory7& factory)
+NAMESPACE_START(Gfx)
+
+#if 0
+
+D3D11Device::D3D11Device(DXGI_Factory& factory)
 {
-	assert(!isValid() && !IMContext.isValid() && factory.isValid());
+	assert(factory.isValid());
 
-	std::vector<DXGIAdapter4> adapters;
+	uint32_t flags = 0u;
+#if defined(_DEBUG)
+	flags = D3D11_CREATE_DEVICE_DEBUG;
+#endif
+
+	IDXGIAdapter1* testPtr = nullptr;
+
+	std::vector<DXGI_Adapter> adapters;
 	uint32_t adapterIndex = 0u;
 	while (true)
 	{
@@ -22,63 +32,47 @@ void D3D11Device::create(__out D3D11Context& IMContext, const DXGIFactory7& fact
 			continue;
 		}
 
-		adapters.emplace_back();
-		adapters[adapters.size() - 1u].reset(static_cast<IDXGIAdapter4*>(adapter));
+		adapters.emplace_back(DXGI_Adapter(adapter));
 	}
 
-	struct CreateResult
+	std::vector<D3D_FEATURE_LEVEL> featureLevels
 	{
-		D3D_DRIVER_TYPE DriverType = (D3D_DRIVER_TYPE)0u;
-		D3D_FEATURE_LEVEL FeatureLevel = (D3D_FEATURE_LEVEL)0u;
-		::HRESULT Result = E_FAIL;
-		ID3D11Device* Device = nullptr;
-		ID3D11DeviceContext* IMContext = nullptr;
+		D3D_FEATURE_LEVEL_12_1,
+		D3D_FEATURE_LEVEL_12_0,
+		D3D_FEATURE_LEVEL_11_0,
+		D3D_FEATURE_LEVEL_10_1,
+		D3D_FEATURE_LEVEL_10_0,
+		D3D_FEATURE_LEVEL_9_3,
+		D3D_FEATURE_LEVEL_9_2,
+		D3D_FEATURE_LEVEL_9_1
 	};
 
-	auto tryToCreateDevice = []()->CreateResult {
-		CreateResult result{};
-
-		uint32_t deviceFlags = 0;
-#if defined(DEBUG) || defined(_DEBUG)
-		deviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
-#endif
-
-		std::vector<D3D_DRIVER_TYPE> driverTypes =
+	auto tryToCreateDevice = [&](__inout D3D11DevicePtr& device, __inout D3D11ContextPtr& IMContext, __out D3D_DRIVER_TYPE& driverType, __out D3D_FEATURE_LEVEL& featureLevel)->::HRESULT
+	{
+		std::vector<D3D_DRIVER_TYPE> driverTypes
 		{
 			D3D_DRIVER_TYPE_HARDWARE,
 			D3D_DRIVER_TYPE_WARP,
 			D3D_DRIVER_TYPE_REFERENCE,
 		};
 
-		std::vector<D3D_FEATURE_LEVEL> featureLevels =
-		{
-			D3D_FEATURE_LEVEL_12_1,
-			D3D_FEATURE_LEVEL_12_0,
-			D3D_FEATURE_LEVEL_11_0,
-			D3D_FEATURE_LEVEL_10_1,
-			D3D_FEATURE_LEVEL_10_0,
-			D3D_FEATURE_LEVEL_9_3,
-			D3D_FEATURE_LEVEL_9_2,
-			D3D_FEATURE_LEVEL_9_1
-		};
-
+		::HRESULT result;
 		for (uint32_t i = 0; i < driverTypes.size(); ++i)
 		{
-			result.Result = D3D11CreateDevice(
+			result = D3D11CreateDevice(
 				nullptr,
 				driverTypes[i],
 				nullptr,
-				deviceFlags,
+				flags,
 				featureLevels.data(),
 				(uint32_t)featureLevels.size(),
 				D3D11_SDK_VERSION,
-				&result.Device,
-				&result.FeatureLevel,
-				&result.IMContext);
-			if (SUCCEEDED(result.Result))
+				device->reference(),
+				&featureLevel,
+				reinterpret_cast<ID3D11DeviceContext**>(IMContext->reference()));
+			if (SUCCEEDED(result))
 			{
-				result.DriverType = driverTypes[i];
-
+				driverType = driverTypes[i];
 				break;
 			}
 		}
@@ -87,38 +81,49 @@ void D3D11Device::create(__out D3D11Context& IMContext, const DXGIFactory7& fact
 	};
 
 	adapterIndex = std::numeric_limits<uint32_t>().max();
-	CreateResult createResult{};
+	D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_1_0_CORE;
+	D3D_DRIVER_TYPE driverType = D3D_DRIVER_TYPE_UNKNOWN;
+
 	for (uint32_t i = 0u; i < adapters.size(); ++i)
 	{
-		CreateResult tempResult = tryToCreateDevice();
-		if (SUCCEEDED(tempResult.Result) && tempResult.FeatureLevel > createResult.FeatureLevel)
+		D3D11DevicePtr tempDevice;
+		D3D11ContextPtr tempIMContext;
+		D3D_DRIVER_TYPE tempDriverType = D3D_DRIVER_TYPE_UNKNOWN;
+		D3D_FEATURE_LEVEL tempFeatureLevel = D3D_FEATURE_LEVEL_1_0_CORE;
+
+		if (SUCCEEDED(tryToCreateDevice(tempDevice, tempIMContext, tempDriverType, tempFeatureLevel)) && tempFeatureLevel > featureLevel)
 		{
-			createResult = tempResult;
 			adapterIndex = i;
+			featureLevel = tempFeatureLevel;
+			driverType = tempDriverType;
 		}
 	}
 	assert(adapterIndex != std::numeric_limits<uint32_t>().max());
 
-	createResult = tryToCreateDevice();
-	if (FAILED(createResult.Result))
-	{
-		Logger::instance().log(Logger::eError, "Failed to create d3d11 device.");
-		D3D11Engine::logError((uint32_t)createResult.Result);
-		assert(0);
-	}
+	VERIFY_D3D(D3D11CreateDevice(
+		nullptr,
+		driverType,
+		nullptr,
+		flags,
+		featureLevels.data(),
+		(uint32_t)featureLevels.size(),
+		D3D11_SDK_VERSION,
+		reference(),
+		&featureLevel,
+		reinterpret_cast<ID3D11DeviceContext**>(m_IMContext->reference())));
 
-	reset(createResult.Device);
-	IMContext.reset(createResult.IMContext);
-	m_DXGIAdapter = adapters[adapterIndex];
+	m_Adapter = std::move(adapters[adapterIndex]);
 
 	DXGI_ADAPTER_DESC3 adapterDesc{};
-	GfxVerifyD3D(m_DXGIAdapter->GetDesc3(&adapterDesc));
-	m_Adapter.VendorID = adapterDesc.VendorId;
-	m_Adapter.DeviceID = adapterDesc.DeviceId;
+	VERIFY_D3D(m_Adapter->GetDesc3(&adapterDesc));
+	VendorID = adapterDesc.VendorId;
+	DeviceID = adapterDesc.DeviceId;
 	std::wstring wDeviceName(adapterDesc.Description);
-	m_Adapter.DeviceName = std::string(wDeviceName.cbegin(), wDeviceName.cend());
+	DeviceName = std::string(wDeviceName.cbegin(), wDeviceName.cend());
 
-	Logger::instance().log(Logger::eInfo, "Created d3d11 device on adapter: \"%s\", DeviceID = %d.",
-		m_Adapter.DeviceName.c_str(),
-		m_Adapter.DeviceID);
+	LOG_INFO("Created d3d11 device on adapter: \"%s\", DeviceID = %d.", DeviceName.c_str(), DeviceID);
 }
+
+#endif
+
+NAMESPACE_END(Gfx)

@@ -98,7 +98,6 @@ public:
 		m_FullPath.assign(std::move(other.m_FullPath));
 		m_RelPath.assign(std::move(other.m_RelPath));
 		m_Data = std::move(other.m_Data);
-		LOG_INFO("Move");
 		return *this;
 	}
 
