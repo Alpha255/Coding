@@ -201,6 +201,8 @@ template<class T>
 class GfxObject
 {
 public:
+	using Type = std::remove_extent_t<T>;
+
 	GfxObject() = default;
 
 	GfxObject(const std::string& debugName)
@@ -208,7 +210,12 @@ public:
 	{
 	}
 
-	GfxObject(T* handle, const std::string& debugName = std::string())
+	GfxObject(std::string&& debugName)
+		: m_DebugName(std::move(debugName))
+	{
+	}
+
+	GfxObject(Type* handle, const std::string& debugName = std::string())
 		: m_Handle(handle)
 		, m_DebugName(debugName)
 	{
@@ -301,8 +308,6 @@ public:
 	{
 		return m_Handle != nullptr;
 	}
-
-	using Type = std::remove_extent_t<T>;
 protected:
 	T* m_Handle = nullptr;
 	std::string m_DebugName;
@@ -315,14 +320,13 @@ class D3DObject : public GfxObject<T>
 public:
 	D3DObject() = default;
 
-	D3DObject(T* handle, const std::string& debugName = std::string())
-		: GfxObject<T>(debugName)
-		, m_Handle(handle)
+	D3DObject(Type* handle, const std::string& debugName = std::string())
+		: GfxObject<T>(handle, debugName)
 	{
 	}
 
 	D3DObject(const D3DObject& other)
-		: m_DebugName(other.m_DebugName)
+		: GfxObject<T>(other.m_DebugName)
 	{
 		if (m_Handle != other.m_Handle)
 		{
@@ -340,7 +344,7 @@ public:
 	}
 
 	D3DObject(D3DObject&& other)
-		: m_DebugName(std::move(other.m_DebugName))
+		: GfxObject<T>(std::move(other.m_DebugName))
 	{
 		if (m_Handle != other.m_Handle)
 		{

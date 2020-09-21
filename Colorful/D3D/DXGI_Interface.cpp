@@ -42,4 +42,48 @@ const char8_t* const D3DErrorLog::getErrorMessage(::HRESULT result)
 	return "Unknown error";
 }
 
+DXGIFactory::DXGIFactory()
+{
+	uint32_t flags = 0u;
+#if defined(_DEBUG)
+	flags = DXGI_CREATE_FACTORY_DEBUG;
+#endif
+
+	VERIFY_D3D(CreateDXGIFactory2(flags, __uuidof(IDXGIFactory2), reinterpret_cast<void**>(reference())));
+
+	m_Factory0 = queryAs<DXGIFactory, DXGIFactory0>(*this);
+	m_Factory1 = queryAs<DXGIFactory, DXGIFactory1>(*this);
+	m_Factory3 = queryAs<DXGIFactory, DXGIFactory3>(*this);
+	m_Factory4 = queryAs<DXGIFactory, DXGIFactory4>(*this);
+	m_Factory5 = queryAs<DXGIFactory, DXGIFactory5>(*this);
+	m_Factory6 = queryAs<DXGIFactory, DXGIFactory6>(*this);
+	m_Factory7 = queryAs<DXGIFactory, DXGIFactory7>(*this);
+
+	assert(m_Factory0.isValid() && m_Factory1.isValid());
+
+	uint32_t subVersion = 2;
+	if (m_Factory3.isValid())
+	{
+		subVersion = 3;
+		if (m_Factory4.isValid())
+		{
+			subVersion = 4;
+			if (m_Factory5.isValid())
+			{
+				subVersion = 5;
+				if (m_Factory6.isValid())
+				{
+					subVersion = 6;
+					if (m_Factory7.isValid())
+					{
+						subVersion = 7;
+					}
+				}
+			}
+		}
+	}
+
+	LOG_INFO("DXGI Factory Subversion = %d", subVersion);
+}
+
 NAMESPACE_END(Gfx)

@@ -64,19 +64,9 @@ DECLARE_UNIQUE_PTR(DXGIFactory)
 class DXGIFactory final : public D3DObject<IDXGIFactory2>
 {
 public:
-	using D3DObject<IDXGIFactory2>::D3DObject;
+	using D3DObject::D3DObject;
 
-	DXGIFactory()
-	{
-		uint32_t flags = 0u;
-#if defined(_DEBUG)
-		flags = DXGI_CREATE_FACTORY_DEBUG;
-#endif
-
-		VERIFY_D3D(CreateDXGIFactory2(flags, __uuidof(IDXGIFactory2), reinterpret_cast<void**>(reference())));
-
-		m_Factory0 = queryAs<DXGIFactory, DXGIFactory0>(*this);
-	}
+	DXGIFactory();
 
 	IDXGIFactory* get0()
 	{

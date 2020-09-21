@@ -53,7 +53,6 @@ void Application::initializeRenderer(const Configs& configs)
 void Application::initialize(const std::string& name, const Configs& configs)
 {
 #if 1
-	Gfx::DXGIFactory0 test;
 #endif
 
 	m_Window = std::make_unique<Window>(m_Instance, name, configs.WindowSize, configs.MinWindowSize);
