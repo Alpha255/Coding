@@ -10,13 +10,6 @@
 #include <d3dcompiler.h>
 
 NAMESPACE_START(Gfx)
-//
-//class DXGIAdapter  final : public D3DObject<IDXGIAdapter>  {};
-//class DXGIAdapter1 final : public D3DObject<IDXGIAdapter1> {};
-//class DXGIAdapter2 final : public D3DObject<IDXGIAdapter2> {};
-//class DXGIAdapter3 final : public D3DObject<IDXGIAdapter3> {};
-//class DXGIAdapter4 final : public D3DObject<IDXGIAdapter4> {};
-//
 //class DXGIOutput  final : public D3DObject<IDXGIOutput>  {};
 //class DXGIOutput1 final : public D3DObject<IDXGIOutput1> {};
 //class DXGIOutput2 final : public D3DObject<IDXGIOutput2> {};
@@ -52,7 +45,6 @@ DstInterface queryAs(SrcInterface& srcInterface)
 
 class DXGIFactory0 final : public D3DObject<IDXGIFactory>  {};
 class DXGIFactory1 final : public D3DObject<IDXGIFactory1> {};
-class DXGIFactory2 final : public D3DObject<IDXGIFactory2> {};
 class DXGIFactory3 final : public D3DObject<IDXGIFactory3> {};
 class DXGIFactory4 final : public D3DObject<IDXGIFactory4> {};
 class DXGIFactory5 final : public D3DObject<IDXGIFactory5> {};
@@ -118,6 +110,33 @@ private:
 	DXGIFactory5 m_Factory5;
 	DXGIFactory6 m_Factory6;
 	DXGIFactory7 m_Factory7;
+};
+
+class DXGIAdapter  final : public D3DObject<IDXGIAdapter>  {};
+class DXGIAdapter1 final : public D3DObject<IDXGIAdapter1> {};
+class DXGIAdapter2 final : public D3DObject<IDXGIAdapter2> {};
+class DXGIAdapter3 final : public D3DObject<IDXGIAdapter3> {};
+class DXGIAdapter4 final : public D3DObject<IDXGIAdapter4> {};
+
+DECLARE_UNIQUE_PTR(DXGIAdapterList)
+class DXGIAdapterList
+{
+public:
+	DXGIAdapterList(IDXGIFactory2* factory2, IDXGIFactory6* factory6);
+
+	IDXGIAdapter1* get1()
+	{
+		return m_Adapter1s.size() > 0u ? m_Adapter1s[0].get() : nullptr;
+	}
+
+	IDXGIAdapter4* get4()
+	{
+		return m_Adapter4s.size() > 0u ? m_Adapter4s[0].get() : nullptr;
+	}
+protected:
+private:
+	std::vector<DXGIAdapter1> m_Adapter1s;
+	std::vector<DXGIAdapter4> m_Adapter4s;
 };
 
 NAMESPACE_END(Gfx)

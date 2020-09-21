@@ -59,7 +59,7 @@ DXGIFactory::DXGIFactory()
 	m_Factory6 = queryAs<DXGIFactory, DXGIFactory6>(*this);
 	m_Factory7 = queryAs<DXGIFactory, DXGIFactory7>(*this);
 
-	assert(m_Factory0.isValid() && m_Factory1.isValid());
+	assert(m_Factory0.isValid() && m_Factory1.isValid());  /// DXGI 1.2 at least
 
 	uint32_t subVersion = 2;
 	if (m_Factory3.isValid())
@@ -76,7 +76,7 @@ DXGIFactory::DXGIFactory()
 					subVersion = 6;
 					if (m_Factory7.isValid())
 					{
-						subVersion = 7;
+						subVersion = 6;  /// DXGI 1.6
 					}
 				}
 			}
@@ -84,6 +84,44 @@ DXGIFactory::DXGIFactory()
 	}
 
 	LOG_INFO("DXGI Factory Subversion = %d", subVersion);
+}
+
+DXGIAdapterList::DXGIAdapterList(IDXGIFactory2* factory2, IDXGIFactory6* factory6)
+{
+	assert(factory2);
+	/// https://docs.microsoft.com/en-us/windows/win32/api/dxgi1_6/nf-dxgi1_6-idxgifactory6-enumadapterbygpupreference
+
+	uint32_t index = 0u;
+	if (factory6)
+	{
+		DXGIAdapter4 adapter;
+		while (SUCCEEDED(factory6->EnumAdapterByGpuPreference(
+			index,
+			DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, 
+			__uuidof(IDXGIAdapter4), 
+			reinterpret_cast<void**>(adapter.reference()))))
+		{
+			if (adapter.isValid())
+			{
+				m_Adapter4s.push_back(std::move(adapter));
+			}
+
+			++index;
+		}
+	}
+	else
+	{
+		DXGIAdapter1 adapter;
+		while ((factory2->EnumAdapters1(index, adapter.reference())) != DXGI_ERROR_NOT_FOUND)
+		{
+			if (adapter.isValid())
+			{
+				m_Adapter1s.push_back(std::move(adapter));
+			}
+
+			++index;
+		}
+	}
 }
 
 NAMESPACE_END(Gfx)

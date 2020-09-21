@@ -14,7 +14,8 @@ public:
 
 		Math::Vec2 WindowSize;
 		Math::Vec2 MinWindowSize;
-		bool8_t FullScreen;
+		bool8_t FullScreen = false;
+		bool8_t VSync = false;
 
 		std::string RendererName;
 		std::string WorkingDirectory;

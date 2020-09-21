@@ -46,6 +46,11 @@ void Application::initializeRenderer(const Configs& configs)
 	func(m_Renderer);
 
 	m_Renderer->createDevice();
+	m_Renderer->createSwapchain(m_Window->handle(),
+		static_cast<uint32_t>(configs.WindowSize.x),
+		static_cast<uint32_t>(configs.WindowSize.y),
+		configs.FullScreen,
+		configs.VSync);
 
 	GRenderer = m_Renderer.get();
 }
@@ -54,7 +59,6 @@ void Application::initialize(const std::string& name, const Configs& configs)
 {
 #if 1
 #endif
-
 	m_Window = std::make_unique<Window>(m_Instance, name, configs.WindowSize, configs.MinWindowSize);
 	initializeRenderer(configs);
 	mountAssetsDirectory(configs);

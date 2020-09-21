@@ -182,8 +182,7 @@ public:
 	void finalize() override;
 protected:
 private:
-	///D3D11DevicePtr m_Device;
-	DXGIFactoryPtr m_Factory = nullptr;
+	D3D11DevicePtr m_Device;
 };
 
 NAMESPACE_END(Gfx)
