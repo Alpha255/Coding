@@ -7,9 +7,6 @@
 [submodule "ThirdParty/assimp"]
 	path = ThirdParty/assimp
 	url = https://github.com/assimp/assimp.git
-[submodule "ThirdParty/googletest"]
-	path = ThirdParty/googletest
-	url = https://github.com/google/googletest.git
 [submodule "ThirdParty/DirectXTex"]
 	path = ThirdParty/DirectXTex
 	url = https://github.com/microsoft/DirectXTex.git
@@ -19,12 +16,6 @@
 [submodule "ThirdParty/gli"]
 	path = ThirdParty/gli
 	url = https://github.com/g-truc/gli.git
-[submodule "ThirdParty/leveldb"]
-	path = ThirdParty/leveldb
-	url = https://github.com/google/leveldb.git
 [submodule "ThirdParty/stb"]
 	path = ThirdParty/stb
 	url = https://github.com/nothings/stb.git
-[submodule "ThirdParty/rttr"]
-	path = ThirdParty/rttr
-	url = https://github.com/rttrorg/rttr.git
