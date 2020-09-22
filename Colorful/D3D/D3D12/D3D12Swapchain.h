@@ -1,23 +1,14 @@
 #pragma once
 
-#include "Colorful/Public/GfxDefinitions.h"
+#include "Colorful/D3D/DXGI_Interface.h"
 
-class d3d12Swapchain : public D3DObject<IDXGISwapChain1>
+NAMESPACE_START(Gfx)
+
+class D3D12SwapChain : public D3DObject<IDXGISwapChain>
 {
 public:
-	void create(uint64_t windowHandle,
-		uint32_t width,
-		uint32_t height,
-		bool8_t vSync,
-		bool8_t fullscreen,
-		bool8_t tripleBuffer,
-		const class DXGIFactory7 &inDxgiFactory,
-		class D3D12Device &device);
-
-	void resize(uint32_t width, uint32_t height);
 protected:
 private:
-	bool8_t m_bVSync = false;
-	bool8_t m_bFullScreen = false;
-	bool8_t m_bTripleBuffer = false;
 };
+
+NAMESPACE_END(Gfx)

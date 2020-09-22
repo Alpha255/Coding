@@ -1,3 +1,4 @@
+#if 0
 #include "Colorful/D3D/D3D11/D3D11Pipeline.h"
 
 void D3D11PipelineState::submit(D3D11Context& context)
@@ -215,3 +216,4 @@ void D3D11PipelineState::setUnorderedAccessViews(D3D11Context& context)
 
 	setDirty(eDirtyTag::eUnorderedAccessView, false);
 }
+#endif

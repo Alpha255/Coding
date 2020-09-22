@@ -1,16 +1,5 @@
 #pragma once
 
-enum eRShaderUsage
-{
-	eVertexShader,
-	eHullShader,
-	eDomainShader,
-	eGeometryShader,
-	eFragmentShader,
-	eComputeShader,
-	eRShaderUsage_MaxEnum
-};
-
 enum eRBufferUsage
 {
 	eGpuReadWrite,
@@ -41,19 +30,6 @@ enum eRBufferBindFlags
 	eDecoder,
 	eVideoEncoder,
 	eRBindFlags_MaxEnum
-};
-
-enum eRTextureType
-{
-	eTexture1D,
-	eTexture2D,
-	eTexture3D,
-	eTextureCube,
-	eTexture1DArray,
-	eTexture2DArray,
-	eTextureCubeArray,
-	eBuffer,
-	eRTextureType_MaxEnum
 };
 
 enum eRDepthStencilFlags

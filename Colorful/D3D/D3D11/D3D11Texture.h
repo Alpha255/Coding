@@ -1,5 +1,5 @@
 #pragma once
-
+#if 0
 #include "Colorful/Public/GfxResource.h"
 
 class D3D11Texture : public D3DObject<ID3D11Resource>
@@ -30,3 +30,4 @@ protected:
 private:
 };
 using D3D11TexturePtr = std::shared_ptr<D3D11Texture>;
+#endif

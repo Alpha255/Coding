@@ -73,6 +73,28 @@ using GfxRenderSurfacePtr = std::shared_ptr<GfxRenderSurface>;
 
 NAMESPACE_START(Gfx)
 
+enum class EShaderStage : uint8_t
+{
+	Vertex,
+	Hull,
+	Domain,
+	Geometry,
+	Fragment,
+	Compute
+};
+
+enum class ETextureType
+{
+	T_1D,
+	T_1D_Array,
+	T_2D,
+	T_2D_Array,
+	T_3D,
+	T_Cube,
+	T_Cube_Array,
+	Buffer
+};
+
 enum class EFormat : uint8_t
 {
 	Unknown,

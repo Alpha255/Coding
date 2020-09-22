@@ -1,5 +1,7 @@
 #pragma once
 
+#if 0
+
 #include "Colorful/D3D/D3D11/D3D11Device.h"
 #include "Colorful/D3D/D3D11/D3D11Pipeline.h"
 
@@ -88,3 +90,5 @@ private:
 	const D3D11Device m_Device;
 	const D3D11Context m_IMContext;
 };
+
+#endif

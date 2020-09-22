@@ -1,3 +1,4 @@
+#if 0
 #include "Colorful/D3D/D3D11/D3D11Engine.h"
 
 D3D11RasterizerState::D3D11RasterizerState(const D3D11Device& device, const GfxRasterizerStateDesc& gfxDesc)
@@ -122,3 +123,4 @@ D3D11SamplerState::D3D11SamplerState(const D3D11Device& device, const GfxSampler
 	GfxVerifyD3D(device->CreateSamplerState(&desc, &state));
 	reset(state);
 }
+#endif

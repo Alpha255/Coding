@@ -1,5 +1,5 @@
 #pragma once
-
+#if 0
 #include "Colorful/D3D/DxgiObject.h"
 
 class D3D11RasterizerState : public D3DObject<ID3D11RasterizerState>
@@ -29,3 +29,4 @@ public:
 	D3D11SamplerState(const class D3D11Device& device, const GfxSamplerDesc& gfxDesc);
 };
 using D3D11SamplerStatePtr = std::shared_ptr<D3D11SamplerState>;
+#endif

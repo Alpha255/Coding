@@ -139,4 +139,10 @@ private:
 	std::vector<DXGIAdapter4> m_Adapter4s;
 };
 
+class DXGISwapChain0 final : public D3DObject<IDXGISwapChain>  {};
+class DXGISwapChain1 final : public D3DObject<IDXGISwapChain1> {};
+class DXGISwapChain2 final : public D3DObject<IDXGISwapChain2> {};
+class DXGISwapChain3 final : public D3DObject<IDXGISwapChain3> {};
+class DXGISwapChain4 final : public D3DObject<IDXGISwapChain4> {};
+
 NAMESPACE_END(Gfx)

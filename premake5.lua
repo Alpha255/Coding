@@ -17,7 +17,8 @@ function appLinks()
 		"Gear",
 		"Gfx-GfxRenderer",
 		"Gfx-VulkanRenderer",
-		"Gfx-D3D11Renderer" 
+		"Gfx-D3D11Renderer",
+		"Gfx-D3D12Renderer" 
 	}
 end
 
@@ -114,6 +115,26 @@ workspace "Miscellaneous"
 				"dxgi",
 				"d3dcompiler"
 			}
+
+	project "Gfx-D3D12Renderer"
+			kind "SharedLib"
+			language "C++"
+			location "./Projects"
+			files { 
+				"./Colorful/D3D/D3D12/**",
+				"./Colorful/D3D/DXGI_Interface.h",
+				"./Colorful/D3D/DXGI_Interface.cpp",
+			}
+			includedirs { "$(SolutionDir)" }
+			targetdir "$(SolutionDir)Out\\"
+			defines { "DYNAMIC_LIB" }
+			implibname "$(SolutionDir)Out\\Libs\\$(ProjectName)"
+			links { 
+				"Gear",
+				"d3d12",
+				"dxgi",
+				"d3dcompiler"
+			}
 			
 --[[
 		project "Gfx-SoftwareRenderer"
@@ -121,14 +142,6 @@ workspace "Miscellaneous"
 			language "C++"
 			location "./Projects"
 			files "./Colorful/Software/**"
-			includedirs { "$(SolutionDir)" }
-			targetdir "$(SolutionDir)Out\\"
-			links { "Gear" }
-		project "Gfx-D3D12Renderer"
-			kind "SharedLib"
-			language "C++"
-			location "./Projects"
-			files "./Colorful/D3D/D3D12/**"
 			includedirs { "$(SolutionDir)" }
 			targetdir "$(SolutionDir)Out\\"
 			links { "Gear" }

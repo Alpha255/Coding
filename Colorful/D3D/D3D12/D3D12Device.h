@@ -1,30 +1,25 @@
 #pragma once
 
-#include "Colorful/D3D/D3D11/D3D11Pipeline.h"
+#include "Colorful/D3D/DXGI_Interface.h"
 
-/// ID3D11Device5
-class d3d12CommandQueue : public D3DObject<ID3D12CommandQueue>
+#include <d3d12.h>
+
+NAMESPACE_START(Gfx)
+
+DECLARE_UNIQUE_PTR(D3D12Debug)
+class D3D12Debug final : public D3DObject<ID3D12Debug>
 {
 public:
-	void create(const class D3D12Device &device);
+	D3D12Debug();
 };
 
-class D3D12Device : public D3DObject<ID3D12Device>, public GfxDevice
+DECLARE_UNIQUE_PTR(D3D12Device)
+class D3D12Device final : public D3DObject<ID3D12Device>, public Adapter
 {
 public:
-	void create(const DXGIFactory7& dxgiFactory);
-
-	inline DXGIAdapter4 *getDxgiAdapter()
-	{
-		return &m_dxgiAdapter;
-	}
-
-	inline d3d12CommandQueue *getCommandQueue()
-	{
-		return &m_CommandQueue;
-	}
+	D3D12Device(IDXGIAdapter1* adapter1, IDXGIAdapter4* adapter4);
 protected:
 private:
-	DXGIAdapter4 m_dxgiAdapter;
-	d3d12CommandQueue m_CommandQueue;
 };
+
+NAMESPACE_END(Gfx)

@@ -1,3 +1,4 @@
+#if 0
 #include "Colorful/D3D/D3D11/D3D11Engine.h"
 
 D3D11Buffer::D3D11Buffer(
@@ -44,3 +45,4 @@ void D3D11BufferPool::updateBuffer(D3D11BufferPtr buffer, const void* data, size
 	verify(memcpy_s(mappedSubresource.pData, size, ((byte8_t *)data + offset), size) == 0);
 	m_IMContext->Unmap(buffer->get(), 0u);
 }
+#endif

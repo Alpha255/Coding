@@ -1,5 +1,7 @@
 #pragma once
 
+#if 0
+
 #include "Colorful/Public/GfxDefinitions.h"
 
 struct D3D11PipelineState
@@ -117,3 +119,4 @@ private:
 	std::array<ID3D11RenderTargetView*, eRenderTargetLimits> RenderTargets;
 	std::array<ID3D11UnorderedAccessView*, eUnorderedAccessViewLimits> UnorderedAccessViews;
 };
+#endif

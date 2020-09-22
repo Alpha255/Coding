@@ -1,5 +1,6 @@
 #pragma once
 
+#if 0
 #include "Colorful/D3D/D3D11/D3D11State.h"
 #include "Colorful/D3D/D3D11/D3D11PipelineState.h"
 #include "Colorful/D3D/D3D11/D3D11Shader.h"
@@ -54,3 +55,4 @@ protected:
 private:
 	D3D11PipelineState m_State;
 };
+#endif

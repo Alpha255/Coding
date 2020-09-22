@@ -1,3 +1,4 @@
+#if 0
 #include "Colorful/D3D/D3D11/D3D11Engine.h"
 #include "AssetTool/AssetDatabase.h"
 
@@ -98,3 +99,4 @@ D3D11Shader::D3D11Shader(const D3D11Device& device, eRShaderUsage usage, const s
 		break;
 	}
 }
+#endif

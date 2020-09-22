@@ -1,128 +1,83 @@
-#include "D3D12Device.h"
-#include "D3D12Engine.h"
+#include "Colorful/D3D/D3D12/D3D12Device.h"
 
-void d3d12CommandQueue::create(const D3D12Device& device)
+NAMESPACE_START(Gfx)
+
+D3D12Debug::D3D12Debug()
 {
-	assert(!isValid() && device.isValid());
+	VERIFY_D3D(D3D12GetDebugInterface(__uuidof(ID3D12Debug), reinterpret_cast<void**>(reference())));
 
-	D3D12_COMMAND_QUEUE_DESC desc
-	{
-		D3D12_COMMAND_LIST_TYPE_DIRECT,
-		0,
-		D3D12_COMMAND_QUEUE_FLAG_NONE,
-		0u
-	};
-
-	ID3D12CommandQueue* commandQueue = nullptr;
-	rVerifyD3D12(device->CreateCommandQueue(&desc, _uuidof(ID3D12CommandQueue), (void**)&commandQueue));
-	reset(commandQueue);
+#if defined(_DEBUG)
+	(*this)->EnableDebugLayer();
+#endif
 }
 
-void D3D12Device::create(const DXGIFactory7& dxgiFactory)
+D3D12Device::D3D12Device(IDXGIAdapter1* adapter1, IDXGIAdapter4* adapter4)
 {
-	assert(!isValid() && dxgiFactory.isValid());
+	assert(adapter1);
 
-	std::vector<DXGIAdapter4> dxgiAdapters;
-	uint32_t adapterIndex = 0u;
-	while (true)
+	std::vector<D3D_FEATURE_LEVEL> featureLevels
 	{
-		IDXGIAdapter1 *pDxgiAdapter = nullptr;
-		if (DXGI_ERROR_NOT_FOUND == (dxgiFactory->EnumAdapters1(adapterIndex++, &pDxgiAdapter)))
+		D3D_FEATURE_LEVEL_12_1,
+		D3D_FEATURE_LEVEL_12_0,
+		D3D_FEATURE_LEVEL_11_0,
+		D3D_FEATURE_LEVEL_10_1,
+		D3D_FEATURE_LEVEL_10_0,
+		D3D_FEATURE_LEVEL_9_3,
+		D3D_FEATURE_LEVEL_9_2,
+		D3D_FEATURE_LEVEL_9_1
+	};
+
+	D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_1_0_CORE;
+	for (auto level : featureLevels)
+	{
+		if (SUCCEEDED(D3D12CreateDevice(adapter4 ? adapter4 : adapter1,
+			level,
+			_uuidof(ID3D12Device),
+			reinterpret_cast<void**>(reference()))))
 		{
+			featureLevel = level;
 			break;
 		}
+	}
+	assert(isValid());
 
-		DXGI_ADAPTER_DESC1 adapterDesc = {};
-		pDxgiAdapter->GetDesc1(&adapterDesc);
-		if (adapterDesc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
-		{
-			continue;
-		}
-
-		dxgiAdapters.emplace_back();
-		dxgiAdapters[dxgiAdapters.size() - 1u].reset(static_cast<IDXGIAdapter4 *>(pDxgiAdapter));
+	if (adapter4)
+	{
+		DXGI_ADAPTER_DESC3 adapterDesc{};
+		VERIFY_D3D(adapter4->GetDesc3(&adapterDesc));
+		VendorID = adapterDesc.VendorId;
+		DeviceID = adapterDesc.DeviceId;
+		std::wstring wDeviceName(adapterDesc.Description);
+		DeviceName = std::string(wDeviceName.cbegin(), wDeviceName.cend());
+	}
+	else
+	{
+		DXGI_ADAPTER_DESC1 adapterDesc{};
+		VERIFY_D3D(adapter1->GetDesc1(&adapterDesc));
+		VendorID = adapterDesc.VendorId;
+		DeviceID = adapterDesc.DeviceId;
+		std::wstring wDeviceName(adapterDesc.Description);
+		DeviceName = std::string(wDeviceName.cbegin(), wDeviceName.cend());
 	}
 
-	struct createResult
+	auto getFeatureLevelName = [](D3D_FEATURE_LEVEL level)->const char8_t* const
 	{
-		D3D_FEATURE_LEVEL FeatureLevel = (D3D_FEATURE_LEVEL)0u;
-		::HRESULT Result = E_FAIL;
+		switch (level)
+		{
+		case D3D_FEATURE_LEVEL_9_1:  return "9.1";
+		case D3D_FEATURE_LEVEL_9_2:  return "9.2";
+		case D3D_FEATURE_LEVEL_9_3:  return "9.3";
+		case D3D_FEATURE_LEVEL_10_0: return "10.0";
+		case D3D_FEATURE_LEVEL_10_1: return "10.1";
+		case D3D_FEATURE_LEVEL_11_0: return "11.0";
+		case D3D_FEATURE_LEVEL_11_1: return "11.1";
+		case D3D_FEATURE_LEVEL_12_0: return "12.0";
+		case D3D_FEATURE_LEVEL_12_1: return "12.1";
+		}
+		return "Unknown";
 	};
 
-	auto tryToCreateDevice = [](const DXGIAdapter4 &adapter, D3D12Device &device, bool8_t realCreate)->createResult {
-		createResult resultAttr = {};
+	LOG_INFO("Created D3D12 device on adapter: \"%s\", DeviceID = %d. Feature Level = %s", DeviceName.c_str(), DeviceID, getFeatureLevelName(featureLevel));
+};
 
-		std::vector<D3D_FEATURE_LEVEL> featureLevels =
-		{
-			D3D_FEATURE_LEVEL_12_1,
-			D3D_FEATURE_LEVEL_12_0,
-			D3D_FEATURE_LEVEL_11_0,
-			D3D_FEATURE_LEVEL_10_1,
-			D3D_FEATURE_LEVEL_10_0,
-			D3D_FEATURE_LEVEL_9_3,
-			D3D_FEATURE_LEVEL_9_2,
-			D3D_FEATURE_LEVEL_9_1
-		};
-
-		ID3D12Device *pDevice = nullptr;
-
-		for (uint32_t j = 0; j < featureLevels.size(); ++j)
-		{
-			resultAttr.Result = D3D12CreateDevice(
-				adapter.get(),
-				featureLevels[j],
-				_uuidof(ID3D12Device),
-				realCreate ? (void **)&pDevice : nullptr);
-			if (SUCCEEDED(resultAttr.Result))
-			{
-				resultAttr.FeatureLevel = featureLevels[j];
-
-				if (realCreate)
-				{
-					device.reset(pDevice);
-				}
-
-				return resultAttr;
-			}
-		}
-
-		return resultAttr;
-	};
-
-	adapterIndex = std::numeric_limits<uint32_t>().max();
-	createResult tempResultAttr = {};
-	for (uint32_t i = 0u; i < dxgiAdapters.size(); ++i)
-	{
-		D3D12Device tempDevice;
-
-		createResult resultAttr = tryToCreateDevice(dxgiAdapters[i], tempDevice, false);
-		if (SUCCEEDED(resultAttr.Result) && resultAttr.FeatureLevel > tempResultAttr.FeatureLevel)
-		{
-			tempResultAttr = resultAttr;
-			adapterIndex = i;
-		}
-	}
-	assert(adapterIndex != std::numeric_limits<uint32_t>().max());
-	m_dxgiAdapter = dxgiAdapters[adapterIndex];
-
-	createResult resultAttr = tryToCreateDevice(m_dxgiAdapter, *this, true);
-	if (FAILED(resultAttr.Result))
-	{
-		Logger::instance().log(Logger::eError, "Failed to create d3d11 device.");
-		D3D12Engine::logError((uint32_t)resultAttr.Result);
-		assert(0);
-	}
-
-	DXGI_ADAPTER_DESC3 adapterDesc = {};
-	rVerifyD3D12(m_dxgiAdapter->GetDesc3(&adapterDesc));
-	m_Adapter.VendorID = adapterDesc.VendorId;
-	m_Adapter.DeviceID = adapterDesc.DeviceId;
-	std::wstring wDeviceName(adapterDesc.Description);
-	m_Adapter.DeviceName = std::string(wDeviceName.cbegin(), wDeviceName.cend());
-
-	Logger::instance().log(Logger::eInfo, "Created d3d12 device on adapter: \"%s\", DeviceID = %d.",
-		m_Adapter.DeviceName.c_str(),
-		m_Adapter.DeviceID);
-
-	m_CommandQueue.create(*this);
-}
+NAMESPACE_END(Gfx)

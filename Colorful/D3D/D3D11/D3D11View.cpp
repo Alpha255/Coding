@@ -1,3 +1,4 @@
+#if 0
 #include "Colorful/D3D/D3D11/D3D11Engine.h"
 #include "AssetTool/AssetDatabase.h"
 
@@ -128,3 +129,5 @@ D3D11ShaderResourceView::D3D11ShaderResourceView(
 	GfxVerifyD3D(device->CreateShaderResourceView(resource->get(), &desc, &view));
 	reset(view);
 }
+
+#endif

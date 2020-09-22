@@ -1,6 +1,6 @@
-#include "D3D12Swapchain.h"
-#include "D3D12Engine.h"
+#include "Colorful/D3D/D3D12/D3D12Swapchain.h"
 
+#if 0
 void d3d12Swapchain::create(
 	uint64_t windowHandle, 
 	uint32_t width, 
@@ -123,3 +123,9 @@ void d3d12Swapchain::resize(uint32_t width, uint32_t height)
 		DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH
 	));
 }
+
+#endif
+
+NAMESPACE_START(Gfx)
+
+NAMESPACE_END(Gfx)

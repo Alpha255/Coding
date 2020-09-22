@@ -1,5 +1,7 @@
 #pragma once
 
+#if 0
+
 #include "AssetTool/Asset.h"
 
 class D3D11InputLayout : public D3DObject<ID3D11InputLayout>
@@ -35,3 +37,5 @@ private:
 	AssetTool::ShaderBinary m_Binary;
 };
 using D3D11ShaderPtr = std::shared_ptr<D3D11Shader>;
+
+#endif

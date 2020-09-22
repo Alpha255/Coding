@@ -1,3 +1,4 @@
+#if 0
 #include "Colorful/D3D/D3D11/D3D11Engine.h"
 
 D3D11Texture::D3D11Texture(
@@ -387,3 +388,4 @@ size_t D3D11Texture::bitsPerPixel(DXGI_FORMAT format) const
 		return 0u;
 	}
 }
+#endif

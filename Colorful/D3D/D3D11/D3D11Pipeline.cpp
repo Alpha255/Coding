@@ -1,3 +1,4 @@
+#if 0
 #include "Colorful/D3D/D3D11/D3D11Engine.h"
 
 D3D11GraphicsPipeline::D3D11GraphicsPipeline(const D3D11Device& device, const GfxPipelineState* state)
@@ -219,3 +220,4 @@ void D3D11Context::setShaderResources(const D3D11GraphicsPipelinePtr& pipeline)
 	assert(0);
 #endif
 }
+#endif
