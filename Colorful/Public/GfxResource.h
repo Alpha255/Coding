@@ -39,30 +39,6 @@ class GfxTexture
 };
 using GfxTexturePtr = std::shared_ptr<GfxTexture>;
 
-class GfxShader
-{
-public:
-	GfxShader(eRShaderUsage usage)
-		: m_Usage(usage)
-	{
-	}
-
-	inline eRShaderUsage usage() const
-	{
-		return m_Usage;
-	}
-
-	inline const GfxShaderReflections& reflections() const
-	{
-		return m_Reflections;
-	}
-protected:
-	eRShaderUsage m_Usage = eRShaderUsage_MaxEnum;
-	GfxShaderReflections m_Reflections;
-private:
-};
-using GfxShaderPtr = std::shared_ptr<GfxShader>;
-
 class GfxRenderSurface
 {
 protected:
@@ -80,7 +56,8 @@ enum class EShaderStage : uint8_t
 	Domain,
 	Geometry,
 	Fragment,
-	Compute
+	Compute,
+	ShaderStageCount
 };
 
 enum class ETextureType
@@ -427,6 +404,26 @@ private:
 template<class T>
 class VkObject : public GfxObject<T>
 {
+};
+
+DECLARE_SHARED_PTR(Shader)
+class Shader
+{
+public:
+	Shader() = delete;
+	Shader(EShaderStage stage)
+		: m_Stage(stage)
+	{
+	}
+	~Shader() = default;
+
+	inline EShaderStage stage() const
+	{
+		return m_Stage;
+	}
+protected:
+	EShaderStage m_Stage;
+private:
 };
 
 NAMESPACE_END(Gfx)

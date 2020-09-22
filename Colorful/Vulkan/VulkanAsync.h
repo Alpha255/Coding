@@ -32,104 +32,77 @@
 		Many cases that would otherwise need an application to use other synchronization primitives can be expressed more efficiently as part of a render pass.
 ********************/
 
-class VulkanFence : public VulkanDeviceObject<VkFence>
+NAMESPACE_START(Gfx)
+
+DECLARE_SHARED_PTR(VulkanFence)
+class VulkanFence : public VkObject<VkFence_T>
 {
 public:
-	enum eFenceState
+	enum class EState : uint8_t
 	{
-		eUnsignaled,
-		eSignaled,
-		eFenceState_MaxEnum
+		Unsignaled,
+		Signaled
 	};
 
-	VulkanFence(VkDevice device, bool8_t signaled);
-
-	void destroy(VkDevice device) override final
-	{
-		if (isValid())
-		{
-			vkDestroyFence(device, Handle, vkMemoryAllocator);
-			Handle = VK_NULL_HANDLE;
-		}
-	}
+	VulkanFence(VkDevice device, bool8_t signaled = false);
 protected:
 private:
 };
-using VulkanFencePtr = std::shared_ptr<VulkanFence>;
 
-class VulkanSemaphore : public VulkanDeviceObject<VkSemaphore>
+DECLARE_SHARED_PTR(VulkanSemaphore)
+class VulkanSemaphore : public VkObject<VkSemaphore_T>
 {
 public:
 	VulkanSemaphore(VkDevice device);
-
-	void destroy(VkDevice device) override final
-	{
-		/// All submitted batches that refer to semaphore must have completed execution
-		if (isValid())
-		{
-			vkDestroySemaphore(device, Handle, vkMemoryAllocator);
-			Handle = VK_NULL_HANDLE;
-		}
-	}
 };
-using VulkanSemaphorePtr = std::shared_ptr<VulkanSemaphore>;
 
-class VulkanEvent : public VulkanDeviceObject<VkEvent>
+DECLARE_SHARED_PTR(VulkanEvent)
+class VulkanEvent : public VkObject<VkEvent_T>
 {
 public:
-	enum eEventState
+	enum class EState : uint8_t
 	{
-		eUnsignaled,
-		eSignaled,
-		eEventStatus_MaxEnum
+		Unsignaled,
+		Signaled
 	};
 
 	VulkanEvent(VkDevice device);
-
-	void destroy(VkDevice device) override final
-	{
-		/// All submitted commands that refer to event must have completed execution
-		if (isValid())
-		{
-			vkDestroyEvent(device, Handle, vkMemoryAllocator);
-			Handle = VK_NULL_HANDLE;
-		}
-	}
 };
-using VulkanEventPtr = std::shared_ptr<VulkanEvent>;
 
-class VulkanAsyncPool : public LazySingleton<VulkanAsyncPool>
-{
-	lazySingletonDeclare(VulkanAsyncPool);
-public:
-	VulkanFencePtr allocFence(bool8_t signaled = false);
-	void freeFence(const VulkanFencePtr& fence);
-	void resetFence(const VulkanFencePtr& fence) const;
-	void waitFence(const VulkanFencePtr& fence, uint64_t timeoutInNanosecond = std::numeric_limits<uint64_t>().max()) const;
-	VulkanFence::eFenceState fenceState(const VulkanFencePtr& fence) const;
+//class VulkanAsyncPool : public LazySingleton<VulkanAsyncPool>
+//{
+//	lazySingletonDeclare(VulkanAsyncPool);
+//public:
+//	VulkanFencePtr allocFence(bool8_t signaled = false);
+//	void freeFence(const VulkanFencePtr& fence);
+//	void resetFence(const VulkanFencePtr& fence) const;
+//	void waitFence(const VulkanFencePtr& fence, uint64_t timeoutInNanosecond = std::numeric_limits<uint64_t>().max()) const;
+//	VulkanFence::eFenceState fenceState(const VulkanFencePtr& fence) const;
+//
+//	VulkanSemaphorePtr allocSemaphore();
+//	void freeSemaphore(const VulkanSemaphorePtr& semaphore);
+//
+//	VulkanEventPtr allocEvent();
+//	void freeEvent(const VulkanEventPtr& event);
+//	VulkanEvent::eEventState eventState(const VulkanEventPtr& event) const;
+//	void setEventState(const VulkanEventPtr& event, VulkanEvent::eEventState state) const;
+//
+//	void cleanup() override final;
+//protected:
+//	VulkanAsyncPool(const VkDevice device)
+//		: m_Device(device)
+//	{
+//		assert(device != VK_NULL_HANDLE);
+//	}
+//private:
+//	const VkDevice m_Device;
+//	std::unordered_map<VkFence, VulkanFencePtr> m_Fences;
+//	std::unordered_map<VkSemaphore, VulkanSemaphorePtr> m_Semaphores;
+//	std::unordered_map<VkEvent, VulkanEventPtr> m_Events;
+//
+//	std::vector<VulkanFencePtr> m_FreeFences;
+//	std::vector<VulkanSemaphorePtr> m_FreeSemaphores;
+//	std::vector<VulkanEventPtr> m_FreeEvents;
+//};
 
-	VulkanSemaphorePtr allocSemaphore();
-	void freeSemaphore(const VulkanSemaphorePtr& semaphore);
-
-	VulkanEventPtr allocEvent();
-	void freeEvent(const VulkanEventPtr& event);
-	VulkanEvent::eEventState eventState(const VulkanEventPtr& event) const;
-	void setEventState(const VulkanEventPtr& event, VulkanEvent::eEventState state) const;
-
-	void cleanup() override final;
-protected:
-	VulkanAsyncPool(const VkDevice device)
-		: m_Device(device)
-	{
-		assert(device != VK_NULL_HANDLE);
-	}
-private:
-	const VkDevice m_Device;
-	std::unordered_map<VkFence, VulkanFencePtr> m_Fences;
-	std::unordered_map<VkSemaphore, VulkanSemaphorePtr> m_Semaphores;
-	std::unordered_map<VkEvent, VulkanEventPtr> m_Events;
-
-	std::vector<VulkanFencePtr> m_FreeFences;
-	std::vector<VulkanSemaphorePtr> m_FreeSemaphores;
-	std::vector<VulkanEventPtr> m_FreeEvents;
-};
+NAMESPACE_END(Gfx)

@@ -2,18 +2,27 @@
 
 #include "Colorful/Vulkan/VulkanLoader.h"
 
-class VulkanShader : public VulkanDeviceObject<VkShaderModule>, public GfxShader
+NAMESPACE_START(Gfx)
+
+class VulkanShader final : public VkObject<VkShaderModule_T>, public Shader
 {
 public:
-	VulkanShader(VkDevice device, eRShaderUsage usage, const std::string& shaderName);
-
-	void destroy(VkDevice device) override final
+	VulkanShader(VkDevice device, EShaderStage stage, std::shared_ptr<byte8_t> binary, size_t binarySize)
+		: Shader(stage)
 	{
-		/// A shader module can be destroyed while pipelines created using its shaders are still in use.
-		if (isValid())
+		assert(device && stage < EShaderStage::ShaderStageCount);
+
+		VkShaderModuleCreateInfo createInfo
 		{
-			vkDestroyShaderModule(device, Handle, vkMemoryAllocator);
-			Handle = VK_NULL_HANDLE;
-		}
+			VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+			nullptr,
+			0u,
+			binarySize,
+			reinterpret_cast<uint32_t*>(binary.get())
+		};
+
+		VERIFY_VK(vkCreateShaderModule(device, &createInfo, VK_MEMORY_ALLOCATOR, reference()));
 	}
 };
+
+NAMESPACE_END(Gfx)

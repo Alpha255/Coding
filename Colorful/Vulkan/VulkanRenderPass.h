@@ -98,14 +98,6 @@ class VulkanFrameBuffer : public VulkanDeviceObject<VkFramebuffer>, public GfxFr
 {
 public:
 	VulkanFrameBuffer(VkDevice device, VkRenderPass renderPass, const GfxFrameBufferDesc& desc);
-	void destroy(VkDevice device) override final
-	{
-		if (isValid())
-		{
-			vkDestroyFramebuffer(device, Handle, vkMemoryAllocator);
-			Handle = VK_NULL_HANDLE;
-		}
-	}
 
 	inline VkRenderPass renderPass() const
 	{
