@@ -1,3 +1,4 @@
+#if 0
 #include "Colorful/Vulkan/VulkanEngine.h"
 
 VulkanQueue::VulkanQueue(VkDevice device, uint32_t queueFamilyIndex)
@@ -243,3 +244,4 @@ void VulkanQueueManager::submitGfxCommands(VkSemaphore presentCompleteSemaphore)
 
 	m_GfxCommandQueue.clear();
 }
+#endif

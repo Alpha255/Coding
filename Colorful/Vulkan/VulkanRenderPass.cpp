@@ -1,3 +1,4 @@
+#if 0
 #include "Colorful/Vulkan/VulkanEngine.h"
 
 /*************************************************
@@ -235,3 +236,4 @@ void VulkanRenderPassManager::cleanup()
 	}
 	m_RenderPassList.clear();
 }
+#endif

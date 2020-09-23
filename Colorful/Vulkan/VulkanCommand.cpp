@@ -1,3 +1,4 @@
+#if 0
 #include "Colorful/Vulkan/VulkanEngine.h"
 
 VulkanCommandBuffer::VulkanCommandBuffer(VkCommandBufferLevel level, VkCommandBuffer handle)
@@ -273,3 +274,4 @@ void VulkanCommandBuffer::execute(const std::shared_ptr<VulkanCommandBuffer>& pr
 	};
 	vkCmdExecuteCommands(primaryCmdBuffer->Handle, 1u, cmdBuffers);
 }
+#endif

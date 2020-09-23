@@ -1,3 +1,4 @@
+#if 0
 #include "Colorful/Vulkan/VulkanEngine.h"
 #include "AssetTool/AssetDatabase.h"
 
@@ -125,3 +126,4 @@ VulkanImageView::VulkanImageView(
 		VulkanEnum::toImageViewType(type),
 		VK_IMAGE_ASPECT_COLOR_BIT);
 }
+#endif

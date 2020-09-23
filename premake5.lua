@@ -2,7 +2,6 @@ function appInclude()
 	includedirs { 
 		"$(SolutionDir)", 
 		"$(SolutionDir)ThirdParty",
-		"$(SolutionDir)ThirdParty\\VulkanSDK\\Include",
 	}
 end
 
@@ -90,7 +89,10 @@ workspace "Miscellaneous"
 			language "C++"
 			location "./Projects"
 			files "./Colorful/Vulkan/**"
-			includedirs { "$(SolutionDir)" }
+			includedirs { 
+				"$(SolutionDir)",
+				"$(SolutionDir)ThirdParty\\Vulkan-Headers\\include"
+			}
 			targetdir "$(SolutionDir)Out\\"
 			defines { "DYNAMIC_LIB" }
 			implibname "$(SolutionDir)Out\\Libs\\$(ProjectName)"

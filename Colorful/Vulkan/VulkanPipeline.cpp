@@ -1,3 +1,4 @@
+#if 0
 #include "Colorful/Vulkan/VulkanEngine.h"
 
 void VulkanPipelineLayout::create(VkDevice device, VkDescriptorSetLayout descriptorSetLayout)
@@ -522,3 +523,4 @@ void VulkanPipelinePool::cleanup()
 
 	m_PipelineCache.destroy(m_Device);
 }
+#endif

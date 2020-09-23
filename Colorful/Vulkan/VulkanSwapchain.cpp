@@ -1,3 +1,4 @@
+#if 0
 #include "Colorful/Vulkan/VulkanEngine.h"
 
 void VulkanSwapchain::VulkanSurface::create(uint64_t windowHandle, VkInstance instance)
@@ -309,3 +310,4 @@ void VulkanSwapchain::destroyBackBuffers()
 
 	m_DepthStencil->destroy(m_LogicDevice);
 }
+#endif

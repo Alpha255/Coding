@@ -1,3 +1,4 @@
+#if 0
 #include "Colorful/Vulkan/VulkanEngine.h"
 
 /// The old layout must match the current layout of the image subresource range, with one exception. 
@@ -278,3 +279,4 @@ void VulkanSampler::destroy(VkDevice device)
 		Handle = VK_NULL_HANDLE;
 	}
 }
+#endif

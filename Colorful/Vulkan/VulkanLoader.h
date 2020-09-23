@@ -7,7 +7,7 @@
 #if defined(USE_VK_LOADER)
 
 #define VK_NO_PROTOTYPES
-#include <ThirdParty/VulkanSDK/Include/vulkan/vulkan.h>
+#include <vulkan/vulkan.h>
 
 NAMESPACE_START(Gfx)
 

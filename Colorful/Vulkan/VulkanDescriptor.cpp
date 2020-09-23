@@ -1,3 +1,4 @@
+#if 0
 #include "Colorful/Vulkan/VulkanEngine.h"
 
 VulkanDescriptorPool::VulkanDescriptorPool(const VkDevice device, VkPhysicalDevice physicalDevice)
@@ -313,3 +314,4 @@ void VulkanDescriptorSet::update(VkDevice device, const VulkanResourceMap& resou
 	assert(!writeActions.empty());
 	vkUpdateDescriptorSets(device, (uint32_t)writeActions.size(), writeActions.data(), 0u, nullptr);
 }
+#endif

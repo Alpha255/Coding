@@ -1,3 +1,4 @@
+#if 0
 #include "Colorful/Vulkan/VulkanEngine.h"
 
 void VulkanDeviceMemory::create(VkDevice device, eRBufferUsage usage, const VkMemoryRequirements& memoryRequirements)
@@ -197,3 +198,4 @@ void VulkanBufferPool::cleanup()
 	}
 	m_Buffers.clear();
 }
+#endif
