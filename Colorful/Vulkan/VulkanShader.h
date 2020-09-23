@@ -7,7 +7,7 @@ NAMESPACE_START(Gfx)
 class VulkanShader final : public VkObject<VkShaderModule_T>, public Shader
 {
 public:
-	VulkanShader(VkDevice device, EShaderStage stage, std::shared_ptr<byte8_t> binary, size_t binarySize)
+	VulkanShader(VkDevice device, EShaderStage stage, const std::vector<uint32_t>& spirv)
 		: Shader(stage)
 	{
 		assert(device && stage < EShaderStage::ShaderStageCount);
@@ -17,8 +17,8 @@ public:
 			VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
 			nullptr,
 			0u,
-			binarySize,
-			reinterpret_cast<uint32_t*>(binary.get())
+			spirv.size() * sizeof(uint32_t),
+			spirv.data()
 		};
 
 		VERIFY_VK(vkCreateShaderModule(device, &createInfo, VK_MEMORY_ALLOCATOR, reference()));
