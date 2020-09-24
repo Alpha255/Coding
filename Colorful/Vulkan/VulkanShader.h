@@ -10,7 +10,7 @@ public:
 	VulkanShader(VkDevice device, EShaderStage stage, const std::vector<uint32_t>& spirv)
 		: Shader(stage)
 	{
-		assert(device && stage < EShaderStage::ShaderStageCount);
+		assert(device && stage < EShaderStage::ShaderStageCount && spirv.size());
 
 		VkShaderModuleCreateInfo createInfo
 		{

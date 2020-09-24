@@ -1,6 +1,7 @@
 #include "Gear/Application.h"
 #include <ThirdParty/json/single_include/nlohmann/json.hpp>
 #include "Colorful/D3D/DXGI_Interface.h"
+#include "AssetTool/AssetDatabase.h"
 
 NAMESPACE_START(Gear)
 
@@ -24,22 +25,25 @@ Application::Configs::Configs()
 	assert(configs["FullScreen"].is_boolean());
 	FullScreen = configs["FullScreen"];
 
+	assert(configs["VSync"].is_boolean());
+	VSync = configs["VSync"];
+
 	assert(configs["Renderer"].is_string());
 	assert(configs["RendererNames"].is_object());
 	const std::string& renderName = configs["Renderer"];
 	RendererName = configs["RendererNames"][renderName];
 }
 
-void Application::mountAssetsDirectory(const Configs& configs)
+void Application::initialize(const std::string& name, const Configs& configs)
 {
-	std::string assetDirectory(File::directory(configs.WorkingDirectory) + "\\Assets");
-	assert(File::isExists(assetDirectory, true));
-	System::setWorkingDirectory(assetDirectory);
-	LOG_INFO("Mount working directory to \"%s\"", System::getCurrentWorkingDirectory().c_str());
-}
+#if 1
+#endif
+	m_Window = std::make_unique<Window>(m_Instance, name, configs.WindowSize, configs.MinWindowSize);
 
-void Application::initializeRenderer(const Configs& configs)
-{
+	Tool::AssetDatabase::instance().initialize(configs.WorkingDirectory);
+
+	auto test = Tool::AssetDatabase::instance().findAsset("bricks2.dds");
+
 	m_DynamicLib = std::make_shared<System::DynamicLibrary>(std::string(configs.WorkingDirectory + "\\" + configs.RendererName + DLL_POSTFIX));
 	Gfx::CreateRendererFunc func = static_cast<Gfx::CreateRendererFunc>(m_DynamicLib->getProcAddress(CREATE_RENDERER_FUNC_NAME));
 	assert(func);
@@ -53,15 +57,7 @@ void Application::initializeRenderer(const Configs& configs)
 		configs.VSync);
 
 	GRenderer = m_Renderer.get();
-}
 
-void Application::initialize(const std::string& name, const Configs& configs)
-{
-#if 1
-#endif
-	m_Window = std::make_unique<Window>(m_Instance, name, configs.WindowSize, configs.MinWindowSize);
-	initializeRenderer(configs);
-	mountAssetsDirectory(configs);
 	onInitialize();
 }
 
@@ -92,6 +88,8 @@ void Application::finalize()
 	onFinalize();
 
 	m_Renderer->finalize();
+
+	Tool::AssetDatabase::instance().finalize();
 }
 
 NAMESPACE_END(Gear)

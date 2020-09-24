@@ -1,3 +1,4 @@
+#if 0
 #include "AssetDatabase.h"
 #include <ThirdParty/gli/gli/gli.hpp>
 #include <ThirdParty/stb/stb_image.h>
@@ -252,3 +253,4 @@ ID3D11ShaderResourceView* AssetDatabase::tryToLoadD3DTextureFromFile(ID3D11Devic
 }
 
 namespaceEnd(AssetTool)
+#endif

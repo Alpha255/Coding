@@ -1,3 +1,4 @@
+#if 0
 #include "AssetDatabase.h"
 #include "Colorful/Public/GfxEngine.h"
 #include <ThirdParty/assimp/include/assimp/Importer.hpp>
@@ -155,3 +156,4 @@ void AssetDatabase::tryToLoadModel(const std::string& modelName, __out GfxModel&
 }
 
 namespaceEnd(AssetTool)
+#endif

@@ -74,7 +74,6 @@ public:
 		, m_Extension(std::move(other.m_Extension))
 		, m_FullPath(std::move(other.m_FullPath))
 		, m_RelPath(std::move(other.m_RelPath))
-		, m_Data(std::move(other.m_Data))
 	{
 		std::exchange(other.m_Size, {});
 	}
@@ -86,7 +85,6 @@ public:
 		m_Extension = other.m_Extension;
 		m_FullPath = other.m_FullPath;
 		m_RelPath = other.m_RelPath;
-		m_Data = other.m_Data;
 		return *this;
 	}
 
@@ -97,7 +95,6 @@ public:
 		m_Extension.assign(std::move(other.m_Extension));
 		m_FullPath.assign(std::move(other.m_FullPath));
 		m_RelPath.assign(std::move(other.m_RelPath));
-		m_Data = std::move(other.m_Data);
 		return *this;
 	}
 
@@ -199,19 +196,16 @@ public:
 
 	std::shared_ptr<byte8_t> data(EMode mode = EMode::Text)
 	{
-		if (!m_Data)
-		{
-			int32_t readMode = mode == EMode::Binary ? std::ios::in | std::ios::binary : std::ios::in;
+		int32_t readMode = mode == EMode::Binary ? std::ios::in | std::ios::binary : std::ios::in;
 
-			std::ifstream fs(m_FullPath, readMode);
-			assert(fs.is_open());
+		std::ifstream fs(m_FullPath, readMode);
+		assert(fs.is_open());
 
-			m_Data.reset(new byte8_t[size()]());
-			fs.read((char8_t*)m_Data.get(), m_Size);
-			fs.close();
-		}
+		std::shared_ptr<byte8_t> data(new byte8_t[size()]());
+		fs.read(reinterpret_cast<char8_t*>(data.get()), size());
+		fs.close();
 
-		return m_Data;
+		return data;
 	}
 protected:
 private:
@@ -220,8 +214,6 @@ private:
 	std::string m_Extension;
 	std::string m_FullPath;
 	std::string m_RelPath;
-
-	std::shared_ptr<byte8_t> m_Data = nullptr;
 };
 
 NAMESPACE_END(Gear)

@@ -1,30 +1,29 @@
 #pragma once
 
-#include "Asset.h"
+#include "Gear/Asset.h"
+#include "Colorful/Public/GfxResource.h"
 
-class GfxModel;
-class GfxEngine;
+NAMESPACE_START(Tool)
 
-namespaceStart(AssetTool)
-
-class exportAPI AssetDatabase : public Singleton<AssetDatabase>
+DECLARE_UNIQUE_PTR(AssetDatabase)
+class EXPORT_API AssetDatabase
 {
 public:
-	void initialize();
+	static AssetDatabase& instance();
 
-	ShaderBinary tryToGetShaderBinary(Configurations::eRenderEngine engine, eRShaderUsage usage, const std::string& shaderName);
+	void initialize(const std::string& baseDirectory);
 
-	TextureBinary tryToGetTextureBinary(Configurations::eRenderEngine engine, const std::string& texName);
+	Gear::AssetPtr findAsset(const std::string& name);
 
-	void tryToLoadModel(const std::string& modelName, __out GfxModel& gfxModel, GfxEngine* gfxEngine);
+	void loadShader(Gfx::EShaderStage stage, const std::string& name);
 
-	AssetPtr tryToGetAsset(const std::string& assetName);
+	void loadTexture(const std::string& name);
 
-	ID3D11ShaderResourceView* tryToLoadD3DTextureFromFile(ID3D11Device* device, const AssetPtr& asset);
+	void loadModel(const std::string& name);
 
-	std::string assetBasePath() const;
+	void finalize() {}
 protected:
-	Asset::eAssetType tryToGetAssetType(const std::string& assetName);
+private:
 };
 
-namespaceEnd(AssetTool)
+NAMESPACE_END(Tool)

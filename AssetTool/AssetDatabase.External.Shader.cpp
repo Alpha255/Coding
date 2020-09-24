@@ -1,3 +1,4 @@
+#if 0
 #include "AssetDatabase.h"
 #include "ShaderCache.h"
 #include <ThirdParty/SPIRV-Cross/spirv_hlsl.hpp>
@@ -218,3 +219,4 @@ AssetTool::ShaderBinary AssetDatabase::tryToGetShaderBinary(
 }
 
 namespaceEnd(AssetTool)
+#endif

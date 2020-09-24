@@ -41,8 +41,6 @@ public:
 	virtual void onFinalize() {};
 	void finalize();
 protected:
-	void mountAssetsDirectory(const Configs& configs);
-	void initializeRenderer(const Configs& configs);
 private:
 	uint64_t m_Instance = 0u;
 	WindowPtr m_Window = nullptr;
