@@ -3,13 +3,13 @@
 #include "Gear/Asset.h"
 #include "Colorful/Public/GfxResource.h"
 
-NAMESPACE_START(Tool)
+NAMESPACE_START(Gfx)
 
-DECLARE_UNIQUE_PTR(AssetDatabase)
-class EXPORT_API AssetDatabase
+DECLARE_UNIQUE_PTR(AssetTool)
+class EXPORT_API AssetTool
 {
 public:
-	static AssetDatabase& instance();
+	static AssetTool& instance();
 
 	void initialize(const std::string& baseDirectory);
 
@@ -26,4 +26,4 @@ protected:
 private:
 };
 
-NAMESPACE_END(Tool)
+NAMESPACE_END(Gfx)

@@ -1,21 +1,21 @@
-#include "AssetTool/AssetDatabase.h"
+#include "Colorful/Public/AssetTool/AssetTool.h"
 
-NAMESPACE_START(Tool)
+NAMESPACE_START(Gfx)
 
-static AssetDatabasePtr s_Instance = nullptr;
+static AssetToolPtr s_Instance = nullptr;
 static std::string s_AssetDirectory;
 
-AssetDatabase& AssetDatabase::instance()
+AssetTool& AssetTool::instance()
 {
 	if (!s_Instance)
 	{
-		s_Instance = std::make_unique<AssetDatabase>();
+		s_Instance = std::make_unique<AssetTool>();
 	}
 
 	return *s_Instance;
 }
 
-void AssetDatabase::initialize(const std::string& baseDirectory)
+void AssetTool::initialize(const std::string& baseDirectory)
 {
 	assert(File::isExists(baseDirectory, true));
 
@@ -25,7 +25,7 @@ void AssetDatabase::initialize(const std::string& baseDirectory)
 	LOG_INFO("AssetDatabase:: Mount working directory to \"%s\"", System::getCurrentWorkingDirectory().c_str());
 }
 
-AssetPtr AssetDatabase::findAsset(const std::string& name)
+AssetPtr AssetTool::findAsset(const std::string& name)
 {
 	std::string path = File::find(s_AssetDirectory, name);
 	if (File::isExists(path))
@@ -36,7 +36,7 @@ AssetPtr AssetDatabase::findAsset(const std::string& name)
 	return AssetPtr();
 }
 
-std::vector<byte8_t> AssetDatabase::loadShader(Gfx::EShaderLanguage language, Gfx::EShaderStage stage, const std::string& name)
+std::vector<byte8_t> AssetTool::loadShader(Gfx::EShaderLanguage language, Gfx::EShaderStage stage, const std::string& name)
 {
 	std::vector<byte8_t> bytes;
 	AssetPtr asset = findAsset(name);
@@ -50,4 +50,4 @@ std::vector<byte8_t> AssetDatabase::loadShader(Gfx::EShaderLanguage language, Gf
 	return bytes;
 }
 
-NAMESPACE_END(Tool)
+NAMESPACE_END(Gfx)

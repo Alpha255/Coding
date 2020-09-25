@@ -17,8 +17,7 @@ function appLinks()
 		"Gfx-GfxRenderer",
 		"Gfx-VulkanRenderer",
 		"Gfx-D3D11Renderer",
-		"Gfx-D3D12Renderer",
-		"Tool" 
+		"Gfx-D3D12Renderer"
 	}
 end
 
@@ -84,6 +83,8 @@ workspace "Miscellaneous"
 			targetdir "$(SolutionDir)Out\\"
 			defines { "DYNAMIC_LIB" }
 			implibname "$(SolutionDir)Out\\Libs\\$(ProjectName)"
+			links { "Gear" }
+			--disablewarnings { "4201", "4458", "4100" }
 
 		project "Gfx-VulkanRenderer"
 			kind "SharedLib"
@@ -149,22 +150,6 @@ workspace "Miscellaneous"
 			defines { "DYNAMIC_LIB" }
 			implibname "$(SolutionDir)Out\\Libs\\$(ProjectName)"
 			links { "Gear" }
-
-		project "Tool"
-			kind "SharedLib"
-			language "C++"
-			location "./Projects"
-			files "./AssetTool/**"
-			includedirs { 
-				"$(SolutionDir)",
-			}
-			targetdir "$(SolutionDir)Out\\"
-			defines { "DYNAMIC_LIB" }
-			implibname "$(SolutionDir)Out\\Libs\\$(ProjectName)"
-			links {
-				"Gear"
-			}
-			--disablewarnings { "4201", "4458", "4100" }
 
 	group "Applications"
 		project "RenderTest"

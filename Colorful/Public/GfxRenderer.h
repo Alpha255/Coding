@@ -159,6 +159,7 @@ private:
 #endif
 
 #include "Colorful/Public/GfxRenderState.h"
+#include "Colorful/Public/AssetTool/AssetTool.h"
 
 #define CREATE_RENDERER_FUNC_NAME "createRenderer"
 
