@@ -49,6 +49,12 @@ using GfxRenderSurfacePtr = std::shared_ptr<GfxRenderSurface>;
 
 NAMESPACE_START(Gfx)
 
+enum class EShaderLanguage : uint8_t
+{
+	GLSL,
+	HLSL
+};
+
 enum class EShaderStage : uint8_t
 {
 	Vertex,
