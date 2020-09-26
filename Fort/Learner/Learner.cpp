@@ -21,7 +21,7 @@ int main()
 	writer.write(12.0f);
 	writer.write("12.0f");
 
-	LOG_INFO("Current Working Directory: %s", Gear::System::getWorkingDirectory().c_str());
+	LOG_INFO("Current Working Directory: %s", Gear::System::getCurrentWorkingDirectory().c_str());
 
 	return 0;
 }
