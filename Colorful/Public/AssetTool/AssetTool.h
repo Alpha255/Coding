@@ -15,7 +15,7 @@ public:
 
 	Gear::AssetPtr findAsset(const std::string& name);
 
-	std::vector<byte8_t> loadShader(Gfx::EShaderLanguage language, Gfx::EShaderStage stage, const std::string& name);
+	std::vector<uint32_t> loadShader(Gfx::EShaderLanguage language, Gfx::EShaderStage stage, const std::string& name);
 
 	void loadTexture(const std::string& name);
 

@@ -41,7 +41,7 @@ void Application::initialize(const std::string& name, const Configs& configs)
 
 	Gfx::AssetTool::instance().initialize(configs.WorkingDirectory);
 
-	auto test = Gfx::AssetTool::instance().findAsset("bricks2.dds");
+	auto test = Gfx::AssetTool::instance().loadShader(Gfx::EShaderLanguage::GLSL, Gfx::EShaderStage::Vertex, "ImGui.shader");
 
 	m_DynamicLib = std::make_shared<System::DynamicLibrary>(std::string(configs.WorkingDirectory + "\\" + configs.RendererName + DLL_POSTFIX));
 	Gfx::CreateRendererFunc func = static_cast<Gfx::CreateRendererFunc>(m_DynamicLib->getProcAddress(CREATE_RENDERER_FUNC_NAME));

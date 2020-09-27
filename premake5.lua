@@ -59,7 +59,7 @@ workspace "Miscellaneous"
 			kind "StaticLib"
 			language "C++"
 			location "./Projects"
-			files "./gear/**"
+			files "./Gear/**"
 			targetdir "$(SolutionDir)Out\\Libs\\"
 			includedirs { "$(SolutionDir)" }
 
@@ -79,11 +79,17 @@ workspace "Miscellaneous"
 			language "C++"
 			location "./Projects"
 			files "./Colorful/Public/**"
-			includedirs { "$(SolutionDir)" }
+			includedirs { 
+				"$(SolutionDir)",
+				"$(SolutionDir)\\Thirdparty\\glslang",
+			}
 			targetdir "$(SolutionDir)Out\\"
 			defines { "DYNAMIC_LIB" }
 			implibname "$(SolutionDir)Out\\Libs\\$(ProjectName)"
-			links { "Gear" }
+			links { 
+				"Gear", 
+				"glslang" 
+			}
 			--disablewarnings { "4201", "4458", "4100" }
 
 		project "Gfx-VulkanRenderer"
@@ -150,6 +156,51 @@ workspace "Miscellaneous"
 			defines { "DYNAMIC_LIB" }
 			implibname "$(SolutionDir)Out\\Libs\\$(ProjectName)"
 			links { "Gear" }
+
+	group "ThirdParty"
+		project "glslang"
+		kind "StaticLib"
+		language "C++"
+		location "./Projects"
+		files {
+			"./ThirdParty/glslang/glslang/**.h",
+			"./ThirdParty/glslang/glslang/**.cpp",
+			"./ThirdParty/glslang/SPIRV/**.h",
+			"./ThirdParty/glslang/SPIRV/**.cpp",
+			"./ThirdParty/glslang/OGLCompilersDLL/**.h",
+			"./ThirdParty/glslang/OGLCompilersDLL/**.cpp",
+			"./ThirdParty/glslang/StandAlone/**.h",
+			"./ThirdParty/glslang/StandAlone/**.cpp",
+		}
+		targetdir "$(SolutionDir)Out\\Libs\\"
+		includedirs { 
+			"$(SolutionDir)\\Thirdparty\\glslang",
+			"$(SolutionDir)\\Thirdparty\\glslang\\build\\include",
+			 }
+		removefiles {
+			"./ThirdParty/glslang/glslang/OSDependent/Unix/**",
+			"./ThirdParty/glslang/glslang/OSDependent/Web/**",
+			"./ThirdParty/glslang/glslang/OSDependent/Windows/main.cpp",
+		}
+		--disablewarnings { "4456", "4457", "4458", "4244", "4702" }
+		filter { "configurations:Debug" }
+			defines { 
+				"WIN32",
+				"_WINDOWS",
+				"ENABLE_HLSL",
+				"GLSLANG_OSINCLUDE_WIN32",
+				"ENABLE_OPT=0"
+			}
+		filter { "configurations:Release" }
+			defines { 
+				"WIN32",
+				"_WINDOWS",
+				"NDEBUG",
+				"ENABLE_HLSL",
+				"GLSLANG_OSINCLUDE_WIN32",
+				"ENABLE_OPT=0"
+			}
+
 
 	group "Applications"
 		project "RenderTest"

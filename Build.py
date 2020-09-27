@@ -36,18 +36,18 @@ def generateHeaderFile():
 def preBuildDependencies():
 	try:
 		assimp_BuildPath = '.\\ThirdParty\\assimp\\build'
-		rttr_BuildPath = '.\\ThirdParty\\rttr\\build'
+		glslang_BuildPath = '.\\ThirdParty\\glslang\\build'
 		if not os.path.exists(assimp_BuildPath):
 			os.mkdir(assimp_BuildPath)
-		if not os.path.exists(rttr_BuildPath):
-			os.mkdir(rttr_BuildPath)
+		if not os.path.exists(glslang_BuildPath):
+			os.mkdir(glslang_BuildPath)
 	except OSError as err:
 		print('Failed to make directory: {0}'.format(err))
 
 	assimp_Commandline = 'cmake -S ./ThirdParty/assimp -B ./ThirdParty/assimp/build -G "Visual Studio 15 2017" -A x64'
 	executeCommand(assimp_Commandline)
-	rttr_Commandline = 'cmake -S ./ThirdParty/rttr -B ./ThirdParty/rttr/build -G "Visual Studio 15 2017" -A x64'
-	executeCommand(rttr_Commandline)
+	glslang_Commandline = 'cmake -S ./ThirdParty/glslang -B ./ThirdParty/glslang/build -G "Visual Studio 15 2017" -A x64'
+	executeCommand(glslang_Commandline)
 
 def generateProjects_Win32():
 	commandline = 'premake5 vs2017'
@@ -89,7 +89,7 @@ if __name__ == "__main__":
 		raise Exception('Unknown platform')
 
 	generateHeaderFile()
-	#preBuildDependencies()
+	preBuildDependencies()
 	generateProjects()
 	
 	if args.build:

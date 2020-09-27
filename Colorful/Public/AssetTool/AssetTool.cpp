@@ -1,4 +1,5 @@
 #include "Colorful/Public/AssetTool/AssetTool.h"
+#include "Colorful/Public/AssetTool/ShaderCompiler.hpp"
 
 NAMESPACE_START(Gfx)
 
@@ -36,18 +37,18 @@ AssetPtr AssetTool::findAsset(const std::string& name)
 	return AssetPtr();
 }
 
-std::vector<byte8_t> AssetTool::loadShader(Gfx::EShaderLanguage language, Gfx::EShaderStage stage, const std::string& name)
+std::vector<uint32_t> AssetTool::loadShader(Gfx::EShaderLanguage language, Gfx::EShaderStage stage, const std::string& name)
 {
-	std::vector<byte8_t> bytes;
 	AssetPtr asset = findAsset(name);
 	if (!asset)
 	{
-		return bytes;
+		return std::vector<uint32_t>();
 	}
 
+	auto code = asset->data();
+	std::vector<uint32_t> binary(std::move(ShaderCompiler::compileToSpirv(reinterpret_cast<const char8_t* const>(code.get()), "main", stage)));
 
-
-	return bytes;
+	return binary;
 }
 
 NAMESPACE_END(Gfx)
