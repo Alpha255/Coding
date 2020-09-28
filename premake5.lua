@@ -174,13 +174,15 @@ workspace "Miscellaneous"
 		}
 		targetdir "$(SolutionDir)Out\\Libs\\"
 		includedirs { 
-			"$(SolutionDir)\\Thirdparty\\glslang",
-			"$(SolutionDir)\\Thirdparty\\glslang\\build\\include",
-			 }
+			"$(SolutionDir)Thirdparty\\glslang",
+			"$(SolutionDir)Thirdparty\\glslang\\build",
+		}
 		removefiles {
 			"./ThirdParty/glslang/glslang/OSDependent/Unix/**",
 			"./ThirdParty/glslang/glslang/OSDependent/Web/**",
 			"./ThirdParty/glslang/glslang/OSDependent/Windows/main.cpp",
+			"./ThirdParty/glslang/StandAlone/StandAlone.cpp",
+			"./ThirdParty/glslang/StandAlone/spirv-remap.cpp",
 		}
 		--disablewarnings { "4456", "4457", "4458", "4244", "4702" }
 		filter { "configurations:Debug" }
