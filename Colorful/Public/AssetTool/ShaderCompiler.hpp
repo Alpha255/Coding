@@ -1,3 +1,4 @@
+#include "Colorful/D3D/DXGI_Interface.h"
 #include <ThirdParty/glslang/glslang/Public/ShaderLang.h>
 #include <ThirdParty/glslang/StandAlone/ResourceLimits.h>
 #include <ThirdParty/glslang/SPIRV/GlslangToSpv.h>
@@ -70,6 +71,42 @@ public:
 
 		return spirv;
 	}
+
+	static D3DShaderBlob compileToD3D(const char8_t* const source, const char8_t* entry, EShaderStage stage)
+	{
+		assert(source && entry && stage < EShaderStage::ShaderStageCount);
+
+		D3DShaderBlob binary;
+		D3DShaderBlob error;
+
+#if defined(DEBUG) || defined(_DEBUG)
+		uint32_t flags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG;
+#else
+		uint32_t flags = D3DCOMPILE_ENABLE_STRICTNESS; /// Forces strict compile, which might not allow for legacy syntax.
+#endif
+
+		if (!D3DCompile2(
+			source, 
+			strlen(source), 
+			nullptr,
+			nullptr,
+			D3D_COMPILE_STANDARD_FILE_INCLUDE,
+			entry,
+			shaderModel(stage),
+			flags,
+			0u,
+			0u,
+			nullptr,
+			0u,
+			binary.reference(),
+			error.reference()))
+		{
+			LOG_ERROR("ShaderCompiler:: %s", reinterpret_cast<const char8_t* const>(error->GetBufferPointer()));
+			assert(0);
+		}
+
+		return binary;
+	}
 protected:
 	enum EVersion
 	{
@@ -91,6 +128,22 @@ protected:
 
 		assert(0);
 		return EShLangCount;
+	}
+
+	static const char8_t* const shaderModel(EShaderStage stage)
+	{
+		switch (stage)
+		{
+		case EShaderStage::Vertex:   return "vs_5_0";
+		case EShaderStage::Hull:     return "hs_5_0";
+		case EShaderStage::Domain:   return "ds_5_0";
+		case EShaderStage::Geometry: return "gs_5_0";
+		case EShaderStage::Fragment: return "ps_5_0";
+		case EShaderStage::Compute:  return "cs_5_0";
+		}
+
+		assert(0);
+		return nullptr;
 	}
 };
 

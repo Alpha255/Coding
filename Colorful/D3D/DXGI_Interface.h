@@ -145,4 +145,6 @@ class DXGISwapChain2 final : public D3DObject<IDXGISwapChain2> {};
 class DXGISwapChain3 final : public D3DObject<IDXGISwapChain3> {};
 class DXGISwapChain4 final : public D3DObject<IDXGISwapChain4> {};
 
+class D3DShaderBlob final : public D3DObject<ID3DBlob> {};
+
 NAMESPACE_END(Gfx)
