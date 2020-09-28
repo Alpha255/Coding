@@ -35,7 +35,7 @@ Debug/
 Release/
 obj/
 Temp/
-Doc/.ipynb_checkpoints/
+Doc/Jupyter Notebook/.ipynb_checkpoints/
 .hg/
 .vs/
 Intermediate/
