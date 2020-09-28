@@ -38,7 +38,7 @@ public:
 protected:
 private:
 	ECategory m_Category = ECategory::Unknown;
-	AssetID m_ID = 0ull;  /// for feature use
+	AssetID m_ID = 0u;  /// for feature use
 };
 
 NAMESPACE_END(Gear)

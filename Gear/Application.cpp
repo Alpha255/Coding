@@ -1,6 +1,7 @@
 #include "Gear/Application.h"
 #include <ThirdParty/json/single_include/nlohmann/json.hpp>
 #include "Colorful/D3D/DXGI_Interface.h"
+#include "Colorful/Public/Material.h"
 
 NAMESPACE_START(Gear)
 
@@ -40,7 +41,8 @@ void Application::initialize(const std::string& name, const Configs& configs)
 	m_Window = std::make_unique<Window>(m_Instance, name, configs.WindowSize, configs.MinWindowSize);
 
 	Gfx::AssetTool::instance().initialize(configs.WorkingDirectory);
-
+	Gfx::Material testt("name");
+	
 	auto test = Gfx::AssetTool::instance().loadShader(Gfx::EShaderLanguage::GLSL, Gfx::EShaderStage::Vertex, "ImGui.shader");
 
 	m_DynamicLib = std::make_shared<System::DynamicLibrary>(std::string(configs.WorkingDirectory + "\\" + configs.RendererName + DLL_POSTFIX));

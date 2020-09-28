@@ -1,18 +1,16 @@
 #pragma once
 
-#if 0
-
 #include "Colorful/Public/GfxResource.h"
-#include "AssetTool/Asset.h"
 
-DeclareShared(Material)
-class Material : public Gear::File
+NAMESPACE_START(Gfx)
+
+DECLARE_SHARED_PTR(Material)
+class EXPORT_API Material /// Just for test
 {
 public:
-	Material() = default;
 	Material(const std::string& name);
 
-	inline std::string name() const
+	std::string name() const
 	{
 		return m_Name;
 	}
@@ -23,12 +21,12 @@ public:
 	}
 protected:
 	void reload();
-	void serialize();
-	void deserialize();
+
+	void serialize(const std::string& path);
+
+	void deserialize(const std::string& path);
 private:
 	std::string m_Name;
-	std::vector<GfxVertexAttributes> m_InputLayout;
-	GfxShaderPtr m_Shaders[eRShaderUsage_MaxEnum];
 };
 
-#endif
+NAMESPACE_END(Gfx)

@@ -1,20 +1,36 @@
-#if 0
-
 #include "Colorful/Public/Material.h"
-#include "AssetTool/AssetDatabase.h"
-#include <iomanip>
+#include "AssetTool/AssetTool.h"
+#include "Gear/IO/IO.h"
+
+NAMESPACE_START(Gfx)
 
 Material::Material(const std::string& name)
 {
-	auto asset = AssetTool::AssetDatabase::instance().tryToGetAsset(name);
+	auto asset = AssetTool::instance().findAsset(name);
 	assert(asset);
 
-	auto file = std::static_pointer_cast<File>(asset);
-	new (this)File(std::move(*file));
+	deserialize(asset->fullPath());
 }
 
 void Material::reload()
 {
 }
 
-#endif
+void Material::deserialize(const std::string& path)
+{
+	SyncContinuousIFStream is(path, File::EMode::Binary);
+
+	uint32_t nameLength = is.read<uint32_t>();
+	if (nameLength > 0u)
+	{
+		auto bytes = is.readBytes(nameLength);
+		m_Name = std::string(reinterpret_cast<const char8_t*>(bytes.get()));
+	}
+	else
+	{
+		m_Name = "Unknown Material";
+	}
+}
+
+NAMESPACE_END(Gfx)
+

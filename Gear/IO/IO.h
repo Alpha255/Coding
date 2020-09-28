@@ -11,6 +11,7 @@ public:
 		: File(path)
 		, std::ofstream(path, std::ios::out | (mode == File::EMode::Binary ? std::ios::binary : 0))
 	{
+		assert(is_open());
 	}
 
 	template<class T>
@@ -36,7 +37,62 @@ public:
 	}
 protected:
 private:
-	size_t m_Size = 0ull;
+};
+
+class SyncContinuousIFStream : public File, public std::ifstream
+{
+public:
+	SyncContinuousIFStream(const std::string& path, File::EMode mode = File::EMode::Text)
+		: File(path)
+		, std::ifstream(path, std::ios::in | (mode == File::EMode::Binary ? std::ios::binary : 0))
+	{
+		assert(is_open());
+	}
+
+	template<class T>
+	T read()
+	{
+		assert(std::is_trivial<T>());
+		VERIFY((m_ReadSize + sizeof(T)) <= File::size());
+
+		T data{};
+		std::ifstream::read(reinterpret_cast<char8_t*>(&data), sizeof(T));
+		m_ReadSize += sizeof(T);
+
+		return data;
+	}
+
+	template<class T, size_t Size>
+	std::array<T, Size> read()
+	{
+		assert(std::is_trivial<T>());
+		VERIFY((m_ReadSize + sizeof(T) * Size) <= File::size());
+
+		std::array<T, Size> data{};
+		std::ifstream::read(reinterpret_cast<char8_t*>(data.data()), sizeof(T) * Size);
+		m_ReadSize += (sizeof(T) * Size);
+
+		return data;
+	}
+
+	std::shared_ptr<byte8_t> readBytes(size_t size)
+	{
+		VERIFY((m_ReadSize + size) <= File::size());
+
+		std::shared_ptr<byte8_t> bytes(new byte8_t[size]());
+		std::ifstream::read(reinterpret_cast<char8_t*>(bytes.get()), size);
+		m_ReadSize += size;
+
+		return bytes;
+	}
+
+	virtual ~SyncContinuousIFStream()
+	{
+		close();
+	}
+protected:
+private:
+	size_t m_ReadSize = 0ull;
 };
 
 NAMESPACE_END(Gear)
