@@ -334,7 +334,7 @@ void VulkanRender::createDevice()
 #endif
 }
 
-void VulkanRender::createSwapchain(uint64_t windowHandle, uint32_t width, uint32_t height, bool8_t fullscreen, bool8_t vSync)
+void VulkanRender::createSwapchain(uint64_t windowHandle, uint32_t width, uint32_t height, bool8_t fullscreen, bool8_t VSync)
 {
 }
 

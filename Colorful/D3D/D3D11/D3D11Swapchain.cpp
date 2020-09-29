@@ -7,12 +7,12 @@ D3D11SwapChain::D3D11SwapChain(
 	uint32_t width, 
 	uint32_t height, 
 	bool8_t fullscreen,
-	bool8_t vsync,
+	bool8_t VSync,
 	bool8_t tripleBuffer,
 	IDXGIFactory2* factory,
 	ID3D11Device* device)
 	: m_FullScreen(fullscreen)
-	, m_VSync(vsync)
+	, m_VSync(VSync)
 {
 	assert(windowHandle && factory && device);
 	/// Microsoft DirectX Graphics Infrastructure (DXGI)

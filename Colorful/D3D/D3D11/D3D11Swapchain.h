@@ -12,7 +12,7 @@ public:
 		uint32_t width,
 		uint32_t height,
 		bool8_t fullscreen,
-		bool8_t vsync,
+		bool8_t VSync,
 		bool8_t tripleBuffer,
 		IDXGIFactory2* factory,
 		ID3D11Device* device);

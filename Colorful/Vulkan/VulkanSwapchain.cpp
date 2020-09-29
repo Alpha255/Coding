@@ -1,37 +1,31 @@
-#if 0
-#include "Colorful/Vulkan/VulkanEngine.h"
+#include "Colorful/Vulkan/VulkanSwapChain.h"
 
-void VulkanSwapchain::VulkanSurface::create(uint64_t windowHandle, VkInstance instance)
+NAMESPACE_START(Gfx)
+
+VulkanSurface::VulkanSurface(uint64_t appInstance, uint64_t windowHandle, VkInstance instance)
+	: m_Instance(instance)
 {
-	assert(!isValid() && windowHandle);
+	assert(appInstance && windowHandle && instance);
 
-#if defined(Platform_Win32)
-	::HMODULE hInstance = ::GetModuleHandleA(nullptr);
-	verify_Log(hInstance);
-
+#if defined(PLATFORM_WIN32)
 	VkWin32SurfaceCreateInfoKHR createInfo
 	{
 		VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
-		nullptr, 
+		nullptr,
 		0u,  /// reserved for future use
-		(::HINSTANCE)hInstance,
-		(::HWND)windowHandle
+		reinterpret_cast<::HINSTANCE>(appInstance),
+		reinterpret_cast<::HWND>(windowHandle)
 	};
 
-	GfxVerifyVk(vkCreateWin32SurfaceKHR(instance, &createInfo, vkMemoryAllocator, &Handle));
+	VERIFY_VK(vkCreateWin32SurfaceKHR(instance, &createInfo, VK_MEMORY_ALLOCATOR, reference()));
 #else
 	assert(0);
 #endif
 }
 
-void VulkanSwapchain::VulkanSurface::destroy(VkInstance instance)
-{
-	if (isValid())
-	{
-		vkDestroySurfaceKHR(instance, Handle, vkMemoryAllocator);
-		Handle = VK_NULL_HANDLE;
-	}
-}
+NAMESPACE_END(Gfx)
+
+#if 0
 
 VulkanSwapchain::VulkanSwapchain(
 	uint64_t windowHandle,
@@ -39,7 +33,6 @@ VulkanSwapchain::VulkanSwapchain(
 	uint32_t height,
 	bool8_t VSync,
 	bool8_t fullscreen,
-	VkInstance instance,
 	VkPhysicalDevice physicalDevice,
 	VkDevice device)
 	: m_LogicDevice(device)

@@ -1,10 +1,29 @@
 #pragma once
 
-#include "Colorful/Vulkan/VulkanImageView.h"
-#include "Colorful/Vulkan/VulkanRenderPass.h"
+#include "Colorful/Vulkan/VulkanLoader.h"
 
-DeclareShared(VulkanSwapchain)
-class VulkanSwapchain : public VulkanObject<VkSwapchainKHR>
+NAMESPACE_START(Gfx)
+
+DECLARE_UNIQUE_PTR(VulkanSurface)
+class VulkanSurface : public VkObject<VkSurfaceKHR_T>
+{
+public:
+	VulkanSurface(uint64_t appInstance, uint64_t windowHandle, VkInstance instance);
+
+	~VulkanSurface()
+	{
+		vkDestroySurfaceKHR(m_Instance, get(), VK_MEMORY_ALLOCATOR);
+	}
+protected:
+private:
+	VkSurfaceFormatKHR m_SurfaceFormat{};
+	VkSurfaceCapabilitiesKHR m_SurfaceCapabilities{};
+	std::vector<VkPresentModeKHR> m_PresentModes{};
+	const VkInstance m_Instance;
+};
+
+DECLARE_UNIQUE_PTR(VulkanSwapchain)
+class VulkanSwapchain : public VkObject<VkSwapchainKHR_T>
 {
 public:
 	VulkanSwapchain(
@@ -13,10 +32,10 @@ public:
 		uint32_t height,
 		bool8_t VSync,
 		bool8_t fullscreen,
-		VkInstance instance,
 		const VkPhysicalDevice physicalDevice,
 		const VkDevice device);
 
+#if 0
 	void recreate();
 
 	void destroy(VkInstance instance);
@@ -53,17 +72,6 @@ public:
 		return m_BackBuffers[m_CurrentFrameIndex];
 	}
 protected:
-	struct VulkanSurface : public VulkanObject<VkSurfaceKHR>
-	{
-		void create(uint64_t windowHandle, VkInstance instance);
-
-		void destroy(VkInstance instance);
-
-		VkSurfaceFormatKHR SurfaceFormat{};
-		VkSurfaceCapabilitiesKHR SurfaceCapabilities{};
-		std::vector<VkPresentModeKHR> PresentModes;
-	};
-
 	void destroyBackBuffers();
 private:
 	const VkDevice m_LogicDevice;
@@ -80,4 +88,7 @@ private:
 	uint32_t m_Width = 0u;
 	uint32_t m_Height = 0u;
 	uint32_t m_CurrentFrameIndex = 0u;
+#endif
 };
+
+NAMESPACE_END(Gfx)
