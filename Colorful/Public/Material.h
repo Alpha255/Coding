@@ -15,10 +15,17 @@ public:
 		return m_Name;
 	}
 
+	const VertexAttributes& vertexLayout() const
+	{
+		return m_VertexLayout;
+	}
+
 	bool8_t isDirty() const
 	{
 		return false;
 	}
+
+	friend struct MaterialWriter;
 protected:
 	void reload();
 
@@ -27,6 +34,12 @@ protected:
 	void deserialize(const std::string& path);
 private:
 	std::string m_Name;
+	VertexAttributes m_VertexLayout;
+};
+
+struct MaterialWriter
+{
+	Material Target;
 };
 
 NAMESPACE_END(Gfx)

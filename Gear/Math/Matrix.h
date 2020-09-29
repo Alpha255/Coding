@@ -736,13 +736,24 @@ inline Matrix operator*(const Matrix& left, const Matrix& right)
 
 inline Vec4 operator*(const Vec4& left, const Matrix& right)
 {
-	assert(0);
 	Vec4 result;
 
 	DirectX::XMVECTOR vLeft = DirectX::XMLoadFloat4A(&left);
 	DirectX::XMMATRIX vRight = DirectX::XMLoadFloat4x4(&right);
-	///DirectX::XMVECTOR vResult = vLeft * vRight;
-	///DirectX::XMStoreFloat4A(&result, vResult);
+	DirectX::XMVECTOR vResult = DirectX::XMVector4Transform(vLeft, vRight);
+	DirectX::XMStoreFloat4A(&result, vResult);
+
+	return result;
+}
+
+inline Vec3 operator*(const Vec3& left, const Matrix& right)
+{
+	Vec3 result;
+
+	DirectX::XMVECTOR vLeft = DirectX::XMLoadFloat3A(&left);
+	DirectX::XMMATRIX vRight = DirectX::XMLoadFloat4x4(&right);
+	DirectX::XMVECTOR vResult = DirectX::XMVector3Transform(vLeft, vRight);
+	DirectX::XMStoreFloat3A(&result, vResult);
 
 	return result;
 }

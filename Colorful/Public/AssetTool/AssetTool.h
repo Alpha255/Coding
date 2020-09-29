@@ -24,6 +24,7 @@ public:
 	void finalize() {}
 protected:
 private:
+	std::string m_AssetDirectory;
 };
 
 NAMESPACE_END(Gfx)

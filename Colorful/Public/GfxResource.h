@@ -5,14 +5,6 @@
 #if 0
 #include "Colorful/Public/GfxDefinitions.h"
 
-struct GfxVertexAttributes
-{
-	eRVertexUsage Usage = eRVertexUsge_MaxEnum;
-	eRFormat Format = eRFormat_MaxEnum;
-
-	static size_t formatStride(eRFormat format);
-};
-
 struct GfxShaderReflection
 {
 	uint32_t Type = std::numeric_limits<uint32_t>::max();
@@ -66,7 +58,7 @@ enum class EShaderStage : uint8_t
 	ShaderStageCount
 };
 
-enum class ETextureType
+enum class ETextureType : uint8_t
 {
 	T_1D,
 	T_1D_Array,
@@ -76,6 +68,12 @@ enum class ETextureType
 	T_Cube,
 	T_Cube_Array,
 	Buffer
+};
+
+enum class EIndexType : uint8_t
+{
+	UInt16,
+	UInt32
 };
 
 enum class EFormat : uint8_t
@@ -430,6 +428,42 @@ public:
 protected:
 	EShaderStage m_Stage;
 private:
+};
+
+enum class EVertexUsage : uint32_t
+{
+	Position  = 1 << 0,
+	Normal    = 1 << 1,
+	Tangent   = 1 << 2,
+	BiNormal  = 1 << 3,
+	BiTangent = 1 << 4,
+	Texcoord0 = 1 << 5,
+	Texcoord1 = 1 << 6,
+	Texcoord2 = 1 << 7,
+	Texcoord3 = 1 << 8,
+	Texcoord4 = 1 << 9,
+	Texcoord5 = 1 << 10,
+	Texcoord6 = 1 << 11,
+	Texcoord7 = 1 << 12,
+	Color0    = 1 << 13,
+	Color1    = 1 << 14,
+	Color2    = 1 << 15,
+	Color3    = 1 << 16,
+	Weight    = 1 << 17,
+	VertexUsge_Count = 18
+};
+
+enum class EVertexInputRate : uint8_t
+{
+	Vertex,
+	Instance,
+};
+
+struct VertexAttributes
+{
+	std::vector<std::pair<EVertexInputRate, std::vector<std::pair<EVertexUsage, EFormat>>>> Attributes{};
+	
+	static size_t stride(EFormat format, size_t alignment = 1ull);
 };
 
 NAMESPACE_END(Gfx)
