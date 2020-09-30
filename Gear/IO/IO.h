@@ -28,7 +28,7 @@ public:
 
 	void alignTo(size_t size)
 	{
-
+		(void)size;
 	}
 
 	virtual ~SyncContinuousOFStream()

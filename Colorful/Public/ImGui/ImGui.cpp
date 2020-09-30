@@ -101,7 +101,7 @@ void ImGuiRenderer::end()
 
 bool8_t ImGuiRenderer::isMouseButtonDown(ImGuiIO& io)
 {
-	for (uint32_t i = 0u; i < ARRAYSIZE(io.MouseDown); ++i)
+	for (uint32_t i = 0u; i < _countof(io.MouseDown); ++i)
 	{
 		if (io.MouseDown[i])
 		{

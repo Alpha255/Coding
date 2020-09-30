@@ -24,7 +24,7 @@ public:
 	void finalize() {}
 protected:
 private:
-	std::string m_AssetDirectory;
+	/// warning C4251
 };
 
 NAMESPACE_END(Gfx)

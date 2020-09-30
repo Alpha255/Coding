@@ -69,16 +69,24 @@ void D3D11Renderer::createDevice()
 	m_Device = std::make_unique<D3D11Device>(AdapterList->get1(), AdapterList->get4());
 }
 
-void D3D11Renderer::createSwapchain(uint64_t windowHandle, uint32_t width, uint32_t height, bool8_t fullscreen, bool8_t vSync)
+void D3D11Renderer::createSwapchain(uint64_t instance, uint64_t windowHandle, uint32_t width, uint32_t height, bool8_t fullscreen, bool8_t VSync)
 {
+	(void)instance;
+	(void)windowHandle;
+	(void)width;
+	(void)height;
+	(void)fullscreen;
+	(void)VSync;
 }
 
 void D3D11Renderer::toggleFullScreen(bool8_t fullscreen)
 {
+	(void)fullscreen;
 }
 
-void D3D11Renderer::toggleVSync(bool8_t vSync)
+void D3D11Renderer::toggleVSync(bool8_t VSync)
 {
+	(void)VSync;
 }
 
 void D3D11Renderer::finalize()

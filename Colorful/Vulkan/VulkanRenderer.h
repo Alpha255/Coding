@@ -239,6 +239,7 @@ private:
 #endif
 
 #include "Colorful/Vulkan/VulkanDevice.h"
+#include "Colorful/Vulkan/VulkanSwapChain.h"
 
 NAMESPACE_START(Gfx)
 
@@ -247,10 +248,10 @@ class VulkanRender final : public GfxRenderer
 {
 public:
 	void createDevice() override;
-	void createSwapchain(uint64_t windowHandle, uint32_t width, uint32_t height, bool8_t fullscreen, bool8_t VSync) override;
+	void createSwapchain(uint64_t instance, uint64_t windowHandle, uint32_t width, uint32_t height, bool8_t fullscreen, bool8_t VSync) override;
 
 	void toggleFullScreen(bool8_t fullscreen) override;
-	void toggleVSync(bool8_t vSync) override;
+	void toggleVSync(bool8_t VSync) override;
 
 	void finalize() override;
 protected:
@@ -258,6 +259,7 @@ private:
 	VulkanInstancePtr m_Instance = nullptr;
 	VulkanDebugUtilsMessengerPtr m_DebugUtilsMessenger = nullptr;
 	VulkanDevicePtr m_Device = nullptr;
+	VulkanSwapchainPtr m_Swapchain = nullptr;
 };
 
 NAMESPACE_END(Gfx)

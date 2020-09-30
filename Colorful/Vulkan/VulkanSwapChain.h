@@ -5,7 +5,7 @@
 NAMESPACE_START(Gfx)
 
 DECLARE_UNIQUE_PTR(VulkanSurface)
-class VulkanSurface : public VkObject<VkSurfaceKHR_T>
+class VulkanSurface final : public VkObject<VkSurfaceKHR_T>
 {
 public:
 	VulkanSurface(uint64_t appInstance, uint64_t windowHandle, VkInstance instance);
@@ -16,38 +16,44 @@ public:
 	}
 protected:
 private:
-	VkSurfaceFormatKHR m_SurfaceFormat{};
-	VkSurfaceCapabilitiesKHR m_SurfaceCapabilities{};
-	std::vector<VkPresentModeKHR> m_PresentModes{};
 	const VkInstance m_Instance;
 };
 
 DECLARE_UNIQUE_PTR(VulkanSwapchain)
-class VulkanSwapchain : public VkObject<VkSwapchainKHR_T>
+class VulkanSwapchain final : public VkObject<VkSwapchainKHR_T>
 {
 public:
 	VulkanSwapchain(
+		uint64_t appInstance,
 		uint64_t windowHandle, 
 		uint32_t width,
 		uint32_t height,
-		bool8_t VSync,
 		bool8_t fullscreen,
+		bool8_t VSync,
+		bool8_t sRGB,
+		const VkInstance instance,
 		const VkPhysicalDevice physicalDevice,
 		const VkDevice device);
 
-#if 0
-	void recreate();
-
-	void destroy(VkInstance instance);
-
-	inline void resize(uint32_t width, uint32_t height)
+	~VulkanSwapchain()
 	{
-		m_Width = width;
-		m_Height = height;
-
-		recreate();
+		destroyResources(); /// ???
+		vkDestroySwapchainKHR(m_Device, get(), VK_MEMORY_ALLOCATOR);
 	}
 
+	void create();
+
+	void resize(uint32_t width, uint32_t height)
+	{
+		if ((width && height) && (m_Width != width || m_Height != height))
+		{
+			m_Width = width;
+			m_Height = height;
+
+			recreate();
+		}
+	}
+#if 0
 	uint32_t acquireNextFrame();
 
 	void present(VkSemaphore renderCompleteSephore) const;
@@ -57,38 +63,37 @@ public:
 		return m_PresentCompleteSemaphore;
 	}
 
-	inline uint32_t width() const
-	{
-		return m_Width;
-	}
-
-	inline uint32_t height() const
-	{
-		return m_Height;
-	}
-
 	inline VulkanFrameBufferPtr backBuffer() const
 	{
 		return m_BackBuffers[m_CurrentFrameIndex];
 	}
 protected:
-	void destroyBackBuffers();
-private:
-	const VkDevice m_LogicDevice;
-	const VkPhysicalDevice m_PhysicalDevice;
-
-	VulkanSurface m_Surface;
 	std::vector<VulkanImageViewPtr> m_BackBufferImages;
 	VulkanImageViewPtr m_DepthStencil;
 	VulkanSemaphorePtr m_PresentCompleteSemaphore = nullptr;
 	std::vector<VulkanFrameBufferPtr> m_BackBuffers;
+	uint32_t m_CurrentFrameIndex = 0u;
+#endif
+protected:
+	void recreate();
 
+	void createResources();
+	void destroyResources();
+private:
 	bool8_t m_VSync = false;
 	bool8_t m_FullScreen = false;
 	uint32_t m_Width = 0u;
 	uint32_t m_Height = 0u;
-	uint32_t m_CurrentFrameIndex = 0u;
-#endif
+	VkFormat m_ColorFormat;
+
+	const uint64_t m_AppInstance;
+	const uint64_t m_WindowHandle;
+
+	const VkInstance m_Instance;
+	const VkPhysicalDevice m_PhysicalDevice;
+	const VkDevice m_Device;
+
+	VulkanSurfacePtr m_Surface;
 };
 
 NAMESPACE_END(Gfx)

@@ -26,7 +26,7 @@ public:
 		glslang::InitializeProcess();
 
 		glslang::TShader shader(language(stage));
-		shader.setStrings(sources, ARRAYSIZE(sources));
+		shader.setStrings(sources, _countof(sources));
 		shader.setEntryPoint(entry);
 		shader.setSourceEntryPoint(entry);  /// ???
 		shader.setPreamble(nullptr);        /// ???

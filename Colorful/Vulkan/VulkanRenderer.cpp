@@ -94,7 +94,7 @@ void VulkanEngine::bindGfxPipelineState(const GfxPipelineState* state)
 					m_CurPipelineState.FrameBuffer->height(),
 				}
 			},
-			ARRAYSIZE(clearValue),
+			_countof(clearValue),
 			clearValue
 		};
 
@@ -334,16 +334,29 @@ void VulkanRender::createDevice()
 #endif
 }
 
-void VulkanRender::createSwapchain(uint64_t windowHandle, uint32_t width, uint32_t height, bool8_t fullscreen, bool8_t VSync)
+void VulkanRender::createSwapchain(uint64_t instance, uint64_t windowHandle, uint32_t width, uint32_t height, bool8_t fullscreen, bool8_t VSync)
 {
+	m_Swapchain = std::make_unique<VulkanSwapchain>(
+		instance, 
+		windowHandle, 
+		width, 
+		height, 
+		fullscreen, 
+		VSync,
+		false,
+		m_Instance->get(),
+		m_Device->physicalDevice(),
+		m_Device->get());
 }
 
 void VulkanRender::toggleFullScreen(bool8_t fullscreen)
 {
+	(void)fullscreen;
 }
 
-void VulkanRender::toggleVSync(bool8_t vSync)
+void VulkanRender::toggleVSync(bool8_t VSync)
 {
+	(void)VSync;
 }
 
 void VulkanRender::finalize()

@@ -47,7 +47,9 @@ void Application::initialize(const std::string& name, const Configs& configs)
 	func(m_Renderer);
 
 	m_Renderer->createDevice();
-	m_Renderer->createSwapchain(m_Window->handle(),
+	m_Renderer->createSwapchain(
+		m_Instance,
+		m_Window->handle(),
 		static_cast<uint32_t>(configs.WindowSize.x),
 		static_cast<uint32_t>(configs.WindowSize.y),
 		configs.FullScreen,

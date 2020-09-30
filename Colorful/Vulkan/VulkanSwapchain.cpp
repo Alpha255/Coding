@@ -23,51 +23,118 @@ VulkanSurface::VulkanSurface(uint64_t appInstance, uint64_t windowHandle, VkInst
 #endif
 }
 
-NAMESPACE_END(Gfx)
-
-#if 0
-
 VulkanSwapchain::VulkanSwapchain(
+	uint64_t appInstance,
 	uint64_t windowHandle,
 	uint32_t width,
 	uint32_t height,
-	bool8_t VSync,
 	bool8_t fullscreen,
-	VkPhysicalDevice physicalDevice,
-	VkDevice device)
-	: m_LogicDevice(device)
-	, m_PhysicalDevice(physicalDevice)
+	bool8_t VSync,
+	bool8_t sRGB,
+	const VkInstance instance,
+	const VkPhysicalDevice physicalDevice,
+	const VkDevice device)
+	: m_AppInstance(appInstance)
+	, m_WindowHandle(windowHandle)
 	, m_FullScreen(fullscreen)
 	, m_VSync(VSync)
 	, m_Width(width)
 	, m_Height(height)
+	, m_ColorFormat(sRGB ? VK_FORMAT_R8G8B8A8_SRGB : VK_FORMAT_B8G8R8A8_UNORM)
+	, m_Instance(instance)
+	, m_PhysicalDevice(physicalDevice)
+	, m_Device(device)
 {
-	assert(!isValid());
+	assert(windowHandle && physicalDevice && device);
 
-	m_Surface.create(windowHandle, instance);
+	m_Surface = std::make_unique<VulkanSurface>(appInstance, windowHandle, instance);
 
+	create();
+}
+
+void VulkanSwapchain::create()
+{
 	uint32_t count = 0u;
-	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &count, nullptr);
+	VERIFY_VK(vkGetPhysicalDeviceSurfaceFormatsKHR(m_PhysicalDevice, m_Surface->get(), &count, nullptr));
 	assert(count > 0u);
-	
-	std::vector<VkQueueFamilyProperties> queueFamilyProperties(count);
-	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &count, queueFamilyProperties.data());
+	std::vector<VkSurfaceFormatKHR> surfaceFormats(count);
+	VERIFY_VK(vkGetPhysicalDeviceSurfaceFormatsKHR(m_PhysicalDevice, m_Surface->get(), &count, surfaceFormats.data()));
 
-	std::vector<VkBool32> surfaceSupportKHR(count);
+	VkColorSpaceKHR ColorSpace = VK_COLOR_SPACE_MAX_ENUM_KHR;
+	for (auto const& surfaceFormat : surfaceFormats)
+	{
+		if (surfaceFormat.format == m_ColorFormat)
+		{
+			ColorSpace = surfaceFormat.colorSpace;
+			break;
+		}
+	}
+	if (ColorSpace == VK_COLOR_SPACE_MAX_ENUM_KHR)
+	{
+		VkFormat ColorFormat = VK_FORMAT_UNDEFINED;
+		switch (m_ColorFormat)
+		{
+		case VK_FORMAT_R8G8B8A8_UNORM: ColorFormat = VK_FORMAT_B8G8R8A8_UNORM; break;
+		case VK_FORMAT_B8G8R8A8_UNORM: ColorFormat = VK_FORMAT_R8G8B8A8_UNORM; break;
+		case VK_FORMAT_B8G8R8A8_SRGB:  ColorFormat = VK_FORMAT_R8G8B8A8_SRGB;  break;
+		case VK_FORMAT_R8G8B8A8_SRGB:  ColorFormat = VK_FORMAT_B8G8R8A8_SRGB;  break;
+		}
+
+		if (ColorFormat != VK_FORMAT_UNDEFINED)
+		{
+			for (auto const& surfaceFormat : surfaceFormats)
+			{
+				if (surfaceFormat.format == ColorFormat)
+				{
+					ColorSpace = surfaceFormat.colorSpace;
+					m_ColorFormat = ColorFormat;
+					break;
+				}
+			}
+		}
+
+		assert(ColorSpace != VK_COLOR_SPACE_MAX_ENUM_KHR);
+	}
+
+	/// VK_PRESENT_MODE_IMMEDIATE_KHR: Images submitted by your application are transferred to the screen right away, which may result in tearing
+
+	/// VK_PRESENT_MODE_FIFO_KHR: The swap chain is a queue where the display takes an image from the front of the queue when the display is 
+	/// refreshed and the program inserts rendered images at the back of the queue.If the queue is full then the program has to wait.
+	/// This is most similar to vertical sync as found in modern games.The moment that the display is refreshed is known as ¡°vertical blank¡±
+
+	/// VK_PRESENT_MODE_FIFO_RELAXED_KHR: This mode only differs from the previous one if the application is late and the queue was empty at the last
+	/// vertical blank.Instead of waiting for the next vertical blank, the image is transferred right away when it finally arrives.This may result in visible tearing
+
+	/// VK_PRESENT_MODE_MAILBOX_KHR: This is another variation of the second mode. Instead of blocking the application when the queue is full, the
+	/// images that are already queued are simply replaced with the newer ones. This mode can be used to implement triple buffering, which allows you 
+	/// to avoid tearing with significantly less latency issues than standard vertical sync that uses double buffering
+	VERIFY_VK(vkGetPhysicalDeviceSurfacePresentModesKHR(m_PhysicalDevice, m_Surface->get(), &count, nullptr));
+	assert(count > 0u);
+	std::vector<VkPresentModeKHR> presentModes(count);
+	VERIFY_VK(vkGetPhysicalDeviceSurfacePresentModesKHR(m_PhysicalDevice, m_Surface->get(), &count, presentModes.data()));
+
+	VkPresentModeKHR presentMode = m_VSync ? VK_PRESENT_MODE_FIFO_KHR : VK_PRESENT_MODE_MAILBOX_KHR;
+	VERIFY(std::find(presentModes.cbegin(), presentModes.cend(), presentMode) != presentModes.end());
+
+	vkGetPhysicalDeviceQueueFamilyProperties(m_PhysicalDevice, &count, nullptr);
+	assert(count > 0u);
+	std::vector<VkQueueFamilyProperties> queueFamilyProperties(count);
+	vkGetPhysicalDeviceQueueFamilyProperties(m_PhysicalDevice, &count, queueFamilyProperties.data());
+	std::vector<VkBool32> surfaceSupportKHRs(count);
 	for (uint32_t i = 0u; i < count; ++i)
 	{
-		GfxVerifyVk(vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, m_Surface.Handle, &surfaceSupportKHR[i]));
+		VERIFY_VK(vkGetPhysicalDeviceSurfaceSupportKHR(m_PhysicalDevice, i, m_Surface->get(), &surfaceSupportKHRs[i]));
 	}
 
 	uint32_t graphicQueue = std::numeric_limits<uint32_t>().max();
 	uint32_t presentQueue = std::numeric_limits<uint32_t>().max();
 	for (uint32_t i = 0u; i < count; ++i)
 	{
-		if ((queueFamilyProperties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) == VK_QUEUE_GRAPHICS_BIT)
+		if ((queueFamilyProperties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT))
 		{
-			graphicQueue == std::numeric_limits<uint32_t>().max() ? graphicQueue = i : graphicQueue = graphicQueue;
+			graphicQueue = graphicQueue == std::numeric_limits<uint32_t>().max() ? i : graphicQueue;
 
-			if (surfaceSupportKHR[i] == VK_TRUE)
+			if (surfaceSupportKHRs[i] == VK_TRUE)
 			{
 				graphicQueue = i;
 				presentQueue = i;
@@ -79,7 +146,7 @@ VulkanSwapchain::VulkanSwapchain(
 	{
 		for (uint32_t i = 0u; i < count; ++i)
 		{
-			if (surfaceSupportKHR[i] == VK_TRUE)
+			if (surfaceSupportKHRs[i] == VK_TRUE)
 			{
 				presentQueue = i;
 				break;
@@ -89,115 +156,76 @@ VulkanSwapchain::VulkanSwapchain(
 
 	assert(graphicQueue != std::numeric_limits<uint32_t>().max() && presentQueue != std::numeric_limits<uint32_t>().max() && graphicQueue == presentQueue);
 
-	GfxVerifyVk(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, m_Surface.Handle, &count, nullptr));
-	assert(count > 0u);
-	std::vector<VkSurfaceFormatKHR> surfaceFormats(count);
-	GfxVerifyVk(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, m_Surface.Handle, &count, surfaceFormats.data()));
+	VkSurfaceCapabilitiesKHR surfaceCapabilities{};
+	VERIFY_VK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_PhysicalDevice, m_Surface->get(), &surfaceCapabilities));
 
-	m_Surface.SurfaceFormat = surfaceFormats[0];
-	for (auto const& surfaceFormat : surfaceFormats)
+	VkExtent2D sizeExtent
 	{
-		if (surfaceFormat.format == VK_FORMAT_B8G8R8A8_UNORM)
-		{
-			m_Surface.SurfaceFormat = surfaceFormat;
-			break;
-		}
-	}
-	assert(m_Surface.SurfaceFormat.colorSpace != VK_COLOR_SPACE_MAX_ENUM_KHR);
+		std::max<uint32_t>(std::min<uint32_t>(m_Width, surfaceCapabilities.maxImageExtent.width), surfaceCapabilities.minImageExtent.width),
+		std::max<uint32_t>(std::min<uint32_t>(m_Height, surfaceCapabilities.maxImageExtent.height), surfaceCapabilities.minImageExtent.height),
+	};
 
-	GfxVerifyVk(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, m_Surface.Handle, &count, nullptr));
-	assert(count > 0u);
-	m_Surface.PresentModes.resize(count);
-	GfxVerifyVk(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, m_Surface.Handle, &count, m_Surface.PresentModes.data()));
-
-	m_PresentCompleteSemaphore = VulkanAsyncPool::instance()->allocSemaphore();
-
-	recreate();
-}
-
-void VulkanSwapchain::recreate()
-{
-	assert(m_Surface.isValid());
-
-	GfxVerifyVk(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_PhysicalDevice, m_Surface.Handle, &m_Surface.SurfaceCapabilities));
-
-	VkExtent2D sizeExtent{};
-	sizeExtent.width = std::min<uint32_t>(m_Width, m_Surface.SurfaceCapabilities.maxImageExtent.width);
-	sizeExtent.height = std::min<uint32_t>(m_Height, m_Surface.SurfaceCapabilities.maxImageExtent.height);
-	sizeExtent.width = std::max<uint32_t>(sizeExtent.width, m_Surface.SurfaceCapabilities.minImageExtent.width);
-	sizeExtent.height = std::max<uint32_t>(sizeExtent.height, m_Surface.SurfaceCapabilities.minImageExtent.height);
-
-	/// VK_PRESENT_MODE_IMMEDIATE_KHR: Images submitted by your application are transferred to the screen right away, which may result in tearing
-
-	/// VK_PRESENT_MODE_FIFO_KHR: The swap chain is a queue where the display takes an image from the front of the queue when the display is 
-	/// refreshed and the program inserts rendered images at the back of the queue.If the queue is full then the program has to wait.
-	/// This is most similar to vertical sync as found in modern games.The moment that the display is refreshed is known as ¡°vertical blank¡±
-	
-	/// VK_PRESENT_MODE_FIFO_RELAXED_KHR: This mode only differs from the previous one if the application is late and the queue was empty at the last
-	/// vertical blank.Instead of waiting for the next vertical blank, the image is transferred right away when it finally arrives.This may result in visible tearing
-	
-	/// VK_PRESENT_MODE_MAILBOX_KHR: This is another variation of the second mode. Instead of blocking the application when the queue is full, the
-	/// images that are already queued are simply replaced with the newer ones. This mode can be used to implement triple buffering, which allows you 
-	/// to avoid tearing with significantly less latency issues than standard vertical sync that uses double buffering
-
-	VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;
-	if (!m_VSync)
-	{
-		for (uint32_t i = 0u; i < m_Surface.PresentModes.size(); ++i)
-		{
-			if (m_Surface.PresentModes[i] == VK_PRESENT_MODE_MAILBOX_KHR)
-			{
-				presentMode = VK_PRESENT_MODE_MAILBOX_KHR;
-				break;
-			}
-		}
-	}
+	m_Width = sizeExtent.width;
+	m_Height = sizeExtent.height;
 
 	uint32_t usageFlagBits = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-	if (m_Surface.SurfaceCapabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_SRC_BIT)
+	if (surfaceCapabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_SRC_BIT)
 	{
 		usageFlagBits |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
 	}
-	if (m_Surface.SurfaceCapabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT)
+	if (surfaceCapabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT)
 	{
 		/// use a value like VK_IMAGE_USAGE_TRANSFER_DST_BIT instead and use a memory operation to transfer the rendered image to a swap chain image
 		usageFlagBits |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 	}
 
-	VkCompositeAlphaFlagBitsKHR compositeAlphaFlagBits = VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR;
-	if (m_Surface.SurfaceCapabilities.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR)
+	VkCompositeAlphaFlagBitsKHR compositeAlphaFlagBits = VK_COMPOSITE_ALPHA_FLAG_BITS_MAX_ENUM_KHR;
+	VkCompositeAlphaFlagBitsKHR compositeAlphaFlagBitsArray[] 
 	{
-		compositeAlphaFlagBits = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+		VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+		VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR,
+		VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR,
+		VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR
+	};
+	for (uint32_t i = 0u; i < _countof(compositeAlphaFlagBitsArray); ++i)
+	{
+		if (surfaceCapabilities.supportedCompositeAlpha & compositeAlphaFlagBitsArray[i])
+		{
+			compositeAlphaFlagBits = compositeAlphaFlagBitsArray[i];
+			break;
+		}
 	}
+	assert(compositeAlphaFlagBits != VK_COMPOSITE_ALPHA_FLAG_BITS_MAX_ENUM_KHR);
 
 	VkSurfaceTransformFlagBitsKHR surfaceTransformFlagBits = VK_SURFACE_TRANSFORM_FLAG_BITS_MAX_ENUM_KHR;
-	if (m_Surface.SurfaceCapabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR)
+	if (surfaceCapabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR)
 	{
 		surfaceTransformFlagBits = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
 	}
 	else
 	{
-		surfaceTransformFlagBits = m_Surface.SurfaceCapabilities.currentTransform;
+		surfaceTransformFlagBits = surfaceCapabilities.currentTransform;
 	}
 
 	/// Specify how to handle swap chain images that will be used across multiple queue families, 
 	/// That will be the case in application if the graphics queue family is different from the presentation queue
-	
+
 	/// VK_SHARING_MODE_EXCLUSIVE: An image is owned by one queue family at a time and ownership must be explicitly transfered before using 
 	/// it in another queue family.This option offers the best performance
-	
+
 	/// VK_SHARING_MODE_CONCURRENT: Images can be used across multiple queue families without explicit ownership transfers,
 	/// concurrent mode requires you to specify at least two distinct queue families
-	VkSwapchainKHR oldSwapchain = Handle;
+	uint32_t minImageCount = std::min<uint32_t>(surfaceCapabilities.minImageCount + 1u, surfaceCapabilities.maxImageCount);
+	VkSwapchainKHR oldSwapchain = m_Handle;
 	VkSwapchainCreateInfoKHR createInfo
 	{
 		VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
 		nullptr,
 		0u,
-		m_Surface.Handle,
-		presentMode == VK_PRESENT_MODE_MAILBOX_KHR ? m_Surface.SurfaceCapabilities.minImageCount + 1u : m_Surface.SurfaceCapabilities.minImageCount,
-		m_Surface.SurfaceFormat.format,
-		m_Surface.SurfaceFormat.colorSpace,
+		m_Surface->get(),
+		presentMode == VK_PRESENT_MODE_MAILBOX_KHR ? minImageCount : surfaceCapabilities.minImageCount,
+		m_ColorFormat,
+		ColorSpace,
 		sizeExtent,
 		1u, /// This is always 1 unless you are developing a stereoscopic 3D application
 		usageFlagBits,
@@ -215,14 +243,41 @@ void VulkanSwapchain::recreate()
 	/// obscured, for example because another window is in front of them.Unless you really need to be able to read these 
 	/// pixels back and get predictable results, you will get the best performance by enabling clipping
 
-	GfxVerifyVk(vkCreateSwapchainKHR(m_LogicDevice, &createInfo, vkMemoryAllocator, &Handle));
+	VERIFY_VK(vkCreateSwapchainKHR(m_Device, &createInfo, VK_MEMORY_ALLOCATOR, reference()));
 
 	if (oldSwapchain != VK_NULL_HANDLE)
 	{
-		vkDestroySwapchainKHR(m_LogicDevice, oldSwapchain, vkMemoryAllocator);
-		destroyBackBuffers();
+		vkDestroySwapchainKHR(m_Device, oldSwapchain, VK_MEMORY_ALLOCATOR);
+		oldSwapchain = VK_NULL_HANDLE;
 	}
 
+	createResources();
+}
+
+void VulkanSwapchain::recreate()
+{
+	destroyResources();
+
+	VkSurfaceCapabilitiesKHR surfaceCapabilities{};
+	if (VK_ERROR_SURFACE_LOST_KHR == vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_PhysicalDevice, m_Surface->get(), &surfaceCapabilities))
+	{
+		if (isValid())
+		{
+			vkDestroySwapchainKHR(m_Device, get(), VK_MEMORY_ALLOCATOR);
+			m_Handle = VK_NULL_HANDLE;
+		}
+
+		m_Surface.reset();
+		m_Surface = std::make_unique<VulkanSurface>(m_AppInstance, m_WindowHandle, m_Instance);
+	}
+
+	create();
+}
+
+void VulkanSwapchain::createResources()
+{
+#if 0
+	m_PresentCompleteSemaphore = VulkanAsyncPool::instance()->allocSemaphore();
 	uint32_t imageCount = 0u;
 	GfxVerifyVk(vkGetSwapchainImagesKHR(m_LogicDevice, Handle, &imageCount, nullptr));
 	std::vector<VkImage> images(imageCount);
@@ -235,13 +290,13 @@ void VulkanSwapchain::recreate()
 		m_BackBufferImages[i] = std::make_shared<VulkanImageView>(m_LogicDevice, image, VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_COLOR_BIT);
 	}
 	m_DepthStencil = std::make_shared<VulkanImageView>(
-		m_LogicDevice, 
-		sizeExtent.width, 
-		sizeExtent.height, 
-		1u, 1u, 1u, 
-		VK_IMAGE_VIEW_TYPE_2D, 
-		VK_FORMAT_D24_UNORM_S8_UINT, 
-		VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, 
+		m_LogicDevice,
+		sizeExtent.width,
+		sizeExtent.height,
+		1u, 1u, 1u,
+		VK_IMAGE_VIEW_TYPE_2D,
+		VK_FORMAT_D24_UNORM_S8_UINT,
+		VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
 		VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
 
 	for (uint32_t i = 0u; i < images.size(); ++i)
@@ -255,16 +310,16 @@ void VulkanSwapchain::recreate()
 		auto renderPass = VulkanRenderPassManager::instance()->getOrCreateRenderPass(desc);
 		m_BackBuffers[i] = std::make_shared<VulkanFrameBuffer>(m_LogicDevice, renderPass->Handle, desc);
 	}
+#endif
 }
 
-void VulkanSwapchain::destroy(VkInstance instance)
+void VulkanSwapchain::destroyResources()
 {
-	vkDestroySwapchainKHR(m_LogicDevice, Handle, vkMemoryAllocator);
-	m_Surface.destroy(instance);
-	Handle = VK_NULL_HANDLE;
-
-	destroyBackBuffers();
 }
+
+NAMESPACE_END(Gfx)
+
+#if 0
 
 uint32_t VulkanSwapchain::acquireNextFrame()
 {
