@@ -2,52 +2,56 @@
 
 #include "Colorful/Vulkan/VulkanLoader.h"
 
-class VulkanDeviceMemory : public VulkanDeviceObject<VkDeviceMemory>
+NAMESPACE_START(Gfx)
+
+//class VulkanDeviceMemory final : public VkObject<VkDeviceMemory_T>
+//{
+//public:
+//	VulkanDeviceMemory(VkDevice device, eRBufferUsage usage, const VkMemoryRequirements& requirements);
+//
+//	void update(VkDevice device, const void* data, size_t size, size_t offset = 0u);
+//	
+//	//void destroy(VkDevice device) override final
+//	//{
+//	//	if (isValid())
+//	//	{
+//	//		vkFreeMemory(device, Handle, vkMemoryAllocator);
+//	//		Handle = VK_NULL_HANDLE;
+//	//	}
+//	//}
+//};
+
+class VulkanBuffer final : public VkObject<VkBuffer_T>
 {
 public:
-	void create(VkDevice device, eRBufferUsage usage, const VkMemoryRequirements& memoryRequirements);
-	void update(VkDevice device, const void* data, size_t size, size_t offset = 0u);
-	
-	void destroy(VkDevice device) override final
+	VulkanBuffer(VkDevice device, uint32_t bindFlags, EBufferUsage usage, size_t size, const void* data);
+
+	void update(const void* data, size_t size, size_t offset);
+
+	void flushRange(size_t size, size_t offset);
+
+	void destroy(VkDevice device)
 	{
-		if (isValid())
-		{
-			vkFreeMemory(device, Handle, vkMemoryAllocator);
-			Handle = VK_NULL_HANDLE;
-		}
-	}
-};
+		assert(device);
 
-class VulkanBuffer : public VulkanDeviceObject<VkBuffer>, public GfxGpuBuffer
-{
-public:
-	VulkanBuffer(VkDevice device, eRBufferBindFlags bindFlags, eRBufferUsage usage, size_t size, const void* data);
-	VulkanBuffer(VkDevice device, VkBufferUsageFlags usageFlagBits, size_t size, const void* data);
-
-	void destroy(VkDevice device) override final
-	{
-		if (isValid())
-		{
-			m_Memory.destroy(device);
-
-			vkDestroyBuffer(device, Handle, vkMemoryAllocator);
-			Handle = VK_NULL_HANDLE;
-		}
+		vkFreeMemory(device, m_Memory, VK_MEMORY_ALLOCATOR);
+		vkDestroyBuffer(device, get(), VK_MEMORY_ALLOCATOR);
 	}
 
-	inline void update(VkDevice device, const void* data, size_t size, size_t offset)
-	{
-		m_Memory.update(device, data, size, offset);
-	}
+	//void update(VkDevice device, const void* data, size_t size, size_t offset)
+	//{
+	//	m_Memory.update(device, data, size, offset);
+	//}
 
-	void update(const void* data, size_t size, size_t offset) override final;
-	void free() override final;
+	///void update(const void* data, size_t size, size_t offset) override final;
+
+	///void free() override final;
 protected:
 private:
-	VulkanDeviceMemory m_Memory;
+	VkDeviceMemory m_Memory = VK_NULL_HANDLE;
 };
-using VulkanBufferPtr = VulkanBuffer*;
 
+#if 0
 class VulkanPushConstants : public GfxGpuBuffer
 {
 public:
@@ -139,3 +143,6 @@ private:
 	std::vector<VulkanBufferPtr> m_DelayFreeList;
 	uint32_t m_ListIndex = 0u;
 };
+#endif
+
+NAMESPACE_END(Gfx)

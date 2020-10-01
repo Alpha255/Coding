@@ -1,20 +1,9 @@
-#if 0
-#include "Colorful/Vulkan/VulkanEngine.h"
+#include "Colorful/Vulkan/VulkanBuffer.h"
 
-void VulkanDeviceMemory::create(VkDevice device, eRBufferUsage usage, const VkMemoryRequirements& memoryRequirements)
+NAMESPACE_START(Gfx)
+
+VulkanBuffer::VulkanBuffer(VkDevice device, uint32_t bindFlags, EBufferUsage usage, size_t size, const void* data)
 {
-	assert(!isValid());
-
-	VkMemoryAllocateInfo allocateInfo
-	{
-		VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
-		nullptr,
-		memoryRequirements.size,
-		VulkanBufferPool::instance()->memoryTypeIndex(usage, memoryRequirements.memoryTypeBits)
-	};
-
-	GfxVerifyVk(vkAllocateMemory(device, &allocateInfo, vkMemoryAllocator, &Handle));
-
 	/// If a memory object does not have the VK_MEMORY_PROPERTY_HOST_COHERENT_BIT property, 
 	/// then vkFlushMappedMemoryRanges must be called in order to guarantee that writes to the memory object from the host are made available to the host domain, 
 	/// where they can be further made available to the device domain via a domain operation. Similarly, 
@@ -22,84 +11,39 @@ void VulkanDeviceMemory::create(VkDevice device, eRBufferUsage usage, const VkMe
 	/// If the memory object does have the VK_MEMORY_PROPERTY_HOST_COHERENT_BIT property flag, 
 	/// writes to the memory object from the host are automatically made available to the host domain.Similarly, 
 	/// writes made available to the host domain are automatically made visible to the host.
-}
 
-void VulkanDeviceMemory::update(VkDevice device, const void* data, size_t size, size_t offset)
-{
-	assert(isValid());
-
-	/// VkMemoryMapFlags is a bitmask type for setting a mask, but is currently reserved for future use.
-	void* gpuMemory = nullptr;
-	GfxVerifyVk(vkMapMemory(device, Handle, offset, size, 0u, &gpuMemory));
-	assert(gpuMemory);
-
-	verify(memcpy_s(gpuMemory, size, data, size) == 0);
-	vkUnmapMemory(device, Handle);
-}
-
-void VulkanBuffer::update(const void* data, size_t size, size_t offset)
-{
-	VulkanBufferPool::instance()->updateBuffer(this, data, size, offset);
-}
-
-void VulkanBuffer::free()
-{
-	VulkanBufferPool::instance()->free(this);
-}
-
-VulkanBuffer::VulkanBuffer(VkDevice device, VkBufferUsageFlags usageFlagBits, size_t size, const void* data)
-{
-	assert(!isValid() && data);
-	assert(usageFlagBits == VK_BUFFER_USAGE_TRANSFER_SRC_BIT || usageFlagBits == VK_BUFFER_USAGE_TRANSFER_DST_BIT);
-
-	/// VK_SHARING_MODE_EXCLUSIVE specifies that access to any range or image subresource of the object will be exclusive to a single queue family at a time
-	/// VK_SHARING_MODE_CONCURRENT specifies that concurrent access to any range or image subresource of the object from multiple queue families is supported
-	VkBufferCreateInfo createInfo
-	{
-		VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-		nullptr,
-		0u,
-		size,
-		usageFlagBits,
-		VK_SHARING_MODE_EXCLUSIVE,
-		0u,
-		nullptr  /// Ignored if sharingMode is not VK_SHARING_MODE_CONCURRENT
-	};
-	GfxVerifyVk(vkCreateBuffer(device, &createInfo, vkMemoryAllocator, &Handle));
-
-	VkMemoryRequirements memoryRequirements{};
-	vkGetBufferMemoryRequirements(device, Handle, &memoryRequirements);
-	m_Memory.create(device, eGpuReadCpuWrite, memoryRequirements);
-	m_Memory.update(device, data, size);
-	GfxVerifyVk(vkBindBufferMemory(device, Handle, m_Memory.Handle, 0u));
-}
-
-VulkanBuffer::VulkanBuffer(VkDevice device, eRBufferBindFlags bindFlags, eRBufferUsage usage, size_t size, const void* data)
-{
 	/// The memory type that allows us to access it from the CPU may not be the most optimal memory type for the graphics card itself to read from. 
 	/// The most optimal memory has the VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT flag and is usually not accessible by the CPU on dedicated graphics cards. 
 	/// One staging buffer in CPU accessible memory to upload the data from the vertex array to, and the final vertex buffer in device local memory.
-	assert(!isValid());
 
-	VkBufferUsageFlagBits usageFlagBits = VK_BUFFER_USAGE_FLAG_BITS_MAX_ENUM;
-	switch (bindFlags)
+	/// VK_SHARING_MODE_EXCLUSIVE specifies that access to any range or image subresource of the object will be exclusive to a single queue family at a time
+	/// VK_SHARING_MODE_CONCURRENT specifies that concurrent access to any range or image subresource of the object from multiple queue families is supported
+
+	VkBufferUsageFlags usageFlags = 0u;
+	if (bindFlags & EBufferBindFlags::VertexBuffer)
 	{
-	case eVertexBuffer:
-		usageFlagBits = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-		break;
-	case eIndexBuffer:
-		usageFlagBits = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-		break;
-	case eUniformBuffer:
-		usageFlagBits = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-		break;
-	default:
-		assert(0);  /// Don't know yet
-		break;
+		usageFlags |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 	}
-
-	bool8_t useStagingBuffer = (bindFlags == eVertexBuffer || bindFlags == eIndexBuffer) && 
-		(usage == eGpuReadWrite || usage == eGpuReadOnly);
+	if (bindFlags & EBufferBindFlags::IndexBuffer)
+	{
+		usageFlags |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+	}
+	if (bindFlags & EBufferBindFlags::UniformBuffer)
+	{
+		usageFlags |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+	}
+	if (bindFlags & EBufferBindFlags::ShaderResource)
+	{
+		usageFlags |= (VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+	}
+	if (bindFlags & EBufferBindFlags::UnorderedAccess)
+	{
+		usageFlags |= (VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+	}
+	if (bindFlags & EBufferBindFlags::IndirectBuffer)
+	{
+		usageFlags |=  VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
+	}
 
 	VkBufferCreateInfo createInfo
 	{
@@ -107,32 +51,59 @@ VulkanBuffer::VulkanBuffer(VkDevice device, eRBufferBindFlags bindFlags, eRBuffe
 		nullptr,
 		0u,
 		size,
-		VkBufferUsageFlags(useStagingBuffer ? (usageFlagBits | VK_BUFFER_USAGE_TRANSFER_DST_BIT) : usageFlagBits),
+		usageFlags, /// VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT
 		VK_SHARING_MODE_EXCLUSIVE,
 		0u,
 		nullptr
 	};
-	GfxVerifyVk(vkCreateBuffer(device, &createInfo, vkMemoryAllocator, &Handle));
+	VERIFY_VK(vkCreateBuffer(device, &createInfo, VK_MEMORY_ALLOCATOR, reference()));
 
-	VkMemoryRequirements memoryRequirements{};
-	vkGetBufferMemoryRequirements(device, Handle, &memoryRequirements);
-	m_Memory.create(device, usage, memoryRequirements);
-	
-	if (useStagingBuffer)
+	VkMemoryRequirements requirements{};
+	vkGetBufferMemoryRequirements(device, get(), &requirements);
+	VkMemoryAllocateInfo allocateInfo
 	{
-		GfxVerifyVk(vkBindBufferMemory(device, Handle, m_Memory.Handle, 0u));
-		VulkanQueueManager::instance()->queueBufferCopyCommand(Handle, size, data);
-	}
-	else
+		VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+		nullptr,
+		requirements.size,
+		0u /// ??? 
+		///VulkanBufferPool::instance()->memoryTypeIndex(usage, requirements.memoryTypeBits)
+	};
+
+	VERIFY_VK(vkAllocateMemory(device, &allocateInfo, VK_MEMORY_ALLOCATOR, &m_Memory));
+
+	//if (useStagingBuffer)
+	//{
+	//	GfxVerifyVk(vkBindBufferMemory(device, Handle, m_Memory.Handle, 0u));
+	//	VulkanQueueManager::instance()->queueBufferCopyCommand(Handle, size, data);
+	//}
+	//else
 	{
 		if (data)
 		{
-			m_Memory.update(device, data, size, 0u);
+			/// VkMemoryMapFlags is a bitmask type for setting a mask, but is currently reserved for future use.
+			void* GPUMemory = nullptr;
+			VERIFY_VK(vkMapMemory(device, m_Memory, 0u, size, 0u, &GPUMemory));
+			assert(GPUMemory);
+
+			VERIFY(memcpy_s(GPUMemory, size, data, size) == 0);
+			vkUnmapMemory(device, m_Memory);
 		}
-		GfxVerifyVk(vkBindBufferMemory(device, Handle, m_Memory.Handle, 0u));
+
+		VERIFY_VK(vkBindBufferMemory(device, get(), m_Memory, 0u));
 	}
 }
 
+//void VulkanBuffer::update(const void* data, size_t size, size_t offset)
+//{
+//	VulkanBufferPool::instance()->updateBuffer(this, data, size, offset);
+//}
+//
+//void VulkanBuffer::free()
+//{
+//	VulkanBufferPool::instance()->free(this);
+//}
+
+#if 0
 uint32_t VulkanBufferPool::memoryTypeIndex(eRBufferUsage usage, uint32_t memoryTypeBits) const
 {
 	assert(usage < eRBufferUsage_MaxEnum);
@@ -199,3 +170,5 @@ void VulkanBufferPool::cleanup()
 	m_Buffers.clear();
 }
 #endif
+
+NAMESPACE_END(Gfx)

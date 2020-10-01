@@ -1,37 +1,5 @@
 #pragma once
 
-enum eRBufferUsage
-{
-	eGpuReadWrite,
-	eGpuReadOnly,
-	eGpuReadCpuWrite,
-	eGpuCopyToCpu,
-	eRBufferUsage_MaxEnum
-};
-
-enum eRBufferCpuAccessFlags
-{
-	eCpuRead,
-	eCpuWrite,
-	eCpuReadWrite,
-	eRBufferCpuAccessFlags_MaxEnum
-};
-
-enum eRBufferBindFlags
-{
-	eVertexBuffer,
-	eIndexBuffer,
-	eUniformBuffer,
-	eShaderResource,
-	eStreamOutput,
-	eRenderTarget,
-	eDepthStencil,
-	eUnorderedAccess,
-	eDecoder,
-	eVideoEncoder,
-	eRBindFlags_MaxEnum
-};
-
 enum eRDepthStencilFlags
 {
 	eDepthReadOnly,
@@ -46,13 +14,6 @@ enum eRClearFlags
 	eClearStencil,
 	eClearDepthStencil,
 	eRClearFlags_MaxEnum
-};
-
-enum eRVertexInputRate
-{
-	eVertex,
-	eInstance,
-	eRInputRate_MaxEnum
 };
 
 enum eRDescriptorType

@@ -76,6 +76,32 @@ enum class EIndexType : uint8_t
 	UInt32
 };
 
+enum class EBufferUsage : uint8_t
+{
+	Default,   /// read and write access by the GPU
+	Immutable, /// can only be read by the GPU
+	Dynamic,   /// accessible by both the GPU (read only) and the CPU (write only). 
+	Staging    /// supports data transfer (copy) from the GPU to the CPU.
+};
+
+enum class EBufferCpuAccess : uint8_t
+{
+	Read,
+	Write,
+	ReadWrite,
+};
+
+enum EBufferBindFlags : uint32_t
+{
+	VertexBuffer = 1 << 0,
+	IndexBuffer = 1 << 1,
+	UniformBuffer = 1 << 2,
+	ShaderResource = 1 << 3,
+	StreamOutput = 1 << 4,
+	UnorderedAccess = 1 << 5,
+	IndirectBuffer = 1 << 6
+};
+
 enum class EFormat : uint8_t
 {
 	Unknown,
