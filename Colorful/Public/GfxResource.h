@@ -485,11 +485,29 @@ enum class EVertexInputRate : uint8_t
 	Instance,
 };
 
-struct VertexAttributes
+struct EXPORT_API VertexAttributes
 {
 	std::vector<std::pair<EVertexInputRate, std::vector<std::pair<EVertexUsage, EFormat>>>> Attributes{};
 	
 	static size_t stride(EFormat format, size_t alignment = 1ull);
+};
+
+struct EXPORT_API TextureDesc
+{
+	ETextureType Dimension = ETextureType::T_2D;
+	EFormat Format = EFormat::Unknown;
+
+	uint32_t Width = 0u;
+	uint32_t Height = 0u;
+
+	union
+	{
+		uint32_t ArraySize = 1u;
+		uint32_t Depth;
+	};
+
+	uint32_t MipLevels = 1u;
+	uint32_t SampleCount = 1u;
 };
 
 NAMESPACE_END(Gfx)

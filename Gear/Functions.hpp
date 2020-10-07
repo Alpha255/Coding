@@ -61,4 +61,16 @@ size_t computeHash(const Args&... args)
 	return seed;
 }
 
+template <class T>
+bool8_t isPowerOfTwo(T value)
+{
+	return value > 0 && (value & (value - 1)) == 0;
+}
+
+template <class T>
+T align(T value, T alignment)
+{
+	return (val + (alignment - 1)) & ~(alignment - 1);
+}
+
 NAMESPACE_END(Gear)
