@@ -2,7 +2,7 @@
 
 NAMESPACE_START(Gfx)
 
-size_t VertexAttributes::stride(EFormat format, size_t alignment)
+size_t stride(EFormat format, size_t alignment)
 {
 	size_t stride = 0ull;
 

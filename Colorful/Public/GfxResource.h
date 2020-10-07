@@ -479,19 +479,6 @@ enum class EVertexUsage : uint32_t
 	VertexUsge_Count = 18
 };
 
-enum class EVertexInputRate : uint8_t
-{
-	Vertex,
-	Instance,
-};
-
-struct EXPORT_API VertexAttributes
-{
-	std::vector<std::pair<EVertexInputRate, std::vector<std::pair<EVertexUsage, EFormat>>>> Attributes{};
-	
-	static size_t stride(EFormat format, size_t alignment = 1ull);
-};
-
 struct EXPORT_API TextureDesc
 {
 	ETextureType Dimension = ETextureType::T_2D;

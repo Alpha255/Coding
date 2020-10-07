@@ -407,6 +407,12 @@ enum class EPrimitiveTopology : uint8_t
 	PatchList
 };
 
+enum class EVertexInputRate : uint8_t
+{
+	Vertex,
+	Instance,
+};
+
 struct EXPORT_API RasterizerStateDesc
 {
 	EPolygonMode PolygonMode = EPolygonMode::Solid;
@@ -477,6 +483,21 @@ struct EXPORT_API SamplerDesc
 	float32_t MipLodBias = 0.0f;
 	float32_t MinLod = 0.0f;
 	float32_t MaxLod = 0.0f;
+};
+
+struct EXPORT_API VertexInputAttribute
+{
+	uint32_t Binding = 0u;
+	uint32_t Stride = 0u;
+
+	EVertexUsage Usage = EVertexUsage::VertexUsge_Count;
+	EFormat Format = EFormat::Unknown;
+	EVertexInputRate InputRate = EVertexInputRate::Vertex;
+};
+
+struct VertexInputDesc
+{
+	std::vector<VertexInputAttribute> InputAttributes;
 };
 
 struct EXPORT_API RenderPassKey
