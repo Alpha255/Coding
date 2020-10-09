@@ -5,31 +5,33 @@
 NAMESPACE_START(Gear)
 NAMESPACE_START(Math)
 
-class Vec2 : public DirectX::XMFLOAT2A
+class Vec2 : public Float2
 {
 public:
 	inline Vec2()
-		: DirectX::XMFLOAT2A(0.0f, 0.0f)
+		: Float2(0.0f, 0.0f)
 	{
 	}
 
 	inline Vec2(float32_t value)
-		: DirectX::XMFLOAT2A(value, value)
+		: Float2(value, value)
 	{
 	}
 
 	inline Vec2(float32_t x, float32_t y)
-		: DirectX::XMFLOAT2A(x, y)
+		: Float2(x, y)
 	{
 	}
 
 	inline Vec2(const float32_t* pArray)
-		: DirectX::XMFLOAT2A(pArray)
+		: Float2(pArray)
 	{                               
 	}
 
 #if defined(USE_SSE)
-	VECTOR_FUNCTIONSA(2)
+	VECTOR_MEMBER_FUNCTIONS_TRANSFORM_DECLARE(2)
+	VECTOR_MEMBER_FUNCTIONS(2)
+	VECTOR_MEMBER_FUNCTIONS_CROSS(2)
 #else
 	inline float32_t lengthSq()
 	{
@@ -53,13 +55,13 @@ public:
 		y *= factor;
 	}
 
-	inline Vec2 cross(const Vec2 &right)
+	inline Vec2 cross(const Vec2& right)
 	{
 		float32_t value = x * right.y - y * right.x;
 		x = y = value;
 	}
 
-	inline float32_t dot(const Vec2 &right) const
+	inline float32_t dot(const Vec2& right) const
 	{
 		return x * right.x + y * right.y;
 	}
@@ -70,13 +72,13 @@ public:
 		y = -y;
 	}
 
-	inline void operator+=(const Vec2 &right)
+	inline void operator+=(const Vec2& right)
 	{
 		x += right.x;
 		y += right.y;
 	}
 
-	inline void operator-=(const Vec2 &right)
+	inline void operator-=(const Vec2& right)
 	{
 		x -= right.x;
 		y -= right.y;
@@ -88,18 +90,17 @@ public:
 		y *= right;
 	}
 
-	inline void operator*=(const Vec2 &right)
+	inline void operator*=(const Vec2& right)
 	{
 		x *= right.x;
 		y *= right.y;
 	}
 #endif
-
-	static Vec2 transformCoord(const Vec2& src, const class Matrix& mat);
 };
 
 #if defined(USE_SSE)
-	VECTOR_FUNCTIONSA_GLOBAL(2)
+	VECTOR_GLOBAL_FUNCTIONS(2)
+	VECTOR_GLOBAL_FUNCTIONS_CROSS(2)
 #else
 inline Vec2 operator+(const Vec2 &left, const Vec2 &right)
 {

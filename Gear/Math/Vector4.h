@@ -5,41 +5,57 @@
 NAMESPACE_START(Gear)
 NAMESPACE_START(Math)
 
-class Vec4 : public DirectX::XMFLOAT4A
+class Vec4 : public Float4
 {
 public:
 	inline Vec4()
-		: DirectX::XMFLOAT4A(0.0f, 0.0f, 0.0f, 0.0f)
+		: Float4(0.0f, 0.0f, 0.0f, 0.0f)
 	{
 	}
 
 	inline Vec4(float32_t x, float32_t y, float32_t z, float32_t w)
-		: DirectX::XMFLOAT4A(x, y, z, w)
+		: Float4(x, y, z, w)
 	{
 	}
 
 	inline Vec4(float32_t value)
-		: DirectX::XMFLOAT4A(value, value, value, value)
+		: Float4(value, value, value, value)
 	{
 	}
 
 	inline Vec4(const float32_t* pArray)
-		: DirectX::XMFLOAT4A(pArray)
+		: Float4(pArray)
 	{
 	}
 
 	inline Vec4(const Vec2& other, float32_t z = 0.0f, float32_t w = 0.0f)
-		: DirectX::XMFLOAT4A(other.x, other.y, z, w)
+		: Float4(other.x, other.y, z, w)
 	{
 	}
 
 	inline Vec4(const Vec3& other, float32_t w = 0.0f)
-		: DirectX::XMFLOAT4A(other.x, other.y, other.z, w)
+		: Float4(other.x, other.y, other.z, w)
 	{
 	}
 
 #if defined(USE_SSE)
-	VECTOR_FUNCTIONSA(4)
+	void transform(const class Matrix& trans);
+
+	inline Vec4 cross(const Vec4& other)
+	{
+		Vec4 Result;
+		VECTOR_STORE(4, &Result, DirectX::XMVector3Cross(VECTOR_LOAD(4, this), VECTOR_LOAD(4, &other)));
+		return Result;
+	}
+
+	inline Vec4 cross(const Vec4& v1, const Vec4& v2)
+	{
+		Vec4 Result;
+		VECTOR_STORE(4, &Result, DirectX::XMVector4Cross(VECTOR_LOAD(4, this), VECTOR_LOAD(4, &v1), VECTOR_LOAD(4, &v2)));
+		return Result;
+	}
+
+	VECTOR_MEMBER_FUNCTIONS(4)
 #else
 	inline float32_t lengthSq()
 	{
@@ -125,7 +141,21 @@ public:
 };
 
 #if defined(USE_SSE)
-	VECTOR_FUNCTIONSA_GLOBAL(4)
+	VECTOR_GLOBAL_FUNCTIONS(4)
+
+	inline Vec4 cross(const Vec4& v0, const Vec4& v1)
+	{
+		Vec4 Result;
+		VECTOR_STORE(4, &Result, DirectX::XMVector3Cross(VECTOR_LOAD(4, &v0), VECTOR_LOAD(4, &v1)));
+		return Result;
+	}
+
+	inline Vec4 cross(const Vec4& v0, const Vec4& v1, const Vec4& v2)
+	{        
+		Vec4 Result;
+		VECTOR_STORE(4, &Result, DirectX::XMVector4Cross(VECTOR_LOAD(4, &v0), VECTOR_LOAD(4, &v1), VECTOR_LOAD(4, &v2)));
+		return Result;
+	}
 #else
 inline Vec4 operator+(const Vec4 &left, const Vec4 &right)
 {

@@ -31,8 +31,8 @@ AABB AABB::createFromVertices(const std::vector<Vec3>& vertices)
 	Vec3 vMin, vMax;
 	for (uint32_t i = 0u; i < vertices.size(); ++i)
 	{
-		vMin = getMin(vMin, vertices[i]);
-		vMax = getMax(vMax, vertices[i]);
+		vMin = Math::min(vMin, vertices[i]);
+		vMax = Math::max(vMax, vertices[i]);
 	}
 
 	AABB result;

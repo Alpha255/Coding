@@ -5,36 +5,38 @@
 NAMESPACE_START(Gear)
 NAMESPACE_START(Math)
 
-class Vec3 : public DirectX::XMFLOAT3A
+class Vec3 : public Float3
 {
 public:
 	inline Vec3()
-		: DirectX::XMFLOAT3A(0.0f, 0.0f, 0.0f)
+		: Float3(0.0f, 0.0f, 0.0f)
 	{
 	}
 
 	inline Vec3(float32_t x, float32_t y, float32_t z)
-		: DirectX::XMFLOAT3A(x, y, z)
+		: Float3(x, y, z)
 	{
 	}
 
 	inline Vec3(float32_t value)
-		: DirectX::XMFLOAT3A(value, value, value)
+		: Float3(value, value, value)
 	{
 	}
 
 	inline Vec3(const float32_t* pArray)
-		: DirectX::XMFLOAT3A(pArray)
+		: Float3(pArray)
 	{
 	}
 
 	inline Vec3(const Vec2& other, float32_t z = 0.0f)
-		: DirectX::XMFLOAT3A(other.x, other.y, z)
+		: Float3(other.x, other.y, z)
 	{
 	}
 
 #if defined(USE_SSE)
-	VECTOR_FUNCTIONSA(3)
+	VECTOR_MEMBER_FUNCTIONS_TRANSFORM_DECLARE(3)
+	VECTOR_MEMBER_FUNCTIONS(3)
+	VECTOR_MEMBER_FUNCTIONS_CROSS(3)
 #else
 	inline float32_t lengthSq()
 	{
@@ -110,12 +112,11 @@ public:
 		z *= right.z;
 	}
 #endif
-
-	static Vec3 transformCoord(const Vec3& src, const class Matrix& mat);
 };
 
 #if defined(USE_SSE)
-	VECTOR_FUNCTIONSA_GLOBAL(3)
+	VECTOR_GLOBAL_FUNCTIONS(3)
+	VECTOR_GLOBAL_FUNCTIONS_CROSS(3)
 #else
 inline Vec3 operator+(const Vec3 &left, const Vec3 &right)
 {
