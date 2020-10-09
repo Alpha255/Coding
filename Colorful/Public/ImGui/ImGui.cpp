@@ -1,20 +1,31 @@
-#if 0
-
 #include "Colorful/Public/ImGui/ImGui.h"
-#include "Colorful/Public/GfxEngine.h"
-#include "Gear/Window.h"
+
+NAMESPACE_START(Gfx)
 
 ImGuiRenderer::ImGuiRenderer()
 {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO();
 
 	byte8_t* pixels = nullptr;
 	int32_t width = 0;
 	int32_t height = 0;
-	io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
-	auto fontTex = g_GfxEngine->createTexture(
+	ImGui::GetIO().Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
+	TextureDesc desc
+	{
+		ETextureType::T_2D,
+		EFormat::RGBA8_UNorm,
+		EBufferUsage::Immutable,
+		EBufferBindFlags::ShaderResource,
+		static_cast<uint32_t>(width),
+		static_cast<uint32_t>(height),
+		1u,
+		1u,
+		1u
+	};
+
+#if 0
+	auto fontTex = GRenderer->createTexture(
 		eTexture2D,
 		eRGBA8_UNorm,
 		width,
@@ -55,7 +66,12 @@ ImGuiRenderer::ImGuiRenderer()
 		eRCompareOp::eLessOrEqual
 	};
 	m_PipelineState.setDepthStencilState(depthStencilDesc);
+#endif
 }
+
+NAMESPACE_END(Gfx)
+
+#if 0
 
 void ImGuiRenderer::processMessage(const WindowMessage& message, uint32_t width, uint32_t height)
 {
@@ -74,29 +90,6 @@ void ImGuiRenderer::processMessage(const WindowMessage& message, uint32_t width,
 	io.MouseWheel += message.Mouse.WheelDelta > 0.0f ? 1.0f : -1.0f;
 
 	/// Keyboard
-}
-
-void ImGuiRenderer::begin()
-{
-	if (m_Enable)
-	{
-		ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f), ImGuiCond_FirstUseEver);
-
-		ImGui::NewFrame();
-
-		ImGui::Begin("ImGui");
-	}
-}
-
-void ImGuiRenderer::end()
-{
-	if (m_Enable)
-	{
-		ImGui::End();
-		ImGui::Render();
-
-		frame();
-	}
 }
 
 bool8_t ImGuiRenderer::isMouseButtonDown(ImGuiIO& io)

@@ -91,7 +91,7 @@ enum class EBufferCpuAccess : uint8_t
 	ReadWrite,
 };
 
-enum EBufferBindFlags : uint32_t
+enum EBufferBindFlags : uint8_t
 {
 	VertexBuffer = 1 << 0,
 	IndexBuffer = 1 << 1,
@@ -483,6 +483,8 @@ struct EXPORT_API TextureDesc
 {
 	ETextureType Dimension = ETextureType::T_2D;
 	EFormat Format = EFormat::Unknown;
+	EBufferUsage Usage = EBufferUsage::Immutable;
+	EBufferBindFlags BindFlag = EBufferBindFlags::ShaderResource;
 
 	uint32_t Width = 0u;
 	uint32_t Height = 0u;

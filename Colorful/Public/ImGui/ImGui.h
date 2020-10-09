@@ -1,50 +1,63 @@
 #pragma once
 
-#if 0
-
-#include "Colorful/Public/GfxRenderState.h"
+#include "Colorful/Public/GfxRenderer.h"
 #include <ThirdParty/ImGUI/imgui.h>
 
+NAMESPACE_START(Gfx)
+
+DECLARE_UNIQUE_PTR(ImGuiRenderer)
 class ImGuiRenderer
 {
 public:
 	ImGuiRenderer();
 
-	void finalize()
+	~ImGuiRenderer()
 	{
 		ImGui::DestroyContext();
 	}
 
-	void processMessage(const struct WindowMessage& message, uint32_t width, uint32_t height);
+	void begin()
+	{
+		if (m_Enable)
+		{
+			ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f), ImGuiCond_FirstUseEver);
 
-	void begin();
-	void end();
+			ImGui::NewFrame();
+		}
+	}
 
-	void setEnable(bool8_t enable)
+	void end()
+	{
+		if (m_Enable)
+		{
+			ImGui::Render();
+
+			draw();
+		}
+	}
+
+	void enable(bool8_t enable)
 	{
 		m_Enable = enable;
 	}
 
-	bool8_t isMouseButtonDown(ImGuiIO &io);
+	void processInput(const Gear::InputState& inputState);
 
-	inline bool8_t isFocus() const
-	{
-		const ImGuiIO &io = ImGui::GetIO();
-		return io.WantCaptureMouse || io.WantCaptureKeyboard;
-	}
+	//bool8_t isMouseButtonDown(ImGuiIO &io);
+
+	//inline bool8_t isFocus() const
+	//{
+	//	const ImGuiIO &io = ImGui::GetIO();
+	//	return io.WantCaptureMouse || io.WantCaptureKeyboard;
+	//}
+
 protected:
-	void frame();
+	void draw();
 	bool8_t update();
-
-	struct UniformBuffer
-	{
-		Vec4 ScaleTranslate;
-	};
 private:
-	GfxPipelineState m_PipelineState{};
-	GfxGpuBufferPtr m_UniformBuffer = nullptr;
 	bool8_t m_Enable = true;
-};
-using ImGuiRendererPtr = std::unique_ptr<ImGuiRenderer>;
 
-#endif
+	GraphicsPipelineState m_GfxPipelineState{};
+};
+
+NAMESPACE_END(Gfx)

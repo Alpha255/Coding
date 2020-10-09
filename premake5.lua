@@ -88,7 +88,8 @@ workspace "Miscellaneous"
 			implibname "$(SolutionDir)Out\\Libs\\$(ProjectName)"
 			links { 
 				"Gear", 
-				"glslang" 
+				"glslang",
+				"ImGui",
 			}
 			--disablewarnings { "4201", "4458", "4100" }
 
@@ -201,6 +202,24 @@ workspace "Miscellaneous"
 				"ENABLE_HLSL",
 				"GLSLANG_OSINCLUDE_WIN32",
 				"ENABLE_OPT=0"
+			}
+
+		project "ImGui"
+			kind "StaticLib"
+			language "C++"
+			location "./Projects"
+			files { 
+				"./ThirdParty/ImGUI/**.h", 
+				"./ThirdParty/ImGUI/**.cpp" 
+			}
+			removefiles { 
+				"./ThirdParty/ImGUI/examples/**", 
+				"./ThirdParty/ImGUI/misc/fonts/**",
+				"./ThirdParty/ImGUI/misc/freetype/**" 
+			}
+			targetdir "$(SolutionDir)Out\\Libs\\"
+			includedirs { 
+				"$(SolutionDir)ThirdParty\\ImGUI"
 			}
 
 
