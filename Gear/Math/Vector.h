@@ -10,6 +10,17 @@
 NAMESPACE_START(Gear)
 NAMESPACE_START(Math)
 
+/***************************************************************************************
+	XMLoadFloat4A _mm_load_ps : Loads four f32 values from aligned memory into a __m128. 
+								If the pointer is not aligned to a 128-bit boundary 
+								(16 bytes) a general protection fault will be triggered 
+								(fatal program crash). Use _mm_loadu_ps for potentially 
+								unaligned memory.
+	XMLoadFloat4  _mm_loadu_ps: Loads four f32 values from memory into a __m128. 
+								There are no restrictions on memory alignment. 
+								For aligned memory _mm_load_ps may be faster.
+****************************************************************************************/
+
 #if defined(FORCE_ALIGN_16)
 	#define VECTOR_LOAD(Dimension, Vec) DirectX::XMLoadFloat##Dimension##A(Vec)
 	#define VECTOR_STORE(Dimension, Dst, Src) DirectX::XMStoreFloat##Dimension##A(Dst, Src)
@@ -138,7 +149,7 @@ inline float32_t reciprocalLengthEst() const                                    
 {                                                                                                                                                \
 	return DirectX::XMVectorGetX(VECTOR_RECIPROCAL_LENGTH_EST(Dimension, VECTOR_LOAD(Dimension, this)));                                         \
 }                                                                                                                                                \
-inline bool8_t isNan() const                                                                                                                     \
+inline bool8_t isNaN() const                                                                                                                     \
 {                                                                                                                                                \
 	return VECTOR_IS_NAN(Dimension, VECTOR_LOAD(Dimension, this));                                                                               \
 }                                                                                                                                                \
@@ -294,7 +305,7 @@ inline float32_t reciprocalLengthEst(const Vec##Dimension& vec)                 
 {                                                                                                                                                \
 	return DirectX::XMVectorGetX(VECTOR_RECIPROCAL_LENGTH_EST(Dimension, VECTOR_LOAD(Dimension, &vec)));                                         \
 }                                                                                                                                                \
-inline bool8_t isNan(const Vec##Dimension& vec)                                                                                                  \
+inline bool8_t isNaN(const Vec##Dimension& vec)                                                                                                  \
 {                                                                                                                                                \
 	return VECTOR_IS_NAN(Dimension, VECTOR_LOAD(Dimension, &vec));                                                                               \
 }                                                                                                                                                \

@@ -4,8 +4,6 @@
 
 NAMESPACE_START(Gear)
 
-static Gfx::GfxRenderer* GRenderer = nullptr;
-
 Application::Configs::Configs()
 {
 	WorkingDirectory = System::getCurrentDirectory();
@@ -55,7 +53,7 @@ void Application::initialize(const std::string& name, const Configs& configs)
 		configs.FullScreen,
 		configs.VSync);
 
-	GRenderer = m_Renderer.get();
+	Gfx::GRenderer = m_Renderer.get();
 
 	onInitialize();
 }

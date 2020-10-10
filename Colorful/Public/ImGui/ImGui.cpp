@@ -4,6 +4,8 @@ NAMESPACE_START(Gfx)
 
 ImGuiRenderer::ImGuiRenderer()
 {
+	assert(GRenderer);
+
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 
