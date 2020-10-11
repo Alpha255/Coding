@@ -5,7 +5,7 @@
 #include <DirectXCollision.h>
 
 #define USE_SSE
-#define FORCE_ALIGN_16
+///#define FORCE_ALIGN_16
 
 NAMESPACE_START(Gear)
 NAMESPACE_START(Math)

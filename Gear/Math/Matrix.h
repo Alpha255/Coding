@@ -304,7 +304,7 @@ public:
 	inline static Matrix lookAtRH(const Vec3& eye, const Vec3& lookAt, const Vec3& up)
 	{
 		Matrix Result;
-		DirectX::XMStoreFloat4x4A(&Result, DirectX::XMMatrixLookAtRH(
+		MATRIX_STORE(&Result, DirectX::XMMatrixLookAtRH(
 			DirectX::XMVectorSet(eye.x, eye.y, eye.z, 1.0f), 
 			DirectX::XMVectorSet(lookAt.x, lookAt.y, lookAt.z, 0.0f), 
 			DirectX::XMVectorSet(up.x, up.y, up.z, 0.0f)));

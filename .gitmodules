@@ -25,3 +25,6 @@
 [submodule "ThirdParty/glslang"]
 	path = ThirdParty/glslang
 	url = https://github.com/KhronosGroup/glslang.git
+[submodule "ThirdParty/tinyxml2"]
+	path = ThirdParty/tinyxml2
+	url = https://github.com/leethomason/tinyxml2.git

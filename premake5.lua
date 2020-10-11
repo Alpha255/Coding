@@ -90,6 +90,7 @@ workspace "Miscellaneous"
 				"Gear", 
 				"glslang",
 				"ImGui",
+				"tinyxml",
 			}
 			--disablewarnings { "4201", "4458", "4100" }
 
@@ -221,6 +222,16 @@ workspace "Miscellaneous"
 			includedirs { 
 				"$(SolutionDir)ThirdParty\\ImGUI"
 			}
+
+		project "tinyxml"
+			kind "StaticLib"
+			language "C++"
+			location "./Projects"
+			files {
+				"./Thirdparty/tinyxml2/tinyxml2.h",
+				"./Thirdparty/tinyxml2/tinyxml2.cpp"
+			}
+			targetdir "$(SolutionDir)Out\\Libs\\"
 
 
 	group "Applications"

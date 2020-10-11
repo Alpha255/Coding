@@ -1,33 +1,6 @@
 #pragma once
 
 #if 0
-#include "Colorful/Public/ImGui/ImGui.h"
-#include "Colorful/Public/GfxModel.h"
-#include "Colorful/Public/GfxFactory.h"
-#include "Colorful/Public/GfxMaterial.h"
-
-namespace Gear
-{
-	struct Configurations;
-}
-
-class GfxDevice
-{
-protected:
-	GfxAdapter m_Adapter;
-};
-
-class GfxGeometryBuffer
-{
-};
-
-class GfxGpuMarker
-{
-};
-
-class GfxGpuTimer
-{
-};
 
 class GfxEngine
 {

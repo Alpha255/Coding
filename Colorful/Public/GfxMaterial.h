@@ -1,23 +1,14 @@
-#pragma once
-
-#if 0
-
 #include "Colorful/Public/GfxResource.h"
 
-struct GfxMaterial
+NAMESPACE_START(Gfx)
+
+DECLARE_SHARED_PTR(Material)
+class EXPORT_API Material
 {
-	std::vector<GfxVertexAttributes> InputLayout;
-	std::string ShaderNames[eRShaderUsage_MaxEnum];
-	GfxShaderPtr Shaders[eRShaderUsage_MaxEnum];
-	std::string Name;
-
-	inline bool8_t isValid() const
-	{
-		return Shaders[eVertexShader] != nullptr;
-	}
-
-	void serialize();
-	void deserialize();
+public:
+	Material(const std::string& name);
+protected:
+private:
 };
 
-#endif
+NAMESPACE_END(Gfx)
