@@ -21,6 +21,8 @@ public:
 
 	void loadModel(const std::string& name);
 
+	void loadMaterial(const std::string& name);
+
 	void finalize() {}
 protected:
 private:

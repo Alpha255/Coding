@@ -56,4 +56,9 @@ std::vector<uint32_t> AssetTool::loadShader(Gfx::EShaderLanguage language, Gfx::
 	return binary;
 }
 
+void AssetTool::loadMaterial(const std::string& name)
+{
+	AssetPtr asset = findAsset(name);
+}
+
 NAMESPACE_END(Gfx)

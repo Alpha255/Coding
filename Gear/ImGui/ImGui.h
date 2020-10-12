@@ -3,7 +3,9 @@
 #include "Colorful/Public/GfxRenderer.h"
 #include <ThirdParty/ImGUI/imgui.h>
 
-NAMESPACE_START(Gfx)
+NAMESPACE_START(Gear)
+
+extern Gfx::GfxRenderer* GRenderer;
 
 DECLARE_UNIQUE_PTR(ImGuiRenderer)
 class ImGuiRenderer
@@ -57,7 +59,7 @@ protected:
 private:
 	bool8_t m_Enable = true;
 
-	GraphicsPipelineState m_GfxPipelineState{};
+	Gfx::GraphicsPipelineState m_GfxPipelineState{};
 };
 
-NAMESPACE_END(Gfx)
+NAMESPACE_END(Gear)

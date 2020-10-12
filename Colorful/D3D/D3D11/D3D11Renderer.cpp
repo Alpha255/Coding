@@ -97,7 +97,7 @@ extern "C"
 {
 	EXPORT_API void createRenderer(GfxRendererPtr& ptr)
 	{
-		return ptr.reset(new D3D11Renderer());
+		ptr.reset(new D3D11Renderer());
 	}
 }
 

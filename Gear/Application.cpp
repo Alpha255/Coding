@@ -1,8 +1,11 @@
 #include "Gear/Application.h"
 #include <ThirdParty/json/single_include/nlohmann/json.hpp>
 #include "Colorful/D3D/DXGI_Interface.h"
+#include "Gear/ImGui/ImGui.h"
 
 NAMESPACE_START(Gear)
+
+Gfx::GfxRenderer* GRenderer = nullptr;
 
 Application::Configs::Configs()
 {
@@ -43,9 +46,12 @@ void Application::initialize(const std::string& name, const Configs& configs)
 	Gfx::CreateRendererFunc func = static_cast<Gfx::CreateRendererFunc>(m_DynamicLib->getProcAddress(CREATE_RENDERER_FUNC_NAME));
 	assert(func);
 	func(m_Renderer);
+	assert(m_Renderer);
 
-	m_Renderer->createDevice();
-	m_Renderer->createSwapchain(
+	GRenderer = m_Renderer.get();
+
+	GRenderer->createDevice();
+	GRenderer->createSwapchain(
 		m_Instance,
 		m_Window->handle(),
 		static_cast<uint32_t>(configs.WindowSize.x),
@@ -53,7 +59,7 @@ void Application::initialize(const std::string& name, const Configs& configs)
 		configs.FullScreen,
 		configs.VSync);
 
-	Gfx::GRenderer = m_Renderer.get();
+	ImGuiRendererPtr ImGui = std::make_unique<ImGuiRenderer>();
 
 	onInitialize();
 }

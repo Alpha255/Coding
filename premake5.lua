@@ -17,7 +17,8 @@ function appLinks()
 		"Gfx-GfxRenderer",
 		"Gfx-VulkanRenderer",
 		"Gfx-D3D11Renderer",
-		"Gfx-D3D12Renderer"
+		"Gfx-D3D12Renderer",
+		"ImGui"
 	}
 end
 
@@ -89,7 +90,6 @@ workspace "Miscellaneous"
 			links { 
 				"Gear", 
 				"glslang",
-				"ImGui",
 				"tinyxml",
 			}
 			--disablewarnings { "4201", "4458", "4100" }

@@ -132,6 +132,7 @@ private:
 #endif
 
 #include "Colorful/Public/GfxRenderState.h"
+#include "Colorful/Public/GfxMaterial.h"
 #include "Colorful/Public/AssetTool/AssetTool.h"
 
 #define CREATE_RENDERER_FUNC_NAME "createRenderer"
@@ -179,6 +180,5 @@ private:
 };
 
 typedef void (*CreateRendererFunc)(GfxRendererPtr& ptr);
-extern EXPORT_API GfxRenderer* GRenderer;
 
 NAMESPACE_END(Gfx)

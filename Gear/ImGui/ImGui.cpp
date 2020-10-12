@@ -1,6 +1,6 @@
-#include "Colorful/Public/ImGui/ImGui.h"
+#include "Gear/ImGui/ImGui.h"
 
-NAMESPACE_START(Gfx)
+NAMESPACE_START(Gear)
 
 ImGuiRenderer::ImGuiRenderer()
 {
@@ -13,12 +13,12 @@ ImGuiRenderer::ImGuiRenderer()
 	int32_t width = 0;
 	int32_t height = 0;
 	ImGui::GetIO().Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
-	TextureDesc desc
+	Gfx::TextureDesc desc
 	{
-		ETextureType::T_2D,
-		EFormat::RGBA8_UNorm,
-		EBufferUsage::Immutable,
-		EBufferBindFlags::ShaderResource,
+		Gfx::ETextureType::T_2D,
+		Gfx::EFormat::RGBA8_UNorm,
+		Gfx::EBufferUsage::Immutable,
+		Gfx::EBufferBindFlags::ShaderResource,
 		static_cast<uint32_t>(width),
 		static_cast<uint32_t>(height),
 		1u,
@@ -26,6 +26,7 @@ ImGuiRenderer::ImGuiRenderer()
 		1u
 	};
 
+	auto mat = std::make_shared<Gfx::Material>("ImGui.xml");
 #if 0
 	auto fontTex = GRenderer->createTexture(
 		eTexture2D,
@@ -71,7 +72,7 @@ ImGuiRenderer::ImGuiRenderer()
 #endif
 }
 
-NAMESPACE_END(Gfx)
+NAMESPACE_END(Gear)
 
 #if 0
 

@@ -370,7 +370,7 @@ extern "C"
 {
 	EXPORT_API void createRenderer(GfxRendererPtr& ptr)
 	{
-		return ptr.reset(new VulkanRender());
+		ptr.reset(new VulkanRender());
 	}
 }
 
