@@ -180,5 +180,6 @@ private:
 };
 
 typedef void (*CreateRendererFunc)(GfxRendererPtr& ptr);
+extern EXPORT_API GfxRenderer* GRenderer;
 
 NAMESPACE_END(Gfx)

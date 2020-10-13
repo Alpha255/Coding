@@ -18,6 +18,7 @@ function appLinks()
 		"Gfx-VulkanRenderer",
 		"Gfx-D3D11Renderer",
 		"Gfx-D3D12Renderer",
+		"Gfx-ImGui",
 		"ImGui"
 	}
 end
@@ -158,6 +159,14 @@ workspace "Miscellaneous"
 			defines { "DYNAMIC_LIB" }
 			implibname "$(SolutionDir)Out\\Libs\\$(ProjectName)"
 			links { "Gear" }
+
+		project "Gfx-ImGui"
+			kind "StaticLib"
+			language "C++"
+			location "./Projects"
+			files "./Colorful/ImGui/**"
+			includedirs { "$(SolutionDir)" }
+			targetdir "$(SolutionDir)Out\\"
 
 	group "ThirdParty"
 		project "glslang"

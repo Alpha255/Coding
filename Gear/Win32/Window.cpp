@@ -28,7 +28,7 @@ Window::Window(uint64_t instance, const std::string& title, const Math::Vec2& si
 	, m_MinSize(minSize)
 {
 	m_MinSize = Math::max(m_MinSize, Math::Vec2(MINIMAL_WINDOW_SIZE, MINIMAL_WINDOW_SIZE));
-	m_Size = Math::min(m_Size, m_MinSize);
+	m_Size = Math::max(m_Size, m_MinSize);
 
 	assert(instance);
 	::HINSTANCE hInstance = reinterpret_cast<::HINSTANCE>(instance);

@@ -1,6 +1,6 @@
-#include "Gear/ImGui/ImGui.h"
+#include "Colorful/ImGui/ImGui.h"
 
-NAMESPACE_START(Gear)
+NAMESPACE_START(Gfx)
 
 ImGuiRenderer::ImGuiRenderer()
 {
@@ -72,7 +72,7 @@ ImGuiRenderer::ImGuiRenderer()
 #endif
 }
 
-NAMESPACE_END(Gear)
+NAMESPACE_END(Gfx)
 
 #if 0
 
