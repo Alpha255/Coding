@@ -27,19 +27,30 @@ ImGuiRenderer::ImGuiRenderer()
 	};
 
 	auto mat = std::make_shared<Gfx::Material>("ImGui.xml");
-#if 0
-	auto fontTex = GRenderer->createTexture(
-		eTexture2D,
-		eRGBA8_UNorm,
-		width,
-		height,
-		1u,
-		1u,
-		1u,
-		pixels,
-		width * height * 4ull /// pitch * slicepitch
-	);
+	/// mat->setTexture();
 
+	BlendStateDesc blendDesc{};
+	blendDesc.ColorBlends[0] = ColorBlendDesc
+	{
+		true,
+		EColorWriteMask::All,
+		EBlendFactor::SrcAlpha,
+		EBlendFactor::InverseSrcAlpha,
+		EBlendOp::Add,
+
+		EBlendFactor::InverseSrcAlpha,
+		EBlendFactor::Zero,
+		EBlendOp::Add,
+	};
+
+	DepthStencilStateDesc depthStencilDesc
+	{
+		true,
+		false,
+		false,
+		ECompareFunc::LessOrEqual
+	};
+#if 0
 	m_UniformBuffer = g_GfxEngine->createUniformBuffer(sizeof(UniformBuffer), nullptr);
 
 	m_PipelineState.setMaterial("ImGui.mat");
@@ -47,27 +58,6 @@ ImGuiRenderer::ImGuiRenderer()
 	m_PipelineState.setCombinedTextureSampler(eFragmentShader, fontTex, GfxFactory::instance()->linearSampler(), 1u);
 	m_PipelineState.IndexType = eRIndexType::eUInt16;
 	m_PipelineState.VertexStrideAlignment = alignof(ImDrawVert);
-
-	GfxBlendStateDesc blendDesc{};
-	blendDesc.ColorBlendStates[0] = GfxBlendStateDesc::ColorBlendState
-	{
-		true,
-		eRBlendFactor::eSrcAlpha,
-		eRBlendFactor::eInverseSrcAlpha,
-		eRBlendOp::eAdd,
-		eRBlendFactor::eInverseSrcAlpha,
-		eRBlendFactor::eZero,
-		eRBlendOp::eAdd,
-		eRColorWriteMask::eColorAll
-	};
-	m_PipelineState.setBlendState(blendDesc);
-
-	GfxDepthStencilStateDesc depthStencilDesc
-	{
-		false,
-		false,
-		eRCompareOp::eLessOrEqual
-	};
 	m_PipelineState.setDepthStencilState(depthStencilDesc);
 #endif
 }
