@@ -139,6 +139,15 @@ private:
 
 NAMESPACE_START(Gfx)
 
+enum class ERenderer : uint8_t
+{
+	Null,
+	D3D11,
+	D3D12,
+	Vulkan,
+	Software
+};
+
 struct Adapter
 {
 	std::string DeviceName;

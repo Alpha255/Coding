@@ -456,6 +456,31 @@ protected:
 private:
 };
 
+struct ShaderReflection
+{
+	struct UniformBufferDesc
+	{
+		uint32_t Index;
+		size_t Size;
+	};
+
+	enum class EInputResourceType : uint8_t
+	{
+		UniformBuffer,
+		Texture,
+		Sampler,
+		CombinedTextureSampler,
+		StorageBuffer
+	};
+
+	struct InputResourceDesc
+	{
+		EInputResourceType Type;
+		ETextureType TextureType;
+		uint32_t Binding;
+	};
+};
+
 enum class EVertexUsage : uint32_t
 {
 	Position  = 1 << 0,
