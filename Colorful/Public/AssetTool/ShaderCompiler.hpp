@@ -3,6 +3,7 @@
 #include <ThirdParty/glslang/StandAlone/ResourceLimits.h>
 #include <ThirdParty/glslang/SPIRV/GlslangToSpv.h>
 #include <ThirdParty/SPIRV-Cross/spirv_hlsl.hpp>
+#include <ThirdParty/dxc/include/dxc/dxcapi.h>
 
 NAMESPACE_START(Gfx)
 
@@ -16,6 +17,12 @@ struct ShaderMacro
 class ShaderCompiler
 {
 public:
+	class DxcLibrary final : public D3DObject<IDxcLibrary> {};
+	class DxcCompiler final : public D3DObject<IDxcCompiler> {};
+	class DxcBlobEncoding final : public D3DObject<IDxcBlobEncoding> {};
+	class DxcOperationResult final : public D3DObject<IDxcOperationResult> {};
+	class DxcBlob final : public D3DObject<IDxcBlob> {};
+
 	static std::vector<uint32_t> compileToSPIRV(const char8_t* const source, const char8_t* entry, EShaderStage stage)
 	{
 		assert(source && entry && stage < EShaderStage::ShaderStageCount);
@@ -73,6 +80,68 @@ public:
 		return spirv;
 	}
 
+	static std::vector<uint32_t> compileToSPIRV_DXC(const char8_t* const source, const char8_t* entry, EShaderStage stage)
+	{
+		assert(source && entry && stage < EShaderStage::ShaderStageCount);
+
+		DxcLibrary library;
+		VERIFY(DxcCreateInstance(CLSID_DxcLibrary, __uuidof(IDxcLibrary), reinterpret_cast<void**>(library.reference())) == S_OK);
+
+		DxcCompiler compiler;
+		VERIFY(DxcCreateInstance(CLSID_DxcCompiler, __uuidof(IDxcCompiler), reinterpret_cast<void**>(compiler.reference())) == S_OK);
+
+		DxcBlobEncoding blobEncoding;
+		VERIFY(library->CreateBlobWithEncodingFromPinned(source, static_cast<uint32_t>(strlen(source)), CP_UTF8, blobEncoding.reference()) == S_OK);
+
+		std::string entryName(entry);
+		std::wstring w_entry(entryName.cbegin(), entryName.cend());
+
+		std::string model(shaderModel(stage, true));
+		std::wstring w_model(model.cbegin(), model.cend());
+
+		std::vector<const wchar_t*> args
+		{
+			L"-spirv"
+		};
+
+		DxcOperationResult opResult;
+		VERIFY(compiler->Compile(
+			blobEncoding.get(), 
+			nullptr, 
+			w_entry.c_str(), 
+			w_model.c_str(),
+			args.data(),
+			static_cast<uint32_t>(args.size()),
+			nullptr, 
+			0u, 
+			nullptr, 
+			opResult.reference()) == S_OK);
+
+		::HRESULT hr = E_FAIL;
+		VERIFY(opResult->GetStatus(&hr) == S_OK);
+
+		if (FAILED(hr))
+		{
+			DxcBlobEncoding error;
+			VERIFY(opResult->GetErrorBuffer(error.reference()) == S_OK);
+			LOG_ERROR("ShaderCompiler:: %s", static_cast<const char8_t*>(error->GetBufferPointer()));
+		}
+
+		DxcBlob blob;
+		VERIFY(opResult->GetResult(blob.reference()) == S_OK);
+
+		VERIFY(blob->GetBufferSize() % sizeof(uint32_t) == 0);
+		std::vector<uint32_t> spirv(blob->GetBufferSize() / sizeof(uint32_t));
+		VERIFY(memcpy_s(spirv.data(), blob->GetBufferSize(), blob->GetBufferPointer(), blob->GetBufferSize()) == 0);
+
+#if 1
+		std::string hlsl(std::move(compileSPIRVToHLSL(spirv)));
+		std::string glsl(std::move(compileSPIRVToGLSL(spirv)));
+#endif
+
+		return spirv;
+	}
+
 	static D3DShaderBlob compileToD3D(const char8_t* const source, const char8_t* entry, EShaderStage stage)
 	{
 		assert(source && entry && stage < EShaderStage::ShaderStageCount);
@@ -93,7 +162,7 @@ public:
 			nullptr,
 			D3D_COMPILE_STANDARD_FILE_INCLUDE,
 			entry,
-			shaderModel(stage),
+			shaderModel(stage, false),
 			flags,
 			0u,
 			0u,
@@ -124,6 +193,20 @@ public:
 
 		return hlsl;
 	}
+
+	static std::string compileSPIRVToGLSL(const std::vector<uint32_t>& spirv)
+	{
+		assert(spirv.size());
+
+		spirv_cross::CompilerGLSL compiler(spirv.data(), spirv.size());
+		spirv_cross::CompilerGLSL::Options options{};
+		options.vulkan_semantics = true;
+		compiler.set_common_options(options);
+
+		std::string glsl(std::move(compiler.compile()));
+
+		return glsl;
+	}
 protected:
 	enum EVersion
 	{
@@ -147,16 +230,16 @@ protected:
 		return EShLangCount;
 	}
 
-	static const char8_t* const shaderModel(EShaderStage stage)
+	static const char8_t* const shaderModel(EShaderStage stage, bool8_t dxc)
 	{
 		switch (stage)
 		{
-		case EShaderStage::Vertex:   return "vs_5_0";
-		case EShaderStage::Hull:     return "hs_5_0";
-		case EShaderStage::Domain:   return "ds_5_0";
-		case EShaderStage::Geometry: return "gs_5_0";
-		case EShaderStage::Fragment: return "ps_5_0";
-		case EShaderStage::Compute:  return "cs_5_0";
+		case EShaderStage::Vertex:   return dxc ? "vs_6_0" : "vs_5_0";
+		case EShaderStage::Hull:     return dxc ? "hs_6_0" : "hs_5_0";
+		case EShaderStage::Domain:   return dxc ? "ds_6_0" : "ds_5_0";
+		case EShaderStage::Geometry: return dxc ? "gs_6_0" : "gs_5_0";
+		case EShaderStage::Fragment: return dxc ? "ps_6_0" : "ps_5_0";
+		case EShaderStage::Compute:  return dxc ? "cs_6_0" : "cs_5_0";
 		}
 
 		assert(0);

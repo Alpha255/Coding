@@ -83,7 +83,7 @@ workspace "Miscellaneous"
 			files "./Colorful/Public/**"
 			includedirs { 
 				"$(SolutionDir)",
-				"$(SolutionDir)\\Thirdparty\\glslang",
+				"$(SolutionDir)Thirdparty\\glslang",
 			}
 			targetdir "$(SolutionDir)Out\\"
 			defines { "DYNAMIC_LIB" }
@@ -92,8 +92,17 @@ workspace "Miscellaneous"
 				"Gear", 
 				"glslang",
 				"tinyxml",
+				"spirv-cross",
+				"dxcompiler",
+			}
+			libdirs {
+				"$(SolutionDir)Thirdparty\\dxc\\lib"
 			}
 			--disablewarnings { "4201", "4458", "4100" }
+			postbuildcommands {
+				"{COPY} $(SolutionDir)Thirdparty\\dxc\\bin\\*.dll $(SolutionDir)Out"
+			}
+
 
 		project "Gfx-VulkanRenderer"
 			kind "SharedLib"
