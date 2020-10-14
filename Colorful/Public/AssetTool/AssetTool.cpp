@@ -46,11 +46,11 @@ std::vector<uint32_t> AssetTool::loadShader(Gfx::EShaderLanguage language, Gfx::
 	}
 
 	auto code = asset->data();
-	std::vector<uint32_t> binary(std::move(ShaderCompiler::compileToSpirv(reinterpret_cast<const char8_t* const>(code.get()), "main", stage)));
+	std::vector<uint32_t> binary(std::move(ShaderCompiler::compileToSPIRV(reinterpret_cast<const char8_t* const>(code.get()), "main", stage)));
 
 	if (language == Gfx::EShaderLanguage::HLSL)
 	{
-
+		ShaderCompiler::compileSPIRVToHLSL(binary);
 	}
 
 	return binary;

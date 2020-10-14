@@ -2,7 +2,7 @@
 	<InputLayout>
 		<Location Slot="0" Usage="POSITION" Format="RG32_Float"/>
 		<Location Slot="1" Usage="TEXCOORD" Format="RG32_Float"/>
-		<Location Slot="2" Usage="Color" Format="RGBA8_UNorm"/>
+		<Location Slot="2" Usage="COLOR" Format="RGBA8_UNorm"/>
 	</InputLayout>
 
 	<Shader>

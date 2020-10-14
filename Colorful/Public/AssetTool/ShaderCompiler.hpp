@@ -2,6 +2,7 @@
 #include <ThirdParty/glslang/glslang/Public/ShaderLang.h>
 #include <ThirdParty/glslang/StandAlone/ResourceLimits.h>
 #include <ThirdParty/glslang/SPIRV/GlslangToSpv.h>
+#include <ThirdParty/SPIRV-Cross/spirv_hlsl.hpp>
 
 NAMESPACE_START(Gfx)
 
@@ -15,7 +16,7 @@ struct ShaderMacro
 class ShaderCompiler
 {
 public:
-	static std::vector<uint32_t> compileToSpirv(const char8_t* const source, const char8_t* entry, EShaderStage stage)
+	static std::vector<uint32_t> compileToSPIRV(const char8_t* const source, const char8_t* entry, EShaderStage stage)
 	{
 		assert(source && entry && stage < EShaderStage::ShaderStageCount);
 
@@ -106,6 +107,22 @@ public:
 		}
 
 		return binary;
+	}
+
+	static std::string compileSPIRVToHLSL(const std::vector<uint32_t>& spirv)
+	{
+		assert(spirv.size());
+
+		spirv_cross::CompilerHLSL compiler(spirv.data(), spirv.size());
+		spirv_cross::CompilerHLSL::Options options
+		{
+			50u
+		};
+		compiler.set_hlsl_options(options);
+
+		std::string hlsl(std::move(compiler.compile()));
+
+		return hlsl;
 	}
 protected:
 	enum EVersion

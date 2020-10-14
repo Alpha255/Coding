@@ -242,6 +242,71 @@ workspace "Miscellaneous"
 			}
 			targetdir "$(SolutionDir)Out\\Libs\\"
 
+		project "spirv-cross"
+			kind "StaticLib"
+			language "C++"
+			location "./Projects"
+			files {
+				"./ThirdParty/SPIRV-Cross/GLSL.std.450.h",
+				"./ThirdParty/SPIRV-Cross/spirv.hpp",
+				"./ThirdParty/SPIRV-Cross/spirv_cfg.hpp",
+				"./ThirdParty/SPIRV-Cross/spirv_common.hpp",
+				"./ThirdParty/SPIRV-Cross/spirv_cross.hpp",
+				"./ThirdParty/SPIRV-Cross/spirv_cross_containers.hpp",
+				"./ThirdParty/SPIRV-Cross/spirv_cross_error_handling.hpp",
+				"./ThirdParty/SPIRV-Cross/spirv_cross_parsed_ir.hpp",
+				"./ThirdParty/SPIRV-Cross/spirv_cfg.cpp",
+				"./ThirdParty/SPIRV-Cross/spirv_cross.cpp",
+				"./ThirdParty/SPIRV-Cross/spirv_cross_parsed_ir.cpp",
+				"./ThirdParty/SPIRV-Cross/spirv_parser.cpp",
+
+				"./ThirdParty/SPIRV-Cross/spirv_hlsl.hpp",
+				"./ThirdParty/SPIRV-Cross/spirv_hlsl.cpp",
+
+				"./ThirdParty/SPIRV-Cross/spirv_glsl.hpp",
+				"./ThirdParty/SPIRV-Cross/spirv_glsl.cpp",
+
+				"./ThirdParty/SPIRV-Cross/spirv_reflect.hpp",
+				"./ThirdParty/SPIRV-Cross/spirv_reflect.cpp",
+
+				"./ThirdParty/SPIRV-Cross/spirv_cross_util.hpp",
+				"./ThirdParty/SPIRV-Cross/spirv_cross_util.cpp"
+			}
+			targetdir "$(SolutionDir)Out\\Libs\\"
+			includedirs { "$(SolutionDir)ThirdParty\\SPIRV-Cross" }
+			vpaths {
+				["core"] = {
+					"./ThirdParty/SPIRV-Cross/GLSL.std.450.h",
+					"./ThirdParty/SPIRV-Cross/spirv.hpp",
+					"./ThirdParty/SPIRV-Cross/spirv_cfg.hpp",
+					"./ThirdParty/SPIRV-Cross/spirv_common.hpp",
+					"./ThirdParty/SPIRV-Cross/spirv_cross.hpp",
+					"./ThirdParty/SPIRV-Cross/spirv_cross_containers.hpp",
+					"./ThirdParty/SPIRV-Cross/spirv_cross_error_handling.hpp",
+					"./ThirdParty/SPIRV-Cross/spirv_cross_parsed_ir.hpp",
+					"./ThirdParty/SPIRV-Cross/spirv_cfg.cpp",
+					"./ThirdParty/SPIRV-Cross/spirv_cross.cpp",
+					"./ThirdParty/SPIRV-Cross/spirv_cross_parsed_ir.cpp",
+					"./ThirdParty/SPIRV-Cross/spirv_parser.cpp",
+				},
+				["hlsl"] = {
+					"./ThirdParty/SPIRV-Cross/spirv_hlsl.hpp",
+					"./ThirdParty/SPIRV-Cross/spirv_hlsl.cpp",
+				},
+				["glsl"] = {
+					"./ThirdParty/SPIRV-Cross/spirv_glsl.hpp",
+					"./ThirdParty/SPIRV-Cross/spirv_glsl.cpp",
+				},
+				["reflect"] = {
+					"./ThirdParty/SPIRV-Cross/spirv_reflect.hpp",
+					"./ThirdParty/SPIRV-Cross/spirv_reflect.cpp",
+				},
+				["util"] = {
+					"./ThirdParty/SPIRV-Cross/spirv_cross_util.hpp",
+					"./ThirdParty/SPIRV-Cross/spirv_cross_util.cpp"
+				}
+			}
+
 
 	group "Applications"
 		project "RenderTest"

@@ -479,6 +479,13 @@ enum class EVertexUsage : uint32_t
 	VertexUsge_Count = 18
 };
 
+struct EXPORT_API FormatAttribute
+{
+	EFormat Format = EFormat::Unknown;
+	uint32_t Stride = 0u;
+	const char8_t* const Name = nullptr;
+};
+
 struct EXPORT_API TextureDesc
 {
 	ETextureType Dimension = ETextureType::T_2D;

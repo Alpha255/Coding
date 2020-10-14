@@ -59,7 +59,23 @@ void Material::loadShaders(const tinyxml2::XMLNode* root)
 		{
 			
 		}
+		else if (_stricmp(node->Value(), "HullShader") == 0)
+		{
+
+		}
+		else if (_stricmp(node->Value(), "DomainShader") == 0)
+		{
+
+		}
+		else if (_stricmp(node->Value(), "GeometryShader") == 0)
+		{
+
+		}
 		else if (_stricmp(node->Value(), "FragmentShader") == 0)
+		{
+
+		}
+		else if (_stricmp(node->Value(), "ComputeShader") == 0)
 		{
 
 		}
