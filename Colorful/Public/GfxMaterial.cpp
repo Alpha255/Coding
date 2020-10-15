@@ -59,7 +59,7 @@ void Material::loadShaders(const tinyxml2::XMLNode* root)
 
 		if (_stricmp(node->Value(), "VertexShader") == 0)
 		{
-			auto binary = AssetTool::instance().compileShader(EShaderLanguage::HLSL, EShaderStage::Vertex, code);
+			auto binary = AssetTool::instance().compileShader(EShaderLanguage::GLSL, EShaderStage::Vertex, code);
 		}
 		else if (_stricmp(node->Value(), "HullShader") == 0)
 		{
@@ -75,7 +75,7 @@ void Material::loadShaders(const tinyxml2::XMLNode* root)
 		}
 		else if (_stricmp(node->Value(), "FragmentShader") == 0)
 		{
-
+			auto binary = AssetTool::instance().compileShader(EShaderLanguage::GLSL, EShaderStage::Fragment, code);
 		}
 		else if (_stricmp(node->Value(), "ComputeShader") == 0)
 		{

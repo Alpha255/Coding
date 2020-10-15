@@ -212,53 +212,110 @@ public:
 	{
 		assert(spirv.size());
 
+		ShaderReflection reflection;
+
 		spirv_cross::Compiler compiler(spirv.data(), spirv.size());
 		auto activeVars = compiler.get_active_interface_variables();
 		spirv_cross::ShaderResources shaderResources = compiler.get_shader_resources(activeVars);
 		compiler.set_enabled_interface_variables(std::move(activeVars));
 
-		for each (auto& input in shaderResources.stage_inputs)
-		{
-
-		}
 		for each (auto& uniformBuffer in shaderResources.uniform_buffers)
 		{
+			auto type = compiler.get_type(uniformBuffer.type_id);
+			auto size = static_cast<uint32_t>(compiler.get_declared_struct_size(type));
 
+			reflection.Resources.push_back({
+				EShaderResourceType::UniformBuffer,
+					size
+				});
+			++reflection.UniformBufferCount;
+		}
+		for each (auto& sampledImage in shaderResources.sampled_images)
+		{
+			auto binding = compiler.get_decoration(sampledImage.id, spv::Decoration::DecorationBinding);
+			reflection.Resources.push_back({
+				EShaderResourceType::CombinedTextureSampler,
+					binding
+				});
+			++reflection.SampledTextureCount;
+		}
+		for each (auto& image in shaderResources.separate_images)
+		{
+			auto binding = compiler.get_decoration(image.id, spv::Decoration::DecorationBinding);
+			reflection.Resources.push_back({
+				EShaderResourceType::CombinedTextureSampler,
+					binding
+				});
+			++reflection.TextureCount;
 		}
 		for each (auto& sampler in shaderResources.separate_samplers)
 		{
-			
+			auto binding = compiler.get_decoration(sampler.id, spv::Decoration::DecorationBinding);
+			reflection.Resources.push_back({
+				EShaderResourceType::CombinedTextureSampler,
+					binding
+				});
+			++reflection.SamplerCount;
 		}
 
-		return ShaderReflection();
+		return reflection;
 	}
 
 	static ShaderReflection getReflection_D3D11(const void* binary, size_t size)
 	{
 		assert(binary && size);
 
-		D3D11ShaderReflection reflection;
-		VERIFY(D3DReflect(binary, size, __uuidof(ID3D11ShaderReflection), reinterpret_cast<void**>(reflection.reference())) == S_OK);
+		ShaderReflection reflection;
+
+		D3D11ShaderReflection d3dReflection;
+		VERIFY(D3DReflect(binary, size, __uuidof(ID3D11ShaderReflection), reinterpret_cast<void**>(d3dReflection.reference())) == S_OK);
 
 		D3D11_SHADER_DESC shaderDesc{};
-		VERIFY(reflection->GetDesc(&shaderDesc) == S_OK);
-		for (uint32_t i = 0u; i < shaderDesc.InputParameters; ++i)
-		{
-			D3D11_SIGNATURE_PARAMETER_DESC inputParamDesc{};
-			VERIFY(reflection->GetInputParameterDesc(i, &inputParamDesc) == S_OK);
-		}
+		VERIFY(d3dReflection->GetDesc(&shaderDesc) == S_OK);
 		for (uint32_t i = 0u; i < shaderDesc.ConstantBuffers; ++i)
 		{
 			D3D11_SHADER_BUFFER_DESC bufferDesc{};
-			VERIFY(reflection->GetConstantBufferByIndex(i)->GetDesc(&bufferDesc) == S_OK);
+			VERIFY(d3dReflection->GetConstantBufferByIndex(i)->GetDesc(&bufferDesc) == S_OK);
+
+			if (bufferDesc.Type == D3D_CT_CBUFFER) /// D3D_CT_TBUFFER: A buffer containing texture data
+			{
+				reflection.Resources.push_back({
+					EShaderResourceType::UniformBuffer,
+						bufferDesc.Size
+					});
+				++reflection.UniformBufferCount;
+			}
 		}
 		for (uint32_t i = 0u; i < shaderDesc.BoundResources; ++i)
 		{
 			D3D11_SHADER_INPUT_BIND_DESC bindDesc{};
-			VERIFY(reflection->GetResourceBindingDesc(i, &bindDesc) == S_OK);
+			VERIFY(d3dReflection->GetResourceBindingDesc(i, &bindDesc) == S_OK);
+
+			switch (bindDesc.Type)
+			{
+			case D3D_SIT_CBUFFER:
+			case D3D_SIT_TBUFFER:
+				break;
+			case D3D_SIT_TEXTURE:
+				reflection.Resources.push_back({
+					EShaderResourceType::Texture,
+						bindDesc.BindPoint
+					});
+				++reflection.TextureCount;
+				break;
+			case D3D_SIT_SAMPLER:
+				reflection.Resources.push_back({
+					EShaderResourceType::Sampler,
+						bindDesc.BindPoint
+					});
+				++reflection.SamplerCount;
+				break;
+			case D3D_SIT_UAV_RWTYPED:
+				break;
+			}
 		}
 
-		return ShaderReflection();
+		return reflection;
 	}
 protected:
 	enum EVersion

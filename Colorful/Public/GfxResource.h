@@ -456,29 +456,33 @@ protected:
 private:
 };
 
+enum class EShaderResourceType : uint8_t
+{
+	UniformBuffer,
+	Texture,
+	Sampler,
+	CombinedTextureSampler,
+	StorageBuffer
+};
+
+struct ShaderResourceDesc
+{
+	EShaderResourceType Type;
+	union
+	{
+		uint32_t Binding;
+		uint32_t Size;
+	};
+};
+
 struct ShaderReflection
 {
-	struct UniformBufferDesc
-	{
-		uint32_t Index;
-		size_t Size;
-	};
+	std::vector<ShaderResourceDesc> Resources;
 
-	enum class EInputResourceType : uint8_t
-	{
-		UniformBuffer,
-		Texture,
-		Sampler,
-		CombinedTextureSampler,
-		StorageBuffer
-	};
-
-	struct InputResourceDesc
-	{
-		EInputResourceType Type;
-		ETextureType TextureType;
-		uint32_t Binding;
-	};
+	uint32_t UniformBufferCount = 0u;
+	uint32_t TextureCount = 0u;
+	uint32_t SamplerCount = 0u;
+	uint32_t SampledTextureCount = 0u;
 };
 
 enum class EVertexUsage : uint32_t
