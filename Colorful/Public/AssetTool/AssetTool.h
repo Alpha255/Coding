@@ -17,6 +17,8 @@ public:
 
 	std::vector<uint32_t> loadShader(EShaderLanguage language, EShaderStage stage, const std::string& name);
 
+	std::vector<uint32_t> compileShader(EShaderLanguage language, EShaderStage stage, const char8_t* const code);
+
 	void loadTexture(const std::string& name);
 
 	void loadModel(const std::string& name);

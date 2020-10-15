@@ -37,6 +37,37 @@ AssetPtr AssetTool::findAsset(const std::string& name)
 	return AssetPtr();
 }
 
+std::vector<uint32_t> AssetTool::compileShader(EShaderLanguage language, EShaderStage stage, const char8_t* const code)
+{
+	assert(code && stage < EShaderStage::ShaderStageCount);
+
+	const char8_t* const entry = "main";
+
+#if 0
+	if (language == EShaderLanguage::HLSL)
+	{
+		return ShaderCompiler::compileToSPIRV_DXC(code, entry, stage);
+	}
+#endif
+
+	std::vector<uint32_t> binary(std::move(ShaderCompiler::compileToSPIRV(code, entry, stage)));
+	if (language == EShaderLanguage::GLSL)
+	{
+		auto reflection = ShaderCompiler::getReflection_Vk(binary);
+	}
+
+	if (language == EShaderLanguage::HLSL)
+	{
+		std::string hlsl(std::move(ShaderCompiler::compileSPIRVToHLSL(binary)));
+		D3DShaderBlob blob = ShaderCompiler::compileToD3D(hlsl.c_str(), entry, stage);
+		auto reflection = ShaderCompiler::getReflection_D3D11(blob->GetBufferPointer(), blob->GetBufferSize());
+
+		assert(blob->GetBufferSize() % sizeof(uint32_t) == 0u);
+	}
+
+	return binary;
+}
+
 std::vector<uint32_t> AssetTool::loadShader(EShaderLanguage language, EShaderStage stage, const std::string& name)
 {
 	AssetPtr asset = findAsset(name);
@@ -45,47 +76,7 @@ std::vector<uint32_t> AssetTool::loadShader(EShaderLanguage language, EShaderSta
 		return std::vector<uint32_t>();
 	}
 
-	const char8_t* const entry = "main";
-
-	auto code = asset->data();
-
-#if 0
-	if (language == EShaderLanguage::HLSL)
-	{
-		return ShaderCompiler::compileToSPIRV_DXC(reinterpret_cast<const char8_t* const>(code.get()), entry, stage);
-	}
-#endif
-
-	std::vector<uint32_t> binary(std::move(ShaderCompiler::compileToSPIRV(reinterpret_cast<const char8_t* const>(code.get()), entry, stage)));
-
-	if (language == EShaderLanguage::HLSL)
-	{
-		std::string hlsl(std::move(ShaderCompiler::compileSPIRVToHLSL(binary)));
-		D3DShaderBlob blob = ShaderCompiler::compileToD3D(hlsl.c_str(), entry, stage);
-
-		D3D11ShaderReflection reflection;
-		VERIFY(D3DReflect(blob->GetBufferPointer(), blob->GetBufferSize(), IID_ID3D11ShaderReflection, reinterpret_cast<void**>(reflection.reference())) == S_OK);
-		
-		D3D11_SHADER_DESC shaderDesc{};
-		VERIFY(reflection->GetDesc(&shaderDesc));
-		for (uint32_t i = 0u; i < shaderDesc.InputParameters; ++i)
-		{
-			D3D11_SIGNATURE_PARAMETER_DESC inputParamDesc{};
-			VERIFY(reflection->GetInputParameterDesc(i, &inputParamDesc) == S_OK);
-		}
-		for (uint32_t i = 0u; i < shaderDesc.ConstantBuffers; ++i)
-		{
-			D3D11_SHADER_BUFFER_DESC bufferDesc{};
-			VERIFY(reflection->GetConstantBufferByIndex(i)->GetDesc(&bufferDesc) == S_OK);
-		}
-		for (uint32_t i = 0u; i < shaderDesc.BoundResources; ++i)
-		{
-			D3D11_SHADER_INPUT_BIND_DESC bindDesc{};
-			VERIFY(reflection->GetResourceBindingDesc(i, &bindDesc) == S_OK);
-		}
-	}
-
-	return binary;
+	return compileShader(language, stage, reinterpret_cast<const char8_t*>(asset->data().get()));
 }
 
 void AssetTool::loadMaterial(const std::string& name)

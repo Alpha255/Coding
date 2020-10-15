@@ -94,6 +94,7 @@ workspace "Miscellaneous"
 				"tinyxml",
 				"spirv-cross",
 				"dxcompiler",
+				"d3dcompiler"
 			}
 			libdirs {
 				"$(SolutionDir)Thirdparty\\dxc\\lib"
@@ -135,7 +136,6 @@ workspace "Miscellaneous"
 				"Gear",
 				"d3d11",
 				"dxgi",
-				"d3dcompiler"
 			}
 
 		project "Gfx-D3D12Renderer"
@@ -155,7 +155,6 @@ workspace "Miscellaneous"
 				"Gear",
 				"d3d12",
 				"dxgi",
-				"d3dcompiler"
 			}
 
 		project "Gfx-SoftwareRenderer"

@@ -155,7 +155,7 @@ public:
 		uint32_t flags = D3DCOMPILE_ENABLE_STRICTNESS; /// Forces strict compile, which might not allow for legacy syntax.
 #endif
 
-		if (!D3DCompile2(
+		if (FAILED(D3DCompile2(
 			source, 
 			strlen(source), 
 			nullptr,
@@ -169,7 +169,7 @@ public:
 			nullptr,
 			0u,
 			binary.reference(),
-			error.reference()))
+			error.reference())))
 		{
 			LOG_ERROR("ShaderCompiler:: %s", reinterpret_cast<const char8_t* const>(error->GetBufferPointer()));
 			assert(0);
@@ -206,6 +206,59 @@ public:
 		std::string glsl(std::move(compiler.compile()));
 
 		return glsl;
+	}
+
+	static ShaderReflection getReflection_Vk(const std::vector<uint32_t>& spirv)
+	{
+		assert(spirv.size());
+
+		spirv_cross::Compiler compiler(spirv.data(), spirv.size());
+		auto activeVars = compiler.get_active_interface_variables();
+		spirv_cross::ShaderResources shaderResources = compiler.get_shader_resources(activeVars);
+		compiler.set_enabled_interface_variables(std::move(activeVars));
+
+		for each (auto& input in shaderResources.stage_inputs)
+		{
+
+		}
+		for each (auto& uniformBuffer in shaderResources.uniform_buffers)
+		{
+
+		}
+		for each (auto& sampler in shaderResources.separate_samplers)
+		{
+			
+		}
+
+		return ShaderReflection();
+	}
+
+	static ShaderReflection getReflection_D3D11(const void* binary, size_t size)
+	{
+		assert(binary && size);
+
+		D3D11ShaderReflection reflection;
+		VERIFY(D3DReflect(binary, size, __uuidof(ID3D11ShaderReflection), reinterpret_cast<void**>(reflection.reference())) == S_OK);
+
+		D3D11_SHADER_DESC shaderDesc{};
+		VERIFY(reflection->GetDesc(&shaderDesc) == S_OK);
+		for (uint32_t i = 0u; i < shaderDesc.InputParameters; ++i)
+		{
+			D3D11_SIGNATURE_PARAMETER_DESC inputParamDesc{};
+			VERIFY(reflection->GetInputParameterDesc(i, &inputParamDesc) == S_OK);
+		}
+		for (uint32_t i = 0u; i < shaderDesc.ConstantBuffers; ++i)
+		{
+			D3D11_SHADER_BUFFER_DESC bufferDesc{};
+			VERIFY(reflection->GetConstantBufferByIndex(i)->GetDesc(&bufferDesc) == S_OK);
+		}
+		for (uint32_t i = 0u; i < shaderDesc.BoundResources; ++i)
+		{
+			D3D11_SHADER_INPUT_BIND_DESC bindDesc{};
+			VERIFY(reflection->GetResourceBindingDesc(i, &bindDesc) == S_OK);
+		}
+
+		return ShaderReflection();
 	}
 protected:
 	enum EVersion
