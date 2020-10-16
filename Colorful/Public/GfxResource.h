@@ -535,4 +535,15 @@ struct EXPORT_API TextureDesc
 	uint32_t SampleCount = 1u;
 };
 
+struct ShaderDesc
+{
+	std::vector<uint32_t> Binary;
+	ShaderReflection Reflection;
+};
+
+struct ModelDesc
+{
+
+};
+
 NAMESPACE_END(Gfx)

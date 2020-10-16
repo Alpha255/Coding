@@ -535,6 +535,11 @@ private:
 //	size_t Hash = 0u;
 //};
 
+struct PipelineResourceLayoutDesc
+{
+
+};
+
 class EXPORT_API GraphicsPipelineState
 {
 public:

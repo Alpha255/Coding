@@ -1,5 +1,6 @@
 #include "Colorful/Public/AssetTool/AssetTool.h"
 #include "Colorful/Public/AssetTool/ShaderCompiler.hpp"
+#include "Colorful/Public/AssetTool/TextureLoader.hpp"
 
 NAMESPACE_START(Gfx)
 
@@ -68,13 +69,19 @@ std::vector<uint32_t> AssetTool::compileShader(EShaderLanguage language, EShader
 	return binary;
 }
 
+TextureDesc AssetTool::loadTexture(const std::string& name)
+{
+	AssetPtr asset = findAsset(name);
+	assert(asset);
+
+
+	return TextureDesc();
+}
+
 std::vector<uint32_t> AssetTool::loadShader(EShaderLanguage language, EShaderStage stage, const std::string& name)
 {
 	AssetPtr asset = findAsset(name);
-	if (!asset)
-	{
-		return std::vector<uint32_t>();
-	}
+	assert(asset);
 
 	return compileShader(language, stage, reinterpret_cast<const char8_t*>(asset->data().get()));
 }
