@@ -2,43 +2,6 @@
 
 #include "Gear/Gear.h"
 
-#if 0
-#include "Colorful/Public/GfxDefinitions.h"
-
-struct GfxShaderReflection
-{
-	uint32_t Type = std::numeric_limits<uint32_t>::max();
-	uint32_t Binding = 0u;
-};
-using GfxShaderReflections = std::vector<GfxShaderReflection>;
-using GfxDescriptorLayoutDesc = std::array<GfxShaderReflections, eRShaderUsage_MaxEnum>;
-
-class GfxGpuBuffer
-{
-public:
-	virtual void update(const void* data, size_t size, size_t offset) = 0;
-	virtual void free() = 0;
-};
-using GfxGpuBufferPtr = GfxGpuBuffer*;
-
-class GfxSampler
-{
-};
-using GfxSamplerPtr = std::shared_ptr<GfxSampler>;
-
-class GfxTexture
-{
-};
-using GfxTexturePtr = std::shared_ptr<GfxTexture>;
-
-class GfxRenderSurface
-{
-protected:
-
-};
-using GfxRenderSurfacePtr = std::shared_ptr<GfxRenderSurface>;
-#endif
-
 NAMESPACE_START(Gfx)
 
 enum class EShaderLanguage : uint8_t

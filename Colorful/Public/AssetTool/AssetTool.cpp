@@ -74,8 +74,7 @@ TextureDesc AssetTool::loadTexture(const std::string& name)
 	AssetPtr asset = findAsset(name);
 	assert(asset);
 
-
-	return TextureDesc();
+	return TextureLoader::load(asset);
 }
 
 std::vector<uint32_t> AssetTool::loadShader(EShaderLanguage language, EShaderStage stage, const std::string& name)
