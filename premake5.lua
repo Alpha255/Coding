@@ -86,7 +86,7 @@ workspace "Miscellaneous"
 				"$(SolutionDir)Thirdparty\\glslang",
 			}
 			targetdir "$(SolutionDir)Out\\"
-			defines { "DYNAMIC_LIB" }
+			defines { "DYNAMIC_LIB", "STB_IMAGE_IMPLEMENTATION" }
 			implibname "$(SolutionDir)Out\\Libs\\$(ProjectName)"
 			links { 
 				"Gear", 

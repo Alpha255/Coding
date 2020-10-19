@@ -19,7 +19,7 @@ public:
 
 	std::vector<uint32_t> compileShader(EShaderLanguage language, EShaderStage stage, const char8_t* const code);
 
-	TextureDesc loadTexture(const std::string& name);
+	TextureDesc loadTexture(const std::string& name, bool8_t sRGB);
 
 	void loadModel(const std::string& name);
 

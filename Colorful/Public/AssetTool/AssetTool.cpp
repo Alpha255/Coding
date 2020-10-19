@@ -69,12 +69,12 @@ std::vector<uint32_t> AssetTool::compileShader(EShaderLanguage language, EShader
 	return binary;
 }
 
-TextureDesc AssetTool::loadTexture(const std::string& name)
+TextureDesc AssetTool::loadTexture(const std::string& name, bool8_t sRGB)
 {
 	AssetPtr asset = findAsset(name);
 	assert(asset);
 
-	return TextureLoader::load(asset);
+	return TextureLoader::load(asset, sRGB);
 }
 
 std::vector<uint32_t> AssetTool::loadShader(EShaderLanguage language, EShaderStage stage, const std::string& name)

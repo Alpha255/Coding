@@ -154,13 +154,13 @@ enum class EFormat : uint8_t
 	BC5_SNorm,
 	B5G6R5_UNorm,
 	BGR5A1_UNorm,
-	BGRA8_UNorm,
-	BGRX8_UNorm,
-	RGB10_XR_Bias_A2_UNorm,
 	BGRA8_Typeless,
+	BGRA8_UNorm,
 	BGRA8_UNorm_SRGB,
 	BGRX8_Typeless,
+	BGRX8_UNorm,
 	BGRX8_UNorm_SRGB,
+	RGB10_XR_Bias_A2_UNorm,
 	BC6H_Typeless,
 	BC6H_UF16,
 	BC6H_SF16,
@@ -474,8 +474,27 @@ enum class EVertexUsage : uint32_t
 struct EXPORT_API FormatAttribute
 {
 	EFormat Format = EFormat::Unknown;
+	int32_t DXGIFromat = 0u;
+	uint32_t VulkanFormat = 0u;
 	uint32_t Stride = 0u;
 	const char8_t* const Name = nullptr;
+
+	static FormatAttribute attribute(EFormat format);
+	static FormatAttribute attribute_Vk(uint32_t format);
+	static FormatAttribute attribute_DXGI(uint32_t format);
+	static uint32_t toDXGIFormat(EFormat format);
+	static uint32_t toVulkanFormat(EFormat format);
+	static EFormat toSRGBFormat(EFormat format);
+};
+
+struct SubresourceRange
+{
+	uint32_t Width = 0u;
+	uint32_t Height = 0u;
+	uint32_t Depth = 1u;
+	uint32_t Offset = 0u;
+	uint32_t RowBytes = 0u;
+	uint32_t SliceBytes = 0u;
 };
 
 struct EXPORT_API TextureDesc
@@ -487,15 +506,13 @@ struct EXPORT_API TextureDesc
 
 	uint32_t Width = 0u;
 	uint32_t Height = 0u;
-
-	union
-	{
-		uint32_t ArraySize = 1u;
-		uint32_t Depth;
-	};
-
+	uint32_t ArraySize = 1u;
+	uint32_t Depth = 1u;
 	uint32_t MipLevels = 1u;
 	uint32_t SampleCount = 1u;
+
+	std::shared_ptr<byte8_t> Data = nullptr;
+	std::vector<SubresourceRange> Subresources{};
 };
 
 struct ShaderDesc
