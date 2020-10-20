@@ -44,9 +44,10 @@ public:
 		auto format = getFormat(asset->fullPath());
 		assert(format != ETextureFormat::Unsupported);
 
-		const byte8_t* data = asset->data().get();
+		auto dataPtr = asset->data(File::EMode::Binary);
+		const byte8_t* data = dataPtr.get();
 		const size_t dataSize = asset->size();
-		assert(dataSize < std::numeric_limits<int32_t>().max());
+		assert(dataSize <= std::numeric_limits<int32_t>().max());
 
 		TextureDesc desc{};
 
@@ -58,8 +59,11 @@ public:
 		{
 			desc = load_KTX(data, dataSize);
 		}
+		else
+		{
+			desc = load_General(data, dataSize);
+		}
 
-		desc = load_General(data, dataSize);
 		if (sRGB)
 		{
 			desc.Format = FormatAttribute::toSRGBFormat(desc.Format);
@@ -380,6 +384,7 @@ protected:
 		desc.Width = width;
 		desc.Height = height;
 		desc.Format = EFormat::RGBA8_UNorm;
+		desc.Dimension = ETextureType::T_2D;
 		desc.Subresources.resize(1u);
 		desc.Subresources[0].Width = width;
 		desc.Subresources[0].Height = height;
@@ -396,7 +401,7 @@ protected:
 
 	static TextureDesc load_DDS(const byte8_t* data, size_t size)
 	{
-		assert(data && size && size < std::numeric_limits<uint32_t>().max());
+		assert(data && size);
 		assert(size >= (sizeof(uint32_t) + sizeof(DirectX::DDS_HEADER)));
 		assert(*reinterpret_cast<const uint32_t*>(data) == DirectX::DDS_MAGIC);
 
@@ -471,6 +476,8 @@ protected:
 		{
 			auto formatAttr = FormatAttribute::attribute_DXGI(pixelFormatToDXGIFormat(header->ddspf));
 			assert(formatAttr.Format != EFormat::Unknown && formatAttr.Stride);
+			desc.Format = formatAttr.Format;
+
 			if (header->flags & DDS_HEADER_FLAGS_VOLUME)
 			{
 				desc.Dimension = ETextureType::T_3D;
@@ -558,23 +565,75 @@ protected:
 		desc.Depth = ktx->baseDepth;
 		desc.MipLevels = ktx->numLevels;
 		desc.ArraySize = ktx->numLayers;
+		switch (ktx->numDimensions)
+		{
+		case 1: desc.Dimension = ktx->isArray ? 
+			ETextureType::T_1D_Array : ETextureType::T_1D; 
+			break;
+		case 2: desc.Dimension = ktx->isCubemap ? 
+			(ktx->isArray ? ETextureType::T_Cube_Array : ETextureType::T_Cube) : 
+			(ktx->isArray ? ETextureType::T_2D_Array : ETextureType::T_2D); 
+			break;
+		case 3:
+			desc.Dimension = ETextureType::T_3D;
+			break;
+		default:
+			assert(0);
+			break;
+		}
 
 		FormatAttribute formatAttr{};
 		if (ktx->classId == ktxTexture1_c)
 		{
 			ktxTexture1* ktx1 = reinterpret_cast<ktxTexture1*>(ktx);
-			//formatAttr = FormatAttribute::attribute_GL(ktx1->glInternalformat);
+			formatAttr = FormatAttribute::attribute_GL(ktx1->glInternalformat);
 		}
 		else
 		{
 			ktxTexture2* ktx2 = reinterpret_cast<ktxTexture2*>(ktx);
-			//formatAttr = FormatAttribute::attribute_Vk(ktx2->vkFormat);
+			formatAttr = FormatAttribute::attribute_Vk(ktx2->vkFormat);
+		}
+		assert(formatAttr.Format != EFormat::Unknown);
+
+		desc.Format = formatAttr.Format;
+		desc.Subresources.resize(ktx->numLevels * ktx->numLayers);
+
+		uint32_t index = 0u;
+		for (uint32_t arrayIndex = 0u; arrayIndex < desc.ArraySize; ++arrayIndex)
+		{
+			uint32_t width = desc.Width;
+			uint32_t height = desc.Height;
+			uint32_t depth = desc.Depth;
+			for (uint32_t mipIndex = 0u; mipIndex < desc.MipLevels; ++mipIndex)
+			{
+				size_t offset = 0u;
+				VERIFY(ktxTexture_GetImageOffset(ktx, 0u, arrayIndex, mipIndex, &offset) == KTX_SUCCESS);
+
+				desc.Subresources[index].Width = width;
+				desc.Subresources[index].Height = height;
+				desc.Subresources[index].Depth = depth;
+				getBytesInfos(width, height, desc.Format, desc.Subresources[index].SliceBytes, desc.Subresources[index].RowBytes);
+
+				desc.Subresources[index].Offset = static_cast<uint32_t>(offset);
+				assert(ktxTexture_GetImageSize(ktx, mipIndex) == desc.Subresources[index].SliceBytes);
+
+				width = width >> 1;
+				height = height >> 1;
+				depth = depth >> 1;
+				width = width == 0u ? 1u : width;
+				height = height == 0u ? 1u : height;
+				depth = depth == 0u ? 1u : depth;
+
+				++index;
+			}
 		}
 
 		auto bytes = ktxTexture_GetDataSize(ktx);
 		desc.Data.reset(new byte8_t[bytes]());
 		VERIFY(memcpy_s(desc.Data.get(), bytes, ktxTexture_GetData(ktx), bytes) == 0);
-		return TextureDesc();
+		ktxTexture_Destroy(ktx);
+
+		return desc;
 	}
 
 private:

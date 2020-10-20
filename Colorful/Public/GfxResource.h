@@ -478,7 +478,7 @@ struct EXPORT_API FormatAttribute
 	uint32_t VulkanFormat = 0u;
 	uint32_t GLFormat = 0u;
 	uint32_t Stride = 0u;
-	const char8_t* const Name = nullptr;
+	const char8_t* Name = nullptr;
 
 	static FormatAttribute attribute(EFormat format);
 	static FormatAttribute attribute_Vk(uint32_t format);

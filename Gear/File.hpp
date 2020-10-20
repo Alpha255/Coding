@@ -196,7 +196,7 @@ public:
 
 	std::shared_ptr<byte8_t> data(EMode mode = EMode::Text)
 	{
-		int32_t readMode = mode == EMode::Binary ? std::ios::in | std::ios::binary : std::ios::in;
+		int32_t readMode = (mode == EMode::Binary ? (std::ios::in | std::ios::binary) : std::ios::in);
 
 		std::ifstream fs(m_FullPath, readMode);
 		assert(fs.is_open());

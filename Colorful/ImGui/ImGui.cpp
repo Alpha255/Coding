@@ -26,6 +26,10 @@ ImGuiRenderer::ImGuiRenderer()
 		1u
 	};
 
+	auto texTest0 = AssetTool::instance().loadTexture("wall_diffuse.dds", false);
+	auto texTest1 = AssetTool::instance().loadTexture("metalplate01_rgba.ktx", false);
+	auto texTest2 = AssetTool::instance().loadTexture("sky_cube.dds", false);
+
 	auto mat = std::make_shared<Gfx::Material>("ImGui.xml");
 	/// mat->setTexture();
 
