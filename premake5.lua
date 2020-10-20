@@ -185,14 +185,8 @@ workspace "Miscellaneous"
 		language "C++"
 		location "./Projects"
 		files {
-			"./ThirdParty/glslang/glslang/**.h",
-			"./ThirdParty/glslang/glslang/**.cpp",
-			"./ThirdParty/glslang/SPIRV/**.h",
-			"./ThirdParty/glslang/SPIRV/**.cpp",
-			"./ThirdParty/glslang/OGLCompilersDLL/**.h",
-			"./ThirdParty/glslang/OGLCompilersDLL/**.cpp",
-			"./ThirdParty/glslang/StandAlone/**.h",
-			"./ThirdParty/glslang/StandAlone/**.cpp",
+			"./ThirdParty/glslang/**.h",
+			"./ThirdParty/glslang/**.cpp",
 		}
 		targetdir "$(SolutionDir)Out\\Libs\\"
 		includedirs { 
@@ -200,6 +194,9 @@ workspace "Miscellaneous"
 			"$(SolutionDir)Thirdparty\\glslang\\build",
 		}
 		removefiles {
+			"./Thirdparty/glslang/gtests/**",
+			"./Thirdparty/ndk_test/**",
+			"./Thirdparty/Test/**",
 			"./ThirdParty/glslang/glslang/OSDependent/Unix/**",
 			"./ThirdParty/glslang/glslang/OSDependent/Web/**",
 			"./ThirdParty/glslang/glslang/OSDependent/Windows/main.cpp",
@@ -231,35 +228,27 @@ workspace "Miscellaneous"
 			location "./Projects"
 			files {
 				"./Thirdparty/KTX-Software/other_include/KHR/**",
-				"./Thirdparty/KTX-Software/include/ktx.h",
-				"./Thirdparty/KTX-Software/lib/filestream.h",
-				"./Thirdparty/KTX-Software/lib/formatsize.h",
-				"./Thirdparty/KTX-Software/lib/gl_format.h",
-				"./Thirdparty/KTX-Software/lib/texture_funcs.inl",
-				"./Thirdparty/KTX-Software/lib/ktxint.h",
-				"./Thirdparty/KTX-Software/lib/memstream.h",
-				"./Thirdparty/KTX-Software/lib/texture.h",
-				"./Thirdparty/KTX-Software/lib/uthash.h",
-				"./Thirdparty/KTX-Software/lib/texture1.h",
-				"./Thirdparty/KTX-Software/lib/texture2.h",
-				"./Thirdparty/KTX-Software/lib/dfdutils/**.h",
-				"./Thirdparty/KTX-Software/lib/dfdutils/**.inl",
-				"./Thirdparty/KTX-Software/lib/dfdutils/**.c",
-				"./Thirdparty/KTX-Software/lib/texture.c",
-				"./Thirdparty/KTX-Software/lib/swap.c",
-				"./Thirdparty/KTX-Software/lib/memstream.c",
-				"./Thirdparty/KTX-Software/lib/filestream.c",
-				"./Thirdparty/KTX-Software/lib/checkheader.c",
-				"./Thirdparty/KTX-Software/lib/hashlist.c",
-				"./Thirdparty/KTX-Software/lib/texture1.c",
-				"./Thirdparty/KTX-Software/lib/texture2.c",
-				"./Thirdparty/KTX-Software/lib/zstddeclib.c",
+				"./Thirdparty/KTX-Software/include/**",
+				"./Thirdparty/KTX-Software/lib/**.h",
+				"./Thirdparty/KTX-Software/lib/**.c",
+				"./Thirdparty/KTX-Software/lib/**.inl",
 			}
 			removefiles {
-				"./ThirdParty/KTX-Software/lib/dfdutils/vulkan/**",
-				--"./Thirdparty/KTX-Software/lib/dfdutils/dfd2vk.inl",
-				--"./Thirdparty/KTX-Software/lib/dfdutils/dfd2vk.c",
-				"./Thirdparty/KTX-Software/lib/dfdutils/endswap.c"
+				"./Thirdparty/KTX-Software/lib/basisu/**",
+				"./ThirdParty/KTX-Software/lib/dfdutils/vulkan/vulkan_core.h",
+				"./Thirdparty/KTX-Software/lib/dfdutils/endswap.c",
+				"./Thirdparty/KTX-Software/lib/gl_funclist.inl",
+				"./Thirdparty/KTX-Software/lib/gl_funcs.c",
+				"./Thirdparty/KTX-Software/lib/gl_funcs.h",
+				"./Thirdparty/KTX-Software/lib/vk_funclist.inl",
+				"./Thirdparty/KTX-Software/lib/vk_funcs.h",
+				"./Thirdparty/KTX-Software/lib/vk_funcs.c",
+				"./Thirdparty/KTX-Software/lib/vk_format_check.c",
+				"./Thirdparty/KTX-Software/lib/vk_format_enum.h",
+				"./Thirdparty/KTX-Software/lib/vk_format_str.c",
+				"./Thirdparty/KTX-Software/lib/vkloader.c",
+				"./Thirdparty/KTX-Software/lib/writer1.c",
+				"./Thirdparty/KTX-Software/lib/writer2.c",
 			}
 			targetdir "$(SolutionDir)Out\\Libs\\"
 			includedirs {
@@ -308,30 +297,14 @@ workspace "Miscellaneous"
 			language "C++"
 			location "./Projects"
 			files {
-				"./ThirdParty/SPIRV-Cross/GLSL.std.450.h",
-				"./ThirdParty/SPIRV-Cross/spirv.hpp",
-				"./ThirdParty/SPIRV-Cross/spirv_cfg.hpp",
-				"./ThirdParty/SPIRV-Cross/spirv_common.hpp",
-				"./ThirdParty/SPIRV-Cross/spirv_cross.hpp",
-				"./ThirdParty/SPIRV-Cross/spirv_cross_containers.hpp",
-				"./ThirdParty/SPIRV-Cross/spirv_cross_error_handling.hpp",
-				"./ThirdParty/SPIRV-Cross/spirv_cross_parsed_ir.hpp",
-				"./ThirdParty/SPIRV-Cross/spirv_cfg.cpp",
-				"./ThirdParty/SPIRV-Cross/spirv_cross.cpp",
-				"./ThirdParty/SPIRV-Cross/spirv_cross_parsed_ir.cpp",
-				"./ThirdParty/SPIRV-Cross/spirv_parser.cpp",
-
-				"./ThirdParty/SPIRV-Cross/spirv_hlsl.hpp",
-				"./ThirdParty/SPIRV-Cross/spirv_hlsl.cpp",
-
-				"./ThirdParty/SPIRV-Cross/spirv_glsl.hpp",
-				"./ThirdParty/SPIRV-Cross/spirv_glsl.cpp",
-
-				"./ThirdParty/SPIRV-Cross/spirv_reflect.hpp",
-				"./ThirdParty/SPIRV-Cross/spirv_reflect.cpp",
-
-				"./ThirdParty/SPIRV-Cross/spirv_cross_util.hpp",
-				"./ThirdParty/SPIRV-Cross/spirv_cross_util.cpp"
+				"./ThirdParty/SPIRV-Cross/**.h",
+				"./ThirdParty/SPIRV-Cross/**.hpp",
+				"./ThirdParty/SPIRV-Cross/**.cpp",
+			}
+			removefiles {
+				"./Thirdparty/SPIRV-Cross/samples/**",
+				"./Thirdparty/SPIRV-Cross/main.cpp",
+				"./Thirdparty/SPIRV-Cross/tests-other/**"
 			}
 			targetdir "$(SolutionDir)Out\\Libs\\"
 			includedirs { "$(SolutionDir)ThirdParty\\SPIRV-Cross" }
@@ -367,6 +340,78 @@ workspace "Miscellaneous"
 					"./ThirdParty/SPIRV-Cross/spirv_cross_util.cpp"
 				}
 			}
+
+		project "assimp"
+  			kind "SharedLib"
+			location "./Projects"
+			targetdir "$(SolutionDir)Out\\"
+			buildoptions { "/bigobj" }
+			--disablewarnings { "4315", "4458", "4456", "4245", "4127", "4244", "4706", "4701", "4702", "4100", "4389", "4267", "4457", "4131", "4996", "4310", "4459", "4189" }
+			implibname "$(SolutionDir)Out\\Libs\\$(ProjectName)"
+			files {
+				"./ThirdParty/assimp/**.h",
+				"./ThirdParty/assimp/**.cpp",
+			}
+			removefiles { 
+				"./ThirdParty/assimp/contrib/zlib/contrib/inflate86/**",
+				"./ThirdParty/assimp/code/Importer/IFC/IFCReaderGen_4.h",
+				"./ThirdParty/assimp/code/Importer/IFC/IFCReaderGen_4.cpp",
+				"./ThirdParty/assimp/code/Importer/StepFile/**",
+				"./ThirdParty/assimp/contrib/zlib/contrib/**",
+				"./ThirdParty/assimp/test/**",
+				"./ThirdParty/assimp/tools/**",
+				"./ThirdParty/assimp/contrib/gtest/**",
+			}
+			includedirs { 
+				"$(SolutionDir)ThirdParty/assimp",
+				"$(SolutionDir)ThirdParty/assimp/include",
+				"$(SolutionDir)ThirdParty/assimp/code",
+				"$(SolutionDir)ThirdParty/assimp/code/AssetLib/AMF",
+				"$(SolutionDir)ThirdParty/assimp/contrib/",
+				"$(SolutionDir)ThirdParty/assimp/contrib/irrXML",
+				"$(SolutionDir)ThirdParty/assimp/contrib/zlib",
+				"$(SolutionDir)ThirdParty/assimp/contrib/unzip",
+				"$(SolutionDir)ThirdParty/assimp/contrib/openddlparser/include/",
+				"$(SolutionDir)ThirdParty/assimp/build",
+				"$(SolutionDir)ThirdParty/assimp/build/include",
+				"$(SolutionDir)ThirdParty/assimp/build/contrib/zlib",
+				"$(SolutionDir)ThirdParty/assimp/contrib/rapidjson/include"
+			}
+			filter { "configurations:Debug" }
+				defines { 
+					"WIN32",
+					"_WINDOWS",
+					"_DEBUG",
+					"EBUG:FULL",
+					"WIN32_LEAN_AND_MEAN",
+					"UNICODE",
+					"_UNICODE",
+					"ASSIMP_BUILD_NO_C4D_IMPORTER",
+					"MINIZ_USE_UNALIGNED_LOADS_AND_STORES=0",
+					"ASSIMP_IMPORTER_GLTF_USE_OPEN3DGC=1",
+					"ASSIMP_BUILD_DLL_EXPORT",
+					"_SCL_SECURE_NO_WARNINGS",
+					"_CRT_SECURE_NO_WARNINGS",
+					"OPENDDLPARSER_BUILD",
+					"assimp_EXPORTS",
+				}
+			filter { "configurations:Release" }
+				defines { 
+					"WIN32",
+					"_WINDOWS",
+					"NDEBUG",
+					"WIN32_LEAN_AND_MEAN",
+					"UNICODE",
+					"_UNICODE",
+					"ASSIMP_BUILD_NO_C4D_IMPORTER",
+					"MINIZ_USE_UNALIGNED_LOADS_AND_STORES=0",
+					"ASSIMP_IMPORTER_GLTF_USE_OPEN3DGC=1",
+					"ASSIMP_BUILD_DLL_EXPORT",
+					"_SCL_SECURE_NO_WARNINGS",
+					"_CRT_SECURE_NO_WARNINGS",
+					"OPENDDLPARSER_BUILD",
+					"assimp_EXPORTS", 
+				}
 
 
 	group "Applications"
