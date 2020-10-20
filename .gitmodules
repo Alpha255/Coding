@@ -13,9 +13,6 @@
 [submodule "ThirdParty/SPIRV-Cross"]
 	path = ThirdParty/SPIRV-Cross
 	url = https://github.com/KhronosGroup/SPIRV-Cross.git
-[submodule "ThirdParty/gli"]
-	path = ThirdParty/gli
-	url = https://github.com/g-truc/gli.git
 [submodule "ThirdParty/stb"]
 	path = ThirdParty/stb
 	url = https://github.com/nothings/stb.git
@@ -28,3 +25,6 @@
 [submodule "ThirdParty/tinyxml2"]
 	path = ThirdParty/tinyxml2
 	url = https://github.com/leethomason/tinyxml2.git
+[submodule "ThirdParty/KTX-Software"]
+	path = ThirdParty/KTX-Software
+	url = https://github.com/KhronosGroup/KTX-Software.git

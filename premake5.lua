@@ -84,15 +84,18 @@ workspace "Miscellaneous"
 			includedirs { 
 				"$(SolutionDir)",
 				"$(SolutionDir)Thirdparty\\glslang",
+				"$(SolutionDir)ThirdParty\\KTX-Software\\include",
+				"$(SolutionDir)ThirdParty\\KTX-Software\\other_include"
 			}
 			targetdir "$(SolutionDir)Out\\"
-			defines { "DYNAMIC_LIB", "STB_IMAGE_IMPLEMENTATION" }
+			defines { "DYNAMIC_LIB", "STB_IMAGE_IMPLEMENTATION", "KHRONOS_STATIC", "LIBKTX" }
 			implibname "$(SolutionDir)Out\\Libs\\$(ProjectName)"
 			links { 
 				"Gear", 
 				"glslang",
 				"tinyxml",
 				"spirv-cross",
+				"libktx",
 				"dxcompiler",
 				"d3dcompiler"
 			}
@@ -222,6 +225,55 @@ workspace "Miscellaneous"
 				"ENABLE_OPT=0"
 			}
 
+		project "libktx"
+			kind "StaticLib"
+			language "C++"
+			location "./Projects"
+			files {
+				"./Thirdparty/KTX-Software/other_include/KHR/**",
+				"./Thirdparty/KTX-Software/include/ktx.h",
+				"./Thirdparty/KTX-Software/lib/filestream.h",
+				"./Thirdparty/KTX-Software/lib/formatsize.h",
+				"./Thirdparty/KTX-Software/lib/gl_format.h",
+				"./Thirdparty/KTX-Software/lib/texture_funcs.inl",
+				"./Thirdparty/KTX-Software/lib/ktxint.h",
+				"./Thirdparty/KTX-Software/lib/memstream.h",
+				"./Thirdparty/KTX-Software/lib/texture.h",
+				"./Thirdparty/KTX-Software/lib/uthash.h",
+				"./Thirdparty/KTX-Software/lib/texture1.h",
+				"./Thirdparty/KTX-Software/lib/texture2.h",
+				"./Thirdparty/KTX-Software/lib/dfdutils/**.h",
+				"./Thirdparty/KTX-Software/lib/dfdutils/**.inl",
+				"./Thirdparty/KTX-Software/lib/dfdutils/**.c",
+				"./Thirdparty/KTX-Software/lib/texture.c",
+				"./Thirdparty/KTX-Software/lib/swap.c",
+				"./Thirdparty/KTX-Software/lib/memstream.c",
+				"./Thirdparty/KTX-Software/lib/filestream.c",
+				"./Thirdparty/KTX-Software/lib/checkheader.c",
+				"./Thirdparty/KTX-Software/lib/hashlist.c",
+				"./Thirdparty/KTX-Software/lib/texture1.c",
+				"./Thirdparty/KTX-Software/lib/texture2.c",
+				"./Thirdparty/KTX-Software/lib/zstddeclib.c",
+			}
+			removefiles {
+				"./ThirdParty/KTX-Software/lib/dfdutils/vulkan/**",
+				--"./Thirdparty/KTX-Software/lib/dfdutils/dfd2vk.inl",
+				--"./Thirdparty/KTX-Software/lib/dfdutils/dfd2vk.c",
+				"./Thirdparty/KTX-Software/lib/dfdutils/endswap.c"
+			}
+			targetdir "$(SolutionDir)Out\\Libs\\"
+			includedirs {
+				"$(SolutionDir)",
+				"$(SolutionDir)ThirdParty\\KTX-Software\\include",
+				"$(SolutionDir)ThirdParty\\KTX-Software\\other_include",
+			}
+			filter {
+				defines {
+					"KHRONOS_STATIC",
+					"LIBKTX"
+				}
+			}
+
 		project "ImGui"
 			kind "StaticLib"
 			language "C++"
@@ -233,7 +285,8 @@ workspace "Miscellaneous"
 			removefiles { 
 				"./ThirdParty/ImGUI/examples/**", 
 				"./ThirdParty/ImGUI/misc/fonts/**",
-				"./ThirdParty/ImGUI/misc/freetype/**" 
+				"./ThirdParty/ImGUI/misc/freetype/**",
+				"./Thirdparty/ImGUI/backends/**"
 			}
 			targetdir "$(SolutionDir)Out\\Libs\\"
 			includedirs { 

@@ -476,12 +476,14 @@ struct EXPORT_API FormatAttribute
 	EFormat Format = EFormat::Unknown;
 	int32_t DXGIFromat = 0u;
 	uint32_t VulkanFormat = 0u;
+	uint32_t GLFormat = 0u;
 	uint32_t Stride = 0u;
 	const char8_t* const Name = nullptr;
 
 	static FormatAttribute attribute(EFormat format);
 	static FormatAttribute attribute_Vk(uint32_t format);
 	static FormatAttribute attribute_DXGI(uint32_t format);
+	static FormatAttribute attribute_GL(uint32_t format);
 	static uint32_t toDXGIFormat(EFormat format);
 	static uint32_t toVulkanFormat(EFormat format);
 	static EFormat toSRGBFormat(EFormat format);

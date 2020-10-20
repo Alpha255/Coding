@@ -1,6 +1,7 @@
 #include "Colorful/D3D/DXGI_Interface.h"
 #include <ThirdParty/stb/stb_image.h>
 #include <ThirdParty/DirectXTex/DirectXTex/DDS.h>
+#include <ThirdParty/KTX-Software/include/ktx.h>
 
 NAMESPACE_START(Gfx)
 
@@ -45,6 +46,7 @@ public:
 
 		const byte8_t* data = asset->data().get();
 		const size_t dataSize = asset->size();
+		assert(dataSize < std::numeric_limits<int32_t>().max());
 
 		TextureDesc desc{};
 
@@ -57,7 +59,7 @@ public:
 			desc = load_KTX(data, dataSize);
 		}
 
-		desc = load_General(path);
+		desc = load_General(data, dataSize);
 		if (sRGB)
 		{
 			desc.Format = FormatAttribute::toSRGBFormat(desc.Format);
@@ -367,12 +369,12 @@ protected:
 		return rows;
 	}
 
-	static TextureDesc load_General(const std::string& path)
+	static TextureDesc load_General(const byte8_t* data, size_t size)
 	{
 		int32_t width = 0u;
 		int32_t height = 0u;
 		int32_t channels = 0u;
-		auto pixels = stbi_load(path.c_str(), &width, &height, &channels, STBI_rgb_alpha);
+		auto pixels = stbi_load_from_memory(data, static_cast<int32_t>(size), &width, &height, &channels, STBI_rgb_alpha);
 
 		TextureDesc desc{};
 		desc.Width = width;
@@ -386,6 +388,8 @@ protected:
 		assert(bytes == desc.Subresources[0].SliceBytes);
 		desc.Data.reset(new byte8_t[bytes]());
 		VERIFY(memcpy_s(desc.Data.get(), bytes, pixels, bytes) == 0);
+
+		stbi_image_free(pixels);
 
 		return desc;
 	}
@@ -545,6 +549,31 @@ protected:
 
 	static TextureDesc load_KTX(const byte8_t* data, size_t size)
 	{
+		TextureDesc desc{};
+		ktxTexture *ktx = nullptr;
+		VERIFY(KTX_SUCCESS == ktxTexture_CreateFromMemory(data, size, KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT, &ktx));
+
+		desc.Width = ktx->baseWidth;
+		desc.Height = ktx->baseHeight;
+		desc.Depth = ktx->baseDepth;
+		desc.MipLevels = ktx->numLevels;
+		desc.ArraySize = ktx->numLayers;
+
+		FormatAttribute formatAttr{};
+		if (ktx->classId == ktxTexture1_c)
+		{
+			ktxTexture1* ktx1 = reinterpret_cast<ktxTexture1*>(ktx);
+			//formatAttr = FormatAttribute::attribute_GL(ktx1->glInternalformat);
+		}
+		else
+		{
+			ktxTexture2* ktx2 = reinterpret_cast<ktxTexture2*>(ktx);
+			//formatAttr = FormatAttribute::attribute_Vk(ktx2->vkFormat);
+		}
+
+		auto bytes = ktxTexture_GetDataSize(ktx);
+		desc.Data.reset(new byte8_t[bytes]());
+		VERIFY(memcpy_s(desc.Data.get(), bytes, ktxTexture_GetData(ktx), bytes) == 0);
 		return TextureDesc();
 	}
 
