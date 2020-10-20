@@ -13,22 +13,24 @@ ImGuiRenderer::ImGuiRenderer()
 	int32_t width = 0;
 	int32_t height = 0;
 	ImGui::GetIO().Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
-	Gfx::TextureDesc desc
-	{
-		Gfx::ETextureType::T_2D,
-		Gfx::EFormat::RGBA8_UNorm,
-		Gfx::EBufferUsage::Immutable,
-		Gfx::EBufferBindFlags::ShaderResource,
-		static_cast<uint32_t>(width),
-		static_cast<uint32_t>(height),
-		1u,
-		1u,
-		1u
-	};
+	TextureDesc desc{};
+	desc.Format = EFormat::RGBA8_UNorm;
+	desc.Width = static_cast<uint32_t>(width);
+	desc.Height = static_cast<uint32_t>(height);
+	size_t bytes = width * height * 4u;
+	desc.Data.reset(new byte8_t[bytes]());
+	VERIFY(memcpy_s(desc.Data.get(), bytes, pixels, bytes) == 0);
+	desc.Subresources.push_back({
+		desc.Width,
+		desc.Height,
+		desc.Depth,
+		0u,
+		width * 4u,
+		static_cast<uint32_t>(bytes)});
 
 	auto texTest0 = AssetTool::instance().loadTexture("wall_diffuse.dds", false);
 	auto texTest1 = AssetTool::instance().loadTexture("metalplate01_rgba.ktx", false);
-	auto texTest2 = AssetTool::instance().loadTexture("sky_cube.dds", false);
+	auto texTest2 = AssetTool::instance().loadTexture("sponza_column_c_diff.jpg", false);
 
 	auto mat = std::make_shared<Gfx::Material>("ImGui.xml");
 	/// mat->setTexture();

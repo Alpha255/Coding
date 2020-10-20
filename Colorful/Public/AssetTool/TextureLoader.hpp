@@ -422,7 +422,7 @@ protected:
 		TextureDesc desc{};
 		desc.Width = header->width;
 		desc.Height = header->height;
-		desc.Depth = header->depth;
+		desc.Depth = header->depth == 0u ? 1u : header->depth;
 		desc.MipLevels = header->mipMapCount == 0u ? 1u : header->mipMapCount;
 		assert(desc.MipLevels <= D3D11_REQ_MIP_LEVELS);
 
@@ -607,7 +607,7 @@ protected:
 			for (uint32_t mipIndex = 0u; mipIndex < desc.MipLevels; ++mipIndex)
 			{
 				size_t offset = 0u;
-				VERIFY(ktxTexture_GetImageOffset(ktx, 0u, arrayIndex, mipIndex, &offset) == KTX_SUCCESS);
+				VERIFY(ktxTexture_GetImageOffset(ktx, mipIndex, arrayIndex, 0u, &offset) == KTX_SUCCESS); /// Wrong param order...
 
 				desc.Subresources[index].Width = width;
 				desc.Subresources[index].Height = height;
