@@ -1,6 +1,7 @@
 #include "Colorful/Public/AssetTool/AssetTool.h"
 #include "Colorful/Public/AssetTool/ShaderCompiler.hpp"
 #include "Colorful/Public/AssetTool/TextureLoader.hpp"
+#include "Colorful/Public/AssetTool/ModelLoader.hpp"
 
 NAMESPACE_START(Gfx)
 
