@@ -103,7 +103,7 @@ workspace "Miscellaneous"
 			libdirs {
 				"$(SolutionDir)Thirdparty\\dxc\\lib"
 			}
-			--disablewarnings { "4201", "4458", "4100" }
+			--disablewarnings { "4251" }
 			postbuildcommands {
 				"{COPY} $(SolutionDir)Thirdparty\\dxc\\bin\\*.dll $(SolutionDir)Out"
 			}
@@ -204,7 +204,7 @@ workspace "Miscellaneous"
 			"./ThirdParty/glslang/StandAlone/StandAlone.cpp",
 			"./ThirdParty/glslang/StandAlone/spirv-remap.cpp",
 		}
-		--disablewarnings { "4456", "4457", "4458", "4244", "4702" }
+		disablewarnings { "4702", "4458", "4456", "4127", "4457", "4244", "4100", "4189" }
 		filter { "configurations:Debug" }
 			defines { 
 				"WIN32",
@@ -263,6 +263,7 @@ workspace "Miscellaneous"
 					"LIBKTX"
 				}
 			}
+			disablewarnings { "4389", "4706", "4100", "4127", "4189", "4701", "4702", "4101", "4456" }
 
 		project "ImGui"
 			kind "StaticLib"
@@ -341,13 +342,14 @@ workspace "Miscellaneous"
 					"./ThirdParty/SPIRV-Cross/spirv_cross_util.cpp"
 				}
 			}
+			disablewarnings { "4065", "4702"}
 
 		project "assimp"
   			kind "SharedLib"
 			location "./Projects"
 			targetdir "$(SolutionDir)Out\\"
 			buildoptions { "/bigobj" }
-			--disablewarnings { "4315", "4458", "4456", "4245", "4127", "4244", "4706", "4701", "4702", "4100", "4389", "4267", "4457", "4131", "4996", "4310", "4459", "4189" }
+			disablewarnings { "4819", "4189", "4131", "4996", "4127", "4244" }
 			implibname "$(SolutionDir)Out\\Libs\\$(ProjectName)"
 			files {
 				"./ThirdParty/assimp/**.h",
