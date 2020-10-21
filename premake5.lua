@@ -47,7 +47,7 @@ workspace "Miscellaneous"
 	filter { "configurations:Debug" }
 		symbols "On"
 		optimize "Debug"
-		defines { "DEBUG", "_UNICODE", "UNICODE" }
+		defines { "_DEBUG", "_UNICODE", "UNICODE" }
 	filter { "configurations:Release" }
 		optimize "Speed"
 		defines { "NDEBUG", "_UNICODE", "UNICODE" }
@@ -97,7 +97,8 @@ workspace "Miscellaneous"
 				"spirv-cross",
 				"libktx",
 				"dxcompiler",
-				"d3dcompiler"
+				"d3dcompiler",
+				"assimp"
 			}
 			libdirs {
 				"$(SolutionDir)Thirdparty\\dxc\\lib"
@@ -351,44 +352,53 @@ workspace "Miscellaneous"
 			files {
 				"./ThirdParty/assimp/**.h",
 				"./ThirdParty/assimp/**.cpp",
+				"./ThirdParty/assimp/**.hpp",
+				"./ThirdParty/assimp/**.c",
+				"./ThirdParty/assimp/**.cc",
 			}
 			removefiles { 
 				"./ThirdParty/assimp/contrib/zlib/contrib/inflate86/**",
-				"./ThirdParty/assimp/code/Importer/IFC/IFCReaderGen_4.h",
-				"./ThirdParty/assimp/code/Importer/IFC/IFCReaderGen_4.cpp",
-				"./ThirdParty/assimp/code/Importer/StepFile/**",
+				"./ThirdParty/assimp/code/AssetLib/IFC/IFCReaderGen_4.h",
+				"./ThirdParty/assimp/code/AssetLib/IFC/IFCReaderGen_4.cpp",
 				"./ThirdParty/assimp/contrib/zlib/contrib/**",
 				"./ThirdParty/assimp/test/**",
 				"./ThirdParty/assimp/tools/**",
 				"./ThirdParty/assimp/contrib/gtest/**",
+				"./Thirdparty/assimp/build/CMakeFiles/**",
+				"./Thirdparty/assimp/include/port/AndroidJNI/**",
+				"./Thirdparty/assimp/port/**",
+				"./Thirdparty/assimp/code/AMF/**",
+				"./Thirdparty/assimp/samples/**",
+				"./Thirdparty/assimp/contrib/zip/test/**"
 			}
 			includedirs { 
-				"$(SolutionDir)ThirdParty/assimp",
+				"$(SolutionDir)ThirdParty/assimp/build/include",
+				"$(SolutionDir)ThirdParty/assimp/build",
 				"$(SolutionDir)ThirdParty/assimp/include",
 				"$(SolutionDir)ThirdParty/assimp/code",
-				"$(SolutionDir)ThirdParty/assimp/code/AssetLib/AMF",
-				"$(SolutionDir)ThirdParty/assimp/contrib/",
-				"$(SolutionDir)ThirdParty/assimp/contrib/irrXML",
+				"$(SolutionDir)ThirdParty/assimp",
 				"$(SolutionDir)ThirdParty/assimp/contrib/zlib",
-				"$(SolutionDir)ThirdParty/assimp/contrib/unzip",
-				"$(SolutionDir)ThirdParty/assimp/contrib/openddlparser/include/",
-				"$(SolutionDir)ThirdParty/assimp/build",
-				"$(SolutionDir)ThirdParty/assimp/build/include",
 				"$(SolutionDir)ThirdParty/assimp/build/contrib/zlib",
-				"$(SolutionDir)ThirdParty/assimp/contrib/rapidjson/include"
+				"$(SolutionDir)ThirdParty/assimp/contrib/rapidjson/include",
+				"$(SolutionDir)ThirdParty/assimp/contrib/",
+				"$(SolutionDir)ThirdParty/assimp/contrib/pugixml/src",
+				"$(SolutionDir)ThirdParty/assimp/contrib/unzip",
+				"$(SolutionDir)ThirdParty/assimp/contrib/irrXML",
+				"$(SolutionDir)ThirdParty/assimp/contrib/openddlparser/include/"
 			}
 			filter { "configurations:Debug" }
 				defines { 
 					"WIN32",
 					"_WINDOWS",
 					"_DEBUG",
-					"EBUG:FULL",
 					"WIN32_LEAN_AND_MEAN",
 					"UNICODE",
 					"_UNICODE",
 					"ASSIMP_BUILD_NO_C4D_IMPORTER",
 					"MINIZ_USE_UNALIGNED_LOADS_AND_STORES=0",
 					"ASSIMP_IMPORTER_GLTF_USE_OPEN3DGC=1",
+					"RAPIDJSON_HAS_STDSTRING=1",
+					"RAPIDJSON_NOMEMBERITERATORCLASS",
 					"ASSIMP_BUILD_DLL_EXPORT",
 					"_SCL_SECURE_NO_WARNINGS",
 					"_CRT_SECURE_NO_WARNINGS",
@@ -406,13 +416,14 @@ workspace "Miscellaneous"
 					"ASSIMP_BUILD_NO_C4D_IMPORTER",
 					"MINIZ_USE_UNALIGNED_LOADS_AND_STORES=0",
 					"ASSIMP_IMPORTER_GLTF_USE_OPEN3DGC=1",
+					"RAPIDJSON_HAS_STDSTRING=1",
+					"RAPIDJSON_NOMEMBERITERATORCLASS",
 					"ASSIMP_BUILD_DLL_EXPORT",
 					"_SCL_SECURE_NO_WARNINGS",
 					"_CRT_SECURE_NO_WARNINGS",
 					"OPENDDLPARSER_BUILD",
 					"assimp_EXPORTS", 
 				}
-
 
 	group "Applications"
 		project "RenderTest"
