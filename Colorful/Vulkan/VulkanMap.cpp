@@ -180,134 +180,7 @@ VkStencilOp VulkanMap::stencilOp(EStencilOp op)
 
 VkFormat VulkanMap::format(EFormat format)
 {
-	switch (format)
-	{
-	case EFormat::Unknown:                  return VK_FORMAT_UNDEFINED;
-	case EFormat::D16_UNorm:                return VK_FORMAT_D16_UNORM;
-	case EFormat::D24_UNorm_S8_UInt:        return VK_FORMAT_D24_UNORM_S8_UINT;
-	case EFormat::D32_Float:                return VK_FORMAT_D32_SFLOAT;
-	case EFormat::RGBA32_Typeless:          return VK_FORMAT_R32G32B32A32_SFLOAT;
-	case EFormat::RGBA32_Float:             return VK_FORMAT_R32G32B32A32_SFLOAT;
-	case EFormat::RGBA32_UInt:              return VK_FORMAT_R32G32B32A32_UINT;
-	case EFormat::RGBA32_SInt:              return VK_FORMAT_R32G32B32A32_SINT;
-	case EFormat::RGB32_Typeless:           return VK_FORMAT_R32G32B32_SFLOAT;
-	case EFormat::RGB32_Float:              return VK_FORMAT_R32G32B32_SFLOAT;
-	case EFormat::RGB32_UInt:               return VK_FORMAT_R32G32B32_UINT;
-	case EFormat::RGB32_SInt:               return VK_FORMAT_R32G32B32_SINT;
-	case EFormat::RGBA16_Typeless:          return VK_FORMAT_R16G16B16A16_SFLOAT;
-	case EFormat::RGBA16_Float:             return VK_FORMAT_R16G16B16A16_SFLOAT;
-	case EFormat::RGBA16_UNorm:             return VK_FORMAT_R16G16B16A16_UNORM;
-	case EFormat::RGBA16_UInt:              return VK_FORMAT_R16G16B16A16_UINT;
-	case EFormat::RGBA16_SNorm:             return VK_FORMAT_R16G16B16A16_SNORM;
-	case EFormat::RGBA16_SInt:              return VK_FORMAT_R16G16B16A16_SINT;
-	case EFormat::RG32_Typeless:            return VK_FORMAT_R32G32_SFLOAT;
-	case EFormat::RG32_Float:               return VK_FORMAT_R32G32_SFLOAT;
-	case EFormat::RG32_UInt:                return VK_FORMAT_R32G32_UINT;
-	case EFormat::RG32_SInt:                return VK_FORMAT_R32G32_SINT;
-	case EFormat::RGBA8_Typeless:           return VK_FORMAT_R8G8B8A8_UNORM;
-	case EFormat::RGBA8_UNorm:              return VK_FORMAT_R8G8B8A8_UNORM;
-	case EFormat::RGBA8_UNorm_SRGB:         return VK_FORMAT_R8G8B8A8_SRGB;
-	case EFormat::RGBA8_UInt:               return VK_FORMAT_R8G8B8A8_UINT;
-	case EFormat::RGBA8_SNorm:              return VK_FORMAT_R8G8B8A8_SNORM;
-	case EFormat::RGBA8_SInt:               return VK_FORMAT_R8G8B8A8_SINT;
-	case EFormat::RG16_Typeless:            return VK_FORMAT_R16G16_SFLOAT;
-	case EFormat::RG16_Float:               return VK_FORMAT_R16G16_SFLOAT;
-	case EFormat::RG16_UNorm:               return VK_FORMAT_R16G16_UNORM;
-	case EFormat::RG16_UInt:                return VK_FORMAT_R16G16_UINT;
-	case EFormat::RG16_SNorm:               return VK_FORMAT_R16G16_SNORM;
-	case EFormat::RG16_SInt:                return VK_FORMAT_R16G16_SINT;
-	case EFormat::R32_Typeless:             return VK_FORMAT_R32_SFLOAT;
-	case EFormat::R32_Float:                return VK_FORMAT_R32_SFLOAT;
-	case EFormat::R32_UInt:                 return VK_FORMAT_R32_UINT;
-	case EFormat::R32_SInt:                 return VK_FORMAT_R32_SINT;
-	case EFormat::RG8_Typeless:             return VK_FORMAT_R8G8_UNORM;
-	case EFormat::RG8_UNorm:                return VK_FORMAT_R8G8_UNORM;
-	case EFormat::RG8_UInt:                 return VK_FORMAT_R8G8_UINT;
-	case EFormat::RG8_SNorm:                return VK_FORMAT_R8G8_SNORM;
-	case EFormat::RG8_SInt:                 return VK_FORMAT_R8G8_SINT;
-	case EFormat::R16_Typeless:             return VK_FORMAT_R16_SFLOAT;
-	case EFormat::R16_Float:                return VK_FORMAT_R16_SFLOAT;
-	case EFormat::R16_UNorm:                return VK_FORMAT_R16_UNORM;
-	case EFormat::R16_UInt:                 return VK_FORMAT_R16_UINT;
-	case EFormat::R16_SNorm:                return VK_FORMAT_R16_SNORM;
-	case EFormat::R16_SInt:                 return VK_FORMAT_R16_SINT;
-	case EFormat::R8_Typeless:              return VK_FORMAT_R8_UNORM;
-	case EFormat::R8_UNorm:                 return VK_FORMAT_R8_UNORM;
-	case EFormat::R8_UInt:                  return VK_FORMAT_R8_UINT;
-	case EFormat::R8_SNorm:                 return VK_FORMAT_R8_SNORM;
-	case EFormat::R8_SInt:                  return VK_FORMAT_R8_SINT;
-	case EFormat::BC1_Typeless:             return VK_FORMAT_BC1_RGBA_UNORM_BLOCK;
-	case EFormat::BC1_UNorm:                return VK_FORMAT_BC1_RGBA_UNORM_BLOCK;
-	case EFormat::BC1_UNorm_SRGB:           return VK_FORMAT_BC1_RGBA_SRGB_BLOCK;
-	case EFormat::BC2_Typeless:             return VK_FORMAT_BC2_UNORM_BLOCK;
-	case EFormat::BC2_UNorm:                return VK_FORMAT_BC2_UNORM_BLOCK;
-	case EFormat::BC2_UNorm_SRGB:           return VK_FORMAT_BC2_SRGB_BLOCK;
-	case EFormat::BC3_Typeless:             return VK_FORMAT_BC3_UNORM_BLOCK;
-	case EFormat::BC3_UNorm:                return VK_FORMAT_BC3_UNORM_BLOCK;
-	case EFormat::BC3_UNorm_SRGB:           return VK_FORMAT_BC3_SRGB_BLOCK;
-	case EFormat::BC4_Typeless:             return VK_FORMAT_BC4_UNORM_BLOCK;
-	case EFormat::BC4_UNorm:                return VK_FORMAT_BC4_UNORM_BLOCK;
-	case EFormat::BC4_SNorm:                return VK_FORMAT_BC4_SNORM_BLOCK;
-	case EFormat::BC5_Typeless:             return VK_FORMAT_BC5_UNORM_BLOCK;
-	case EFormat::BC5_UNorm:                return VK_FORMAT_BC5_UNORM_BLOCK;
-	case EFormat::BC5_SNorm:                return VK_FORMAT_BC5_SNORM_BLOCK;
-	case EFormat::B5G6R5_UNorm:             return VK_FORMAT_B5G6R5_UNORM_PACK16;
-	case EFormat::BGR5A1_UNorm:             return VK_FORMAT_B5G5R5A1_UNORM_PACK16;
-	case EFormat::BGRA8_UNorm:              return VK_FORMAT_R8G8B8A8_UNORM;
-	case EFormat::BGRA8_Typeless:           return VK_FORMAT_R8G8B8A8_UNORM;
-	case EFormat::BGRA8_UNorm_SRGB:         return VK_FORMAT_R8G8B8A8_SRGB;
-	case EFormat::BC6H_Typeless:            return VK_FORMAT_BC6H_UFLOAT_BLOCK;
-	case EFormat::BC6H_UF16:                return VK_FORMAT_BC6H_UFLOAT_BLOCK;
-	case EFormat::BC6H_SF16:                return VK_FORMAT_BC6H_SFLOAT_BLOCK;
-	case EFormat::BC7_Typeless:             return VK_FORMAT_BC7_UNORM_BLOCK;
-	case EFormat::BC7_UNorm:                return VK_FORMAT_BC7_UNORM_BLOCK;
-	case EFormat::BC7_UNorm_SRGB:           return VK_FORMAT_BC7_SRGB_BLOCK;
-	case EFormat::Force_UInt:               return VK_FORMAT_R8G8B8A8_UINT;
-	case EFormat::D32_Float_S8X24_Uint:
-	case EFormat::R32G8X24_Typeless:
-	case EFormat::R32_Float_X8X24_Typeless:
-	case EFormat::X32_Typeless_G8X24_UInt:
-	case EFormat::RGB10A2_Typeless:
-	case EFormat::RGB10A2_UNorm:
-	case EFormat::RGB10A2_UInt:
-	case EFormat::RG11B10_Float:
-	case EFormat::R24G8_Typeless:
-	case EFormat::R24_UNorm_X8_Typeless:
-	case EFormat::X24_Typelesss_G8_UInt:
-	case EFormat::A8_UNorm:
-	case EFormat::R1_UNorm:
-	case EFormat::RGB9E5_SharedXP:
-	case EFormat::RG8_BG8_UNorm:
-	case EFormat::GR8_GB8_UNorm:
-	case EFormat::BGRX8_UNorm:
-	case EFormat::RGB10_XR_Bias_A2_UNorm:
-	case EFormat::BGRX8_Typeless:
-	case EFormat::BGRX8_UNorm_SRGB:
-	case EFormat::AYUV:
-	case EFormat::Y410:
-	case EFormat::Y416:
-	case EFormat::NV12:
-	case EFormat::P010:
-	case EFormat::P016:
-	case EFormat::Opaque_420:
-	case EFormat::YUY2:
-	case EFormat::Y210:
-	case EFormat::Y216:
-	case EFormat::NV11:
-	case EFormat::AI44:
-	case EFormat::IA44:
-	case EFormat::P8:
-	case EFormat::AP8:
-	case EFormat::BGRA4_UNorm:
-	case EFormat::P208:
-	case EFormat::V208:
-	case EFormat::V408:
-		assert(0);
-		break;
-	}
-
-	assert(0);
-	return (VkFormat)-1;
+	return static_cast<VkFormat>(FormatAttribute::attribute(format).VulkanFormat);
 }
 
 VkShaderStageFlagBits VulkanMap::shaderStage(EShaderStage stage)
@@ -443,6 +316,22 @@ VkImageViewType VulkanMap::imageViewType(ETextureType type)
 
 	assert(0);
 	return VK_IMAGE_VIEW_TYPE_MAX_ENUM;
+}
+
+VkSampleCountFlagBits VulkanMap::samplerCount(uint32_t sampleCount)
+{
+	switch (sampleCount)
+	{
+	case 1u:  return VK_SAMPLE_COUNT_1_BIT;
+	case 2u:  return VK_SAMPLE_COUNT_2_BIT;
+	case 4u:  return VK_SAMPLE_COUNT_4_BIT;
+	case 8u:  return VK_SAMPLE_COUNT_8_BIT;
+	case 16u: return VK_SAMPLE_COUNT_16_BIT;
+	case 32u: return VK_SAMPLE_COUNT_32_BIT;
+	case 64u: return VK_SAMPLE_COUNT_64_BIT;
+	}
+
+	return VK_SAMPLE_COUNT_1_BIT;
 }
 
 NAMESPACE_END(Gfx)

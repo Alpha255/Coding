@@ -1,36 +1,27 @@
 #pragma once
 
 #include "Colorful/Vulkan/VulkanBuffer.h"
-#include "AssetTool/Asset.h"
 
-class VulkanSampler : public VulkanDeviceObject<VkSampler>, public GfxSampler
+NAMESPACE_START(Gfx)
+
+DECLARE_SHARED_PTR(VulkanSampler)
+class VulkanSampler final : public VkObject<VkSampler_T>
 {
 public:
-	VulkanSampler(VkDevice device, const GfxSamplerDesc& desc);
-	void destroy(VkDevice device) override final;
+	VulkanSampler(VkDevice device, const SamplerDesc& desc);
+	
+	void destroy(VkDevice device)
+	{
+
+	}
 protected:
 private:
 };
-using VulkanSamplerPtr = std::shared_ptr<VulkanSampler>;
 
-class VulkanImage : public VulkanDeviceObject<VkImage>
+DECLARE_SHARED_PTR(VulkanImage)
+class VulkanImage final : public VkObject<VkImage_T>
 {
 public:
-	enum eImageLayout
-	{
-		eUndefined,
-		eTransferDst,
-		eColorAttachment,
-		eDepthStencilAttachment,
-		eTransferSrc,
-		ePresent,
-		eFragmentShaderRead,
-		ePixelDepthStencilRead,
-		eComputeShaderReadWrite,
-		eFragmentShaderReadWrite,
-		eImageLayout_MaxEnum
-	};
-
 	static void makeMemoryBarrierFlags(
 		eImageLayout layout, 
 		__out VkPipelineStageFlags& stageFlags, 
@@ -109,4 +100,5 @@ private:
 	VkImageType m_Type = VK_IMAGE_TYPE_MAX_ENUM;
 	VkFormat m_Format = VK_FORMAT_UNDEFINED;
 };
-using VulkanImagePtr = std::shared_ptr<VulkanImage>;
+
+NAMESPACE_END(Gfx)

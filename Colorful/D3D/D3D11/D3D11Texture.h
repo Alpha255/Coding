@@ -1,33 +1,35 @@
 #pragma once
-#if 0
-#include "Colorful/Public/GfxResource.h"
 
-class D3D11Texture : public D3DObject<ID3D11Resource>
+#include "Colorful/D3D/DXGI_Interface.h"
+
+NAMESPACE_START(Gfx)
+
+DECLARE_SHARED_PTR(D3D11Texture)
+class D3D11Texture final : public D3DObject<ID3D11Resource>
 {
 public:
-	D3D11Texture(
-		const class D3D11Device& device,
-		eRTextureType type,
-		DXGI_FORMAT format,
-		uint32_t width,
-		uint32_t height,
-		uint32_t depth,
-		uint32_t mipLevels,
-		uint32_t arrayLayers,
-		uint32_t bindFlags,
-		const void* data,
-		size_t dataSize);
-protected:
-	void caculateSurfaceInfo(
-		uint32_t width,
-		uint32_t height,
-		DXGI_FORMAT format,
-		__out size_t& numBytes,
-		__out size_t& rowBytes,
-		__out size_t& numRows) const;
-
-	size_t bitsPerPixel(DXGI_FORMAT format) const;
-private:
+	D3D11Texture(ID3D11Device* device, const TextureDesc& desc);
 };
-using D3D11TexturePtr = std::shared_ptr<D3D11Texture>;
-#endif
+
+DECLARE_SHARED_PTR(D3D11Texture1D)
+class D3DTexture1D final : public D3DObject<ID3D11Texture1D>
+{
+public:
+	D3DTexture1D(ID3D11Device* device, const TextureDesc& desc);
+};
+
+DECLARE_SHARED_PTR(D3D11Texture2D)
+class D3DTexture2D final : public D3DObject<ID3D11Texture2D>
+{
+public:
+	D3DTexture2D(ID3D11Device* device, const TextureDesc& desc);
+};
+
+DECLARE_SHARED_PTR(D3D11Texture3D)
+class D3DTexture3D final : public D3DObject<ID3D11Texture3D>
+{
+public:
+	D3DTexture3D(ID3D11Device* device, const TextureDesc& desc);
+};
+
+NAMESPACE_END(Gfx)

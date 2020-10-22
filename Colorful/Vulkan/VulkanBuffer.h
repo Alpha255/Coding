@@ -21,6 +21,7 @@ NAMESPACE_START(Gfx)
 //	//}
 //};
 
+DECLARE_SHARED_PTR(VulkanBuffer)
 class VulkanBuffer final : public VkObject<VkBuffer_T>
 {
 public:
@@ -36,6 +37,11 @@ public:
 
 		vkFreeMemory(device, m_Memory, VK_MEMORY_ALLOCATOR);
 		vkDestroyBuffer(device, get(), VK_MEMORY_ALLOCATOR);
+	}
+
+	VkDeviceMemory memory() const
+	{
+		return m_Memory;
 	}
 
 	//void update(VkDevice device, const void* data, size_t size, size_t offset)

@@ -1,80 +1,94 @@
 #pragma once
 
-#include "Colorful/Vulkan/VulkanImage.h"
-#include "Colorful/Vulkan/VulkanEnum.h"
+#include "Colorful/Vulkan/VulkanBuffer.h"
 
-class VulkanImageView : public VulkanDeviceObject<VkImageView>, public GfxRenderSurface, public GfxTexture
+NAMESPACE_START(Gfx)
+
+class VulkanImageView : public VkObject<VkImageView_T>
 {
 public:
-	VulkanImageView(VkDevice device, const std::string& texName);
-
-	VulkanImageView(VkDevice device, const VulkanImagePtr& image, VkImageViewType type, VkImageAspectFlags aspectFlags);
-
-	VulkanImageView(
-		VkDevice device,
-		uint32_t width,
-		uint32_t height,
-		uint32_t depth,
-		uint32_t mipLevels,
-		uint32_t arrayLayers,
-		VkImageViewType type,
-		VkFormat format,
-		VkImageUsageFlags usage,
-		VkImageAspectFlags aspectFlags);
-
-	VulkanImageView(
-		VkDevice device,
-		eRTextureType type,
-		eRFormat format,
-		uint32_t width,
-		uint32_t height,
-		uint32_t depth,
-		uint32_t mipLevels,
-		uint32_t arrayLayers,
-		const void* data,
-		size_t dataSize);
-
-	void destroy(VkDevice device) override final
+	enum class EImageLayout : uint8_t
 	{
-		if (isValid())
-		{
-			m_Image->destroy(device);
-			
-			vkDestroyImageView(device, Handle, vkMemoryAllocator);
-			Handle = VK_NULL_HANDLE;
-		}
-	}
+		Undefined,
+		TransferDst,
+		ColorAttachment,
+		DepthStencilAttachment,
+		TransferSrc,
+		Present,
+		FragmentShaderRead,
+		PixelDepthStencilRead,
+		ComputeShaderReadWrite,
+		FragmentShaderReadWrite
+	};
 
-	inline VkFormat format() const
+	VulkanImageView(VkDevice device, const TextureDesc& desc, uint32_t usageFlags, uint32_t aspectFlags, VkImageLayout layout);
+
+	void destroy(VkDevice device)
 	{
-		assert(m_Image);
-		return m_Image->format();
+		assert(device);
+		vkFreeMemory(device, m_Buffer, VK_MEMORY_ALLOCATOR);
+		vkDestroyImage(device, m_Image, VK_MEMORY_ALLOCATOR);
+		vkDestroyImageView(device, get(), VK_MEMORY_ALLOCATOR);
+		m_Image = VK_NULL_HANDLE;
+		m_Buffer = VK_NULL_HANDLE;
 	}
 protected:
-	inline VkImageType imageType(VkImageViewType type)
-	{
-		switch (type)
-		{
-		case VK_IMAGE_VIEW_TYPE_1D: 
-		case VK_IMAGE_VIEW_TYPE_1D_ARRAY:
-			return VK_IMAGE_TYPE_1D;
-		case VK_IMAGE_VIEW_TYPE_2D: 
-		case VK_IMAGE_VIEW_TYPE_2D_ARRAY:
-			return VK_IMAGE_TYPE_2D;
-		case VK_IMAGE_VIEW_TYPE_3D: 
-			return VK_IMAGE_TYPE_3D;
-		case VK_IMAGE_VIEW_TYPE_CUBE: 
-		case VK_IMAGE_VIEW_TYPE_CUBE_ARRAY:
-			return VK_IMAGE_TYPE_2D;
-		}
-
-		return VK_IMAGE_TYPE_MAX_ENUM;
-	}
+	void getMemoryBarrierFlags(
+		EImageLayout layout,
+		VkPipelineStageFlags& stageFlags,
+		VkAccessFlags& accessFlags,
+		VkImageLayout& imageLayout);
 private:
-	VulkanImagePtr m_Image = nullptr;
+	VkImage m_Image = VK_NULL_HANDLE;
+	VkDeviceMemory m_Buffer = VK_NULL_HANDLE;
 };
-using VulkanImageViewPtr = std::shared_ptr<VulkanImageView>;
 
+DECLARE_SHARED_PTR(VulkanTexture1D)
+class VulkanTexture1D final : public VulkanImageView
+{
+public:
+	VulkanTexture1D(VkDevice device, const TextureDesc& desc)
+		: VulkanImageView(
+			device, 
+			desc, 
+			VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 
+			VK_IMAGE_ASPECT_COLOR_BIT, 
+			VK_IMAGE_LAYOUT_UNDEFINED)
+	{
+	}
+};
+
+DECLARE_SHARED_PTR(VulkanTexture2D)
+class VulkanTexture2D final : public VulkanImageView
+{
+public:
+	VulkanTexture2D(VkDevice device, const TextureDesc& desc)
+		: VulkanImageView(
+			device,
+			desc,
+			VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+			VK_IMAGE_ASPECT_COLOR_BIT,
+			VK_IMAGE_LAYOUT_UNDEFINED)
+	{
+	}
+};
+
+DECLARE_SHARED_PTR(VulkanTexture3D)
+class VulkanTexture3D final : public VulkanImageView
+{
+public:
+	VulkanTexture3D(VkDevice device, const TextureDesc& desc)
+		: VulkanImageView(
+			device,
+			desc,
+			VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+			VK_IMAGE_ASPECT_COLOR_BIT,
+			VK_IMAGE_LAYOUT_UNDEFINED)
+	{
+	}
+};
+
+#if 0
 class VulkanRenderTarget : public VulkanImageView
 {
 public:
@@ -120,3 +134,6 @@ public:
 	{
 	}
 };
+#endif
+
+NAMESPACE_END(Gfx)

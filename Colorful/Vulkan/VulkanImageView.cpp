@@ -1,20 +1,58 @@
-#if 0
-#include "Colorful/Vulkan/VulkanEngine.h"
-#include "AssetTool/AssetDatabase.h"
+#include "Colorful/Vulkan/VulkanImageView.h"
+#include "Colorful/Vulkan/VulkanMap.h"
 
-VulkanImageView::VulkanImageView(VkDevice device, const VulkanImagePtr& image, VkImageViewType type, VkImageAspectFlags aspectFlags)
-	: m_Image(image)
+NAMESPACE_START(Gfx)
+
+VulkanImageView::VulkanImageView(VkDevice device, const TextureDesc& desc, uint32_t usageFlags, uint32_t aspectFlags, VkImageLayout layout)
 {
-	assert(image && image->isValid() && !isValid());
+	assert(device);
+
+	VkFormat format = VulkanMap::format(desc.Format);
+	VkImageCreateInfo imageCreateInfo
+	{
+		VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+		nullptr,
+		0u,   /// flags is a bitmask of VkImageCreateFlagBits describing additional parameters of the image.
+		VulkanMap::imageType(desc.Dimension),
+		format,
+		{
+			desc.Width,
+			desc.Height,
+			desc.Depth
+		},
+		desc.MipLevels,
+		desc.ArraySize,
+		VulkanMap::samplerCount(desc.SampleCount),
+		VK_IMAGE_TILING_OPTIMAL,
+		usageFlags,
+		VK_SHARING_MODE_EXCLUSIVE,
+		0u,
+		nullptr,
+		layout
+	};
+	VERIFY_VK(vkCreateImage(device, &imageCreateInfo, VK_MEMORY_ALLOCATOR, &m_Image));
+
+	VkMemoryRequirements memReq{};
+	vkGetImageMemoryRequirements(device, m_Image, &memReq);
+	VkMemoryAllocateInfo allocateInfo
+	{
+		VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+		nullptr,
+		memReq.size,
+		0u /// ??? 
+		///VulkanBufferPool::instance()->memoryTypeIndex(usage, requirements.memoryTypeBits)
+	};
+	VERIFY_VK(vkAllocateMemory(device, &allocateInfo, VK_MEMORY_ALLOCATOR, &m_Buffer));
+	VERIFY_VK(vkBindImageMemory(device, m_Image, m_Buffer, 0u));
 
 	VkImageViewCreateInfo createInfo
 	{
 		VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
 		nullptr,
 		0u,
-		m_Image->Handle,
-		type,
-		m_Image->format(),
+		m_Image,
+		VulkanMap::imageViewType(desc.Dimension),
+		format,
 		{
 			VK_COMPONENT_SWIZZLE_R,
 			VK_COMPONENT_SWIZZLE_G,
@@ -24,106 +62,78 @@ VulkanImageView::VulkanImageView(VkDevice device, const VulkanImagePtr& image, V
 		{
 			aspectFlags,
 			0u,
-			m_Image->mipLevels(),
+			desc.MipLevels,
 			0u,
-			m_Image->arrayLayers()
+			desc.ArraySize
 		}
 	};
-
-	GfxVerifyVk(vkCreateImageView(device, &createInfo, vkMemoryAllocator, &Handle));
+	VERIFY_VK(vkCreateImageView(device, &createInfo, VK_MEMORY_ALLOCATOR, reference()));
 }
 
-VulkanImageView::VulkanImageView(VkDevice device, const std::string& texName)
+/// From UE4
+void VulkanImageView::getMemoryBarrierFlags(
+	EImageLayout layout,
+	VkPipelineStageFlags& stageFlags,
+	VkAccessFlags& accessFlags,
+	VkImageLayout& imageLayout)
 {
-	assert(!isValid());
+	stageFlags = (VkPipelineStageFlags)0;
 
-	auto texBinary = AssetTool::AssetDatabase::instance().tryToGetTextureBinary(Configurations::eVulkan, texName);
-	assert(texBinary.Size > 0u);
-
-	auto image = std::make_shared<VulkanImage>(device, texBinary);
-	new(this)VulkanImageView(
-		device, 
-		image,
-		VulkanEnum::toImageViewType(texBinary.Type),
-		VK_IMAGE_ASPECT_COLOR_BIT);
-}
-
-VulkanImageView::VulkanImageView(
-	VkDevice device, 
-	uint32_t width, 
-	uint32_t height, 
-	uint32_t depth,
-	uint32_t mipLevels,
-	uint32_t arrayLayers,
-	VkImageViewType type,
-	VkFormat format,
-	VkImageUsageFlags usage,
-	VkImageAspectFlags aspect)
-{
-	auto image = std::make_shared<VulkanImage>(
-		device,
-		width,
-		height,
-		depth,
-		mipLevels,
-		arrayLayers,
-		format,
-		imageType(type),
-		usage);
-	new(this)VulkanImageView(device, image, type, aspect);
-}
-
-VulkanImageView::VulkanImageView(
-	VkDevice device,
-	eRTextureType type, 
-	eRFormat format, 
-	uint32_t width, 
-	uint32_t height, 
-	uint32_t depth,
-	uint32_t mipLevels, 
-	uint32_t arrayLayers, 
-	const void* data, 
-	size_t dataSize)
-{
-	assert(!isValid());
-
-	AssetTool::TextureBinary texBinary
+	switch (layout)
 	{
-		type,
-		(uint32_t)VulkanEnum::toFormat(format),
-		width,
-		height,
-		depth,
-		mipLevels,
-		arrayLayers,
-		dataSize
-	};
-	texBinary.Binary = data;
-	texBinary.Images.resize(1u);
-	uint32_t mipWidth = width;
-	uint32_t mipHeight = height;
-	size_t mipSize = dataSize;
-	for (uint32_t i = 0u; i < mipLevels; ++i)
-	{
-		AssetTool::TextureBinary::Image image
-		{
-			mipWidth,
-			mipHeight,
-			1u,
-			mipSize
-		};
-		texBinary.Images[0].emplace_back(std::move(image));
-
-		mipWidth /= 2u;
-		mipHeight /= 2u;
-		mipSize = (size_t)(((float32_t)(mipWidth * mipHeight) / (width * height)) * dataSize); /// May incorrect
+	case EImageLayout::Undefined:
+		accessFlags = 0;
+		stageFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+		imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		break;
+	case EImageLayout::TransferDst:
+		accessFlags = VK_ACCESS_TRANSFER_WRITE_BIT;
+		stageFlags = VK_PIPELINE_STAGE_TRANSFER_BIT;
+		imageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+		break;
+	case EImageLayout::ColorAttachment:
+		accessFlags = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		stageFlags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		break;
+	case EImageLayout::DepthStencilAttachment:
+		accessFlags = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+		stageFlags = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+		imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		break;
+	case EImageLayout::TransferSrc:
+		accessFlags = VK_ACCESS_TRANSFER_READ_BIT;
+		stageFlags = VK_PIPELINE_STAGE_TRANSFER_BIT;
+		imageLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+		break;
+	case EImageLayout::Present:
+		accessFlags = 0u;
+		stageFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+		imageLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+		break;
+	case EImageLayout::FragmentShaderRead:
+		accessFlags = VK_ACCESS_SHADER_READ_BIT;
+		stageFlags = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+		imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		break;
+	case EImageLayout::PixelDepthStencilRead:
+		accessFlags = VK_ACCESS_SHADER_READ_BIT;
+		stageFlags = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+		imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+		break;
+	case EImageLayout::ComputeShaderReadWrite:
+		accessFlags = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
+		stageFlags = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+		imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+		break;
+	case EImageLayout::FragmentShaderReadWrite:
+		accessFlags = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
+		stageFlags = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+		imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+		break;
+	default:
+		assert(0);
 	}
-
-	auto image = std::make_shared<VulkanImage>(device, texBinary);
-	new(this)VulkanImageView(
-		device, 
-		image,
-		VulkanEnum::toImageViewType(type),
-		VK_IMAGE_ASPECT_COLOR_BIT);
 }
-#endif
+
+NAMESPACE_END(Gfx)

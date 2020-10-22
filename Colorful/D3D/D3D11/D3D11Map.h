@@ -15,10 +15,11 @@ public:
 	static D3D11_COMPARISON_FUNC compareFunc(ECompareFunc func);
 	static D3D11_STENCIL_OP stencilOp(EStencilOp op);
 	static DXGI_FORMAT format(EFormat format);
-	///static D3D11_USAGE usage(eRBufferUsage usage);
+	static D3D11_USAGE usage(EBufferUsage usage);
 	static D3D11_FILTER textureFilter(ETextureFilter filter);
 	static D3D11_TEXTURE_ADDRESS_MODE samplerAddressMode(ESamplerAddressMode addressMode);
 	static D3D11_PRIMITIVE_TOPOLOGY primitiveTopology(EPrimitiveTopology primitiveTopology);
+	static uint32_t bindFlags(uint32_t bindFlags);
 };
 
 NAMESPACE_END(Gfx)

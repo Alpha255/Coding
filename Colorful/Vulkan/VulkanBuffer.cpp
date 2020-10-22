@@ -58,13 +58,13 @@ VulkanBuffer::VulkanBuffer(VkDevice device, uint32_t bindFlags, EBufferUsage usa
 	};
 	VERIFY_VK(vkCreateBuffer(device, &createInfo, VK_MEMORY_ALLOCATOR, reference()));
 
-	VkMemoryRequirements requirements{};
-	vkGetBufferMemoryRequirements(device, get(), &requirements);
+	VkMemoryRequirements memReq{};
+	vkGetBufferMemoryRequirements(device, get(), &memReq);
 	VkMemoryAllocateInfo allocateInfo
 	{
 		VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
 		nullptr,
-		requirements.size,
+		memReq.size,
 		0u /// ??? 
 		///VulkanBufferPool::instance()->memoryTypeIndex(usage, requirements.memoryTypeBits)
 	};

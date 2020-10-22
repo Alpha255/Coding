@@ -25,6 +25,7 @@ public:
 	static VkBorderColor borderColor(EBorderColor borderColor);
 	static VkImageType imageType(ETextureType type);
 	static VkImageViewType imageViewType(ETextureType type);
+	static VkSampleCountFlagBits samplerCount(uint32_t sampleCount);
 };
 
 NAMESPACE_END(Gfx)
