@@ -28,10 +28,6 @@ ImGuiRenderer::ImGuiRenderer()
 		width * 4u,
 		static_cast<uint32_t>(bytes)});
 
-	auto texTest0 = AssetTool::instance().loadTexture("wall_diffuse.dds", false);
-	auto texTest1 = AssetTool::instance().loadTexture("metalplate01_rgba.ktx", false);
-	auto texTest2 = AssetTool::instance().loadTexture("sponza_column_c_diff.jpg", false);
-
 	auto mat = std::make_shared<Gfx::Material>("ImGui.xml");
 	/// mat->setTexture();
 

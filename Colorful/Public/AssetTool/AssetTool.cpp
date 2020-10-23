@@ -6,7 +6,6 @@
 NAMESPACE_START(Gfx)
 
 static AssetToolPtr s_Instance = nullptr;
-static std::string s_AssetDirectory;
 
 AssetTool& AssetTool::instance()
 {
@@ -22,15 +21,15 @@ void AssetTool::initialize(const std::string& baseDirectory)
 {
 	assert(File::isExists(baseDirectory, true));
 
-	s_AssetDirectory = File::directory(baseDirectory) + "\\Assets";
-	assert(File::isExists(s_AssetDirectory, true));
-	System::setWorkingDirectory(s_AssetDirectory);
+	m_AssetDirectory = File::directory(baseDirectory) + "\\Assets";
+	assert(File::isExists(m_AssetDirectory, true));
+	System::setWorkingDirectory(m_AssetDirectory);
 	LOG_INFO("AssetDatabase:: Mount working directory to \"%s\"", System::getCurrentWorkingDirectory().c_str());
 }
 
 AssetPtr AssetTool::findAsset(const std::string& name)
 {
-	std::string path = File::find(s_AssetDirectory, name);
+	std::string path = File::find(m_AssetDirectory, name);
 	if (File::isExists(path))
 	{
 		return std::make_shared<Asset>(path);
@@ -39,7 +38,7 @@ AssetPtr AssetTool::findAsset(const std::string& name)
 	return AssetPtr();
 }
 
-std::vector<uint32_t> AssetTool::compileShader(EShaderLanguage language, EShaderStage stage, const char8_t* const code)
+ShaderDesc AssetTool::compileShader(EShaderLanguage language, EShaderStage stage, const char8_t* const code)
 {
 	assert(code && stage < EShaderStage::ShaderStageCount);
 
@@ -52,22 +51,24 @@ std::vector<uint32_t> AssetTool::compileShader(EShaderLanguage language, EShader
 	}
 #endif
 
-	std::vector<uint32_t> binary(std::move(ShaderCompiler::compileToSPIRV(code, entry, stage)));
+	ShaderDesc desc{};
+	desc.Binary = std::move(ShaderCompiler::compileToSPIRV(code, entry, stage));
+
 	if (language == EShaderLanguage::GLSL)
 	{
-		auto reflection = ShaderCompiler::getReflection_Vk(binary);
+		desc.Reflection = std::move(ShaderCompiler::getReflection_Vk(desc.Binary));
 	}
 
 	if (language == EShaderLanguage::HLSL)
 	{
-		std::string hlsl(std::move(ShaderCompiler::compileSPIRVToHLSL(binary)));
+		std::string hlsl(std::move(ShaderCompiler::compileSPIRVToHLSL(desc.Binary)));
 		D3DShaderBlob blob = ShaderCompiler::compileToD3D(hlsl.c_str(), entry, stage);
-		auto reflection = ShaderCompiler::getReflection_D3D11(blob->GetBufferPointer(), blob->GetBufferSize());
+		desc.Reflection = std::move(ShaderCompiler::getReflection_D3D11(blob->GetBufferPointer(), blob->GetBufferSize()));
 
 		assert(blob->GetBufferSize() % sizeof(uint32_t) == 0u);
 	}
 
-	return binary;
+	return desc;
 }
 
 TextureDesc AssetTool::loadTexture(const std::string& name, bool8_t sRGB)
@@ -78,12 +79,22 @@ TextureDesc AssetTool::loadTexture(const std::string& name, bool8_t sRGB)
 	return TextureLoader::load(asset, sRGB);
 }
 
-std::vector<uint32_t> AssetTool::loadShader(EShaderLanguage language, EShaderStage stage, const std::string& name)
+ShaderDesc AssetTool::loadShader(EShaderLanguage language, EShaderStage stage, const std::string& name)
 {
 	AssetPtr asset = findAsset(name);
 	assert(asset);
 
-	return compileShader(language, stage, reinterpret_cast<const char8_t*>(asset->data().get()));
+	auto dataPtr = asset->data();
+	return compileShader(language, stage, reinterpret_cast<const char8_t*>(dataPtr.get()));
+}
+
+ModelDesc AssetTool::loadModel(const std::string& name)
+{
+	AssetPtr asset = findAsset(name);
+	assert(asset);
+
+	auto dataPtr = asset->data();
+	return ModelLoader::loadModel(dataPtr.get(), asset->size());
 }
 
 void AssetTool::loadMaterial(const std::string& name)

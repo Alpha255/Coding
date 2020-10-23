@@ -4,7 +4,7 @@
 
 NAMESPACE_START(Gfx)
 
-enum class EShaderLanguage : uint8_t
+enum class EShaderLanguage
 {
 	GLSL,
 	HLSL
@@ -33,7 +33,7 @@ enum class ETextureType : uint8_t
 	Buffer
 };
 
-enum class EIndexType : uint8_t
+enum class EIndexType
 {
 	UInt16,
 	UInt32
@@ -47,7 +47,7 @@ enum class EBufferUsage : uint8_t
 	Staging    /// supports data transfer (copy) from the GPU to the CPU.
 };
 
-enum class EBufferCpuAccess : uint8_t
+enum class ECpuAccessFlags : uint8_t
 {
 	Read,
 	Write,
@@ -461,6 +461,12 @@ enum EVertexUsage : uint16_t
 	VertexUsge_Count = 8
 };
 
+enum class EVertexInputRate : uint8_t
+{
+	Vertex,
+	Instance,
+};
+
 struct EXPORT_API FormatAttribute
 {
 	EFormat Format = EFormat::Unknown;
@@ -489,7 +495,7 @@ struct SubresourceRange
 	uint32_t SliceBytes = 0u;
 };
 
-struct EXPORT_API TextureDesc
+struct TextureDesc
 {
 	ETextureType Dimension = ETextureType::T_2D;
 	EFormat Format = EFormat::Unknown;
@@ -513,104 +519,129 @@ struct ShaderDesc
 	ShaderReflection Reflection;
 };
 
-enum class EMaterialTextureType : uint8_t
+struct VertexInputDesc
 {
-	Diffuse,
-	Specular,
-	Ambient,
-	Emissive,
-	Height,
-	Normal,
-	Shininess,
-	Opacity,
-	Displacement,
-	Lightmap,
-	Reflection,
-	Albedo,
-	Normal_Camera,
-	Emission_Color,
-	Metalness,
-	Diffuse_Roughness,
-	Ambient_Occlusion,
-	Unknown
+	struct VertexInputAttribute
+	{
+		uint32_t Binding = 0u;
+		uint32_t Stride = 0u;
+
+		EVertexUsage Usage = EVertexUsage::VertexUsge_Count;
+		EFormat Format = EFormat::Unknown;
+		EVertexInputRate InputRate = EVertexInputRate::Vertex;
+	};
+
+	std::vector<VertexInputAttribute> InputAttributes;
 };
 
-struct VertexBlock
+struct ModelDesc
 {
-	VertexBlock(uint32_t flags)
-		: UsageFlags(flags)
+	enum class ETextureType
 	{
-		if (flags & EVertexUsage::Position)
+		Diffuse,
+		Specular,
+		Ambient,
+		Emissive,
+		Height,
+		Normal,
+		Shininess,
+		Opacity,
+		Displacement,
+		Lightmap,
+		Reflection,
+		Albedo,
+		Normal_Camera,
+		Emission_Color,
+		Metalness,
+		Diffuse_Roughness,
+		Ambient_Occlusion,
+		Unknown
+	};
+
+	struct SubMeshDesc
+	{
+		uint32_t VertexCount = 0u;
+		uint32_t IndexCount = 0u;
+		uint32_t FaceCount = 0u;
+		uint32_t BoneCount = 0u;
+
+		bool8_t HasNormals = false;
+		bool8_t HasTangents = false;
+		bool8_t HasUVs = false;
+		bool8_t HasVertexColors = false;
+		bool8_t HasBones = false;
+
+		AABB BoundingBox;
+
+		std::vector<Vec3> Vertices;
+		std::vector<Vec3> Normals;
+		std::vector<Vec3> Tangents;
+		std::vector<Vec3> BiTangents;
+		std::vector<Vec2> UVs;
+		std::vector<Vec4> VertexColors;
+		std::vector<std::pair<ModelDesc::ETextureType, uint32_t>> Textures;
+		std::vector<uint32_t> Indices;
+	};
+
+	struct VertexBlock
+	{
+		VertexBlock(uint32_t flags)
+			: UsageFlags(flags)
 		{
-			Size += sizeof(Vec3);
+			if (flags & EVertexUsage::Position)
+			{
+				Size += sizeof(Vec3);
+			}
+			if (flags & EVertexUsage::Normal)
+			{
+				Size += sizeof(Vec3);
+			}
+			if (flags & EVertexUsage::Tangent)
+			{
+				Size += sizeof(Vec3);
+			}
+			if (flags & EVertexUsage::BiNormal)
+			{
+				Size += sizeof(Vec3);
+			}
+			if (flags & EVertexUsage::BiTangent)
+			{
+				Size += sizeof(Vec3);
+			}
+			if (flags & EVertexUsage::Texcoord)
+			{
+				Size += sizeof(Vec2);
+			}
+			if (flags & EVertexUsage::Color)
+			{
+				Size += sizeof(Vec4);
+			}
+			if (flags & EVertexUsage::Weight)
+			{
+				Size += sizeof(Vec3);
+			}
+			assert(Size);
 		}
-		if (flags & EVertexUsage::Normal)
-		{
-			Size += sizeof(Vec3);
-		}
-		if (flags & EVertexUsage::Tangent)
-		{
-			Size += sizeof(Vec3);
-		}
-		if (flags & EVertexUsage::BiNormal)
-		{
-			Size += sizeof(Vec3);
-		}
-		if (flags & EVertexUsage::BiTangent)
-		{
-			Size += sizeof(Vec3);
-		}
-		if (flags & EVertexUsage::Texcoord)
-		{
-			Size += sizeof(Vec2);
-		}
-		if (flags & EVertexUsage::Color)
-		{
-			Size += sizeof(Vec4);
-		}
-		if (flags & EVertexUsage::Weight)
-		{
-			Size += sizeof(Vec3);
-		}
-		assert(Size);
+
+		uint32_t Size = 0u;
+		uint32_t UsageFlags = EVertexUsage::Position;
+		VertexInputDesc InputLayout;
+	};
+
+	template<EIndexType Type>
+	static size_t indexStride()
+	{
+		return Type == EIndexType::UInt16 ? sizeof(uint16_t) : sizeof(uint32_t);
 	}
 
-	size_t Size = 0u;
-	uint32_t UsageFlags = EVertexUsage::Position;
-};
-
-struct SubMeshDesc
-{
-	uint32_t VertexCount = 0u;
-	uint32_t IndexCount = 0u;
-	uint32_t FaceCount = 0u;
-	uint32_t BoneCount = 0u;
-
-	bool8_t HasNormals = false;
-	bool8_t HasTangents = false;
-	bool8_t HasUVs = false;
-	bool8_t HasVertexColors = false;
-	bool8_t HasBones = false;
-
-	AABB BoundingBox;
-
-	std::vector<Vec3> Vertices;
-	std::vector<Vec3> Normals;
-	std::vector<Vec3> Tangents;
-	std::vector<Vec3> BiTangents;
-	std::vector<Vec2> UVs;
-	std::vector<Vec4> VertexColors;
-	std::vector<std::pair<EMaterialTextureType, uint32_t>> Textures;
-	std::vector<uint32_t> Indices;
-};
-
-struct MeshDesc
-{
 	uint32_t MeshCount = 0u;
 	uint32_t VertexCount = 0u;
 	uint32_t IndexCount = 0u;
 	uint32_t FaceCount = 0u;
 	uint32_t AnimationCount = 0u;
+	uint32_t VertexStride = 0u;
+	VertexInputDesc InputLayout;
+	EIndexType IndexType = EIndexType::UInt16;
 	AABB BoundingBox;
 
 	std::vector<SubMeshDesc> SubMeshes;

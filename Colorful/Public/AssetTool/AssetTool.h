@@ -15,19 +15,20 @@ public:
 
 	Gear::AssetPtr findAsset(const std::string& name);
 
-	std::vector<uint32_t> loadShader(EShaderLanguage language, EShaderStage stage, const std::string& name);
+	ShaderDesc loadShader(EShaderLanguage language, EShaderStage stage, const std::string& name);
 
-	std::vector<uint32_t> compileShader(EShaderLanguage language, EShaderStage stage, const char8_t* const code);
+	ShaderDesc compileShader(EShaderLanguage language, EShaderStage stage, const char8_t* const code);
 
 	TextureDesc loadTexture(const std::string& name, bool8_t sRGB);
 
-	void loadModel(const std::string& name);
+	ModelDesc loadModel(const std::string& name);
 
 	void loadMaterial(const std::string& name);
 
 	void finalize() {}
 protected:
 private:
+	std::string m_AssetDirectory;
 	/// warning C4251
 };
 

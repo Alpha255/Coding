@@ -11,8 +11,10 @@ Material::Material(const std::string& name)
 	auto asset = AssetTool::instance().findAsset(name);
 	assert(asset);
 
+	auto dataPtr = asset->data();
+
 	tinyxml2::XMLDocument doc;
-	VERIFY(doc.LoadFile(asset->fullPath().c_str()) == tinyxml2::XMLError::XML_SUCCESS);
+	VERIFY(doc.Parse(reinterpret_cast<const char8_t*>(dataPtr.get()), asset->size()) == tinyxml2::XMLError::XML_SUCCESS);
 
 	m_Name = doc.FirstChild()->Value();
 	assert(m_Name.length());

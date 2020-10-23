@@ -407,13 +407,7 @@ enum class EPrimitiveTopology : uint8_t
 	PatchList
 };
 
-enum class EVertexInputRate : uint8_t
-{
-	Vertex,
-	Instance,
-};
-
-struct EXPORT_API RasterizerStateDesc
+struct RasterizerStateDesc
 {
 	EPolygonMode PolygonMode = EPolygonMode::Solid;
 	ECullMode CullMode = ECullMode::None;
@@ -425,7 +419,7 @@ struct EXPORT_API RasterizerStateDesc
 	float32_t DepthBiasSlope = 0.0f;
 };
 
-struct EXPORT_API ColorBlendDesc
+struct ColorBlendDesc
 {
 	bool8_t Enable = false;
 	uint8_t ColorMask = EColorWriteMask::None;
@@ -438,7 +432,7 @@ struct EXPORT_API ColorBlendDesc
 	EBlendOp AlphaOp = EBlendOp::Add;
 };
 
-struct EXPORT_API BlendStateDesc
+struct BlendStateDesc
 {
 	bool8_t EnableLogicOp = false;
 	ELogicOp LogicOp = ELogicOp::No;
@@ -446,7 +440,7 @@ struct EXPORT_API BlendStateDesc
 	ColorBlendDesc ColorBlends[ELimitations::MaxRenderTargets]{};
 };
 
-struct EXPORT_API StencilStateDesc
+struct StencilStateDesc
 {
 	EStencilOp FailOp = EStencilOp::Keep;
 	EStencilOp PassOp = EStencilOp::Keep;
@@ -456,7 +450,7 @@ struct EXPORT_API StencilStateDesc
 	uint32_t Reference = 0u;
 };
 
-struct EXPORT_API DepthStencilStateDesc
+struct DepthStencilStateDesc
 {
 	bool8_t EnableDepth = true;
 	bool8_t EnableDepthWrite = false;
@@ -469,7 +463,7 @@ struct EXPORT_API DepthStencilStateDesc
 	StencilStateDesc BackFaceStencilState{};
 };
 
-struct EXPORT_API SamplerDesc
+struct SamplerDesc
 {
 	ETextureFilter MinMagFilter = ETextureFilter::Linear;
 	ESamplerAddressMode AddressModeU = ESamplerAddressMode::Repeat;
@@ -485,22 +479,7 @@ struct EXPORT_API SamplerDesc
 	float32_t MaxLod = 0.0f;
 };
 
-struct EXPORT_API VertexInputAttribute
-{
-	uint32_t Binding = 0u;
-	uint32_t Stride = 0u;
-
-	EVertexUsage Usage = EVertexUsage::VertexUsge_Count;
-	EFormat Format = EFormat::Unknown;
-	EVertexInputRate InputRate = EVertexInputRate::Vertex;
-};
-
-struct VertexInputDesc
-{
-	std::vector<VertexInputAttribute> InputAttributes;
-};
-
-struct EXPORT_API RenderPassKey
+struct RenderPassKey
 {
 	uint8_t NumRenderTargets = 0u;
 	uint8_t SampleCount = 0u;
@@ -508,9 +487,40 @@ struct EXPORT_API RenderPassKey
 	EFormat DepthStencilFormat = EFormat::Unknown;
 	EFormat RenderTargetFormat[ELimitations::MaxRenderTargets]{};
 
-	bool8_t operator==(const RenderPassKey&) const;
+	bool8_t operator==(const RenderPassKey& other) const
+	{
+		if (hash() != other.hash() ||
+			NumRenderTargets != other.NumRenderTargets ||
+			SampleCount != other.SampleCount ||
+			DepthStencilFormat != other.DepthStencilFormat)
+		{
+			return false;
+		}
 
-	size_t hash() const;
+		for (uint32_t i = 0u; i < NumRenderTargets; ++i)
+		{
+			if (RenderTargetFormat[i] != other.RenderTargetFormat[i])
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	size_t hash() const
+	{
+		if (Hash == 0u)
+		{
+			Hash = Gear::computeHash(NumRenderTargets, SampleCount, DepthStencilFormat);
+			for (uint32_t i = 0u; i < NumRenderTargets; ++i)
+			{
+				Gear::hash_combine(Hash, RenderTargetFormat[i]);
+			}
+		}
+
+		return Hash;
+	}
 private:
 	mutable size_t Hash = 0u;
 };
@@ -540,7 +550,7 @@ struct PipelineResourceLayoutDesc
 
 };
 
-class EXPORT_API GraphicsPipelineState
+class GraphicsPipelineState
 {
 public:
 protected:
@@ -554,12 +564,12 @@ private:
 	bool8_t m_Compiled = false;
 };
 
-class EXPORT_API ComputePipelineState
+class ComputePipelineState
 {
 
 };
 
-class EXPORT_API RayTracingPipelineState
+class RayTracingPipelineState
 {
 
 };

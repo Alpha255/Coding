@@ -8,9 +8,9 @@ NAMESPACE_START(Gfx)
 class ModelLoader
 {
 public:
-	static MeshDesc loadModel(const byte8_t* data, size_t size)
+	static ModelDesc loadModel(const byte8_t* data, size_t size)
 	{
-		MeshDesc desc{};
+		ModelDesc desc{};
 		///aiProcess_ConvertToLeftHanded;
 
 		Assimp::Importer importer;

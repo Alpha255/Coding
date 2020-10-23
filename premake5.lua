@@ -121,7 +121,10 @@ workspace "Miscellaneous"
 			targetdir "$(SolutionDir)Out\\"
 			defines { "DYNAMIC_LIB" }
 			implibname "$(SolutionDir)Out\\Libs\\$(ProjectName)"
-			links { "Gear" }
+			links { 
+				"Gear", 
+				"Gfx-GfxRenderer"
+			}
 
 		project "Gfx-D3D11Renderer"
 			kind "SharedLib"
@@ -140,6 +143,7 @@ workspace "Miscellaneous"
 				"Gear",
 				"d3d11",
 				"dxgi",
+				"Gfx-GfxRenderer",
 			}
 
 		project "Gfx-D3D12Renderer"
@@ -159,6 +163,7 @@ workspace "Miscellaneous"
 				"Gear",
 				"d3d12",
 				"dxgi",
+				"Gfx-GfxRenderer",
 			}
 
 		project "Gfx-SoftwareRenderer"
@@ -170,7 +175,10 @@ workspace "Miscellaneous"
 			targetdir "$(SolutionDir)Out\\"
 			defines { "DYNAMIC_LIB" }
 			implibname "$(SolutionDir)Out\\Libs\\$(ProjectName)"
-			links { "Gear" }
+			links { 
+				"Gear",
+				"Gfx-GfxRenderer", 
+			}
 
 		project "Gfx-ImGui"
 			kind "StaticLib"
