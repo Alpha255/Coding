@@ -53,15 +53,15 @@ public:
 
 		if (format == ETextureFormat::DDS)
 		{
-			desc = load_DDS(data, dataSize);
+			desc = std::move(load_DDS(data, dataSize));
 		}
 		else if (format == ETextureFormat::KTX)
 		{
-			desc = load_KTX(data, dataSize);
+			desc = std::move(load_KTX(data, dataSize));
 		}
 		else
 		{
-			desc = load_General(data, dataSize);
+			desc = std::move(load_General(data, dataSize));
 		}
 
 		if (sRGB)
@@ -389,7 +389,7 @@ protected:
 		desc.Subresources[0].Width = width;
 		desc.Subresources[0].Height = height;
 		getBytesInfos(width, height, EFormat::RGBA8_UNorm, desc.Subresources[0].SliceBytes, desc.Subresources[0].RowBytes);
-		uint32_t bytes = width * height * STBI_rgb_alpha;
+		uint32_t bytes = width * FormatAttribute::attribute(EFormat::RGBA8_UNorm).Stride / static_cast<uint32_t>(BITS_IN_BYTES()) * height;
 		assert(bytes == desc.Subresources[0].SliceBytes);
 		desc.Data.reset(new byte8_t[bytes]());
 		VERIFY(memcpy_s(desc.Data.get(), bytes, pixels, bytes) == 0);
