@@ -29,28 +29,64 @@ Material::Material(const std::string& name)
 		{
 			loadShaders(node);
 		}
-		else if (_stricmp(node->Value(), "ShaderResource") == 0)
-		{
-			loadShaderResources(node);
-		}
 	}
 }
 
 void Material::loadInputLayouts(const tinyxml2::XMLNode* root)
 {
+	assert(root);
+	std::vector<VertexInputDesc> descs{};
 	for (auto node = root->FirstChild(); node; node = node->NextSibling())
 	{
-		assert(_stricmp(node->Value(), "Location") == 0);
-		auto element = node->ToElement();
-		assert(element);
+		if (_stricmp(node->Value(), "Stream") == 0)
+		{
+			VertexInputDesc desc{};
+			for (auto childNode = node->FirstChild(); childNode; childNode = childNode->NextSibling())
+			{
+				auto element = childNode->ToElement();
+				assert(element);
 
-		auto usage = element->Attribute("Usage");
-		auto format = element->Attribute("Format");
+				if (_stricmp(element->Name(), "Attribute") == 0)
+				{
+					desc.Slot = std::atoi(element->Attribute("Slot"));
+					auto inputRate = element->Attribute("InputRate");
+					if (_stricmp(inputRate, "Vertex") == 0)
+					{
+						desc.InputRate = VertexInputDesc::EVertexInputRate::Vertex;
+					}
+					else if (_stricmp(inputRate, "Instance") == 0)
+					{
+						desc.InputRate = VertexInputDesc::EVertexInputRate::Instance;
+					}
+					else
+					{
+						assert(0);
+					}
+				}
+				else if (_stricmp(element->Name(), "Layout") == 0)
+				{
+					auto formatAttr = FormatAttribute::attribute(element->Attribute("Format"));
+					VertexInputDesc::VertexLayout layout
+					{
+						std::atoi(element->Attribute("Location")),
+						static_cast<uint32_t>(formatAttr.Stride / BITS_IN_BYTES()),
+						formatAttr.Format,
+						element->Attribute("Usage")
+					};
+					desc.Layouts.emplace_back(std::move(layout));
+				}
+			}
+
+			descs.emplace_back(std::move(desc));
+		}
 	}
+
+	assert(descs.size());
 }
 
 void Material::loadShaders(const tinyxml2::XMLNode* root)
 {
+	assert(root);
 	for (auto node = root->FirstChild(); node; node = node->NextSibling())
 	{
 		auto text = node->FirstChild()->ToText();
@@ -59,38 +95,34 @@ void Material::loadShaders(const tinyxml2::XMLNode* root)
 		auto code = text->Value();
 		assert(code);
 
+		auto stage = EShaderStage::ShaderStageCount;
 		if (_stricmp(node->Value(), "VertexShader") == 0)
 		{
-			auto binary = AssetTool::instance().compileShader(EShaderLanguage::GLSL, EShaderStage::Vertex, code);
+			stage = EShaderStage::Vertex;
 		}
 		else if (_stricmp(node->Value(), "HullShader") == 0)
 		{
-
+			stage = EShaderStage::Hull;
 		}
 		else if (_stricmp(node->Value(), "DomainShader") == 0)
 		{
-
+			stage = EShaderStage::Domain;
 		}
 		else if (_stricmp(node->Value(), "GeometryShader") == 0)
 		{
-
+			stage = EShaderStage::Geometry;
 		}
 		else if (_stricmp(node->Value(), "FragmentShader") == 0)
 		{
-			auto binary = AssetTool::instance().compileShader(EShaderLanguage::GLSL, EShaderStage::Fragment, code);
+			stage = EShaderStage::Fragment;
 		}
 		else if (_stricmp(node->Value(), "ComputeShader") == 0)
 		{
-
+			stage = EShaderStage::Compute;
 		}
-	}
-}
 
-void Material::loadShaderResources(const tinyxml2::XMLNode* root)
-{
-	for (auto node = root->FirstChild(); node; node = node->NextSibling())
-	{
-
+		assert(stage != EShaderStage::ShaderStageCount);
+		auto desc = AssetTool::instance().compileShader(EShaderLanguage::GLSL, stage, code);
 	}
 }
 

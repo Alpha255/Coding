@@ -1,8 +1,11 @@
 <ImGui>
 	<InputLayout>
-		<Location Slot="0" Usage="POSITION" Format="RG32_Float"/>
-		<Location Slot="1" Usage="TEXCOORD" Format="RG32_Float"/>
-		<Location Slot="2" Usage="COLOR" Format="RGBA8_UNorm"/>
+		<Stream>
+			<Attribute Slot="0" InputRate="Vertex"/>
+			<Layout Location="0" Usage="POSITION" Format="RG32_Float"/>
+			<Layout Location="1" Usage="TEXCOORD" Format="RG32_Float"/>
+			<Layout Location="2" Usage="COLOR" Format="RGBA32_Float"/>
+		</Stream>
 	</InputLayout>
 
 	<Shader>

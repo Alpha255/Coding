@@ -40,8 +40,8 @@ void Application::initialize(const std::string& name, const Configs& configs)
 
 	Gfx::AssetTool::instance().initialize(configs.WorkingDirectory);
 
-	m_DynamicLib = std::make_shared<System::DynamicLibrary>(std::string(configs.WorkingDirectory + "\\" + configs.RendererName + DLL_POSTFIX));
-	Gfx::CreateRendererFunc func = static_cast<Gfx::CreateRendererFunc>(m_DynamicLib->getProcAddress(CREATE_RENDERER_FUNC_NAME));
+	m_RendererDll = std::make_shared<System::DynamicLibrary>(std::string(configs.WorkingDirectory + "\\" + configs.RendererName + DLL_POSTFIX));
+	Gfx::CreateRendererFunc func = static_cast<Gfx::CreateRendererFunc>(m_RendererDll->getProcAddress(CREATE_RENDERER_FUNC_NAME));
 	assert(func);
 	func(m_Renderer);
 	Gfx::GRenderer = m_Renderer.get();

@@ -225,7 +225,7 @@ public:
 			auto size = static_cast<uint32_t>(compiler.get_declared_struct_size(type));
 
 			reflection.Resources.push_back({
-				EShaderResourceType::UniformBuffer,
+				ShaderResourceDesc::EResourceType::UniformBuffer,
 					size
 				});
 			++reflection.UniformBufferCount;
@@ -234,7 +234,7 @@ public:
 		{
 			auto binding = compiler.get_decoration(sampledImage.id, spv::Decoration::DecorationBinding);
 			reflection.Resources.push_back({
-				EShaderResourceType::CombinedTextureSampler,
+				ShaderResourceDesc::EResourceType::CombinedTextureSampler,
 					binding
 				});
 			++reflection.SampledTextureCount;
@@ -243,7 +243,7 @@ public:
 		{
 			auto binding = compiler.get_decoration(image.id, spv::Decoration::DecorationBinding);
 			reflection.Resources.push_back({
-				EShaderResourceType::CombinedTextureSampler,
+				ShaderResourceDesc::EResourceType::CombinedTextureSampler,
 					binding
 				});
 			++reflection.TextureCount;
@@ -252,7 +252,7 @@ public:
 		{
 			auto binding = compiler.get_decoration(sampler.id, spv::Decoration::DecorationBinding);
 			reflection.Resources.push_back({
-				EShaderResourceType::CombinedTextureSampler,
+				ShaderResourceDesc::EResourceType::CombinedTextureSampler,
 					binding
 				});
 			++reflection.SamplerCount;
@@ -280,7 +280,7 @@ public:
 			if (bufferDesc.Type == D3D_CT_CBUFFER) /// D3D_CT_TBUFFER: A buffer containing texture data
 			{
 				reflection.Resources.push_back({
-					EShaderResourceType::UniformBuffer,
+					ShaderResourceDesc::EResourceType::UniformBuffer,
 						bufferDesc.Size
 					});
 				++reflection.UniformBufferCount;
@@ -298,14 +298,14 @@ public:
 				break;
 			case D3D_SIT_TEXTURE:
 				reflection.Resources.push_back({
-					EShaderResourceType::Texture,
+					ShaderResourceDesc::EResourceType::Texture,
 						bindDesc.BindPoint
 					});
 				++reflection.TextureCount;
 				break;
 			case D3D_SIT_SAMPLER:
 				reflection.Resources.push_back({
-					EShaderResourceType::Sampler,
+					ShaderResourceDesc::EResourceType::Sampler,
 						bindDesc.BindPoint
 					});
 				++reflection.SamplerCount;

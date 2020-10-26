@@ -65,7 +65,7 @@ enum EBufferBindFlags : uint8_t
 	IndirectBuffer = 1 << 6
 };
 
-enum class EFormat : uint8_t
+enum class EFormat : uint16_t
 {
 	Unknown,
 	D16_UNorm,
@@ -419,18 +419,18 @@ protected:
 private:
 };
 
-enum class EShaderResourceType : uint8_t
-{
-	UniformBuffer,
-	Texture,
-	Sampler,
-	CombinedTextureSampler,
-	StorageBuffer
-};
-
 struct ShaderResourceDesc
 {
-	EShaderResourceType Type;
+	enum class EResourceType
+	{
+		UniformBuffer,
+		Texture,
+		Sampler,
+		CombinedTextureSampler,
+		StorageBuffer
+	};
+
+	EResourceType Type;
 	union
 	{
 		uint32_t Binding;
@@ -461,12 +461,6 @@ enum EVertexUsage : uint16_t
 	VertexUsge_Count = 8
 };
 
-enum class EVertexInputRate : uint8_t
-{
-	Vertex,
-	Instance,
-};
-
 struct EXPORT_API FormatAttribute
 {
 	EFormat Format = EFormat::Unknown;
@@ -477,6 +471,7 @@ struct EXPORT_API FormatAttribute
 	const char8_t* Name = nullptr;
 
 	static FormatAttribute attribute(EFormat format);
+	static FormatAttribute attribute(const char8_t* const format);
 	static FormatAttribute attribute_Vk(uint32_t format);
 	static FormatAttribute attribute_DXGI(uint32_t format);
 	static FormatAttribute attribute_GL(uint32_t format);
@@ -521,17 +516,25 @@ struct ShaderDesc
 
 struct VertexInputDesc
 {
-	struct VertexInputAttribute
+	enum class EVertexInputRate
 	{
-		uint32_t Binding = 0u;
-		uint32_t Stride = 0u;
-
-		EVertexUsage Usage = EVertexUsage::VertexUsge_Count;
-		EFormat Format = EFormat::Unknown;
-		EVertexInputRate InputRate = EVertexInputRate::Vertex;
+		Vertex,
+		Instance,
 	};
 
-	std::vector<VertexInputAttribute> InputAttributes;
+	struct VertexLayout
+	{
+		uint32_t Location = 0u;
+		uint32_t Stride = 0u;
+
+		EFormat Format = EFormat::Unknown;
+		std::string Usage;
+	};
+
+	uint32_t Slot = 0u;
+	EVertexInputRate InputRate = EVertexInputRate::Vertex;
+
+	std::vector<VertexLayout> Layouts;
 };
 
 struct ModelDesc

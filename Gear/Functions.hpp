@@ -73,4 +73,9 @@ T align(T value, T alignment)
 	return (val + (alignment - 1)) & ~(alignment - 1);
 }
 
+constexpr size_t BITS_IN_BYTES()
+{
+	return std::_VBITS / sizeof(std::_Vbase);
+}
+
 NAMESPACE_END(Gear)

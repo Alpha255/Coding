@@ -15,7 +15,6 @@ public:
 protected:
 	void loadInputLayouts(const tinyxml2::XMLNode* root);
 	void loadShaders(const tinyxml2::XMLNode* root);
-	void loadShaderResources(const tinyxml2::XMLNode* root);
 private:
 	std::string m_Name;
 };

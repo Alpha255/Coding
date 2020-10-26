@@ -20,8 +20,7 @@ public:
 	{
 		if (m_Enable)
 		{
-			ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f), ImGuiCond_FirstUseEver);
-
+			///ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f), ImGuiCond_FirstUseEver);
 			ImGui::NewFrame();
 		}
 	}
@@ -56,7 +55,6 @@ protected:
 	bool8_t update();
 private:
 	bool8_t m_Enable = true;
-
 	GraphicsPipelineState m_GfxPipelineState{};
 };
 

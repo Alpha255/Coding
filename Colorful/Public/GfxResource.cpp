@@ -135,6 +135,20 @@ FormatAttribute FormatAttribute::attribute(EFormat format)
 	return s_FormatAttributes[static_cast<uint32_t>(format)];
 }
 
+FormatAttribute FormatAttribute::attribute(const char8_t* const format)
+{
+	for (auto& attr : s_FormatAttributes)
+	{
+		if (stricmp(attr.Name, format) == 0)
+		{
+			return attr;
+		}
+	}
+
+	assert(0);
+	return FormatAttribute();
+}
+
 FormatAttribute FormatAttribute::attribute_Vk(uint32_t format)
 {
 	for (auto& attr : s_FormatAttributes)
