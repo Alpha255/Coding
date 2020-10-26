@@ -211,31 +211,31 @@ uint32_t D3D11Map::bindFlags(uint32_t bindFlags)
 {
 	uint32_t flags = 0u;
 
-	if (bindFlags & EBufferBindFlags::VertexBuffer)
+	if (bindFlags & EBufferBindFlags::VertexBufferFlag)
 	{
 		flags |= D3D11_BIND_VERTEX_BUFFER;
 	}
-	if (bindFlags & EBufferBindFlags::IndexBuffer)
+	if (bindFlags & EBufferBindFlags::IndexBufferFlag)
 	{
 		flags |= D3D11_BIND_INDEX_BUFFER;
 	}
-	if (bindFlags & EBufferBindFlags::UniformBuffer)
+	if (bindFlags & EBufferBindFlags::UniformBufferFlag)
 	{
 		flags |= D3D11_BIND_CONSTANT_BUFFER;
 	}
-	if (bindFlags & EBufferBindFlags::ShaderResource)
+	if (bindFlags & EBufferBindFlags::ShaderStorageFlag)
 	{
 		flags |= D3D11_BIND_SHADER_RESOURCE;
 	}
-	if (bindFlags & EBufferBindFlags::StreamOutput)
+	if (bindFlags & EBufferBindFlags::StreamOutputFlag)
 	{
 		flags |= D3D11_BIND_STREAM_OUTPUT;
 	}
-	if (bindFlags & EBufferBindFlags::UnorderedAccess)
+	if (bindFlags & EBufferBindFlags::UnorderedAccessFlag)
 	{
 		flags |= D3D11_BIND_UNORDERED_ACCESS;
 	}
-	if (bindFlags & EBufferBindFlags::IndirectBuffer)
+	if (bindFlags & EBufferBindFlags::IndirectBufferFlag)
 	{
 		assert(0);
 	}

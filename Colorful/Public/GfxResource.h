@@ -21,7 +21,7 @@ enum class EShaderStage : uint8_t
 	ShaderStageCount
 };
 
-enum class ETextureType : uint8_t
+enum class ETextureType
 {
 	T_1D,
 	T_1D_Array,
@@ -56,13 +56,13 @@ enum class ECpuAccessFlags : uint8_t
 
 enum EBufferBindFlags : uint8_t
 {
-	VertexBuffer = 1 << 0,
-	IndexBuffer = 1 << 1,
-	UniformBuffer = 1 << 2,
-	ShaderResource = 1 << 3,
-	StreamOutput = 1 << 4,
-	UnorderedAccess = 1 << 5,
-	IndirectBuffer = 1 << 6
+	VertexBufferFlag = 1 << 0,
+	IndexBufferFlag = 1 << 1,
+	UniformBufferFlag = 1 << 2,
+	ShaderStorageFlag = 1 << 3,
+	StreamOutputFlag = 1 << 4,
+	UnorderedAccessFlag = 1 << 5,
+	IndirectBufferFlag = 1 << 6
 };
 
 enum class EFormat : uint16_t
@@ -419,18 +419,80 @@ protected:
 private:
 };
 
-struct ShaderResourceDesc
+DECLARE_SHARED_PTR(ShaderResource)
+class ShaderResource
 {
+public:
 	enum class EResourceType
 	{
 		UniformBuffer,
 		Texture,
 		Sampler,
 		CombinedTextureSampler,
-		StorageBuffer
+		StorageBuffer,
+		Unknown
 	};
 
-	EResourceType Type;
+	ShaderResource() = default;
+	ShaderResource(EResourceType type)
+		: m_Type(type)
+	{
+	}
+	virtual ~ShaderResource() = default;
+
+	EResourceType type() const
+	{
+		return m_Type;
+	}
+protected:
+private:
+	EResourceType m_Type = EResourceType::Unknown;
+};
+
+DECLARE_SHARED_PTR(Texture)
+class Texture : public ShaderResource
+{
+public:
+	Texture(const struct TextureDesc& desc)
+		: ShaderResource(EResourceType::Texture)
+	{
+	}
+};
+
+DECLARE_SHARED_PTR(Texture)
+class Sampler : public ShaderResource
+{
+public:
+	Sampler(const struct SamplerDesc& desc)
+		: ShaderResource(EResourceType::Sampler)
+	{
+	}
+};
+
+DECLARE_SHARED_PTR(UniformBuffer)
+class UniformBuffer : public ShaderResource
+{
+public:
+	UniformBuffer()
+		: ShaderResource(EResourceType::UniformBuffer)
+	{
+	}
+};
+
+DECLARE_SHARED_PTR(VertexBuffer)
+class VertexBuffer
+{
+};
+
+DECLARE_SHARED_PTR(IndexBuffer)
+class IndexBuffer
+{
+
+};
+
+struct ShaderResourceDesc
+{
+	ShaderResource::EResourceType Type;
 	union
 	{
 		uint32_t Binding;
@@ -495,7 +557,7 @@ struct TextureDesc
 	ETextureType Dimension = ETextureType::T_2D;
 	EFormat Format = EFormat::Unknown;
 	EBufferUsage Usage = EBufferUsage::Immutable;
-	EBufferBindFlags BindFlag = EBufferBindFlags::ShaderResource;
+	EBufferBindFlags BindFlag = EBufferBindFlags::ShaderStorageFlag;
 
 	uint32_t Width = 0u;
 	uint32_t Height = 0u;

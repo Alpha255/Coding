@@ -20,27 +20,27 @@ VulkanBuffer::VulkanBuffer(VkDevice device, uint32_t bindFlags, EBufferUsage usa
 	/// VK_SHARING_MODE_CONCURRENT specifies that concurrent access to any range or image subresource of the object from multiple queue families is supported
 
 	VkBufferUsageFlags usageFlags = 0u;
-	if (bindFlags & EBufferBindFlags::VertexBuffer)
+	if (bindFlags & EBufferBindFlags::VertexBufferFlag)
 	{
 		usageFlags |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 	}
-	if (bindFlags & EBufferBindFlags::IndexBuffer)
+	if (bindFlags & EBufferBindFlags::IndexBufferFlag)
 	{
 		usageFlags |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
 	}
-	if (bindFlags & EBufferBindFlags::UniformBuffer)
+	if (bindFlags & EBufferBindFlags::UniformBufferFlag)
 	{
 		usageFlags |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
 	}
-	if (bindFlags & EBufferBindFlags::ShaderResource)
+	if (bindFlags & EBufferBindFlags::ShaderStorageFlag)
 	{
 		usageFlags |= (VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
 	}
-	if (bindFlags & EBufferBindFlags::UnorderedAccess)
+	if (bindFlags & EBufferBindFlags::UnorderedAccessFlag)
 	{
 		usageFlags |= (VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
 	}
-	if (bindFlags & EBufferBindFlags::IndirectBuffer)
+	if (bindFlags & EBufferBindFlags::IndirectBufferFlag)
 	{
 		usageFlags |=  VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
 	}
