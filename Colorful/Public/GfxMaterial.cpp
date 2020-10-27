@@ -6,8 +6,6 @@ NAMESPACE_START(Gfx)
 
 Material::Material(const std::string& name)
 {
-	////auto shader = AssetTool::instance().loadShader(EShaderLanguage::HLSL, EShaderStage::Vertex, "BasicHLSL11_VS.hlsl");
-
 	auto asset = AssetTool::instance().findAsset(name);
 	assert(asset);
 

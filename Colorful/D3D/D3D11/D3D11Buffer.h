@@ -1,5 +1,29 @@
 #pragma once
 
+#include "Colorful/D3D/DXGI_Interface.h"
+
+NAMESPACE_START(Gfx)
+
+class D3D11Buffer final : public D3DObject<ID3D11Buffer>, public GPUBuffer
+{
+public:
+	D3D11Buffer(ID3D11Device* device, uint32_t bindFlags, EBufferUsage usage, size_t size, const void* data);
+protected:
+	inline uint32_t CPUAccessFlags(EBufferUsage usage) const
+	{
+		switch (usage)
+		{
+		case EBufferUsage::Default:
+		case EBufferUsage::Immutable: return 0u;
+		case EBufferUsage::Dynamic:   return D3D11_CPU_ACCESS_WRITE;
+		case EBufferUsage::Staging:   return D3D11_CPU_ACCESS_READ;
+		}
+	}
+private:
+};
+
+NAMESPACE_END(Gfx)
+
 #if 0
 
 #include "Colorful/D3D/D3D11/D3D11Device.h"
@@ -15,39 +39,8 @@ public:
 	{
 	}
 protected:
-	inline uint32_t getCpuAccessFlags(uint32_t usage) const
-	{
-		switch (usage)
-		{
-		case eGpuReadWrite:
-		case eGpuReadOnly:
-			return 0u;
-		case eGpuReadCpuWrite:
-			return D3D11_CPU_ACCESS_WRITE;
-		case eGpuCopyToCpu:
-			return D3D11_CPU_ACCESS_READ;
-		}
-
-		assert(0);
-		return 0u;
-	}
-
-	inline uint32_t getBindFlags(eRBufferBindFlags bindFlags)
-	{
-		switch (bindFlags)
-		{
-		case eVertexBuffer:  return D3D11_BIND_VERTEX_BUFFER;
-		case eIndexBuffer:   return D3D11_BIND_INDEX_BUFFER;
-		case eUniformBuffer: return D3D11_BIND_CONSTANT_BUFFER;
-		default:
-			assert(0);
-		}
-
-		return (uint32_t)-1;
-	}
 private:
 };
-using D3D11BufferPtr = D3D11Buffer*;
 
 class D3D11BufferPool : public LazySingleton<D3D11BufferPool>
 {

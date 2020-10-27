@@ -1,6 +1,7 @@
 #pragma once
-#if 0
+
 #include "Colorful/D3D/D3D11/D3D11Texture.h"
+#if 0
 
 class D3D11ShaderResourceView : public D3DObject<ID3D11ShaderResourceView>, public GfxTexture
 {

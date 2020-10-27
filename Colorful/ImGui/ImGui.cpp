@@ -28,7 +28,7 @@ ImGuiRenderer::ImGuiRenderer()
 		width * 4u,
 		static_cast<uint32_t>(bytes)});
 
-	auto mat = std::make_shared<Gfx::Material>("ImGui.xml");
+	auto mat = std::make_shared<Material>("ImGui.xml");
 	/// mat->setTexture();
 
 	BlendStateDesc blendDesc{};

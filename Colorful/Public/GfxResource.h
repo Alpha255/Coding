@@ -449,43 +449,38 @@ private:
 	EResourceType m_Type = EResourceType::Unknown;
 };
 
+DECLARE_SHARED_PTR(InputLayout)
+class InputLayout
+{
+};
+
 DECLARE_SHARED_PTR(Texture)
 class Texture : public ShaderResource
 {
-public:
-	Texture(const struct TextureDesc& desc)
-		: ShaderResource(EResourceType::Texture)
-	{
-	}
 };
 
-DECLARE_SHARED_PTR(Texture)
+DECLARE_SHARED_PTR(Sampler)
 class Sampler : public ShaderResource
 {
-public:
-	Sampler(const struct SamplerDesc& desc)
-		: ShaderResource(EResourceType::Sampler)
-	{
-	}
+};
+
+DECLARE_SHARED_PTR(GPUBuffer)
+class GPUBuffer
+{
 };
 
 DECLARE_SHARED_PTR(UniformBuffer)
-class UniformBuffer : public ShaderResource
+class UniformBuffer : public ShaderResource, public GPUBuffer
 {
-public:
-	UniformBuffer()
-		: ShaderResource(EResourceType::UniformBuffer)
-	{
-	}
 };
 
 DECLARE_SHARED_PTR(VertexBuffer)
-class VertexBuffer
+class VertexBuffer : public GPUBuffer
 {
 };
 
 DECLARE_SHARED_PTR(IndexBuffer)
-class IndexBuffer
+class IndexBuffer : public GPUBuffer
 {
 
 };

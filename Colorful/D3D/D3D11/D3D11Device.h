@@ -52,7 +52,7 @@ class D3D11Device3 : public D3DObject<ID3D11Device3> {};
 class D3D11Device4 : public D3DObject<ID3D11Device4> {};
 class D3D11Device5 : public D3DObject<ID3D11Device5> {};
 
-DECLARE_UNIQUE_PTR(D3D11Device)
+DECLARE_SHARED_PTR(D3D11Device)
 class D3D11Device final : public D3DObject<ID3D11Device>, public Adapter
 {
 public:
