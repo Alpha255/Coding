@@ -52,6 +52,7 @@ ShaderDesc AssetTool::compileShader(EShaderLanguage language, EShaderStage stage
 #endif
 
 	ShaderDesc desc{};
+	desc.Stage = stage;
 	desc.Binary = std::move(ShaderCompiler::compileToSPIRV(code, entry, stage));
 
 	if (language == EShaderLanguage::GLSL)

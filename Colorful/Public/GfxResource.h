@@ -572,8 +572,9 @@ struct TextureDesc
 
 struct ShaderDesc
 {
-	std::vector<uint32_t> Binary;
+	EShaderStage Stage = EShaderStage::ShaderStageCount;
 	ShaderReflection Reflection;
+	std::vector<uint32_t> Binary;
 };
 
 struct VertexInputDesc
