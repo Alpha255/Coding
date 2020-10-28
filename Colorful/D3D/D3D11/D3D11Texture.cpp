@@ -76,7 +76,7 @@ D3D11Texture::D3D11Texture(ID3D11Device* device, const TextureDesc& desc)
 	}
 }
 
-D3DTexture1D::D3DTexture1D(ID3D11Device* device, const TextureDesc& desc)
+D3D11Texture1D::D3D11Texture1D(ID3D11Device* device, const TextureDesc& desc)
 {
 	assert(device);
 
@@ -105,7 +105,7 @@ D3DTexture1D::D3DTexture1D(ID3D11Device* device, const TextureDesc& desc)
 	VERIFY_D3D(device->CreateTexture1D(&createDesc, desc.Data ? subresources.data() : nullptr, reference()));
 }
 
-D3DTexture2D::D3DTexture2D(ID3D11Device* device, const TextureDesc& desc)
+D3D11Texture2D::D3D11Texture2D(ID3D11Device* device, const TextureDesc& desc)
 {
 	assert(device);
 
@@ -139,7 +139,7 @@ D3DTexture2D::D3DTexture2D(ID3D11Device* device, const TextureDesc& desc)
 	VERIFY_D3D(device->CreateTexture2D(&createDesc, desc.Data ? subresources.data() : nullptr, reference()));
 }
 
-D3DTexture3D::D3DTexture3D(ID3D11Device* device, const TextureDesc& desc)
+D3D11Texture3D::D3D11Texture3D(ID3D11Device* device, const TextureDesc& desc)
 {
 	assert(device);
 

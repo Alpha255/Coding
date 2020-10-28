@@ -1,4 +1,17 @@
 #pragma once
+
+#include "Colorful/D3D/DXGI_Interface.h"
+
+NAMESPACE_START(Gfx)
+
+DECLARE_SHARED_PTR(D3D11Sampler)
+class D3D11Sampler : public D3DObject<ID3D11SamplerState>, public Sampler
+{
+public:
+	D3D11Sampler(ID3D11Device* device, const SamplerDesc& desc);
+};
+
+NAMESPACE_END(Gfx)
 #if 0
 #include "Colorful/D3D/DxgiObject.h"
 
@@ -22,11 +35,4 @@ public:
 	D3D11DepthStencilState(const class D3D11Device& device, const GfxDepthStencilStateDesc& gfxDesc);
 };
 using D3D11DepthStencilStatePtr = std::shared_ptr<D3D11DepthStencilState>;
-
-class D3D11SamplerState : public D3DObject<ID3D11SamplerState>, public GfxSampler
-{
-public:
-	D3D11SamplerState(const class D3D11Device& device, const GfxSamplerDesc& gfxDesc);
-};
-using D3D11SamplerStatePtr = std::shared_ptr<D3D11SamplerState>;
 #endif

@@ -1,8 +1,10 @@
 #include "Colorful/Public/GfxRenderer.h"
+#include "Colorful/Public/GfxResourceManager.h"
 
 NAMESPACE_START(Gfx)
 
 EXPORT_API GfxRenderer* GRenderer = nullptr;
+EXPORT_API GfxResourceManager* GResourceManager = nullptr;
 
 extern "C"
 {

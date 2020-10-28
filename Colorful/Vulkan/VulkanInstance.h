@@ -4,7 +4,9 @@
 
 NAMESPACE_START(Gfx)
 
-template <typename T> static std::vector<const char8_t*> getSupportedProperties(const std::vector<T>& supportedProperties, const std::vector<const char8_t*>& targetProperties)
+template <typename T> static std::vector<const char8_t*> getSupportedProperties(
+	const std::vector<T>& supportedProperties, 
+	const std::vector<const char8_t*>& targetProperties)
 {
 	std::vector<const char8_t*> result;
 
@@ -32,7 +34,8 @@ public:
 	void destroy(VkInstance instance)
 	{
 		assert(instance);
-		PFN_vkDestroyDebugUtilsMessengerEXT vkDestroyDebugUtilsMessenger = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT"));
+		PFN_vkDestroyDebugUtilsMessengerEXT vkDestroyDebugUtilsMessenger = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
+			vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT"));
 		assert(vkDestroyDebugUtilsMessenger);
 		vkDestroyDebugUtilsMessenger(instance, get(), VK_MEMORY_ALLOCATOR);
 	}

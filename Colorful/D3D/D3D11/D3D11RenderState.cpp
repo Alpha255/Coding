@@ -1,3 +1,51 @@
+#include "Colorful/D3D/D3D11/D3D11RenderState.h"
+#include "Colorful/D3D/D3D11/D3D11Map.h"
+
+NAMESPACE_START(Gfx)
+
+D3D11Sampler::D3D11Sampler(ID3D11Device* device, const SamplerDesc& desc)
+{
+	assert(device);
+
+	Vec4 borderColor{};
+	switch (desc.BorderColor)  /// ???? 
+	{
+	case EBorderColor::FloatTransparentBlack:
+	case EBorderColor::IntTransparentBlack:
+		break;
+	case EBorderColor::FloatOpaqueBlack:
+	case EBorderColor::IntOpaqueBlack:
+		borderColor = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
+		break;
+	case EBorderColor::FloatOpaqueWhite:
+	case EBorderColor::IntOpaqueWhite:
+		borderColor = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		break;
+	}
+
+	D3D11_SAMPLER_DESC samplerDesc
+	{
+		D3D11Map::textureFilter(desc.MinMagFilter),
+		D3D11Map::samplerAddressMode(desc.AddressModeU),
+		D3D11Map::samplerAddressMode(desc.AddressModeV),
+		D3D11Map::samplerAddressMode(desc.AddressModeW),
+		desc.MipLodBias,
+		desc.MaxAnisotropy,
+		D3D11Map::compareFunc(desc.CompareOp),
+		{ 
+			borderColor.x, 
+			borderColor.y, 
+			borderColor.z, 
+			borderColor.w
+		},
+		desc.MinLod,
+		desc.MaxLod
+	};
+	VERIFY_D3D(device->CreateSamplerState(&samplerDesc, reference()));
+}
+
+NAMESPACE_END(Gfx)
+
 #if 0
 #include "Colorful/D3D/D3D11/D3D11Engine.h"
 
@@ -83,44 +131,5 @@ D3D11DepthStencilState::D3D11DepthStencilState(const D3D11Device& device, const 
 	ID3D11DepthStencilState* depthStencilState = nullptr;
 	GfxVerifyD3D(device->CreateDepthStencilState(&desc, &depthStencilState));
 	reset(depthStencilState);
-}
-
-D3D11SamplerState::D3D11SamplerState(const D3D11Device& device, const GfxSamplerDesc& gfxDesc)
-{
-	assert(device.isValid());
-
-	Vec4 borderColor;
-	switch (gfxDesc.BorderColor)  /// ???? 
-	{
-	case eFloatTransparentBlack:
-	case eIntTransparentBlack:
-		break;
-	case eFloatOpaqueBlack:
-	case eIntOpaqueBlack:
-		borderColor = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
-		break;
-	case eFloatOpaqueWhite:
-	case eIntOpaqueWhite:
-		borderColor = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		break;
-	}
-
-	D3D11_SAMPLER_DESC desc
-	{
-		D3D11Enum::toFilter(gfxDesc.MinMagFilter),
-		D3D11Enum::toAddressMode(gfxDesc.AddressModeU),
-		D3D11Enum::toAddressMode(gfxDesc.AddressModeV),
-		D3D11Enum::toAddressMode(gfxDesc.AddressModeW),
-		gfxDesc.MipLodBias,
-		gfxDesc.MaxAnisotropy,
-		D3D11Enum::toCompareOp(gfxDesc.CompareOp),
-		{ borderColor.x, borderColor.y, borderColor.z, borderColor.w},
-		gfxDesc.MinLod,
-		gfxDesc.MaxLod
-	};
-
-	ID3D11SamplerState* state = nullptr;
-	GfxVerifyD3D(device->CreateSamplerState(&desc, &state));
-	reset(state);
 }
 #endif

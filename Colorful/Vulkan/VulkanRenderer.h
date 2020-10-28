@@ -240,6 +240,7 @@ private:
 
 #include "Colorful/Vulkan/VulkanDevice.h"
 #include "Colorful/Vulkan/VulkanSwapChain.h"
+#include "Colorful/Vulkan/VulkanResourceManager.h"
 
 NAMESPACE_START(Gfx)
 
@@ -260,6 +261,7 @@ private:
 	VulkanDebugUtilsMessengerPtr m_DebugUtilsMessenger = nullptr;
 	VulkanDevicePtr m_Device = nullptr;
 	VulkanSwapchainPtr m_Swapchain = nullptr;
+	VulkanResourceManagerPtr m_ResourceManager = nullptr;
 };
 
 NAMESPACE_END(Gfx)

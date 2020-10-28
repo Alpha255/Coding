@@ -12,7 +12,7 @@ public:
 	virtual TexturePtr createTexture(const TextureDesc& desc) = 0;
 	virtual SamplerPtr createSampler(const SamplerDesc& desc) = 0;
 	virtual UniformBufferPtr createUniformBuffer(size_t size, const void* data) = 0;
-	virtual InputLayoutPtr createInputLayout(const std::vector<VertexInputDesc>& descs) = 0;
+	virtual InputLayoutPtr createInputLayout(const std::vector<VertexInputDesc>& descs, const std::vector<uint32_t>& binary) = 0;
 	virtual IndexBufferPtr createIndexBuffer(EBufferUsage usage, size_t size, const void* data) = 0;
 	virtual VertexBufferPtr createVertexBuffer(EBufferUsage usage, size_t size, const void* data) = 0;
 };

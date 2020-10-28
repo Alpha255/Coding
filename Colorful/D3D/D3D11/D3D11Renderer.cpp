@@ -67,6 +67,8 @@ void D3D11Renderer::createDevice()
 	DXGIAdapterListPtr AdapterList  = std::make_unique<DXGIAdapterList>(Factory->get(), Factory->get6());
 
 	m_Device = std::make_shared<D3D11Device>(AdapterList->get1(), AdapterList->get4());
+	m_ResourceManager = std::make_unique<D3D11ResourceManager>(m_Device);
+	///GResourceManager = m_ResourceManager.get();
 }
 
 void D3D11Renderer::createSwapchain(uint64_t instance, uint64_t windowHandle, uint32_t width, uint32_t height, bool8_t fullscreen, bool8_t VSync)

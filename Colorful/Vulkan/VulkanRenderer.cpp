@@ -332,6 +332,9 @@ void VulkanRender::createDevice()
 #if defined(USE_VK_LOADER)
 	VulkanLoader::loadDeviceFuncs(m_Device->get());
 #endif
+
+	m_ResourceManager = std::make_unique<VulkanResourceManager>(m_Device->get(), m_Device->physicalDevice());
+	///GResourceManager = m_ResourceManager.get();
 }
 
 void VulkanRender::createSwapchain(uint64_t instance, uint64_t windowHandle, uint32_t width, uint32_t height, bool8_t fullscreen, bool8_t VSync)

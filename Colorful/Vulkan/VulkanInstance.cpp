@@ -88,7 +88,10 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vkDebugUtilsMessengerFunc(
 		level = Gear::Log::ELevel::Error;
 	}
 
-	std::string message(std::move(Gear::String::format("Vulkan Validation: [%3d][%10s]: %s", pMessengerCallbackData->messageIdNumber, pMessengerCallbackData->pMessageIdName, pMessengerCallbackData->pMessage)));
+	std::string message(std::move(Gear::String::format("Vulkan Validation: [%3d][%10s]: %s", 
+		pMessengerCallbackData->messageIdNumber, 
+		pMessengerCallbackData->pMessageIdName, 
+		pMessengerCallbackData->pMessage)));
 
 	Gear::Log::log(level, message);
 	return VK_FALSE;

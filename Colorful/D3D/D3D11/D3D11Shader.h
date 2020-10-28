@@ -1,36 +1,11 @@
 #pragma once
 
-#if 0
-
-#include "AssetTool/Asset.h"
-
-class D3D11InputLayout : public D3DObject<ID3D11InputLayout>
-{
-public:
-	D3D11InputLayout(
-		const class D3D11Device& device, 
-		const AssetTool::ShaderBinary& binary, 
-		const std::vector<GfxVertexAttributes>& layout,
-		uint32_t alignment);
-
-	inline uint32_t stride() const
-	{
-		return m_Stride;
-	}
-protected:
-private:
-	uint32_t m_Stride = 0u;
-};
-using D3D11InputLayoutPtr = std::shared_ptr<D3D11InputLayout>;
-
-#endif
-
-#include "Colorful/D3D/DXGI_Interface.h"
+#include "Colorful/D3D/D3D11/D3D11Map.h"
 
 NAMESPACE_START(Gfx)
 
 DECLARE_SHARED_PTR(D3D11Shader)
-class D3D11Shader : public D3DObject<ID3D11DeviceChild>, public Shader
+class D3D11Shader final : public D3DObject<ID3D11DeviceChild>, public Shader
 {
 public:
 	D3D11Shader(ID3D11Device* device, EShaderStage stage, const std::vector<uint32_t>& binary)
@@ -69,7 +44,7 @@ private:
 };
 
 DECLARE_SHARED_PTR(D3D11VertexShader)
-class D3D11VertexShader : public D3DObject<ID3D11VertexShader>, public Shader
+class D3D11VertexShader final : public D3DObject<ID3D11VertexShader>, public Shader
 {
 public:
 	D3D11VertexShader(ID3D11Device* device, const std::vector<uint32_t>& binary)
@@ -81,7 +56,7 @@ public:
 };
 
 DECLARE_SHARED_PTR(D3D11HullShader)
-class D3D11HullShader : public D3DObject<ID3D11HullShader>, public Shader
+class D3D11HullShader final : public D3DObject<ID3D11HullShader>, public Shader
 {
 public:
 	D3D11HullShader(ID3D11Device* device, const std::vector<uint32_t>& binary)
@@ -93,7 +68,7 @@ public:
 };
 
 DECLARE_SHARED_PTR(D3D11DomainShader)
-class D3D11DomainShader : public D3DObject<ID3D11DomainShader>, public Shader
+class D3D11DomainShader final : public D3DObject<ID3D11DomainShader>, public Shader
 {
 public:
 	D3D11DomainShader(ID3D11Device* device, const std::vector<uint32_t>& binary)
@@ -105,7 +80,7 @@ public:
 };
 
 DECLARE_SHARED_PTR(D3D11GeometryShader)
-class D3D11GeometryShader : public D3DObject<ID3D11GeometryShader>, public Shader
+class D3D11GeometryShader final : public D3DObject<ID3D11GeometryShader>, public Shader
 {
 public:
 	D3D11GeometryShader(ID3D11Device* device, const std::vector<uint32_t>& binary)
@@ -117,7 +92,7 @@ public:
 };
 
 DECLARE_SHARED_PTR(D3D11FragmentShader)
-class D3D11FragmentShader : public D3DObject<ID3D11PixelShader>, public Shader
+class D3D11FragmentShader final : public D3DObject<ID3D11PixelShader>, public Shader
 {
 public:
 	D3D11FragmentShader(ID3D11Device* device, const std::vector<uint32_t>& binary)
@@ -129,7 +104,7 @@ public:
 };
 
 DECLARE_SHARED_PTR(D3D11ComputeShader)
-class D3D11ComputeShader : public D3DObject<ID3D11ComputeShader>, public Shader
+class D3D11ComputeShader final : public D3DObject<ID3D11ComputeShader>, public Shader
 {
 public:
 	D3D11ComputeShader(ID3D11Device* device, const std::vector<uint32_t>& binary)
@@ -138,6 +113,46 @@ public:
 		assert(device && binary.size());
 		VERIFY_D3D(device->CreateComputeShader(binary.data(), binary.size() * sizeof(uint32_t), nullptr, reference()));
 	}
+};
+
+DECLARE_SHARED_PTR(D3D11InputLayout)
+class D3D11InputLayout final : public D3DObject<ID3D11InputLayout>, public InputLayout
+{
+public:
+	D3D11InputLayout(ID3D11Device* device, const std::vector<VertexInputDesc>& descs, const std::vector<uint32_t>& binary, bool8_t isHLSL)
+	{
+		assert(device);
+
+		std::vector<D3D11_INPUT_ELEMENT_DESC> inputDescs{};
+		for (uint32_t i = 0u; i < descs.size(); ++i)
+		{
+			for (uint32_t j = 0u; j < descs[i].Layouts.size(); ++j)
+			{
+				auto& layout = descs[i].Layouts[j];
+				D3D11_INPUT_ELEMENT_DESC inputDesc
+				{
+					isHLSL ? layout.Usage.c_str() : "TEXCOORD",
+					isHLSL ? 0u : j,
+					D3D11Map::format(layout.Format),
+					i,
+					D3D11_APPEND_ALIGNED_ELEMENT,  /// auto stride
+					descs[i].InputRate == VertexInputDesc::EVertexInputRate::Instance ? 
+						D3D11_INPUT_PER_INSTANCE_DATA : D3D11_INPUT_PER_VERTEX_DATA,
+					0u  /// ??? 
+				};
+				inputDescs.emplace_back(inputDesc);
+			}
+		}
+
+		VERIFY_D3D(device->CreateInputLayout(
+			inputDescs.data(),
+			static_cast<uint32_t>(inputDescs.size()),
+			reinterpret_cast<const void*>(binary.data()), 
+			binary.size() * sizeof(uint32_t), 
+			reference()));
+	}
+protected:
+private:
 };
 
 NAMESPACE_END(Gfx)

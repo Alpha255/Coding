@@ -166,6 +166,7 @@ private:
 #endif
 
 #include "Colorful/D3D/D3D11/D3D11Device.h"
+#include "Colorful/D3D/D3D11/D3D11ResourceManager.h"
 
 NAMESPACE_START(Gfx)
 
@@ -183,6 +184,7 @@ public:
 protected:
 private:
 	D3D11DevicePtr m_Device;
+	D3D11ResourceManagerPtr m_ResourceManager;
 };
 
 NAMESPACE_END(Gfx)
