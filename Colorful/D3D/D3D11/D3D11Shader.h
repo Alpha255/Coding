@@ -128,13 +128,15 @@ public:
 		{
 			for (uint32_t j = 0u; j < descs[i].Layouts.size(); ++j)
 			{
+				assert(descs[i].Slot < ELimitations::MaxVertexStreams);
+
 				auto& layout = descs[i].Layouts[j];
 				D3D11_INPUT_ELEMENT_DESC inputDesc
 				{
 					isHLSL ? layout.Usage.c_str() : "TEXCOORD",
 					isHLSL ? 0u : j,
 					D3D11Map::format(layout.Format),
-					i,
+					descs[i].Slot,
 					D3D11_APPEND_ALIGNED_ELEMENT,  /// auto stride
 					descs[i].InputRate == VertexInputDesc::EVertexInputRate::Instance ? 
 						D3D11_INPUT_PER_INSTANCE_DATA : D3D11_INPUT_PER_VERTEX_DATA,
