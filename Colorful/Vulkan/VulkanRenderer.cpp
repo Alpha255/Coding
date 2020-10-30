@@ -314,6 +314,7 @@ void VulkanEngine::finalize()
 #endif
 
 #include "Colorful/Vulkan/VulkanRenderer.h"
+#include "Colorful/Vulkan/VulkanMemoryAllocator.h"
 
 NAMESPACE_START(Gfx)
 
@@ -335,6 +336,8 @@ void VulkanRender::createDevice()
 
 	m_ResourceManager = std::make_unique<VulkanResourceManager>(m_Device->get(), m_Device->physicalDevice());
 	///GResourceManager = m_ResourceManager.get();
+
+	VulkanMemoryAllocator::initialize(m_Device->get(), m_Device->physicalDevice());
 }
 
 void VulkanRender::createSwapchain(uint64_t instance, uint64_t windowHandle, uint32_t width, uint32_t height, bool8_t fullscreen, bool8_t VSync)
@@ -367,6 +370,8 @@ void VulkanRender::finalize()
 #if defined(USE_VK_LOADER)
 	VulkanLoader::free();
 #endif
+
+	VulkanMemoryAllocator::instance()->finalize();
 }
 
 extern "C"

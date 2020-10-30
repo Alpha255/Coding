@@ -535,6 +535,8 @@ protected:
 				desc.Subresources[index].Width = width;
 				desc.Subresources[index].Height = height;
 				desc.Subresources[index].Depth = depth;
+				desc.Subresources[index].MipIndex = mipIndex;
+				desc.Subresources[index].ArrayIndex = arrayIndex;
 
 				getBytesInfos(width, height, desc.Format, desc.Subresources[index].SliceBytes, desc.Subresources[index].RowBytes);
 				assert((bitData + desc.Subresources[index].SliceBytes * depth) <= (bitData + bitSize));

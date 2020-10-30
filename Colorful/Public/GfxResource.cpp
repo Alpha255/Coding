@@ -139,7 +139,7 @@ FormatAttribute FormatAttribute::attribute(const char8_t* const format)
 {
 	for (auto& attr : s_FormatAttributes)
 	{
-		if (stricmp(attr.Name, format) == 0)
+		if (_stricmp(attr.Name, format) == 0)
 		{
 			return attr;
 		}

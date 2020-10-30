@@ -1,4 +1,5 @@
 #include "Colorful/Vulkan/VulkanBuffer.h"
+#include "Colorful/Vulkan/VulkanMemoryAllocator.h"
 
 NAMESPACE_START(Gfx)
 
@@ -65,8 +66,7 @@ VulkanBuffer::VulkanBuffer(VkDevice device, uint32_t bindFlags, EBufferUsage usa
 		VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
 		nullptr,
 		memReq.size,
-		0u /// ??? 
-		///VulkanBufferPool::instance()->memoryTypeIndex(usage, requirements.memoryTypeBits)
+		VulkanMemoryAllocator::instance()->getMemoryTypeIndex(usage, memReq.memoryTypeBits)
 	};
 
 	VERIFY_VK(vkAllocateMemory(device, &allocateInfo, VK_MEMORY_ALLOCATOR, &m_Memory));
@@ -92,83 +92,5 @@ VulkanBuffer::VulkanBuffer(VkDevice device, uint32_t bindFlags, EBufferUsage usa
 		VERIFY_VK(vkBindBufferMemory(device, get(), m_Memory, 0u));
 	}
 }
-
-//void VulkanBuffer::update(const void* data, size_t size, size_t offset)
-//{
-//	VulkanBufferPool::instance()->updateBuffer(this, data, size, offset);
-//}
-//
-//void VulkanBuffer::free()
-//{
-//	VulkanBufferPool::instance()->free(this);
-//}
-
-#if 0
-uint32_t VulkanBufferPool::memoryTypeIndex(eRBufferUsage usage, uint32_t memoryTypeBits) const
-{
-	assert(usage < eRBufferUsage_MaxEnum);
-
-	VkMemoryPropertyFlags memoryPropertyFlags = 0u;
-	switch (usage)
-	{
-	case eGpuReadWrite:
-	case eGpuReadOnly:
-		memoryPropertyFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-		break;
-	case eGpuReadCpuWrite:
-		memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-		break;
-	case eGpuCopyToCpu:
-		memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
-		break;
-	default:
-		assert(0);
-		break;
-	}
-
-	for (uint32_t i = 0u; i < m_DeviceMemoryProperties.memoryTypeCount; ++i)
-	{
-		if (((memoryTypeBits >> i) & 1u) == 1u)
-		{
-			if ((m_DeviceMemoryProperties.memoryTypes[i].propertyFlags & memoryPropertyFlags) == memoryPropertyFlags)
-			{
-				return i;
-			}
-		}
-	}
-
-	assert(0);
-	return std::numeric_limits<uint32_t>().max();
-}
-
-void VulkanBufferPool::delayFree(bool8_t force)
-{
-	if (m_DelayFreeList.size() >= eMaxDelayList || force)
-	{
-		m_ListIndex = 0u;
-		for (uint32_t i = 0u; i < m_DelayFreeList.size(); ++i)
-		{
-			if (m_DelayFreeList[i])
-			{
-				m_DelayFreeList[i]->destroy(m_Device);
-				safeDelete(m_DelayFreeList[i]);
-			}
-		}
-	}
-}
-
-void VulkanBufferPool::cleanup()
-{
-	delayFree(true);
-	m_DelayFreeList.clear();
-
-	for each (auto it in m_Buffers)
-	{
-		it.second->destroy(m_Device);
-		safeDelete(it.second);
-	}
-	m_Buffers.clear();
-}
-#endif
 
 NAMESPACE_END(Gfx)

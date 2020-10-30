@@ -543,6 +543,8 @@ struct SubresourceRange
 	uint32_t Height = 0u;
 	uint32_t Depth = 1u;
 	uint32_t Offset = 0u;
+	uint32_t MipIndex = 0u;
+	uint32_t ArrayIndex = 0u;
 	uint32_t RowBytes = 0u;
 	uint32_t SliceBytes = 0u;
 };
