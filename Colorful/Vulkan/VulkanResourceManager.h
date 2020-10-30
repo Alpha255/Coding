@@ -3,6 +3,7 @@
 #include "Colorful/Public/GfxResourceManager.h"
 #include "Colorful/Vulkan/VulkanBuffer.h"
 #include "Colorful/Vulkan/VulkanShader.h"
+#include "Colorful/Vulkan/VulkanTexture.h"
 
 NAMESPACE_START(Gfx)
 
@@ -24,17 +25,12 @@ public:
 
 	TexturePtr createTexture(const TextureDesc& desc) override final
 	{
-		return nullptr;
+		return std::static_pointer_cast<Texture>(std::make_shared<VulkanTexture>(m_Device, desc, VK_IMAGE_ASPECT_COLOR_BIT, VulkanTexture::ECreationMode::Immediately));
 	}
 
 	SamplerPtr createSampler(const SamplerDesc& desc) override final
 	{
-		return nullptr;
-	}
-
-	UniformBufferPtr createUniformBuffer(size_t size, const void* data) override final
-	{
-		return nullptr;
+		return std::static_pointer_cast<Sampler>(std::make_shared<VulkanSampler>(m_Device, desc));
 	}
 
 	InputLayoutPtr createInputLayout(const std::vector<VertexInputDesc>& descs, const std::vector<uint32_t>&) override final
@@ -42,14 +38,19 @@ public:
 		return std::static_pointer_cast<InputLayout>(std::make_shared<VulkanInputLayout>(descs));
 	}
 
-	IndexBufferPtr createIndexBuffer(EBufferUsage usage, size_t size, const void* data) override final
+	GPUBufferPtr createUniformBuffer(size_t size, const void* data) override final
 	{
-		return nullptr;
+		return std::static_pointer_cast<GPUBuffer>(std::make_shared<VulkanBuffer>(m_Device, EBindFlags::Bind_UniformBuffer, EBufferUsage::Dynamic, size, data));
 	}
 
-	VertexBufferPtr createVertexBuffer(EBufferUsage usage, size_t size, const void* data) override final
+	GPUBufferPtr createIndexBuffer(EBufferUsage usage, size_t size, const void* data) override final
 	{
-		return nullptr;
+		return std::static_pointer_cast<GPUBuffer>(std::make_shared<VulkanBuffer>(m_Device, EBindFlags::Bind_IndexBuffer, usage, size, data));
+	}
+
+	GPUBufferPtr createVertexBuffer(EBufferUsage usage, size_t size, const void* data) override final
+	{
+		return std::static_pointer_cast<GPUBuffer>(std::make_shared<VulkanBuffer>(m_Device, EBindFlags::Bind_VertexBuffer, usage, size, data));
 	}
 protected:
 private:

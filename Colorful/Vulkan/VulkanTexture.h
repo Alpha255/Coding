@@ -28,7 +28,7 @@ public:
 		FragmentShaderReadWrite
 	};
 
-	VulkanTexture(VkDevice device, const TextureDesc& desc, ECreationMode mode);
+	VulkanTexture(VkDevice device, const TextureDesc& desc, uint32_t aspectFlags, ECreationMode mode);
 
 	void destroy(VkDevice device)
 	{
@@ -48,7 +48,7 @@ private:
 };
 
 DECLARE_SHARED_PTR(VulkanSampler)
-class VulkanSampler final : public VkObject<VkSampler_T>
+class VulkanSampler final : public VkObject<VkSampler_T>, public Sampler
 {
 public:
 	VulkanSampler(VkDevice device, const SamplerDesc& desc);

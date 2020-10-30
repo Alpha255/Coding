@@ -10,7 +10,7 @@ enum class EShaderLanguage
 	HLSL
 };
 
-enum class EShaderStage : uint8_t
+enum EShaderStage
 {
 	Vertex,
 	Hull,
@@ -39,7 +39,7 @@ enum class EIndexType
 	UInt32
 };
 
-enum class EBufferUsage : uint8_t
+enum class EBufferUsage
 {
 	Default,   /// read and write access by the GPU
 	Immutable, /// can only be read by the GPU
@@ -54,18 +54,21 @@ enum class ECpuAccessFlags : uint8_t
 	ReadWrite,
 };
 
-enum EBufferBindFlags : uint8_t
+enum EBindFlags
 {
-	VertexBufferFlag = 1 << 0,
-	IndexBufferFlag = 1 << 1,
-	UniformBufferFlag = 1 << 2,
-	ShaderStorageFlag = 1 << 3,
-	StreamOutputFlag = 1 << 4,
-	UnorderedAccessFlag = 1 << 5,
-	IndirectBufferFlag = 1 << 6
+	Bind_VertexBuffer = 1 << 0,
+	Bind_IndexBuffer = 1 << 1,
+	Bind_UniformBuffer = 1 << 2,
+	Bind_ShaderResource = 1 << 3,
+	Bind_StreamOutput = 1 << 4,
+	Bind_RenderTarget = 1 << 5,
+	Bind_DepthStencil = 1 << 6,
+	Bind_UnorderedAccess = 1 << 7,
+	Bind_IndirectBuffer = 1 << 8,
+	Bind_InputAttachment = 1 << 9
 };
 
-enum class EFormat : uint16_t
+enum class EFormat
 {
 	Unknown,
 	D16_UNorm,
@@ -432,21 +435,8 @@ public:
 		StorageBuffer,
 		Unknown
 	};
-
-	ShaderResource() = default;
-	ShaderResource(EResourceType type)
-		: m_Type(type)
-	{
-	}
-	virtual ~ShaderResource() = default;
-
-	EResourceType type() const
-	{
-		return m_Type;
-	}
 protected:
 private:
-	EResourceType m_Type = EResourceType::Unknown;
 };
 
 DECLARE_SHARED_PTR(InputLayout)
@@ -465,24 +455,8 @@ class Sampler : public ShaderResource
 };
 
 DECLARE_SHARED_PTR(GPUBuffer)
-class GPUBuffer
+class GPUBuffer : public ShaderResource
 {
-};
-
-DECLARE_SHARED_PTR(UniformBuffer)
-class UniformBuffer : public ShaderResource, public GPUBuffer
-{
-};
-
-DECLARE_SHARED_PTR(VertexBuffer)
-class VertexBuffer : public GPUBuffer
-{
-};
-
-DECLARE_SHARED_PTR(IndexBuffer)
-class IndexBuffer : public GPUBuffer
-{
-
 };
 
 struct ShaderResourceDesc
@@ -493,6 +467,7 @@ struct ShaderResourceDesc
 		uint32_t Binding;
 		uint32_t Size;
 	};
+	ShaderResourcePtr Resource = nullptr;
 };
 
 struct ShaderReflection
@@ -554,7 +529,7 @@ struct TextureDesc
 	ETextureType Dimension = ETextureType::T_2D;
 	EFormat Format = EFormat::Unknown;
 	EBufferUsage Usage = EBufferUsage::Immutable;
-	EBufferBindFlags BindFlag = EBufferBindFlags::ShaderStorageFlag;
+	uint32_t BindFlags = EBindFlags::Bind_ShaderResource;
 
 	uint32_t Width = 0u;
 	uint32_t Height = 0u;
@@ -562,6 +537,7 @@ struct TextureDesc
 	uint32_t Depth = 1u;
 	uint32_t MipLevels = 1u;
 	uint32_t SampleCount = 1u;
+	bool8_t GenMipmaps = false;
 
 	std::shared_ptr<byte8_t> Data = nullptr;
 	std::vector<SubresourceRange> Subresources{};
@@ -709,6 +685,11 @@ struct ModelDesc
 
 	std::vector<SubMeshDesc> SubMeshes;
 	std::vector<std::string> Textures;
+};
+
+struct PipelineResourceLayout
+{
+	std::array<std::vector<ShaderResourceDesc>, EShaderStage::ShaderStageCount> Resources;
 };
 
 NAMESPACE_END(Gfx)

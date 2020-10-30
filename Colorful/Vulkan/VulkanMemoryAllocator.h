@@ -14,7 +14,7 @@ public:
 		vkGetPhysicalDeviceMemoryProperties(physicalDevice, &m_MemoryProperties);
 	}
 
-	uint32_t getMemoryTypeIndex(EBufferUsage usage, uint32_t memoryTypeBits) const
+	uint32_t getMemoryTypeIndex(EBufferUsage usage, uint32_t memTypeBits) const
 	{
 		VkMemoryPropertyFlags memPropFlags = 0u;
 		switch (usage)
@@ -33,12 +33,10 @@ public:
 
 		for (uint32_t i = 0u; i < m_MemoryProperties.memoryTypeCount; ++i)
 		{
-			if (((memoryTypeBits >> i) & 1u) == 1u)
+			if (((1 << i) & memTypeBits) && 
+				((m_MemoryProperties.memoryTypes[i].propertyFlags & memTypeBits) == memTypeBits))
 			{
-				if ((m_MemoryProperties.memoryTypes[i].propertyFlags & memPropFlags) == memPropFlags)
-				{
-					return i;
-				}
+				return i;
 			}
 		}
 

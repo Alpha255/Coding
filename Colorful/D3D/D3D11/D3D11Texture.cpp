@@ -27,7 +27,7 @@ D3D11Texture::D3D11Texture(ID3D11Device* device, const TextureDesc& desc)
 			desc.ArraySize,
 			D3D11Map::format(desc.Format),
 			D3D11Map::usage(desc.Usage),
-			D3D11Map::bindFlags(desc.BindFlag),
+			D3D11Map::bindFlags(desc.BindFlags),
 			0u,
 			0u
 		};
@@ -48,7 +48,7 @@ D3D11Texture::D3D11Texture(ID3D11Device* device, const TextureDesc& desc)
 				0u
 			},
 			D3D11Map::usage(desc.Usage),
-			D3D11Map::bindFlags(desc.BindFlag),
+			D3D11Map::bindFlags(desc.BindFlags),
 			0u,
 			(desc.Dimension == ETextureType::T_Cube || desc.Dimension == ETextureType::T_Cube_Array) ? D3D11_RESOURCE_MISC_TEXTURECUBE : 0u
 		};
@@ -64,7 +64,7 @@ D3D11Texture::D3D11Texture(ID3D11Device* device, const TextureDesc& desc)
 			desc.MipLevels,
 			D3D11Map::format(desc.Format),
 			D3D11Map::usage(desc.Usage),
-			D3D11Map::bindFlags(desc.BindFlag),
+			D3D11Map::bindFlags(desc.BindFlags),
 			0u,
 			0u
 		};
@@ -98,7 +98,7 @@ D3D11Texture1D::D3D11Texture1D(ID3D11Device* device, const TextureDesc& desc)
 		desc.ArraySize,
 		D3D11Map::format(desc.Format),
 		D3D11Map::usage(desc.Usage),
-		D3D11Map::bindFlags(desc.BindFlag),
+		D3D11Map::bindFlags(desc.BindFlags),
 		0u,
 		0u
 	};
@@ -132,7 +132,7 @@ D3D11Texture2D::D3D11Texture2D(ID3D11Device* device, const TextureDesc& desc)
 			0u
 		},
 		D3D11Map::usage(desc.Usage),
-		D3D11Map::bindFlags(desc.BindFlag),
+		D3D11Map::bindFlags(desc.BindFlags),
 		0u,
 		(desc.Dimension == ETextureType::T_Cube || desc.Dimension == ETextureType::T_Cube_Array) ? D3D11_RESOURCE_MISC_TEXTURECUBE : 0u
 	};
@@ -162,7 +162,7 @@ D3D11Texture3D::D3D11Texture3D(ID3D11Device* device, const TextureDesc& desc)
 		desc.MipLevels,
 		D3D11Map::format(desc.Format),
 		D3D11Map::usage(desc.Usage),
-		D3D11Map::bindFlags(desc.BindFlag),
+		D3D11Map::bindFlags(desc.BindFlags),
 		0u,
 		0u
 	};

@@ -545,11 +545,6 @@ private:
 //	size_t Hash = 0u;
 //};
 
-struct PipelineResourceLayoutDesc
-{
-
-};
-
 class GraphicsPipelineState
 {
 public:

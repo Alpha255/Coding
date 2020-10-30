@@ -66,20 +66,6 @@ public:
 		return std::static_pointer_cast<Sampler>(std::make_shared<D3D11Sampler>(m_Device->get(), desc));
 	}
 
-	UniformBufferPtr createUniformBuffer(size_t size, const void* data) override final
-	{
-#if 0
-		return std::static_pointer_cast<UniformBuffer>(std::make_shared<D3D11Buffer>(
-			m_Device->get(),
-			EBufferBindFlags::UniformBufferFlag,
-			EBufferUsage::Dynamic,
-			size,
-			data));
-#else
-		return nullptr;
-#endif
-	}
-
 	InputLayoutPtr createInputLayout(const std::vector<VertexInputDesc>& descs, const std::vector<uint32_t>& binary) override final
 	{
 		return std::static_pointer_cast<InputLayout>(std::make_shared<D3D11InputLayout>(
@@ -89,32 +75,34 @@ public:
 			false));
 	}
 
-	IndexBufferPtr createIndexBuffer(EBufferUsage usage, size_t size, const void* data) override final
+	GPUBufferPtr createUniformBuffer(size_t size, const void* data) override final
 	{
-#if 0
-		return std::static_pointer_cast<IndexBuffer>(std::make_shared<D3D11Buffer>(
+		return std::static_pointer_cast<GPUBuffer>(std::make_shared<D3D11Buffer>(
 			m_Device->get(),
-			EBufferBindFlags::IndexBufferFlag,
-			usage,
+			EBindFlags::Bind_UniformBuffer,
+			EBufferUsage::Dynamic,
 			size,
 			data));
-#else
-		return nullptr;
-#endif
 	}
 
-	VertexBufferPtr createVertexBuffer(EBufferUsage usage, size_t size, const void* data) override final
+	GPUBufferPtr createIndexBuffer(EBufferUsage usage, size_t size, const void* data) override final
 	{
-#if 0
-		return std::static_pointer_cast<VertexBuffer>(std::make_shared<D3D11Buffer>(
+		return std::static_pointer_cast<GPUBuffer>(std::make_shared<D3D11Buffer>(
 			m_Device->get(),
-			EBufferBindFlags::VertexBufferFlag,
+			EBindFlags::Bind_IndexBuffer,
 			usage,
 			size,
 			data));
-#else
-		return nullptr;
-#endif
+	}
+
+	GPUBufferPtr createVertexBuffer(EBufferUsage usage, size_t size, const void* data) override final
+	{
+		return std::static_pointer_cast<GPUBuffer>(std::make_shared<D3D11Buffer>(
+			m_Device->get(),
+			EBindFlags::Bind_VertexBuffer,
+			usage,
+			size,
+			data));
 	}
 protected:
 	D3D11DevicePtr m_Device = nullptr;

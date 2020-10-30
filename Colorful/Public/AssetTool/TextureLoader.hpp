@@ -388,6 +388,7 @@ protected:
 		desc.Subresources.resize(1u);
 		desc.Subresources[0].Width = width;
 		desc.Subresources[0].Height = height;
+		desc.BindFlags = EBindFlags::Bind_ShaderResource;
 		getBytesInfos(width, height, EFormat::RGBA8_UNorm, desc.Subresources[0].SliceBytes, desc.Subresources[0].RowBytes);
 		uint32_t bytes = width * FormatAttribute::attribute(EFormat::RGBA8_UNorm).Stride / static_cast<uint32_t>(BITS_IN_BYTES()) * height;
 		assert(bytes == desc.Subresources[0].SliceBytes);
@@ -424,6 +425,7 @@ protected:
 		desc.Height = header->height;
 		desc.Depth = header->depth == 0u ? 1u : header->depth;
 		desc.MipLevels = header->mipMapCount == 0u ? 1u : header->mipMapCount;
+		desc.BindFlags = EBindFlags::Bind_ShaderResource;
 		assert(desc.MipLevels <= D3D11_REQ_MIP_LEVELS);
 
 		if (dxt10Header)
@@ -567,6 +569,7 @@ protected:
 		desc.Depth = ktx->baseDepth;
 		desc.MipLevels = ktx->numLevels;
 		desc.ArraySize = ktx->numLayers;
+		desc.BindFlags = EBindFlags::Bind_ShaderResource;
 		switch (ktx->numDimensions)
 		{
 		case 1: desc.Dimension = ktx->isArray ? 

@@ -211,31 +211,39 @@ uint32_t D3D11Map::bindFlags(uint32_t bindFlags)
 {
 	uint32_t flags = 0u;
 
-	if (bindFlags & EBufferBindFlags::VertexBufferFlag)
+	if (bindFlags & EBindFlags::Bind_VertexBuffer)
 	{
 		flags |= D3D11_BIND_VERTEX_BUFFER;
 	}
-	if (bindFlags & EBufferBindFlags::IndexBufferFlag)
+	if (bindFlags & EBindFlags::Bind_IndexBuffer)
 	{
 		flags |= D3D11_BIND_INDEX_BUFFER;
 	}
-	if (bindFlags & EBufferBindFlags::UniformBufferFlag)
+	if (bindFlags & EBindFlags::Bind_UniformBuffer)
 	{
 		flags |= D3D11_BIND_CONSTANT_BUFFER;
 	}
-	if (bindFlags & EBufferBindFlags::ShaderStorageFlag)
+	if (bindFlags & EBindFlags::Bind_ShaderResource)
 	{
 		flags |= D3D11_BIND_SHADER_RESOURCE;
 	}
-	if (bindFlags & EBufferBindFlags::StreamOutputFlag)
+	if (bindFlags & EBindFlags::Bind_StreamOutput)
 	{
 		flags |= D3D11_BIND_STREAM_OUTPUT;
 	}
-	if (bindFlags & EBufferBindFlags::UnorderedAccessFlag)
+	if (bindFlags & EBindFlags::Bind_RenderTarget)
+	{
+		flags |= D3D11_BIND_RENDER_TARGET;
+	}
+	if (bindFlags & EBindFlags::Bind_DepthStencil)
+	{
+		flags |= D3D11_BIND_DEPTH_STENCIL;
+	}
+	if (bindFlags & EBindFlags::Bind_UnorderedAccess)
 	{
 		flags |= D3D11_BIND_UNORDERED_ACCESS;
 	}
-	if (bindFlags & EBufferBindFlags::IndirectBufferFlag)
+	if (bindFlags & EBindFlags::Bind_IndirectBuffer)
 	{
 		assert(0);
 	}

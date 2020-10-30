@@ -4,27 +4,55 @@
 
 NAMESPACE_START(Gfx)
 
-VulkanTexture::VulkanTexture(VkDevice device, const TextureDesc& desc, ECreationMode mode)
+VulkanTexture::VulkanTexture(VkDevice device, const TextureDesc& desc, uint32_t aspectFlags, ECreationMode mode)
 {
 	assert(device);
+
+	VkImageCreateFlags createFlags = 0u;
+	if (desc.Dimension == ETextureType::T_Cube || desc.Dimension == ETextureType::T_Cube_Array)
+	{
+		createFlags |= VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
+	}
+
+	VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+	if (desc.BindFlags & EBindFlags::Bind_RenderTarget)
+	{
+		usageFlags |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+	}
+	if (desc.BindFlags & EBindFlags::Bind_DepthStencil)
+	{
+		usageFlags |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+	}
+	if (desc.BindFlags & EBindFlags::Bind_UnorderedAccess)
+	{
+		usageFlags |= VK_IMAGE_USAGE_STORAGE_BIT;
+	}
+	if (desc.BindFlags & EBindFlags::Bind_ShaderResource)
+	{
+		usageFlags |= VK_IMAGE_USAGE_SAMPLED_BIT;
+	}
+	if (desc.BindFlags & EBindFlags::Bind_InputAttachment)
+	{
+		usageFlags |= VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+	}
 
 	VkImageCreateInfo imageCreateInfo
 	{
 		VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
 		nullptr,
-		0u,  /// VkImageCreateFlagBits
+		createFlags,
 		VulkanMap::imageType(desc.Dimension),
 		VulkanMap::format(desc.Format),
 		{
 			desc.Width,
-			desc.Height,
-			desc.Depth
+			desc.Dimension == ETextureType::T_1D || desc.Dimension == ETextureType::T_1D_Array ? 1u : desc.Height,
+			desc.Dimension == ETextureType::T_3D ? desc.Depth : 1u
 		},
 		desc.MipLevels,
 		desc.ArraySize,
 		VulkanMap::samplerCount(desc.SampleCount),
 		VK_IMAGE_TILING_OPTIMAL,
-		VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+		usageFlags,
 		VK_SHARING_MODE_EXCLUSIVE,
 		0u,
 		nullptr,
@@ -44,6 +72,60 @@ VulkanTexture::VulkanTexture(VkDevice device, const TextureDesc& desc, ECreation
 	VERIFY_VK(vkAllocateMemory(device, &allocateInfo, VK_MEMORY_ALLOCATOR, &m_Memory));
 	VERIFY_VK(vkBindImageMemory(device, m_Image, m_Memory, 0u));
 
+	assert(desc.Subresources.size() == desc.MipLevels * desc.ArraySize);
+	std::vector<VkBufferImageCopy> copies(desc.Subresources.size());
+	for (uint32_t i = 0u; i < desc.Subresources.size(); ++i)
+	{
+		copies[i] = VkBufferImageCopy
+		{
+			desc.Subresources[i].Offset,
+			desc.Subresources[i].RowBytes,
+			desc.Subresources[i].Height,
+			{
+				aspectFlags,
+				desc.Subresources[i].MipIndex,
+				desc.Subresources[i].ArrayIndex,
+				1u
+			},
+			{ 0u, 0u, 0u },
+			{
+				desc.Subresources[i].Width,
+				desc.Subresources[i].Height,
+				desc.Subresources[i].Depth
+			}
+		};
+	}
+
+	VkImageSubresourceRange subresourceRange
+	{
+		aspectFlags,
+		0u,
+		VK_REMAINING_MIP_LEVELS,
+		0u,
+		VK_REMAINING_ARRAY_LAYERS
+	};
+
+	if (mode == ECreationMode::Immediately)
+	{
+		assert(0);
+		/// AllocateCmdBuffer
+
+		/// TransitionImageLayout
+
+		/// CopyToStagingBuffer
+
+		/// vkCmdCopyBufferToImage
+
+		/// Commit
+	}
+	else
+	{
+		assert(0);
+		/// QueueCommit
+	}
+
+	assert(!desc.GenMipmaps);
+
 	VkImageViewCreateInfo createInfo
 	{
 		VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
@@ -59,7 +141,7 @@ VulkanTexture::VulkanTexture(VkDevice device, const TextureDesc& desc, ECreation
 			VK_COMPONENT_SWIZZLE_A
 		},
 		{
-			VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT,
+			aspectFlags,
 			0u,
 			desc.MipLevels,
 			0u,
@@ -67,55 +149,6 @@ VulkanTexture::VulkanTexture(VkDevice device, const TextureDesc& desc, ECreation
 		}
 	};
 	VERIFY_VK(vkCreateImageView(device, &createInfo, VK_MEMORY_ALLOCATOR, reference()));
-
-	bool8_t useStaging = true;
-	if (useStaging)
-	{
-		std::vector<VkBufferImageCopy> copies(desc.Subresources.size());
-		for (uint32_t i = 0u; i < desc.Subresources.size(); ++i)
-		{
-			copies[i] = VkBufferImageCopy
-			{
-				desc.Subresources[i].Offset,
-				desc.Subresources[i].RowBytes,
-				desc.Subresources[i].Height,
-				{
-					VK_IMAGE_ASPECT_COLOR_BIT,
-					desc.Subresources[i].MipIndex,
-					desc.Subresources[i].ArrayIndex,
-					1u
-				},
-				{ 0u, 0u, 0u },
-				{
-					desc.Subresources[i].Width,
-					desc.Subresources[i].Height,
-					desc.Subresources[i].Depth
-				}
-			};
-		}
-
-		VkImageSubresourceRange subresourceRange
-		{
-			VK_IMAGE_ASPECT_COLOR_BIT,
-			0u,
-			desc.MipLevels,
-			0u,
-			desc.ArraySize
-		};
-
-		if (mode == ECreationMode::Immediately)
-		{
-
-		}
-		else
-		{
-
-		}
-	}
-	else
-	{
-		assert(0);
-	}
 }
 
 void VulkanTexture::getBarrierFlags(ELayout layout, VkPipelineStageFlags& stageFlags, VkAccessFlags& accessFlags, VkImageLayout& imageLayout)
