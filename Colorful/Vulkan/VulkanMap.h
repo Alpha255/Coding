@@ -19,7 +19,7 @@ public:
 	static VkFormat format(EFormat format);
 	static VkShaderStageFlagBits shaderStage(EShaderStage stage);
 	static VkPrimitiveTopology primitiveTopology(EPrimitiveTopology primitiveTopology);
-	//static VkDescriptorType descriptorType(eRDescriptorType type);
+	static VkDescriptorType descriptorType(ShaderResource::EResourceType type);
 	static VkFilter textureFilter(ETextureFilter filter);
 	static VkSamplerAddressMode samplerAddressMode(ESamplerAddressMode addressMode);
 	static VkBorderColor borderColor(EBorderColor borderColor);

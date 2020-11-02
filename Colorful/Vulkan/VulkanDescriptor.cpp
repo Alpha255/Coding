@@ -1,110 +1,27 @@
-#if 0
-#include "Colorful/Vulkan/VulkanEngine.h"
+#include "Colorful/Vulkan/VulkanDescriptor.h"
+#include "Colorful/Vulkan/VulkanMap.h"
 
-VulkanDescriptorPool::VulkanDescriptorPool(const VkDevice device, VkPhysicalDevice physicalDevice)
-	: m_Device(device)
+NAMESPACE_START(Gfx)
+
+VulkanDescriptorSetLayout::VulkanDescriptorSetLayout(VkDevice device, const PipelineResourceLayoutDesc& desc)
 {
-	assert(!isValid());
-
-	/// ToDo-May need a better way
-	VkPhysicalDeviceProperties deviceProperties{};
-	vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
-	auto deviceLimits = deviceProperties.limits;
-
-	std::array<VkDescriptorPoolSize, VK_DESCRIPTOR_TYPE_RANGE_SIZE> descriptorPoolSizes;
-	descriptorPoolSizes[0] = VkDescriptorPoolSize
-	{
-		VK_DESCRIPTOR_TYPE_SAMPLER,
-		deviceLimits.maxDescriptorSetSamplers
-	};
-	descriptorPoolSizes[1] = VkDescriptorPoolSize
-	{
-		VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-		deviceLimits.maxDescriptorSetSamplers  /// Not sure
-	};
-	descriptorPoolSizes[2] = VkDescriptorPoolSize
-	{
-		VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
-		deviceLimits.maxDescriptorSetSampledImages
-	};
-	descriptorPoolSizes[3] = VkDescriptorPoolSize
-	{
-		VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
-		deviceLimits.maxDescriptorSetStorageImages
-	};
-	descriptorPoolSizes[4] = VkDescriptorPoolSize
-	{
-		VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER,
-		deviceLimits.maxDescriptorSetUniformBuffers  /// Not sure
-	};
-	descriptorPoolSizes[5] = VkDescriptorPoolSize
-	{
-		VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER,
-		deviceLimits.maxDescriptorSetStorageBuffers  /// Not sure
-	};
-	descriptorPoolSizes[6] = VkDescriptorPoolSize
-	{
-		VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-		deviceLimits.maxDescriptorSetUniformBuffers
-	};
-	descriptorPoolSizes[7] = VkDescriptorPoolSize
-	{
-		VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-		deviceLimits.maxDescriptorSetStorageBuffers
-	};
-	descriptorPoolSizes[8] = VkDescriptorPoolSize
-	{
-		VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
-		deviceLimits.maxDescriptorSetUniformBuffersDynamic
-	};
-	descriptorPoolSizes[9] = VkDescriptorPoolSize
-	{
-		VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC,
-		deviceLimits.maxDescriptorSetStorageBuffersDynamic
-	};
-	descriptorPoolSizes[10] = VkDescriptorPoolSize
-	{
-		VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT,
-		deviceLimits.maxDescriptorSetInputAttachments
-	};
-
-	VkDescriptorPoolCreateInfo createInfo
-	{
-		VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
-		nullptr,
-		0u,
-		deviceLimits.maxBoundDescriptorSets,  /// Incorrect, maxBoundDescriptorSets is the maximum number of descriptor sets that can be simultaneously used by a pipeline
-		VK_DESCRIPTOR_TYPE_RANGE_SIZE,
-		descriptorPoolSizes.data()
-	};
-
-	GfxVerifyVk(vkCreateDescriptorPool(device, &createInfo, vkMemoryAllocator, &Handle));
-}
-
-void VulkanDescriptorSetLayout::create(VkDevice device, const GfxDescriptorLayoutDesc& desc)
-{
-	assert(!isValid());
+	assert(device);
 
 	std::vector<VkDescriptorSetLayoutBinding> bindings;
-	for (uint32_t i = 0u; i < eRShaderUsage_MaxEnum; ++i)
+	for (uint32_t i = 0u; i < EShaderStage::ShaderStageCount; ++i)
 	{
-		for (uint32_t j = 0u; j < desc[i].size(); ++j)
+		for (uint32_t j = 0u; j < desc.Resources[i].size(); ++j)
 		{
-			for (auto &reflection : desc[i])
+			auto& shaderResource = desc.Resources[i][j];
+			VkDescriptorSetLayoutBinding binding
 			{
-				assert(reflection.Type != std::numeric_limits<uint32_t>::max());
-
-				auto type = static_cast<VkDescriptorType>(reflection.Type);
-				VkDescriptorSetLayoutBinding binding
-				{
-					reflection.Binding,
-					type,
-					1u,
-					(VkShaderStageFlags)VulkanEnum::toShaderStage(static_cast<eRShaderUsage>(i)),
-					nullptr
-				};
-				bindings.emplace_back(std::move(binding));
-			}
+				shaderResource.Type == ShaderResource::EResourceType::UniformBuffer ? 0u : shaderResource.Binding,
+				VulkanMap::descriptorType(shaderResource.Type),
+				1u,
+				VulkanMap::shaderStage(static_cast<EShaderStage>(i)),
+				nullptr
+			};
+			bindings.emplace_back(std::move(binding));
 		}
 	}
 
@@ -113,14 +30,87 @@ void VulkanDescriptorSetLayout::create(VkDevice device, const GfxDescriptorLayou
 		VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
 		nullptr,
 		0u,
-		(uint32_t)bindings.size(),
+		static_cast<uint32_t>(bindings.size()),
 		bindings.data()
 	};
-
-	GfxVerifyVk(vkCreateDescriptorSetLayout(device, &createInfo, vkMemoryAllocator, &Handle));
+	VERIFY_VK(vkCreateDescriptorSetLayout(device, &createInfo, VK_MEMORY_ALLOCATOR, reference()));
 }
 
-VulkanDescriptorSet VulkanDescriptorPool::alloc(VkDescriptorSetLayout layout, const VulkanDescriptorSet::VulkanResourceMap& resourceMap) const
+VulkanDescriptorPool::VulkanDescriptorPool(VkDevice device, VkPhysicalDevice physicalDevice)
+	: m_Device(device)
+{
+	///VkPhysicalDeviceProperties deviceProperties{};
+	///vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
+	///auto& deviceLimits = deviceProperties.limits;
+
+	enum EDescriptorPoolLimits
+	{
+		Max_DesctriptorSet = 2048,
+		Max_Sampler = 256,
+		Max_CombinesImageSampler = 2048,
+		Max_SampledImage = 2048,
+		Max_StorageImage = 256,
+		Max_UniformTexelBuffer = 256,
+		Max_UniformBuffer = 1024,
+		Max_StorageTexelBuffer = 256,
+		Max_StorageBuffer = 1024,
+		Max_InputAttachment = 64,
+
+	};
+
+	std::vector<VkDescriptorPoolSize> poolSizes
+	{
+		{
+			VK_DESCRIPTOR_TYPE_SAMPLER,
+			EDescriptorPoolLimits::Max_Sampler
+		},
+		{
+			VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+			EDescriptorPoolLimits::Max_CombinesImageSampler
+		},
+		{
+			VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+			EDescriptorPoolLimits::Max_SampledImage
+		},
+		{
+			VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+			EDescriptorPoolLimits::Max_StorageImage
+		},
+		{
+			VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER,
+			EDescriptorPoolLimits::Max_UniformTexelBuffer
+		},
+		{
+			VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER,
+			EDescriptorPoolLimits::Max_StorageTexelBuffer
+		},
+		{
+			VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+			EDescriptorPoolLimits::Max_UniformBuffer
+		},
+		{
+			VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+			EDescriptorPoolLimits::Max_StorageBuffer
+		},
+		{
+			VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT,
+			EDescriptorPoolLimits::Max_InputAttachment
+		}
+	};
+
+	VkDescriptorPoolCreateInfo createInfo
+	{
+		VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+		nullptr,
+		0u,
+		Max_DesctriptorSet,
+		static_cast<uint32_t>(poolSizes.size()),
+		poolSizes.data()
+	};
+	VERIFY_VK(vkCreateDescriptorPool(device, &createInfo, VK_MEMORY_ALLOCATOR, reference()));
+}
+
+VulkanDescriptorSetPtr VulkanDescriptorPool::alloc(VkDescriptorSetLayout layout)
 {
 	assert(isValid());
 
@@ -128,16 +118,20 @@ VulkanDescriptorSet VulkanDescriptorPool::alloc(VkDescriptorSetLayout layout, co
 	{
 		VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
 		nullptr,
-		Handle,
+		get(),
 		1u,
 		&layout
 	};
 
-	VulkanDescriptorSet descriptorSet;
-	GfxVerifyVk(vkAllocateDescriptorSets(m_Device, &allocInfo, &descriptorSet.Handle));
-	descriptorSet.update(m_Device, resourceMap);
+	VulkanDescriptorSetPtr descriptorSet;
+	VERIFY_VK(vkAllocateDescriptorSets(m_Device, &allocInfo, descriptorSet->reference()));
 	return descriptorSet;
 }
+
+NAMESPACE_END(Gfx)
+
+#if 0
+#include "Colorful/Vulkan/VulkanEngine.h"
 
 void VulkanDescriptorSet::update(VkDevice device, const VulkanResourceMap& resourceMap)
 {

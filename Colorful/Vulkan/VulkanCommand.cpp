@@ -93,11 +93,8 @@ VulkanCommandBufferPtr VulkanCommandPool::alloc(VkCommandBufferLevel level)
 		1u
 	};
 
-	VkCommandBuffer VkCMDBuffer = VK_NULL_HANDLE;
-	VERIFY_VK(vkAllocateCommandBuffers(m_Device, &allocateInfo, &VkCMDBuffer));
-
-	auto CMDBuffer = std::make_shared<VulkanCommandBuffer>(level, VkCMDBuffer);
-
+	VulkanCommandBufferPtr CMDBuffer;
+	VERIFY_VK(vkAllocateCommandBuffers(m_Device, &allocateInfo, CMDBuffer->reference()));
 	return CMDBuffer;
 }
 

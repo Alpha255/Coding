@@ -4,140 +4,81 @@
 #include "Colorful/Vulkan/VulkanDescriptor.h"
 #include "Colorful/Vulkan/VulkanCommand.h"
 
-class VulkanPipelineLayout : public VulkanDeviceObject<VkPipelineLayout>
+NAMESPACE_START(Gfx)
+
+DECLARE_SHARED_PTR(VulkanPipelineLayout)
+class VulkanPipelineLayout final : public VkObject<VkPipelineLayout_T>
 {
 public:
-	void create(VkDevice device, VkDescriptorSetLayout descriptorSetLayout);
+	VulkanPipelineLayout(VkDevice device, VkDescriptorSetLayout descriptorSetLayout);
 
-	void destroy(VkDevice device) override final
+	void destroy(VkDevice device)
 	{
 		/// The pipeline layout represents a sequence of descriptor sets with each having a specific layout. 
 		/// This sequence of layouts is used to determine the interface between shader stages and shader resources. 
 		/// Each pipeline is created using a pipeline layout.
-		if (isValid())
-		{
-			vkDestroyPipelineLayout(device, Handle, vkMemoryAllocator);
-			Handle = VK_NULL_HANDLE;
-		}
+		assert(device);
+		vkDestroyPipelineLayout(device, get(), VK_MEMORY_ALLOCATOR);
 	}
 };
 
-class VulkanPipelineCache : public VulkanDeviceObject<VkPipelineCache>
+DECLARE_SHARED_PTR(VulkanPipelineCache)
+class VulkanPipelineCache final : public VkObject<VkPipelineCache_T>
 {
 public:
-	void create(VkDevice device);
-	void destroy(VkDevice device) override final
+	VulkanPipelineCache(VkDevice device);
+
+	void destroy(VkDevice device)
 	{
-		if (isValid())
-		{
-			vkDestroyPipelineCache(device, Handle, vkMemoryAllocator);
-			Handle = VK_NULL_HANDLE;
-		}
+		assert(device);
+		vkDestroyPipelineCache(device, get(), VK_MEMORY_ALLOCATOR);
 	}
 };
 
-class VulkanPipeline : public VulkanDeviceObject<VkPipeline>
+DECLARE_SHARED_PTR(VulkanPipeline)
+class VulkanPipeline : public VkObject<VkPipeline_T>
 {
 public:
-	void destroy(VkDevice device) override
+	void destroy(VkDevice device)
 	{
-		if (isValid())
-		{
-			vkDestroyPipeline(device, Handle, vkMemoryAllocator);
-			Handle = VK_NULL_HANDLE;
-		}
+		assert(device);
+		vkDestroyPipeline(device, get(), VK_NULL_HANDLE);
 	}
 };
-using VulkanPipelinePtr = std::shared_ptr<VulkanPipeline>;
 
+DECLARE_SHARED_PTR(VulkanGraphicsPipeline)
 class VulkanGraphicsPipeline : public VulkanPipeline
 {
 public:
-	VulkanGraphicsPipeline(
-		VkDevice device,
-		VkRenderPass renderPass,
-		VkPipelineCache pipelineCache,
-		const GfxPipelineState* state);
+	VulkanGraphicsPipeline(VkDevice device, VkRenderPass renderPass, VkPipelineCache pipelineCache, const GraphicsPipelineState* state);
 
-	void destroy(VkDevice device) override final
+	void destroy(VkDevice device)
 	{
-		m_PipelineLayout.destroy(device);
-		m_DescriptorSetLayout.destroy(device);
+		assert(device);
+		m_PipelineLayout->destroy(device);
+		m_DescriptorSetLayout->destroy(device);
 		VulkanPipeline::destroy(device);
 		m_WireframePipeline.destroy(device);
 		m_DescriptorSets.clear();
 	}
 
-	void updateDescriptorSet(const GfxPipelineState* state);
-
-	VkDescriptorSet descriptorSet() const
-	{
-		assert(m_CurDescriptorSet.isValid());
-		return m_CurDescriptorSet.Handle;
-	}
-
-	VkPipelineLayout layout() const
-	{
-		assert(m_PipelineLayout.isValid());
-		return m_PipelineLayout.Handle;
-	}
-
-	VkPipeline wireframePipeline() const
-	{
-		assert(m_WireframePipeline.isValid());
-		return m_WireframePipeline.Handle;
-	}
+	void updateShaderResources(const GfxPipelineState* state);
 protected:
-	VkPipelineRasterizationStateCreateInfo makeRasterizationState(const GfxRasterizerStateDesc& stateDesc) const;
-	VkPipelineDepthStencilStateCreateInfo makeDepthStencilState(const GfxDepthStencilStateDesc& stateDesc) const;
-	VkPipelineColorBlendStateCreateInfo makeColorBlendState(
-		std::vector<VkPipelineColorBlendAttachmentState>& attachments, 
-		const GfxBlendStateDesc& stateDesc) const;
-	VkPipelineVertexInputStateCreateInfo makeInputLayout(
-		const std::vector<GfxVertexAttributes>& attrs,
-		std::vector<VkVertexInputBindingDescription>& inputBindings,
-		std::vector<VkVertexInputAttributeDescription>& inputAttrs,
-		uint32_t vertexAlignment) const;
-
-	void initShaderResourceMap(const GfxDescriptorLayoutDesc& desc);
 private:
-	VulkanPipelineLayout m_PipelineLayout;
-	VulkanDescriptorSetLayout m_DescriptorSetLayout;
-	VulkanPipeline m_WireframePipeline;
-	VulkanDescriptorSet m_CurDescriptorSet;
-
-#if defined(UsingUnorderedMap)
-	std::unordered_map<size_t, VulkanDescriptorSet> m_DescriptorSets;
-#else
-	std::vector<VulkanDescriptorSet> m_DescriptorSets;
-#endif
-	VulkanDescriptorSet::VulkanResourceMap m_ResourceMap;
+	VulkanPipelineLayoutPtr m_PipelineLayout;
+	VulkanDescriptorSetLayoutPtr m_DescriptorSetLayout;
+	VulkanDescriptorSetPtr m_DescriptorSet;
+	VulkanPipelinePtr m_WireframePipeline;
 };
-using VulkanGraphicsPipelinePtr = std::shared_ptr<VulkanGraphicsPipeline>;
 
+DECLARE_SHARED_PTR(VulkanComputePipeline)
 class VulkanComputePipeline : public VulkanPipeline
 {
 };
-using VulkanComputePipelinePtr = std::shared_ptr<VulkanComputePipeline>;
 
+DECLARE_SHARED_PTR(VulkanRayTracingPipeline)
 class VulkanRayTracingPipeline : public VulkanPipeline
 {
 };
 
-class VulkanPipelinePool : public LazySingleton<VulkanPipelinePool>
-{
-	lazySingletonDeclare(VulkanPipelinePool);
-public:
-	VulkanGraphicsPipelinePtr getOrCreateGfxPipeline(VkRenderPass renderPass, const GfxPipelineState* state);
-	void cleanup() override final;
-protected:
-	VulkanPipelinePool(const VkDevice device)
-		: m_Device(device)
-	{
-		m_PipelineCache.create(device);
-	}
-private:
-	const VkDevice m_Device;
-	VulkanPipelineCache m_PipelineCache;
-	std::vector<std::pair<const GfxPipelineState*, VulkanGraphicsPipelinePtr>> m_GfxPipelines;
-};
+NAMESPACE_END(Gfx)

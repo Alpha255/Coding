@@ -219,22 +219,20 @@ VkPrimitiveTopology VulkanMap::primitiveTopology(EPrimitiveTopology primitiveTop
 	return VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
 }
 
-//VkDescriptorType VulkanMap::descriptorType(eRDescriptorType type)
-//{
-//	switch (type)
-//	{
-//	case eDescriptor_Sampler:                return VK_DESCRIPTOR_TYPE_SAMPLER;
-//	case eDescriptor_CombinedTextureSampler: return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-//	case eDescriptor_SampledTexture:         return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-//	case eDescriptor_StorageTexture:         return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-//	case eDescriptor_UniformBuffer:          return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-//	case eDescriptor_StorageBuffer:          return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-//	case eDescriptor_InputAttachment:        return VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
-//	}
-//
-//	assert(0);
-//	return VK_DESCRIPTOR_TYPE_MAX_ENUM;
-//}
+VkDescriptorType VulkanMap::descriptorType(ShaderResource::EResourceType type)
+{
+	switch (type)
+	{
+	case ShaderResource::EResourceType::Sampler:                return VK_DESCRIPTOR_TYPE_SAMPLER;
+	case ShaderResource::EResourceType::CombinedTextureSampler: return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	case ShaderResource::EResourceType::Texture:				return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+	case ShaderResource::EResourceType::UniformBuffer:          return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	case ShaderResource::EResourceType::StorageBuffer:          return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+	}
+
+	assert(0);
+	return VK_DESCRIPTOR_TYPE_MAX_ENUM;
+}
 
 VkFilter VulkanMap::textureFilter(ETextureFilter filter)
 {

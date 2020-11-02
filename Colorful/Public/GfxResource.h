@@ -687,7 +687,7 @@ struct ModelDesc
 	std::vector<std::string> Textures;
 };
 
-struct PipelineResourceLayout
+struct PipelineResourceLayoutDesc
 {
 	std::array<std::vector<ShaderResourceDesc>, EShaderStage::ShaderStageCount> Resources;
 };

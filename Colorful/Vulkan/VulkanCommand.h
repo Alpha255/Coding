@@ -29,14 +29,6 @@ public:
 		Invalid
 	};
 
-	VulkanCommandBuffer(VkCommandBufferLevel level, VkCommandBuffer handle)
-		: m_Level(level)
-		, m_State(EState::Initial)
-	{
-		assert(handle);
-		m_Handle = handle;  /// ???
-	}
-
 	inline EState state() const
 	{
 		return m_State;
@@ -93,7 +85,7 @@ protected:
 	}
 private:
 	VkCommandBufferLevel m_Level = VK_COMMAND_BUFFER_LEVEL_MAX_ENUM;
-	EState m_State = EState::Invalid;
+	EState m_State = EState::Initial;
 };
 
 DECLARE_SHARED_PTR(VulkanCommandPool)
