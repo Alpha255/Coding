@@ -325,6 +325,10 @@ void VulkanRender::createDevice()
 #endif
 
 	m_Instance = std::make_unique<VulkanInstance>();
+#if defined(_DEBUG)
+	m_DebugUtilsMessenger = std::make_unique<VulkanDebugUtilsMessenger>(m_Instance->get(), true),
+#endif
+
 #if defined(USE_VK_LOADER)
 	VulkanLoader::loadInstanceFuncs(m_Instance->get());
 #endif
@@ -367,6 +371,10 @@ void VulkanRender::toggleVSync(bool8_t VSync)
 
 void VulkanRender::finalize()
 {
+#if defined(_DEBUG)
+	m_DebugUtilsMessenger->destroy(m_Instance->get());
+#endif
+
 #if defined(USE_VK_LOADER)
 	VulkanLoader::free();
 #endif

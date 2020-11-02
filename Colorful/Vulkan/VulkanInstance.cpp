@@ -68,7 +68,7 @@ VulkanInstance::VulkanInstance()
 VKAPI_ATTR VkBool32 VKAPI_CALL vkDebugUtilsMessengerFunc(
 	VkDebugUtilsMessageSeverityFlagBitsEXT messageServerityFlagBits,
 	VkDebugUtilsMessageTypeFlagsEXT messageTypeFlags,
-	const VkDebugUtilsMessengerCallbackDataEXT *pMessengerCallbackData,
+	const VkDebugUtilsMessengerCallbackDataEXT* messengerCallbackData,
 	void* userData)
 {
 	(void)(userData);
@@ -89,9 +89,9 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vkDebugUtilsMessengerFunc(
 	}
 
 	std::string message(std::move(Gear::String::format("Vulkan Validation: [%3d][%10s]: %s", 
-		pMessengerCallbackData->messageIdNumber, 
-		pMessengerCallbackData->pMessageIdName, 
-		pMessengerCallbackData->pMessage)));
+		messengerCallbackData->messageIdNumber,
+		messengerCallbackData->pMessageIdName,
+		messengerCallbackData->pMessage)));
 
 	Gear::Log::log(level, message);
 	return VK_FALSE;
@@ -103,11 +103,11 @@ VulkanDebugUtilsMessenger::VulkanDebugUtilsMessenger(VkInstance instance, bool8_
 		vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT"));
 	assert(vkCreateDebugUtilsMesserger);
 
-	VkDebugUtilsMessageSeverityFlagsEXT messageServityFlags = verbose ? (
-		  VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT
-		| VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT
-		| VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT
-		| VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) :
+	VkDebugUtilsMessageSeverityFlagsEXT messageServityFlags = verbose ? 
+		( VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | 
+			VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT | 
+			VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | 
+			VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) :
 		(VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT);
 
 	VkDebugUtilsMessengerCreateInfoEXT createInfo

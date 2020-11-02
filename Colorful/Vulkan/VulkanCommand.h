@@ -16,57 +16,68 @@ NAMESPACE_START(Gfx)
 /// Unless otherwise specified, and without explicit synchronization, the various commands submitted to a queue via command buffers may execute in arbitrary order relative to each other, and/or concurrently. 
 /// Also, the memory side-effects of those commands may not be directly visible to other commands without explicit memory dependencies. This is true within a command buffer, and across command buffers submitted to a given queue. 
 
-
-class VulkanCommandBuffer : public VulkanObject<VkCommandBuffer>
+DECLARE_SHARED_PTR(VulkanCommandBuffer)
+class VulkanCommandBuffer final : public VkObject<VkCommandBuffer_T>
 {
 public:
-	enum eState
+	enum class EState
 	{
-		eInitial,
-		eRecording,
-		eExecutable,
-		ePending,
-		eInvalid,
-		eState_MaxEnum
+		Initial,
+		Recording,
+		Executable,
+		Pending,
+		Invalid
 	};
 
-	VulkanCommandBuffer(VkCommandBufferLevel level, VkCommandBuffer handle);
+	VulkanCommandBuffer(VkCommandBufferLevel level, VkCommandBuffer handle)
+		: m_Level(level)
+		, m_State(EState::Initial)
+	{
+		assert(handle);
+		m_Handle = handle;  /// ???
+	}
 
-	void beginRenderPass(const VkRenderPassBeginInfo& beginInfo, VkSubpassContents subpassContents);
-	void endRenderPass();
-
-	void begin();
-	void end();
-
-	void execute(const std::shared_ptr<VulkanCommandBuffer>& primaryCmdBuffer);
-
-	inline eState state() const
+	inline EState state() const
 	{
 		return m_State;
 	}
 
 	inline bool8_t isInsideRenderPass() const
 	{
-		return m_State == eRecording;
+		return m_State == EState::Recording;
 	}
 
-	inline VulkanFencePtr& fence()
+	void begin()
 	{
-		assert(m_Fence);
-		return m_Fence;
+		assert(isValid() && m_State != EState::Pending && m_State != EState::Recording);
+
+		VkCommandBufferBeginInfo beginInfo
+		{
+			VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+			nullptr,   /// pNext must be NULL or a pointer to a valid instance of VkDeviceGroupCommandBufferBeginInfo
+			0u,        /// VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT
+			nullptr
+		};
+		VERIFY_VK(vkBeginCommandBuffer(get(), &beginInfo));
+		setState(EState::Recording);
+	}
+
+	void end()
+	{
+		assert(isValid() && m_State == EState::Recording);
+		VERIFY_VK(vkEndCommandBuffer(get()));
+		setState(EState::Executable);
 	}
 
 	inline void reset()
 	{
 		/// The command buffer can be in any state other than pending, and is moved into the initial state
-
 		/// Any primary command buffer that is in the recording or executable state and has commandBuffer recorded into it, becomes invalid.
-
 		/// VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT specifies that most or all memory resources currently owned by the command buffer should be returned to the parent command pool. 
 		/// If this flag is not set, then the command buffer may hold onto memory resources and reuse them when recording commands.
-		assert(m_State != ePending && isValid());
-		vkResetCommandBuffer(Handle, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
-		setState(eInitial);
+		assert(m_State != EState::Pending);
+		vkResetCommandBuffer(get(), VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
+		setState(EState::Initial);
 	}
 
 	inline VkCommandBufferLevel level() const
@@ -75,28 +86,26 @@ public:
 	}
 protected:
 	friend class VulkanCommandPool;
-	friend class VulkanQueueManager;
 
-	inline void setState(eState state)
+	inline void setState(EState state)
 	{
 		m_State = state;
 	}
 private:
 	VkCommandBufferLevel m_Level = VK_COMMAND_BUFFER_LEVEL_MAX_ENUM;
-	eState m_State = eState_MaxEnum;
-	VulkanFencePtr m_Fence = nullptr;
+	EState m_State = EState::Invalid;
 };
-using VulkanCommandBufferPtr = std::shared_ptr<VulkanCommandBuffer>;
 
-class VulkanCommandPool : public VulkanObject<VkCommandPool>
+DECLARE_SHARED_PTR(VulkanCommandPool)
+class VulkanCommandPool final : public VkObject<VkCommandPool_T>
 {
 public:
-	VulkanCommandPool(VkDevice device, uint32_t queueIndex);
-	void reset();
-	void trim();
+	VulkanCommandPool(VkDevice device, uint32_t queueIndex, VkCommandPoolCreateFlags flags);
 
 	VulkanCommandBufferPtr alloc(VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 	void free(VulkanCommandBufferPtr& commandBuffer);
+
+	void reset();
 
 	void destroy()
 	{
@@ -106,16 +115,11 @@ public:
 		/// executable state and has a secondary command buffer allocated from commandPool recorded into it, becomes invalid.
 
 		/// All VkCommandBuffer objects allocated from commandPool must not be in the pending state.
-		if (isValid())
-		{
-			vkDestroyCommandPool(m_Device, Handle, vkMemoryAllocator);
-			Handle = VK_NULL_HANDLE;
-		}
+		vkDestroyCommandPool(m_Device, get(), VK_MEMORY_ALLOCATOR);
 	}
 protected:
 private:
-	std::unordered_map<VkCommandBuffer, VulkanCommandBufferPtr> m_CmdBuffers;
-	std::vector<VulkanCommandBufferPtr> m_FreeCmdBuffers;
+	std::queue<VulkanCommandBufferPtr> m_CommandBuffers;
 	const VkDevice m_Device;
 };
 

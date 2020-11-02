@@ -58,6 +58,9 @@ public:
 			return std::static_pointer_cast<Texture>(std::make_shared<D3D11Texture2D>(m_Device->get(), desc));
 		case ETextureType::T_3D:
 			return std::static_pointer_cast<Texture>(std::make_shared<D3D11Texture3D>(m_Device->get(), desc));
+		default:
+			assert(0);
+			return nullptr;
 		}
 	}
 
