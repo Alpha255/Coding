@@ -1,38 +1,4 @@
 #if 0
-#include "Colorful/Vulkan/VulkanEngine.h"
-#include "Colorful/Vulkan/VulkanImage.h"
-#include "Colorful/Vulkan/VulkanShader.h"
-#include "Colorful/Vulkan/VulkanBuffer.h"
-#include "VulkanRenderer.h"
-
-void VulkanEngine::initialize(uint64_t windowHandle, const Gear::Configurations& config)
-{
-#if defined(UsingVkLoader)
-	VulkanLoader::initializeGlobalFunctionTable();
-#endif
-
-	m_Instance.create(config.VulkanValidationVerbose);
-
-	m_Device.create(m_Instance.Handle);
-
-	m_Swapchain = std::make_shared<VulkanSwapchain>(
-		windowHandle,
-		config.WindowWidth,
-		config.WindowHeight,
-		config.VSync,
-		config.FullScreen,
-		m_Instance.Handle,
-		m_Device.physicalDevice(),
-		m_Device.logicalDevice());
-
-	m_ImGuiRenderer = std::make_unique<ImGuiRenderer>();
-
-	if (m_ActiveCmdBuffer == nullptr)
-	{
-		m_ActiveCmdBuffer = VulkanQueueManager::instance()->allocGfxCommandBuffer();
-		assert(m_ActiveCmdBuffer);
-	}
-}
 
 void VulkanEngine::present()
 {

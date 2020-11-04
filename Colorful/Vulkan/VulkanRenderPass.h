@@ -94,25 +94,17 @@
 
 /// https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/vkspec.html#memory-model
 
-class VulkanFrameBuffer : public VulkanDeviceObject<VkFramebuffer>, public GfxFrameBuffer
+NAMESPACE_START(Gfx)
+
+class VulkanFrameBuffer final : public VkObject<VkFramebuffer_T>, public VkDeviceResource
 {
 public:
 	VulkanFrameBuffer(VkDevice device, VkRenderPass renderPass, const GfxFrameBufferDesc& desc);
 
-	inline VkRenderPass renderPass() const
+	void destroy(VkDevice device) override final
 	{
-		assert(isValid());
-		return m_RenderPass;
-	}
-
-	inline uint32_t width() const
-	{
-		return m_Width;
-	}
-
-	inline uint32_t height() const
-	{
-		return m_Height;
+		assert(device);
+		vkDestroyFramebuffer(device, get(), VK_MEMORY_ALLOCATOR);
 	}
 protected:
 private:
@@ -121,13 +113,19 @@ private:
 	uint32_t m_Height = 0u;
 };
 
-class VulkanRenderPass : public VulkanDeviceObject<VkRenderPass>, public GfxRenderPass
+class VulkanRenderPass final : public VkObject<VkRenderPass_T>, public VkDeviceResource
 {
 public:
 	VulkanRenderPass(VkDevice device, const GfxFrameBufferDesc& desc);
 
-	void destroy(VkDevice device) override final;
+	void destroy(VkDevice device) override final
+	{
+		assert(device);
+		vkDestroyRenderPass(device, get(), VK_MEMORY_ALLOCATOR);
+	}
 protected:
 	///void setDynamicGfxState();
 private:
 };
+
+NAMESPACE_END(Gfx)

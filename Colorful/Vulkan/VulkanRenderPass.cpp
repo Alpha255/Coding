@@ -189,15 +189,6 @@ VulkanFrameBuffer::VulkanFrameBuffer(VkDevice device, VkRenderPass renderPass, c
 	GfxVerifyVk(vkCreateFramebuffer(device, &createInfo, vkMemoryAllocator, &Handle));
 }
 
-void VulkanRenderPass::destroy(VkDevice device)
-{
-	if (isValid())
-	{
-		vkDestroyRenderPass(device, Handle, vkMemoryAllocator);
-		Handle = VK_NULL_HANDLE;
-	}
-}
-
 VulkanRenderPassPtr VulkanRenderPassManager::getOrCreateRenderPass(const GfxFrameBufferDesc& desc)
 {
 	/// For temporary

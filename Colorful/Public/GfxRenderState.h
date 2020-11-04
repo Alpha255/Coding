@@ -551,7 +551,6 @@ public:
 protected:
 private:
 	EPrimitiveTopology m_PrimitiveTopology = EPrimitiveTopology::TriangleList;
-
 	RasterizerStateDesc m_RasterizerStateDesc{};
 	BlendStateDesc m_BlendStateDesc{};
 	DepthStencilStateDesc m_DepthStencilStateDesc{};

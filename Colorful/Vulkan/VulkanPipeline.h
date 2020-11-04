@@ -50,7 +50,7 @@ DECLARE_SHARED_PTR(VulkanGraphicsPipeline)
 class VulkanGraphicsPipeline final : public VulkanPipeline
 {
 public:
-	VulkanGraphicsPipeline(VkDevice device, VkRenderPass renderPass, VkPipelineCache pipelineCache, const GraphicsPipelineState* state);
+	VulkanGraphicsPipeline(VkDevice device, VkPipelineCache pipelineCache, const GraphicsPipelineState& state);
 
 	void destroy(VkDevice device) override final
 	{
