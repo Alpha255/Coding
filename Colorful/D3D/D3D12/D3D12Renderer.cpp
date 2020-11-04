@@ -2,7 +2,7 @@
 
 NAMESPACE_START(Gfx)
 
-void D3D12Renderer::createDevice()
+GfxResourceManagerPtr D3D12Renderer::createDevice()
 {
 	m_Debug = std::make_unique<D3D12Debug>();
 
@@ -10,6 +10,7 @@ void D3D12Renderer::createDevice()
 	DXGIAdapterListPtr AdapterList = std::make_unique<DXGIAdapterList>(Factory->get(), Factory->get6());
 
 	m_Device = std::make_unique<D3D12Device>(AdapterList->get1(), AdapterList->get4());
+	return nullptr;
 }
 
 void D3D12Renderer::createSwapchain(uint64_t instance, uint64_t windowHandle, uint32_t width, uint32_t height, bool8_t fullscreen, bool8_t VSync)

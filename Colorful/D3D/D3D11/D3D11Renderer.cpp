@@ -61,14 +61,16 @@ void D3D11Engine::finalize()
 
 NAMESPACE_START(Gfx)
 
-void D3D11Renderer::createDevice()
+D3D11ResourceManagerPtr GD3D11ResourceMgr = nullptr;
+
+GfxResourceManagerPtr D3D11Renderer::createDevice()
 {
 	DXGIFactoryPtr Factory = std::make_unique<DXGIFactory>();
 	DXGIAdapterListPtr AdapterList  = std::make_unique<DXGIAdapterList>(Factory->get(), Factory->get6());
 
 	m_Device = std::make_shared<D3D11Device>(AdapterList->get1(), AdapterList->get4());
-	m_ResourceManager = std::make_unique<D3D11ResourceManager>(m_Device);
-	///GResourceManager = m_ResourceManager.get();
+	GD3D11ResourceMgr = std::make_shared<D3D11ResourceManager>(m_Device);
+	return std::static_pointer_cast<GfxResourceManager>(GD3D11ResourceMgr);
 }
 
 void D3D11Renderer::createSwapchain(uint64_t instance, uint64_t windowHandle, uint32_t width, uint32_t height, bool8_t fullscreen, bool8_t VSync)
@@ -95,12 +97,9 @@ void D3D11Renderer::finalize()
 {
 }
 
-extern "C"
+GfxRendererPtr createRenderer()
 {
-	EXPORT_API void createRenderer(GfxRendererPtr& ptr)
-	{
-		ptr.reset(new D3D11Renderer());
-	}
+	return std::static_pointer_cast<GfxRenderer>(std::make_shared<D3D11Renderer>());
 }
 
 NAMESPACE_END(Gfx)

@@ -7,7 +7,7 @@
 
 NAMESPACE_START(Gfx)
 
-DECLARE_UNIQUE_PTR(VulkanResourceManager)
+DECLARE_SHARED_PTR(VulkanResourceManager)
 class VulkanResourceManager final : public GfxResourceManager
 {
 public:
@@ -57,5 +57,7 @@ private:
 	const VkDevice m_Device;
 	const VkPhysicalDevice m_PhysicalDevice;
 };
+
+extern VulkanResourceManagerPtr GVkResourceMgr;
 
 NAMESPACE_END(Gfx)

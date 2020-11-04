@@ -8,7 +8,7 @@ DECLARE_UNIQUE_PTR(SoftwareRenderer)
 class SoftwareRenderer final : public GfxRenderer
 {
 public:
-	void createDevice() override;
+	GfxResourceManagerPtr createDevice() override;
 	void createSwapchain(uint64_t instance, uint64_t windowHandle, uint32_t width, uint32_t height, bool8_t fullscreen, bool8_t VSync) override;
 
 	void toggleFullScreen(bool8_t fullscreen) override;

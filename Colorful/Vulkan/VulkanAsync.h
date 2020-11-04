@@ -35,74 +35,56 @@
 NAMESPACE_START(Gfx)
 
 DECLARE_SHARED_PTR(VulkanFence)
-class VulkanFence : public VkObject<VkFence_T>
+class VulkanFence final : public VkObject<VkFence_T>, public VkDeviceResource
 {
 public:
-	enum class EState : uint8_t
+	enum class EState
 	{
 		Unsignaled,
 		Signaled
 	};
 
 	VulkanFence(VkDevice device, bool8_t signaled = false);
+
+	void destroy(VkDevice device) override final
+	{
+		assert(device);
+		vkDestroyFence(device, get(), VK_MEMORY_ALLOCATOR);
+	}
 protected:
 private:
 };
 
 DECLARE_SHARED_PTR(VulkanSemaphore)
-class VulkanSemaphore : public VkObject<VkSemaphore_T>
+class VulkanSemaphore final : public VkObject<VkSemaphore_T>, public VkDeviceResource
 {
 public:
 	VulkanSemaphore(VkDevice device);
+
+	void destroy(VkDevice device) override final
+	{
+		assert(device);
+		vkDestroySemaphore(device, get(), VK_MEMORY_ALLOCATOR);
+	}
 };
 
 DECLARE_SHARED_PTR(VulkanEvent)
-class VulkanEvent : public VkObject<VkEvent_T>
+class VulkanEvent final : public VkObject<VkEvent_T>, public VkDeviceResource
 {
 public:
-	enum class EState : uint8_t
+	enum class EState
 	{
 		Unsignaled,
 		Signaled
 	};
 
 	VulkanEvent(VkDevice device);
-};
 
-//class VulkanAsyncPool : public LazySingleton<VulkanAsyncPool>
-//{
-//	lazySingletonDeclare(VulkanAsyncPool);
-//public:
-//	VulkanFencePtr allocFence(bool8_t signaled = false);
-//	void freeFence(const VulkanFencePtr& fence);
-//	void resetFence(const VulkanFencePtr& fence) const;
-//	void waitFence(const VulkanFencePtr& fence, uint64_t timeoutInNanosecond = std::numeric_limits<uint64_t>().max()) const;
-//	VulkanFence::eFenceState fenceState(const VulkanFencePtr& fence) const;
-//
-//	VulkanSemaphorePtr allocSemaphore();
-//	void freeSemaphore(const VulkanSemaphorePtr& semaphore);
-//
-//	VulkanEventPtr allocEvent();
-//	void freeEvent(const VulkanEventPtr& event);
-//	VulkanEvent::eEventState eventState(const VulkanEventPtr& event) const;
-//	void setEventState(const VulkanEventPtr& event, VulkanEvent::eEventState state) const;
-//
-//	void cleanup() override final;
-//protected:
-//	VulkanAsyncPool(const VkDevice device)
-//		: m_Device(device)
-//	{
-//		assert(device != VK_NULL_HANDLE);
-//	}
-//private:
-//	const VkDevice m_Device;
-//	std::unordered_map<VkFence, VulkanFencePtr> m_Fences;
-//	std::unordered_map<VkSemaphore, VulkanSemaphorePtr> m_Semaphores;
-//	std::unordered_map<VkEvent, VulkanEventPtr> m_Events;
-//
-//	std::vector<VulkanFencePtr> m_FreeFences;
-//	std::vector<VulkanSemaphorePtr> m_FreeSemaphores;
-//	std::vector<VulkanEventPtr> m_FreeEvents;
-//};
+	void destroy(VkDevice device) override final
+	{
+		assert(device);
+		vkDestroyEvent(device, get(), VK_MEMORY_ALLOCATOR);
+	}
+};
 
 NAMESPACE_END(Gfx)

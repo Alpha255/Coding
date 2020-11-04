@@ -7,12 +7,12 @@
 NAMESPACE_START(Gfx)
 
 DECLARE_SHARED_PTR(VulkanPipelineLayout)
-class VulkanPipelineLayout final : public VkObject<VkPipelineLayout_T>
+class VulkanPipelineLayout final : public VkObject<VkPipelineLayout_T>, public VkDeviceResource
 {
 public:
 	VulkanPipelineLayout(VkDevice device, VkDescriptorSetLayout descriptorSetLayout);
 
-	void destroy(VkDevice device)
+	void destroy(VkDevice device) override final
 	{
 		/// The pipeline layout represents a sequence of descriptor sets with each having a specific layout. 
 		/// This sequence of layouts is used to determine the interface between shader stages and shader resources. 
@@ -23,12 +23,12 @@ public:
 };
 
 DECLARE_SHARED_PTR(VulkanPipelineCache)
-class VulkanPipelineCache final : public VkObject<VkPipelineCache_T>
+class VulkanPipelineCache final : public VkObject<VkPipelineCache_T>, public VkDeviceResource
 {
 public:
 	VulkanPipelineCache(VkDevice device);
 
-	void destroy(VkDevice device)
+	void destroy(VkDevice device) override final
 	{
 		assert(device);
 		vkDestroyPipelineCache(device, get(), VK_MEMORY_ALLOCATOR);
@@ -36,33 +36,33 @@ public:
 };
 
 DECLARE_SHARED_PTR(VulkanPipeline)
-class VulkanPipeline : public VkObject<VkPipeline_T>
+class VulkanPipeline : public VkObject<VkPipeline_T>, public VkDeviceResource
 {
 public:
-	void destroy(VkDevice device)
+	void destroy(VkDevice device) override
 	{
 		assert(device);
-		vkDestroyPipeline(device, get(), VK_NULL_HANDLE);
+		vkDestroyPipeline(device, get(), VK_MEMORY_ALLOCATOR);
 	}
 };
 
 DECLARE_SHARED_PTR(VulkanGraphicsPipeline)
-class VulkanGraphicsPipeline : public VulkanPipeline
+class VulkanGraphicsPipeline final : public VulkanPipeline
 {
 public:
 	VulkanGraphicsPipeline(VkDevice device, VkRenderPass renderPass, VkPipelineCache pipelineCache, const GraphicsPipelineState* state);
 
-	void destroy(VkDevice device)
+	void destroy(VkDevice device) override final
 	{
 		assert(device);
 		m_PipelineLayout->destroy(device);
 		m_DescriptorSetLayout->destroy(device);
 		VulkanPipeline::destroy(device);
-		m_WireframePipeline.destroy(device);
-		m_DescriptorSets.clear();
+		m_WireframePipeline->destroy(device);
+		///m_DescriptorSets.clear();
 	}
 
-	void updateShaderResources(const GfxPipelineState* state);
+	///void updateShaderResources(const GfxPipelineState* state);
 protected:
 private:
 	VulkanPipelineLayoutPtr m_PipelineLayout;
@@ -72,12 +72,12 @@ private:
 };
 
 DECLARE_SHARED_PTR(VulkanComputePipeline)
-class VulkanComputePipeline : public VulkanPipeline
+class VulkanComputePipeline final : public VulkanPipeline
 {
 };
 
 DECLARE_SHARED_PTR(VulkanRayTracingPipeline)
-class VulkanRayTracingPipeline : public VulkanPipeline
+class VulkanRayTracingPipeline final : public VulkanPipeline
 {
 };
 

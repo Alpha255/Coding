@@ -131,7 +131,7 @@ private:
 
 #endif
 
-#include "Colorful/Public/GfxRenderState.h"
+#include "Colorful/Public/GfxResourceManager.h"
 #include "Colorful/Public/GfxMaterial.h"
 #include "Colorful/Public/AssetTool/AssetTool.h"
 
@@ -170,14 +170,14 @@ struct Adapter
 	}
 };
 
-DECLARE_UNIQUE_PTR(GfxRenderer)
+DECLARE_SHARED_PTR(GfxRenderer)
 class EXPORT_API GfxRenderer : public Gear::NoneCopyable
 {
 public:
 	GfxRenderer() = default;
 	virtual ~GfxRenderer() = default;
 
-	virtual void createDevice() = 0;
+	virtual GfxResourceManagerPtr createDevice() = 0;
 	virtual void createSwapchain(uint64_t instance, uint64_t windowHandle, uint32_t width, uint32_t height, bool8_t fullscreen, bool8_t vSync) = 0;
 
 	virtual void toggleFullScreen(bool8_t fullscreen) = 0;
@@ -188,7 +188,9 @@ protected:
 private:
 };
 
-typedef void (*CreateRendererFunc)(GfxRendererPtr& ptr);
-extern EXPORT_API GfxRenderer* GRenderer;
+typedef GfxRendererPtr (*CreateRendererFunc)();
+extern EXPORT_API GfxRendererPtr GRenderer;
+extern EXPORT_API GfxResourceManagerPtr GResourceMgr;
+EXPORT_API GfxRendererPtr createRenderer();
 
 NAMESPACE_END(Gfx)

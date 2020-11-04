@@ -41,13 +41,12 @@ void Application::initialize(const std::string& name, const Configs& configs)
 	Gfx::AssetTool::instance().initialize(configs.WorkingDirectory);
 
 	m_RendererDll = std::make_shared<System::DynamicLibrary>(std::string(configs.WorkingDirectory + "\\" + configs.RendererName + DLL_POSTFIX));
-	Gfx::CreateRendererFunc func = static_cast<Gfx::CreateRendererFunc>(m_RendererDll->getProcAddress(CREATE_RENDERER_FUNC_NAME));
-	assert(func);
-	func(m_Renderer);
-	Gfx::GRenderer = m_Renderer.get();
-
-	m_Renderer->createDevice();
-	m_Renderer->createSwapchain(
+	Gfx::CreateRendererFunc createRendererfunc = static_cast<Gfx::CreateRendererFunc>(m_RendererDll->getProcAddress(CREATE_RENDERER_FUNC_NAME));
+	assert(createRendererfunc);
+	Gfx::GRenderer = createRendererfunc();
+	assert(Gfx::GRenderer);
+	Gfx::GResourceMgr = Gfx::GRenderer->createDevice();
+	Gfx::GRenderer->createSwapchain(
 		m_Instance,
 		m_Window->handle(),
 		static_cast<uint32_t>(configs.WindowSize.x),
@@ -55,7 +54,7 @@ void Application::initialize(const std::string& name, const Configs& configs)
 		configs.FullScreen,
 		configs.VSync);
 
-	Gfx::ImGuiRendererPtr ImGui = std::make_unique<Gfx::ImGuiRenderer>();
+	///Gfx::ImGuiRendererPtr ImGui = std::make_unique<Gfx::ImGuiRenderer>();
 
 	onInitialize();
 }
@@ -86,8 +85,7 @@ void Application::finalize()
 {
 	onFinalize();
 
-	m_Renderer->finalize();
-
+	Gfx::GRenderer->finalize();
 	Gfx::AssetTool::instance().finalize();
 }
 

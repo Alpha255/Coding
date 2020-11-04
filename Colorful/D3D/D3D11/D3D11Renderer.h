@@ -165,6 +165,7 @@ private:
 
 #endif
 
+#include "Colorful/Public/GfxRenderer.h"
 #include "Colorful/D3D/D3D11/D3D11Device.h"
 #include "Colorful/D3D/D3D11/D3D11ResourceManager.h"
 
@@ -174,7 +175,7 @@ DECLARE_UNIQUE_PTR(D3D11Renderer)
 class D3D11Renderer final : public GfxRenderer
 {
 public:
-	void createDevice() override;
+	GfxResourceManagerPtr createDevice() override;
 	void createSwapchain(uint64_t instance, uint64_t windowHandle, uint32_t width, uint32_t height, bool8_t fullscreen, bool8_t VSync) override;
 
 	void toggleFullScreen(bool8_t fullscreen) override;
@@ -184,7 +185,6 @@ public:
 protected:
 private:
 	D3D11DevicePtr m_Device;
-	D3D11ResourceManagerPtr m_ResourceManager;
 };
 
 NAMESPACE_END(Gfx)

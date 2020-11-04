@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Colorful/Public/GfxRenderer.h"
 #include <d3d11.h>
 #include <d3d11_1.h>
 #include <d3d11_2.h>
@@ -8,6 +7,7 @@
 #include <d3d11_4.h>
 #include <dxgi1_6.h>
 #include <d3dcompiler.h>
+#include "Colorful/Public/GfxRenderer.h"
 
 NAMESPACE_START(Gfx)
 //class DXGIOutput  final : public D3DObject<IDXGIOutput>  {};
@@ -17,6 +17,94 @@ NAMESPACE_START(Gfx)
 //class DXGIOutput4 final : public D3DObject<IDXGIOutput4> {};
 //class DXGIOutput5 final : public D3DObject<IDXGIOutput5> {};
 //class DXGIOutput6 final : public D3DObject<IDXGIOutput6> {};
+
+template<class T>
+class D3DObject : public GfxObject<T>
+{
+public:
+	D3DObject() = default;
+
+	D3DObject(Type* handle, const std::string& debugName = std::string())
+		: GfxObject<T>(handle, debugName)
+	{
+	}
+
+	D3DObject(const D3DObject& other)
+		: GfxObject<T>(other.m_DebugName)
+	{
+		if (m_Handle != other.m_Handle)
+		{
+			if (m_Handle)
+			{
+				m_Handle->Release();
+			}
+			if (other.m_Handle)
+			{
+				other.m_Handle->AddRef();
+			}
+
+			m_Handle = other.m_Handle;
+		}
+	}
+
+	D3DObject(D3DObject&& other)
+		: GfxObject<T>(std::move(other.m_DebugName))
+	{
+		if (m_Handle != other.m_Handle)
+		{
+			if (m_Handle)
+			{
+				m_Handle->Release();
+			}
+
+			m_Handle = std::exchange(other.m_Handle, {});
+		}
+	}
+
+	D3DObject& operator=(const D3DObject& other)
+	{
+		if (m_Handle != other.m_Handle)
+		{
+			if (m_Handle)
+			{
+				m_Handle->Release();
+			}
+			if (other.m_Handle)
+			{
+				other.m_Handle->AddRef();
+			}
+
+			m_Handle = other.m_Handle;
+			m_DebugName = other.m_DebugName;
+		}
+		return *this;
+	}
+
+	D3DObject& operator=(D3DObject&& other)
+	{
+		if (m_Handle != other.m_Handle)
+		{
+			if (m_Handle)
+			{
+				m_Handle->Release();
+			}
+
+			m_Handle = std::exchange(other.m_Handle, {});
+			m_DebugName = std::move(other.m_DebugName);
+		}
+		return *this;
+	}
+
+	virtual ~D3DObject()
+	{
+		if (m_Handle)
+		{
+			m_Handle->Release();
+		}
+	}
+protected:
+private:
+};
 
 class D3DErrorLog
 {

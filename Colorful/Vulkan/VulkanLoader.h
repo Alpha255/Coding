@@ -178,6 +178,18 @@ public:
 
 #define VK_MEMORY_ALLOCATOR nullptr
 
+template<class T>
+class VkObject : public GfxObject<T>
+{
+};
+
+DECLARE_SHARED_PTR(VkDeviceResource)
+class VkDeviceResource
+{
+public:
+	virtual void destroy(VkDevice device) = 0;
+};
+
 NAMESPACE_END(Gfx)
 
 #else

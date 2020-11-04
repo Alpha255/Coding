@@ -66,7 +66,7 @@ void Material::loadInputLayouts(const tinyxml2::XMLNode* root)
 					auto formatAttr = FormatAttribute::attribute(element->Attribute("Format"));
 					VertexInputDesc::VertexLayout layout
 					{
-						std::atoi(element->Attribute("Location")),
+						static_cast<uint32_t>(std::atoi(element->Attribute("Location"))),
 						static_cast<uint32_t>(formatAttr.Stride / BITS_IN_BYTES()),
 						formatAttr.Format,
 						element->Attribute("Usage")

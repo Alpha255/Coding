@@ -1,8 +1,10 @@
+#pragma once
+
 #include "Colorful/Public/GfxRenderState.h"
 
 NAMESPACE_START(Gfx)
 
-DECLARE_UNIQUE_PTR(GfxResourceManager)
+DECLARE_SHARED_PTR(GfxResourceManager)
 class GfxResourceManager
 {
 public:
@@ -17,7 +19,5 @@ public:
 	virtual GPUBufferPtr createIndexBuffer(EBufferUsage usage, size_t size, const void* data) = 0;
 	virtual GPUBufferPtr createVertexBuffer(EBufferUsage usage, size_t size, const void* data) = 0;
 };
-
-extern EXPORT_API GfxResourceManager* GResourceManager;
 
 NAMESPACE_END(Gfx)

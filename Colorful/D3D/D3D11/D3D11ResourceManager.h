@@ -9,7 +9,7 @@
 
 NAMESPACE_START(Gfx)
 
-DECLARE_UNIQUE_PTR(D3D11ResourceManager)
+DECLARE_SHARED_PTR(D3D11ResourceManager)
 class D3D11ResourceManager final : public GfxResourceManager
 {
 public:
@@ -110,5 +110,7 @@ public:
 protected:
 	D3D11DevicePtr m_Device = nullptr;
 };
+
+extern D3D11ResourceManagerPtr GD3D11ResourceMgr;
 
 NAMESPACE_END(Gfx)

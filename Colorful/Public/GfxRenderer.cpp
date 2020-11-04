@@ -3,16 +3,13 @@
 
 NAMESPACE_START(Gfx)
 
-EXPORT_API GfxRenderer* GRenderer = nullptr;
-EXPORT_API GfxResourceManager* GResourceManager = nullptr;
+EXPORT_API GfxRendererPtr GRenderer = nullptr;
+EXPORT_API GfxResourceManagerPtr GResourceMgr = nullptr;
 
-extern "C"
+EXPORT_API GfxRendererPtr createRenderer()
 {
-	EXPORT_API void createRenderer(GfxRendererPtr& ptr)
-	{
-		assert(0);
-		ptr.reset(nullptr);
-	}
+	assert(0);
+	return nullptr;
 }
 
 NAMESPACE_END(Gfx)

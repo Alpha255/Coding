@@ -14,7 +14,9 @@ protected:
 		switch (usage)
 		{
 		case EBufferUsage::Default:
-		case EBufferUsage::Immutable: return 0u;
+		case EBufferUsage::Immutable: 
+		default:
+			return 0u;
 		case EBufferUsage::Dynamic:   return D3D11_CPU_ACCESS_WRITE;
 		case EBufferUsage::Staging:   return D3D11_CPU_ACCESS_READ;
 		}

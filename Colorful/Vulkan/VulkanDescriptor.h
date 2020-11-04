@@ -8,13 +8,14 @@
 NAMESPACE_START(Gfx)
 
 DECLARE_SHARED_PTR(VulkanDescriptorSetLayout)
-class VulkanDescriptorSetLayout final : public VkObject<VkDescriptorSetLayout_T>
+class VulkanDescriptorSetLayout final : public VkObject<VkDescriptorSetLayout_T>, public VkDeviceResource
 {
 public:
 	VulkanDescriptorSetLayout(VkDevice device, const PipelineResourceLayoutDesc& desc);
 
-	void destroy(VkDevice device)
+	void destroy(VkDevice device) override final
 	{
+		assert(device);
 		vkDestroyDescriptorSetLayout(device, get(), VK_MEMORY_ALLOCATOR);
 	}
 };
@@ -22,7 +23,6 @@ public:
 DECLARE_SHARED_PTR(VulkanDescriptorSet)
 class VulkanDescriptorSet final : public VkObject<VkDescriptorSet_T>
 {
-
 };
 
 DECLARE_SHARED_PTR(VulkanDescriptorPool)

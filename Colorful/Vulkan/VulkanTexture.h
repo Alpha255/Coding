@@ -5,7 +5,7 @@
 NAMESPACE_START(Gfx)
 
 DECLARE_SHARED_PTR(VulkanTexture)
-class VulkanTexture final : public VkObject<VkImageView_T>, public Texture
+class VulkanTexture final : public VkObject<VkImageView_T>, public VkDeviceResource, public Texture
 {
 public:
 	enum class ECreationMode
@@ -30,7 +30,7 @@ public:
 
 	VulkanTexture(VkDevice device, const TextureDesc& desc, uint32_t aspectFlags, ECreationMode mode);
 
-	void destroy(VkDevice device)
+	void destroy(VkDevice device) override final
 	{
 		assert(device);
 		vkFreeMemory(device, m_Memory, VK_MEMORY_ALLOCATOR);
@@ -48,13 +48,14 @@ private:
 };
 
 DECLARE_SHARED_PTR(VulkanSampler)
-class VulkanSampler final : public VkObject<VkSampler_T>, public Sampler
+class VulkanSampler final : public VkObject<VkSampler_T>, public VkDeviceResource, public Sampler
 {
 public:
 	VulkanSampler(VkDevice device, const SamplerDesc& desc);
 
-	void destroy(VkDevice device)
+	void destroy(VkDevice device) override final
 	{
+		assert(device);
 		vkDestroySampler(device, get(), VK_MEMORY_ALLOCATOR);
 	}
 protected:

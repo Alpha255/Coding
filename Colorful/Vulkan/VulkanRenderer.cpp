@@ -318,7 +318,7 @@ void VulkanEngine::finalize()
 
 NAMESPACE_START(Gfx)
 
-void VulkanRender::createDevice()
+GfxResourceManagerPtr VulkanRender::createDevice()
 {
 #if defined(USE_VK_LOADER)
 	VulkanLoader::loadGlobalFuncs();
@@ -338,10 +338,10 @@ void VulkanRender::createDevice()
 	VulkanLoader::loadDeviceFuncs(m_Device->get());
 #endif
 
-	m_ResourceManager = std::make_unique<VulkanResourceManager>(m_Device->get(), m_Device->physicalDevice());
-	///GResourceManager = m_ResourceManager.get();
-
 	VulkanMemoryAllocator::initialize(m_Device->get(), m_Device->physicalDevice());
+
+	GVkResourceMgr = std::make_shared<VulkanResourceManager>(m_Device->get(), m_Device->physicalDevice());
+	return std::static_pointer_cast<GfxResourceManager>(GVkResourceMgr);
 }
 
 void VulkanRender::createSwapchain(uint64_t instance, uint64_t windowHandle, uint32_t width, uint32_t height, bool8_t fullscreen, bool8_t VSync)
@@ -382,12 +382,9 @@ void VulkanRender::finalize()
 	VulkanMemoryAllocator::instance()->finalize();
 }
 
-extern "C"
+EXPORT_API GfxRendererPtr createRenderer()
 {
-	EXPORT_API void createRenderer(GfxRendererPtr& ptr)
-	{
-		ptr.reset(new VulkanRender());
-	}
+	return std::static_pointer_cast<GfxRenderer>(std::make_shared<VulkanRender>());
 }
 
 NAMESPACE_END(Gfx)

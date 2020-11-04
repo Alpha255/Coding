@@ -5,7 +5,7 @@
 NAMESPACE_START(Gfx)
 
 DECLARE_SHARED_PTR(VulkanShader)
-class VulkanShader final : public VkObject<VkShaderModule_T>, public Shader
+class VulkanShader final : public VkObject<VkShaderModule_T>, public VkDeviceResource, public Shader
 {
 public:
 	VulkanShader(VkDevice device, EShaderStage stage, const std::vector<uint32_t>& spirv)
@@ -25,8 +25,9 @@ public:
 		VERIFY_VK(vkCreateShaderModule(device, &createInfo, VK_MEMORY_ALLOCATOR, reference()));
 	}
 
-	void destroy(VkDevice device)
+	void destroy(VkDevice device) override final
 	{
+		assert(device);
 		vkDestroyShaderModule(device, get(), VK_MEMORY_ALLOCATOR);
 	}
 };

@@ -45,7 +45,6 @@ private:
 	uint64_t m_Instance = 0u;
 	WindowPtr m_Window = nullptr;
 	System::DynamicLibraryPtr m_RendererDll = nullptr;
-	Gfx::GfxRendererPtr m_Renderer = nullptr;
 };
 
 NAMESPACE_END(Gear)

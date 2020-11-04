@@ -2,8 +2,9 @@
 
 NAMESPACE_START(Gfx)
 
-void SoftwareRenderer::createDevice()
+GfxResourceManagerPtr SoftwareRenderer::createDevice()
 {
+	return nullptr;
 }
 
 void SoftwareRenderer::createSwapchain(uint64_t instance, uint64_t windowHandle, uint32_t width, uint32_t height, bool8_t fullscreen, bool8_t VSync)

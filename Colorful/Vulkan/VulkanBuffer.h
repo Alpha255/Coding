@@ -5,7 +5,7 @@
 NAMESPACE_START(Gfx)
 
 DECLARE_SHARED_PTR(VulkanBuffer)
-class VulkanBuffer final : public VkObject<VkBuffer_T>, public GPUBuffer
+class VulkanBuffer final : public VkObject<VkBuffer_T>, public VkDeviceResource, public GPUBuffer
 {
 public:
 	VulkanBuffer(VkDevice device, uint32_t bindFlags, EBufferUsage usage, size_t size, const void* data);
@@ -14,7 +14,7 @@ public:
 
 	void flushRange(size_t size, size_t offset);
 
-	void destroy(VkDevice device)
+	void destroy(VkDevice device) override final
 	{
 		assert(device);
 		vkFreeMemory(device, m_Memory, VK_MEMORY_ALLOCATOR);
