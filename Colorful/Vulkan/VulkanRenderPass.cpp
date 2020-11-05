@@ -188,43 +188,4 @@ VulkanFrameBuffer::VulkanFrameBuffer(VkDevice device, VkRenderPass renderPass, c
 
 	GfxVerifyVk(vkCreateFramebuffer(device, &createInfo, vkMemoryAllocator, &Handle));
 }
-
-VulkanRenderPassPtr VulkanRenderPassManager::getOrCreateRenderPass(const GfxFrameBufferDesc& desc)
-{
-	/// For temporary
-	size_t hash = 0u;
-	for (uint32_t i = 0u; i < eMaxRenderTargets; ++i)
-	{
-		if (desc.ColorSurface[i])
-		{
-			auto imageView = std::static_pointer_cast<VulkanImageView>(desc.ColorSurface[i]);
-			hash_combine(hash, (uint32_t)imageView->format());
-		}
-	}
-
-	if (desc.DepthSurface)
-	{
-		auto imageView = std::static_pointer_cast<VulkanImageView>(desc.DepthSurface);
-		hash_combine(hash, (uint32_t)imageView->format());
-	}
-
-	auto it = m_RenderPassList.find(hash);
-	if (it != m_RenderPassList.end())
-	{
-		return it->second;
-	}
-
-	auto renderPass = std::make_shared<VulkanRenderPass>(m_Device, desc);
-	m_RenderPassList.insert(std::make_pair(hash, renderPass));
-	return renderPass;
-}
-
-void VulkanRenderPassManager::cleanup()
-{
-	for (auto it = m_RenderPassList.begin(); it != m_RenderPassList.end(); ++it)
-	{
-		it->second->destroy(m_Device);
-	}
-	m_RenderPassList.clear();
-}
 #endif
