@@ -163,6 +163,195 @@ enum class EPrimitiveTopology : uint8_t
 	PatchList
 };
 
+struct RenderPassDesc
+{
+	enum class EPipelineStageFlag : uint32_t
+	{
+		TopOfPipe = 1 << 0,
+		DrawIndirect = 1 << 1,
+		VertexInput = 1 << 2,
+		VertexShader = 1 << 3,
+		HullShader = 1 << 4,
+		DomainShader = 1 << 5,
+		GeometryShader = 1 << 6,
+		FragmentShader = 1 << 7,
+		BeforeEarlyZ = 1 << 8,
+		AfterEarlyZ = 1 << 9,
+		ColorAttachmentOutput = 1 << 10,
+		ComputeShader = 1 << 11,
+		Transfer = 1 << 12,
+		BottomOfPipe = 1 << 13,
+		Host = 1 << 14,
+		AllGraphics = 1 << 15,
+		AllCommands = 1 << 16,
+		TransformFeedback = 1 << 17,
+		ConditionalRendering = 1 << 18,
+		RayTracingShader = 1 << 19,
+		AcceleartionStructureBuild = 1 << 20,
+		ShadingRateImage = 1 << 21,
+		TaskShader = 1 << 22,
+		MeshShader = 1 << 23,
+		FragmentDensityProcess = 1 << 24,
+		CommandPreProcess = 1 << 25
+	};
+
+	enum class EAccessFlag : uint32_t
+	{
+		IndirectCommandRead = 1 << 0,
+		IndexRead = 1 << 2,
+		VertexRead = 1 << 3,
+		UniformRead = 1 << 4,
+		InputAttachmentRead = 1 << 5,
+		ShaderRead = 1 << 6,
+		ShaderWrite = 1 << 7,
+		ColorAttachmentRead = 1 << 8,
+		ColorAttachmentWrite = 1 << 9,
+		DepthStencilAttachmentRead = 1 << 10,
+		DepthStencilAttachmentWrite = 1 << 11,
+		TransferRead = 1 << 12,
+		TransferWrite = 1 << 13,
+		HostRead = 1 << 14,
+		HostWrite = 1 << 15,
+		MemoryRead = 1 << 16,
+		MemoryWrite = 1 << 17,
+		TransformFeedbackWrite = 1 << 18,
+		TransformFeedbackCounterRead = 1 << 19,
+		TransformFeedbackCounterWrite = 1 << 20,
+		ConditionalRenderingRead = 1 << 21,
+		ColorAttachmentReadNonCoherent = 1 << 22,
+		AcclerationStructureRead = 1 << 23,
+		AcclerationStructureWrite = 1 << 24,
+		ShadingRateImageRead = 1 << 25,
+		FragmentDensityMapRead = 1 << 26,
+		CommandPreProcessRead = 1 << 27,
+		CommandPreProcessWrite = 1 << 28
+	};
+
+	enum class EAttachmentLoadOp
+	{
+		Load,
+		Clear,
+		DontCare
+	};
+
+	enum class EAttachmentStoreOp
+	{
+		Store,
+		DontCare,
+		None_QCOM
+	};
+
+	enum class EAttachmentLayout
+	{
+		Undefined,
+		General,
+		ColorAttachmentOptimal,
+		DepthStencilAttachmentOptimal,
+		DepthStencilReadonlyOptimal,
+		ShaderReadonlyOptimal,
+		TransferSrcOptimal,
+		TransferDstOptimal,
+		PreInitialized,
+		DepthReadonlyStencilAttachmentOptimal,
+		DepthAttachmentStencilReadonlyOptimal,
+		DepthAttachmentOptimal,
+		DepthReadonlyOptimal,
+		StencilAttachmentOptimal,
+		StencilReadonlyOptimal,
+		PresentSrc,
+		SharedPresent,
+		ShadingRateOptimal_NV,
+		FragmentDensityMapOptimal,
+	};
+
+	struct AttachmentReference
+	{
+		uint32_t Index = ~0U;
+		EAttachmentLayout Layout = EAttachmentLayout::Undefined;
+	};
+
+	struct AttachmentDesc
+	{
+		EFormat Format = EFormat::Unknown;
+		uint32_t SampleCount = 1u;
+		EAttachmentLoadOp LoadOp = EAttachmentLoadOp::Clear;
+		EAttachmentStoreOp StoreOp = EAttachmentStoreOp::DontCare;
+		EAttachmentLoadOp StencilLoadOp = EAttachmentLoadOp::Clear;
+		EAttachmentStoreOp StencilStoreOp = EAttachmentStoreOp::DontCare;
+		EAttachmentLayout InitialLayout = EAttachmentLayout::Undefined;
+		EAttachmentLayout FinalLayout = EAttachmentLayout::Undefined;
+	};
+
+	struct SubpassDependency
+	{
+		uint32_t SrcSubpassIndex = ~0u;
+		uint32_t DstSubpassIndex = ~0u;
+		EPipelineStageFlag SrcStage = EPipelineStageFlag::TopOfPipe;
+		EPipelineStageFlag DstStage = EPipelineStageFlag::TopOfPipe;
+		EAccessFlag SrcAccess = EAccessFlag::IndirectCommandRead;
+		EAccessFlag DstAccess = EAccessFlag::IndirectCommandRead;
+	};
+
+	struct SubPassDesc
+	{
+		std::vector<AttachmentReference> InputAttachments;
+		std::vector<AttachmentReference> ColorAttachments;
+		std::vector<AttachmentReference> ResolveAttachments;
+		std::vector<AttachmentReference> PreserveAttachments;
+		AttachmentReference DepthStencilAttachment;
+	};
+
+	struct RenderPassKey
+	{
+		uint8_t NumRenderTargets = 0u;
+		uint8_t SampleCount = 0u;
+
+		EFormat DepthStencilFormat = EFormat::Unknown;
+		EFormat RenderTargetFormat[ELimitations::MaxRenderTargets]{};
+
+		bool8_t operator==(const RenderPassKey& other) const
+		{
+			if (hash() != other.hash() ||
+				NumRenderTargets != other.NumRenderTargets ||
+				SampleCount != other.SampleCount ||
+				DepthStencilFormat != other.DepthStencilFormat)
+			{
+				return false;
+			}
+
+			for (uint32_t i = 0u; i < NumRenderTargets; ++i)
+			{
+				if (RenderTargetFormat[i] != other.RenderTargetFormat[i])
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		size_t hash() const
+		{
+			if (Hash == 0u)
+			{
+				Hash = Gear::computeHash(NumRenderTargets, SampleCount, DepthStencilFormat);
+				for (uint32_t i = 0u; i < NumRenderTargets; ++i)
+				{
+					Gear::hash_combine(Hash, RenderTargetFormat[i]);
+				}
+			}
+
+			return Hash;
+		}
+	private:
+		mutable size_t Hash = 0u;
+	};
+
+	std::vector<AttachmentDesc> AttachmentDescs;
+	std::vector<SubPassDesc> SubPasses;
+	std::vector<SubpassDependency> Denpendencies;
+};
+
 struct RasterizerStateDesc
 {
 	EPolygonMode PolygonMode = EPolygonMode::Solid;
@@ -238,57 +427,6 @@ struct SamplerDesc
 struct FrameBufferDesc
 {
 
-};
-
-struct RenderPassDesc
-{
-
-};
-
-struct RenderPassKey
-{
-	uint8_t NumRenderTargets = 0u;
-	uint8_t SampleCount = 0u;
-
-	EFormat DepthStencilFormat = EFormat::Unknown;
-	EFormat RenderTargetFormat[ELimitations::MaxRenderTargets]{};
-
-	bool8_t operator==(const RenderPassKey& other) const
-	{
-		if (hash() != other.hash() ||
-			NumRenderTargets != other.NumRenderTargets ||
-			SampleCount != other.SampleCount ||
-			DepthStencilFormat != other.DepthStencilFormat)
-		{
-			return false;
-		}
-
-		for (uint32_t i = 0u; i < NumRenderTargets; ++i)
-		{
-			if (RenderTargetFormat[i] != other.RenderTargetFormat[i])
-			{
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	size_t hash() const
-	{
-		if (Hash == 0u)
-		{
-			Hash = Gear::computeHash(NumRenderTargets, SampleCount, DepthStencilFormat);
-			for (uint32_t i = 0u; i < NumRenderTargets; ++i)
-			{
-				Gear::hash_combine(Hash, RenderTargetFormat[i]);
-			}
-		}
-
-		return Hash;
-	}
-private:
-	mutable size_t Hash = 0u;
 };
 
 struct Viewport : public Vec4
