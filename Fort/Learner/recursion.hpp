@@ -1,8 +1,8 @@
 #pragma once
 
-#include "node.h"
+#include "Gear/Gear.h"
 
-namespaceStart(fort)
+NAMESPACE_START(FORT)
 
 void Move(uint32_t index, const char &from, const char &to)
 {
@@ -109,6 +109,6 @@ uint32_t _ClimbStairs_(uint32_t n)
 	return n0;
 }
 
-namespaceEnd(fort)
+NAMESPACE_END(FORT)
 
 

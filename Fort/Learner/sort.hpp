@@ -1,11 +1,11 @@
 #pragma once
 
-#include "node.h"
+#include "Gear/Gear.h"
 
-namespaceStart(fort)
+NAMESPACE_START(FORT)
 
 /// O(N^2) steady
-template <typename T> void insertSort(T *pBegin, T *pEnd, std::function<bool8_t(const T &, const T &)> compFunc = [](const T &left, const T &right)->bool8_t {
+template <typename T> void InsertSort(T *pBegin, T *pEnd, std::function<bool8_t(const T &, const T &)> compFunc = [](const T &left, const T &right)->bool8_t {
 	return left <= right;
 })
 {
@@ -36,7 +36,7 @@ template <typename T> void insertSort(T *pBegin, T *pEnd, std::function<bool8_t(
 }
 
 /// O(n^1.3) not steady
-template <typename T> void shellSort(T *pBegin, T *pEnd, std::function<bool8_t(const T &, const T &)> compFunc = [](const T &left, const T &right)->bool8_t {
+template <typename T> void ShellSort(T *pBegin, T *pEnd, std::function<bool8_t(const T &, const T &)> compFunc = [](const T &left, const T &right)->bool8_t {
 	return left <= right;
 })
 {
@@ -61,25 +61,25 @@ template <typename T> void shellSort(T *pBegin, T *pEnd, std::function<bool8_t(c
 	}
 }
 
-template <typename T> void quickSort(T *pBegin, T *pEnd, std::function<bool8_t(const T &, const T &)> compFunc = [](const T &left, const T &right)->bool8_t {
+template <typename T> void QuickSort(T *pBegin, T *pEnd, std::function<bool8_t(const T &, const T &)> compFunc = [](const T &left, const T &right)->bool8_t {
 	return left <= right;
 })
 {
 
 }
 
-template <typename T> void selectSort(T *pBegin, T *pEnd, std::function<bool8_t(const T &, const T &)> compFunc = [](const T &left, const T &right)->bool8_t {
+template <typename T> void SelectSort(T *pBegin, T *pEnd, std::function<bool8_t(const T &, const T &)> compFunc = [](const T &left, const T &right)->bool8_t {
 	return left <= right;
 })
 {
 
 }
 
-template <typename T> void heapSort(T *pBegin, T *pEnd, std::function<bool8_t(const T &, const T &)> compFunc = [](const T &left, const T &right)->bool8_t {
+template <typename T> void HeapSort(T *pBegin, T *pEnd, std::function<bool8_t(const T &, const T &)> compFunc = [](const T &left, const T &right)->bool8_t {
 	return left <= right;
 })
 {
 
 }
 
-namespaceEnd(fort)
+NAMESPACE_END(FORT)
