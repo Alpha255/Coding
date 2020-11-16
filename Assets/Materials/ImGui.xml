@@ -9,6 +9,7 @@
 	</InputLayout>
 
 	<Shader>
+		<Attribute Language="GLSL"/>
 		<VertexShader>
 		  <![CDATA[
 #version 450

@@ -87,40 +87,48 @@ void Material::loadShaders(const tinyxml2::XMLNode* root)
 	assert(root);
 	for (auto node = root->FirstChild(); node; node = node->NextSibling())
 	{
-		auto text = node->FirstChild()->ToText();
-		assert(text && text->CData());
+		if (_stricmp(node->Value(), "Attribute") == 0)
+		{
+			auto language = node->ToElement()->Attribute("Language");
+			auto shaderLanguage = _stricmp(language, "GLSL") == 0 ? EShaderLanguage::GLSL : EShaderLanguage::HLSL;
+		}
+		else
+		{
+			auto text = node->FirstChild()->ToText();
+			assert(text && text->CData());
 
-		auto code = text->Value();
-		assert(code);
+			auto code = text->Value();
+			assert(code);
 
-		auto stage = EShaderStage::ShaderStageCount;
-		if (_stricmp(node->Value(), "VertexShader") == 0)
-		{
-			stage = EShaderStage::Vertex;
-		}
-		else if (_stricmp(node->Value(), "HullShader") == 0)
-		{
-			stage = EShaderStage::Hull;
-		}
-		else if (_stricmp(node->Value(), "DomainShader") == 0)
-		{
-			stage = EShaderStage::Domain;
-		}
-		else if (_stricmp(node->Value(), "GeometryShader") == 0)
-		{
-			stage = EShaderStage::Geometry;
-		}
-		else if (_stricmp(node->Value(), "FragmentShader") == 0)
-		{
-			stage = EShaderStage::Fragment;
-		}
-		else if (_stricmp(node->Value(), "ComputeShader") == 0)
-		{
-			stage = EShaderStage::Compute;
-		}
+			auto stage = EShaderStage::ShaderStageCount;
+			if (_stricmp(node->Value(), "VertexShader") == 0)
+			{
+				stage = EShaderStage::Vertex;
+			}
+			else if (_stricmp(node->Value(), "HullShader") == 0)
+			{
+				stage = EShaderStage::Hull;
+			}
+			else if (_stricmp(node->Value(), "DomainShader") == 0)
+			{
+				stage = EShaderStage::Domain;
+			}
+			else if (_stricmp(node->Value(), "GeometryShader") == 0)
+			{
+				stage = EShaderStage::Geometry;
+			}
+			else if (_stricmp(node->Value(), "FragmentShader") == 0)
+			{
+				stage = EShaderStage::Fragment;
+			}
+			else if (_stricmp(node->Value(), "ComputeShader") == 0)
+			{
+				stage = EShaderStage::Compute;
+			}
 
-		assert(stage != EShaderStage::ShaderStageCount);
-		auto desc = AssetTool::instance().compileShader(EShaderLanguage::GLSL, stage, code);
+			assert(stage != EShaderStage::ShaderStageCount);
+			auto desc = AssetTool::instance().compileShader(EShaderLanguage::GLSL, stage, code);
+		}
 	}
 }
 
