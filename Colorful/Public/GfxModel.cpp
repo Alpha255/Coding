@@ -105,5 +105,16 @@ void GfxModel::draw(GfxPipelineState* state)
 		g_GfxEngine->drawIndexed(m_Meshes[i].IndexCount, 1u, 0u, 0);
 	}
 }
-
 #endif
+
+#include "Colorful/Public/GfxModel.h"
+
+NAMESPACE_START(Gfx)
+
+Model Model::createCube(float32_t length)
+{
+	ModelDesc::VertexBlock vertexBlock(EVertexUsage::Position | EVertexUsage::Normal | EVertexUsage::Texcoord);
+	ModelDesc desc;
+}
+
+NAMESPACE_END(Gfx)

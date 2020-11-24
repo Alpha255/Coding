@@ -387,7 +387,7 @@ struct ShaderReflection
 	uint32_t SampledTextureCount = 0u;
 };
 
-enum EVertexUsage : uint16_t
+enum EVertexUsage : uint32_t
 {
 	Position    = 1 << 0,
 	Normal      = 1 << 1,
