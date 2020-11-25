@@ -33,7 +33,7 @@ enum class ETextureType
 	Buffer
 };
 
-enum class EIndexType
+enum class EIndexFormat
 {
 	UInt16,
 	UInt32
@@ -394,9 +394,12 @@ enum EVertexUsage : uint32_t
 	Tangent     = 1 << 2,
 	BiNormal    = 1 << 3,
 	BiTangent   = 1 << 4,
-	Texcoord    = 1 << 5,
-	Color       = 1 << 6,
-	Weight      = 1 << 7,
+	Texcoord0   = 1 << 5,
+	Texcoord1   = 1 << 6,
+	Texcoord2   = 1 << 7,
+	Texcoord3   = 1 << 8,
+	Color       = 1 << 9,
+	Weight      = 1 << 10,
 	VertexUsge_Count = 8
 };
 
@@ -478,120 +481,6 @@ struct VertexInputDesc
 	EVertexInputRate InputRate = EVertexInputRate::Vertex;
 
 	std::vector<VertexLayout> Layouts;
-};
-
-struct ModelDesc
-{
-	enum class ETextureType
-	{
-		Diffuse,
-		Specular,
-		Ambient,
-		Emissive,
-		Height,
-		Normal,
-		Shininess,
-		Opacity,
-		Displacement,
-		Lightmap,
-		Reflection,
-		Albedo,
-		Normal_Camera,
-		Emission_Color,
-		Metalness,
-		Diffuse_Roughness,
-		Ambient_Occlusion,
-		Unknown
-	};
-
-	struct SubMeshDesc
-	{
-		uint32_t VertexCount = 0u;
-		uint32_t IndexCount = 0u;
-		uint32_t FaceCount = 0u;
-		uint32_t BoneCount = 0u;
-
-		bool8_t HasNormals = false;
-		bool8_t HasTangents = false;
-		bool8_t HasUVs = false;
-		bool8_t HasVertexColors = false;
-		bool8_t HasBones = false;
-
-		AABB BoundingBox;
-
-		std::vector<Vec3> Vertices;
-		std::vector<Vec3> Normals;
-		std::vector<Vec3> Tangents;
-		std::vector<Vec3> BiTangents;
-		std::vector<Vec2> UVs;
-		std::vector<Vec4> VertexColors;
-		std::vector<std::pair<ModelDesc::ETextureType, uint32_t>> Textures;
-		std::vector<uint32_t> Indices;
-	};
-
-	struct VertexBlock
-	{
-		VertexBlock(uint32_t flags)
-			: UsageFlags(flags)
-		{
-			if (flags & EVertexUsage::Position)
-			{
-				Size += sizeof(Vec3);
-			}
-			if (flags & EVertexUsage::Normal)
-			{
-				Size += sizeof(Vec3);
-			}
-			if (flags & EVertexUsage::Tangent)
-			{
-				Size += sizeof(Vec3);
-			}
-			if (flags & EVertexUsage::BiNormal)
-			{
-				Size += sizeof(Vec3);
-			}
-			if (flags & EVertexUsage::BiTangent)
-			{
-				Size += sizeof(Vec3);
-			}
-			if (flags & EVertexUsage::Texcoord)
-			{
-				Size += sizeof(Vec2);
-			}
-			if (flags & EVertexUsage::Color)
-			{
-				Size += sizeof(Vec4);
-			}
-			if (flags & EVertexUsage::Weight)
-			{
-				Size += sizeof(Vec3);
-			}
-			assert(Size);
-		}
-
-		uint32_t Size = 0u;
-		uint32_t UsageFlags = EVertexUsage::Position;
-		VertexInputDesc InputLayout;
-	};
-
-	template<EIndexType Type>
-	static size_t indexStride()
-	{
-		return Type == EIndexType::UInt16 ? sizeof(uint16_t) : sizeof(uint32_t);
-	}
-
-	uint32_t MeshCount = 0u;
-	uint32_t VertexCount = 0u;
-	uint32_t IndexCount = 0u;
-	uint32_t FaceCount = 0u;
-	uint32_t AnimationCount = 0u;
-	uint32_t VertexStride = 0u;
-	VertexInputDesc InputLayout;
-	EIndexType IndexType = EIndexType::UInt16;
-	AABB BoundingBox;
-
-	std::vector<SubMeshDesc> SubMeshes;
-	std::vector<std::string> Textures;
 };
 
 struct PipelineResourceLayoutDesc

@@ -113,8 +113,56 @@ NAMESPACE_START(Gfx)
 
 Model Model::createCube(float32_t length)
 {
-	ModelDesc::VertexBlock vertexBlock(EVertexUsage::Position | EVertexUsage::Normal | EVertexUsage::Texcoord);
 	ModelDesc desc;
+	desc.setVertexUsageFlags(EVertexUsage::Position | EVertexUsage::Normal | EVertexUsage::Texcoord0);
+	desc.SubMeshes.resize(1u);
+
+	float32_t halfLen = 0.5f * length;
+
+	struct Vertex
+	{
+		Vec3 Position;
+		Vec3 Normal;
+		Vec2 UV;
+	};
+	std::vector<Vertex> vertices
+	{
+		{ { -halfLen, -halfLen, -halfLen }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 1.0f } },
+		{ { -halfLen,  halfLen, -halfLen }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 0.0f } },
+		{ {  halfLen,  halfLen, -halfLen }, { 0.0f, 0.0f, -1.0f }, { 1.0f, 0.0f } },
+		{ {  halfLen, -halfLen, -halfLen }, { 0.0f, 0.0f, -1.0f }, { 1.0f, 1.0f } },
+		{ { -halfLen, -halfLen,  halfLen }, { 0.0f, 0.0f,  1.0f }, { 1.0f, 1.0f } },
+		{ {  halfLen, -halfLen,  halfLen }, { 0.0f, 0.0f,  1.0f }, { 0.0f, 1.0f } },
+		{ {  halfLen,  halfLen,  halfLen }, { 0.0f, 0.0f,  1.0f }, { 0.0f, 0.0f } },
+		{ { -halfLen,  halfLen,  halfLen }, { 0.0f, 0.0f,  1.0f }, { 1.0f, 0.0f } },
+		{ { -halfLen,  halfLen, -halfLen }, { 0.0f, 1.0f,  0.0f }, { 0.0f, 1.0f } },
+		{ { -halfLen,  halfLen,  halfLen }, { 0.0f, 1.0f,  0.0f }, { 0.0f, 0.0f } },
+		{ {  halfLen,  halfLen,  halfLen }, { 0.0f, 1.0f,  0.0f }, { 1.0f, 0.0f } },
+		{ {  halfLen,  halfLen, -halfLen }, { 0.0f, 1.0f,  0.0f }, { 1.0f, 1.0f } },
+		{ { -halfLen, -halfLen, -halfLen }, {-1.0f, 0.0f, -1.0f }, { 1.0f, 1.0f } },
+		{ {  halfLen, -halfLen, -halfLen }, {-1.0f, 0.0f, -1.0f }, { 0.0f, 1.0f } },
+		{ {  halfLen, -halfLen,  halfLen }, {-1.0f, 0.0f, -1.0f }, { 0.0f, 0.0f } },
+		{ { -halfLen, -halfLen,  halfLen }, {-1.0f, 0.0f, -1.0f }, { 1.0f, 0.0f } },
+		{ { -halfLen, -halfLen,  halfLen }, {-1.0f, 0.0f,  0.0f }, { 0.0f, 1.0f } },
+		{ { -halfLen,  halfLen,  halfLen }, {-1.0f, 0.0f,  0.0f }, { 0.0f, 0.0f } },
+		{ { -halfLen,  halfLen, -halfLen }, {-1.0f, 0.0f,  0.0f }, { 1.0f, 0.0f } },
+		{ { -halfLen, -halfLen, -halfLen }, {-1.0f, 0.0f,  0.0f }, { 1.0f, 1.0f } },
+		{ {  halfLen, -halfLen, -halfLen }, { 1.0f, 0.0f,  0.0f }, { 0.0f, 1.0f } },
+		{ {  halfLen,  halfLen, -halfLen }, { 1.0f, 0.0f,  0.0f }, { 0.0f, 0.0f } },
+		{ {  halfLen,  halfLen,  halfLen }, { 1.0f, 0.0f,  0.0f }, { 1.0f, 0.0f } },
+		{ {  halfLen, -halfLen,  halfLen }, { 1.0f, 0.0f,  0.0f }, { 1.0f, 1.0f } },
+	};
+	std::vector<uint16_t> indices
+	{
+		 0u,  1u,  2u,  0u,  2u,  3u, /// front
+		 4u,  5u,  6u,  4u,  6u,  7u, /// back
+		 8u,  9u, 10u,  8u, 10u, 11u, /// top
+		12u, 13u, 14u, 12u, 14u, 15u, /// bottom
+		16u, 17u, 18u, 16u, 18u, 19u, /// left
+		20u, 21u, 22u, 20u, 22u, 23u  /// right
+	};
+
+	return Model(desc);
 }
 
 NAMESPACE_END(Gfx)

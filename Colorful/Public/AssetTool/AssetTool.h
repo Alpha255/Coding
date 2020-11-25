@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Gear/Asset.h"
-#include "Colorful/Public/GfxResource.h"
+#include "Colorful/Public/GfxModel.h"
 
 NAMESPACE_START(Gfx)
 

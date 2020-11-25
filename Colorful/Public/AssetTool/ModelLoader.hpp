@@ -44,18 +44,33 @@ public:
 		Vec3 vMax(std::numeric_limits<float32_t>::min());
 		std::vector<std::string> textures;
 
+#if 0
 		desc.MeshCount = scene->mNumMeshes;
 		desc.SubMeshes.resize(scene->mNumMeshes);
 		for (uint32_t i = 0u; i < scene->mNumMeshes; ++i)
 		{
 			auto mesh = scene->mMeshes[i];
-			assert(mesh);
+			assert(mesh && mesh->HasPositions());
+
+			if (!desc.VertexUsageFlags)
+			{
+				desc.VertexUsageFlags = EVertexUsage::Position |
+					subMesh.HasNormals ? EVertexUsage::Normal : 0u |
+					subMesh.HasTangents ? (EVertexUsage::Tangent | EVertexUsage::BiTangent) : 0u |
+					subMesh.HasUVs[0] ? EVertexUsage::Texcoord0 : 0u |
+					subMesh.HasUVs[1] ? EVertexUsage::Texcoord1 : 0u |
+					subMesh.HasUVs[2] ? EVertexUsage::Texcoord2 : 0u |
+					subMesh.HasUVs[3] ? EVertexUsage::Texcoord3 : 0u |
+					subMesh.HasVertexColors ? EVertexUsage::Color : 0u;
+			}
 
 			auto& subMesh = desc.SubMeshes[i];
-
 			subMesh.HasNormals = mesh->HasNormals();
 			subMesh.HasTangents = mesh->HasTangentsAndBitangents();
-			subMesh.HasUVs = mesh->HasTextureCoords(0u);
+			subMesh.HasUVs[0] = mesh->HasTextureCoords(0u);
+			subMesh.HasUVs[1] = mesh->HasTextureCoords(1u);
+			subMesh.HasUVs[2] = mesh->HasTextureCoords(2u);
+			subMesh.HasUVs[3] = mesh->HasTextureCoords(3u);
 			subMesh.HasVertexColors = mesh->HasVertexColors(0u);
 
 			subMesh.Vertices.resize(mesh->mNumVertices);
@@ -140,6 +155,7 @@ public:
 		}
 
 		desc.BoundingBox = AABB((vMax + vMin) * 0.5f, (vMax - vMin) * 0.5f);
+#endif
 
 		return desc;
 	}

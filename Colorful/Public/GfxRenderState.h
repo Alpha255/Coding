@@ -149,7 +149,7 @@ enum class EBorderColor : uint8_t
 	IntOpaqueWhite
 };
 
-enum class EPrimitiveTopology : uint8_t
+enum class EPrimitiveTopology
 {
 	PointList,
 	LineList,
