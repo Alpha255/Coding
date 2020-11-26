@@ -116,6 +116,9 @@ Model Model::createCube(float32_t length)
 	ModelDesc desc;
 	desc.setVertexUsageFlags(EVertexUsage::Position | EVertexUsage::Normal | EVertexUsage::Texcoord0);
 	desc.SubMeshes.resize(1u);
+	desc.IndexFormat = EIndexFormat::UInt16;
+	desc.FaceCount = 6u;
+	desc.SubMeshes[0u].FaceCount = 6u;
 
 	float32_t halfLen = 0.5f * length;
 
@@ -161,6 +164,9 @@ Model Model::createCube(float32_t length)
 		16u, 17u, 18u, 16u, 18u, 19u, /// left
 		20u, 21u, 22u, 20u, 22u, 23u  /// right
 	};
+
+	desc.setVertices(0u, vertices);
+	desc.setIndices(0u, indices);
 
 	return Model(desc);
 }

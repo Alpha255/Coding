@@ -96,33 +96,49 @@ struct ModelDesc
 			VertexStride += sizeof(Vec3);
 		}
 		assert(VertexStride);
+
+		getVertexLayout();
 	}
 
 	template<class Vertex>
 	void setVertices(uint32_t subMesh, const std::vector<Vertex>& vertices)
 	{
-		assert(subMesh < MeshCount);
+		assert(subMesh < MeshCount && vertices.size() && subMesh < SubMeshes.size() && !SubMeshes[subMesh].VertexBuffer);
+		SubMeshes[subMesh].VertexCount = static_cast<uint32_t>(vertices.size());
+		VertexCount += SubMeshes[subMesh].VertexCount;
+		size_t size = sizeof(Vertex) * SubMeshes[subMesh].VertexCount;
+		SubMeshes[subMesh].VertexBuffer = std::shared_ptr<byte8_t>(new byte8_t[size]());
+		VERIFY(memcpy_s(SubMeshes[subMesh].VertexBuffer.get(), size, vertices.data(), size));
 	}
 
 	template<class IndexFormat>
 	void setIndices(uint32_t subMesh, const std::vector<IndexFormat>& indices)
 	{
-		assert(subMesh < MeshCount);
+		assert(subMesh < MeshCount && indices.size() && subMesh < SubMeshes.size() && !SubMeshes[subMesh].IndexBuffer);
+		SubMeshes[subMesh].IndexCount = static_cast<uint32_t>(indices.size());
+		IndexCount += SubMeshes[subMesh].IndexCount;
+		size_t size = sizeof(IndexFormat) * SubMeshes[subMesh].IndexCount;
+		SubMeshes[subMesh].IndexBuffer = std::shared_ptr<byte8_t>(new byte8_t[size]());
+		VERIFY(memcpy_s(SubMeshes[subMesh].IndexBuffer.get(), size, indices.data(), size));
 	}
 
 	uint32_t VertexUsageFlags = 0u;
 	uint32_t VertexStride = 0u;
-	uint32_t MeshCount = 0u;
 	uint32_t VertexCount = 0u;
 	uint32_t IndexCount = 0u;
 	uint32_t FaceCount = 0u;
 	uint32_t AnimationCount = 0u;
 	EIndexFormat IndexFormat = EIndexFormat::UInt32;
 	EPrimitiveTopology PrimitiveTopology = EPrimitiveTopology::TriangleList;
+	VertexInputDesc VertexLayout;
 	AABB BoundingBox;
 
 	std::vector<SubMeshDesc> SubMeshes;
 	std::vector<std::string> Textures;
+protected:
+	void getVertexLayout()
+	{
+	}
 };
 
 DECLARE_SHARED_PTR(Model)
