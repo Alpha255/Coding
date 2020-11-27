@@ -4,6 +4,21 @@
 
 NAMESPACE_START(Gfx)
 
+struct ModelOptions
+{
+	bool8_t GenNormals = false;
+	bool8_t GenSmoothNormals = false;
+	bool8_t GenTangents = false;
+	bool8_t GenUVs = false;
+	bool8_t FlipWindingOrder = false; /// default is CCW
+	bool8_t Triangulate = false;
+	bool8_t PreTransformVertices = false;
+	bool8_t MakeLeftHanded = false;
+	bool8_t Optimize = false;
+	bool8_t FlipUVs = false;
+	bool8_t GenBoundingBoxes = true;
+};
+
 struct ModelDesc
 {
 	enum class ETextureType
@@ -103,7 +118,7 @@ struct ModelDesc
 	template<class Vertex>
 	void setVertices(uint32_t subMesh, const std::vector<Vertex>& vertices)
 	{
-		assert(subMesh < MeshCount && vertices.size() && subMesh < SubMeshes.size() && !SubMeshes[subMesh].VertexBuffer);
+		assert(subMesh < SubMeshes.size() && vertices.size() && subMesh < SubMeshes.size() && !SubMeshes[subMesh].VertexBuffer);
 		SubMeshes[subMesh].VertexCount = static_cast<uint32_t>(vertices.size());
 		VertexCount += SubMeshes[subMesh].VertexCount;
 		size_t size = sizeof(Vertex) * SubMeshes[subMesh].VertexCount;
@@ -114,7 +129,7 @@ struct ModelDesc
 	template<class IndexFormat>
 	void setIndices(uint32_t subMesh, const std::vector<IndexFormat>& indices)
 	{
-		assert(subMesh < MeshCount && indices.size() && subMesh < SubMeshes.size() && !SubMeshes[subMesh].IndexBuffer);
+		assert(subMesh < SubMeshes.size() && indices.size() && subMesh < SubMeshes.size() && !SubMeshes[subMesh].IndexBuffer);
 		SubMeshes[subMesh].IndexCount = static_cast<uint32_t>(indices.size());
 		IndexCount += SubMeshes[subMesh].IndexCount;
 		size_t size = sizeof(IndexFormat) * SubMeshes[subMesh].IndexCount;
@@ -129,7 +144,7 @@ struct ModelDesc
 	uint32_t FaceCount = 0u;
 	uint32_t AnimationCount = 0u;
 	EIndexFormat IndexFormat = EIndexFormat::UInt32;
-	EPrimitiveTopology PrimitiveTopology = EPrimitiveTopology::TriangleList;
+	EPrimitiveTopology PrimitiveTopology = EPrimitiveTopology::Unknown;
 	VertexInputDesc VertexLayout;
 	AABB BoundingBox;
 
@@ -145,7 +160,7 @@ DECLARE_SHARED_PTR(Model)
 class EXPORT_API Model
 {
 public:
-	Model(const ModelDesc& desc)
+	Model(const ModelDesc&)
 	{
 	}
 

@@ -8,26 +8,24 @@ NAMESPACE_START(Gfx)
 class ModelLoader
 {
 public:
-	static ModelDesc loadModel(const byte8_t* data, size_t size)
+	static ModelDesc loadModel(const byte8_t* data, size_t size, const ModelOptions& options)
 	{
 		ModelDesc desc{};
-		///aiProcess_ConvertToLeftHanded;
+
+		uint32_t flags = options.GenSmoothNormals ? aiProcess_GenSmoothNormals : (options.GenNormals ? aiProcess_GenNormals : 0u);
+		flags |= 
+			options.GenTangents ? aiProcess_CalcTangentSpace : 0u |
+			options.GenUVs ? aiProcess_GenUVCoords : 0u |
+			options.FlipWindingOrder ? aiProcess_FlipWindingOrder : 0u |
+			options.Triangulate ? (aiProcess_Triangulate | aiProcess_SortByPType) : 0u |
+			options.PreTransformVertices ? aiProcess_PreTransformVertices : 0u |
+			options.MakeLeftHanded ? aiProcess_MakeLeftHanded : 0u |
+			options.Optimize ? aiProcess_OptimizeMeshes : 0u |
+			options.FlipUVs ? aiProcess_FlipUVs : 0u |
+			options.GenBoundingBoxes ? aiProcess_GenBoundingBoxes : 0u;
 
 		Assimp::Importer importer;
-		//auto scene = importer.ReadFile(model->fullPath(),
-		//	(uint32_t)(
-		//	aiPostProcessSteps::aiProcess_CalcTangentSpace |
-		//	aiPostProcessSteps::aiProcess_Triangulate |
-		//	aiPostProcessSteps::aiProcess_GenBoundingBoxes));
-		auto scene = importer.ReadFileFromMemory(
-			data,
-			size,
-			(uint32_t)(
-				aiProcess_FlipWindingOrder |
-				aiProcess_Triangulate |
-				aiProcess_PreTransformVertices |
-				aiProcess_CalcTangentSpace |
-				aiProcess_GenSmoothNormals));
+		auto scene = importer.ReadFileFromMemory(data, size, flags);
 		if (!scene)
 		{
 			LOG_ERROR("ModelLoader:: %s", importer.GetErrorString());
@@ -43,97 +41,162 @@ public:
 		Vec3 vMin(std::numeric_limits<float32_t>::max());
 		Vec3 vMax(std::numeric_limits<float32_t>::min());
 		std::vector<std::string> textures;
-
-#if 0
-		desc.MeshCount = scene->mNumMeshes;
 		desc.SubMeshes.resize(scene->mNumMeshes);
+		desc.IndexFormat = EIndexFormat::UInt32;
+		uint32_t primitiveTypes = 0u;
+
+		auto getTexture = [&Textures = desc.Textures](const char8_t* path)->uint32_t {
+			for (uint32_t i = 0u; i < Textures.size(); ++i)
+			{
+				if (_stricmp(path, Textures[i].c_str()) == 0)
+				{
+					return i;
+				}
+			}
+
+			uint32_t index = static_cast<uint32_t>(Textures.size());
+			Textures.emplace_back(std::move(std::string(path)));
+			return index;
+		};
+
+		auto getTextureType = [](uint32_t type)->ModelDesc::ETextureType {
+			switch (type)
+			{
+			default:
+			case aiTextureType_NONE: 
+			case aiTextureType_UNKNOWN:           return ModelDesc::ETextureType::Unknown;
+			case aiTextureType_DIFFUSE:           return ModelDesc::ETextureType::Diffuse;
+			case aiTextureType_SPECULAR:          return ModelDesc::ETextureType::Specular;
+			case aiTextureType_AMBIENT:           return ModelDesc::ETextureType::Ambient;
+			case aiTextureType_EMISSIVE:          return ModelDesc::ETextureType::Emissive;
+			case aiTextureType_HEIGHT:            return ModelDesc::ETextureType::Height;
+			case aiTextureType_NORMALS:           return ModelDesc::ETextureType::Normal;
+			case aiTextureType_SHININESS:         return ModelDesc::ETextureType::Shininess;
+			case aiTextureType_OPACITY:           return ModelDesc::ETextureType::Opacity;
+			case aiTextureType_DISPLACEMENT:      return ModelDesc::ETextureType::Displacement;
+			case aiTextureType_LIGHTMAP:          return ModelDesc::ETextureType::Lightmap;
+			case aiTextureType_REFLECTION:        return ModelDesc::ETextureType::Reflection;
+			case aiTextureType_BASE_COLOR:        return ModelDesc::ETextureType::Albedo;
+			case aiTextureType_NORMAL_CAMERA:     return ModelDesc::ETextureType::Normal_Camera;
+			case aiTextureType_EMISSION_COLOR:    return ModelDesc::ETextureType::Emission_Color;
+			case aiTextureType_METALNESS:         return ModelDesc::ETextureType::Metalness;
+			case aiTextureType_DIFFUSE_ROUGHNESS: return ModelDesc::ETextureType::Diffuse_Roughness;
+			case aiTextureType_AMBIENT_OCCLUSION: return ModelDesc::ETextureType::Ambient_Occlusion;
+			}
+		};
+
 		for (uint32_t i = 0u; i < scene->mNumMeshes; ++i)
 		{
 			auto mesh = scene->mMeshes[i];
 			assert(mesh && mesh->HasPositions());
 
+			uint32_t vertexUsageFlags = EVertexUsage::Position |
+				mesh->HasNormals() ? EVertexUsage::Normal : 0u |
+				mesh->HasTangentsAndBitangents() ? (EVertexUsage::Tangent | EVertexUsage::BiTangent) : 0u |
+				mesh->HasTextureCoords(0u) ? EVertexUsage::Texcoord0 : 0u |
+				mesh->HasTextureCoords(1u) ? EVertexUsage::Texcoord1 : 0u |
+				mesh->HasTextureCoords(2u) ? EVertexUsage::Texcoord2 : 0u |
+				mesh->HasTextureCoords(3u) ? EVertexUsage::Texcoord3 : 0u |
+				mesh->HasVertexColors(0u) ? EVertexUsage::Color : 0u;
 			if (!desc.VertexUsageFlags)
 			{
-				desc.VertexUsageFlags = EVertexUsage::Position |
-					subMesh.HasNormals ? EVertexUsage::Normal : 0u |
-					subMesh.HasTangents ? (EVertexUsage::Tangent | EVertexUsage::BiTangent) : 0u |
-					subMesh.HasUVs[0] ? EVertexUsage::Texcoord0 : 0u |
-					subMesh.HasUVs[1] ? EVertexUsage::Texcoord1 : 0u |
-					subMesh.HasUVs[2] ? EVertexUsage::Texcoord2 : 0u |
-					subMesh.HasUVs[3] ? EVertexUsage::Texcoord3 : 0u |
-					subMesh.HasVertexColors ? EVertexUsage::Color : 0u;
+				desc.setVertexUsageFlags(vertexUsageFlags);
 			}
+			assert(vertexUsageFlags == desc.VertexUsageFlags);
+
+			if (desc.PrimitiveTopology == EPrimitiveTopology::Unknown)
+			{
+				primitiveTypes = mesh->mPrimitiveTypes;
+				switch (mesh->mPrimitiveTypes)
+				{
+				case aiPrimitiveType_POINT:
+					desc.PrimitiveTopology = EPrimitiveTopology::PointList;
+					break;
+				case aiPrimitiveType_LINE:
+					desc.PrimitiveTopology = EPrimitiveTopology::LineList;
+					break;
+				case aiPrimitiveType_TRIANGLE:
+					desc.PrimitiveTopology = EPrimitiveTopology::TriangleList;
+					break;
+				default:
+					assert(0);
+					break;
+				}
+			}
+			assert(primitiveTypes == mesh->mPrimitiveTypes);
 
 			auto& subMesh = desc.SubMeshes[i];
-			subMesh.HasNormals = mesh->HasNormals();
-			subMesh.HasTangents = mesh->HasTangentsAndBitangents();
-			subMesh.HasUVs[0] = mesh->HasTextureCoords(0u);
-			subMesh.HasUVs[1] = mesh->HasTextureCoords(1u);
-			subMesh.HasUVs[2] = mesh->HasTextureCoords(2u);
-			subMesh.HasUVs[3] = mesh->HasTextureCoords(3u);
-			subMesh.HasVertexColors = mesh->HasVertexColors(0u);
+			subMesh.VertexCount = mesh->mNumVertices;
+			desc.VertexCount += mesh->mNumVertices;
+			subMesh.VertexBuffer = std::shared_ptr<byte8_t>(new byte8_t[mesh->mNumVertices * desc.VertexStride]());
+			auto vertex = subMesh.VertexBuffer.get();
+			auto vertex_o = vertex;
+			assert(vertex);
 
-			subMesh.Vertices.resize(mesh->mNumVertices);
-			if (subMesh.HasNormals)
-			{
-				subMesh.Normals.resize(mesh->mNumVertices);
-			}
-			if (subMesh.HasTangents)
-			{
-				subMesh.Tangents.resize(mesh->mNumVertices);
-			}
-			if (subMesh.HasUVs)
-			{
-				subMesh.UVs.resize(mesh->mNumVertices);
-			}
-			if (subMesh.HasVertexColors)
-			{
-				subMesh.VertexColors.resize(mesh->mNumVertices);
-			}
 			for (uint32_t j = 0u; j < mesh->mNumVertices; ++j) /// Async?
 			{
-				subMesh.Vertices[j] = Vec3(mesh->mVertices[j].x, mesh->mVertices[j].y, mesh->mVertices[j].z);
-				if (subMesh.HasNormals)
+				auto vec3 = reinterpret_cast<Vec3*>(vertex);
+				vec3->x = mesh->mVertices[j].x; vec3->y = mesh->mVertices[j].y; vec3->z = mesh->mVertices[j].z;
+				vertex += sizeof(Vec3);
+
+				if (mesh->HasNormals())
 				{
-					subMesh.Normals[j] = Vec3(mesh->mNormals[j].x, mesh->mNormals[j].y, mesh->mNormals[j].z);
+					vec3 = reinterpret_cast<Vec3*>(vertex);
+					vec3->x = mesh->mNormals[j].x; vec3->y = mesh->mNormals[j].y; vec3->z = mesh->mNormals[j].z;
+					vertex += sizeof(Vec3);
 				}
-				if (subMesh.HasTangents)
+				if (mesh->HasTangentsAndBitangents())
 				{
-					subMesh.Tangents[j] = Vec3(mesh->mTangents[j].x, mesh->mTangents[j].y, mesh->mTangents[j].z);
-					subMesh.BiTangents[j] = Vec3(mesh->mBitangents[j].x, mesh->mBitangents[j].y, mesh->mBitangents[j].z);
+					vec3 = reinterpret_cast<Vec3*>(vertex);
+					vec3->x = mesh->mTangents[j].x; vec3->y = mesh->mTangents[j].y; vec3->z = mesh->mTangents[j].z;
+					vertex += sizeof(Vec3);
+
+					vec3->x = mesh->mBitangents[j].x; vec3->y = mesh->mBitangents[j].y; vec3->z = mesh->mBitangents[j].z;
+					vertex += sizeof(Vec3);
 				}
-				if (subMesh.HasUVs)
+				for (uint32_t n = 0u; n < 4u; ++n)
 				{
-					subMesh.UVs[j] = Vec2(mesh->mTextureCoords[0][j].x, mesh->mTextureCoords[0][j].y);
+					if (mesh->HasTextureCoords(n))
+					{
+						auto vec2 = reinterpret_cast<Vec2*>(vertex);
+						vec2->x = mesh->mTextureCoords[n][j].x; vec2->y = mesh->mTextureCoords[n][j].y;
+						vertex += sizeof(Vec2);
+					}
 				}
-				if (subMesh.HasVertexColors)
+				if (mesh->HasVertexColors(0u))
 				{
-					subMesh.VertexColors[j] = Vec4(mesh->mColors[0][j].r, mesh->mColors[0][j].g, mesh->mColors[0][j].b, mesh->mColors[0][j].a);
+					auto vec4 = reinterpret_cast<Vec4*>(vertex);
+					vec4->x = mesh->mColors[0][j].r; vec4->y = mesh->mColors[0][j].g;
+					vec4->z = mesh->mColors[0][j].b; vec4->w = mesh->mColors[0][j].a;
+					vertex += sizeof(Vec4);
 				}
 				else
 				{
 					if (scene->HasMaterials())
 					{
-						aiColor3D color;
+						aiColor4D color;
 						scene->mMaterials[i]->Get(AI_MATKEY_COLOR_DIFFUSE, color);
-						subMesh.VertexColors[j] = Vec4(color.r, color.g, color.b, 1.0f);
+						auto vec4 = reinterpret_cast<Vec4*>(vertex);
+						vec4->x = color.r; vec4->y = color.g;
+						vec4->z = color.b; vec4->w = color.a;
+						vertex += sizeof(Vec4);
 					}
 				}
+
+				assert(std::distance(vertex, vertex_o) == j * desc.VertexStride);
 			}
 
 			subMesh.FaceCount = mesh->mNumFaces;
-			subMesh.HasBones = mesh->HasBones();
 			subMesh.BoneCount = mesh->mNumBones;
+			desc.FaceCount += mesh->mNumFaces;
 
+			std::vector<uint32_t> indices;
 			for (uint32_t j = 0u; j < mesh->mNumFaces; ++j)
 			{
-				auto& face = mesh->mFaces[j];
-				for (uint32_t k = 0u; k < face.mNumIndices; ++k)
-				{
-					subMesh.Indices.push_back(face.mIndices[k]);
-				}
+				indices.insert(indices.end(), mesh->mFaces[j].mIndices, mesh->mFaces[j].mIndices + mesh->mFaces[j].mNumIndices);
 			}
-			subMesh.IndexCount = static_cast<uint32_t>(subMesh.Indices.size());
+			desc.setIndices(i, indices);
+
 			auto extent = (mesh->mAABB.mMax + mesh->mAABB.mMin) * 0.5f;
 			auto center = (mesh->mAABB.mMax - mesh->mAABB.mMin) * 0.5f;
 			subMesh.BoundingBox = AABB(Vec3(center.x, center.y, center.z), Vec3(extent.x, extent.y, extent.z));
@@ -145,17 +208,21 @@ public:
 				auto material = scene->mMaterials[mesh->mMaterialIndex];
 				for (uint32_t j = aiTextureType_DIFFUSE; j < aiTextureType_UNKNOWN; ++j)
 				{
-					for (uint32_t k = 0u; k < material->GetTextureCount((aiTextureType)j); ++k)
+					for (uint32_t k = 0u; k < material->GetTextureCount(static_cast<aiTextureType>(j)); ++k)
 					{
-						aiString texPath;
-						material->GetTexture((aiTextureType)j, k, &texPath);
+						aiString path;
+						material->GetTexture(static_cast<aiTextureType>(j), k, &path);
+						subMesh.Textures.emplace_back(std::move(std::make_pair(getTextureType(j), getTexture(path.C_Str()))));
 					}
 				}
 			}
 		}
 
 		desc.BoundingBox = AABB((vMax + vMin) * 0.5f, (vMax - vMin) * 0.5f);
-#endif
+		for (uint32_t i = 0u; i < desc.Textures.size(); ++i)
+		{
+			desc.Textures[i] = File::name(desc.Textures[i]);
+		}
 
 		return desc;
 	}

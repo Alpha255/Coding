@@ -151,6 +151,7 @@ enum class EBorderColor : uint8_t
 
 enum class EPrimitiveTopology
 {
+	Unknown,
 	PointList,
 	LineList,
 	LineStrip,

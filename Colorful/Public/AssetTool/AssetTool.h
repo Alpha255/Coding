@@ -21,7 +21,7 @@ public:
 
 	TextureDesc loadTexture(const std::string& name, bool8_t sRGB);
 
-	ModelDesc loadModel(const std::string& name);
+	ModelDesc loadModel(const std::string& name, const ModelOptions& options = ModelOptions());
 
 	void loadMaterial(const std::string& name);
 

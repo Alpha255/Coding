@@ -89,13 +89,13 @@ ShaderDesc AssetTool::loadShader(EShaderLanguage language, EShaderStage stage, c
 	return compileShader(language, stage, reinterpret_cast<const char8_t*>(dataPtr.get()));
 }
 
-ModelDesc AssetTool::loadModel(const std::string& name)
+ModelDesc AssetTool::loadModel(const std::string& name, const ModelOptions& options)
 {
 	AssetPtr asset = findAsset(name);
 	assert(asset);
 
 	auto dataPtr = asset->data();
-	return ModelLoader::loadModel(dataPtr.get(), asset->size());
+	return ModelLoader::loadModel(dataPtr.get(), asset->size(), options);
 }
 
 void AssetTool::loadMaterial(const std::string& name)
