@@ -50,5 +50,4 @@ Application/
 Projects/
 __pycache__/
 /gear/Public/Definitions.Generated.h
-/HexoBlog
-/Hexo
+Doc/Jupyter Notebook/Test/.ipynb_checkpoints/
