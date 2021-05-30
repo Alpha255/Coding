@@ -266,6 +266,8 @@ workspace "Rockcat"
 				"$(SolutionDir)",
 				"$(SolutionDir)ThirdParty\\KTX-Software\\include",
 				"$(SolutionDir)ThirdParty\\KTX-Software\\other_include",
+				"$(SolutionDir)ThirdParty\\KTX-Software\\utils",
+				"$(SolutionDir)ThirdParty\\KTX-Software\\lib\\basisu\\zstd",
 			}
 			filter {
 				defines {

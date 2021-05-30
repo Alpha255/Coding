@@ -308,7 +308,7 @@ VkFramebuffer VulkanSwapchain::currentFramebuffer(VkRenderPass renderPass)
 		m_BackBuffer.FrameBuffers.resize(m_BackBuffer.ColorTargets.size());
 		for (uint32_t i = 0u; i < m_BackBuffer.ColorTargets.size(); ++i)
 		{
-			RenderPassDesc::FrameBufferDesc frameBufferDesc
+			FrameBufferDesc frameBufferDesc
 			{
 				{ m_BackBuffer.ColorTargets[i] },
 				m_BackBuffer.DepthStencil,

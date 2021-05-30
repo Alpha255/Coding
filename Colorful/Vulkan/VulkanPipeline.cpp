@@ -346,20 +346,20 @@ VulkanRenderPassPtr VkRenderStateCache::getOrCreateRenderPass(const RenderPassDe
 		{
 			VK_SUBPASS_EXTERNAL,
 			0u,
-			RenderPassDesc::EPipelineStageFlags::BottomOfPipe,
-			RenderPassDesc::EPipelineStageFlags::ColorAttachmentOutput,
-			RenderPassDesc::EAccessFlags::MemoryRead,
-			RenderPassDesc::EAccessFlags::ColorAttachmentRead | RenderPassDesc::EAccessFlags::ColorAttachmentWrite,
+			static_cast<uint64_t>(RenderPassDesc::EPipelineStageFlags::BottomOfPipe),
+			static_cast<uint64_t>(RenderPassDesc::EPipelineStageFlags::ColorAttachmentOutput),
+			static_cast<uint64_t>(RenderPassDesc::EAccessFlags::MemoryRead),
+			static_cast<uint64_t>(RenderPassDesc::EAccessFlags::ColorAttachmentRead) | static_cast<uint64_t>(RenderPassDesc::EAccessFlags::ColorAttachmentWrite),
 		};
 
 		defaultRenderPassDesc.SubPassDependencies[1] =
 		{
 			0u,
 			VK_SUBPASS_EXTERNAL,
-			RenderPassDesc::EPipelineStageFlags::ColorAttachmentOutput,
-			RenderPassDesc::EPipelineStageFlags::BottomOfPipe,
-			RenderPassDesc::EAccessFlags::ColorAttachmentRead | RenderPassDesc::EAccessFlags::ColorAttachmentWrite,
-			RenderPassDesc::EAccessFlags::MemoryRead,
+			static_cast<uint64_t>(RenderPassDesc::EPipelineStageFlags::ColorAttachmentOutput),
+			static_cast<uint64_t>(RenderPassDesc::EPipelineStageFlags::BottomOfPipe),
+			static_cast<uint64_t>(RenderPassDesc::EAccessFlags::ColorAttachmentRead) | static_cast<uint64_t>(RenderPassDesc::EAccessFlags::ColorAttachmentWrite),
+			static_cast<uint64_t>(RenderPassDesc::EAccessFlags::MemoryRead),
 		};
 
 		auto renderPass = create_shared<VulkanRenderPass>(defaultRenderPassDesc);
@@ -374,12 +374,12 @@ VulkanRenderPassPtr VkRenderStateCache::getOrCreateRenderPass(const RenderPassDe
 
 VulkanGraphicsPipelinePtr VkRenderStateCache::getOrCreateGraphicPipeline(VkRenderPass renderPass, GraphicsPipelineState& state)
 {
-
+	return nullptr;
 }
 
 VulkanFramebufferPtr VkRenderStateCache::getOrCreateFrameBuffer(VkRenderPass renderPass, const FrameBufferDesc& desc)
 {
-
+	return nullptr;
 }
 
 void VkRenderStateCache::finalize()

@@ -82,6 +82,8 @@ public:
 	void setObjectDebugName(uint64_t objectHandle, EDescriptorType type, const char8_t* name) override final;
 
 	void drawIndexed(uint32_t indexCount, uint32_t firstIndex, int32_t vertexOffset) override final;
+
+	void drawModel(const class Model& model) override final;
 protected:
 	friend class VulkanQueue;
 

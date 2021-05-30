@@ -50,7 +50,7 @@ void VulkanCommandBuffer::endDebugMarker()
 
 void VulkanCommandBuffer::setObjectDebugName(uint64_t objectHandle, EDescriptorType type, const char8_t* name)
 {
-	assert(objectHandle != VK_NULL_HANDLE && m_State == EState::Recording && name);
+	assert(reinterpret_cast<void*>(objectHandle) != VK_NULL_HANDLE && m_State == EState::Recording && name);
 
 	if (s_Device->enableProfiler())
 	{
@@ -89,6 +89,10 @@ void VulkanCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc, 
 void VulkanCommandBuffer::endRenderPass()
 {
 	//assert(0);
+}
+
+void VulkanCommandBuffer::drawModel(const Model& model)
+{
 }
 
 /********************************
