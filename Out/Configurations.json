@@ -1,0 +1,15 @@
+{
+  "Configs": {
+    "WindowSize": [ 1280, 720 ],
+    "MinWindowSize": [ 640, 480 ],
+    "FullScreen": false,
+    "VSync": false,
+    "Renderer" : "Vulkan",
+    "RendererNames": {
+      "Vulkan" : "VulkanRenderer",
+      "D3D11" : "D3D11Renderer",
+      "D3D12" : "D3D12Renderer",
+      "Software" : "SoftwareRenderer"
+    }
+  }
+}

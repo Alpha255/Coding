@@ -1,0 +1,6 @@
+<Lambert>
+	<Shader>
+		<VertexShader Language="GLSL" File="Lambert.vert"/>
+		<FragmentShader Language="GLSL" File="Lambert.frag"/>
+	</Shader>
+</Lambert>

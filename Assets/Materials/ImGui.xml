@@ -1,0 +1,15 @@
+<ImGui>
+	<InputLayout>
+		<Stream>
+			<Attribute Binding="0" InputRate="Vertex"/>
+			<Layout Location="0" Usage="POSITION" Format="RG32_Float"/>
+			<Layout Location="1" Usage="TEXCOORD0" Format="RG32_Float"/>
+			<Layout Location="2" Usage="COLOR" Format="RGBA32_Float"/>
+		</Stream>
+	</InputLayout>
+
+	<Shader>
+		<VertexShader Language="GLSL" File="ImGui.vert"/>
+		<FragmentShader Language="GLSL" File="ImGui.frag"/>
+	</Shader>
+</ImGui>

@@ -1,0 +1,6 @@
+<StandardPBR>
+	<Shader>
+		<VertexShader Language="GLSL" File="StandardPBR.vert"/>
+		<FragmentShader Language="GLSL" File="StandardPBR.frag"/>
+	</Shader>
+</StandardPBR>

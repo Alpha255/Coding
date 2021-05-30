@@ -1,0 +1,37 @@
+{
+    "InputLayout": [
+        {
+            "Usage": "ePosition",
+            "Format": "eRGB32_Float"
+        },
+        {
+            "Usage": "eNormal",
+            "Format": "eRGB32_Float"
+        },
+        {
+            "Usage": "eTangent",
+            "Format": "eRGB32_Float"
+        },
+        {
+            "Usage": "eBiTangent",
+            "Format": "eRGB32_Float"
+        },
+        {
+            "Usage": "eTexcoord0",
+            "Format": "eRG32_Float"
+        },
+        {
+            "Usage": "eColor0",
+            "Format": "eRGBA32_Float"
+        }
+    ],
+    "ShaderNames": [
+        "Outline.shader",
+        "",
+        "",
+        "",
+        "Outline.shader",
+        ""
+    ],
+    "Name": "StencilBuffer_Outline"
+}

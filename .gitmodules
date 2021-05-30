@@ -1,0 +1,30 @@
+[submodule "ThirdParty/ImGUI"]
+	path = ThirdParty/ImGUI
+	url = https://github.com/ocornut/imgui.git
+[submodule "ThirdParty/json"]
+	path = ThirdParty/json
+	url = https://github.com/nlohmann/json.git
+[submodule "ThirdParty/assimp"]
+	path = ThirdParty/assimp
+	url = https://github.com/assimp/assimp.git
+[submodule "ThirdParty/DirectXTex"]
+	path = ThirdParty/DirectXTex
+	url = https://github.com/microsoft/DirectXTex.git
+[submodule "ThirdParty/SPIRV-Cross"]
+	path = ThirdParty/SPIRV-Cross
+	url = https://github.com/KhronosGroup/SPIRV-Cross.git
+[submodule "ThirdParty/stb"]
+	path = ThirdParty/stb
+	url = https://github.com/nothings/stb.git
+[submodule "ThirdParty/Vulkan-Headers"]
+	path = ThirdParty/Vulkan-Headers
+	url = https://github.com/KhronosGroup/Vulkan-Headers.git
+[submodule "ThirdParty/glslang"]
+	path = ThirdParty/glslang
+	url = https://github.com/KhronosGroup/glslang.git
+[submodule "ThirdParty/tinyxml2"]
+	path = ThirdParty/tinyxml2
+	url = https://github.com/leethomason/tinyxml2.git
+[submodule "ThirdParty/KTX-Software"]
+	path = ThirdParty/KTX-Software
+	url = https://github.com/KhronosGroup/KTX-Software.git

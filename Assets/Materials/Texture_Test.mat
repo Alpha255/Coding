@@ -1,0 +1,21 @@
+{
+    "InputLayout": [
+        {
+            "Usage": "ePosition",
+            "Format": "eRGB32_Float"
+        },
+        {
+            "Usage": "eTexcoord0",
+            "Format": "eRG32_Float"
+        }
+    ],
+    "ShaderNames": [
+        "Texture.shader",
+        "",
+        "",
+        "",
+        "Texture.shader",
+        ""
+    ],
+    "Name": "Texture_Test"
+}
