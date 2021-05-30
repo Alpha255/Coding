@@ -5,6 +5,8 @@
 
 NAMESPACE_START(Gfx)
 
+using GfxFlags = uint32_t;
+
 enum ELimitations : uint32_t
 {
 	MaxRenderTargets = D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT,
@@ -162,9 +164,9 @@ protected:
 
 struct RenderPassDesc : public GfxResourceDesc
 {
-	enum class EPipelineStageFlags : uint32_t
+	enum EPipelineStageFlags : uint32_t
 	{
-		None = 0,
+		PipelineStageFlag_None = 0,
 		TopOfPipe = 1 << 0,
 		DrawIndirect = 1 << 1,
 		VertexInput = 1 << 2,
@@ -182,48 +184,48 @@ struct RenderPassDesc : public GfxResourceDesc
 		Host = 1 << 14,
 		AllGraphics = 1 << 15,
 		AllCommands = 1 << 16,
-		TransformFeedback = 1 << 17,
+		TransformFeedback = 0x01000000,
 		ConditionalRendering = 1 << 18,
-		AcceleartionStructureBuild = 1 << 19,
-		RayTracingShader = 1 << 20,
-		ShadingRateImage = 1 << 21,
-		TaskShader = 1 << 22,
-		MeshShader = 1 << 23,
-		FragmentDensityProcess = 1 << 24,
-		CommandPreProcess = 1 << 25
+		AcceleartionStructureBuild = 0x02000000,
+		RayTracingShader = 0x00200000,
+		ShadingRateImage = 0x00400000,
+		TaskShader = 0x00080000,
+		MeshShader = 0x00100000,
+		FragmentDensityProcess = 0x00800000,
+		CommandPreProcess = 0x00020000
 	};
 
-	enum class EAccessFlags : uint32_t
+	enum EAccessFlags : uint32_t
 	{
-		None = 0,
+		AccessFlag_None = 0,
 		IndirectCommandRead = 1 << 0,
-		IndexRead = 1 << 2,
-		VertexRead = 1 << 3,
-		UniformRead = 1 << 4,
-		InputAttachmentRead = 1 << 5,
-		ShaderRead = 1 << 6,
-		ShaderWrite = 1 << 7,
-		ColorAttachmentRead = 1 << 8,
-		ColorAttachmentWrite = 1 << 9,
-		DepthStencilAttachmentRead = 1 << 10,
-		DepthStencilAttachmentWrite = 1 << 11,
-		TransferRead = 1 << 12,
-		TransferWrite = 1 << 13,
-		HostRead = 1 << 14,
-		HostWrite = 1 << 15,
-		MemoryRead = 1 << 16,
-		MemoryWrite = 1 << 17,
-		TransformFeedbackWrite = 1 << 18,
-		TransformFeedbackCounterRead = 1 << 19,
-		TransformFeedbackCounterWrite = 1 << 20,
-		ConditionalRenderingRead = 1 << 21,
-		ColorAttachmentReadNonCoherent = 1 << 22,
-		AcclerationStructureRead = 1 << 23,
-		AcclerationStructureWrite = 1 << 24,
-		ShadingRateImageRead = 1 << 25,
-		FragmentDensityMapRead = 1 << 26,
-		CommandPreProcessRead = 1 << 27,
-		CommandPreProcessWrite = 1 << 28
+		IndexRead = 1 << 1,
+		VertexRead = 1 << 2,
+		UniformRead = 1 << 3,
+		InputAttachmentRead = 1 << 4,
+		ShaderRead = 1 << 5,
+		ShaderWrite = 1 << 6,
+		ColorAttachmentRead = 1 << 7,
+		ColorAttachmentWrite = 1 << 8,
+		DepthStencilAttachmentRead = 1 << 9,
+		DepthStencilAttachmentWrite = 1 << 10,
+		TransferRead = 1 << 11,
+		TransferWrite = 1 << 12,
+		HostRead = 1 << 13,
+		HostWrite = 1 << 14,
+		MemoryRead = 1 << 15,
+		MemoryWrite = 1 << 16,
+		TransformFeedbackWrite = 0x02000000,
+		TransformFeedbackCounterRead = 0x04000000,
+		TransformFeedbackCounterWrite = 0x08000000,
+		ConditionalRenderingRead = 1 << 20,
+		ColorAttachmentReadNonCoherent = 0x00080000,
+		AcclerationStructureRead = 0x00200000,
+		AcclerationStructureWrite = 0x00400000,
+		ShadingRateImageRead = 0x00800000,
+		FragmentDensityMapRead = 0x01000000,
+		CommandPreProcessRead = 0x00020000,
+		CommandPreProcessWrite = 0x00040000
 	};
 
 	enum class EAttachmentLoadOp
@@ -261,10 +263,10 @@ struct RenderPassDesc : public GfxResourceDesc
 	{
 		uint32_t SrcSubpassIndex = ~0u;  /// VK_SUBPASS_EXTERNAL
 		uint32_t DstSubpassIndex = ~0u;
-		uint64_t SrcStageFlags = 0u;
-		uint64_t DstStageFlags = 0u;
-		uint64_t SrcAccessFlags = 0u;
-		uint64_t DstAccessFlags = 0u;
+		GfxFlags SrcStageFlags = 0u;
+		GfxFlags DstStageFlags = 0u;
+		GfxFlags SrcAccessFlags = 0u;
+		GfxFlags DstAccessFlags = 0u;
 	};
 
 	struct SubPassDesc

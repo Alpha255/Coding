@@ -1074,4 +1074,58 @@ namespace DesignPatterns
 	}
 }
 
+namespace ProducerConsumer
+{
+	namespace OneOnOne
+	{
+		std::mutex s_Mutex;
+		std::condition_variable s_CV;
+		bool8_t s_Ready = false;
+
+		template <class T>
+		class IProducer
+		{
+		public:
+			virtual T* Produce() = 0;
+
+			void Run()
+			{
+				while (true)
+				{
+					std::unique_lock<std::mutex> locker(s_Mutex);
+					
+					Produce();
+					s_Ready = true;
+					locker.unlock();
+					s_CV.notify_one();
+
+					s_Mutex.lock();
+					s_CV.wait(locker, []() { return !s_Ready; });
+				}
+			}
+		};
+
+		template <class T>
+		class IConsumer
+		{
+		public:
+			virtual void Consume(T* product) = 0;
+
+			void Run()
+			{
+				while (true)
+				{
+					std::unique_lock<std::mutex> locker(s_Mutex);
+					s_CV.wait(locker, []() { return s_Ready; });
+
+					Consume(nullptr);
+					s_Ready = false;
+					locker.unlock();
+					s_CV.notify_one();
+				}
+			}
+		};
+	}
+}
+
 NAMESPACE_END(Gear)

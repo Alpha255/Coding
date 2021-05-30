@@ -178,7 +178,7 @@ public:
 	}                                                                                         \
 }
 
-#define VK_MEMORY_ALLOCATOR nullptr
+#define VK_MEMORY_ALLOCATOR VK_NULL_HANDLE
 
 template<class T>
 using VkObject = GfxObject<T>;

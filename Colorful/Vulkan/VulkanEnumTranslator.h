@@ -29,8 +29,8 @@ public:
 	static VkAttachmentLoadOp attachmentLoadOp(RenderPassDesc::EAttachmentLoadOp op);
 	static VkAttachmentStoreOp attachmentStoreOp(RenderPassDesc::EAttachmentStoreOp op);
 	static VkImageLayout imageLayout(Texture::EImageLayout layout);
-	static VkPipelineStageFlags pipelineStageFlags(uint64_t flags);
-	static VkAccessFlags accessFlags(uint64_t flags);
+	static VkPipelineStageFlags pipelineStageFlags(GfxFlags flags);
+	static VkAccessFlags accessFlags(GfxFlags flags);
 };
 
 NAMESPACE_END(Gfx)
