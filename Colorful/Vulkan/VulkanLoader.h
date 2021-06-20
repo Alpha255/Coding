@@ -189,7 +189,6 @@ protected:
 	friend class VulkanRenderer;
 	static std::shared_ptr<class VulkanDevice> s_Device;
 };
-DECLARE_SHARED_PTR(VkResource)
 
 template<class T>
 class VkDeviceObject : public VkObject<T>, public VkResource

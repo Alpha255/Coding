@@ -16,7 +16,6 @@ private:
 	VkImage m_Image = VK_NULL_HANDLE;
 	VkDeviceMemory m_Memory = VK_NULL_HANDLE;
 };
-DECLARE_SHARED_PTR(VulkanTexture)
 
 class VulkanSampler final : public VkDeviceObject<VkSampler_T>, public Sampler
 {
@@ -26,6 +25,5 @@ public:
 protected:
 private:
 };
-DECLARE_SHARED_PTR(VulkanSampler)
 
 NAMESPACE_END(Gfx)

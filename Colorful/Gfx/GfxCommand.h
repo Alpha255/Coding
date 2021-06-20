@@ -39,7 +39,6 @@ protected:
 	virtual void beginRenderPass(const RenderPassDesc& renderPassDesc, GraphicsPipelineState& pipelineState) = 0;
 	virtual void endRenderPass() = 0;
 };
-DECLARE_SHARED_PTR(CommandBuffer)
 
 class GfxProfilerScope
 {

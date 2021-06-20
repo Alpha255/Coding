@@ -28,6 +28,5 @@ protected:
 private:
 	std::unordered_map<uint32_t, CompiledShaderStorage> m_Storages{};
 };
-DECLARE_UNIQUE_PTR(ShaderCache)
 
 NAMESPACE_END(Gfx)

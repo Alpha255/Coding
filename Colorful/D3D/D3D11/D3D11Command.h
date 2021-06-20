@@ -25,13 +25,11 @@ protected:
 	EType m_Type = EType::Immediate;
 private:
 };
-DECLARE_SHARED_PTR(D3D11CommandBuffer)
 
 class D3D11CommandList : public D3DObject<ID3D11CommandList>, public D3D11CommandBuffer
 {
 public:
 	using D3D11CommandBuffer::D3D11CommandBuffer;
 };
-DECLARE_SHARED_PTR(D3D11CommandList)
 
 NAMESPACE_END(Gfx)

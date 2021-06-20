@@ -156,6 +156,5 @@ private:
 	std::vector<Mesh> m_Meshes;
 	std::vector<TexturePtr> m_Textures;
 };
-DECLARE_SHARED_PTR(Model)
 
 NAMESPACE_END(Gfx)

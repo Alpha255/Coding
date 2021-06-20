@@ -22,6 +22,5 @@ protected:
 private:
 	VkDeviceMemory m_Memory = VK_NULL_HANDLE;
 };
-DECLARE_SHARED_PTR(VulkanBuffer)
 
 NAMESPACE_END(Gfx)

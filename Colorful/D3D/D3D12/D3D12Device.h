@@ -11,7 +11,6 @@ class D3D12Debug final : public D3DObject<ID3D12Debug>
 public:
 	D3D12Debug();
 };
-DECLARE_UNIQUE_PTR(D3D12Debug)
 
 class D3D12Device final : public D3DObject<ID3D12Device>, public GfxDevice
 {
@@ -117,6 +116,5 @@ protected:
 	}
 private:
 };
-DECLARE_UNIQUE_PTR(D3D12Device)
 
 NAMESPACE_END(Gfx)

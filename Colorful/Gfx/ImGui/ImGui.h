@@ -34,6 +34,5 @@ private:
 	GpuBufferPtr m_VertexBuffer = nullptr;
 	GpuBufferPtr m_IndexBuffer = nullptr;
 };
-DECLARE_UNIQUE_PTR(ImGuiRenderer)
 
 NAMESPACE_END(Gfx)

@@ -31,7 +31,6 @@ private:
 	VulkanCommandBufferPoolPtr m_MainCommandBufferPool = nullptr;
 	VulkanSemaphorePtr m_ExecutionsComplete = nullptr;
 };
-DECLARE_SHARED_PTR(VulkanQueue)
 
 class VkQueues
 {
@@ -95,7 +94,7 @@ protected:
 			__out VkAccessFlags& accessFlags, 
 			__out VkImageLayout& imageLayout);
 	};
-	DECLARE_SHARED_PTR(VkTransferCommand)
+	using VkTransferCommandPtr = std::shared_ptr<VkTransferCommand>;
 
 	void submitTransferCommands();
 private:

@@ -18,6 +18,5 @@ protected:
 private:
 	std::deque<VulkanCommandBufferPtr> m_CommandBuffers; /// Ring buffer ???
 };
-DECLARE_SHARED_PTR(VulkanCommandBufferPool)
 
 NAMESPACE_END(Gfx)

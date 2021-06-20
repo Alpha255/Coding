@@ -26,6 +26,5 @@ private:
 	VulkanDevicePtr m_Device = nullptr;
 	VulkanSwapchainPtr m_Swapchain = nullptr;
 };
-DECLARE_UNIQUE_PTR(VulkanRenderer)
 
 NAMESPACE_END(Gfx)

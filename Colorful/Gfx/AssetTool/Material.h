@@ -37,6 +37,5 @@ private:
 	PipelineShaderStages m_ShaderStages;
 	std::vector<std::pair<uint32_t, TexturePtr>> m_Textures;
 };
-DECLARE_SHARED_PTR(Material)
 
 NAMESPACE_END(Gfx)

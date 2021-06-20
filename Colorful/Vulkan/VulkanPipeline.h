@@ -21,7 +21,6 @@ protected:
 private:
 	VkDescriptorSetLayout m_DescriptorSetLayout = VK_NULL_HANDLE;
 };
-DECLARE_SHARED_PTR(VulkanPipelineLayout)
 
 class VulkanPipelineCache : public VkDeviceObject<VkPipelineCache_T>
 {
@@ -32,14 +31,12 @@ public:
 	void load() {}
 	void save() {}
 };
-DECLARE_SHARED_PTR(VulkanPipelineCache)
 
 class VulkanPipeline : public VkDeviceObject<VkPipeline_T>
 {
 public:
 	virtual ~VulkanPipeline();
 };
-DECLARE_SHARED_PTR(VulkanPipeline)
 
 class VulkanGraphicsPipeline final : public VulkanPipeline
 {
@@ -52,17 +49,14 @@ private:
 	VulkanDescriptorSetPtr m_DescriptorSet;
 	VkPipeline m_WireframePipeline = VK_NULL_HANDLE;
 };
-DECLARE_SHARED_PTR(VulkanGraphicsPipeline)
 
 class VulkanComputePipeline final : public VulkanPipeline
 {
 };
-DECLARE_SHARED_PTR(VulkanComputePipeline)
 
 class VulkanRayTracingPipeline final : public VulkanPipeline
 {
 };
-DECLARE_SHARED_PTR(VulkanRayTracingPipeline)
 
 class VkRenderStateCache
 {

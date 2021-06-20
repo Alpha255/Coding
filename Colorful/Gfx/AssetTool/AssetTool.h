@@ -26,6 +26,5 @@ public:
 
 	void finalize();
 };
-DECLARE_UNIQUE_PTR(AssetTool)
 
 NAMESPACE_END(Gfx)

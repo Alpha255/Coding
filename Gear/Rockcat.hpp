@@ -10,6 +10,7 @@ NAMESPACE_START(Gfx)
 	GfxRendererPtr GRenderer;
 NAMESPACE_END(Gfx)
 
+DECLARE_UNIQUE_PTR(Rockcat)
 class Rockcat
 {
 public:
@@ -68,7 +69,6 @@ public:
 		Gfx::GRenderer.reset();
 	}
 };
-DECLARE_UNIQUE_PTR(Rockcat)
 
 #if defined(PLATFORM_WIN32)
 	#define RUN_APPLICATION(Application)                               \

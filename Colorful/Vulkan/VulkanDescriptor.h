@@ -9,7 +9,6 @@ NAMESPACE_START(Gfx)
 class VulkanDescriptorSet final : public VkDeviceObject<VkDescriptorSet_T>
 {
 };
-DECLARE_SHARED_PTR(VulkanDescriptorSet)
 
 class VulkanDescriptorPool final : public VkDeviceObject<VkDescriptorPool_T>
 {
@@ -21,6 +20,5 @@ public:
 
 	VulkanDescriptorSetPtr alloc(VkDescriptorSetLayout layout);
 };
-DECLARE_SHARED_PTR(VulkanDescriptorPool)
 
 NAMESPACE_END(Gfx)

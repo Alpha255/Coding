@@ -168,6 +168,5 @@ private:
 	VkPhysicalDeviceFeatures m_Features;
 	std::array<uint32_t, EQueueFamilyType::TypeCount> m_QueueFamilyIndices;
 };
-DECLARE_SHARED_PTR(VulkanDevice)
 
 NAMESPACE_END(Gfx)

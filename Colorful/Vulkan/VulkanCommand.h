@@ -98,7 +98,6 @@ private:
 	VkCommandBufferLevel m_Level = VK_COMMAND_BUFFER_LEVEL_MAX_ENUM;
 	EState m_State = EState::Initial;
 };
-DECLARE_SHARED_PTR(VulkanCommandBuffer)
 
 /// VkCommandBufferGroup ???
 

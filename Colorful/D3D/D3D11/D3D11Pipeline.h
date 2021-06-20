@@ -10,21 +10,18 @@ class D3D11RasterizerState : public D3DObject<ID3D11RasterizerState>
 public:
 	D3D11RasterizerState(ID3D11Device* device, const RasterizationStateDesc& rasterizationStateDesc, const MultisampleStateDesc& multisampleStateDesc);
 };
-DECLARE_SHARED_PTR(D3D11RasterizerState)
 
 class D3D11BlendState : public D3DObject<ID3D11BlendState>
 {
 public:
 	D3D11BlendState(ID3D11Device* device, const BlendStateDesc& blendStateDesc, const MultisampleStateDesc& multisampleStateDesc);
 };
-DECLARE_SHARED_PTR(D3D11BlendState)
 
 class D3D11DepthStencilState : public D3DObject<ID3D11DepthStencilState>
 {
 public:
 	D3D11DepthStencilState(ID3D11Device* device, const DepthStencilStateDesc& desc);
 };
-DECLARE_SHARED_PTR(D3D11DepthStencilState)
 
 class D3D11GraphicsPipeline
 {
@@ -61,7 +58,6 @@ private:
 	D3D11DepthStencilStatePtr m_DepthStencilState = nullptr;
 	D3D11InputLayoutPtr m_InputLayout = nullptr;
 };
-DECLARE_SHARED_PTR(D3D11GraphicsPipeline)
 
 class D3D11ComputePipeline
 {

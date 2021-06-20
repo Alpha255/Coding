@@ -14,7 +14,6 @@ public:
 protected:
 private:
 };
-DECLARE_UNIQUE_PTR(VulkanSurface)
 
 class VulkanSwapchain final : public VkDeviceObject<VkSwapchainKHR_T>
 {
@@ -105,6 +104,5 @@ private:
 	VulkanSemaphorePtr m_PresentComplete;
 	VkBackBuffer m_BackBuffer;
 };
-DECLARE_UNIQUE_PTR(VulkanSwapchain)
 
 NAMESPACE_END(Gfx)

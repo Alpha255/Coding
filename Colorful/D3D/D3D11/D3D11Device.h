@@ -48,7 +48,6 @@ private:
 	D3D11Context3 m_Context3;
 	D3D11Context4 m_Context4;
 };
-DECLARE_SHARED_PTR(D3D11Context)
 
 class D3D11Device1 : public D3DObject<ID3D11Device1> {};
 class D3D11Device2 : public D3DObject<ID3D11Device2> {};
@@ -197,6 +196,5 @@ private:
 	D3D11Device4 m_Device4;
 	D3D11Device5 m_Device5;
 };
-DECLARE_SHARED_PTR(D3D11Device)
 
 NAMESPACE_END(Gfx)

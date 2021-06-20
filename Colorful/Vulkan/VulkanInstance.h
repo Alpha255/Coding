@@ -31,7 +31,6 @@ public:
 	VulkanDebugUtilsMessenger(bool8_t verbose);
 	~VulkanDebugUtilsMessenger();
 };
-DECLARE_UNIQUE_PTR(VulkanDebugUtilsMessenger)
 
 class VulkanInstance final : public VkObject<VkInstance_T>
 {
@@ -43,6 +42,5 @@ public:
 		vkDestroyInstance(get(), VK_MEMORY_ALLOCATOR);
 	}
 };
-DECLARE_UNIQUE_PTR(VulkanInstance)
 
 NAMESPACE_END(Gfx)

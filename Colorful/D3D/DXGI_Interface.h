@@ -195,7 +195,6 @@ private:
 	DXGIFactory6 m_Factory6;
 	DXGIFactory7 m_Factory7;
 };
-DECLARE_UNIQUE_PTR(DXGIFactory)
 
 class DXGIAdapter  final : public D3DObject<IDXGIAdapter>  {};
 class DXGIAdapter1 final : public D3DObject<IDXGIAdapter1> {};
@@ -222,7 +221,6 @@ private:
 	std::vector<DXGIAdapter1> m_Adapter1s;
 	std::vector<DXGIAdapter4> m_Adapter4s;
 };
-DECLARE_UNIQUE_PTR(DXGIAdapterList)
 
 class DXGISwapChain0 final : public D3DObject<IDXGISwapChain>  {};
 class DXGISwapChain1 final : public D3DObject<IDXGISwapChain1> {};

@@ -10,7 +10,6 @@ public:
 	VulkanShader(ShaderDesc& desc);
 	~VulkanShader();
 };
-DECLARE_SHARED_PTR(VulkanShader)
 
 class VulkanInputLayout final : public InputLayout
 {
@@ -82,6 +81,5 @@ private:
 	std::vector<VkVertexInputBindingDescription> m_Bindings;
 	std::vector<VkVertexInputAttributeDescription> m_Attrs;
 };
-DECLARE_SHARED_PTR(VulkanInputLayout)
 
 NAMESPACE_END(Gfx)

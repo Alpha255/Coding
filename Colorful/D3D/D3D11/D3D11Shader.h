@@ -14,7 +14,6 @@ public:
 		VERIFY_D3D(device->CreateVertexShader(desc.Binary.data(), desc.BinarySize, nullptr, reference()));
 	}
 };
-DECLARE_SHARED_PTR(D3D11VertexShader)
 
 class D3D11HullShader final : public D3DObject<ID3D11HullShader>, public Shader
 {
@@ -26,7 +25,6 @@ public:
 		VERIFY_D3D(device->CreateHullShader(desc.Binary.data(), desc.BinarySize, nullptr, reference()));
 	}
 };
-DECLARE_SHARED_PTR(D3D11HullShader)
 
 class D3D11DomainShader final : public D3DObject<ID3D11DomainShader>, public Shader
 {
@@ -38,7 +36,6 @@ public:
 		VERIFY_D3D(device->CreateDomainShader(desc.Binary.data(), desc.BinarySize, nullptr, reference()));
 	}
 };
-DECLARE_SHARED_PTR(D3D11DomainShader)
 
 class D3D11GeometryShader final : public D3DObject<ID3D11GeometryShader>, public Shader
 {
@@ -50,7 +47,6 @@ public:
 		VERIFY_D3D(device->CreateGeometryShader(desc.Binary.data(), desc.BinarySize, nullptr, reference()));
 	}
 };
-DECLARE_SHARED_PTR(D3D11GeometryShader)
 
 class D3D11FragmentShader final : public D3DObject<ID3D11PixelShader>, public Shader
 {
@@ -62,7 +58,6 @@ public:
 		VERIFY_D3D(device->CreatePixelShader(desc.Binary.data(), desc.BinarySize, nullptr, reference()));
 	}
 };
-DECLARE_SHARED_PTR(D3D11FragmentShader)
 
 class D3D11ComputeShader final : public D3DObject<ID3D11ComputeShader>, public Shader
 {
@@ -74,7 +69,6 @@ public:
 		VERIFY_D3D(device->CreateComputeShader(desc.Binary.data(), desc.BinarySize, nullptr, reference()));
 	}
 };
-DECLARE_SHARED_PTR(D3D11ComputeShader)
 
 class D3D11InputLayout final : public D3DObject<ID3D11InputLayout>, public InputLayout
 {
@@ -115,6 +109,5 @@ public:
 			reference()));
 	}
 };
-DECLARE_SHARED_PTR(D3D11InputLayout)
 
 NAMESPACE_END(Gfx)

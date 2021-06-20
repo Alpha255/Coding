@@ -103,7 +103,6 @@ public:
 protected:
 private:
 };
-DECLARE_SHARED_PTR(VulkanRenderPass)
 
 class VulkanFramebuffer final : public VkDeviceObject<VkFramebuffer_T>
 {
@@ -113,6 +112,5 @@ public:
 protected:
 private:
 };
-DECLARE_SHARED_PTR(VulkanFramebuffer)
 
 NAMESPACE_END(Gfx)

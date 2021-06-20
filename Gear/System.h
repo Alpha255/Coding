@@ -41,6 +41,7 @@ public:
 		std::string m_OldWorkingDirectory;
 	};
 
+	DECLARE_SHARED_PTR(DynamicLibrary)
 	class DynamicLibrary
 	{
 	public:
@@ -52,7 +53,6 @@ public:
 	private:
 		uint64_t m_Handle = 0u;
 	};
-	DECLARE_SHARED_PTR(DynamicLibrary)
 };
 
 NAMESPACE_END(Gear)

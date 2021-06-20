@@ -4,6 +4,7 @@
 
 NAMESPACE_START(Gear)
 
+DECLARE_SHARED_PTR(Asset)
 class Asset : public File
 {
 public:
@@ -39,6 +40,5 @@ private:
 	ECategory m_Category = ECategory::Unknown;
 	AssetID m_ID = 0u;  /// for feature use
 };
-DECLARE_SHARED_PTR(Asset)
 
 NAMESPACE_END(Gear)

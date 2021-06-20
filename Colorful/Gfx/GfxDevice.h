@@ -70,6 +70,5 @@ protected:
 
 	SamplerFactory m_SamplerFty;
 };
-DECLARE_SHARED_PTR(GfxDevice)
 
 NAMESPACE_END(Gfx)

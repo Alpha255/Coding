@@ -379,6 +379,8 @@ VkImageLayout VkEnumTranslator::imageLayout(Texture::EImageLayout layout)
 	case Texture::EImageLayout::PixelDepthStencilRead:
 	case Texture::EImageLayout::ComputeShaderReadWrite:
 	case Texture::EImageLayout::FragmentShaderReadWrite:
+		assert(0);
+		return VK_IMAGE_LAYOUT_UNDEFINED;
 	}
 
 	assert(0);

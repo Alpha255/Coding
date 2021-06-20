@@ -21,6 +21,5 @@ public:
 protected:
 private:
 };
-DECLARE_UNIQUE_PTR(SoftwareRenderer)
 
 NAMESPACE_END(Gfx)

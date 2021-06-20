@@ -57,7 +57,6 @@ public:
 protected:
 private:
 };
-DECLARE_SHARED_PTR(VulkanFence)
 
 class VulkanSemaphore final : public VkDeviceObject<VkSemaphore_T>
 {
@@ -65,7 +64,6 @@ public:
 	VulkanSemaphore();
 	~VulkanSemaphore();
 };
-DECLARE_SHARED_PTR(VulkanSemaphore)
 
 class VulkanEvent final : public VkDeviceObject<VkEvent_T>, public VkSignal
 {
@@ -76,6 +74,5 @@ public:
 	EState state();
 	void setState(EState state);
 };
-DECLARE_SHARED_PTR(VulkanEvent)
 
 NAMESPACE_END(Gfx)

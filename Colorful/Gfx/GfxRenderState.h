@@ -651,18 +651,13 @@ private:
 	bool8_t m_ResourceDirty = false;
 	PipelineResourceTable m_ResourceTable;
 };
-DECLARE_SHARED_PTR(GraphicsPipelineState)
 
 class ComputePipelineState
 {
-
 };
-DECLARE_SHARED_PTR(ComputePipelineState)
 
 class RayTracingPipelineState
 {
-
 };
-DECLARE_SHARED_PTR(RayTracingPipelineState)
 
 NAMESPACE_END(Gfx)

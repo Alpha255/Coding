@@ -32,7 +32,6 @@ public:
 protected:
 private:
 };
-DECLARE_UNIQUE_PTR(GfxRenderer)
 
 typedef void(*CreateRendererFunc)(GfxRendererPtr&);
 extern GfxRendererPtr GRenderer;

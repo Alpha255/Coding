@@ -23,6 +23,5 @@ protected:
 private:
 	D3D11DevicePtr m_Device;
 };
-DECLARE_UNIQUE_PTR(D3D11Renderer)
 
 NAMESPACE_END(Gfx)

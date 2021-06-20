@@ -4,6 +4,7 @@
 
 NAMESPACE_START(Gear)
 
+DECLARE_UNIQUE_PTR(Window)
 class Window
 {
 public:
@@ -55,6 +56,5 @@ private:
 	EState m_State = EState::Restored;
 	uint64_t m_Handle = 0u;
 };
-DECLARE_UNIQUE_PTR(Window)
 
 NAMESPACE_END(Gear)

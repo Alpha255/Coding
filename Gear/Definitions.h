@@ -126,7 +126,7 @@ static_assert(sizeof(byte8_t) == 1ull, "Size of byte miss match.");
 	#error Unknown platform!
 #endif
 
-#define DECLARE_SHARED_PTR(ClassName) using ClassName##Ptr = std::shared_ptr<ClassName>;
-#define DECLARE_UNIQUE_PTR(ClassName) using ClassName##Ptr = std::unique_ptr<ClassName>;
-#define DECLARE_PLAIN_PTR(ClassName)  using ClassName##Ptr = ClassName*;
+#define DECLARE_SHARED_PTR(ClassName) class ClassName; using ClassName##Ptr = std::shared_ptr<ClassName>;
+#define DECLARE_UNIQUE_PTR(ClassName) class ClassName; using ClassName##Ptr = std::unique_ptr<ClassName>;
+#define DECLARE_PLAIN_PTR(ClassName)  class ClassName; using ClassName##Ptr = ClassName*;
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Colorful/Gfx/GfxDeclarations.h"
 #include "Colorful/Gfx/GfxFormat.h"
 
 NAMESPACE_START(Gfx)
@@ -319,7 +320,6 @@ protected:
 	std::string m_DebugName; /// use cpp17::string_view
 	EDescriptorType m_DescirptorType = EDescriptorType::Null;
 };
-DECLARE_SHARED_PTR(GfxResource)
 
 class InputLayout : public GfxResource
 {
@@ -337,7 +337,6 @@ public:
 protected:
 	EPrimitiveTopology m_PrimitiveTopology = EPrimitiveTopology::TriangleList;
 };
-DECLARE_SHARED_PTR(InputLayout)
 
 class Shader : public GfxResource
 {
@@ -380,7 +379,6 @@ protected:
 	EShaderStage m_Stage = EShaderStage::ShaderStageCount;
 	ReflectionInfos m_Reflection;
 };
-DECLARE_SHARED_PTR(Shader)
 
 struct ShaderDesc
 {
@@ -396,7 +394,6 @@ class Sampler : public GfxResource
 public:
 	using GfxResource::GfxResource;
 };
-DECLARE_SHARED_PTR(Sampler)
 
 class Texture : public GfxResource
 {
@@ -476,7 +473,6 @@ protected:
 	ETextureType m_Type = ETextureType::Null;
 	SamplerPtr m_Sampler = nullptr;
 };
-DECLARE_SHARED_PTR(Texture)
 
 class GpuBuffer : public GfxResource
 {
@@ -514,7 +510,6 @@ protected:
 	MappedMemory m_MappedMemory;
 	size_t m_Size = 0u;
 };
-DECLARE_SHARED_PTR(GpuBuffer)
 
 using PipelineResourceTable = std::array<std::vector<std::pair<Shader::ResourceBinding, GfxResourcePtr>>, EShaderStage::ShaderStageCount>;
 using PipelineShaderStages = std::array<ShaderPtr, EShaderStage::ShaderStageCount>;
